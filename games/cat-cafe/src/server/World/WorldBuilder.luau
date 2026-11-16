@@ -148,6 +148,12 @@ local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
 	museum = { emoji = "🏺", image = StationIcons.museum },
 }
 local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour
+-- #4554: the floor icon in the Ticket Booth's and the Dragon Keep's rings
+local CAMP_STATION_ICON: { [string]: WalkUpCircles.Icon } = {
+	TicketBooth = { emoji = "🎟️" },
+	DragonKeep = { emoji = "🐉" },
+	FusionObservatory = { emoji = "🔭" }, -- #4104's dome, once it is placed by buildCampStation
+}
 local RING_BOARD = Color3.fromRGB(190, 150, 240)
 -- #3347: the Index Boards show the drawn open book (the client's Icon_Clean_Index), the emoji under it until it loads
 local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖", image = StationIcons.index }
@@ -1418,6 +1424,10 @@ end
 -- the camp (its set's circles, edging and props, the cannon, the gate, the Index Board and the camp extras) and of
 -- the stripe, the widest that fit, and none when nothing does. Flat paving (blocks thinner than 3 hundredths) is what
 -- they are painted on, so it is not an obstacle, and neither is the ground slab or the stripe.
+-- #4619 (Derek 11-15: "safe zone is hovering over dragon circle"): a camp station's ring leaves the world while its
+-- switch is off (buildCampStation), and the switches are not read yet when the world is built, so the words never
+-- saw it and were painted inside the Dragon Keep's ring. Those rings are kept here and always count.
+local campStationRings: { BasePart } = {}
 local SIGNS = { -1, 1 }
 local SAFE_SKIP = { Ground = true, CampFloor = true, SafeLine = true, SafeZoneWords = true }
 
@@ -1434,6 +1444,33 @@ local function paintCampWords(
 	-- the walk-up rings near the words (Derek 2026-11-12: "move the safezone text", painted inside the Mystic Pool's
 	-- ring): kept apart from what stands on the floor, so the words can fall back to ignoring them
 	local rings: { SafeWords.Box } = {}
+	-- #4619: the camp stations' rings, which the words never lie on (the fallback below ignores only the others)
+	local stationRings: { SafeWords.Box } = {}
+	local counted: { [BasePart]: boolean } = {}
+	-- a ring is unseen and flat (its SurfaceGui draws it), so the checks on what stands on the floor would pass it by
+	local function addRing(piece: BasePart, into: { SafeWords.Box })
+		local radius = piece:GetAttribute("Radius")
+		if counted[piece] or type(radius) ~= "number" then
+			return
+		end
+		counted[piece] = true
+		local where = piece.Position
+		local at = base:PointToObjectSpace(Vector3.new(where.X, floorY, where.Z))
+		if
+			math.abs(where.Y - floorY) < 3
+			and at.Z + radius > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
+			and at.Z - radius < 0
+			and at.X + radius > -camp.halfAcross - 1
+			and at.X - radius < camp.halfAcross + 1
+		then
+			table.insert(into, {
+				x1 = at.X - radius,
+				z1 = at.Z - radius,
+				x2 = at.X + radius,
+				z2 = at.Z + radius,
+			})
+		end
+	end
 	local function add(root: Instance)
 		for _, descendant in root:GetDescendants() do
 			if not descendant:IsA("BasePart") or SAFE_SKIP[descendant.Name] then
@@ -1441,26 +1478,7 @@ local function paintCampWords(
 			end
 			local piece = descendant :: BasePart
 			if piece.Name == WalkUp.CIRCLE then
-				-- a ring is unseen and flat (its SurfaceGui draws it), so the checks below would pass it by
-				local radius = piece:GetAttribute("Radius")
-				if type(radius) == "number" then
-					local where = piece.Position
-					local at = base:PointToObjectSpace(Vector3.new(where.X, floorY, where.Z))
-					if
-						math.abs(where.Y - floorY) < 3
-						and at.Z + radius > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
-						and at.Z - radius < 0
-						and at.X + radius > -camp.halfAcross - 1
-						and at.X - radius < camp.halfAcross + 1
-					then
-						table.insert(rings, {
-							x1 = at.X - radius,
-							z1 = at.Z - radius,
-							x2 = at.X + radius,
-							z2 = at.Z + radius,
-						})
-					end
-				end
+				addRing(piece, rings)
 				continue
 			end
 			-- a night fence is built hidden (hideForDay) and keeps its real look in an attribute
@@ -1512,14 +1530,23 @@ local function paintCampWords(
 			end
 		end
 	end
+	-- the camp stations' rings first, in the world or not (a ring outside this camp is too far to count), so the
+	-- walk below finds them already counted
+	for _, piece in campStationRings do
+		addRing(piece, stationRings)
+	end
 	add(areaModel)
 	for _, extra in extras do
 		add(extra)
 	end
-	-- clear of the rings too where there is room; where there is none, where they went before the rings counted
-	local all = table.clone(obstacles)
+	-- clear of the rings too where there is room; where there is none, where they went before the rings counted.
+	-- #4619: never on a camp station's ring, though: with no room clear of those the words are left out (the stripe
+	-- still marks the line). A camp with no station keeps exactly what it had.
+	local firm = table.clone(obstacles)
+	table.move(stationRings, 1, #stationRings, #firm + 1, firm)
+	local all = table.clone(firm)
 	table.move(rings, 1, #rings, #all + 1, all)
-	local spot = SafeWords.fit(all, camp.halfAcross) or SafeWords.fit(obstacles, camp.halfAcross)
+	local spot = SafeWords.fit(all, camp.halfAcross) or SafeWords.fit(firm, camp.halfAcross)
 	if spot == nil then
 		return
 	end
@@ -2083,7 +2110,8 @@ local function buildCampStation(
 	name: string,
 	title: string,
 	flag: string,
-	inFront: number
+	inFront: number,
+	ringRadius: number -- #4628: Layout's ring for this station, so it clears the camp's landing pad
 )
 	if x == nil or y == nil or z == nil or turn == nil or not AssetRegistry.has(asset) then
 		return
@@ -2108,9 +2136,25 @@ local function buildCampStation(
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = Config.CampExtraRangeStuds
 	prompt.RequiresLineOfSight = false
+	-- #4554 (Derek 2026-11-15: "ticket booth is press e right now and missing a circle infront", and the Dragon Keep
+	-- too): the ring in front, where the window opens as you walk in (WalkUpController), as at every other station
+	-- #4620: on the camp floor (y), whatever the model has below it
+	WalkUpCircles.frontFit(model, RING_STATION, parent, CAMP_STATION_ICON[name], ringRadius, y)
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local ringPart: Instance? = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	local ringHome = if ringPart ~= nil then ringPart.Parent else nil
+	if ringPart ~= nil and ringPart:IsA("BasePart") then
+		table.insert(campStationRings, ringPart :: BasePart) -- #4619: the SAFE ZONE words keep off it, shown or not
+	end
 	local attribute = LiveFlags.ATTRIBUTE_PREFIX .. flag
 	local function follow()
-		prompt.Enabled = ReplicatedStorage:GetAttribute(attribute) == true
+		local on = ReplicatedStorage:GetAttribute(attribute) == true
+		prompt.Enabled = on
+		if ringPart ~= nil then
+			ringPart.Parent = if on then ringHome else nil -- no ring while the switch is off
+		end
 	end
 	follow()
 	ReplicatedStorage:GetAttributeChangedSignal(attribute):Connect(follow)
@@ -2133,7 +2177,8 @@ local function buildCampStations(parent: Instance)
 		"TicketBooth",
 		"Ticket Booth",
 		TicketBooth.FLAG,
-		3.5
+		3.5,
+		Layout.ticketBooth.ring
 	)
 	x, y, z, turn = Layout.dragonKeepAt()
 	buildCampStation(
@@ -2146,7 +2191,24 @@ local function buildCampStations(parent: Instance)
 		"DragonKeep",
 		"Dragon Keep",
 		DragonKeep.FLAG,
-		8.5
+		8.5,
+		Layout.dragonKeep.ring
+	)
+	-- #4104: the Snowy Mountain's Fusion Observatory (tag and name FusionObservatory, prompt FusionObservatoryPrompt,
+	-- switch fusion), its prompt 0.8 in front of its 13 deep front
+	x, y, z, turn = Layout.fusionObservatoryAt()
+	buildCampStation(
+		parent,
+		"CatCafe_Camp_Snowy_FusionObservatory",
+		x,
+		y,
+		z,
+		turn,
+		"FusionObservatory",
+		"Fusion Observatory",
+		"fusion", -- shared/Fusion.FLAG
+		7.3,
+		Layout.fusionObservatory.ring
 	)
 end
 
@@ -2421,7 +2483,7 @@ local function buildCornerShop(parent: Instance): Model?
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "CornerShopPrompt"
 	prompt.ActionText = "Shop"
-	prompt.ObjectText = if onCart then "Day Cart" else "Corner Shop"
+	prompt.ObjectText = if onCart then "Coin Cart" else "Corner Shop"
 	prompt.HoldDuration = 0 -- #2326: one press opens it
 	prompt.MaxActivationDistance = Config.CornerShopRange - 4
 	prompt.RequiresLineOfSight = false
@@ -2730,7 +2792,7 @@ local function buildTownSquare(parent: Instance)
 		part(
 			"GardenWall",
 			Vector3.new(1, wallHeight, floor.z2 - floor.z1),
-			CFrame.new(side * (W.TownEdgeX - 1), wallHeight / 2, (floor.z1 + floor.z2) / 2),
+			CFrame.new(side * (W.TownSquareEdgeX - 1), wallHeight / 2, (floor.z1 + floor.z2) / 2),
 			BRICK,
 			Enum.Material.Brick,
 			square

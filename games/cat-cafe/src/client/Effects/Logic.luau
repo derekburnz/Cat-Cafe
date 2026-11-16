@@ -1532,6 +1532,19 @@ function Logic.isStuck(style: Style): boolean
 	return style == "stuck" or style == "stuckButt" or style == "stuckFlip"
 end
 
+-- A Common cat's head prop bouncing as it walks (Presets.motion.propBounce, #4069 to #4071): `degrees` is the cat's
+-- own swing (0 or less for none). Eases in from a standstill like the legs, and tips the prop through `capTip`, the
+-- same turn the Bellhop Cat's cap uses, so it rides on top of whatever else the head is doing.
+function Logic.propBounce(o: Offsets, speed: number, stride: number, degrees: number)
+	local g = Presets.motion.gait
+	if degrees <= 0 or speed < g.moveFrom then
+		return
+	end
+	local start = math.clamp((speed - g.moveFrom) / g.moveFrom, 0, 1)
+	local phase = stride * 2 * math.pi - Presets.motion.propBounce.lag
+	o.capTip += math.rad(degrees) * start * math.sin(phase)
+end
+
 -- How much of the Balloon Cat's float (motion.float) a style gets: all of it awake, `resting` of it asleep or
 -- loafing, none stuck in a trap.
 function Logic.floatShare(style: Style): number
@@ -2666,11 +2679,6 @@ end
 
 -- Luck (F88, luck-and-rare-moments.md section 1) ------------------------------------------------------------------
 
--- Whether the Lucky Day look is on: the Clock's `LuckyDay` is true and its `Phase` is not night (it is for the day).
-function Logic.luckyDayOn(luckyDay: unknown, phase: unknown): boolean
-	return luckyDay == true and phase ~= "night"
-end
-
 -- Whether the gold sky tint is on (luck-and-rare-moments.md 1g, #1572): any of the day's kinds (the Clock's
 -- `LuckyDay`, `GoldenDay` and `RainbowDay`) is true and its `Phase` is not night.
 function Logic.specialDayOn(
@@ -3364,6 +3372,16 @@ function Logic.areaAt(x: number, z: number, areas: { any }, pad: number): string
 		end
 	end
 	return nil
+end
+
+-- #4251: the area your steps are in. A box area (`area`, from Logic.areaAt) wins; outside every box it is "harvest"
+-- while you are within `within` studs of Harvest Hollow's Thankful Board (`board`, nil while it is not in the world),
+-- since that area has no box. Else nil.
+function Logic.walkArea(area: string?, board: number?, within: number): string?
+	if area ~= nil then
+		return area
+	end
+	return if board ~= nil and board <= within then "harvest" else nil
 end
 
 -- #2687's station build-in: where piece `rank` of `count` (ranked bottom to top, from 1) is at `t` seconds into the

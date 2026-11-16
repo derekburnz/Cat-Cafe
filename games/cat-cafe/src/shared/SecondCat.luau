@@ -21,6 +21,7 @@ local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
 local EquipBest = require(script.Parent.EquipBest)
 local Onboarding = require(script.Parent.Onboarding)
+local TutorialOrder = require(script.Parent.TutorialOrder)
 local Types = require(script.Parent.Types)
 
 local SecondCat = {}
@@ -61,16 +62,19 @@ end
 -- cats that count toward the goal, 0 to CATS. The walk-through leads to the bait bowl before the cannon, so the first
 -- cat most new players get is the bowl's, and the card read 0/2 with it in the cafe. The first bowl cat now counts
 -- as one (only one: more bowl cats add nothing), and every cat caught by hand counts.
-function SecondCat.progress(stats: Types.Stats): number
+-- #4518: bowl first (shared/TutorialOrder, `bowlFirst` nil reads the switch), the goal is two catches by hand in the
+-- Alleyway, so the bowl cat counts for nothing.
+function SecondCat.progress(stats: Types.Stats, bowlFirst: boolean?): number
+	local first = if bowlFirst == nil then TutorialOrder.bowlFirst() else bowlFirst
 	local tamed: unknown = stats.baitsTamed
-	local bowl = if type(tamed) == "number" and tamed >= 1 then 1 else 0
+	local bowl = if not first and type(tamed) == "number" and tamed >= 1 then 1 else 0
 	return math.min(SecondCat.caught(stats) + bowl, SecondCat.CATS)
 end
 
 -- Whether the goal is finished: CATS cats that count, at least one of them caught by hand, so the bowl never ends
--- it and a trip out by cannon is always part of it (#3160).
-function SecondCat.done(stats: Types.Stats): boolean
-	return SecondCat.caught(stats) >= 1 and SecondCat.progress(stats) >= SecondCat.CATS
+-- it and a trip out by cannon is always part of it (#3160). Bowl first (#4518): CATS caught by hand.
+function SecondCat.done(stats: Types.Stats, bowlFirst: boolean?): boolean
+	return SecondCat.caught(stats) >= 1 and SecondCat.progress(stats, bowlFirst) >= SecondCat.CATS
 end
 
 -- Whether the save is between its first customer served and its second cat checked in.
@@ -147,10 +151,35 @@ function SecondCat.preview(profile: Types.PlayerProfile): (number, number)
 	return now, math.max(now, Economy.incomePerSecond(copy))
 end
 
--- What ProfileSync carries while the save waits for its second cat (PlayerState.secondCat), else nil.
-function SecondCat.view(profile: Types.PlayerProfile): Types.SecondCatView?
+-- #4624 (Growth's drop-off read 2026-11-15: the slowest early stretch is the second cat to five kinds; Design-Agent's
+-- spec): behind the `earlyKindBonus` switch (off until the Nov 16 read), in Tier 1 only, the first catch of the 2nd to
+-- 5th kind in the Index pays EARLY_KIND_TIMES the Common new-kind reward ($150 for $50). A rarer kind that already
+-- pays more keeps its own reward, and nothing changes from Tier 2 up. `indexBefore` is the Index's count before this
+-- catch (the starter Tabby is the first), so 1 to 4 means this is kind 2 to 5.
+SecondCat.EARLY_KIND_FLAG = "earlyKindBonus"
+SecondCat.EARLY_KIND_TIMES = 3
+SecondCat.EARLY_KIND_LAST = 5
+function SecondCat.newKindReward(
+	base: number,
+	tier: number,
+	indexBefore: number,
+	on: boolean
+): number
+	if not on or tier ~= 1 or indexBefore < 1 or indexBefore >= SecondCat.EARLY_KIND_LAST then
+		return base
+	end
+	return math.max(base, SecondCat.EARLY_KIND_TIMES * Catalog.rarities.Common.firstCatchReward)
+end
+
+-- What ProfileSync carries while the save waits for its second cat (PlayerState.secondCat), else nil. `earlyKind`
+-- (#4624): the earlyKindBonus switch, so the goal card's bonus is what the next new kind really pays.
+function SecondCat.view(profile: Types.PlayerProfile, earlyKind: boolean?): Types.SecondCatView?
 	if not SecondCat.waiting(profile) then
 		return nil
+	end
+	local count = 0
+	for _ in profile.collection do
+		count += 1
 	end
 	local now, with = SecondCat.preview(profile)
 	return {
@@ -158,7 +187,12 @@ function SecondCat.view(profile: Types.PlayerProfile): Types.SecondCatView?
 		with = with,
 		-- #3551: the first bowl cat is one; never CATS while the goal still shows (two bowl cats and none by hand)
 		cats = math.min(SecondCat.progress(profile.stats), SecondCat.CATS - 1),
-		bonus = Catalog.rarities.Common.firstCatchReward,
+		bonus = SecondCat.newKindReward(
+			Catalog.rarities.Common.firstCatchReward,
+			Economy.tier(profile),
+			count,
+			earlyKind == true
+		),
 	}
 end
 

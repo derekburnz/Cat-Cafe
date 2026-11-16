@@ -264,10 +264,10 @@ return function()
 		)
 
 		it(
-			"lines the square's edge with twelve benches, each turned square to face in (Derek 10-28, #726, #2565, #2707, #3070)",
+			"lines the square's edge with sixteen benches, each turned square to face in (Derek 10-28, #726, #2565, #2707, #3070, #4532)",
 			function()
 				local benches = piecesOf("CatCafe_Square_Bench")
-				expect(#benches).to.equal(12) -- #3070: one more each side under the middle span
+				expect(#benches).to.equal(16) -- #4532: one more each side again (12 in #3070)
 				for i, bench in benches do
 					-- WorldBuilder turns a prop by CFrame.Angles(0, rad(rotY), 0); its front (-Z) is (-sin, -cos)
 					local turn = math.rad(bench.rotY or 0)
@@ -316,7 +316,7 @@ return function()
 				-- #2707: the north and south sides keep the long Bunting; the east and west sides take two BuntingSide
 				-- each between three lamps
 				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(8) -- #3001: two a quarter on the longer sides
-				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(12) -- #3070: three spans a quarter
+				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(16) -- #4532: four spans a quarter (three in #3070)
 				expect(#piecesOf("CatCafe_Square_BuntingShort")).to.equal(2)
 			end
 		)
@@ -341,8 +341,8 @@ return function()
 				end
 			end
 			-- #2707: a halfway lamp on each east and west side; #3001: one on each north and south half too; #3070: a
-			-- third span on each east and west quarter
-			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(24)
+			-- third span on each east and west quarter; #4532: a fourth
+			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(28)
 		end)
 
 		it("puts the gardens in the garden strips, clear of the path to the side arches", function()
@@ -847,6 +847,38 @@ return function()
 				expect(cz + 7.6 < 0 and cz - 7.6 > -W.CampDepth).to.equal(true)
 				local pad = Layout.landingPads.castle.centre
 				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+			end
+		)
+
+		it(
+			"stands the Fusion Observatory in the Snowy Mountain camp, off its way out and the pad, facing the pad (#4104)",
+			function()
+				local x, y, z, turn = Layout.fusionObservatoryAt()
+				assert(
+					x ~= nil and y ~= nil and z ~= nil and turn ~= nil,
+					"no Fusion Observatory spot"
+				)
+				local camp = Layout.camps.snowy
+				expect(Layout.campAt(x, z)).to.equal("snowy")
+				expect(y).to.equal(Layout.areas.snowy.floorY)
+				expect(turn).to.equal(camp.turn + 90)
+				local cx, cz = Layout.campSpace(camp, x, z)
+				-- the turned dome is about 13 across and 15 along: its near side clear of the opening, all of it inside
+				expect(cx - 6.6 > camp.openingHalfWidth + 4).to.equal(true)
+				expect(cz + 7.6 < 0 and cz - 7.6 > -W.CampDepth).to.equal(true)
+				local pad = Layout.landingPads.snowy.centre
+				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+			end
+		)
+		it(
+			"keeps every camp station's walk-up ring off its camp's landing pad and paw (#4628)",
+			function()
+				-- the ring touches the station's front and reaches front + 2 * ring toward the pad (set x 0)
+				for _, spot in { Layout.ticketBooth, Layout.dragonKeep, Layout.fusionObservatory } do
+					expect(spot.turn).to.equal(90) -- the front faces set -X
+					expect(spot.x - spot.front - 2 * spot.ring >= W.LandingPadRadius).to.equal(true)
+					expect(spot.ring >= 6).to.equal(true) -- WalkUp.FRONT_FIT_LEAST: big enough to walk into
+				end
 			end
 		)
 	end)

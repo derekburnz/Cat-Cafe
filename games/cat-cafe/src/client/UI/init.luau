@@ -175,6 +175,7 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	buyWithFish = Signal.new(), -- (key, fish)  #4055: a Store pass bought with golden fish, forward as BuyWithFish
 	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
 	storeDeal = Signal.new(), -- (productId)   #3996: Today's Deal's R$25 pressed: forward as PromptDeal
 	-- (kind, value)   #1888 the Store funnel: "store_tab" (a tab id, once a visit) or "store_buy" (the pass or product
@@ -475,7 +476,9 @@ local function cannonHint(): string?
 		told = tutorialText ~= nil,
 		opened = cannonOpened,
 		first = first,
-		wrapUp = UI.cannon.wrapUp.on,
+		-- #4480: with the walk to the Park off, the Tier 2 rank up ends the tutorial, the wrap-up line with it
+		wrapUp = UI.cannon.wrapUp.on
+			and ((state.tier or 1) < CannonLogic.HINT_TIER or (UI :: any).parkTrail.walkOn()),
 	})
 end
 
@@ -506,8 +509,12 @@ function applyTutorial()
 	local park = cards.parkTrail
 	-- The Park opens at Tier 2; `reached` comes from ParkTrailController whatever the parkGateTrail switch says (Review-
 	-- QA's PC run: with the switch off no goal came, so the line never showed). The paws are only named when they show.
+	-- #4480 (Derek 2026-11-15: "remove the follow a cannon to park just have it show the unlock animation after ranking
+	-- up to tier 2 and end tutorial there"): none of the walk to the Park unless the parkGateTrail switch is on
+	local walk = park.walkOn()
 	if
-		(text == nil or hint == CannonLogic.WRAP_UP_HINT)
+		walk
+		and (text == nil or hint == CannonLogic.WRAP_UP_HINT)
 		and (state.tier or 1) >= 2
 		and not park.reached
 	then
@@ -515,10 +522,11 @@ function applyTutorial()
 	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
+	-- #4480: with the walk off, the Tier 2 rank up ends it, so the X stops waiting for the Park there
 	if
 		not tutorialButtonOn
 		and (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
-		and UI.parkTrail.reached
+		and (UI.parkTrail.reached or (not walk and (state.tier or 1) >= 2))
 	then
 		text, target = nil, nil
 	end
@@ -972,7 +980,7 @@ function UI.init(config: Types.InitConfig)
 				if (state.tutorialStep or math.huge) < CannonLogic.WALKTHROUGH_STEP
 					then "Tips hidden. Your first steps still show."
 					elseif
-						not UI.parkTrail.reached
+						not UI.parkTrail.reached and UI.parkTrail.walkOn()
 					then "Tips hidden. The way to the Park still shows."
 					else "Tutorial and tips hidden. Turn them on in Settings.",
 				"info"
@@ -1126,6 +1134,8 @@ function UI.init(config: Types.InitConfig)
 				UI.lateStations.openBooth() -- #4061: no kiosk in the world yet, so this is its way in
 			elseif stationId == "dragon" then
 				UI.lateStations.openKeep() -- #4062: no Keep in the world yet, so this is its way in
+			elseif stationId == "fusion" then
+				UI.lateStations.openFusion() -- #4104: the Observatory's way in until its dome has a prompt
 			else
 				UI.lateStations.open(stationId, true)
 			end
@@ -1936,7 +1946,14 @@ function UI.update(partial: Types.PartialState)
 	if tier ~= nil then
 		local before = hintTier
 		hintTier = tier
-		if before ~= nil and before < CannonLogic.HINT_TIER and tier >= CannonLogic.HINT_TIER then
+		-- #4480: no "The Park is open!" hint or "Fly to the Park" button while the walk to the Park is off; the rank
+		-- up's own unlock animation is the tutorial's end
+		if
+			before ~= nil
+			and before < CannonLogic.HINT_TIER
+			and tier >= CannonLogic.HINT_TIER
+			and UI.parkTrail.walkOn()
+		then
 			for _, area in catalogAreas() do
 				if area.tier == CannonLogic.HINT_TIER then
 					local opened = area.name
@@ -3052,32 +3069,11 @@ function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
 	end)
 end
 
--- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl (UI.bigPull.wow plays it). The
--- card's portrait is the cat at a bowl with that rarity (BaitReady comes first), unless the server names it.
-function UI.bait.wow(rarity: string, first: boolean?, catId: string?)
-	if UI.bait.busy() then
-		-- #2412: after the catch or the carry; gone if the bowl's cat left meanwhile
-		UI.bait.whenCalm(function()
-			return bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
-		end, function()
-			UI.bait.wow(rarity, first, catId)
-		end)
-		return
-	end
-	local id = catId
-	if id == nil then
-		for _, cat in bowls.cats do
-			local catAt: Types.BaitCat? = cat
-			if catAt then
-				local def = lookupCat(catAt.catId)
-				if def and def.rarity == rarity then
-					id = catAt.catId
-				end
-			end
-		end
-	end
-	UI.bigPull.wow(rarity, first, id)
-end
+-- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl. #4488 (Derek 2026-11-15: "make
+-- it so the 'your first rare' after foodbowl scene doesn't show up just the tame button so they don't have to clear 2
+-- things for the same cat"): no card and no toast; the bait card's Tame button is the one thing for that cat.
+-- UI.bigPull.wow still draws the card, for the UI gate and should it come back.
+function UI.bait.wow(_rarity: string, _first: boolean?, _catId: string?) end
 
 -- The server resolved the cat (tamed or let go): close its card and forget it. `bowl` is 1 or 2 (#1161), nil is 1.
 function UI.bait.hideReady(bowl: number?)
@@ -3923,6 +3919,15 @@ UI.parkTrail = {
 	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
 }
 
+-- #4480: whether the walk to the Park shows at all (the strip line, the "is open" hint, "Fly to the Park"): the
+-- parkGateTrail switch (off by default). Required here: the main chunk is at Luau's 200 local limit.
+function UI.parkTrail.walkOn(): boolean
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local flag = (require(script.Components.ParkTrailLogic) :: any).FLAG
+	return LiveFlags.shown(flag, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. flag))
+end
+
 -- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the
 -- strip lets go then
 function UI.parkTrail.reach(reached: boolean)
@@ -4145,9 +4150,12 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 			name = area.name
 		end
 	end
-	if cannonCard then
+	-- #4491 (Derek 2026-11-15: "no need to show the traveling to alleyway pop up on screen for half a second just
+	-- adds bloat and confusion"): the intro's staged flight (a `hold` while the intro plays) shows no name card; a
+	-- player's own flight does
+	if cannonCard and not (hold ~= nil and UI.intro.playing()) then
 		if hold ~= nil then
-			cannonCard:show(destination, name, launchAt, hold) -- the intro's, in the clouds
+			cannonCard:show(destination, name, launchAt, hold) -- in the clouds (the UI gate's held card)
 		else
 			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
 			cannonCard:show(
@@ -4162,20 +4170,10 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 end
 
 -- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
--- #3080 cut it with the other green pop-ups; #3106 (Derek2 11-10: "maybe add those two buttons back") brings it back
--- for a new player's first delivery only: once a session, while the first walk-through is not done. After that the
--- basket and the camp chime say it.
-function UI.cannon.checkedIn(catName: string?)
-	local cannon: any = UI.cannon
-	if
-		cannon._deliverySaid
-		or (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
-	then
-		return
-	end
-	cannon._deliverySaid = true
-	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
-end
+-- #3080 cut it with the other green pop-ups; #3106 brought it back for a new player's first delivery; #4497 (Derek
+-- 2026-11-15: "remove all the pop ups that happen after first catch like "cat" is captured, "cat" is on the way to
+-- your cafe etc") cuts it again. The flight, the basket and the camp chime say it.
+function UI.cannon.checkedIn(_catName: string?) end
 
 -- A refused LaunchCannon: Launch comes back at once and the card's button wobbles. The server's toast says why.
 function UI.cannon.result(ok: boolean, destination: string?)
@@ -4760,9 +4758,13 @@ do
 			cancel = function()
 				UI.events.rescueCancelled:Fire(rescueSpotId)
 			end,
-			ended = function(success: boolean)
+			ended = function(success: boolean, said: string?)
 				if rescueTarget == rescueSpotId then
 					endRescue(success)
+				end
+				-- #4492: the bar is gone at once; its closing words show as one small toast
+				if said ~= nil and toasts then
+					toasts:show(said, if success then "good" else "warn", true)
 				end
 			end,
 		})
@@ -4794,11 +4796,11 @@ do
 				elseif guess == "perfect" then "perfect"
 				else "good"
 			if hud then
-				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+				hud:setCatching(false) -- #3078: at once, as a catch's result does
 			end
-			screen:showResult({ grades = { grade }, success = success }, function()
-				endRescue(success)
-			end)
+			-- #4492: the rescue is over the moment the result is in; the grade word still flashes, as on a catch
+			screen:showResult({ grades = { grade }, success = success }, function() end)
+			endRescue(success)
 			return
 		end
 		if rescueBar then
@@ -6118,6 +6120,11 @@ do
 
 	-- #2880: true when a slide-in ask may show now (AskPacing), false while it is too soon
 	function UI.asks.paced(): boolean
+		-- #4483 (Derek 2026-11-15: "if the tips menu is X'd ... don't show cafe recap or pop ups at all like rate the
+		-- game"): a player who X'd the Tutorial tile gets no slide-in ask at all
+		if not tutorialButtonOn then
+			return false
+		end
 		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
 	end
 
@@ -6327,6 +6334,7 @@ do
 end
 
 -- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- #4438: after a rank up to Tier 2 or higher, or on a later day than the account's first, never on a first-day timer.
 -- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
 -- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
 do
@@ -6334,9 +6342,15 @@ do
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
 	local suggest = {
 		start = os.clock(),
-		dueAt = StarterSuggest.dueAt(math.random()),
+		rankedAt = nil :: number?, -- #4438: seconds into the session of the rank up to Tier 2 or higher
 		done = false,
 	}
+	-- #4438: the card's first moment is a rank up (Moments.RankUp fires on a rise in the server's tier, never at join)
+	Moments.RankUp:Connect(function(tier: number)
+		if suggest.rankedAt == nil and tier >= StarterSuggest.RANK_TIER then
+			suggest.rankedAt = os.clock() - suggest.start
+		end
+	end)
 
 	local function report(outcome: string)
 		UI.events.starterSuggest:Fire(outcome)
@@ -6418,7 +6432,8 @@ do
 			on = on,
 			done = suggest.done,
 			played = os.clock() - suggest.start,
-			dueAt = suggest.dueAt,
+			rankedAt = suggest.rankedAt,
+			firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE),
 			owned = (state :: any).starterBought,
 			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
 			now = Workspace:GetServerTimeNow(),
@@ -7593,7 +7608,23 @@ do
 			tag = CART_TAG,
 			name = "CatCafeMysteryBang",
 			line = function(value: any): string?
-				return MysteryLogic.bang(value)
+				-- #4539: no "!" over a cart that is hidden below Tier 2 (Controllers/StationLockController)
+				local StationTiers = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+				) :: any
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local on = LiveFlags.shown(
+					StationTiers.FLAG,
+					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationTiers.FLAG)
+				)
+				if
+					type(value) == "table" and StationTiers.locked("MysteryMarket", value.tier, on)
+				then
+					return nil
+				end
+				return MysteryLogic.bang(value, workspace:GetServerTimeNow()) -- #4525
 			end,
 		})
 		bang:update(state)
@@ -8191,6 +8222,7 @@ do
 	local RelicMuseum = require(script.Screens.RelicMuseum)
 	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
 	local DragonKeepScreen = require(script.Screens.DragonKeep) -- #4062
+	local FusionScreen = require(script.Screens.FusionObservatory) -- #4104
 	local StationFixtures = require(script.Components.StationFixtures) -- Studio only (#4103)
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
@@ -8201,6 +8233,7 @@ do
 		museum = "RelicMuseum",
 		ticketBooth = "TicketBooth",
 		dragon = "DragonKeep",
+		fusion = "FusionObservatory",
 	}
 	local late = {
 		anywhere = false, -- #3213: the open card came from the Cannon menu, so walking away does not close it
@@ -8209,6 +8242,7 @@ do
 		museum = nil :: RelicMuseum.RelicMuseum?,
 		booth = nil :: TicketBooth.TicketBooth?, -- #4061
 		keep = nil :: DragonKeepScreen.DragonKeep?, -- #4062
+		fusion = nil :: FusionScreen.FusionObservatory?, -- #4104
 		test = nil :: { [string]: any }?, -- Studio only: StationFixtures views in place of PlayerState's (#4103)
 		testLink = nil :: RBXScriptConnection?,
 		boothPrompt = nil :: RBXScriptConnection?, -- #4061: TicketBoothPrompt's Triggered
@@ -8383,6 +8417,27 @@ do
 				keep:closed()
 			end,
 		})
+		-- #4104: the Fusion Observatory window (PlayerState.fusion; the dome's prompt comes with its model)
+		local fusion = FusionScreen.new({
+			start = function(uids: { string }, keepTraitUid: string?)
+				send("StartFusion", uids, keepTraitUid)
+			end,
+			collect = function()
+				send("CollectFusion")
+			end,
+			close = closer(WINDOWS.fusion),
+		})
+		late.fusion = fusion
+		modalView:register(WINDOWS.fusion, {
+			frame = fusion.frame,
+			onOpen = function()
+				UI.lateStations.paintFusion(state)
+				fusion:opened()
+			end,
+			onClose = function()
+				fusion:closed()
+			end,
+		})
 		-- the kiosk's own prompt (TicketBoothPrompt, placed by the server with the model) opens it the same way, and so
 		-- does the Keep's (DragonKeepPrompt) once its model is placed
 		late.boothPrompt = ProximityPromptService.PromptTriggered:Connect(
@@ -8391,6 +8446,8 @@ do
 					UI.lateStations.openBooth()
 				elseif prompt.Name == "DragonKeepPrompt" then
 					UI.lateStations.openKeep() -- #4062: the Keep's own prompt, once its model is placed
+				elseif prompt.Name == "FusionObservatoryPrompt" then
+					UI.lateStations.openFusion() -- #4104: the dome's own prompt, once the server places it
 				end
 			end
 		)
@@ -8398,16 +8455,19 @@ do
 		museum:render(state)
 		booth:setView(UI.lateStations.boothView(state))
 		UI.lateStations.paintKeep(state)
+		UI.lateStations.paintFusion(state)
 		paint()
-		-- Studio only (Review-QA, #4103): Workspace attribute StationTest "booth", "keep" or "keephand" opens that window
+		-- Studio only (Review-QA, #4103): Workspace attribute StationTest (StationFixtures' names) opens that window
 		-- with StationFixtures' view, so its look can be checked before its tier exists in the test place; "" clears it.
 		-- Presses still go to the server, which refuses them below the tier.
 		if RunService:IsStudio() then
 			late.testLink = Workspace:GetAttributeChangedSignal("StationTest"):Connect(function()
 				local which = Workspace:GetAttribute("StationTest")
+				local current: any = state
 				local views, stationId = StationFixtures.views(
 					if type(which) == "string" then which else "",
-					Workspace:GetServerTimeNow()
+					Workspace:GetServerTimeNow(),
+					if current ~= nil then current.cats else nil
 				)
 				local wasTest = late.test ~= nil
 				late.test = views
@@ -8427,6 +8487,8 @@ do
 					UI.lateStations.openBooth()
 				elseif stationId == "dragon" then
 					UI.lateStations.openKeep()
+				elseif stationId == "fusion" then
+					UI.lateStations.openFusion()
 				end
 			end)
 		end
@@ -8464,6 +8526,41 @@ do
 				keepBusy(playerState)
 			)
 		end
+	end
+
+	-- #4104: PlayerState.fusion, nil while the switch is off or below its tier (false from UIController)
+	function UI.lateStations.fusionView(playerState: any): any
+		return stationView(playerState, "fusion")
+	end
+
+	function UI.lateStations.paintFusion(playerState: any)
+		local fusion = late.fusion
+		if fusion and playerState ~= nil then
+			local test = late.test
+			fusion:setView(
+				UI.lateStations.fusionView(playerState),
+				if test ~= nil and test.cats ~= nil then test.cats else playerState.cats, -- Studio StationTest copies
+				keepBusy(playerState),
+				{
+					base = playerState.collection,
+					gold = playerState.goldCollection,
+					rainbow = playerState.rainbowCollection,
+				}
+			)
+		end
+	end
+
+	-- #4104: the Fusion Observatory window from anywhere (its prompt, the Cannon picker, a test), or a toast while shut
+	function UI.lateStations.openFusion()
+		local modalView = modal
+		if modalView == nil or late.fusion == nil then
+			return
+		end
+		if UI.lateStations.fusionView(state) == nil then
+			UI.toast("The Fusion Observatory opens with Snowy Mountain", "info")
+			return
+		end
+		modalView:open(WINDOWS.fusion)
 	end
 
 	-- #4062: the Dragon Keep window from anywhere (its prompt, the Cannon picker, after the stage cutscene), or a toast
@@ -8504,6 +8601,7 @@ do
 			booth:setView(UI.lateStations.boothView(playerState))
 		end
 		UI.lateStations.paintKeep(playerState)
+		UI.lateStations.paintFusion(playerState)
 		local spa = late.spa
 		if spa then
 			spa:render(playerState)
@@ -8593,6 +8691,11 @@ do
 			keep:destroy()
 		end
 		late.keep = nil
+		local fusion = late.fusion
+		if fusion then
+			fusion:destroy()
+		end
+		late.fusion = nil
 		local testLink = late.testLink
 		if testLink then
 			testLink:Disconnect()
@@ -8703,6 +8806,7 @@ do
 			cannonScreen:setTraits((playerState :: any).traits) -- the Park card's strip in the Cannon menu
 			cannonScreen:setBooth((playerState :: any).ticketBooth) -- #4061: the Water Park card's Ticket Booth
 			cannonScreen:setKeep((playerState :: any).dragon) -- #4062: the Castle card's Dragon Keep
+			cannonScreen:setFusion((playerState :: any).fusion) -- #4104: the Snowy Mountain card's Observatory
 		end
 		local card = pool.card
 		if card then
@@ -9832,6 +9936,26 @@ do
 			supporter = Players.LocalPlayer:GetAttribute(shop.supporterKey) == true, -- #1168 row 4
 		}
 	end
+	-- #4055: a pass bought with golden fish counts as owned on its card, as the server counts it (FishStore.boughtIds)
+	local SharedFishStore =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FishStore")) :: any
+	local function owned(): { [number]: boolean }
+		local fishList = (state :: any).fishStore
+		if type(fishList) ~= "table" then
+			return PassShop.owned()
+		end
+		local all = table.clone(PassShop.owned())
+		for _, item in fishList do
+			local def = if type(item) == "table" and item.bought == true
+				then SharedFishStore.item(item.key)
+				else nil
+			local id = if def then SharedFishStore.passId(def) else 0
+			if id ~= 0 then
+				all[id] = true
+			end
+		end
+		return all
+	end
 	local function rows(): { StoreLogic.Row }
 		-- #4266: the Auto Bowl card waits for its switch, as the Bait bowl window's offer does
 		local flags =
@@ -9845,7 +9969,7 @@ do
 		then
 			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })
 		end
-		return StoreLogic.rows(config, PassShop.owned(), state.longNap, view())
+		return StoreLogic.rows(config, owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -9862,6 +9986,8 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				-- #4055: the Robux / Fish switch, while the fishStore switch is on
+				screen:setFish((state :: any).fishStore, state.goldenFish or 0)
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(list, PassShop.prices())
 			end
@@ -9924,6 +10050,10 @@ do
 				-- #4175: "featured_new" from the update's own card on Featured
 				PassShop.prompt(passId, source or "store")
 			end,
+			-- #4055: the server checks the price, the fish and the pass, and answers with a toast and a sync
+			buyFish = function(key: string, fish: number)
+				UI.events.buyWithFish:Fire(key, fish)
+			end,
 			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
 			deal = function(productId: string)
 				UI.events.storeDeal:Fire(productId)
@@ -9970,6 +10100,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				screen:setFish((state :: any).fishStore, state.goldenFish or 0) -- #4055
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
@@ -10437,8 +10568,8 @@ local function recapTry(): boolean
 	end
 	local RecapLogic = require(script.Components.RecapLogic)
 	local settings: { [string]: any } = state.settings or {}
-	if settings[RecapLogic.SETTING] == false then
-		UI.recap.waiting = nil -- off: this session's card is dropped
+	if settings[RecapLogic.SETTING] == false or not tutorialButtonOn then
+		UI.recap.waiting = nil -- off (#4483: or the Tutorial tile X'd): this session's card is dropped
 		return true
 	end
 	local busy = (modal ~= nil and modal:current() ~= nil)
@@ -10502,9 +10633,15 @@ UI.perks = {
 	REDUCED_SECONDS = 0.5,
 	WINDOW_WAIT_SECONDS = 300,
 	YIELD_STEP = 0.25, -- how often a showing card looks for a window that opened after it
+	-- #4547 (Derek 2026-11-15: "dont do perk unlock pop ups for every tier it adds bloat"): no "Unlocked!" card when a
+	-- perk opens; the perk still works and Rank up's Perks button lists it. True brings the card back.
+	POP = false,
 }
 
 function UI.perks.unlock(perkId: string)
+	if not UI.perks.POP then
+		return
+	end
 	local StationPerks =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationPerks")) :: any
 	local perk = StationPerks.get(perkId)
@@ -10628,6 +10765,10 @@ local function giftTry(): boolean
 	if waiting == nil or card == nil then
 		return true
 	end
+	if not tutorialButtonOn then
+		table.remove(UI.gift.queue, 1) -- #4483: the Tutorial tile X'd: the gift is paid, its thank-you card is not shown
+		return #UI.gift.queue == 0
+	end
 	local GiftCardLogic = require(script.Components.GiftCardLogic)
 	local busy = (modal ~= nil and modal:current() ~= nil)
 		or (baitCard ~= nil and baitCard:isShowing())
@@ -10672,12 +10813,6 @@ function UI.gift.show(kind: any, paid: any)
 		end)
 	end
 end
-
--- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). #2399 (Derek2: "auto equip bubble pop-ups are
--- also just more bloat on the screen"): no toast any more; the Cats window shows the jobs.
-UI.autoEquip = {}
-
-function UI.autoEquip.swapped(_raw: any) end
 
 ----------------------------------------------------------------------------------------------------
 -- Cafe Events (#2487, live-events.md section 3)

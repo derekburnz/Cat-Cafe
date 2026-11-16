@@ -42,6 +42,7 @@ local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local SecondCatHelp = require(ReplicatedStorage.Shared.SecondCatHelp)
 local Telemetry = require(script.Parent.Telemetry)
+local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local BaitService = {}
@@ -307,6 +308,13 @@ local function resolveBait(
 	-- #3158: the first bowl cat tamed or let go is the tutorial's last step (the food alone was, before)
 	if profile.tutorialStep == 4 then
 		CafeService.advanceTutorial(player, profile, 5)
+	elseif
+		profile.tutorialStep < TutorialOrder.BOWL_STEP_BELOW
+		and profile.stats.luresUsed <= 1
+		and TutorialOrder.bowlFirst()
+	then
+		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway
+		CafeService.tutorialMove:Fire(player, "cannon")
 	end
 	local shown = shownArrival[player]
 	if shown ~= nil then

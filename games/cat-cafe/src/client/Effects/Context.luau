@@ -15,6 +15,7 @@ local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
+local Rumble = require(script.Parent.Rumble)
 
 local Context = {}
 
@@ -27,6 +28,7 @@ Context.console = false -- an Xbox or PlayStation (a ten-foot screen): Presets.b
 Context.lite = false -- #3794: the lighter budget (Logic.wantsLite): a struggling phone or graphics quality 1 to 3
 Context.struggling = false -- #4311: this phone or tablet's frame rate stayed low (Logic.slowStep); kept all session
 local LITE_FLAG = "fxLite"
+local RUMBLE_FLAG = "deviceFixes" -- #4224: rumble ships with the Wed 2026-11-18 device update's switch (off by default)
 
 local SHAKE_STEP = "CatCafeEffectsShake"
 
@@ -156,11 +158,26 @@ function Context.reducedMotion(): boolean
 	return GuiService.ReducedMotionEnabled
 end
 
+-- #4224: rumble and phone taps only while the `deviceFixes` switch is on (off by default; read each time, so the
+-- switch works mid session).
+local function rumbleOn(): boolean
+	return LiveFlags.shown(
+		RUMBLE_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RUMBLE_FLAG)
+	)
+end
+
 -- A short camera shake for this player (a missed catch, being shoved), fading out over `seconds`. Runs after the
 -- camera scripts each frame, so the offset never piles up; a new shake replaces one still running; off with Reduce
--- Motion or the Screen shake setting off.
+-- Motion or the Screen shake setting off. A gamepad in use buzzes with it (Effects/Rumble).
 function Context.shake(seconds: number, studs: number)
-	if Context.reducedMotion() or not Context.screenShake then
+	if not Context.screenShake then
+		return
+	end
+	if rumbleOn() then
+		Rumble.bump(seconds, studs) -- #4224: a gamepad buzzes with the bump, also with Reduce Motion (nothing moves)
+	end
+	if Context.reducedMotion() then
 		return
 	end
 	local camera = Workspace.CurrentCamera
@@ -178,6 +195,13 @@ function Context.shake(seconds: number, studs: number)
 		local k = (1 - t / seconds) * studs
 		camera.CFrame = camera.CFrame * CFrame.new(rng:NextNumber(-k, k), rng:NextNumber(-k, k), 0)
 	end)
+end
+
+-- #4224: a gamepad pulse with no camera bump (your own catch), off with the Screen shake setting off.
+function Context.rumble(seconds: number, strength: number)
+	if Context.screenShake and rumbleOn() then
+		Rumble.pulse(seconds, strength)
+	end
 end
 
 function Context.folder(): Folder

@@ -65,6 +65,12 @@ function ServerOnlyAssets.matches(name: string): boolean
 	if EXACT[name] then
 		return true
 	end
+	-- #4543: the cafe at its bigger room sizes (the shell, interior, For Rent and tier dressing and the yard fence,
+	-- CatCafe_Plot_<model>_<W>x<D>). Only WorldBuilder places a plot's room, so no client looks these up, and
+	-- there are 48 of them: none may ride along to every phone.
+	if string.match(name, "^CatCafe_Plot_[%w_]+_%d+x%d+$") ~= nil then
+		return true
+	end
 	for _, kind in ANY_AREA_KINDS do
 		local stem = "^CatCafe_%a+_" .. kind
 		if

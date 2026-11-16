@@ -912,8 +912,8 @@ export type TradeStateView = {
 	cratesOn: boolean, -- #2745: the tradeCrates live switch; false hides the Crates tab
 	fishOn: boolean, -- #2745 (section 1d): the tradeFish live switch; false hides the fish rows
 	-- #2745: golden fish the other player can still receive today (TradeFishPerDay less what they got), so Max and
-	-- the "They can get N more today" line never ask for more
-	fishRoom: number,
+	-- the "They can get N more today" line never ask for more; nil with no daily cap (#4623)
+	fishRoom: number?,
 }
 
 -- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number

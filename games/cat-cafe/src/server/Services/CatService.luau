@@ -2637,10 +2637,7 @@ function startCatch(
 			-- #4299: or wider on a phone or tablet, whichever is wider
 			math.max(
 				Circles.earlyScale(SecondCat.caught(profile.stats)),
-				Circles.touchScale(
-					Telemetry.device(player),
-					M.LiveFlagService.on(M.TouchReach.FLAG)
-				)
+				Circles.touchScale(Telemetry.device(player), true) -- #4654: touchCatchReach shipped
 			)
 		)
 	-- #2920: a player's very first catch holds its ring on the target until the press

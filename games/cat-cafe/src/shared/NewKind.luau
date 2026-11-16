@@ -1,6 +1,6 @@
 --!strict
 -- #3529 (Nov 11 read: 147 new players stalled on "five different cats", and nothing in the world says which strays
--- are kinds the player does not have). Behind the `newKindTag` live switch (off until review and QA):
+-- are kinds the player does not have). #4654: the `newKindTag` switch shipped and is gone:
 --   a "NEW" tag over every stray, bait cat and stuck cat whose kind the player has never owned (Screens/NewKindTags),
 --   one line on the catch card when the kind is new ("New kind! 3/5 for Cozy Cafe" below Tier 2),
 --   while "Three different cats" (#4188: four before, #4098: five) is the Grand Opening's next milestone: the goal card's "Catch new kinds of cat 2/3"
@@ -11,7 +11,6 @@ local Catalog = require(script.Parent.Catalog)
 
 local NewKind = {}
 
-NewKind.FLAG = "newKindTag"
 NewKind.TEXT = "NEW 🐾"
 NewKind.KINDS = Catalog.tiers[2].distinctCats -- Tier 2's need and the Grand Opening's "Three different cats" (#4188: 4 before)
 NewKind.MILESTONE = "five_cats" -- the Grand Opening milestone the pointer serves

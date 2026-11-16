@@ -51,11 +51,7 @@ local walking = false
 local reported: { [string]: boolean } = {}
 
 local function touchReachOn(): boolean
-	return Scale.isTouch()
-		and LiveFlags.shown(
-			TouchReach.FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. TouchReach.FLAG)
-		)
+	return Scale.isTouch() -- #4654: the touchCatchReach switch shipped
 end
 
 local function report(kind: string)

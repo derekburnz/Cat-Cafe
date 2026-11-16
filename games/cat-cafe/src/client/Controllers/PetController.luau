@@ -31,11 +31,9 @@ local HIDE_AFTER_PRESS = 4
 local prompts: { [Instance]: ProximityPrompt } = {}
 local lastPress = 0
 
+-- #4654: always on since the petCats switch shipped
 local function on(): boolean
-	return LiveFlags.shown(
-		Pet.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Pet.FLAG)
-	)
+	return true
 end
 
 local function inTutorial(): boolean
@@ -153,8 +151,6 @@ function PetController.start()
 			refresh(cat)
 		end)
 	end
-	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. Pet.FLAG)
-		:Connect(refreshAll)
 	-- the tutorial ending and the notes' minutes: a slow pass is enough
 	task.spawn(function()
 		while true do

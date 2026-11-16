@@ -582,7 +582,7 @@ local function markHappy(plot: WorldBuilder.Plot, profile: Profile)
 	local now = os.time()
 	Pet.prune(profile, now)
 	local pet = profile.pet
-	local uid = if LiveFlagService.on(Pet.FLAG) then Pet.active(pet, profile.cats, now) else nil
+	local uid = Pet.active(pet, profile.cats, now) -- #4654: petCats shipped
 	for _, child in plot.cats:GetChildren() do
 		local untilAt = if pet ~= nil and uid ~= nil and child.Name == uid then pet.untilAt else nil
 		if child:GetAttribute(Pet.ATTRIBUTE) ~= untilAt then

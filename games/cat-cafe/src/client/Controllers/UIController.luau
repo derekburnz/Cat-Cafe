@@ -662,17 +662,46 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	-- the cards the funnel counts: 0 (to the alley), 1 (catch the cat), 3 (a table) and 4 (the bowl and its food);
 	-- card 2 shows only when the first cat found no free role
-	if s.tutorialStep <= 1 or s.tutorialStep == 3 or s.tutorialStep == 4 then
+	-- #4518: bowl first, the bowl part before the first catch (the first food in, its cat on the way or waiting)
+	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
+	local bowlNow = s.tutorialStep < 2
+		and TutorialOrder.bowlFirst()
+		and TutorialOrder.bowlPending(
+			s.tutorialStep,
+			(s.stats :: any).luresUsed or 0,
+			s.bait ~= nil
+		)
+	if (s.tutorialStep <= 1 and not bowlNow) or s.tutorialStep == 3 or s.tutorialStep == 4 then
 		reportStep(string.format("tut_%d_shown", s.tutorialStep))
 	end
 	-- #2636 (onboarding_v6): the first instruction after the first check-in (card 2, 3 or 4) is on screen
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
 	end
+	-- #4674: the cannon hint waits while the bowl part runs (UI's cannonHint reads this), pal line or not
+	UI.cannon.bowlPending = bowlNow
 	if s.tutorialStep < 2 and palJoinLine(s) then
 		return
 	end
-	if s.tutorialStep < 2 then
+	-- #4674 (Derek 2026-11-16: "Just stop tutorial steps until rankup possible then have them rank up into park cannon
+	-- teleport then tutorial done"): bowl first, after the first check-in at Tier 1 the strip is quiet (no job, table,
+	-- second cat, bowl or rescue lines) until the Rank Up is possible, then it names the goal card's Rank Up
+	local bowlRest = TutorialOrder.bowlFirst() and s.tutorialStep >= 2 and (s.tier or 1) == 1
+	if bowlNow then
+		local bait: any = s.bait
+		if bait ~= nil and bait.cat ~= nil then
+			showTutorial(s, "Your bowl cat is here! Tame it", UIController.ownBaitBowl(), "Bowl")
+		elseif bait ~= nil then
+			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+		else
+			showTutorial(
+				s,
+				deviceLine("food", "Put Kibble in your bowl on the back step"),
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
+		end
+	elseif s.tutorialStep < 2 then
 		showTutorial(
 			s,
 			string.format(
@@ -683,6 +712,24 @@ local function refreshTutorial(s: Types.PlayerState)
 			tutorialStrayPoint(),
 			"Alley"
 		)
+	elseif bowlRest then
+		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+		local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+		if nextTier ~= nil and RankUpNeeds.of(nextTier, s :: any).ready == true then
+			local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+			local last = UserInputService:GetLastInputType().Name
+			local device = if last:sub(1, 7) == "Gamepad"
+				then "gamepad"
+				elseif
+					last == "Touch"
+					or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+				then "touch"
+				else "keyboard"
+			showTutorial(s, RankFirst.line(device))
+		else
+			UI.tutorial.hide()
+		end
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(

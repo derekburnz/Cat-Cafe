@@ -116,6 +116,7 @@ local TrailSparkle = require(script.TrailSparkle)
 local Trampoline = require(script.Trampoline)
 local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
+local WowBaitGlow = require(script.WowBaitGlow)
 
 local Effects = {}
 
@@ -218,6 +219,7 @@ function Effects.start()
 		BulbChase.start, -- #4070: the fairground's bulbs chase at night
 		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
 		BowlFrenzyFx.start, -- #4195: a Bowl Frenzy's gold sparkles off the food in your bait bowls
+		WowBaitGlow.start, -- #4822: the first wow bowl cat's rarity outline, sparkle and tag
 		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
 		AdminDrops.start, -- #4197: Fish Fountain's fish arc out, Crate Drop's crates come down by parachute
 		KeepSets.start, -- Dragon Keep set looks from the DragonSets attribute

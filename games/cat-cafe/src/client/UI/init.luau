@@ -4747,21 +4747,11 @@ do
 		end
 		rescueOnCircle = false
 		-- #3050: the Rummage Bin's bar is the same bar with its own name and closing words
-		-- #3611: with the prize rolled first (`binRoll`), the bar names what is being rummaged for
+		-- #3611: with the prize rolled first, the bar names what is being rummaged for
 		local function binBarName(): string
-			local LiveFlags =
-				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 			local waiting =
 				RummageBin.rollRow(Players.LocalPlayer:GetAttribute(RummageBin.PRIZE_ATTRIBUTE))
-			if
-				waiting == nil
-				or not LiveFlags.shown(
-					RummageBin.ROLL_FLAG,
-					ReplicatedStorage:GetAttribute(
-						LiveFlags.ATTRIBUTE_PREFIX .. RummageBin.ROLL_FLAG
-					)
-				)
-			then
+			if waiting == nil then
 				return RummageBin.NAME
 			end
 			-- #3683: the prize alone ("Rummage for: Golden Alley Crate" was cut on the bar); the board over the bin

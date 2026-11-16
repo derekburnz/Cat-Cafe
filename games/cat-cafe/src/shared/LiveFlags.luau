@@ -41,9 +41,6 @@
 -- - `circleStreak` (#3296): false vaults Circle Streak: no start from the cabinet, the Menu row or the remote. Its
 --   code, save and board stay, so switching it back on brings the game back. The swap is `mouseDash` on and this
 --   off; while both are on (testing) the Mouse Dash card has a button to Circle Streak.
--- - `cartTier6` (#3462): the Day Cart's Tier 6 shelf, its own two baits and three potions (shared/CornerShop's top
---   shelf). It starts OFF (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the
---   items is running, since an older server's save check drops a food or potion id it does not know.
 -- - `secretCats` (#3470): Secret cats, the rarity above Mythical. It starts OFF (OFF_BY_DEFAULT): off, nothing rolls
 --   Secret anywhere. Switch it on only once no server older than the publish that added them is running, since an
 --   older server's save check drops a cat id it does not know.
@@ -54,17 +51,11 @@
 -- - `luckyCharm` (#3298): the Golden Fish Market's Lucky Charm perk (shared/LuckyCharm). It starts OFF
 --   (OFF_BY_DEFAULT): off hides the row, refuses a buy and adds no Luck. Switch it on only once no server older than
 --   the publish that added the row is running, since an older server's save check drops a perk id it does not know.
--- - `rareCatsTab` (#3053): the chat's own "Rare Cats" tab with every Mythical or better line from every server
---   (shared/RareCatsTab). It starts OFF (OFF_BY_DEFAULT): off, no channel is made and the chat has no tab bar. Derek
---   said on 2026-11-10 he did not want a tab of our own, so it goes on only after he has seen the pictures.
 -- - `afkCafe` (#3573): resting in your own cafe pays the cats' cafe pay double (shared/AfkCafe). It starts OFF
 --   (OFF_BY_DEFAULT); off, nobody rests, a rest under way ends at the next check and the lines do not show.
 -- - `autoRejoin` (#3602): a player resting in their cafe with no input for Config.AutoRejoinSeconds is teleported back into
 --   the game before Roblox's 20 minute idle disconnect (shared/AfkCafe). It starts OFF (OFF_BY_DEFAULT) and does
 --   nothing while `afkCafe` is off.
--- - `binRoll` (#3608): the Rummage Bin rolls its prize before the bar, from Config.BinRollTable, and keeps it for the
---   player until they win it (shared/RummageBin); the board, the roll and the pad come with it. It starts OFF
---   (OFF_BY_DEFAULT); off, the bin is as it was.
 -- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
 --   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
 --   intro plays itself.
@@ -130,13 +121,10 @@ LiveFlags.KEYS = {
 	"swiftPaws10", -- #4705
 	"mouseDash",
 	"circleStreak",
-	"cartTier6",
 	"secretCats",
 	"luckyCharm",
-	"rareCatsTab",
 	"afkCafe",
 	"autoRejoin",
-	"binRoll",
 	"introSplit",
 	"parkGateTrail",
 	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
@@ -197,13 +185,10 @@ LiveFlags.OFF_BY_DEFAULT = {
 	swiftPaws5 = true,
 	swiftPaws10 = true, -- #4705
 	mouseDash = true,
-	cartTier6 = true,
 	secretCats = true,
 	luckyCharm = true,
-	rareCatsTab = true,
 	afkCafe = true,
 	autoRejoin = true,
-	binRoll = true,
 	introSplit = true,
 	parkGateTrail = true,
 	rankUpSpotlight = true,

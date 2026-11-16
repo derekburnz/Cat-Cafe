@@ -28,7 +28,6 @@ local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local Telemetry = require(script.Parent.Telemetry)
@@ -59,8 +58,6 @@ end
 
 -- The player's state refreshed for now, and the window.
 local function refreshed(profile: Types.PlayerProfile): (Types.CornerShopState, number)
-	-- #3462: the Tier 6 shelf follows its switch; every send and buy comes through here first
-	CornerShop.setTopShelf(LiveFlagService.on(CornerShop.TOP_SHELF_FLAG))
 	local now = os.time()
 	local window = CornerShop.window(now)
 	CornerShop.refresh(profile.cornerShop, window, CornerShop.day(now))
@@ -264,18 +261,13 @@ function CornerShopService.start()
 		sentWindow[player] = nil
 	end)
 	-- A new window restocks everyone's shop; one check a second catches the edge.
-	-- #3462: and so does the Tier 6 shelf's switch going on or off
 	task.spawn(function()
-		local shelf = LiveFlagService.on(CornerShop.TOP_SHELF_FLAG)
 		while true do
 			task.wait(1)
 			local window = CornerShop.window(os.time())
-			local open = LiveFlagService.on(CornerShop.TOP_SHELF_FLAG)
-			local flipped = open ~= shelf
-			shelf = open
 			for _, player in DataService.loadedPlayers() do
 				local profile = DataService.get(player)
-				if profile ~= nil and (flipped or sentWindow[player] ~= window) then
+				if profile ~= nil and sentWindow[player] ~= window then
 					send(player, profile)
 				end
 			end

@@ -29,18 +29,13 @@
 #   swiftPaws10   true opens Swift Paws levels 6 to 10 (#4705); only once no server older than the publish that
 #                 added them is running (an older one keeps a saved level only up to 5)
 #   mouseDash     true makes Mouse Dash the Cat Arcade's game (#3296); only after QA passes
-#   cartTier6     true opens the Day Cart's Tier 6 shelf (#3462); only once every server runs a build that has it
 #   secretCats    true lets Secret cats roll (#3470); only once every server runs a build that has them
 #   luckyCharm    true shows and sells the Fish Market's Lucky Charm perk and counts its Luck (#3298); only once
 #                 every server runs a build that has it (an older one drops the saved perk level)
-#   rareCatsTab   true gives the chat its own "Rare Cats" tab with every Mythical or better line (#3053); only
-#                 after Derek has seen the pictures (he asked for no tab of our own on 2026-11-10)
 #   afkCafe       true pays the cats' cafe pay double while a player rests (no input, standing still) in their own
 #                 cafe or on its doorstep (#3573)
 #   autoRejoin    true sends a player resting in their cafe, 18 minutes without input, back into the game before
 #                 Roblox's idle disconnect, landing at their cafe (#3602); needs afkCafe on
-#   binRoll       true makes the Rummage Bin roll its prize before the bar and keep it until it is won, with the
-#                 board, the roll and the pad (#3608)
 #   introSplit    true plays the intro scene by itself for half of new players, by account number, and tags
 #                 their funnel steps intro_on or intro_off (#3666); false or no entry is no test
 #   parkGateTrail true shows the "Visit the Park" goal and the paw trail after Tier 2, until the first Park catch
@@ -170,12 +165,9 @@ show_key() {
 	swiftPaws5) if [ "$raw" = true ]; then meaning="Swift Paws levels 3 to 5 ON in every server"; else meaning="Swift Paws stops at level 2 (its default)"; fi ;;
 	swiftPaws10) if [ "$raw" = true ]; then meaning="Swift Paws levels 6 to 10 ON in every server"; else meaning="Swift Paws stops at level 5 (its default)"; fi ;;
 	mouseDash) if [ "$raw" = true ]; then meaning="Mouse Dash ON in every server (the Cat Arcade's game)"; else meaning="Mouse Dash off (its default)"; fi ;;
-	cartTier6) if [ "$raw" = true ]; then meaning="Day Cart Tier 6 shelf ON in every server (its own baits and potions)"; else meaning="Day Cart Tier 6 shelf off (its default)"; fi ;;
 	secretCats) if [ "$raw" = true ]; then meaning="Secret cats ON in every server"; else meaning="Secret cats off (its default)"; fi ;;
 	luckyCharm) if [ "$raw" = true ]; then meaning="Lucky Charm perk ON in every server"; else meaning="Lucky Charm perk off (its default)"; fi ;;
-	rareCatsTab) if [ "$raw" = true ]; then meaning="Rare Cats chat tab ON in every server"; else meaning="Rare Cats chat tab off (its default)"; fi ;;
 	autoRejoin) if [ "$raw" = true ]; then meaning="Auto rejoin for resting players ON in every server"; else meaning="Auto rejoin off (its default)"; fi ;;
-	binRoll) if [ "$raw" = true ]; then meaning="Rummage Bin prize roll ON in every server"; else meaning="Rummage Bin prize roll off (its default)"; fi ;;
 	introSplit) if [ "$raw" = true ]; then meaning="intro scene test ON: half of new players get the scene"; else meaning="intro scene test off (its default)"; fi ;;
 	stuckCall) if [ "$raw" = false ]; then meaning="stuck cat call OFF (no pillar, bubble or meows)"; else meaning="stuck cat call on for saves with no rescue yet"; fi ;;
 	fxLite) if [ "$raw" = false ]; then meaning="lighter effects budget OFF (phones back on the full phone budget)"; else meaning="lighter effects budget on phones and graphics quality 1 to 3"; fi ;;

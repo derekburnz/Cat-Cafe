@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, introSplit, parkGateTrail, rankUpSpotlight, bagColours, menuFamily, speedShoes, traitBundles, storeRework, quietAway, riftRun, secretTrait, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion and giftCard alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, swiftPaws10, mouseDash, secretCats, luckyCharm, afkCafe, autoRejoin, introSplit, parkGateTrail, rankUpSpotlight, bagColours, menuFamily, speedShoes, traitBundles, storeRework, quietAway, riftRun, secretTrait, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion and giftCard alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -147,13 +147,10 @@ return function()
 							or key == "swiftPaws5"
 							or key == "swiftPaws10"
 							or key == "mouseDash"
-							or key == "cartTier6"
 							or key == "secretCats"
 							or key == "luckyCharm"
-							or key == "rareCatsTab"
 							or key == "afkCafe"
 							or key == "autoRejoin"
-							or key == "binRoll"
 							or key == "introSplit"
 							or key == "parkGateTrail"
 							or key == "rankUpSpotlight"
@@ -191,11 +188,9 @@ return function()
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(49) -- #4654: 56 less the 8 shipped switches retired in batches 1 and 2, plus giftCard (#4527)
-				-- #3462 and #3470: new saved ids stay off until every server knows them
-				expect(LiveFlags.defaults().cartTier6).to.equal(false)
+				expect(count).to.equal(46) -- #4654: 56 less the 8 shipped switches retired in batches 1 and 2, plus giftCard (#4527), less cartTier6, rareCatsTab and binRoll (batch 4)
+				-- #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().secretCats).to.equal(false)
-				expect(LiveFlags.parse({ cartTier6 = true }).cartTier6).to.equal(true)
 				expect(LiveFlags.parse({ secretCats = "yes" }).secretCats).to.equal(false)
 				-- #3296: no Mouse Dash until QA passes and it is switched on
 				expect(LiveFlags.defaults().mouseDash).to.equal(false)

@@ -545,14 +545,16 @@ function EventService.ownerStart(preset: string, minutes: number): (string, bool
 		true
 end
 
--- #3212: `/event stop` in a live server: the owner's own records come out of the schedule, running or coming.
+-- #3212: `/event stop` in a live server. #4870: every event on screen, normal (running or counting down) and admin
+-- (running or in its warning), comes out of the schedule, the events workflow's too (CafeEvents.stopRemove), so
+-- every banner, chip, strip and the Admin Wheel go.
 function EventService.ownerStop(): (string, boolean)
 	if not live() then
 		return "the events store is off in this place", false
 	end
 	local removed = 0
 	local ok = rewrite(function(raw: unknown): { any }?
-		local list, count = CafeEvents.ownerRemove(raw, now(), false)
+		local list, count = CafeEvents.stopRemove(raw, now())
 		removed = count
 		return if count > 0 then list else nil
 	end)
@@ -560,11 +562,15 @@ function EventService.ownerStop(): (string, boolean)
 		return "the events store did not answer; nothing changed", false
 	end
 	if removed == 0 then
-		return "no event of yours is running or coming (one from the events workflow ends there)",
-			false
+		return "no event is running, counting down or in its warning", false
 	end
 	EventService.refresh()
-	return "your event ended on all servers", true
+	return string.format(
+		"%d event%s ended on all servers, banners cleared",
+		removed,
+		if removed == 1 then "" else "s"
+	),
+		true
 end
 
 local function adminKinds(): string
@@ -655,14 +661,15 @@ function EventService.ownerAdmin(
 		true
 end
 
--- #4195: `/admin stop` in a live server: the owner's admin records come out of the schedule, running or coming.
+-- #4195: `/admin stop` in a live server. #4870: every admin event running or in its warning comes out of the
+-- schedule, whoever wrote it (CafeEvents.stopRemove), so its splash strip and warning go on every server.
 function EventService.ownerAdminStop(): (string, boolean)
 	if not live() then
 		return "the events store is off in this place", false
 	end
 	local removed = 0
 	local ok = rewrite(function(raw: unknown): { any }?
-		local list, count = CafeEvents.ownerRemove(raw, now(), true)
+		local list, count = CafeEvents.stopRemove(raw, now(), true)
 		removed = count
 		return if count > 0 then list else nil
 	end)
@@ -670,10 +677,10 @@ function EventService.ownerAdminStop(): (string, boolean)
 		return "the events store did not answer; nothing changed", false
 	end
 	if removed == 0 then
-		return "no admin event of yours is running or coming", false
+		return "no admin event is running or in its warning", false
 	end
 	EventService.refresh()
-	return "your admin event ended on all servers", true
+	return "the admin event ended on all servers, banners cleared", true
 end
 
 return EventService

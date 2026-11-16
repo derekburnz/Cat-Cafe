@@ -858,6 +858,10 @@ end
 --                                                   schedule is full, or the stored value is not a list
 --   ownerRemove(raw, now, admin?) -> (list?, count)   the schedule without the owner's records (normal ones, or
 --                                                   with `admin` the admin ones) that are not over yet
+--   stopRemove(raw, now, adminOnly?) -> (list?, count)  #4870 `/event stop` and `/admin stop`: the schedule
+--                                                   without every record, whoever wrote it, that runs or shows (its
+--                                                   countdown or warning) now; `adminOnly` admin ones only; later
+--                                                   ones stay
 CafeEvents.OWNER_PREFIX = "owner-"
 CafeEvents.OWNER_TITLE = "Cafe Party"
 CafeEvents.OWNER_SHOWER_FIRST = 120
@@ -999,7 +1003,7 @@ function CafeEvents.ownerAdd(
 			if admin.startsAt < record.endsAt and record.startsAt < admin.endsAt then
 				return nil,
 					string.format(
-						"%s is running or coming until %d minutes from now (/admin stop ends one you started)",
+						"%s is running or coming until %d minutes from now (/admin stop ends it)",
 						admin.title,
 						math.ceil((admin.endsAt - now) / 60)
 					)
@@ -1012,7 +1016,7 @@ function CafeEvents.ownerAdd(
 			if event.startsAt <= now then
 				return nil,
 					string.format(
-						"%s is already running for %d more minutes (/event stop ends one you started)",
+						"%s is already running for %d more minutes (/event stop ends it)",
 						event.title,
 						math.ceil((event.endsAt - now) / 60)
 					)
@@ -1047,6 +1051,34 @@ function CafeEvents.ownerRemove(raw: unknown, now: number, admin: boolean?): ({ 
 		local mine = type(id) == "string" and string.sub(id, 1, #prefix) == prefix
 		local isAdmin = type(id) == "string" and string.sub(id, 1, #adminPrefix) == adminPrefix
 		if mine and isAdmin == (admin == true) then
+			removed += 1
+		else
+			table.insert(kept, item)
+		end
+	end
+	return kept, removed
+end
+
+-- #4870 (Derek 2026-11-16: "make /event stop clear all event banners also", and 16:35 UTC: "event stop should
+-- also clear that banner", the Admin Wheel's): `/event stop` ends every event on screen now, normal and admin, from
+-- the owner, the events workflow or a thread alike. A normal one is on screen while it runs or counts down (starts
+-- within Config.EventCountdownSeconds), an admin one while it runs or shows its warning (ADMIN.warnSeconds).
+-- `adminOnly` (`/admin stop`) takes the admin ones only. Ones further off stay, so a planned update event is not
+-- lost. A record with no start is left for parse to drop.
+function CafeEvents.stopRemove(raw: unknown, now: number, adminOnly: boolean?): ({ any }?, number)
+	local list = standing(raw, now)
+	if list == nil then
+		return nil, 0
+	end
+	local kept: { any } = {}
+	local removed = 0
+	for _, item in list do
+		local record = if type(item) == "table" then item :: { [string]: any } else nil
+		local startsAt = if record ~= nil then record.startsAt else nil
+		local admin = record ~= nil and record.admin == true
+		local lead = if admin then CafeEvents.ADMIN.warnSeconds else Config.EventCountdownSeconds
+		local lane = admin or adminOnly ~= true
+		if record ~= nil and lane and type(startsAt) == "number" and startsAt <= now + lead then
 			removed += 1
 		else
 			table.insert(kept, item)

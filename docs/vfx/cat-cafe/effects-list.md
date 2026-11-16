@@ -1272,6 +1272,7 @@ Derek 2026-11-14: a big intro, then a clear screen with one small strip, and mon
 | Last minute and end | The strip turns red for the last 60 s (events of 3 minutes or more), then an end card for 2.5 s | Screen only |
 | The air (`AdminAir`) | A thin drift round you in the event's colour: gold motes, coin glints, rose, rainbow, violet, blue or mint | 1 emitter over the camera's focus; none with Reduce Motion or in Low performance |
 | Cat Storm (`StormFall`) | Each storm stray within 140 studs drops out of the sky on a streak of light (60 studs in 0.55 s), then a ring and a sparkle puff; slow sparkles drift down while the storm runs | At most the area puff budget of falls a second; Reduce Motion and Low performance keep only the puff |
+| Bowl Frenzy (`BowlFrenzyFx`) | While the frenzy runs, gold sparkles pop off the food in each of your bait bowls whose cat is still on the way, every 1.2 s, and every third pop a small gold ring spreads | Within 80 studs; Low performance every 3 s with 2 sparkles and no ring; Reduce Motion no ring |
 | Fish Fountain (`AdminDrops`) | Each fish arrives as a gold blob arcing from the Town Square plinth (0.8 s, 9 studs high), then 6 glints | Within 160 studs; no arc with Reduce Motion; nothing in Low performance |
 | Crate Drop (`AdminDrops`) | Each crate comes down under a pink parachute over 3 s, swaying 6 degrees, landing on the server's time, then a ring and a puff | The same; no sway with Reduce Motion |
 

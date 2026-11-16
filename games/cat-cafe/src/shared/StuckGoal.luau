@@ -12,9 +12,18 @@
 -- Pure.
 
 local Onboarding = require(script.Parent.Onboarding)
+local SecondCat = require(script.Parent.SecondCat)
 local Types = require(script.Parent.Types)
 
 local StuckGoal = {}
+
+-- #4473 (Derek 2026-11-15 13:41 UTC: "make it so second cat caught doesn't have to be a rescue I think thats a big
+-- issue also"): the first bait cat comes before the second cat caught by hand (and right after the first job with
+-- autoFirstBait, #4452), so "Free a stuck cat" took the goal card and the pointer next and the second cat caught by
+-- hand was a rescue for most players. With this switch on (unless switched off) the stuck cat goal waits until two
+-- cats are caught by hand (SecondCat.caught, the tutorial's first catch and one more plain stray), so the goal card
+-- shows the rank up instead (the Tier 2 top up, #4453, makes it ready).
+StuckGoal.AFTER_SECOND_FLAG = "stuckAfterSecond"
 
 StuckGoal.AREA = "alley" -- where the starter trap is
 StuckGoal.TITLE = "Free a stuck cat 🐾"
@@ -35,10 +44,12 @@ StuckGoal.SHOWN = "rescue_trail_shown"
 StuckGoal.FOLLOWED = "rescue_trail_followed"
 StuckGoal.STEPS = { StuckGoal.SHOWN, StuckGoal.FOLLOWED }
 
--- Whether the save is between its first bait cat resolved and its first rescue started (and below Tier 2).
-function StuckGoal.waiting(profile: Types.PlayerProfile): boolean
+-- Whether the save is between its first bait cat resolved and its first rescue started (and below Tier 2), and, with
+-- `afterSecond` (the AFTER_SECOND_FLAG switch), two cats caught by hand (#4473).
+function StuckGoal.waiting(profile: Types.PlayerProfile, afterSecond: boolean?): boolean
 	local telemetry = profile.telemetry
 	return profile.stats.rescues <= 0
+		and (afterSecond ~= true or SecondCat.caught(profile.stats) >= SecondCat.CATS)
 		and Onboarding.reached(telemetry, "first_bait_resolved")
 		and not Onboarding.reached(telemetry, "first_rescue_started")
 		and not Onboarding.reached(telemetry, "tier_2")

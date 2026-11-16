@@ -261,6 +261,23 @@ function AdminFlashLogic.earned(total: number, before: number?, after: number?):
 	return total
 end
 
+-- #4616 (Derek2 2026-11-15: "the 4x bowl speed on mobile pushes other ui into the middle of screen like 2x money"):
+-- on a phone or tablet the money, the X2 Cash button and the event chip hang under the top bar in the middle, right
+-- where the strip sat (`stripY` of the height), so there it sits at the bottom middle instead, `stripLift` design px
+-- (times the strip's scale `s`) over the screen's bottom edge, above My Cafe and Cannon. Returns the strip's
+-- AnchorPoint Y and its Position's Y scale and offset.
+function AdminFlashLogic.stripSpot(
+	touch: boolean,
+	s: number,
+	stripY: number,
+	stripLift: number
+): (number, number, number)
+	if touch then
+		return 1, 1, -math.floor(stripLift * s)
+	end
+	return 0, stripY, 0
+end
+
 -- A slow swell `hz` times a second: 1 at rest, 1 + amount at its top.
 function AdminFlashLogic.pulse(t: number, hz: number, amount: number): number
 	return 1 + amount * (0.5 - 0.5 * math.cos(2 * math.pi * hz * t))

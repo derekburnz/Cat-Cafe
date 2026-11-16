@@ -21,7 +21,7 @@ export type Area =
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
-export type CatSource = "free" | "shop" | "pass"
+export type CatSource = "free" | "shop" | "pass" | "booth" -- booth #4061: the Ticket Booth's prize cat
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -166,7 +166,7 @@ export type UpgradeDef = {
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
 -- #2486: "event", a Cafe Event's free reward piece (Catalog.passDecor holds it too, live-events.md section 2e)
-export type DecorSource = "shop" | "crate" | "pass" | "event" -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
+export type DecorSource = "shop" | "crate" | "pass" | "event" | "booth" -- booth #4061: the Ticket Booth's weekly shelf; -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
@@ -695,6 +695,11 @@ export type TicketPrizeRow = {
 	left: number?, -- more that may be bought now, nil for no limit
 	per: string?, -- "day", "week" or "once" with a limit
 	blocker: string?, -- why BUY is off now, nil when it can be bought
+	-- #4061 the weekly shelf's cards only: "decor" or "look", its Catalog decor or Looks accessory id, and whether the
+	-- save bought it (the card says "Owned")
+	kind: string?,
+	item: string?,
+	owned: boolean?,
 }
 export type TicketBoothView = {
 	tickets: number,
@@ -703,6 +708,7 @@ export type TicketBoothView = {
 	rushUsedToday: boolean,
 	weekEndsAt: number,
 	prizes: { TicketPrizeRow },
+	week: { TicketPrizeRow }, -- #4061: this week's Water Park shelf (TicketBooth.weekShelf), until weekEndsAt
 	ready: number, -- prizes that can be bought now (the "!")
 }
 
@@ -784,6 +790,13 @@ export type Stats = {
 	-- F73 (quests.md section 6): Rare or better and gold cats added by net, rescue or bait, tip piles collected, and
 	-- quests and full sets finished
 	rareCatches: number,
+	-- #2745 (Derek 2026-11-12, "go w recommend"): when the Golden Pond pass was bought with Robux (os.time), 0 for never
+	-- seen; golden fish offers wait Config.TradeFishPassHoldSeconds after it. A number in stats with a default, so no
+	-- save version (a server without it drops it, and the hold then reads as long past)
+	pondPassAt: number,
+	-- #2745: 1 once this save has been seen owning the Golden Pond pass (a buy on the website or before joining never
+	-- fires the in-game purchase, so the first sighting starts the hold too); 0 before
+	pondSeen: number,
 	goldCatches: number,
 	rainbowCatches: number, -- F99: rainbow cats added by net, rescue or bait
 	tipPilesCollected: number,
@@ -1342,6 +1355,11 @@ export type TelemetryState = {
 	-- first catch or has logged any first_hour step (ProfileSchema), so nothing is counted twice
 	cleanStep: number?,
 	playtimeStep: number?,
+	-- #4504: the furthest step logged of onboarding_v8 (Onboarding.CLEAN_STEPS), 0 before any and the count once out
+	-- of it; cleanStep above keeps v7's numbers, written as v7's count by this code so a server still on v7 logs no v7
+	-- step for a player this code has seen. Optional with a default, so no save version: a server without it drops it,
+	-- and the save then comes back out of v8 once it is past its first catch (ProfileSchema)
+	cleanV8Step: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)

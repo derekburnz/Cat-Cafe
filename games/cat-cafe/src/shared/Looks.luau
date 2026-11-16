@@ -222,6 +222,24 @@ local ACCESSORIES: { Accessory } = {
 		slot = "Head",
 		at = "Hat",
 	},
+	-- #4061 the Ticket Booth's weekly wearables (Model-Agent's booth models): no pass; owned once bought with tickets,
+	-- through the items CafeService hands Looks (TicketBooth.lookItems). Each pays TicketBooth.WEAR_BONUS while worn.
+	{
+		id = "acc_snorkel_mask",
+		name = "Snorkel Mask",
+		piece = "SnorkelMask",
+		slot = "Face",
+		at = "Glasses",
+	},
+	{ id = "acc_swim_cap", name = "Swim Cap", piece = "SwimCap", slot = "Head", at = "Hat" },
+	{ id = "acc_sun_visor", name = "Sun Visor", piece = "SunVisor", slot = "Head", at = "Hat" },
+	{
+		id = "acc_starfish_shades",
+		name = "Starfish Shades",
+		piece = "StarfishShades",
+		slot = "Face",
+		at = "Glasses",
+	},
 }
 for _, accessory in ACCESSORIES do
 	table.freeze(accessory)

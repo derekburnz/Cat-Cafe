@@ -16,10 +16,12 @@
 local FirstVisitLogic = {}
 
 -- each line fits the ask card's one title line on a small phone
+-- #4552 (Derek 2026-11-15: "a-rich text looks too close together"): two spaces after the picture, as one space
+-- reads squashed against the emoji
 FirstVisitLogic.LINES = {
-	rich = "💰 A rich customer is at your cafe!",
-	mystery = "🎁 A visitor left you a gift!",
-	collector = "🐱 The Cat Collector is at your cafe!",
+	rich = "💰  A rich customer is at your cafe!",
+	mystery = "🎁  A visitor left you a gift!",
+	collector = "🐱  The Cat Collector is at your cafe!",
 } :: { [string]: string }
 
 FirstVisitLogic.AWAY_STUDS = 60 -- a plot is 44 studs wide: past its walls and the street in front

@@ -57,12 +57,12 @@ return function()
 		end)
 
 		it(
-			"takes 10 minutes into gold and an hour into rainbow, 25% less with Elder Lore",
+			"is instant into gold and into rainbow, with Elder Lore or not (Derek 2026-11-15)",
 			function()
-				expect(Fusion.seconds("gold")).to.equal(600)
-				expect(Fusion.seconds("rainbow")).to.equal(3600)
-				expect(Fusion.seconds("gold", true)).to.equal(450)
-				expect(Fusion.seconds("rainbow", true)).to.equal(2700)
+				expect(Fusion.seconds("gold")).to.equal(0)
+				expect(Fusion.seconds("rainbow")).to.equal(0)
+				expect(Fusion.seconds("gold", true)).to.equal(0)
+				expect(Fusion.seconds("rainbow", true)).to.equal(0)
 				local profile = profileWith(0)
 				expect(Fusion.hasElderLore(profile)).to.equal(false)
 				profile.dragon.slots = { "", Fusion.ELDER_LORE }
@@ -182,7 +182,7 @@ return function()
 
 	describe("start and collect (QA 1, 2, 4 and 5)", function()
 		it(
-			"takes the five out, keeps the best level, its XP and name, and collects one gold after 10 minutes",
+			"takes the five out, keeps the best level, its XP and name, and collects one gold at once",
 			function()
 				local profile = profileWith(5)
 				profile.cats.a4.level = 40
@@ -197,11 +197,11 @@ return function()
 				expect(running.level).to.equal(40)
 				expect(running.xp).to.equal(123)
 				expect(running.name).to.equal("Biscuit")
-				expect(running.doneAt).to.equal(T + 600)
-				expect(Fusion.collectBlocker(profile.fusion, T + 599)).to.equal(
+				expect(running.doneAt).to.equal(T)
+				expect(Fusion.collectBlocker(profile.fusion, T - 1)).to.equal(
 					Fusion.Messages.notReady
 				)
-				expect(Fusion.collectBlocker(profile.fusion, T + 600)).to.equal(nil)
+				expect(Fusion.collectBlocker(profile.fusion, T)).to.equal(nil)
 				local made, first = Fusion.collect(profile, "new1", T + 9999) -- offline time counts too
 				expect(first).to.equal(true)
 				expect(made.variant).to.equal("gold")
@@ -219,11 +219,11 @@ return function()
 			end
 		)
 
-		it("makes a rainbow from five gold after an hour, lighting its Index entry once", function()
+		it("makes a rainbow from five gold at once, lighting its Index entry once", function()
 			local profile = profileWith(5, MYTH, "gold")
 			profile.rainbowCollection[MYTH] = nil
 			expect(Fusion.start(profile, FIVE, nil, T)).to.equal("rainbow")
-			expect((profile.fusion.running :: any).doneAt).to.equal(T + 3600)
+			expect((profile.fusion.running :: any).doneAt).to.equal(T)
 			local _, first = Fusion.collect(profile, "r1", T + 3600)
 			expect(first).to.equal(true)
 			expect(profile.rainbowCollection[MYTH]).to.equal(T + 3600)
@@ -256,16 +256,72 @@ return function()
 			expect((profile.fusion.running :: any).trait).to.equal(nil)
 		end)
 
-		it("picks the best copy and the four weakest by default", function()
+		it("picks the five lowest level copies by default (#4588)", function()
 			local profile = profileWith(8) -- levels 1 to 8
 			local pick = Fusion.defaultPick(profile, MYTH, "base")
 			table.sort(pick)
-			expect(pick).to.deepEqual({ "a1", "a2", "a3", "a4", "a8" })
-			profile.cats.a1.locked = true
+			expect(pick).to.deepEqual({ "a1", "a2", "a3", "a4", "a5" })
+			profile.cats.a1.locked = true -- a busy low copy is skipped
 			pick = Fusion.defaultPick(profile, MYTH, "base")
 			table.sort(pick)
-			expect(pick).to.deepEqual({ "a2", "a3", "a4", "a5", "a8" })
+			expect(pick).to.deepEqual({ "a2", "a3", "a4", "a5", "a6" })
+			-- a tie on level goes to the one with less XP
+			profile.cats.a1.locked = nil
+			profile.cats.a6.level = 1
+			profile.cats.a6.xp = 0
+			profile.cats.a1.xp = 5
+			pick = Fusion.defaultPick(profile, MYTH, "base")
+			expect(pick[1]).to.equal("a6")
 			expect(#Fusion.defaultPick(profileWith(3), MYTH, "base")).to.equal(3)
+		end)
+	end)
+
+	describe("Fuse all (#4589)", function()
+		local function catsOf(sets: { { string } }): { [string]: number }
+			local seen: { [string]: number } = {}
+			for _, set in sets do
+				expect(#set).to.equal(Fusion.COPIES)
+				for _, uid in set do
+					seen[uid] = (seen[uid] or 0) + 1
+				end
+			end
+			return seen
+		end
+
+		it(
+			"makes one set per five free copies, weakest first, leaving the strongest over",
+			function()
+				local profile = profileWith(12) -- levels 1 to 12
+				local sets = Fusion.allSets(profile)
+				expect(#sets).to.equal(2)
+				local seen = catsOf(sets)
+				for i = 1, 10 do
+					expect(seen["a" .. i]).to.equal(1)
+				end
+				expect(seen.a11).to.equal(nil)
+				expect(seen.a12).to.equal(nil)
+			end
+		)
+
+		it("skips busy copies, rainbow coats and cats short of five", function()
+			local profile = profileWith(6)
+			profile.cats.a1.locked = true
+			profile.cats.a2.locked = true -- only four free now
+			expect(#Fusion.allSets(profile)).to.equal(0)
+			local rainbow = profileWith(5, MYTH, "rainbow")
+			expect(#Fusion.allSets(rainbow)).to.equal(0)
+			local five = profileWith(5)
+			expect(#Fusion.allSets(five, function(uid: string): boolean
+				return uid ~= "a3" -- offered in a trade
+			end)).to.equal(0)
+		end)
+
+		it("stops at ALL_MAX sets and every set can start", function()
+			local profile = profileWith(Fusion.COPIES * (Fusion.ALL_MAX + 2))
+			local sets = Fusion.allSets(profile)
+			expect(#sets).to.equal(Fusion.ALL_MAX)
+			catsOf(sets) -- no copy in two sets
+			expect(Fusion.startBlocker(profile, 10, sets[1], nil, false)).to.equal(nil)
 		end)
 	end)
 
@@ -316,13 +372,12 @@ return function()
 			local view = Fusion.view(profile.fusion, T, false)
 			expect(view.running).to.equal(nil)
 			expect(view.ready).to.equal(false)
-			expect(view.goldSeconds).to.equal(600)
+			expect(view.goldSeconds).to.equal(0)
 			Fusion.start(profile, FIVE, nil, T, true)
-			view = Fusion.view(profile.fusion, T + 449, true)
+			view = Fusion.view(profile.fusion, T, true)
 			expect((view.running :: any).catId).to.equal(MYTH)
-			expect(view.ready).to.equal(false)
-			expect(view.goldSeconds).to.equal(450)
-			expect(Fusion.view(profile.fusion, T + 450, true).ready).to.equal(true)
+			expect(view.ready).to.equal(true) -- instant (Derek 2026-11-15)
+			expect(view.goldSeconds).to.equal(0)
 		end)
 	end)
 end

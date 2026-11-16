@@ -2557,6 +2557,9 @@ local function quiet(): boolean
 	if not UI.pace.free() then
 		return false -- #4833: 5 minutes after any card that opened by itself
 	end
+	if UI.pace.early() then
+		return false -- #4854: no notification, favourite, like or invite ask in the first 5 minutes
+	end
 	local tips: any = (UI :: any).tips
 	if tips == nil or type(tips.quiet) ~= "function" then
 		return true

@@ -6450,6 +6450,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- F96 section 3: the favorite ask on the tip card
 	{ "FavoriteAsk", function()
+		UI.asks.skipPace() -- #4854: as if the session had run its first 5 minutes
 		UI.asks.show("favorite_ask")
 	end },
 	-- the Index's Exclusive page, after every area

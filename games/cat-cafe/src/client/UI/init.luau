@@ -107,12 +107,20 @@ UI.afk = nil :: any
 -- `clearedAt`: os.clock() the walk-through hold last ended, so a held event card waits a beat past it (CARD_AFTER)
 UI.firstCat = { held = false, tutorial = false, clearedAt = nil :: number?, CARD_AFTER = 3 }
 -- #4833 (Components/PopupPace): one self-opening card every 5 minutes; `last` the os.clock() the last one showed
-UI.pace = { last = nil :: number? }
+UI.pace = { last = nil :: number?, startedAt = os.clock() }
 function UI.pace.free(): boolean
 	return require(script.Components.PopupPace).free(UI.pace.last, os.clock())
 end
 function UI.pace.took()
 	UI.pace.last = os.clock()
+end
+-- #4848/#4854: the session's first 5 minutes or the walk-through: no social asks and no cafe rest banner
+function UI.pace.early(): boolean
+	return require(script.Components.PopupPace).early(
+		UI.pace.startedAt,
+		os.clock(),
+		UI.firstCat.tutorial
+	)
 end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
@@ -6172,6 +6180,7 @@ do
 			or (id ~= Tips.FAVORITE_ASK and id ~= Tips.LIKE_ASK)
 			or not TipQueue.free(tipMoment())
 			or not UI.pace.free() -- #4833
+			or UI.pace.early() -- #4854: no favourite or like ask in the first 5 minutes or the walk-through
 		then
 			return false
 		end
@@ -6272,7 +6281,9 @@ do
 		if not tutorialButtonOn then
 			return false
 		end
-		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk) and UI.pace.free() -- #4833
+		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
+			and UI.pace.free() -- #4833
+			and not UI.pace.early() -- #4854: never in the walk-through either
 	end
 
 	-- #2880: a slide-in ask just showed, so the next one waits AskPacing.GAP_SECONDS
@@ -6286,6 +6297,7 @@ do
 		sessionStart = os.clock() - AskPacing.FIRST_SECONDS
 		early.lastAsk = nil
 		UI.pace.last = nil -- #4833
+		UI.pace.startedAt = os.clock() - require(script.Components.PopupPace).EARLY_SECONDS -- #4854
 	end
 
 	local function openAsk(card: AskCard.AskCard)
@@ -11224,7 +11236,8 @@ do
 
 	function UI.rest.calm(): boolean
 		local tips: any = UI.tips
-		return tips.calm()
+		-- #4848: no "Stand still for 2x money" banner in the first 5 minutes or the walk-through
+		return tips.calm() and not UI.pace.early()
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session

@@ -434,6 +434,13 @@ end
 function TutorialArrow.add(target: GuiObject, low: boolean?)
 	for _, entry in entries do
 		if entry.target == target then
+			-- #4847 follow-up (Sync's camp run: "You can rank up!" with no dim): the goal card's ready nudge adds the
+			-- card as a `low` target first, so the rank up walk-through's spotlight on the same card found it there
+			-- and kept it low, with no dim. A tutorial ask on a low target lifts it.
+			if entry.low and low ~= true then
+				entry.low = false
+				watch()
+			end
 			return
 		end
 	end

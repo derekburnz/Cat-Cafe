@@ -163,7 +163,9 @@ end
 -- #4195 (Derek 2026-11-14: "owner chat commands to start each admin event himself"): `/admin <kind> [minutes]
 -- [now]` and `/admin stop`, any case. `kind` is one of CafeEvents.ADMIN_KINDS (EventService answers an unknown one
 -- with the list); `minutes` is the kind's own length when none is typed; `now` as the last word skips the 2 minute
--- warning.
+-- warning. #4876 (Derek 2026-11-16: "have a number that I can put after /admin wheel # to decide the number of
+-- spins but if no number put just do 1"): for the wheel the first number is the spins and a second the minutes,
+-- `/admin wheel 3`, `/admin wheel 3 10 now`.
 --   isAdminCommand(text)       the chat line is "/admin" alone or "/admin ..."
 --   adminAsk(text) -> AdminAsk  what it asks for
 function OwnerTest.isAdminCommand(text: unknown): boolean
@@ -174,7 +176,7 @@ function OwnerTest.isAdminCommand(text: unknown): boolean
 	return lower == "/admin" or string.sub(lower, 1, 7) == "/admin "
 end
 
-export type AdminAsk = { stop: boolean, kind: string, minutes: number?, now: boolean }
+export type AdminAsk = { stop: boolean, kind: string, minutes: number?, now: boolean, spins: number? }
 
 function OwnerTest.adminAsk(text: string): AdminAsk
 	local words: { string } = {}
@@ -186,11 +188,23 @@ function OwnerTest.adminAsk(text: string): AdminAsk
 		return { stop = true, kind = "stop", minutes = nil, now = false }
 	end
 	local skip = #words >= 3 and words[#words] == "now"
-	local minutes = tonumber(words[3] or "")
-	if minutes ~= nil and (minutes ~= minutes or minutes < 1 or minutes == math.huge) then
-		minutes = nil
+	local function whole(word: string?): number?
+		local value = tonumber(word or "")
+		if value ~= nil and (value ~= value or value < 1 or value == math.huge) then
+			return nil
+		end
+		return value
 	end
-	return { stop = false, kind = kind, minutes = minutes, now = skip }
+	if kind == "wheel" then
+		return {
+			stop = false,
+			kind = kind,
+			minutes = whole(words[4]),
+			now = skip,
+			spins = whole(words[3]),
+		}
+	end
+	return { stop = false, kind = kind, minutes = whole(words[3]), now = skip }
 end
 
 export type EventAsk = { stop: boolean, preset: string, minutes: number }

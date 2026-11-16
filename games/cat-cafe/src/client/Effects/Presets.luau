@@ -3943,6 +3943,24 @@ Presets.adminDrops = {
 		fresh = 2, -- seconds after the server's DroppedAt that a fish still arcs in; later it streamed in and just shows
 		remember = 120, -- seconds a fish's spot is remembered, so one streaming back in does not arc again
 	},
+	-- the pickup pop (Derek2 11-16): a bead `bead` studs wide hops `hop` studs and shrinks away over `seconds`, with
+	-- `glints` glints and a `ring` stud ring; only within `within` studs, and only when a character was within
+	-- `reach` studs of the fish as it went (a touch, not a fish running out)
+	pickup = {
+		-- a fish's life on the server (AdminDropService FISH_LIFE, from its DroppedAt): one going within `margin` of it
+		-- ran out, so it gets no pop
+		life = 20,
+		margin = 1,
+		reach = 7,
+		within = 120,
+		bead = 0.7,
+		hop = 2,
+		seconds = 0.35,
+		glint = "coinGlint",
+		glints = 5,
+		ring = 3,
+		colour = Presets.palette.golden,
+	},
 	crate = {
 		seconds = 3,
 		height = 45,
@@ -3958,6 +3976,25 @@ Presets.adminDrops = {
 		ringSeconds = 0.5,
 		puff = "stormPuff",
 		puffCount = 10,
+	},
+	-- #4888 the crate grab pop (Effects/AdminDrops.popCrate): a copy of `art` on the spot, its lid turning `lidDegrees`
+	-- over `open` seconds, held `hold`, then shrunk away over `shrink`; `count` sparkles `lift` studs up and a `ring`
+	-- stud ring. Only within `within` studs, and only when a character was within `reach` studs as it went.
+	cratePop = {
+		art = "CatCafe_Prop_Crate_Drop",
+		life = 90, -- a crate's life after it lands (AdminDropService CRATE_LIFE, from LandsAt); later it ran out
+		reach = 9,
+		within = 140,
+		lidDegrees = 110,
+		open = 0.25,
+		hold = 0.25,
+		shrink = 0.3,
+		burst = "catchSparkle",
+		count = 14,
+		lift = 2.5,
+		ring = 6,
+		ringSeconds = 0.4,
+		colour = Presets.palette.golden,
 	},
 }
 

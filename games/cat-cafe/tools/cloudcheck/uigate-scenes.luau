@@ -11688,7 +11688,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(line.Text == "📦 1 crate to open", "uigate: crates did not come first over the treats line (#2571)")
 		UI.update({ crates = {} } :: any)
 		assert(
-			gui.Enabled and line.Text == "🍪 Treats and perks to check out!",
+			gui.Enabled and line.Text == "🍪 Treats and perks\nto check out!", -- #4677: a fixed line break
 			"uigate: the Fish Market's ! does not ask to check the treats: " .. line.Text .. " (#2571)"
 		)
 		UI.update({ storeSeen = { treats = 1 } } :: any)

@@ -32,6 +32,8 @@
 -- - `swiftPaws5` (#3317): Swift Paws levels 3 to 5 in the Golden Fish Market (shared/SwiftPaws). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added them is running, since an
 --   older server keeps a saved level only up to 2.
+-- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
+--   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
 -- - `mouseDash` (#3296): the Cat Arcade's second game, Mouse Dash (shared/MouseDash). It starts OFF (OFF_BY_DEFAULT)
 --   until QA passes: off refuses a start; a game already running finishes and pays. On, it is the game the
 --   cabinet and the Menu row open (Derek 2026-11-11: "Swap this in for the current arcade game and vault the other
@@ -140,6 +142,7 @@ LiveFlags.KEYS = {
 	"goldenDrops",
 	"traits",
 	"swiftPaws5",
+	"swiftPaws10", -- #4705
 	"mouseDash",
 	"circleStreak",
 	"cartTier6",
@@ -207,6 +210,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	goldenDrops = true,
 	traits = true,
 	swiftPaws5 = true,
+	swiftPaws10 = true, -- #4705
 	mouseDash = true,
 	cartTier6 = true,
 	secretCats = true,

@@ -32,6 +32,10 @@ export type HintView = {
 	-- #2477: the walk-through ended this session (tutorialStep reached WALKTHROUGH_STEP, the bait bowl step done), and
 	-- nothing has launched since
 	wrapUp: boolean?,
+	-- #4674: bowl first, the bowl part is still to do (food in, its cat claimed): no cannon hint yet
+	bowlPending: boolean?,
+	-- #4674 (Derek 2026-11-16: "no need for the hop in cannon to catch more cats"): bowl first has no wrap-up line
+	bowlFirst: boolean?,
 }
 
 local CannonLogic = {}
@@ -240,7 +244,7 @@ end
 -- this session (the bait bowl step), "Hop in the cannon to catch more cats!" with the arrow until the next flight,
 -- ahead of any onboarding line; it is session-only, so a rejoin does not bring it back (#2411).
 function CannonLogic.hint(view: HintView): string?
-	if not view.on or view.wild or view.intro then
+	if not view.on or view.wild or view.intro or view.bowlPending == true then
 		return nil
 	end
 	local text: string? = nil
@@ -253,7 +257,7 @@ function CannonLogic.hint(view: HintView): string?
 		and view.tutorialStep < CannonLogic.WALKTHROUGH_STEP
 	then
 		text = "Hop in the cannon to fly to the " .. view.first .. "!"
-	elseif view.wrapUp and not view.launched then
+	elseif view.wrapUp and not view.launched and view.bowlFirst ~= true then
 		return CannonLogic.WRAP_UP_HINT
 	end
 	if text and view.told and view.tutorialStep >= 2 then

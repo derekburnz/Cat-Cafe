@@ -433,10 +433,14 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 	if
 		itemId == SwiftPaws.ID
 		and (profile.fishPerks[itemId] or 0)
-			>= SwiftPaws.topLevel(row.maxLevel or 1, LiveFlagService.on(SwiftPaws.FLAG_FIVE))
+			>= SwiftPaws.topLevel(
+				row.maxLevel or 1,
+				LiveFlagService.on(SwiftPaws.FLAG_FIVE),
+				LiveFlagService.on(SwiftPaws.FLAG_TEN)
+			)
 	then
-		-- #3317: levels 3 to 5 wait on their own switch until no older server is left; nothing is spent
-		Net.toast(player, "Swift Paws levels 3 to 5 open soon", "warn")
+		-- #3317, #4705: the higher levels wait on their own switches until no older server is left; nothing is spent
+		Net.toast(player, "More Swift Paws levels open soon", "warn")
 		CafeService.sync(player)
 		return
 	end

@@ -545,15 +545,16 @@ function EventService.ownerStart(preset: string, minutes: number): (string, bool
 		true
 end
 
--- #3212: `/event stop` in a live server. #4870: every normal event running or counting down comes out of the
--- schedule, the events workflow's too (CafeEvents.stopRemove), so every banner, chip and strip for it goes.
+-- #3212: `/event stop` in a live server. #4870: every event on screen, normal (running or counting down) and admin
+-- (running or in its warning), comes out of the schedule, the events workflow's too (CafeEvents.stopRemove), so
+-- every banner, chip, strip and the Admin Wheel go.
 function EventService.ownerStop(): (string, boolean)
 	if not live() then
 		return "the events store is off in this place", false
 	end
 	local removed = 0
 	local ok = rewrite(function(raw: unknown): { any }?
-		local list, count = CafeEvents.stopRemove(raw, now(), false)
+		local list, count = CafeEvents.stopRemove(raw, now())
 		removed = count
 		return if count > 0 then list else nil
 	end)
@@ -561,7 +562,7 @@ function EventService.ownerStop(): (string, boolean)
 		return "the events store did not answer; nothing changed", false
 	end
 	if removed == 0 then
-		return "no event is running or counting down", false
+		return "no event is running, counting down or in its warning", false
 	end
 	EventService.refresh()
 	return string.format(

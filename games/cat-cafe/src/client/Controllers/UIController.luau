@@ -536,6 +536,17 @@ local function newKindGoal(s: Types.PlayerState): boolean
 	if s.tutorialStep < 5 or not UI.newKind.on() then
 		return false
 	end
+	-- #4809: Tier 2 takes any 3 cats, so once the owned cats meet it the card hands over to the rank up, not
+	-- "Catch new kinds of cat 2/3" while the Rank Up is ready
+	local nextTier = Catalog.getTier((s.tier or 1) + 1)
+	if
+		nextTier ~= nil
+		and nextTier.anyCats == true
+		and NewKindEconomy.rankUpCats(s.collection or {}, s.cats :: any, nextTier)
+			>= nextTier.distinctCats
+	then
+		return false
+	end
 	local opening = s.grandOpening
 	local current = if opening ~= nil then GrandOpening.current(opening) else nil
 	local step = if current ~= nil then GrandOpening.STEPS[current] else nil

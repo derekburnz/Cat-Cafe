@@ -3249,7 +3249,10 @@ local function onRelease(player: Player, profile: Profile)
 			"quit_have",
 			played,
 			StepGaps.quitFields(
-				Economy.rankUpCatCount(profile.collection),
+				-- #4809: the cats toward Tier 2 as its need counts them (any kind, duplicates included)
+				if tier2 ~= nil
+					then Economy.rankUpCats(profile.collection, profile.cats, tier2)
+					else Economy.rankUpCatCount(profile.collection),
 				profile.coins,
 				if tier2 ~= nil then tier2.cost else 0,
 				Economy.rankUpBlocker(profile) == nil

@@ -80,7 +80,7 @@ WhatsNew.rows = table.freeze({
 		date = "2026-11-16",
 		startsAt = SECRETS_AT,
 		icon = "fix",
-		text = "Smoother start for new playe",
+		text = "Smoother new player start",
 	},
 	{
 		id = "rank_costs_lower",

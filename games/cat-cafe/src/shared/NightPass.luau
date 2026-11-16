@@ -88,7 +88,8 @@ end
 -- #4916: how many Park kinds a collection holds.
 function NightPass.parkCats(collection: { [string]: any }?): number
 	local count = 0
-	for catId in collection or {} do
+	local held: { [string]: any } = collection or {} -- one type: luau-lsp refused to iterate the union (CI)
+	for catId in held do
 		local def = Catalog.getCat(catId)
 		if def ~= nil and def.area == NightPass.PARK_AREA then
 			count += 1

@@ -4955,8 +4955,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.bait.showReady(cat, 1)
 		local card = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
 		local tame = card:FindFirstChild("Tame", true)
-		assert(card:FindFirstChild("LetGo", true).Visible and card:FindFirstChild("Close", true).Visible,
-			"uigate: a later bowl cat's card lost Let go or the X (#3815)")
+		-- #4849 (Derek: "just remove the let go button from the game"): Let go never shows; the X is back
+		assert(card:FindFirstChild("Close", true).Visible, "uigate: a later bowl cat's card lost the X (#3815)")
+		assert(not card:FindFirstChild("LetGo", true).Visible, "uigate: Let go still shows on a bowl cat's card (#4849)")
 		assert(tame:FindFirstChild("TutorialGlow") == nil, "uigate: a later bowl cat's Tame still glows (#3815)")
 		-- the first bowl cat's card, as the scene's picture
 		UI.update({ tutorialStep = 4 })
@@ -4983,7 +4984,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		-- a bowl cat after one was tamed is a later one
 		UI.update({ stats = { luresUsed = 2, baitsTamed = 1 } } :: any)
 		UI.bait.showReady(cat, 1)
-		assert(card:FindFirstChild("LetGo", true).Visible, "uigate: a second bowl cat before the check-in lost Let go (#4920)")
+		assert(tame:FindFirstChild("TutorialGlow") == nil, "uigate: a second bowl cat's Tame still glows (#4920)")
+		assert(not card:FindFirstChild("LetGo", true).Visible, "uigate: Let go still shows on a second bowl cat (#4849)")
 		RS:SetAttribute("LiveFlag_" .. TutorialOrder.FLAG, flagWas)
 		UI.update({ tutorialStep = 4, stats = statsWas } :: any)
 		UI.bait.showReady(cat, 1)

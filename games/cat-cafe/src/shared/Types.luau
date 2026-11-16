@@ -1654,7 +1654,7 @@ export type PlayerState = {
 	traits: TraitsView?,
 	-- #4195: the Admin Wheel that is up now (AdminWheel.view): its event's id and end, and whether this account has
 	-- spun it; nil with no wheel up
-	adminWheel: { eventId: string, spun: boolean, endsAt: number }?,
+	adminWheel: { eventId: string, spun: boolean, endsAt: number, spins: number, left: number }?, -- #4876 spins, left
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

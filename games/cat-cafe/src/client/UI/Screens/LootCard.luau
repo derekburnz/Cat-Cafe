@@ -169,6 +169,12 @@ function LootCard._row(self: any, index: number, row: LootCardLogic.Row): Frame
 		)
 	elseif row.kind == "potion" then
 		icon:setPotion(row.id, "Epic")
+	elseif row.kind == "coins" then -- #4884: the Mystery gift's money, spins and cat food
+		icon:set(nil, "💰", "Rare", ShopIcons.prize("coins"))
+	elseif row.kind == "spin" then
+		icon:set(nil, Theme.icons.spin, "Rare", ShopIcons.prize("spins"))
+	elseif row.kind == "food" then
+		icon:set(nil, ShopIcons.snackGlyph(row.id), "Rare", ShopIcons.catFood(row.id))
 	else
 		icon:set(nil, Theme.icons.goldenFish, "Legendary", ShopIcons.prize("fish"))
 	end

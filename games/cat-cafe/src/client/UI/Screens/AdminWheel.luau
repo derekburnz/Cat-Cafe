@@ -31,13 +31,20 @@ local AdminWheelShared =
 export type Callbacks = {
 	spin: () -> (),
 	close: () -> (),
-	toast: (text: string) -> (), -- a prize that lands while the window is closed
+	-- #4876: the prize card (Screens/WheelPrize): a second after the wheel lands, or at once when the window is closed
+	won: (prizeId: string, words: string, catId: string) -> (),
 }
 
 export type AdminWheel = {
 	frame: Frame,
 	setWheel: (self: AdminWheel, wheel: AdminBarLogic.Wheel?) -> (),
-	result: (self: AdminWheel, slice: number, prizeId: string, paid: { string }) -> (),
+	result: (
+		self: AdminWheel,
+		slice: number,
+		prizeId: string,
+		paid: { string },
+		catId: string?
+	) -> (),
 	refresh: (self: AdminWheel) -> (),
 	isOpen: (self: AdminWheel) -> boolean,
 	destroy: (self: AdminWheel) -> (),
@@ -54,6 +61,7 @@ local RIM_LIGHTS = 20
 local ROW_H = 26
 local SPIN_H = 50
 local SPIN_SECONDS = 4.5
+local SHOW_AFTER = 1 -- #4876: seconds the landed wheel rests before the prize card takes over
 local SPIN_TURNS = 5
 local RIM = Theme.colors.cocoa
 local INK = Theme.colors.outline
@@ -436,7 +444,13 @@ function AdminWheel.setWheel(self: any, wheel: AdminBarLogic.Wheel?)
 end
 
 -- From AdminWheelResult: the wheel turns to `slice` and says what it paid. 0 is a refusal.
-function AdminWheel.result(self: any, slice: number, prizeId: string, paid: { string })
+function AdminWheel.result(
+	self: any,
+	slice: number,
+	prizeId: string,
+	paid: { string },
+	catId: string?
+)
 	if slice < 1 or slice > #prizes() then
 		self._spinning = false
 		self:refresh()
@@ -447,12 +461,12 @@ function AdminWheel.result(self: any, slice: number, prizeId: string, paid: { st
 	local words = if type(paid) == "table" and #paid > 0
 		then table.concat(paid, ", ")
 		else prize.name
-	local _ = prizeId
+	local cat = catId or ""
 	if not self.frame.Visible then
 		self._spinning = false
 		self._won = words
 		self:refresh()
-		self._callbacks.toast("Admin Wheel: you won " .. words .. "!")
+		self._callbacks.won(prizeId, words, cat)
 		return
 	end
 	self._spinning = true
@@ -477,6 +491,10 @@ function AdminWheel.result(self: any, slice: number, prizeId: string, paid: { st
 		self._spinning = false
 		self._won = words
 		self:refresh()
+		-- #4876: a second to see where it landed, then the prize card
+		task.delay(SHOW_AFTER, function()
+			self._callbacks.won(prizeId, words, cat)
+		end)
 	end)
 	tween:Play()
 end

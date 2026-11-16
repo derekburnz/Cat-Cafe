@@ -171,7 +171,7 @@ function OwnerTestService.adminCommand(userId: number, text: string): string?
 	end
 	local ask = OwnerTest.adminAsk(text)
 	if testPlace() then
-		local line = EventService.startAdminTest(ask.kind, ask.minutes, ask.now)
+		local line = EventService.startAdminTest(ask.kind, ask.minutes, ask.now, ask.spins)
 		print(`[OwnerTest] {userId} /admin {ask.kind}: {line}`)
 		return "Owner test mode: " .. line
 	end
@@ -179,7 +179,7 @@ function OwnerTestService.adminCommand(userId: number, text: string): string?
 	if ask.stop then
 		line, changed = EventService.ownerAdminStop()
 	else
-		line, changed = EventService.ownerAdmin(ask.kind, ask.minutes, ask.now)
+		line, changed = EventService.ownerAdmin(ask.kind, ask.minutes, ask.now, ask.spins)
 	end
 	print(`[OwnerTest] {userId} /admin {ask.kind} (live): {line}`)
 	if changed then

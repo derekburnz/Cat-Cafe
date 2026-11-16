@@ -526,6 +526,10 @@ function applyTutorial()
 	then
 		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
 	end
+	-- #4836: the Tutorial tile's × waits to pulse until the Park is reached, so its arrow never shows beside the walk's
+	if hud then
+		hud:holdHide((walk and (state.tier or 1) >= 2 and not park.reached) == true)
+	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
 	-- #4480: with the walk off, the Tier 2 rank up ends it, so the X stops waiting for the Park there
@@ -1727,6 +1731,11 @@ function UI.init(config: Types.InitConfig)
 		return hudInstance:edgeAvoid()
 	end)
 	popups = Popups.new(parent)
+	if popups then -- narrows Popups? for luau-lsp (CI)
+		popups:glowOkWhen(function() -- #4836: the walk-through's new cat card points at its "Nice!"
+			return UI.firstCat.tutorial
+		end)
+	end
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
 	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
 	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server
@@ -4044,8 +4053,9 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
-	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
-	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
+	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
+	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
+	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same with the paw trail switched off
 }
 
 -- #4480: whether the walk to the Park shows at all (the strip line, the "is open" hint, "Fly to the Park"): the
@@ -4152,8 +4162,16 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	-- window the button gets the ring, the arrow and the words but no dim (Sync's Studio run of #4769: the dim over an
 	-- open window covered its X and Escape did nothing), and a controller's selection lands on it so A ranks up
 	local confirm = phase == "confirm"
-	UI.rankSpot.close =
-		SpotlightGuide.show(target, words or "", onOutside, phase == "button", confirm)
+	-- #4909 (Sync's rerun: the "You can rank up!" bubble sat over the strip and hid its line): on the strip's own
+	-- RANK UP the strip's words say it, so no bubble
+	local onStrip = phase == "button" and target.Name == "TutorialBuy"
+	UI.rankSpot.close = SpotlightGuide.show(
+		target,
+		if onStrip then "" else words or "",
+		onOutside,
+		phase == "button" and not onStrip,
+		confirm
+	)
 	if confirm then
 		local pad = require(script.Components.GamepadNav) :: any
 		-- the Button component is a frame round its Face: the selection goes on the GuiButton

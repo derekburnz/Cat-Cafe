@@ -1083,7 +1083,7 @@ local function stepFourFood()
 	-- #3285: an empty bowl is false in the UI's state (UIController), as UI.update skips a nil
 	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 }, bait = false } :: any)
 	UI.bait.set(nil)
-	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap Bowl, then Use on Kibble")
+	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap Bowl, then Use on Kibble to call a cat")
 	task.wait(0.1)
 end
 -- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
@@ -9302,7 +9302,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				strip = piece.Text
 			end
 		end
-		assert(string.find(strip, "Hop in the cannon to fly to the", 1, true) ~= nil, "uigate: bowl first's strip reads " .. strip .. " (#4777)")
+		assert(string.find(strip, "Hop in the cannon: wild cats wait in the", 1, true) ~= nil, "uigate: bowl first's strip reads " .. strip .. " (#4777)")
 		local lit: GuiObject? = nil
 		for _, piece in hud:GetDescendants() do
 			if piece.Name == "TutorialGlow" and piece.Parent and piece.Parent:IsA("GuiObject") then
@@ -9364,7 +9364,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(
-			table.find(texts, "Hop in the cannon to catch more cats!"),
+			table.find(texts, "Hop in the cannon: catch more cats to rank up!"),
 			"uigate: the tutorial strip after the bowl reads " .. table.concat(texts, " | ") .. " (#2477)"
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
@@ -10089,7 +10089,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(tile:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Bowl tile still rings with food in the bowl (#3285)")
 		assert(tutorialSpotlight() == nil, "uigate: the screen still dims with food in the bowl (#3285)")
 		local line = UI.tutorial.hint(UI.getState())
-		assert(line == "A cat is on its way to your bowl", ("uigate: the food step's strip says %q with food in the bowl (#3285)"):format(tostring(line)))
+		assert(line == "A cat smells your food. It's on its way!", ("uigate: the food step's strip says %q with food in the bowl (#3285)"):format(tostring(line)))
 		UI.update({ bait = false } :: any)
 	end },
 	{ "TutorialFoodUse", function()
@@ -10495,7 +10495,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		UI.cannon.wrapUp.on = false
 		assert(
-			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Hop in the cannon to catch more cats!"),
+			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Hop in the cannon: catch more cats to rank up!"),
 			"uigate: after the walk-through the strip reads " .. table.concat(texts, " | ") .. ", not the rank up line (#4383)"
 		)
 	end },
@@ -10655,6 +10655,42 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
+	end },
+	-- #4909 (Sync's Studio run: the arrow stayed on the HUD's Cannon behind a NEW EPIC CAT card): in the walk-through
+	-- the card's Nice! takes the arrow from a HUD tutorial target, with no dim over the card
+	{ "CatFoundLeads", function()
+		local Glow = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.TutorialGlow") :: any
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local cannon = hud:FindFirstChild("Cannon", true) :: GuiObject
+		assert(cannon ~= nil, "uigate: no Cannon tile on the HUD")
+		Glow.set(cannon, true)
+		local was = UI.firstCat.tutorial
+		UI.firstCat.tutorial = true
+		local big = Catalog.cats[2]
+		for _, def in Catalog.cats do
+			if def.rarity == "Legendary" then
+				big = def -- a big card whatever the save already holds (CatFoundLogic.big)
+				break
+			end
+		end
+		UI.showCatFound(big.id, true)
+		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups") :: ScreenGui
+		local card = popups:FindFirstChild("CatFound", true) :: GuiObject
+		-- the card may wait its turn behind a pop-up an earlier scene left; then its pop in settles
+		for _ = 1, 20 do
+			if card.Visible then
+				break
+			end
+			UIShim.advance(0.5)
+		end
+		assert(card.Visible, "uigate: the cat found card did not show")
+		UIShim.advance(1)
+		local ok = card:FindFirstChild("Ok", true) :: GuiObject
+		assert(ok ~= nil, "uigate: no Nice! on the cat found card")
+		assertArrowAt(ok, "Nice! on the cat found card")
+		assert(tutorialSpotlight() == nil, "uigate: the cat found card is dimmed")
+		UI.firstCat.tutorial = was
+		Glow.set(cannon, false)
 	end },
 	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets no big
 	-- card and (#2844) no toast; a repeat Legendary still gets the card

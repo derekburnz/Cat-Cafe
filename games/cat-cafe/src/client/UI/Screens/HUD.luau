@@ -181,6 +181,7 @@ export type HUD = {
 	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
+	holdHide: (self: HUD, held: boolean) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	setMoneyBadge: (
@@ -2348,6 +2349,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	Outline.text(self._tutorial) -- label() skips the outline on wrapped text
+	-- #4928 (Sync's run): the cannon arrow kept off the strip's words ("wait in" was covered on PC)
+	self._tutorial:SetAttribute(TutorialArrow.AVOID, true)
 	Create("UICorner", { CornerRadius = UDim.new(0, 20), Parent = self._tutorial })
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, strip.padX),
@@ -2994,6 +2997,23 @@ end
 -- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing"): the tutorial often
 -- ends mid-moment (a catch, a cut, a window), when the pulse played unseen or not at all; it now waits up to
 -- HIDE_WAIT_SECONDS for the tile to be on screen with no catch, and a gold "Hide tips" tag beside the tile points at it.
+-- #4836: holds the ×'s pulse while the walk to the Park still guides (UI's applyTutorial); a pulse that came due
+-- meanwhile plays HIDE_AFTER after the hold lets go.
+function HUD.holdHide(self: any, held: boolean)
+	if self._hideHeld == held then
+		return
+	end
+	self._hideHeld = held
+	if not held and self._hidePending == true then
+		self._hidePending = false
+		task.delay(HIDE_AFTER, function()
+			if not self._gone then
+				self:pulseHide()
+			end
+		end)
+	end
+end
+
 function HUD._hideFree(self: any): boolean
 	return self._tutorialTile.instance.Visible == true
 		and self.screenGui.Enabled == true
@@ -3125,7 +3145,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
 		-- go first; pulseHide then waits for the HUD to be back on screen
 		task.delay(HIDE_AFTER, function()
-			if not self._gone then
+			if self._gone then
+				return
+			end
+			-- #4836 (Sync's pointer audit: "after RANK UP an extra HUD arrow at top right points at the Tutorial
+			-- button's red X"): while the walk to the Park still guides (holdHide), the × waits for the Park, so one
+			-- arrow shows at a time
+			if self._hideHeld == true then
+				self._hidePending = true
+			else
 				self:pulseHide()
 			end
 		end)
@@ -4091,7 +4119,18 @@ function HUD.pointCannon(self: any, on: boolean)
 end
 
 -- #3555: the goal card, the button that opens the rank up window, while it is on screen.
+-- #4909 (Sync's Studio run: the strip said "Tap RANK UP" while the walk-through's arrow moved to YOUR GOAL): the
+-- strip's RANK UP button first while it shows, so the arrow stays on the button the words name
 function HUD.goalButton(self: any): GuiObject?
+	local buy = self._stripBuy
+	if
+		buy ~= nil
+		and buy.instance.Visible
+		and self._tutorial.Visible
+		and self.screenGui.Enabled
+	then
+		return buy.instance
+	end
 	local frame: GuiObject = self._goal.frame
 	if frame.Visible and self.screenGui.Enabled then
 		return frame

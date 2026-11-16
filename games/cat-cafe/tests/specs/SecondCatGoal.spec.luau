@@ -60,9 +60,9 @@ return function()
 							open
 						)
 						expect(view).to.deepEqual({
-							title = "Bring your cat to the camp 🐾",
+							title = "Carry it to camp to keep it 🐾",
 							lines = {},
-							chip = "Bring your cat to the camp 🐾",
+							chip = "Carry it to camp to keep it 🐾",
 						})
 					end
 				end

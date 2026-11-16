@@ -2487,7 +2487,19 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		return
 	end
 
-	if easyCatch(player, profile, stray) then
+	-- #4815 (Derek 2026-11-16): in the walk-through (Tier 1) a missed catch never scares the cat either: it stays put
+	-- with no sprint or wait, as a beginner's tutorial stray does
+	local easy = easyCatch(player, profile, stray)
+	if easy or NetSwing.calm(M.Economy.tier(profile)) then
+		if not easy then
+			-- a Tier 1 miss that would have bolted before, so the bolt read can tell the two apart
+			Telemetry.custom(
+				player,
+				"catch_finish",
+				#attempt.grades,
+				{ "calm_miss", rarity, stray.mood }
+			)
+		end
 		tutorialMiss(player, stray, attempt, forfeit, funnel)
 		return
 	end
@@ -2980,7 +2992,7 @@ local function landSwing(player: Player)
 		and (swingRescue :: (Player, Vector3, Vector3) -> boolean)(player, origin, look)
 	then
 		started = true -- #2341: it landed on a stuck cat; RescueService answers as for its prompt
-	elseif near > 0 and NetSwing.missHops(profile.tutorialStep) then
+	elseif near > 0 and NetSwing.missHops(profile.tutorialStep, M.Economy.tier(profile)) then
 		for _, other in strays do
 			if
 				hoppable(other, player, now)

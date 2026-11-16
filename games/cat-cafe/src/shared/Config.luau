@@ -314,6 +314,9 @@ local Config = {
 	NetSwingCooldown = 0.8,
 	NetSmackDelay = 0.22, -- Derek 2026-11-03 OK'd the smoother swing landing at 0.22 s (was 0.15)
 	NetReachStuds = 7,
+	-- #4815 (Derek 2026-11-16: "while in tutorial steps make it so that missed net swings can't scare cats and that
+	-- the net radius is bigger"): extra reach while the cafe is still Tier 1 (NetSwing.calm), on top of any other
+	TutorialNetExtraStuds = 3,
 	NetSlackStuds = 1.5,
 	NetArcDegrees = 60,
 	-- #2693 (Derek2 2026-11-09: easier to hit on mobile): within NetNearStuds of the feet the arc is NetNearArcDegrees

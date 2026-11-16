@@ -2188,6 +2188,11 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
+	do -- #4815: the tutorial's bigger net ends at Tier 2, so the client's reach glow (NetExtraStuds) shrinks with it
+		local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+		local extra = NetSwing.extraForProfile(profile)
+		player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
+	end
 	local fish = GoldenFish.forRankUp(def.tier) -- F52
 	GoldenFish.credit(profile, fish)
 	Telemetry.fishSource(player, profile, fish, "Gameplay", "rank_up")

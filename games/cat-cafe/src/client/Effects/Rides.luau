@@ -6,10 +6,9 @@
 --
 -- The set's Models keep their pivots at the set's origin, so the axis is read from the piece itself: through the
 -- middle of its box, straight up for the carousel and the teacups, along the box's thin side for the wheel
--- (Logic.rideAxis). The box is measured on the piece's copy in ReplicatedStorage.Assets where there is one, since
--- that copy is always whole while the one in the world may still be streaming in, and carried over through the
--- piece's PrimaryPart. A piece only turns once every part of it is here and anchored; if a part streams in or the
--- server moves it after that, it goes back to where it was built and is read again.
+-- (Logic.rideAxis), measured on the placed piece (the set's template is server only, #4601). A piece only turns once
+-- every part of it is here and anchored; if a part streams in or the server moves it after that, it goes back to
+-- where it was built and is read again.
 --
 -- The turning pieces do not collide on this client (they could not carry a player, and would shove one): players
 -- stand on the ride's still deck.
@@ -18,7 +17,6 @@
 -- lite budget), at the budget's update rate and never faster than `hz`. Reduce Motion and Low performance leave
 -- every ride still. A ride that stops stays where it is, so nothing snaps back in view. Numbers in Presets.rides.
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -56,16 +54,6 @@ local function specOf(name: string): Presets.Ride?
 	return nil
 end
 
--- The piece's copy in ReplicatedStorage.Assets, which is never streamed.
-local function templateOf(model: Model): Model?
-	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	local found = if assets ~= nil then assets:FindFirstChild(model.Name, true) else nil
-	if found ~= nil and found:IsA("Model") then
-		return found :: Model
-	end
-	return nil
-end
-
 local function partsOf(model: Model): (number, boolean)
 	local count, anchored = 0, true
 	for _, descendant in model:GetDescendants() do
@@ -95,20 +83,7 @@ local function bind(ride: Ride): boolean
 	if count == 0 or not anchored then
 		return false
 	end
-	local box: CFrame, size: Vector3
-	local template = templateOf(model)
-	local primary = model.PrimaryPart
-	local templatePrimary = if template ~= nil then template.PrimaryPart else nil
-	if template ~= nil and primary ~= nil and templatePrimary ~= nil then
-		if partsOf(template) ~= count then
-			return false -- still streaming in
-		end
-		local templateBox: CFrame
-		templateBox, size = template:GetBoundingBox()
-		box = primary.CFrame * templatePrimary.CFrame:ToObjectSpace(templateBox)
-	else
-		box, size = model:GetBoundingBox()
-	end
+	local box, size = model:GetBoundingBox()
 	ride.base = model:GetPivot()
 	ride.centre = box.Position
 	ride.axis = Logic.rideAxis(ride.spec.axis, size, box.RightVector, box.LookVector)

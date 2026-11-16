@@ -6,7 +6,7 @@
 --   id(key) -> number                         the Roblox badge id in Config.Badges, 0 while not made
 --   earned(profile) -> { key }                every badge the profile has earned, in LIST order
 --   due(profile, owned, waitUntil, now) -> { key }  earned, made, not owned, not waiting on a retry, and allowed
---   allowed(profile, key) -> boolean          #4775: before Tier 3 only the EARLY badges award
+--   allowed(profile, key) -> boolean          #4775: before Tier 3 only the EARLY badges award, none before Tier 2
 --   noteFinish(stats, purrfect)               a net catch's end: counts a PURRFECT and its run, or ends the run
 
 local Catalog = require(script.Parent.Catalog)
@@ -28,6 +28,9 @@ Badges.PURRFECT_RUN = 5
 -- one at a time (BadgeAwardService's AWARD_GAP_SECONDS).
 Badges.QUIET_BELOW_TIER = 3
 Badges.EARLY = table.freeze({ firstCatch = true, cozyCafe = true }) :: { [string]: boolean }
+-- Derek 2026-11-16 15:22 UTC ("no unnecessary pop ups until tutorial steps done"): below TUTORIAL_TIER (the
+-- walk-through ends at the Tier 2 rank up) none award, the EARLY two included; they come out at Tier 2.
+Badges.TUTORIAL_TIER = 2
 
 -- key: the Config.Badges field; name and description: what Creator Hub shows (one plain line, nothing pressuring)
 export type Badge = {
@@ -338,7 +341,11 @@ end
 
 -- #4775: whether `key` may award now: from Tier 3 every badge, before it only the EARLY two.
 function Badges.allowed(profile: Profile, key: string): boolean
-	return Badges.EARLY[key] == true or Economy.tier(profile) >= Badges.QUIET_BELOW_TIER
+	local tier = Economy.tier(profile)
+	if tier < Badges.TUTORIAL_TIER then
+		return false
+	end
+	return Badges.EARLY[key] == true or tier >= Badges.QUIET_BELOW_TIER
 end
 
 -- The badges to award now: earned, made (id not 0), not in `owned` (badge id -> true, this join's cache), not

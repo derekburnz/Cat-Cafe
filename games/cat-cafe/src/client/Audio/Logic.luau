@@ -31,6 +31,20 @@ function Logic.pickVoice(voices: { VoiceState }, max: number): number
 end
 
 -- False while the cue played less than `minGap` seconds ago (drops coin spam and double presses).
+-- #3918: the pooled voices to let go (by index, highest first so they can be removed in order): idle (not
+-- playing) and last started more than `idle` seconds ago. A Sound kept for every cue ever heard holds its audio for
+-- the whole session, which showed as a creep with a step at each new area.
+function Logic.idleVoices(voices: { VoiceState }, now: number, idle: number): { number }
+	local drop: { number } = {}
+	for index = #voices, 1, -1 do
+		local voice = voices[index]
+		if not voice.playing and now - voice.startedAt > idle then
+			table.insert(drop, index)
+		end
+	end
+	return drop
+end
+
 function Logic.canPlay(lastPlayed: number?, now: number, minGap: number): boolean
 	return lastPlayed == nil or now - lastPlayed >= minGap
 end
@@ -509,11 +523,16 @@ local AREA_STEPS: { [string]: string } = { snowy = "snowStep", harvest = "leafSt
 -- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
 -- #4070: the Coaster Cat rushes in on a whoosh of air and is caught with a splash, like the end of a water ride
 -- #4071: the Queen Cat is caught with a royal bell (the Cat Museum's)
+-- #4251: Harvest Hollow's cats. The Maple Leaf Cat lands and is caught in a crunch of dry leaves (leafStep), the
+-- Harvest Moon Cat with a soft chime (the Oasis Spa's); the Cranberry Cat is caught with the patch's pick pop
+-- (harvestPick), the Apple Pie Cat with the cafe's order ding and the Pumpkin Spice Cat with its pour
 local CAT_ARRIVES: { [string]: string } = {
 	blizzard = "snowGust",
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
 	coaster = "cannonClouds",
+	maple_leaf = "leafStep",
+	harvest_moon = "spaChime",
 }
 local CAT_CATCHES: { [string]: string } = {
 	blizzard = "snowGust",
@@ -522,6 +541,11 @@ local CAT_CATCHES: { [string]: string } = {
 	dragon_knight = "dragonChirp",
 	coaster = "campSplash",
 	queen = "museumBell",
+	cranberry = "harvestPick",
+	maple_leaf = "leafStep",
+	harvest_moon = "spaChime",
+	apple_pie = "orderDing",
+	pumpkin_spice = "orderPour",
 }
 -- #4069 to #4071: a new area's gate adds its own sound on top of the barrier dissolving: a snow gust on the
 -- Snowy Mountain, a splash at the Water Park, the Castle's portcullis rumbling

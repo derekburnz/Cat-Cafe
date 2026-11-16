@@ -200,6 +200,14 @@ local parkBound = false
 local PARK_STEP = "CatCafeIntroPark"
 local synced = false -- the first ProfileSync has come, so it is known whether the intro plays
 local gaveUp = false
+-- #4780 (Derek 2026-11-16: "make it so the loading screen goes through before anything else so you don't just see
+-- yourself standing idle, make all players go through it but can just make it move extremely quick for fast pcs,
+-- also add a skip button"): every join holds the loading screen until the world is really in (loaded()), or Skip
+-- (UI.events.loadingSkip), or LOAD_LIMIT seconds. Then the intro starts, or the camera goes to the character.
+local LOAD_LIMIT = 15
+local loadSkipped = false
+local loadBegan = os.clock()
+local releasing = false
 
 -- The PlayerModule's controls, or nil when the default player scripts are not there.
 -- #2967 (console pass 2): a caption that opens with "Tap" ("Tap as each circle closes!") names the input the player
@@ -2160,15 +2168,18 @@ function IntroController.stagingTackle(): boolean
 	return lesson ~= nil
 end
 
--- #2759: hold the camera still on `at` until unpark() or a run takes it.
-local function park(at: Intro.Key)
+-- #2759: hold the camera still on `at` until unpark() or a run takes it. `bare` (#4781 follow-up): no loading screen
+-- over it, for a first play after the player already skipped that screen (it came back for a quarter second)
+local function park(at: Intro.Key, bare: boolean?)
 	local camera = Workspace.CurrentCamera
 	if camera == nil then
 		return
 	end
 	parked = true
 	parkedAt = at
-	UI.intro.waiting(true) -- #3105: the loading screen covers the still picture until it moves
+	if not bare then
+		UI.intro.waiting(true) -- #3105: the loading screen covers the still picture until it moves
+	end
 	camera.CameraType = Enum.CameraType.Scriptable
 	setCamera(at)
 	-- a spawn resets the camera to follow the character (Laptop-Tester: 5 s behind the cannon before the intro), so
@@ -2222,6 +2233,50 @@ local function unpark()
 	end
 end
 
+-- #4780: the join's world is in: the save has synced, the game reports loaded, and the character stands on something
+-- that has streamed in under it (not its own parts), so the screen never lifts onto a player in empty sky.
+local function loaded(): boolean
+	if not (synced and game:IsLoaded()) then
+		return false
+	end
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = { character :: Model }
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	return Workspace:Raycast((root :: BasePart).Position, Vector3.new(0, -40, 0), params) ~= nil
+end
+
+-- #4780: waits (yields) until loaded(), a Skip, or LOAD_LIMIT seconds since the join.
+local function waitLoaded()
+	while not loadSkipped and not loaded() and os.clock() - loadBegan < LOAD_LIMIT do
+		task.wait(0.1)
+	end
+end
+
+-- #4780: a join with no intro: once the world is in (or Skip), the count runs to 100 and the camera goes to the
+-- character. A play that starts meanwhile takes over (it waits the same way).
+local function releaseWhenLoaded()
+	if releasing then
+		return
+	end
+	releasing = true
+	task.spawn(function()
+		waitLoaded()
+		if parked and run == nil and not starting then
+			local race = if loadSkipped then 0 else UI.intro.race()
+			if race > 0 then
+				task.wait(race)
+			end
+			unpark()
+		end
+		releasing = false
+	end)
+end
+
 -- Plays the intro from the first shot. `replay` is a replay from the Tutorial tile or Settings: Skip shows at once
 -- and the server saves nothing. Does nothing while one is playing or without a plot. Yields while the loading
 -- screen's count runs to 100 (#3109: LoadingCount.SHOWN_MIN at most), never for the Alleyway's camp.
@@ -2240,7 +2295,7 @@ function IntroController.play(replay: boolean)
 	local short = replay or Tail.introShort -- #4001: a replay always plays the short intro (Design-Agent on the issue)
 	local first = Intro.shots(Intro.plot(state.plotIndex), hasCodesCat(), false, short)[1]
 	if first ~= nil and first.cuts[1] ~= nil then
-		park(first.cuts[1].from)
+		park(first.cuts[1].from, loadSkipped and not replay)
 	end
 	-- with streaming on the camps are far from the spawn this client holds: ask for the Alleyway's camp, and its
 	-- middle too, where its big ground and set parts stand (#2961)
@@ -2251,7 +2306,9 @@ function IntroController.play(replay: boolean)
 	-- ready it should be fine"): no wait for the camp before shot 1 any more (it was up to STREAM_WAIT 5 s, then
 	-- CAMP_WAIT 2.5 s, on a still picture). The loading screen's quick run to 100 is the only pause, and the camp
 	-- streams in behind it and behind shot 1; a camp still missing at shot 1's fuse is lateStream()'s to handle.
-	local race = UI.intro.race()
+	-- #4780: the first play waits for the world the same way as a join with no intro; Skip starts it at once
+	waitLoaded()
+	local race = if loadSkipped and not replay then 0 else UI.intro.race()
 	if race > 0 then
 		task.wait(race)
 	end
@@ -2375,11 +2432,20 @@ function IntroController.playing(): boolean
 end
 
 function IntroController.start()
-	-- #2759: hold on the town square until the first spawn, or the intro if this sync starts one
-	if player.Character == nil then
-		park(LOADING_VIEW)
-		task.delay(PARK_GIVE_UP, function()
-			gaveUp = true
+	-- #2759: hold on the town square until the first spawn, or the intro if this sync starts one. #4780: on every
+	-- join, a character already in included, so the loading screen always comes first
+	loadBegan = os.clock()
+	park(LOADING_VIEW)
+	task.delay(PARK_GIVE_UP, function()
+		gaveUp = true
+		if parked and run == nil and not starting then
+			unpark()
+		end
+	end)
+	local loadingSkip = (UI.events :: any).loadingSkip
+	if loadingSkip ~= nil then
+		loadingSkip:Connect(function()
+			loadSkipped = true
 			if parked and run == nil and not starting then
 				unpark()
 			end
@@ -2400,7 +2466,7 @@ function IntroController.start()
 		if not synced then
 			synced = true
 			if not firstStarted then
-				unpark() -- no intro: the spawn's own view, if it has come
+				releaseWhenLoaded() -- no intro: the spawn's own view once the world is in (#4780)
 			end
 		end
 	end)
@@ -2428,8 +2494,10 @@ function IntroController.start()
 		(setStager :: any)(IntroController.stageTackle)
 	end
 	player.CharacterAdded:Connect(function(character)
-		if parked and run == nil and not starting and (synced or gaveUp) then
-			task.defer(unpark) -- #2759: the first spawn, and no intro has the camera (a play that gave up included)
+		if parked and run == nil and not starting and gaveUp then
+			task.defer(unpark) -- #2759: a spawn after the give-up, and no intro has the camera
+		elseif parked and run == nil and not starting and synced then
+			releaseWhenLoaded() -- #4780: the first spawn: the camera goes to it once the world is in
 		end
 		if Tail.shown > 0 and lesson ~= nil and lesson.character ~= character then
 			(Tail.stop :: (boolean) -> ())(false) -- #2495: a respawn ends the lesson's steps

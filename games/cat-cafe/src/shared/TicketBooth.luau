@@ -62,7 +62,7 @@ TicketBooth.PRIZES = {
 		id = "tokens10",
 		name = "10 Trait Tokens",
 		line = "Ten Mystic Pool rolls",
-		price = 6000,
+		price = 2000, -- #4960 (Derek 2026-11-16: "lower the price of trait tokens by like 3x"): was 6,000
 		limit = { per = "week", n = 1 },
 		tokens = 10,
 	},
@@ -82,13 +82,15 @@ TicketBooth.PRIZES = {
 		limit = { per = "day", n = 3 },
 		prize = { spins = 5 },
 	},
+	-- #4959 (Derek 2026-11-16: "make this at least a legendary bait or mythic not caviar"): Moon Milk, the Legendary
+	-- bait, in place of the Epic Caviar (id "caviar" left the shelf; its saved count is only ignored)
 	{
-		id = "caviar",
-		name = "Caviar Bait",
-		line = "The best bait",
+		id = "moonMilk",
+		name = "Moon Milk Bait",
+		line = "Legendary bait",
 		price = 1200,
 		limit = { per = "day", n = 3 },
-		prize = { lures = { caviar = 1 } },
+		prize = { lures = { moon_milk = 1 } },
 	},
 	{
 		id = "bestGolden",
@@ -110,8 +112,8 @@ TicketBooth.PRIZES = {
 
 -- #4061 (spec 1.3): the weekly Water Park shelf, SHELF_SIZE cards a week taken in turn from WEEKLY (Monday 00:00 UTC).
 -- Decor pays like a crate piece of its rarity while in use (Rare +4%, Epic +8%); a wearable pays WEAR_BONUS while it
--- is the cafe's accessory. Bought once, owned for good; "Owned" when it comes round again. The Water Squirter and
--- Pool Noodle toys join the pool once their held play exists (Motion-FX).
+-- is the cafe's accessory. Bought once, owned for good; "Owned" when it comes round again. No player toys
+-- (Derek 2026-11-16: toys do not fit this game; cat cosmetics do).
 TicketBooth.SHELF_SIZE = 4
 TicketBooth.WEAR_BONUS = 0.05
 local function weekly(

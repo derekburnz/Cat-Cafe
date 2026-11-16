@@ -414,11 +414,14 @@ local function pawsBonus(player: Player): number
 	local traits = if profile ~= nil then M.Economy.traitBonus(profile, "speed") else 0
 	-- #4447: the Dragon Keep's wing cards and set, inside DragonKeep.WALK_CAP
 	local dragon = if profile ~= nil then M.DragonKeep.of(profile).walk else 0
-	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG)) + traits + dragon
+	-- #4878: Speed Rush, +10 for everyone while it runs (walking and carrying; never the catch rush)
+	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG))
+		+ traits
+		+ dragon
+		+ EventService.speedRushWalk()
 end
 
--- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned and their switch on,
--- the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
+-- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned, the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
 -- Never on the catch rush or a Startled slow.
 local function carrySpeed(player: Player): number
 	local paws = pawsBonus(player)
@@ -426,8 +429,7 @@ local function carrySpeed(player: Player): number
 		M.Config.CarryWalkSpeed + paws,
 		M.Config.NormalWalkSpeed + paws,
 		M.DataService.get(player),
-		M.LiveFlagService.on(SpeedShoes.FLAG),
-		EventService.speedRush() -- #4197: Speed Rush lends everyone the shoes
+		true -- #4654 batch 7: the `speedShoes` switch is retired
 	)
 end
 
@@ -956,13 +958,10 @@ local function spawnAt(
 	owned: { [string]: any }? -- #4188: a beginner's collection, so their tutorial stray is a kind they lack
 ): Stray
 	local area = world.areas[areaId]
-	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
-	-- stray). It takes the Mythical's point, and everyone hears the area and never the spot.
-	-- (review note on #3486: the two draws are made only for a Mythical with the switch on, so a switched off build
-	-- rolls exactly as before)
-	local secret = if beginner == nil
-			and rarity == "Mythical"
-			and M.LiveFlagService.on(Catching.SECRET_FLAG)
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 (never a beginner's stray; #4654 batch 5: the `secretCats`
+	-- switch is retired). It takes the Mythical's point, and everyone hears the area and never the spot.
+	-- (review note on #3486: the two draws are made only for a Mythical)
+	local secret = if beginner == nil and rarity == "Mythical"
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),
@@ -985,9 +984,10 @@ local function spawnAt(
 	return stray
 end
 
--- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84).
-local function tutorialPoints(): { number }
-	local area = world.areas[TUTORIAL_AREA]
+-- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84). #4920: another
+-- area's with `areaId` (the Park's, for the walk-through's Park trip at night).
+local function tutorialPoints(areaId: string?): { number }
+	local area = world.areas[areaId or TUTORIAL_AREA]
 	local list: { number } = {}
 	if area ~= nil then
 		for i, point in area.spawnPoints do
@@ -1039,7 +1039,22 @@ local function tutorialTick()
 			-- a new one within a tick of the last being caught. Not reserved and no easy catch: the Beginner
 			-- attribute would give them the tutorial's "Try again!" and swing help on the client.
 			-- #3659: and so does a Tier 1 player who has not caught a cat by hand yet, in any session
-			if night and NightPass.nightCatOf(profile, nightCatch) then
+			if
+				night
+				and M.Economy.tier(profile) == NightPass.WALK_TIER
+				and NightPass.walkOf(profile)
+			then
+				-- #4920 (Sync's night run 2026-11-16): the walk-through's Park trip at night (#4916's pass flies it
+				-- there) finds one Common at a Park `near` point, a kind the save lacks, as Tier 1 does in the Alleyway
+				nightHolders[player.UserId] = true
+				local points = tutorialPoints(NightPass.PARK_AREA)
+				local point = if #points > 0 then points[(plot.index - 1) % #points + 1] else nil
+				local taken = occupiedPoints[NightPass.PARK_AREA] or {}
+				if point ~= nil and taken[point] == nil then
+					spawnAt(NightPass.PARK_AREA, point, "Common", nil, profile.collection).nightFor =
+						player.UserId
+				end
+			elseif night and NightPass.nightCatOf(profile, nightCatch) then
 				nightHolders[player.UserId] = true
 				local point = near[plot.index]
 				if point ~= nil and occupied[point] == nil then
@@ -1637,7 +1652,6 @@ local function huntTick()
 	if
 		running.spawned >= running.count
 		or not M.ClockService.areasOpen()
-		or not M.LiveFlagService.on(Catching.SECRET_FLAG)
 		or #M.Catalog.secretCats == 0
 	then
 		return
@@ -1820,7 +1834,7 @@ local function tintBackpack(player: Player)
 	if pack == nil or profile == nil then
 		return
 	end
-	local picked = if M.LiveFlagService.on(M.BagColours.FLAG) then profile.bagColours else nil
+	local picked = profile.bagColours
 	M.BagColours.tint(pack, M.BagColours.picks(picked))
 end
 
@@ -1844,8 +1858,7 @@ local function wearBackpack(player: Player)
 	end
 end
 
--- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with the switch off or nothing
--- picked). The server colours the parts, so every player sees them.
+-- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with nothing picked). The server colours the parts, so every player sees them.
 local function tintShoes(player: Player, worn: Instance?)
 	local character = player.Character
 	local folder = worn
@@ -1854,19 +1867,12 @@ local function tintShoes(player: Player, worn: Instance?)
 	if folder == nil or profile == nil then
 		return
 	end
-	M.BagColours.tint(
-		folder,
-		M.BagColours.picks(
-			if M.LiveFlagService.on(M.BagColours.FLAG) then profile.shoeColours else nil,
-			"shoes"
-		),
-		"shoes"
-	)
+	M.BagColours.tint(folder, M.BagColours.picks(profile.shoeColours, "shoes"), "shoes")
 end
 
--- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
--- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
--- #4197: while Speed Rush runs everyone wears a pair, put on and taken off at its start and end (CatService.start).
+-- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear), at spawn, after the buy and whenever they came off
+-- (keepBackpack's check); every player sees them. Without them, none.
+-- #4878: Speed Rush no longer lends a pair (it adds walk speed, pawsBonus); a pair it lent before comes off at its end.
 local function keepShoes(player: Player)
 	local character = player.Character
 	if character == nil or character.Parent == nil then
@@ -1876,8 +1882,7 @@ local function keepShoes(player: Player)
 	if humanoid == nil or humanoid.Health <= 0 then
 		return
 	end
-	local sold = M.LiveFlagService.on(SpeedShoes.FLAG)
-	local want = (sold and SpeedShoes.owns(M.DataService.get(player))) or EventService.speedRush()
+	local want = SpeedShoes.owns(M.DataService.get(player))
 	local old = character:FindFirstChild(SpeedShoes.WORN)
 	if old ~= nil and want and SpeedShoes.onFeet(old, character) then
 		return
@@ -2501,7 +2506,19 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		return
 	end
 
-	if easyCatch(player, profile, stray) then
+	-- #4815 (Derek 2026-11-16): in the walk-through (Tier 1) a missed catch never scares the cat either: it stays put
+	-- with no sprint or wait, as a beginner's tutorial stray does
+	local easy = easyCatch(player, profile, stray)
+	if easy or NetSwing.calm(M.Economy.tier(profile)) then
+		if not easy then
+			-- a Tier 1 miss that would have bolted before, so the bolt read can tell the two apart
+			Telemetry.custom(
+				player,
+				"catch_finish",
+				#attempt.grades,
+				{ "calm_miss", rarity, stray.mood }
+			)
+		end
 		tutorialMiss(player, stray, attempt, forfeit, funnel)
 		return
 	end
@@ -2646,7 +2663,7 @@ function startCatch(
 	local hold = tutorial
 		and M.Config.CatchHoldFirstRing
 		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
-	local circles = if tutorial
+	local circles: { Types.CatchCircle } = if tutorial -- typed: luau-lsp cannot iterate the if's union (#4814)
 		then Circles.tutorialSchedule(now, roll, hold)
 		else Circles.schedule(
 			stray.def.rarity,
@@ -2656,10 +2673,16 @@ function startCatch(
 			stray.area,
 			dragonFx.slowRings
 		) -- #3140, #4447
+	-- #4814 (Derek 2026-11-16): the first catch by hand ignores every press before its ring is in the Good band
+	if SecondCat.caught(profile.stats) == 0 then
+		for _, circle in circles do
+			circle.noEarly = true
+		end
+	end
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial
-		then Circles.tutorialTrust()
+		then Circles.tutorialTrust(#circles) -- #4845: a held first catch runs 3 rings and lands on the last
 		else Circles.trustFor(stray.def.rarity, M.Moods.trustBonus(stray.curiousAt, now))
 	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
@@ -2994,7 +3017,7 @@ local function landSwing(player: Player)
 		and (swingRescue :: (Player, Vector3, Vector3) -> boolean)(player, origin, look)
 	then
 		started = true -- #2341: it landed on a stuck cat; RescueService answers as for its prompt
-	elseif near > 0 and NetSwing.missHops(profile.tutorialStep) then
+	elseif near > 0 and NetSwing.missHops(profile.tutorialStep, M.Economy.tier(profile)) then
 		for _, other in strays do
 			if
 				hoppable(other, player, now)
@@ -3578,9 +3601,10 @@ local function canReact(stray: Stray, now: number): boolean
 	return area ~= nil and stray.home.Y <= area.floorY + PERCH_ABOVE
 end
 
--- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once.
-local function curious(stray: Stray, _player: Player, root: Vector3, now: number)
-	local at = stray.model:GetPivot().Position
+-- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once. `pivot`
+-- is the stray's own, read once a look by moodTick (#4601).
+local function curious(stray: Stray, pivot: CFrame, root: Vector3, now: number)
+	local at = pivot.Position
 	if not M.Moods.noticed(at, root) then
 		return
 	end
@@ -3601,11 +3625,16 @@ end
 
 -- A Skittish stray hops SkittishHopStuds away from a player inside its front arc, at most once a SkittishCooldown;
 -- never from a player before tutorialStep 2 (7a).
-local function skittish(stray: Stray, player: Player, root: Vector3, now: number): boolean
+local function skittish(
+	stray: Stray,
+	pivot: CFrame,
+	player: Player,
+	root: Vector3,
+	now: number
+): boolean
 	if not M.Moods.hopReady(stray.skittishAt, now) then
 		return false
 	end
-	local pivot = stray.model:GetPivot()
 	if not M.Moods.inFrontArc(pivot.Position, pivot.LookVector, root) then
 		return false
 	end
@@ -3648,13 +3677,16 @@ local function moodTick()
 		if not reacts or not canReact(stray, now) then
 			continue
 		end
+		-- #4601: one pivot read per stray a look, not one per stray and player (30 players and a full server of
+		-- strays made it thousands of engine calls a second); the stray only moves after the break below
+		local pivot = stray.model:GetPivot()
 		for player, root in roots do
 			if stray.mood == "Curious" then
-				curious(stray, player, root, now)
+				curious(stray, pivot, root, now)
 				if stray.curiousAt ~= nil then
 					break
 				end
-			elseif skittish(stray, player, root, now) then
+			elseif skittish(stray, pivot, player, root, now) then
 				break
 			end
 		end
@@ -3709,7 +3741,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		keepShoes(player) -- #4050
 	end)
 
-	-- #4197: Speed Rush starts or ends: everyone's shoes and carry speed follow at once
+	-- #4197/#4878: Speed Rush starts or ends: everyone's walk speed follows at once
 	local rushing = EventService.speedRush()
 	EventService.adminChanged:Connect(function()
 		local now = EventService.speedRush()

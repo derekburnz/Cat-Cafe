@@ -81,8 +81,6 @@ local function shownLeft(left: number, now: number): number
 	return Bait.frenzyShown(left, view.bowlSpeed, view.endsAt - now)
 end
 
-local CART_FLAG = "cartTier6" -- shared/CornerShop.TOP_SHELF_FLAG
-
 export type Callbacks = {
 	useLure: (lureId: string, bowl: number) -> (), -- #1161: into bowl 1 or 2
 	openUpgrades: () -> (),
@@ -1034,7 +1032,7 @@ function BaitBowl._buildRows(self: any)
 			use = use,
 			details = details,
 			detail = detail,
-			odds = FoodOdds.rich(lure.odds, rarityHex), -- the five-rarity odds at the bowl's level, for Details
+			odds = FoodOdds.rich(lure.odds, rarityHex, lure.secretShare), -- the five-rarity odds at the bowl's level, for Details
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			def = lure,
 			dealer = dealer,
@@ -1173,7 +1171,11 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		self._luck = luck
 		self._panel:setTitle(if bowlLevel >= 1 then Bait.bowlName(bowlLevel) else TITLE, SUBTITLE)
 		for _, row in self._rows do
-			row.odds = FoodOdds.rich(FoodOdds.atBowl(row.def.odds, bowlLevel, luck), rarityHex)
+			row.odds = FoodOdds.rich(
+				FoodOdds.atBowl(row.def.odds, bowlLevel, luck),
+				rarityHex,
+				row.def.secretShare
+			)
 			row.split = FoodOdds.split(catalog, row.def, state.tier, bowlLevel, luck)
 		end
 	end
@@ -1231,11 +1233,8 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 			end
 		end
 	end
-	-- #3462: the Day Cart's own foods stay off the list until its Tier 6 shelf is open (the `cartTier6` switch)
-	local cartOpen = LiveFlags.shown(
-		CART_FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CART_FLAG)
-	)
+	-- #3462: the Day Cart's own foods are listed (#4654 batch 4: the `cartTier6` switch that hid them is retired)
+	local cartOpen = true
 	for lureId, row in self._rows do
 		local have = state.lures[lureId] or 0
 		-- the locked tab shows what bowl 2 gives in place of the foods

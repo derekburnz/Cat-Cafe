@@ -4388,7 +4388,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_RoundTable_Flame_Bob"
   }

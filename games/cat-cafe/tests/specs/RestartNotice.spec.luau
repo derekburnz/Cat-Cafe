@@ -148,7 +148,7 @@ return function()
 					"Updating now. Join again for 10 SECRET CATS and ADMIN EVENTS! Your cafe is saved."
 				)
 				local devices = RestartNotice.ADMIN_LAUNCHES[4]
-				expect(os.date("!%Y-%m-%d %H:%M", devices)).to.equal("2026-11-18 20:00")
+				expect(os.date("!%Y-%m-%d %H:%M", devices)).to.equal("2026-11-17 20:00")
 				expect(RestartNotice.text(600, devices - 600)).to.equal(
 					"A quick update is coming in 10 minutes, then better controls and ADMIN EVENTS! Keep playing, your cafe is saved."
 				)

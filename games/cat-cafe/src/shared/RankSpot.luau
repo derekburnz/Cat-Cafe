@@ -15,10 +15,10 @@ local RankSpot = {}
 
 export type Phase = "none" | "button" | "confirm"
 
-RankSpot.FLAG = "rankUpSpotlight"
 RankSpot.SEEN = "rank_spotlight" -- the tipsSeen id
 RankSpot.ATTRIBUTE = "RankSpotlight" -- on the Player, true while the walk-through may show
-RankSpot.FREE_SECONDS = 2
+-- #4847 (Derek 2026-11-16: "make it instantly dim and point when you can rank up"): half a second, was 2
+RankSpot.FREE_SECONDS = 0.5
 RankSpot.KEEP_SECONDS = 2 -- a press on the dim sooner than this after it showed only hides it (a thumb on the stick)
 RankSpot.TELEMETRY = "rank_spot" -- TelemetryReport name; values "shown" and "closed"
 RankSpot.WINDOW = "RankUp" -- the rank up window's name in the UI's modal

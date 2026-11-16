@@ -14,6 +14,7 @@ local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
 local Logic = require(script.Parent.Logic)
+local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Presets)
 local Rumble = require(script.Parent.Rumble)
 
@@ -27,8 +28,7 @@ Context.lowPerformance = false -- the Low performance setting
 Context.console = false -- an Xbox or PlayStation (a ten-foot screen): Presets.budget.console (#2871)
 Context.lite = false -- #3794: the lighter budget (Logic.wantsLite): a struggling phone or graphics quality 1 to 3
 Context.struggling = false -- #4311: this phone or tablet's frame rate stayed low (Logic.slowStep); kept all session
-local LITE_FLAG = "fxLite"
-local RUMBLE_FLAG = "deviceFixes" -- #4224: rumble ships with the Wed 2026-11-18 device update's switch (off by default)
+local RUMBLE_FLAG = "deviceFixes" -- #4224: rumble ships with the Tue 2026-11-17 device update's switch (off by default)
 
 local SHAKE_STEP = "CatCafeEffectsShake"
 
@@ -45,15 +45,8 @@ local function savedQuality(): number
 end
 
 local function rebudget()
-	Context.lite = Logic.wantsLite(
-		LiveFlags.shown(
-			LITE_FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. LITE_FLAG)
-		),
-		Context.device :: Presets.Tier,
-		savedQuality(),
-		Context.struggling
-	)
+	Context.lite =
+		Logic.wantsLite(Context.device :: Presets.Tier, savedQuality(), Context.struggling)
 	local tier, budget = Logic.budgetFor(
 		Context.device :: Presets.Tier,
 		Context.lowPerformance,
@@ -82,9 +75,7 @@ function Context.init()
 			rebudget()
 		end)
 	end
-	-- #3794: the switch and the graphics quality can change mid session; effects pick the budget up within a second
-	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. LITE_FLAG)
-		:Connect(rebudget)
+	-- #3794: the graphics quality can change mid session; effects pick the budget up within a second
 	pcall(function()
 		local userSettings = UserSettings():GetService("UserGameSettings")
 		userSettings:GetPropertyChangedSignal("SavedQualityLevel"):Connect(rebudget)
@@ -97,6 +88,8 @@ function Context.init()
 		if Logic.slowStep(slow, dt, Presets.slow, Context.cutscene()) then
 			Context.struggling = true
 			rebudget()
+			-- #4945: once a session, for the analytics: when it tripped and how slow (Logic.liteReport)
+			Net.fire("TelemetryReport", "fx_lite", Logic.liteReport(slow))
 			if watch ~= nil then
 				watch:Disconnect()
 			end

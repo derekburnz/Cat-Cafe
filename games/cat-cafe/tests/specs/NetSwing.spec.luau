@@ -264,4 +264,44 @@ return function()
 			expect(NetSwing.inReach(Vector3.zero, Vector3.new(0, 0, -1), ahead, 1)).to.equal(true)
 		end)
 	end)
+
+	describe("the walk-through's calm net (#4815)", function()
+		it("is calm below Tier 2, and a damaged tier reads as Tier 1", function()
+			expect(NetSwing.calm(1)).to.equal(true)
+			expect(NetSwing.calm(2)).to.equal(false)
+			expect(NetSwing.calm(10)).to.equal(false)
+			expect(NetSwing.calm(0)).to.equal(true)
+			expect(NetSwing.calm(1.9)).to.equal(true)
+			expect(NetSwing.calm(0 / 0)).to.equal(true)
+			expect(NetSwing.calm(nil)).to.equal(true)
+		end)
+
+		it("never hops a cat on a miss at Tier 1; from Tier 2 it hops as before", function()
+			expect(NetSwing.missHops(9, 1)).to.equal(false)
+			expect(NetSwing.missHops(9, 2)).to.equal(true)
+			expect(NetSwing.missHops(1, 2)).to.equal(false)
+			expect(NetSwing.missHops(9)).to.equal(true)
+		end)
+
+		it(
+			"reaches TutorialNetExtraStuds further at Tier 1 only, on top of the Long Net",
+			function()
+				expect(Config.TutorialNetExtraStuds).to.equal(3)
+				expect(NetSwing.extraForProfile({ tier = 1, mystery = {}, dragon = nil } :: any)).to.equal(
+					3
+				)
+				expect(NetSwing.extraForProfile({ tier = 1, mystery = { long_net = true } } :: any)).to.equal(
+					4
+				)
+				expect(NetSwing.extraForProfile({ tier = 2, mystery = {} } :: any)).to.equal(0)
+				expect(NetSwing.extraForProfile({ tier = 2, mystery = { long_net = true } } :: any)).to.equal(
+					1
+				)
+				-- a cat 11 studs ahead: out of the plain net's reach, in the walk-through's
+				local ahead = Vector3.new(0, 0, -11)
+				expect(NetSwing.inReach(Vector3.zero, AHEAD, ahead)).to.equal(false)
+				expect(NetSwing.inReach(Vector3.zero, AHEAD, ahead, 3)).to.equal(true)
+			end
+		)
+	end)
 end

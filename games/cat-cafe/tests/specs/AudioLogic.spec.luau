@@ -28,6 +28,23 @@ return function()
 			expect(Logic.pickVoice({}, 1)).to.equal(1)
 		end)
 
+		it(
+			"lets go of voices idle past the limit, highest index first, never a playing one (#3918)",
+			function()
+				local voices = {
+					{ playing = false, startedAt = 0 },
+					{ playing = true, startedAt = 0 },
+					{ playing = false, startedAt = 90 },
+					{ playing = false, startedAt = 10 },
+				}
+				local drop = Logic.idleVoices(voices, 100, 45)
+				expect(#drop).to.equal(2)
+				expect(drop[1]).to.equal(4)
+				expect(drop[2]).to.equal(1)
+				expect(#Logic.idleVoices({}, 100, 45)).to.equal(0)
+			end
+		)
+
 		it("restarts the oldest when every voice is busy", function()
 			local voices = { { playing = true, startedAt = 5 }, { playing = true, startedAt = 3 } }
 			expect(Logic.pickVoice(voices, 2)).to.equal(2)
@@ -192,6 +209,19 @@ return function()
 			expect(Logic.areaCue("catch", "castle", "queen")).to.equal("museumBell")
 			expect(Logic.areaCue("arrive", nil, "queen")).to.equal(nil)
 			expect(Cues.museumBell).to.be.ok()
+			-- #4251: Harvest Hollow's cats
+			expect(Logic.areaCue("arrive", nil, "maple_leaf")).to.equal("leafStep")
+			expect(Logic.areaCue("arrive", nil, "harvest_moon")).to.equal("spaChime")
+			expect(Logic.areaCue("arrive", nil, "cranberry")).to.equal(nil)
+			expect(Logic.areaCue("catch", "harvest", "cranberry")).to.equal("harvestPick")
+			expect(Logic.areaCue("catch", "harvest", "maple_leaf")).to.equal("leafStep")
+			expect(Logic.areaCue("catch", "harvest", "harvest_moon")).to.equal("spaChime")
+			expect(Logic.areaCue("catch", "harvest", "apple_pie")).to.equal("orderDing")
+			expect(Logic.areaCue("catch", "harvest", "pumpkin_spice")).to.equal("orderPour")
+			expect(Logic.areaCue("catch", "harvest", "hay_bale")).to.equal(nil)
+			for _, cue in { "leafStep", "spaChime", "harvestPick", "orderDing", "orderPour" } do
+				expect(Cues[cue]).to.be.ok()
+			end
 			local castle = Logic.gateCues("castle")
 			expect(#castle).to.equal(2)
 			expect(castle[1]).to.equal("gateOpen")

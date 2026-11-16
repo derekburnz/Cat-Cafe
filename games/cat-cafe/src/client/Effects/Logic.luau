@@ -74,6 +74,12 @@ export type Offsets = {
 export type Candidate<K> = { key: K, distance: number }
 
 export type PlotChange = "claim" | "release" | "rankUp"
+
+-- #4922: whether your own rank up plays at your door (it is `doorDistance` studs off, nil when not streamed in, and
+-- within `within`), so the celebration around you is not needed.
+function Logic.rankUpHere(doorDistance: number?, within: number): boolean
+	return doorDistance ~= nil and doorDistance <= within
+end
 export type AreasTurn = "dusk" | "sunrise"
 export type PrizeTier = "small" | "good" | "jackpot"
 
@@ -124,22 +130,14 @@ function Logic.budgetFor(
 	return device, Presets.budget[device]
 end
 
--- #3794: whether the lighter effects budget applies: the `fxLite` switch is on and either this is a phone or tablet
+-- #3794: whether the lighter effects budget applies (shipped for everyone; #4654 retired its `fxLite` switch): this is a phone or tablet
 -- (the "low" device tier) that is struggling (`struggling`, Logic.slowStep; Derek 2026-11-14: "turn it on for
 -- phones/tablets if they are struggling (slower devices) not if they are doing fine"), or its graphics quality is
 -- set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is Automatic, which says nothing about the device,
 -- and 4 to 10 are left as they are).
 Logic.LITE_QUALITY_MAX = 3
 
-function Logic.wantsLite(
-	switchOn: boolean,
-	device: Presets.Tier,
-	quality: number?,
-	struggling: boolean?
-): boolean
-	if not switchOn then
-		return false
-	end
+function Logic.wantsLite(device: Presets.Tier, quality: number?, struggling: boolean?): boolean
 	return (device == "low" and struggling == true)
 		or (quality ~= nil and quality >= 1 and quality <= Logic.LITE_QUALITY_MAX)
 end
@@ -155,11 +153,12 @@ export type SlowState = {
 	time: number, -- seconds in this window
 	frames: number, -- frames in this window
 	slow: number, -- slow windows in a row
+	slowFps: number, -- #4945: the frames a second of those slow windows, added up
 	struggling: boolean,
 }
 
 function Logic.slowStart(): SlowState
-	return { age = 0, time = 0, frames = 0, slow = 0, struggling = false }
+	return { age = 0, time = 0, frames = 0, slow = 0, slowFps = 0, struggling = false }
 end
 
 -- Counts one frame of `dt` seconds; true on the frame the device is first found to be struggling.
@@ -181,15 +180,24 @@ function Logic.slowStep(state: SlowState, dt: number, p: SlowSpec, hold: boolean
 	if state.time < p.window then
 		return false
 	end
-	local slow = state.frames / state.time < p.fps
+	local fps = state.frames / state.time
+	local slow = fps < p.fps
 	state.time = 0
 	state.frames = 0
 	state.slow = if slow then state.slow + 1 else 0
+	state.slowFps = if slow then state.slowFps + fps else 0
 	if state.slow >= p.windows then
 		state.struggling = true
 		return true
 	end
 	return false
+end
+
+-- #4945: the fx_lite report's value once `state` trips: the whole seconds watched (age, from the join's first frame)
+-- times 100 plus the average whole frames a second of the slow windows (0 to 99). The server's Telemetry decodes it.
+function Logic.liteReport(state: SlowState): number
+	local fps = if state.slow > 0 then state.slowFps / state.slow else 0
+	return math.floor(state.age) * 100 + math.clamp(math.floor(fps), 0, 99)
 end
 
 -- One circle from CatchResult: "perfect", "good" or "miss" (catching v0.4), or the v0.3 score 1, 0.5 or 0.

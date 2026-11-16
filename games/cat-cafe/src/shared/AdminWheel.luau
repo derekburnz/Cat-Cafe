@@ -35,7 +35,8 @@ export type Prize = {
 	boost: string?,
 	cat: ("mythical" | "secret")?,
 }
-export type View = { eventId: string, spun: boolean, endsAt: number }
+-- #4876: `spins` the event gives each account, `left` of them this account has not used; `spun` when none is left
+export type View = { eventId: string, spun: boolean, endsAt: number, spins: number, left: number }
 
 AdminWheel.PRIZES = {
 	{ id = "rerolls20", name = "20 Trait Rerolls", weight = 22, tier = "good", tokens = 20 },
@@ -131,8 +132,23 @@ function AdminWheel.key(event: CafeEvents.AdminEvent): string
 		.. base36(hash(text, 131, 4294967291))
 end
 
+-- #4876: the spins `event` gives each account (1 for a plain `wheel = true`).
+function AdminWheel.spins(event: CafeEvents.AdminEvent): number
+	return if event.effects.wheel then math.max(1, event.effects.wheelSpins or 1) else 0
+end
+
+-- #4876: the spins this account has used on `event`. The key holds the count (1 to ADMIN.wheelSpinsMax); one marked
+-- before #4876 holds the spin's os.time(), which counts as 1.
+function AdminWheel.used(redeemed: { [string]: number }, event: CafeEvents.AdminEvent): number
+	local value = redeemed[AdminWheel.key(event)]
+	if value == nil then
+		return 0
+	end
+	return if value >= 1 and value <= CafeEvents.ADMIN.wheelSpinsMax then math.floor(value) else 1
+end
+
 function AdminWheel.spun(redeemed: { [string]: number }, event: CafeEvents.AdminEvent): boolean
-	return redeemed[AdminWheel.key(event)] ~= nil
+	return AdminWheel.used(redeemed, event) >= AdminWheel.spins(event)
 end
 
 -- PlayerState.adminWheel: the wheel that is up now and whether this account has spun it; nil with the adminEvents
@@ -145,7 +161,15 @@ function AdminWheel.view(
 	if not on or event == nil or not event.effects.wheel then
 		return nil
 	end
-	return { eventId = event.id, spun = AdminWheel.spun(redeemed, event), endsAt = event.endsAt }
+	local spins = AdminWheel.spins(event)
+	local left = math.max(0, spins - AdminWheel.used(redeemed, event))
+	return {
+		eventId = event.id,
+		spun = left == 0,
+		endsAt = event.endsAt,
+		spins = spins,
+		left = left,
+	}
 end
 
 -- The Mythical cats of the newest area a player at `tier` has opened that has any (an area's own cats only: no

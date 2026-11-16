@@ -31,7 +31,14 @@
 
     "Workspace": {
       "$className": "Workspace",
-      "$properties": { "FilteringEnabled": true }
+      "$properties": {
+        "FilteringEnabled": true,
+        "StreamingEnabled": true,
+        "StreamingTargetRadius": 1024,
+        "StreamingMinRadius": 128,
+        "StreamingIntegrityMode": "MinimumRadiusPause",
+        "StreamOutBehavior": "Opportunistic"
+      }
     },
 
     "SoundService": {

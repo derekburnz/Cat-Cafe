@@ -31,6 +31,17 @@
 -- walk-through's pass now lasts until LEARNER_CATS cats are caught by hand (SecondCat.CATS: the first catch and
 -- the second cat), or the rank up to Tier 2.
 
+-- #4916 (Derek 2026-11-16 18:18 UTC: "if someone is in tutorial steps they should be able to cannon during night even to
+-- park , also it doesn't point towards a cat in alleyway if its night"): the walk-through runs on past the second cat
+-- (bowl first: two catches by hand, the rank up to Tier 2, then a cannon to the Park ends it), and #4494's pass ended
+-- at the second catch by hand (sooner when the intro's catch counted), so the rank up and the Park flight were refused
+-- at night, and with no pass no Alleyway cat came, so the tutorial had nothing to point at. The walk's pass (`walk`)
+-- now lasts while the cafe is at WALK_TIER or below and no Park cat is in the collection: the whole walk-through,
+-- whatever the order, switch or session. At Tier 1 it brings the night Common at the plot's `near` point (nightCatOf),
+-- so the tutorial's Alleyway catch always has a cat; at Tier 2 the cannon flies to the Park, where arriving ends the
+-- walk-through. No save field.
+
+local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Economy = require(script.Parent.Economy)
 local SecondCat = require(script.Parent.SecondCat)
@@ -38,6 +49,8 @@ local Types = require(script.Parent.Types)
 
 local NightPass = {}
 
+NightPass.WALK_TIER = 2 -- #4916: the walk-through's pass lasts up to the Park, which opens at Tier 2
+NightPass.PARK_AREA = "park"
 NightPass.LEARNER_CATS = SecondCat.CATS -- #4494: cats caught by hand that end the walk-through's pass
 
 NightPass.ATTRIBUTE = "NightPass"
@@ -66,6 +79,25 @@ function NightPass.learner(tutorialStep: number, tier: number, handCaught: numbe
 		and handCaught < NightPass.LEARNER_CATS
 end
 
+-- #4916: whether a save is still on the walk-through: its cafe at WALK_TIER or below and `parkCats`
+-- (NightPass.parkCats) 0.
+function NightPass.walk(tier: number, parkCats: number): boolean
+	return tier <= NightPass.WALK_TIER and parkCats == 0
+end
+
+-- #4916: how many Park kinds a collection holds.
+function NightPass.parkCats(collection: { [string]: any }?): number
+	local count = 0
+	local held: { [string]: any } = collection or {} -- one type: luau-lsp refused to iterate the union (CI)
+	for catId in held do
+		local def = Catalog.getCat(catId)
+		if def ~= nil and def.area == NightPass.PARK_AREA then
+			count += 1
+		end
+	end
+	return count
+end
+
 -- Whether a save holds the pass any way: a beginner, the first session at Tier 1 while the switch is on, or (#3659,
 -- when `handCaught` is given) a Tier 1 save that has not caught a cat by hand yet.
 function NightPass.holds(
@@ -73,11 +105,13 @@ function NightPass.holds(
 	tier: number,
 	sessions: number,
 	on: boolean,
-	handCaught: number?
+	handCaught: number?,
+	parkCats: number? -- #4916: given, the walk-through's pass counts too
 ): boolean
 	return NightPass.has(tutorialStep)
 		or NightPass.first(tier, sessions, on)
 		or (handCaught ~= nil and NightPass.learner(tutorialStep, tier, handCaught))
+		or (parkCats ~= nil and NightPass.walk(tier, parkCats))
 end
 
 -- NightPass.holds for a save.
@@ -87,8 +121,14 @@ function NightPass.of(profile: Types.PlayerProfile, on: boolean): boolean
 		Economy.tier(profile),
 		profile.stats.sessions,
 		on,
-		SecondCat.caught(profile.stats)
+		SecondCat.caught(profile.stats),
+		NightPass.parkCats(profile.collection) -- #4916
 	)
+end
+
+-- #4916: NightPass.walk for a save.
+function NightPass.walkOf(profile: Types.PlayerProfile): boolean
+	return NightPass.walk(Economy.tier(profile), NightPass.parkCats(profile.collection))
 end
 
 -- #3659: NightPass.learner for a save.
@@ -102,8 +142,11 @@ end
 
 -- Whether a save past its first check-in finds its own Common in the Alleyway at night: the first-session pass, or
 -- the walk-through's (#3659).
+-- #4916: and a Tier 1 save on the walk-through, so its Alleyway catches always have a cat at night.
 function NightPass.nightCatOf(profile: Types.PlayerProfile, on: boolean): boolean
-	return NightPass.firstOf(profile, on) or NightPass.learnerOf(profile)
+	return NightPass.firstOf(profile, on)
+		or NightPass.learnerOf(profile)
+		or (Economy.tier(profile) <= NightPass.MAX_TIER and NightPass.walkOf(profile))
 end
 
 -- NightPass.first for a save.

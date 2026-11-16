@@ -16,7 +16,6 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local LiveFlagService = require(script.Parent.LiveFlagService)
-local MouseDash = require(ReplicatedStorage.Shared.MouseDash)
 local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
 
 local ArcadeCabinetService = {}
@@ -64,7 +63,7 @@ function ArcadeCabinetService.apply(): boolean
 	end
 	local on = Arcade.cabinetStands(
 		LiveFlagService.on(Arcade.FLAG),
-		LiveFlagService.on(MouseDash.FLAG),
+		true, -- #4654 batch 9: the `mouseDash` switch is retired
 		LiveFlagService.ready()
 	)
 	if shown ~= on then

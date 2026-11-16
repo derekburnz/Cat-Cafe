@@ -2260,7 +2260,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_StoneThrone_Gem_Bob"
   }

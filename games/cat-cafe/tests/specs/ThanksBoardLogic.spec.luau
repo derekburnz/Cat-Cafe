@@ -105,8 +105,8 @@ return function()
 					},
 					{
 						id = "4",
-						startsAt = 1795032000,
-						title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+						startsAt = 1794945600,
+						title = "🔔 Next update Tuesday: better controls on every device! Want a reminder?",
 					},
 					{
 						id = "5",
@@ -131,7 +131,7 @@ return function()
 				expect(Logic.nextUpdate(list, 1794799800 + 601).text).to.equal(
 					"Next: Better controls on every device"
 				)
-				expect(Logic.nextUpdate(list, 1795032000 + 601)).to.equal(nil)
+				expect(Logic.nextUpdate(list, 1794945600 + 601)).to.equal(nil)
 				expect(Logic.nextUpdate(nil, 0)).to.equal(nil)
 			end
 		)

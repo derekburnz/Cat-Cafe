@@ -1,8 +1,8 @@
 --!strict
 -- #3378 (Derek 2026-11-11: "setup a funnel for it"): the Cat Arcade's funnel, arcade_v1. One run per player per UTC
 -- day (its funnel session is `key`): 1 arcade_seen (came near the cabinet), 2 arcade_opened (the window opened, ring
--- or prompt), 3 arcade_started (the server accepted ArcadeStart), 4 arcade_first_circle (the first circle hit in a
--- game), 5 arcade_finished (a game ended, not a quit), 6 arcade_played_again (a second game started that day).
+-- or prompt), 3 arcade_started (the server accepted ArcadeStart), 4 arcade_first_circle (the first hit in a game:
+-- the name is from Circle Streak and stays so the funnel's history lines up), 5 arcade_finished (a game ended, not a quit), 6 arcade_played_again (a second game started that day).
 -- Fields on every step: "free" or "paid" (the day's free game or golden fish), the device, the minutes played band.
 -- Counts only, never who. Pure: Telemetry keeps each player's `State` for the session and logs what `due` returns.
 
@@ -20,18 +20,15 @@ ArcadeFunnel.STEPS = table.freeze({
 ArcadeFunnel.SEEN = 1
 ArcadeFunnel.OPENED = 2
 ArcadeFunnel.STARTED = 3
-ArcadeFunnel.FIRST_CIRCLE = 4
 ArcadeFunnel.FINISHED = 5
 ArcadeFunnel.PLAYED_AGAIN = 6
 
--- #3296: the arcade has two games (Circle Streak, vaulted by the `circleStreak` switch, and Mouse Dash). arcade_v1
--- keeps its six steps across the swap; step 4 is "first hit in a game" (a circle hit, or a mouse caught), and
--- arcade_quit, arcade_blocked and arcade_board_top carry the game as their second field. An event takes three
--- fields at most, so arcade_run's third is "win" or "over" for Circle Streak (as before the swap) and "mouse_win"
--- or "mouse_over" for Mouse Dash; its first is the circles hit, or Mouse Dash's seconds.
-ArcadeFunnel.GAME_CIRCLE = "circle"
+-- #3296: Mouse Dash replaced Circle Streak (removed for good, #4656). arcade_v1 kept its six steps across the swap;
+-- step 4 is the first mouse caught, and arcade_quit, arcade_blocked and arcade_board_top carry the game ("mouse") as
+-- their second field. arcade_run's third is "mouse_win" or "mouse_over" (Circle Streak's rows said "win" or "over")
+-- and its first is Mouse Dash's seconds.
 ArcadeFunnel.GAME_MOUSE = "mouse"
-ArcadeFunnel.FIRST_HIT = 4 -- the same step as FIRST_CIRCLE, under the name both games use
+ArcadeFunnel.FIRST_HIT = 4
 
 ArcadeFunnel.SEEN_STUDS = 40 -- "near the cabinet": about the Town Square corner it stands in
 ArcadeFunnel.SEEN_EVERY = 2 -- seconds between two looks at who is near

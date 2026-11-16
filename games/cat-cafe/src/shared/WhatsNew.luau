@@ -33,39 +33,180 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 local SECRETS_AT = 1794799800 -- 2026-11-16 03:30 UTC (Sunday 10:30 PM ET): 10 Secret Cats, the secretAreas switch
-local UPDATE_NOV_18 = 1795032000 -- 2026-11-18 20:00 UTC: Better on Every Device, when UPDATE6 opens too
+local UPDATE_NOV_17 = 1794945600 -- 2026-11-17 20:00 UTC: Better on Every Device, when UPDATE6 opens too
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
 
 WhatsNew.rows = table.freeze({
-	-- Better on Every Device update (Growth-Agent launch pack, Wed 2026-11-18 20:00 UTC): each row waits for
-	-- startsAt. Drop any row whose part does not ship (Gameplay-Engineer confirms by Tue 20:00 UTC).
+	-- The update code still opens with Tuesday's update (Catalog codes.update6 startsAt)
+	{
+		id = "code_update6",
+		date = "2026-11-17",
+		startsAt = UPDATE_NOV_17,
+		icon = "new",
+		text = "New code: UPDATE6",
+	},
+	-- #4981 (Derek 2026-11-16 22:28 UTC: "do an full update of the whats new and player ideas board"): everything live
+	-- since the 13:30 UTC rows, and the Better on Every Device rows, live now (deviceFixes on), no longer waiting for Tue.
+	-- Pad menus #4224; Rank Up opens #4925; AFK tile #4346 #4976; paw trails #4942; tutorial lines #4928; first flight
+	-- #4932 #4936; Crate Drop #4891; Fish Fountain #4897; Mystery gift #4895; late treats #4903; Admin Wheel #4912;
+	-- Dragon Keep #4964; Swift Paws #4864; phone lag #4947 #4954; spawn pop-ups #4227 #4228 (a player's idea).
+	{
+		id = "pad_menus",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Every menu works on a pad",
+		creditId = "c18",
+	},
 	{
 		id = "pad_controls",
-		date = "2026-11-18",
-		startsAt = UPDATE_NOV_18,
+		date = "2026-11-16",
 		icon = "faster",
 		text = "Pad: B back, L1/R1 tabs",
 	},
 	{
-		id = "pad_menus",
-		date = "2026-11-18",
-		startsAt = UPDATE_NOV_18,
+		id = "rank_up_opens",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Rank Up opens when ready",
+	},
+	{
+		id = "afk_tile",
+		date = "2026-11-16",
+		icon = "new",
+		text = "AFK button in the top bar",
+	},
+	{
+		id = "crate_drop",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Golden Crate Drop event",
+	},
+	{
+		id = "fish_fountain",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Golden fish fountain",
+	},
+	{
+		id = "dragon_warmth",
+		date = "2026-11-16",
 		icon = "faster",
-		text = "Every menu works on a pad",
+		text = "Dragon Keep: less Warmth",
+	},
+	{
+		id = "mystery_gift_big",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Bigger Mystery Gift prizes",
+	},
+	{
+		id = "late_treats",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Eclipse Treat, Royal Feast",
+	},
+	{
+		id = "spawn_one_at_a_time",
+		date = "2026-11-16",
+		icon = "fix",
+		text = "Spawn pop-ups one at a time",
+		creditId = "c17",
+	},
+	{
+		id = "tutorial_why",
+		date = "2026-11-16",
+		icon = "fix",
+		text = "Tutorial says what and why",
+	},
+	{
+		id = "paw_trails",
+		date = "2026-11-16",
+		icon = "look",
+		text = "Paw trails show the way",
+	},
+	{
+		id = "first_flight_quick",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Quicker first cannon trip",
+	},
+	{
+		id = "admin_wheel_look",
+		date = "2026-11-16",
+		icon = "look",
+		text = "New Admin Wheel look",
+	},
+	{
+		id = "swift_paws_cheaper",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Swift Paws 6-10 cost less",
 	},
 	{
 		id = "smooth_mode_lite",
-		date = "2026-11-18",
-		startsAt = UPDATE_NOV_18,
+		date = "2026-11-16",
 		icon = "faster",
 		text = "Lighter Smooth mode",
 	},
 	{
-		id = "code_update6",
-		date = "2026-11-18",
-		startsAt = UPDATE_NOV_18,
+		id = "phones_smoother",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Smoother on phones",
+	},
+	-- #2718 refresh, 2026-11-16 13:30 UTC (about 20 PRs since 07:00): live with no switch. Loading screen with Skip
+	-- #4781 #4786, the strip's RANK UP button #4769 #4774, the tutorial's walk to the cannon #4779, fewer early badge
+	-- pop-ups #4778
+	{
+		id = "loading_skip",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Loading screen with Skip",
+	},
+	{
+		id = "rank_up_button",
+		date = "2026-11-16",
+		icon = "look",
+		text = "Rank up button when ready",
+	},
+	{
+		id = "tutorial_walk",
+		date = "2026-11-16",
+		icon = "fix",
+		text = "Clearer path to the Park",
+	},
+	{
+		id = "badges_calm",
+		date = "2026-11-16",
+		icon = "fix",
+		text = "Fewer badge pop-ups early",
+	},
+	-- #2718 refresh, 2026-11-16 07:00 UTC (about 70 PRs since the 03:30 UTC rows): changes that are live with no switch
+	-- to wait for. Fuse all #4639, Auto Roll #4714, Tier 4's kinds #4719, the lighter join #4635 #4730 #4735. Four rows
+	-- only, so the 03:30 rows stay on the visible list (Review-QA).
+	{
+		id = "fuse_all",
+		date = "2026-11-16",
 		icon = "new",
-		text = "New code: UPDATE6",
+		text = "Fuse all at the Observatory",
+	},
+	{
+		id = "trait_auto_roll",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Auto Roll for cat traits",
+	},
+	{
+		id = "tier4_legendary",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Tier 4 needs a Legendary now",
+	},
+	{
+		id = "join_lighter",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Faster to join the game",
 	},
 	-- 10 Secret Cats (#4221, Mon 2026-11-16 03:30 UTC): in tonight's build, shown only once the secretAreas switch opens.
 	{
@@ -111,6 +252,7 @@ WhatsNew.rows = table.freeze({
 		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "Water Park opens (T9)",
+		creditId = "c16", -- Derek 2026-11-16 22:28 UTC: the Water Park was a player's idea (credit added 22:31 UTC)
 	},
 	{
 		id = "medieval_castle",

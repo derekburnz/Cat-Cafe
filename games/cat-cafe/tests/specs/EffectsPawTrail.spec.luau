@@ -32,6 +32,12 @@ return function()
 			expect(forward).to.equal(nil)
 		end)
 
+		it("never lets the comet's tail fade a print away (#4940)", function()
+			expect(PawTrail.faded(0.05, 0.4)).to.equal(0.05)
+			expect(PawTrail.faded(0.75, 0.4)).to.equal(0.4)
+			expect(PawTrail.faded(1, 0.4)).to.equal(1)
+		end)
+
 		it("keeps the prints inside their part and apart from each other", function()
 			local p = Presets.pawTrail
 			expect(p.attribute).to.equal("Paws")
@@ -39,6 +45,7 @@ return function()
 			expect(p.size < 3.5).to.equal(true)
 			expect(p.offset * 2 < p.size).to.equal(true)
 			expect(#p.toes).to.equal(4)
+			expect(p.faintest < 0.75).to.equal(true) -- clearer than GuideTrail's dimmest dot
 			for _, toe in p.toes do
 				expect(toe[1] - toe[3] / 2 >= 0).to.equal(true)
 				expect(toe[1] + toe[3] / 2 <= 1).to.equal(true)

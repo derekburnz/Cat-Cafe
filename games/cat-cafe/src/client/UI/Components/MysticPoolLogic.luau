@@ -247,13 +247,19 @@ function MysticPoolLogic.pickerLine(
 	}
 end
 
--- #3936: whether the red "!" hangs over the pool (Components/PoolBang): a free roll left, a Trait Token banked or
--- free tokens waiting at the station, and no Keep old / Take new choice waiting. False while the pool is shut.
-function MysticPoolLogic.bangShows(view: View?): boolean
-	if view == nil or view.pending ~= nil then
-		return false
-	end
-	return whole(view.freeLeft) > 0 or whole(view.tokens) > 0 or whole(view.held) > 0
+-- #3936: whether the red "!" hangs over the pool (Components/PoolBang). #4858 (Derek 2026-11-16: "remove the mystic
+-- pool exclamation mark when you have rolls to claim or use make it so its only their until the first time you go to
+-- the station"): while the pool is open to the player (`view` a table) and they have never walked up to it (`visited`,
+-- tipsSeen's Tips.POOL_VISIT). Rolls and tokens no longer bring it back. False while the pool is shut.
+-- #4858: whether this account has walked up to the pool: its pool_visit mark, or the first walk-up cutscene's
+-- mystic_intro mark (#3430), which every player who went before #4858 already has.
+function MysticPoolLogic.visited(seen: unknown): boolean
+	return type(seen) == "table"
+		and ((seen :: any).pool_visit == true or (seen :: any).mystic_intro == true)
+end
+
+function MysticPoolLogic.bangShows(view: View?, visited: boolean?): boolean
+	return type(view) == "table" and visited ~= true
 end
 
 -- The station's free tokens: the line, and whether Collect has something to take. `now` is the server's time.
@@ -453,8 +459,11 @@ export type AutoRun = {
 function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
 	if run == nil or (run.rolls == 0 and not run.running) then
 		local tokens = if view ~= nil then whole(view.tokens) else 0
-		local free = whole(if view ~= nil then view.party else 0)
-			+ math.min(whole(if view ~= nil then view.freeLeft else 0), Traits.FREE_ROLLS)
+		-- Derek 2026-11-16: a Trait Party has no roll cap, only its time, so its count is never shown
+		if whole(if view ~= nil then view.party else 0) > 0 then
+			return "Trait Party: every roll is free until it ends. Golden fish are never used."
+		end
+		local free = math.min(whole(if view ~= nil then view.freeLeft else 0), Traits.FREE_ROLLS)
 		local have = plural(tokens, "Trait Token", "Trait Tokens")
 		if free > 0 then
 			have = plural(free, "free roll", "free rolls") .. " and " .. have

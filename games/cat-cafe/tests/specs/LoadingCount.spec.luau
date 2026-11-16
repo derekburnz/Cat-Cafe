@@ -33,7 +33,10 @@ return function()
 				expect(LoadingCount.raceSeconds(0)).to.equal(LoadingCount.SHOWN_MIN)
 				expect(LoadingCount.raceSeconds(-3)).to.equal(LoadingCount.SHOWN_MIN)
 				expect(LoadingCount.raceSeconds(0 / 0)).to.equal(LoadingCount.SHOWN_MIN)
-				expect(LoadingCount.raceSeconds(1)).to.be.near(LoadingCount.SHOWN_MIN - 1, 0.001)
+				expect(LoadingCount.raceSeconds(0.5)).to.be.near(
+					LoadingCount.SHOWN_MIN - 0.5,
+					0.001
+				)
 				expect(LoadingCount.raceSeconds(10)).to.equal(LoadingCount.RACE_MIN)
 			end
 		)

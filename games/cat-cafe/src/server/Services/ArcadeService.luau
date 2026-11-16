@@ -30,7 +30,6 @@ local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local MouseDash = require(ReplicatedStorage.Shared.MouseDash)
 local Net = require(script.Parent.Net)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
@@ -163,14 +162,12 @@ local shownBest: string? = nil
 -- The cabinet's prompt carries Mouse Dash's server best: "Cat Arcade · Mouse Dash · Best 37 (Sam)" (#4656: Circle
 -- Streak's own best is gone with it).
 local function showServerBest()
-	local text = Arcade.NAME
-	if LiveFlagService.on(MouseDash.FLAG) then
-		text ..= " · " .. MouseDash.NAME
-		if mouseBest.points > 0 then
-			text ..= " · Best " .. MouseDash.words(mouseBest.points, mouseBest.seconds)
-			if mouseBest.name ~= nil then
-				text ..= " (" .. mouseBest.name .. ")"
-			end
+	-- #4654 batch 9: the `mouseDash` switch is retired, Mouse Dash is always the arcade's game
+	local text = Arcade.NAME .. " · " .. MouseDash.NAME
+	if mouseBest.points > 0 then
+		text ..= " · Best " .. MouseDash.words(mouseBest.points, mouseBest.seconds)
+		if mouseBest.name ~= nil then
+			text ..= " (" .. mouseBest.name .. ")"
 		end
 	end
 	shownBest = text

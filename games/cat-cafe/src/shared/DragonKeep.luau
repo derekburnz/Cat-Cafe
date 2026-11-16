@@ -21,8 +21,8 @@ DragonKeep.STAGES = {
 	{ name = "Hatchling", warmth = 50 },
 	{ name = "Whelp", warmth = 300 },
 	{ name = "Drake", warmth = 1000 },
-	{ name = "Elder", warmth = 2100 }, -- #4615 (Derek 2026-11-15): was 2,500
-	{ name = "Crowned", warmth = 4000 }, -- #4615: was 5,000
+	{ name = "Elder", warmth = 1400 }, -- #4962 (Derek 2026-11-16): was 2,100 (#4615: 2,500)
+	{ name = "Crowned", warmth = 2400 }, -- #4962: was 4,000 (#4615: 5,000)
 }
 DragonKeep.MAX_STAGE = #DragonKeep.STAGES
 DragonKeep.REKINDLE = 1500

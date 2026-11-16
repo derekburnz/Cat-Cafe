@@ -5,7 +5,7 @@
 -- CafeRestZone and CafeRest attributes, which the server sets, and leaves its count or its green at the first input
 -- without waiting for the server.
 -- Input is any key, button, tap, click, stick, mouse move or wheel, or a chat message typed.
--- #4346: AFK mode. UI.afk is the HUD's AFK tile's side: whether the tile shows (the afkButton and afkCafe switches),
+-- #4346: AFK mode. UI.afk is the HUD's AFK tile's side: whether the tile shows (the afkButton switch),
 -- whether the mode is on (the Player's AfkMode attribute, server set), toggle() to ask for it on or off, and
 -- changed(fn) to redraw. In AFK mode the banner shows the rest whatever the input, as the server pays it.
 
@@ -97,15 +97,10 @@ function AfkController.modeOn(): boolean
 	return Players.LocalPlayer:GetAttribute(AfkCafe.MODE_ATTRIBUTE) == true
 end
 
--- #4346: whether the AFK tile shows: both switches on.
+-- #4346: whether the AFK tile shows: the afkButton switch on.
 function AfkController.modeShown(): boolean
-	local function flag(key: string): boolean
-		return LiveFlags.shown(
-			key,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
-		)
-	end
-	return flag(AfkCafe.FLAG) and flag(AfkCafe.BUTTON_FLAG)
+	local key = AfkCafe.BUTTON_FLAG
+	return LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 end
 
 function AfkController.start()
@@ -118,10 +113,9 @@ function AfkController.start()
 		end,
 		changed = function(fn: () -> ())
 			Players.LocalPlayer:GetAttributeChangedSignal(AfkCafe.MODE_ATTRIBUTE):Connect(fn)
-			for _, key in { AfkCafe.FLAG, AfkCafe.BUTTON_FLAG } do
-				ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. key)
-					:Connect(fn)
-			end
+			ReplicatedStorage
+				:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. AfkCafe.BUTTON_FLAG)
+				:Connect(fn)
 		end,
 	}
 	Players.LocalPlayer:GetAttributeChangedSignal(AfkCafe.MODE_ATTRIBUTE):Connect(chip)

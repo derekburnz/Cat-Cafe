@@ -165,7 +165,9 @@ jobs:
     # is the bottleneck (2026-11-15).
     if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' && github.event_name != 'push' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Shard 1 also builds the HUD scene and ran 27.8 to 30.3 minutes on 2026-11-16 (one run was cancelled at 30:16
+    # while the other shards took about 18), so the limit is 45 until the scenes are split by cost.
+    timeout-minutes: 45
     strategy:
       fail-fast: true
       matrix:

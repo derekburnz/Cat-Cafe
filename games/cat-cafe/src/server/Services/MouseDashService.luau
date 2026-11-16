@@ -392,7 +392,7 @@ local function onStart(player: Player)
 			})
 		end
 	end
-	if not (LiveFlagService.on(Arcade.FLAG) and LiveFlagService.on(MouseDash.FLAG)) then
+	if not LiveFlagService.on(Arcade.FLAG) then -- #4654 batch 9: `mouseDash` is retired
 		Net.toast(player, CLOSED_TEXT, "warn")
 		blocked(true, true, false, false)
 		return

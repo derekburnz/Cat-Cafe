@@ -58,7 +58,7 @@ Remotes.ClientToServer = {
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- (bagId: string?)  #3360: own plot has that unexpired money bag (none: the front one), within RichTipRangeStuds of it
-	"AfkMode", -- (on: boolean)  #4346: the AFK tile; afkButton and afkCafe on; true takes the player home (TravelService's checks) and starts AFK mode, false ends it
+	"AfkMode", -- (on: boolean)  #4346: the AFK tile; afkButton on; true takes the player home (TravelService's checks) and starts AFK mode, false ends it
 	"AfkIdle", -- (idle: boolean)  #3573: the client has had no input for Config.AfkCafeSeconds (true) or has input again (false); the server decides whether the player rests (AfkCafeService)
 	"TakeCozy", -- ()  #2854: own plot has a waiting Cozy gift bag (the Rewards list's row takes it from anywhere)
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
@@ -368,7 +368,7 @@ Remotes.ServerToClient = {
 	-- per id until TipSeen. The client queues and times it, then answers TipSeen
 	"SpinAllResult", -- (rolls: { Spin.SpinRoll }, totals: { Spin.SpinTotal })  #1078: each spin's slice and amount in
 	-- order, and the prizes added up for the one results card; both empty when nothing was spent
-	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string })  #4195: where an AdminWheelSpin landed
+	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string }, catId: string)  #4195: where an AdminWheelSpin landed; #4876 catId
 	-- (the place in AdminWheel.PRIZES) and what it paid, as short lines; 0, "", {} when refused
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)

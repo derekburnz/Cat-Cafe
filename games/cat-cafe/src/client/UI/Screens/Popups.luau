@@ -29,6 +29,7 @@ local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 local WelcomeBack = require(script.Parent.Parent.Components.WelcomeBack)
@@ -63,6 +64,7 @@ export type Popups = {
 	dropOffline: (self: Popups) -> boolean,
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
 	dismiss: (self: Popups) -> (),
+	glowOkWhen: (self: Popups, when: () -> boolean) -> (),
 	dismissCat: (self: Popups) -> (),
 	setHeld: (self: Popups, held: boolean) -> (),
 	isShowing: (self: Popups) -> boolean,
@@ -70,6 +72,7 @@ export type Popups = {
 }
 
 local CAT_AUTO_CLOSE = 5
+local QUICK_CLOSE = 2.5 -- #4920: a Tier 1 player's card (CatFoundExtra.quick)
 local GIFT_AUTO_CLOSE = 4
 local OFFLINE_W = 380 -- the welcome back card
 local OFFLINE_H = 260
@@ -350,21 +353,20 @@ function Popups.new(parent: Instance): Popups
 		Text = "",
 		Parent = catCard,
 	})
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "Ok",
-			text = "Nice!",
-			style = "primary",
-			size = UDim2.fromOffset(160, Theme.sizes.touchMin + 4),
-			anchorPoint = Vector2.new(0.5, 1),
-			position = UDim2.new(0.5, 0, 1, -14),
-			parent = catCard,
-			onClick = function()
-				self:dismiss()
-			end,
-		})
-	)
+	local catOk = Button.new({
+		name = "Ok",
+		text = "Nice!",
+		style = "primary",
+		size = UDim2.fromOffset(160, Theme.sizes.touchMin + 4),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -14),
+		parent = catCard,
+		onClick = function()
+			self:dismiss()
+		end,
+	})
+	self._catOk = catOk
+	table.insert(self._buttons, catOk)
 	self._sparkles = {} :: { Frame }
 	for _ = 1, SPARKLES do
 		table.insert(
@@ -653,6 +655,7 @@ function Popups.dismiss(self: any)
 	if card == self._offlineCard then
 		self._offlineWaiting = false
 	end
+	TutorialGlow.set(self._catOk.instance, false)
 	Tween.popOut(card, function()
 		card.Visible = false
 		if card == self._catCard then
@@ -660,6 +663,11 @@ function Popups.dismiss(self: any)
 		end
 		self:_next()
 	end)
+end
+
+-- #4836: `when` says whether the new cat card's "Nice!" gets the tutorial's ring and arrow as the card opens.
+function Popups.glowOkWhen(self: any, when: () -> boolean)
+	self._okGlow = when
 end
 
 -- #3640: closes the new cat's card when it is the one up (the tutorial's move to the cannon does not wait for it).
@@ -677,6 +685,11 @@ function Popups.showCatFound(
 )
 	local function run()
 		local token = self:_open(self._catCard)
+		-- #4836 (Sync's pointer audit: on PC the first Epic's "Nice!" sat over a full dim with nothing pointing at it):
+		-- in the walk-through the card's button gets the tutorial's ring and arrow (glowOkWhen)
+		local okGlow: (() -> boolean)? = self._okGlow
+		-- #4909 (Sync's Studio run: the arrow stayed on the HUD's Cannon behind the card): the arrow leads here, no dim
+		TutorialGlow.set(self._catOk.instance, okGlow ~= nil and okGlow(), nil, true, true)
 		local rarity = def.rarity
 		local info: Types.CatFoundExtra = extra or {}
 		local rainbow = info.rainbow == true -- F99
@@ -774,7 +787,7 @@ function Popups.showCatFound(
 				Rotation = 45 + 180,
 			})
 		end
-		task.delay(CAT_AUTO_CLOSE, function()
+		task.delay(if info.quick == true then QUICK_CLOSE else CAT_AUTO_CLOSE, function()
 			if self._token == token then
 				self:dismiss()
 			end

@@ -231,9 +231,19 @@ function Circles.trustFor(rarity: Types.Rarity, bonus: number?): Trust
 	return { start = Config.TrustStart + (bonus or 0), need = Catalog.rarities[rarity].trustNeed }
 end
 
-function Circles.tutorialTrust(): Trust
-	return { start = Config.TrustStart, need = Config.TrustStart + Config.TrustGood }
+-- #4845: with `rings` rings (1 when nil) the catch lands on the last one: every ring before it a Perfect (a held ring
+-- always is) and the last at least a Good. One ring is unchanged: one Good or Perfect catches.
+function Circles.tutorialTrust(rings: number?): Trust
+	local count = math.max(1, rings or 1)
+	return {
+		start = Config.TrustStart,
+		need = Config.TrustStart + (count - 1) * Config.TrustPerfect + Config.TrustGood,
+	}
 end
+
+-- #4845 (Derek 2026-11-16: "make it 3 circles so people understand the minigame"): how many rings a held tutorial
+-- catch runs, each stopping on its ring until the press
+Circles.GUIDED_RINGS = 3
 
 -- F87 (easy-start.md section 2b): a beginner's own tutorial stray, a Common, is caught on one circle that shrinks
 -- for TutorialShrinkSeconds with no jitter, judged with the Common's bands for `netLevel` made TutorialWindowScale
@@ -244,23 +254,42 @@ function Circles.tutorialWindows(netLevel: number): Types.NetWindows
 	return { perfect = common.perfect * scale, good = common.good * scale }
 end
 
--- `hold` (#2920): the ring stops on its target and waits for the press (a player's very first catch).
+-- `hold` (#2920): the ring stops on its target and waits for the press (a player's very first catch). #4845: a held
+-- catch runs GUIDED_RINGS rings on the usual beat, each held the same way; a ring after a held one starts as much
+-- later as the press on that one came after its target (Circles.shiftAfter), so each waits its turn.
 function Circles.tutorialSchedule(
 	now: number,
 	roll: () -> number,
 	hold: boolean?
 ): { Types.CatchCircle }
-	return {
-		{
-			startsAt = now + Config.CircleLeadInSeconds,
+	local held = hold == true
+	local circles: { Types.CatchCircle } = {}
+	for ring = 1, if held then Circles.GUIDED_RINGS else 1 do
+		local previous = circles[ring - 1]
+		table.insert(circles, {
+			startsAt = if previous ~= nil
+				then previous.startsAt + previous.shrinkSeconds + Config.CircleGapMin
+				else now + Config.CircleLeadInSeconds,
 			shrinkSeconds = Config.TutorialShrinkSeconds,
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
-			kind = "single",
-			hold = if hold == true then true else nil,
-			holdSeconds = if hold == true then Config.FirstRingHoldSeconds else nil,
-		},
-	}
+			kind = "single" :: Types.CircleKind,
+			hold = if held then true else nil,
+			holdSeconds = if held then Config.FirstRingHoldSeconds else nil,
+		})
+	end
+	return circles
+end
+
+-- #4845: the rings after `index` start `delay` seconds later (a held ring pressed `delay` after its target). The
+-- server and the client each call it on the same press time (the client's stamp), so their clocks stay together.
+function Circles.shiftAfter(circles: { Types.CatchCircle }, index: number, delay: number)
+	if delay <= 0 then
+		return
+	end
+	for later = index + 1, #circles do
+		circles[later].startsAt += delay
+	end
 end
 
 function Circles.target(circle: Types.CatchCircle): number
@@ -284,7 +313,15 @@ end
 function Circles.lockUntil(circles: { Types.CatchCircle }, windows: Types.NetWindows): number
 	local last = circles[#circles]
 	if last.hold == true then
-		return Circles.deadline(last, windows) + 1 -- #2920: the whole hold
+		-- #2920: the whole hold; #4845: and every earlier held ring's whole hold, which can push the last one later
+		local more = 0
+		for index = 1, #circles - 1 do
+			local circle = circles[index]
+			if circle.hold == true then
+				more += circle.holdSeconds or Config.FirstRingHoldSeconds
+			end
+		end
+		return Circles.deadline(last, windows) + more + 1
 	end
 	return Circles.target(last) + windows.good + 1
 end
@@ -461,7 +498,22 @@ function Circles.press(
 		if pressTime < Circles.target(circle) - attempt.windows.good then
 			return nil
 		end
+		-- #4845: the rings after it wait as long as this one did past its target (only for the waiting ring: a press
+		-- for a later one is judged below, and may be ignored)
+		if index == attempt.nextIndex then
+			Circles.shiftAfter(attempt.circles, index, pressTime - Circles.target(circle))
+		end
 		pressTime = Circles.target(circle)
+	elseif circle.noEarly == true then
+		-- #4814: the first catch by hand: a press before the Good band is dropped, not a Miss. A press the client
+		-- took at the band's edge that reads up to CatchLatencyCapSeconds early here (the two clocks) counts at the edge.
+		local edge = Circles.target(circle) - attempt.windows.good
+		if pressTime < edge then
+			if pressTime < edge - Config.CatchLatencyCapSeconds then
+				return nil
+			end
+			pressTime = edge + 1e-6 -- just inside the band, so the subtraction below never rounds it out to a Miss
+		end
 	end
 	if pressTime < circle.startsAt then
 		return nil

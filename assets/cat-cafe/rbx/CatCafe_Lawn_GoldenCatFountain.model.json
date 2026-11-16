@@ -9018,7 +9018,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_GoldenCatFountain_Cat_Spin"
   }

@@ -88,11 +88,11 @@ local PICTURES: { [string]: { glyph: string, rarity: string, image: (() -> strin
 				return ShopIcons.prize("spins")
 			end,
 		},
-		caviar = {
-			glyph = "🐟",
+		moonMilk = { -- #4959
+			glyph = "🥛",
 			rarity = "Legendary",
 			image = function()
-				return ShopIcons.food("caviar")
+				return ShopIcons.food("moon_milk")
 			end,
 		},
 		bestGolden = {
@@ -245,6 +245,35 @@ function TicketBooth.new(callbacks: Callbacks): TicketBooth
 	GridFit.fit(grid, layout, CELL_MIN, GAP, function()
 		return self._cardH
 	end)
+	-- Review-QA's Studio pass on #4759: on a short window the last cards (the toys) sat below the fold with nothing
+	-- saying so. A small "More below" pill sits over the grid's bottom while cards are hidden under it; a tap scrolls
+	-- one row down. It goes once the bottom is in view.
+	local more = Button.new({
+		name = "MoreBelow",
+		text = "▼ More below",
+		style = "secondary",
+		size = UDim2.fromOffset(130, 28),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -6),
+		textSize = Theme.sizes.textSmall,
+		parent = content,
+		onClick = function()
+			local step = self._cardH + GAP
+			grid.CanvasPosition = Vector2.new(0, grid.CanvasPosition.Y + step)
+		end,
+	})
+	more.instance.ZIndex = 5
+	self._more = more
+	local function moreShown()
+		local hidden = grid.AbsoluteCanvasSize.Y
+			- (grid.CanvasPosition.Y + grid.AbsoluteWindowSize.Y)
+		more.instance.Visible = hidden > 8
+	end
+	self._moreShown = moreShown
+	grid:GetPropertyChangedSignal("CanvasPosition"):Connect(moreShown)
+	grid:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(moreShown)
+	grid:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(moreShown)
+	moreShown()
 	return self :: TicketBooth
 end
 

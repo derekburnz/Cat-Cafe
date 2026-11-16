@@ -133015,7 +133015,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_102_BannerPole_Swing"
   },
@@ -136847,7 +136848,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_110_BannerPole_Swing"
   },
@@ -150546,7 +150548,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_122_BannerPole_Swing"
   },
@@ -151128,7 +151131,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_123_BannerPole_Swing"
   },
@@ -151710,7 +151714,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_124_BannerPole_Swing"
   },
@@ -152292,7 +152297,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_125_BannerPole_Swing"
   },
@@ -152874,7 +152880,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_126_BannerPole_Swing"
   },
@@ -153456,7 +153463,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_127_BannerPole_Swing"
   },
@@ -182907,7 +182915,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_156_BannerPole_Swing"
   },
@@ -184749,7 +184758,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_159_BannerPole_Swing"
   },
@@ -199520,7 +199530,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_188_BannerPole_Swing"
   },
@@ -200102,7 +200113,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_189_BannerPole_Swing"
   },
@@ -263406,7 +263418,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_259_BannerPole_Swing"
   },
@@ -265338,7 +265351,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_264_BannerPole_Swing"
   },
@@ -267270,7 +267284,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_269_BannerPole_Swing"
   },
@@ -269202,7 +269217,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Castle_Set_274_BannerPole_Swing"
   },

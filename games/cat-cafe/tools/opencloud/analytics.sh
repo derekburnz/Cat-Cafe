@@ -728,6 +728,8 @@ done
 #   step_time           value account seconds of play at the step; field the onboarding step name
 #   ab_loading          value the playtime_v1 step number; fields arm (on/off), step name, device (#4314, new saves)
 #   ab_loading_seen     value the seconds the loading screen was up; fields arm, device (#4314)
+#   client_load         value seconds join to world ready; fields device, client part bucket, first or back (#4783)
+#   client_fps          value average FPS; fields device, mark (m1 m3 m10), low or std plus :q graphics quality (#4783)
 #   step_gap            value seconds between two steps; fields the gap, the bucket (#3530, shared/StepGaps)
 #   quit_have           value seconds played; fields kinds of cat, coin share of Tier 2, ready or not_ready (#3530)
 #   cat_caught_area     value 1; fields area id, rarity
@@ -772,6 +774,15 @@ fieldEvents=(
 	"quit_have|CustomField2|CustomEventCountUser|Leavers before Tier 2 by coins as a share of Tier 2's cost"
 	"quit_have|CustomField3|CustomEventCountUser|Leavers before Tier 2: ready to rank up or not (rank_up_ready_quit)"
 	"quit_have|CustomField1,CustomField2|CustomEventCountUser|Leavers before Tier 2 by kinds of cat owned and coins share of Tier 2 cost (Design-Agent 2026-11-15)"
+	"quit_have|CustomField1,CustomField2,CustomField3|CustomEventCountUser|Leavers before Tier 2 by kinds, coins share and ready or not (Design-Agent 2026-11-16)"
+	"quit_have|Platform,CustomField3|CustomEventCountUser|Leavers before Tier 2 by device, ready or not (Design-Agent 2026-11-16)"
+	"rank_up_ready_first|CustomField1|CustomEventCountUser|First rank up ready: players by device (#3555)"
+	"rank_up_ready_first|CustomField2|CustomEventCountUser|First rank up ready: players by where they stood, safe or an area (Design-Agent 2026-11-16)"
+	"rank_up_pressed_first|CustomField1|CustomEventCountUser|First rank up pressed: players by device (#3555)"
+	"rank_up_pressed_first|CustomField1|CustomEventAvgValue|First rank up pressed: average seconds from ready, by device (#3555)"
+	"rank_up_spotlight_shown|CustomField1|CustomEventCountUser|Rank up walk-through shown: players by device (#3555)"
+	"rank_up_spotlight_closed|CustomField1|CustomEventCountUser|Rank up walk-through closed: players by device (#3555)"
+	"starter_suggest|CustomField1|CustomEventCountUser|Starter Bundle card: players by outcome (#4174)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
 	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"
@@ -877,6 +888,11 @@ fieldEvents=(
 	"client_boot|CustomField1|CustomEventAvgValue|Average seconds from join to the first save on the client, by device (#4307)"
 	"client_boot|CustomField1,CustomField2|CustomEventCountUser|Players by device and Roblox load time (join to first script line)"
 	"client_boot|CustomField1,CustomField3|CustomEventCountUser|Players by device and UI build / save wait"
+	"client_load|CustomField1|CustomEventAvgValue|Average seconds from join to the world ready, by device (#4783, read from place v757 on)"
+	"client_load|CustomField1,CustomField2|CustomEventCountUser|Players by device and client load bucket (#4783)"
+	"client_load|CustomField1,CustomField3|CustomEventCountUser|Players by device and first or back session (#4783)"
+	"client_fps|CustomField1,CustomField2|CustomEventAvgValue|Average FPS by device and minute mark m1 m3 m10 (#4783, from place v755)"
+	"client_fps|CustomField1,CustomField3|CustomEventCountUser|Players by device and low or std plus graphics quality (#4783)"
 )
 say "### Event fields"
 say ""

@@ -22,7 +22,7 @@ local Types = require(script.Parent.Parent.Types)
 local FoodOrder = {}
 
 local GRADE_RANK: { [string]: number } =
-	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 }
+	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 } -- Secret: #4977
 local LAST = math.huge
 -- F97 section 3's list, for ids with the same grade and no price
 local DESIGN: { [string]: number } = {

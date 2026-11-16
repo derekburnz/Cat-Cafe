@@ -108,8 +108,9 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Caviar = "rbxassetid://75650997072096",
 	Icon_Clean_Coin = "rbxassetid://85581311877137", -- CoinGold (#1253); was 112195289471900,
 	-- #2089 (Derek2: the "?" box "shouldn't be anywhere"): the crate glyph draws the Classic Crate's picture, not the
-	-- mystery box (76162414943592) from icons-clean-2026-11-03
-	Icon_Clean_Crate = "rbxassetid://81784091360384",
+	-- mystery box (76162414943592) from icons-clean-2026-11-03. #4886 (Derek 2026-11-16, banned twice): never the
+	-- wooden box with the gold cat coin (81784091360384); the crate glyph is the Classic Crate (Crate_Classic)
+	Icon_Clean_Crate = "rbxassetid://72888217681662",
 	Icon_Clean_Decor = "rbxassetid://91027671376875",
 	Icon_Clean_Feedback = "rbxassetid://86899710660019",
 	Icon_Clean_Fish = "rbxassetid://101061912700342", -- FishGold (#1253); was 111395416488950,
@@ -139,6 +140,9 @@ local IDS: { [string]: string } = {
 	-- #3462: the Day Cart's own two baits (upload run 43189985202, 11-12)
 	Icon_Clean_HoneyCream = "rbxassetid://101594576071338",
 	Icon_Clean_CometTreat = "rbxassetid://130150324251209",
+	-- #4900: the Secret tier bait and the 50,000 XP cat food (upload run 43919997285, 11-16)
+	Icon_Clean_EclipseTreat = "rbxassetid://101916822452098",
+	Icon_Clean_RoyalFeast = "rbxassetid://133381821214039",
 	Icon_Clean_Spin = "rbxassetid://92256242473029",
 	Icon_Clean_TipJar = "rbxassetid://88738180093821", -- #4046: the Tip Jar quest's picture (🫙 draws blank on Roblox)
 	Icon_Clean_TipPile = "rbxassetid://120928045593770", -- #4046: the tip piles quest's (🪙 draws blank too)
@@ -243,8 +247,6 @@ local IDS: { [string]: string } = {
 	Icon_DragonFamily_Crown = "rbxassetid://91850271285128",
 	-- #4061: the Ticket Booth's prizes and weekly shelf (Model-Agent); ShopIcons.booth
 	Icon_ShopCat_BoothPlush = "rbxassetid://126308376800797",
-	Icon_Booth_WaterSquirter = "rbxassetid://127849436597884",
-	Icon_Booth_PoolNoodle = "rbxassetid://137047405302523",
 	Icon_Booth_FlamingoFloat = "rbxassetid://104577381956407",
 	Icon_Booth_SplashFountain = "rbxassetid://73775856027824",
 	Icon_Booth_TicketArch = "rbxassetid://123078102631830",
@@ -623,7 +625,7 @@ function ShopIcons.dragonFamily(family: string?): string?
 	)]
 end
 
--- #4061: a Ticket Booth prize or shelf picture by its name ("PoolNoodle", "BoothPlush"), or nil.
+-- #4061: a Ticket Booth prize or shelf picture by its name ("BoothPlush"), or nil.
 function ShopIcons.booth(name: string?): string?
 	if type(name) ~= "string" then
 		return nil
@@ -687,6 +689,7 @@ local SNACK_GLYPHS: { [string]: string } = {
 	cat_snack = "🍪",
 	big_cat_snack = "🧁",
 	cat_feast = "🍱",
+	royal_feast = "👑", -- #4900, until Model-Agent's picture
 }
 ShopIcons.SNACK_GLYPH = "🍪" -- a cat food with no glyph of its own
 
@@ -694,9 +697,20 @@ function ShopIcons.snackGlyph(foodId: string?): string
 	return (if type(foodId) == "string" then SNACK_GLYPHS[foodId] else nil) or ShopIcons.SNACK_GLYPH
 end
 
--- Cat food's uploaded picture (#1181): the clean star treat, now only for a food without its own glyph (#1616)
+-- #4900: a cat food with a drawn picture of its own shows it everywhere its glyph would go
+local CAT_FOOD_PICTURES: { [string]: string } = { royal_feast = "Icon_Clean_RoyalFeast" }
+
+-- Cat food's uploaded picture (#1181): its own drawn one (#4900), else the clean star treat, now only for a food
+-- without its own glyph (#1616)
 function ShopIcons.catFood(foodId: string?): string?
-	if type(foodId) ~= "string" or SNACK_GLYPHS[foodId] ~= nil then
+	if type(foodId) ~= "string" then
+		return nil
+	end
+	local own = CAT_FOOD_PICTURES[foodId]
+	if own ~= nil then
+		return IDS[own]
+	end
+	if SNACK_GLYPHS[foodId] ~= nil then
 		return nil
 	end
 	return IDS.Icon_Clean_StarTreat

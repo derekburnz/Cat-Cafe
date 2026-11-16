@@ -102,6 +102,36 @@ function QuietStart.treatOpensItself(firstDay: unknown, today: number): boolean
 	return type(firstDay) ~= "number" or firstDay <= 0 or today > firstDay
 end
 
+-- #4821 (Growth-Agent's Home research and Design-Agent's first-60-seconds spec, 2026-11-16: 35.56% of Home players
+-- leave at 61 to 180 s, phone worst): under bowl first, until the first bowl cat is claimed (TutorialOrder.bowlPending)
+-- only the walk-through shows (its strip, ring and arrow, the first bait's cutscene and the Tame card). Toasts other
+-- than warnings, tips, asks, the event strip and the admin event's middle of the screen wait, and keep waiting
+-- FIRST_CAT_AFTER seconds past the claim, so the cat's own card has the screen. The client holds them (UI.firstCat).
+QuietStart.FIRST_CAT_AFTER = 10
+
+-- Whether the first cat hold is on: `before` the bowl cat is claimed, or less than FIRST_CAT_AFTER seconds since
+-- `claimedAt` (this session's clock as the claim was seen, nil when it was not seen this session).
+function QuietStart.firstCatHolds(before: boolean, claimedAt: number?, now: number): boolean
+	return before or (claimedAt ~= nil and now - claimedAt < QuietStart.FIRST_CAT_AFTER)
+end
+
+-- Derek 2026-11-16 15:22 UTC ("no unnecessary pop ups until tutorial steps done"): past the first cat hold, the rest
+-- of the walk-through is quiet too, until it ends: the Tier 2 rank up under bowl first (TutorialOrder; the Park move
+-- is gone, #4776), else tutorialStep TUTORIAL_DONE or Tier 2. The asks, the event's Notify Me offer, the Starter
+-- Bundle card, the Daily Treat window opening itself, the return hook line, the event and day strip, the big event
+-- cards and the admin event's middle of the screen wait (the client's UI.firstCat.tutorial); badges wait on the server
+-- (Badges.TUTORIAL_TIER). The walk-through, its tips, the catch and reward cards and the toasts are not held.
+QuietStart.TUTORIAL_DONE = 5
+
+-- Whether the walk-through hold is on: `bowlFirst` is TutorialOrder.bowlFirst()'s answer, `tutorialStep` and `tier`
+-- the state's (nil reads as 0 and 1).
+function QuietStart.tutorialHolds(bowlFirst: boolean, tutorialStep: number?, tier: number?): boolean
+	if (tier or 1) >= QuietStart.TIER then
+		return false
+	end
+	return bowlFirst or (tutorialStep or 0) < QuietStart.TUTORIAL_DONE
+end
+
 -- The client's read: whether the local player is quiet now. Not for the specs.
 function QuietStart.live(): boolean
 	local player = game:GetService("Players").LocalPlayer

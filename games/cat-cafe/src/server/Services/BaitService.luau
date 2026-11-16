@@ -158,9 +158,9 @@ local function useLure(
 			{ "bait", rarity, tostring(Economy.tier(profile)) }
 		)
 	end
-	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on (the card's Mythical line is
-	-- "Mythical or better", so it stays true)
-	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 (the card's Mythical line is "Mythical or better", so it
+	-- stays true)
+	local secret = if rarity == "Mythical"
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),
@@ -168,7 +168,8 @@ local function useLure(
 			true,
 			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
 				then Catching.baitAreas(Economy.tier(profile))
-				else nil
+				else nil,
+			lure.secretShare -- #4900: the Eclipse Treat's 1 in 10
 		)
 		else nil
 	if secret ~= nil then
@@ -313,8 +314,11 @@ local function resolveBait(
 		and profile.stats.luresUsed <= 1
 		and TutorialOrder.bowlFirst()
 	then
-		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway
-		CafeService.tutorialMove:Fire(player, "cannon")
+		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway.
+		-- #4777: no longer moved; the HUD's Cannon button is lit for the player to press
+		if (require(ReplicatedStorage.Shared.TutorialMoves) :: any).BOWL_CANNON_MOVE then
+			CafeService.tutorialMove:Fire(player, "cannon")
+		end
 	end
 	local shown = shownArrival[player]
 	if shown ~= nil then
@@ -335,6 +339,9 @@ local function resolveBait(
 	end
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
+		if profile.stats.baitsTamed == 1 and profile.stats.luresUsed == 1 then
+			Telemetry.firstCatOwned(player, rarityText) -- #4821: the account's first food's cat
+		end
 		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
 		local instance, isNew =
 			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)

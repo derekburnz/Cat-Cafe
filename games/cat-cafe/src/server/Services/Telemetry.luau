@@ -383,7 +383,8 @@ export type CustomEvent =
 	| "stray_near_first"
 	-- #3555: the first rank up's walk-through. rank_up_ready_first (value 1) and rank_up_pressed_first (value the
 	-- seconds from ready to the rank up) from RankSpotService, once a session; shown and closed from the client
-	-- (RANK_SPOT), value 1, once a session each; the device
+	-- (RANK_SPOT), value 1, once a session each; the device. rank_up_ready_first's second field: where the player
+	-- stood, "safe" or the catching area's id (the Nov 16 drop-off read)
 	| "rank_up_ready_first"
 	| "rank_up_pressed_first"
 	| "rank_up_spotlight_shown"

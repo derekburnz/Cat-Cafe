@@ -34,11 +34,14 @@ local function watch(player: Player, on: boolean)
 	local blocker = if tier == 1 then Economy.rankUpBlocker(profile) else nil
 	if tier == 1 and blocker == nil and readyAt[player] == nil then
 		readyAt[player] = os.clock()
+		-- the Nov 16 drop-off read (148 of 431 ready players never pressed): the second field says where the player
+		-- stood when Tier 2 got ready, "safe" (cafes and Town Square, where the walk-through shows) or the area id
+		local zone = WorldBuilder.areaAt(PlotService.world(), (root :: BasePart).Position)
 		Telemetry.custom(
 			player,
 			"rank_up_ready_first",
 			1,
-			{ Telemetry.device(player) or "unknown" }
+			{ Telemetry.device(player) or "unknown", zone or "safe" }
 		)
 	elseif tier >= 2 and readyAt[player] ~= nil and not pressed[player] then
 		pressed[player] = true

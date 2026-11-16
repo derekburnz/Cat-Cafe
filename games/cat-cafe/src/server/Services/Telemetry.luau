@@ -647,6 +647,9 @@ type Session = {
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
 	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
 	askJourney: string?, -- #4544: this session's EventAsk journey session id, made at the first answer
+	-- #4544: the cannon trip under way (the AreaVisit journey) and how many this session
+	trip: { id: string, area: string, arrived: boolean, caught: boolean }?,
+	trips: number?,
 	recapShown: boolean, -- #1920: session_recap logged this session
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
 	goals: { ShownGoal }, -- #2916: next goals shown this session (recap) or at the join, until each is met
@@ -1086,6 +1089,12 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 	if session == nil then
 		return
 	end
+	-- #4544: the first catch in the area this trip landed in
+	local trip = session.trip
+	if trip ~= nil and trip.area == area and trip.arrived and not trip.caught then
+		trip.caught = true
+		Telemetry.journey(player, Journeys.AREA, Journeys.AreaNodes.caught, trip.id, { area })
+	end
 	local areas = session.areasCaught
 	if areas == nil then
 		return -- joined is not logged yet: logJoined reads the save's areas, and the cat joins them at check-in
@@ -1093,6 +1102,30 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 	if areas[area] ~= true then
 		areas[area] = true
 		logClean(player, profile)
+	end
+end
+
+-- #4544: the AreaVisit journey's first node. The cannon fired at `area` (CannonService checked it), or with `locked`
+-- the pick was refused because the area's Tier is above the player's. A new trip replaces the one before it.
+function Telemetry.tripPicked(player: Player, profile: Profile, area: string, locked: boolean)
+	local session = sessions[player]
+	if session == nil or (session.trips or 0) >= Journeys.TRIPS_MAX then
+		return
+	end
+	session.trips = (session.trips or 0) + 1
+	local id = HttpService:GenerateGUID(false)
+	session.trip = if locked then nil else { id = id, area = area, arrived = false, caught = false }
+	local node = if locked then Journeys.AreaNodes.locked else Journeys.AreaNodes.picked
+	Telemetry.journey(player, Journeys.AREA, node, id, { area, tierText(profile) })
+end
+
+-- #4544: the trip to `area` landed.
+function Telemetry.tripArrived(player: Player, area: string)
+	local session = sessions[player]
+	local trip = if session ~= nil then session.trip else nil
+	if trip ~= nil and trip.area == area and not trip.arrived then
+		trip.arrived = true
+		Telemetry.journey(player, Journeys.AREA, Journeys.AreaNodes.arrived, trip.id, { area })
 	end
 end
 

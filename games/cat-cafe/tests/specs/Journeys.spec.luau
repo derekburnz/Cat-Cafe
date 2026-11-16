@@ -43,6 +43,9 @@ return function()
 			for _, node in Journeys.AskNodes do
 				expect(inConfig(Journeys.EVENT, node)).to.equal(true)
 			end
+			for _, node in Journeys.AreaNodes do
+				expect(inConfig(Journeys.AREA, node)).to.equal(true)
+			end
 		end)
 	end)
 

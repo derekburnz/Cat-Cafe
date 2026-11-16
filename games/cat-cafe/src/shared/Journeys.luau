@@ -55,6 +55,17 @@ Journeys.AskNodes = table.freeze({
 	failed = "Failed",
 })
 
+-- One cannon trip to an area (the session id is one per trip). Ten areas and a locked pick would be eleven nodes
+-- (Roblox takes ten a stage), so the area is field 1 on every node and the Tier field 2 on the pick.
+Journeys.AREA = "AreaVisit"
+Journeys.AreaNodes = table.freeze({
+	picked = "PickedArea", -- stage 1: the cannon fired at an area
+	locked = "PickedLocked", -- stage 1: the pick was refused, the area's Tier is above the player's
+	arrived = "Arrived", -- stage 2: landed there
+	caught = "Caught", -- stage 3: the first cat caught there on this trip
+})
+Journeys.TRIPS_MAX = 30 -- AreaVisit journeys a play session; a trip past it logs nothing
+
 Journeys.NONE = "na" -- a field with nothing to say (fields are positional, so field 2 needs a field 1)
 
 -- A store_v1 funnel step (`step` one of StoreFunnel.STEPS, `values` its fields) as a StoreVisit node and its fields,
@@ -112,6 +123,11 @@ Journeys.CONFIG = table.freeze({
 		{ "AddedCat", "AddedDecor", "AddedOther" },
 		{ "BothAccepted" },
 		{ "TradeDone", "TradeCancelled" },
+	},
+	[Journeys.AREA] = {
+		{ "PickedArea", "PickedLocked" },
+		{ "Arrived" },
+		{ "Caught" },
 	},
 	[Journeys.EVENT] = {
 		{ "SawAsk" },

@@ -193,6 +193,10 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		reason = "Still loading"
 	end
 	if reason ~= nil or character == nil or root == nil or model == nil then
+		-- #4544: a pick refused because the area's Tier is above the player's (the AreaVisit journey)
+		if area ~= nil and area.tier > Economy.tier(profile) then
+			Telemetry.tripPicked(player, profile, destination, true)
+		end
 		refuse(player, destination, reason or "Still loading")
 		return
 	end
@@ -214,6 +218,9 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	if area ~= nil then
+		Telemetry.tripPicked(player, profile, destination, false) -- #4544: the AreaVisit journey
+	end
 	profile.stats.cannonFlights += 1 -- #3618: the Liftoff badge
 	if
 		pass
@@ -272,6 +279,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		local lander = if area ~= nil then DataService.get(player) else nil
 		if lander ~= nil then
 			Telemetry.cleanEvent(player, lander, Telemetry.arrivedEvent(destination)) -- #4504: arrived
+			Telemetry.tripArrived(player, destination) -- #4544
 		end
 	end)
 end

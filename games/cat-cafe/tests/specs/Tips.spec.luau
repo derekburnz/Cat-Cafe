@@ -35,7 +35,6 @@ return function()
 				"codes_cat:card",
 				"luck:card",
 				"offline:card",
-				"perfect:card", -- #2282
 				"tackle_try:card", -- #2302
 				"park_first:card", -- #2915
 				"pet:card", -- Derek 2026-11-13: the first pet
@@ -54,7 +53,6 @@ return function()
 				"codes_cat",
 				"luck",
 				"offline",
-				"perfect",
 				"tackle_try",
 				"park_first",
 				"pet",

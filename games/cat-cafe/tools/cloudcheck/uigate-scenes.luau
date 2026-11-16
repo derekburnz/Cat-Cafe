@@ -9101,46 +9101,21 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
 	end },
-	-- #2282 (Derek2: "on the persons first perfect catch have a quick side tip that explains it boosts their charm"):
-	-- a catch whose Perfects added Charm brings the tip card with the Charm line, once; a Perfect-less catch does not
+	-- #4838 (Derek 2026-11-16: "remove the tip for perfects giving more charm just adds bloat"): a Perfect catch that
+	-- adds Charm brings no Charm tip (#2282's tip is gone)
 	{ "PerfectCharmTip", function()
-		local before: any = (UI.getState() :: any).tipsSeen or {}
-		-- every other tip seen, so no client-found tip (the luck chip's, the Codes Cat's) takes the card or restarts
-		-- the gap while the scene waits
-		local tipsSeen = table.clone(before)
-		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
-			tipsSeen[def.id] = true
-		end
-		tipsSeen.perfect = nil
-		UI.update({ tipsSeen = tipsSeen } :: any)
-		local seen: { string } = {}
-		local counting = UI.events.tipSeen:Connect(function(id: string)
-			table.insert(seen, id)
-		end)
 		local function charmLine(): TextLabel?
 			for _, label in UIShim.playerGui:GetDescendants() do
-				if label:IsA("TextLabel") and label.Text:find("Charm", 1, true) and label.Text:find("Perfects", 1, true) then
+				if label:IsA("TextLabel") and label.Visible and label.Text:find("Charm", 1, true) and label.Text:find("Perfects", 1, true) then
 					return label
 				end
 			end
 			return nil
 		end
-		-- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one; 1 s frames, as nothing
-		-- here is on screen to check while the gap runs out (#4241)
 		UIShim.advance(tipGap() + 1, 1)
-		UI.catch.showGrades("uigate_stray", { "good", "good" }, true, 0)
-		UIShim.advance(1)
-		assert(charmLine() == nil, "uigate: a catch with no Perfect showed the Charm tip (#2282)")
 		UI.catch.showGrades("uigate_stray", { "perfect", "good" }, true, 2)
 		UIShim.advance(4)
-		local line = charmLine()
-		assert(line and line.Visible, "uigate: the first Perfect catch did not show the Charm tip (#2282)")
-		assert(line.Text == "Perfects boost a cat's Charm, and more Charm earns more money!", "uigate: the Charm tip reads " .. line.Text)
-		assert(line.TextFits, "uigate: the Charm tip's line does not fit its card (#2282)")
-		UIShim.advance(12)
-		assert(table.find(seen, "perfect"), "uigate: the Charm tip was not saved as seen (#2282)")
-		counting:Disconnect()
-		UI.update({ tipsSeen = before } :: any)
+		assert(charmLine() == nil, "uigate: a Perfect catch still showed the Charm tip (#4838)")
 	end },
 	-- #2408 (Derek2: "because of so many pop ups on cafe tier up its hard to see the cutscene showing next place
 	-- unlocked"): a context tip's camera cut (a stand-in cut player here): the HUD steps aside, a toast sent meanwhile

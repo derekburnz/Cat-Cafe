@@ -2370,6 +2370,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		textSize = DROP_TEXT,
 		parent = root,
 		onClick = function()
+			-- #3951 read (Nov 15 data: 431 ready, 283 pressed): beside a rank up line it opens the rank up window
+			if self._stripRank then
+				callbacks.openScreen("RankUp")
+				return
+			end
 			local offer = self._stripOffer
 			if offer ~= nil then
 				callbacks.buyUpgrade(offer.id)
@@ -3499,8 +3504,19 @@ function HUD._renderStripBuy(self: any)
 		return
 	end
 	local offer = self._stripOffer
-	local shown = offer ~= nil and self._tutorial.Visible
-	if shown then
+	-- the drop-off read of Nov 16 (Nov 15 data): a third of the players whose Tier 2 was ready never pressed it, and
+	-- the walk-through's spotlight only shows on the safe side of the gates, so the rank up line (shared/RankFirst)
+	-- brings its own button wherever the strip shows (required here: the main chunk is at Luau's 200 local limit)
+	local rankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+	local rank = self._tutorial.Visible and rankFirst.isLine(self._tutorial.Text)
+	self._stripRank = rank
+	local shown = rank or (offer ~= nil and self._tutorial.Visible)
+	if rank then
+		button:setText(rankFirst.BUTTON)
+		if not button.instance.Visible then
+			Tween.popIn(button.instance, 0.92)
+		end
+	elseif shown and offer ~= nil then
 		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
 		if not button.instance.Visible then
 			Tween.popIn(button.instance, 0.92)

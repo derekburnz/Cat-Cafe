@@ -45,6 +45,11 @@ return function()
 			end
 		end)
 
+		it("gives the strip's button short words that are not a strip line", function()
+			expect(RankFirst.BUTTON).to.equal("RANK UP")
+			expect(RankFirst.isLine(RankFirst.BUTTON)).to.equal(false)
+		end)
+
 		it(
 			"puts the walk-through away only at the third press with the switch on, at the first with it off",
 			function()

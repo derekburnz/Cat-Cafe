@@ -1497,6 +1497,20 @@ Presets.emitters = {
 		rotSpeed = { -180, 180 },
 	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
+	-- The first wow bowl cat's soft sparkle (#4822, Effects/WowBaitGlow): slow points round the body, tinted by its
+	-- rarity; about a dozen alive at once (rate 6 times 2 s), under the phone budget's 15
+	wowSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite },
+		size = { 0.45, 0 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 1.5, 2.5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 6,
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
 	-- The night stars over the Observatory (#4069, Effects/FusionFx): still, pale points that grow in and fade
 	-- out, a few at a time over a wide box, so the sky over the telescope twinkles. Under 3 a second.
 	observatoryStars = {
@@ -4307,6 +4321,32 @@ Presets.fusion = {
 		within = 110,
 		check = 1,
 	},
+}
+
+-- The first wow bowl cat (#4822, Effects/WowBaitGlow): the rarities that get the look, the bowl folders looked in,
+-- the outline, the sparkle (`whiten` toward white of the rarity colour), the tag (pixels, studs over the head, popped
+-- `pop` times as big over `popSeconds` on a claim), the claim burst, and how often to look (`check`), how long a
+-- claim may be from the cat going (`claimWindow`) and how long to wait for the cat after FirstWow (`giveUp`).
+Presets.wowBait = {
+	rarities = { Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
+	folders = { "Bait", "Bait2" },
+	outline = 0,
+	sparkle = "wowSparkle",
+	whiten = 0.35,
+	tag = {
+		width = 96,
+		height = 30,
+		lift = 1.6,
+		maxDistance = 90,
+		stroke = 2,
+		pop = 1.5,
+		popSeconds = 0.35,
+	},
+	burst = "catchSparkle",
+	burstCount = 18,
+	check = 0.25,
+	claimWindow = 1.5,
+	giveUp = 60,
 }
 
 -- The arcade cabinet's idle glow (#3062; Effects/ArcadeGlow): its `screen` part drifts through `colours`, one every

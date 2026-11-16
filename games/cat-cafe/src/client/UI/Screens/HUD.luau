@@ -4100,7 +4100,18 @@ function HUD.pointCannon(self: any, on: boolean)
 end
 
 -- #3555: the goal card, the button that opens the rank up window, while it is on screen.
+-- #4909 (Sync's Studio run: the strip said "Tap RANK UP" while the walk-through's arrow moved to YOUR GOAL): the
+-- strip's RANK UP button first while it shows, so the arrow stays on the button the words name
 function HUD.goalButton(self: any): GuiObject?
+	local buy = self._stripBuy
+	if
+		buy ~= nil
+		and buy.instance.Visible
+		and self._tutorial.Visible
+		and self.screenGui.Enabled
+	then
+		return buy.instance
+	end
 	local frame: GuiObject = self._goal.frame
 	if frame.Visible and self.screenGui.Enabled then
 		return frame

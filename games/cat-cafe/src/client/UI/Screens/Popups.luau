@@ -687,7 +687,8 @@ function Popups.showCatFound(
 		-- #4836 (Sync's pointer audit: on PC the first Epic's "Nice!" sat over a full dim with nothing pointing at it):
 		-- in the walk-through the card's button gets the tutorial's ring and arrow (glowOkWhen)
 		local okGlow: (() -> boolean)? = self._okGlow
-		TutorialGlow.set(self._catOk.instance, okGlow ~= nil and okGlow(), nil, true)
+		-- #4909 (Sync's Studio run: the arrow stayed on the HUD's Cannon behind the card): the arrow leads here, no dim
+		TutorialGlow.set(self._catOk.instance, okGlow ~= nil and okGlow(), nil, true, true)
 		local rarity = def.rarity
 		local info: Types.CatFoundExtra = extra or {}
 		local rainbow = info.rainbow == true -- F99

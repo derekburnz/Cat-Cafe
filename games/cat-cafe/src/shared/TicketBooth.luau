@@ -110,8 +110,8 @@ TicketBooth.PRIZES = {
 
 -- #4061 (spec 1.3): the weekly Water Park shelf, SHELF_SIZE cards a week taken in turn from WEEKLY (Monday 00:00 UTC).
 -- Decor pays like a crate piece of its rarity while in use (Rare +4%, Epic +8%); a wearable pays WEAR_BONUS while it
--- is the cafe's accessory. Bought once, owned for good; "Owned" when it comes round again. The Water Squirter and
--- Pool Noodle toys join the pool once their held play exists (Motion-FX).
+-- is the cafe's accessory. Bought once, owned for good; "Owned" when it comes round again. No player toys
+-- (Derek 2026-11-16: toys do not fit this game; cat cosmetics do).
 TicketBooth.SHELF_SIZE = 4
 TicketBooth.WEAR_BONUS = 0.05
 local function weekly(

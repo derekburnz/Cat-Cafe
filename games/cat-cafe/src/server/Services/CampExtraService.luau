@@ -33,6 +33,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
+local PotionService = require(script.Parent.PotionService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
@@ -328,6 +329,20 @@ local function onPickTreat(player: Player, rawTreatId: unknown)
 		return
 	end
 	local paid = Payout.pay(player, profile, prize, "camp_extra")
+	-- #4840 (Derek 2026-11-16): the treat's potion starts at once; with its timer full it stays in the bag
+	for potionId in prize.potions or {} do
+		if not PotionService.drinkOne(player, profile, potionId) then
+			local def = Catalog.getPotion(potionId)
+			Net.toast(
+				player,
+				string.format(
+					"Your %s timer is full, so it went in your bag to drink later",
+					if def ~= nil then def.name else "potion"
+				),
+				"warn"
+			)
+		end
+	end
 	Telemetry.onboarding(player, profile, "first_camp_collect") -- #1888
 	Telemetry.custom(player, "camp_extra", 1, { "picnic", treatId, tostring(tier) })
 	Net.fire(player, "CampExtraResult", "picnic", true, paid, prize)

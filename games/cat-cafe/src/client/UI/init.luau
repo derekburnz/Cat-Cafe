@@ -11208,9 +11208,14 @@ do
 		local now = Workspace:GetServerTimeNow()
 		local view = EventLogic.read(get, UI.cafeEvent.decode)
 		local seen, started = EventLogic.follow(events.seen, view, now)
-		events.seen = seen
-		-- Derek 2026-11-16 15:22 UTC: no event card or toast in the walk-through (UI.firstCat.tutorial)
-		if started and view ~= nil and toasts and not UI.firstCat.tutorial then
+		-- Derek 2026-11-16 15:22 UTC: no event card or toast in the walk-through (UI.firstCat.tutorial). Its start is
+		-- not marked seen meanwhile, so the card comes once the hold ends: right after the first sync for a returning
+		-- player (the hold starts on at load), after the Tier 2 rank up for a new one, while the event still runs.
+		local held = started and UI.firstCat.tutorial
+		if not held then
+			events.seen = seen
+		end
+		if started and view ~= nil and toasts and not held then
 			-- #3420: an Update Party starts with the party card; any other event with the toast
 			local party = EventLogic.partyBanner(
 				view,

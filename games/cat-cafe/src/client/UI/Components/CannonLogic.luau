@@ -49,6 +49,7 @@ CannonLogic.CARRY_REFUSED = "Bring your cat to the camp first"
 -- hint stops for good, and the Tutorial tile's × hides the tutorial strip; before it the walk-through shows anyway
 -- ("should still make the first walk through of the game play after closing the X").
 CannonLogic.WALKTHROUGH_STEP = 5
+CannonLogic.FIRST_FLIGHT = "Hop in the cannon to fly to the " -- #4777
 -- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the line once the walk-through's last
 -- step (the bowl) is done this session, until the next flight
 CannonLogic.WRAP_UP_HINT = "Hop in the cannon to catch more cats!"
@@ -243,6 +244,13 @@ end
 -- line (the catch needs the flight); after that the onboarding line comes first. #2477: once the walk-through ends
 -- this session (the bait bowl step), "Hop in the cannon to catch more cats!" with the arrow until the next flight,
 -- ahead of any onboarding line; it is session-only, so a rejoin does not bring it back (#2411).
+-- #4777: whether a strip line is the first flight's "Hop in the cannon to fly to the <area>!" (bowl first lights the
+-- HUD's Cannon button beside it)
+function CannonLogic.isFirstFlight(text: string?): boolean
+	return text ~= nil
+		and string.sub(text, 1, #CannonLogic.FIRST_FLIGHT) == CannonLogic.FIRST_FLIGHT
+end
+
 function CannonLogic.hint(view: HintView): string?
 	if not view.on or view.wild or view.intro or view.bowlPending == true then
 		return nil

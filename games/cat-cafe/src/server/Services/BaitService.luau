@@ -313,8 +313,11 @@ local function resolveBait(
 		and profile.stats.luresUsed <= 1
 		and TutorialOrder.bowlFirst()
 	then
-		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway
-		CafeService.tutorialMove:Fire(player, "cannon")
+		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway.
+		-- #4777: no longer moved; the HUD's Cannon button is lit for the player to press
+		if (require(ReplicatedStorage.Shared.TutorialMoves) :: any).BOWL_CANNON_MOVE then
+			CafeService.tutorialMove:Fire(player, "cannon")
+		end
 	end
 	local shown = shownArrival[player]
 	if shown ~= nil then

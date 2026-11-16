@@ -4012,6 +4012,25 @@ function HUD.clockFrame(self: any): GuiObject?
 	return nil
 end
 
+-- #4777 (Derek 2026-11-16: "instead of teleporting player to the cannon after food bowl have them click the cannon
+-- button with dim screen and arrow"): the tutorial's spotlight on the Cannon travel button (the dim, the gold ring and
+-- the big arrow), while `on`; a controller's selection goes to it once, so A presses it.
+function HUD.pointCannon(self: any, on: boolean)
+	local button = self._travelButtons.cannon
+	if button == nil then
+		return
+	end
+	local lit = on and button.instance.Visible
+	TutorialGlow.set(button.face, lit)
+	if lit and not self._cannonPadOnce then
+		self._cannonPadOnce = true
+		local pad = require(script.Parent.Parent.Components.GamepadNav) :: any
+		if pad.isGamepad() then
+			pad.select(button.face)
+		end
+	end
+end
+
 -- #3555: the goal card, the button that opens the rank up window, while it is on screen.
 function HUD.goalButton(self: any): GuiObject?
 	local frame: GuiObject = self._goal.frame

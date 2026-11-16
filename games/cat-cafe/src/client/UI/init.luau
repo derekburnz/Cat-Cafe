@@ -33,6 +33,7 @@ local CatCard = require(script.Screens.CatCard)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
+local CatchDim = require(script.Components.CatchDim)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
 local Codes = require(script.Screens.Codes)
@@ -1687,6 +1688,7 @@ function UI.init(config: Types.InitConfig)
 	-- #2724/#2727: toasts that come while the catch circles or the rescue bar run wait for the end (the HUD steps aside
 	-- then too, HUD._applyFocus)
 	hudInstance.catchingChanged:Connect(function(active: boolean)
+		CatchDim.set(active) -- #4842: the world dims while the catch runs, and clears at once when it ends
 		toastsInstance:setFocus(active)
 		local pills = actionPills -- #3861: and the action pills step away from the bar
 		if pills then

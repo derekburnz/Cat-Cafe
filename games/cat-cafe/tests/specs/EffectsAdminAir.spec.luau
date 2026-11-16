@@ -183,6 +183,17 @@ return function()
 			end
 		)
 
+		it("gives no pop to a drop that ran out with someone beside it", function()
+			local q = Presets.adminDrops.pickup
+			expect(AdminDrops.ranOut(100, q.life, 100 + q.life, q.margin)).to.equal(true)
+			expect(AdminDrops.ranOut(100, q.life, 100 + q.life - q.margin + 0.01, q.margin)).to.equal(
+				true
+			)
+			expect(AdminDrops.ranOut(100, q.life, 105, q.margin)).to.equal(false)
+			expect(AdminDrops.ranOut(nil, q.life, 1e9, q.margin)).to.equal(false)
+			expect(Presets.adminDrops.cratePop.life).to.equal(90)
+		end)
+
 		it("keeps the crate grab pop short and light (#4888)", function()
 			local c = Presets.adminDrops.cratePop
 			expect(c.open + c.hold + c.shrink <= 1).to.equal(true)

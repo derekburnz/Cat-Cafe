@@ -410,7 +410,8 @@ local function reportStep(name: string)
 end
 
 -- #2912: step 3's stray ring follows its stray; this watches it and is dropped on every refresh
-local tutorialWatch: { connection: RBXScriptConnection? } = {}
+-- #4808: `alley` once this player has been in the Alleyway this session (bowl first's way back to its cannon)
+local tutorialWatch: { connection: RBXScriptConnection?, alley: boolean? } = {}
 
 -- #3238: false from dusk to sunrise (the Clock folder's AreasOpen), when the alley has no strays to send anyone to
 local function areasShut(): boolean
@@ -787,6 +788,15 @@ local function refreshTutorial(s: Types.PlayerState)
 					end
 				end)
 			end
+		elseif
+			not SecondCat.done(s.stats, true)
+			and not areasShut()
+			and tutorialWatch.alley == true
+			and (UI.cannon :: any).area == nil
+		then
+			-- #4808 follow-up (Sync's PC run): back in town before the Alleyway catch, the strip and marker lead to
+			-- the Town Square cannon again (the first flight's own hint is over once launched)
+			UI.tutorial.show("Hop in the cannon to fly to the Alleyway!", townCannon(), "Cannon")
 		else
 			UI.tutorial.hide()
 		end
@@ -3619,6 +3629,9 @@ function UIController.start()
 			local area: string? = (UI.cannon :: any).area
 			if area ~= lastArea then
 				lastArea = area
+				if area == "alley" then
+					tutorialWatch.alley = true
+				end
 				local current = state
 				if current ~= nil and current.tutorialStep >= 2 and (current.tier or 1) == 1 then
 					refreshTutorial(current)

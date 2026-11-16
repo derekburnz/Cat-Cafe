@@ -2565,6 +2565,7 @@ function UI.setTutorialHold(on: boolean)
 	UI.firstCat.tutorial = on
 	if hud ~= nil then
 		hud:holdBanner("tutorial", on)
+		hud:setDropHidden(on) -- #4832: and no Drop buttons (UIController drops nothing meanwhile)
 	end
 end
 function UI.setCutscene(on: boolean)

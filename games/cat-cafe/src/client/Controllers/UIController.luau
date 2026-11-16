@@ -1819,6 +1819,9 @@ local function wireIntents()
 	local dropCat = (UI.events :: any).dropCat
 	if dropCat ~= nil then
 		dropCat:Connect(function()
+			if firstCat.tutorial then
+				return -- #4832 (Derek 2026-11-16): no dropping in the tutorial, the G key and the d-pad included
+			end
 			local character = player.Character
 			local root = if character ~= nil
 				then character:FindFirstChild("HumanoidRootPart")

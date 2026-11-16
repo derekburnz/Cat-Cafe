@@ -453,8 +453,11 @@ export type AutoRun = {
 function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
 	if run == nil or (run.rolls == 0 and not run.running) then
 		local tokens = if view ~= nil then whole(view.tokens) else 0
-		local free = whole(if view ~= nil then view.party else 0)
-			+ math.min(whole(if view ~= nil then view.freeLeft else 0), Traits.FREE_ROLLS)
+		-- Derek 2026-11-16: a Trait Party has no roll cap, only its time, so its count is never shown
+		if whole(if view ~= nil then view.party else 0) > 0 then
+			return "Trait Party: every roll is free until it ends. Golden fish are never used."
+		end
+		local free = math.min(whole(if view ~= nil then view.freeLeft else 0), Traits.FREE_ROLLS)
 		local have = plural(tokens, "Trait Token", "Trait Tokens")
 		if free > 0 then
 			have = plural(free, "free roll", "free rolls") .. " and " .. have

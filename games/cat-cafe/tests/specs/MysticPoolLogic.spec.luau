@@ -486,6 +486,11 @@ return function()
 			local before = MysticPoolLogic.autoLine(nil, { tokens = 4, freeLeft = 0 })
 			expect(string.find(before, "4 Trait Tokens", 1, true) ~= nil).to.equal(true)
 			expect(string.find(before, "Golden fish are never used", 1, true) ~= nil).to.equal(true)
+			-- a Trait Party has no cap (Derek 2026-11-16): never its count
+			local party =
+				MysticPoolLogic.autoLine(nil, { tokens = 2, freeLeft = 3, party = 100000 })
+			expect(string.find(party, "100", 1, true)).to.equal(nil)
+			expect(string.find(party, "until it ends", 1, true) ~= nil).to.equal(true)
 			local running = MysticPoolLogic.autoLine({ rolls = 3, spent = 2, running = true }, nil)
 			expect(running).to.equal("3 rolls · 2 Trait Tokens used")
 			local capped =

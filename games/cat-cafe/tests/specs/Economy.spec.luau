@@ -813,9 +813,9 @@ return function()
 					{ "tables", 0, nil },
 					{ "tables", 1, nil },
 					{ "tables", 2, 2 },
-					{ "tables", 3, 2 },
-					{ "tables", 4, 3 }, -- #3204: Tables 5 at Tier 3 (Tier 2 from #1896)
-					{ "tables", 5, 3 },
+					{ "tables", 3, 3 }, -- #3867: one more table a tier (Tables 4 at Tier 2 before)
+					{ "tables", 4, 4 }, -- #3867 (Tables 5 at Tier 3 from #3204 before)
+					{ "tables", 5, 5 }, -- #3867 (Tier 3 before)
 					{ "espresso", 1, nil },
 					{ "espresso", 2, 2 },
 					{ "espresso", 3, 3 }, -- #3204: Espresso 4 at Tier 3 (Tier 2 from #1896)

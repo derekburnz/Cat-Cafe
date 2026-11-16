@@ -1775,7 +1775,9 @@ Catalog.tiers = {
 		-- #3204 (Derek2 2026-11-11: "move some of the upgrades around and net upgrades later on in tiers"): each tier opens
 		-- a handful; Net 2 at Tier 3 and Net 3 at Tier 5 (were 2 and 3). Caps gate buying only: a level owned above
 		-- one is kept.
-		caps = { tables = 4, espresso = 3, net = 1, lure_bowl = 2, lucky_cat = 2 },
+		-- #3867 (Derek 2026-11-13: "spread the upgrades out so not all tables can be unlocked at tier 3"): one more
+		-- table a tier, 2, 3, 4, 5 and 6 from Tier 1 to 5 (2, 4 and 6 at Tiers 1 to 3 before).
+		caps = { tables = 3, espresso = 3, net = 1, lure_bowl = 2, lucky_cat = 2 },
 	},
 	{
 		tier = 3,
@@ -1787,7 +1789,7 @@ Catalog.tiers = {
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",
-		caps = { tables = 6, espresso = 4, net = 2, lure_bowl = 3, lucky_cat = 3 }, -- #3204
+		caps = { tables = 4, espresso = 4, net = 2, lure_bowl = 3, lucky_cat = 3 }, -- #3204, #3867
 	},
 	{
 		tier = 4,
@@ -1799,7 +1801,7 @@ Catalog.tiers = {
 		slots = 8,
 		multiplier = 1.75,
 		area = "woods",
-		caps = { tables = 6, espresso = 5, net = 2, lure_bowl = 4, lucky_cat = 4 }, -- #3204
+		caps = { tables = 5, espresso = 5, net = 2, lure_bowl = 4, lucky_cat = 4 }, -- #3204, #3867
 	},
 	{
 		tier = 5,

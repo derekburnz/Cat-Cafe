@@ -1206,8 +1206,9 @@ return function()
 			"Tier 6 comes 0.5 to 2 h after Tier 5 and Tier 7 0.75 to 2.5 h after Tier 6, in one go (#4537: 0 h 56 and 1 h 24, were 1 to 2.5 and 1.5 to 3.5; #4320: 1 h 17 and 2 h 20, were 1.75 to 3.5 and 2.5 to 5; #4189: 2 h 27 and 3 h 32, were 4.5 to 7.5 and 8 to 11.5)",
 			function()
 				local limit = 40 * HOUR
-				local list =
-					runs({ catches = 4, target = 7, limit = limit, long = true }, LONG_RUNS)
+				-- #3867: 40 runs, not LONG_RUNS: Tier 6 waits for Mythicals, so 10 seeds swing the gap by an hour (with
+				-- one table a tier, 2 h 46 at 10 runs and 1 h 23 at 40; main 1 h 52 and 1 h 14)
+				local list = runs({ catches = 4, target = 7, limit = limit, long = true }, 40)
 				local function gap(from: number, to: number): (Run) -> number?
 					return function(run: Run): number?
 						local a, b = run.tierAt[from], run.tierAt[to]
@@ -1230,6 +1231,7 @@ return function()
 				-- #4189: 2 h 27 and 3 h 32 with Tier 6 at 1.25B and Tier 7 at 12.5B (3 h 10 and 5 h 10 at 2.5B and 25B)
 				-- #4320: 1 h 17 and 2 h 20 with Tier 6 at 625M and Tier 7 at 6.25B
 				-- #4537 (Derek 2026-11-15: halve both): 0 h 56 and 1 h 24 with Tier 6 at 312.5M and Tier 7 at 3.125B
+				-- #3867 (one more table a tier, 40 runs): 1 h 23 and 1 h 22
 				if six < 0.5 * HOUR or six > 2 * HOUR then
 					error("Tier 6 outside 0.5 to 2 h after Tier 5: " .. text)
 				end
@@ -1639,7 +1641,7 @@ return function()
 
 		it(
 			-- #2121 (first-hour.md 4e): Tables 5 moved from about 22 to about 25 with Bait Bowl 3 bought before it
-			"buys Tables 5 at about minute 25 and Espresso 4 at about minute 32 (the middle run, #4189: were 31 and 44.5; #2557)",
+			"buys Tables 5 at about minute 31 (Tier 4, #3867) and Espresso 4 at about minute 27 (the middle run, #4189: were 31 and 44.5; #2557)",
 			function()
 				local list = firstHour()
 				-- Tables starts at Config.StartTables (#3660: 1) and Espresso at 1, so these are the fourth and third buys
@@ -1655,10 +1657,11 @@ return function()
 				-- #4097: Espresso 4 at 38.2 with the bowl from the start (no $600 buy first), so 7 either side (5.5)
 				-- #4189: 24.6 and 32.2 with the cheaper Tiers 2 and 3 (the shop opens sooner)
 				-- #4496 (Tier 3 at 50,000, so the Tier 3 caps open sooner): 16.7 and 26.3
-				if math.abs(tables - 17) > 4 or math.abs(espresso - 27) > 7 then -- #4320: 20.7 and 29.5 (were about 25 and 32)
+				-- #3867 (one more table a tier): Tables 5 waits for Tier 4 now, 31.6 (was 16.7); Espresso 4 at 23.1
+				if math.abs(tables - 31) > 6 or math.abs(espresso - 27) > 7 then -- #4320: 20.7 and 29.5 (were about 25 and 32)
 					error(
 						string.format(
-							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 17 and 27)",
+							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 31 and 27)",
 							tables,
 							espresso
 						)

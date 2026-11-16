@@ -94,5 +94,17 @@ return function()
 			expect(QuietStart.tutorialHolds(false, 5, 1)).to.equal(false)
 			expect(QuietStart.tutorialHolds(false, 3, 2)).to.equal(false)
 		end)
+
+		it(
+			"settles for 90 s after the walk-through ends here, or until the Park landing (#4946)",
+			function()
+				expect(QuietStart.SETTLE_SECONDS).to.equal(90)
+				expect(QuietStart.settleHolds(nil, 100, nil)).to.equal(false) -- not seen ending this session
+				expect(QuietStart.settleHolds(100, 100, nil)).to.equal(true)
+				expect(QuietStart.settleHolds(100, 189.9, "alley")).to.equal(true)
+				expect(QuietStart.settleHolds(100, 190, nil)).to.equal(false)
+				expect(QuietStart.settleHolds(100, 120, "park")).to.equal(false)
+			end
+		)
 	end)
 end

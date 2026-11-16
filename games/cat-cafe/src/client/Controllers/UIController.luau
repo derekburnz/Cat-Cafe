@@ -1367,7 +1367,17 @@ end
 -- #4821 (shared/QuietStart.firstCatHolds): under bowl first, the pop-ups wait until the first bowl cat is claimed and
 -- FIRST_CAT_AFTER seconds more. `before` is the last sync's answer; `claimedAt` the clock when it turned false here.
 -- `tutorial` (QuietStart.tutorialHolds, Derek 2026-11-16 15:22 UTC): the softer hold through the rest of the tutorial.
-local firstCat = { before = false, claimedAt = nil :: number?, held = false, tutorial = false }
+-- `walked` (#4946): the walk-through hold was seen on from a real state this session; `endedAt` the clock it ended here,
+-- and `settling` whether QuietStart.settleHolds still keeps the hold on past it.
+local firstCat = {
+	before = false,
+	claimedAt = nil :: number?,
+	held = false,
+	tutorial = false,
+	walked = false,
+	endedAt = nil :: number?,
+	settling = false,
+}
 local function firstCatHold(s: Types.PlayerState)
 	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
 	local QuietStart = require(Shared:WaitForChild("QuietStart")) :: any
@@ -1392,8 +1402,31 @@ local function firstCatHold(s: Types.PlayerState)
 		firstCat.held = held
 		UI.setFirstCatHold(held)
 	end
-	local tutorial = QuietStart.tutorialHolds(TutorialOrder.bowlFirst(), s.tutorialStep, s.tier)
+	local walking = QuietStart.tutorialHolds(TutorialOrder.bowlFirst(), s.tutorialStep, s.tier)
 		== true
+	if walking then
+		firstCat.walked = true
+		firstCat.endedAt = nil
+	elseif firstCat.walked and firstCat.endedAt == nil then
+		firstCat.endedAt = os.clock() -- #4946: the walk-through ended here; the settle hold starts
+	end
+	local settling = not walking
+		and QuietStart.settleHolds(firstCat.endedAt, os.clock(), (UI.cannon :: any).area)
+			== true
+	if settling and not firstCat.settling then
+		-- checked each second until the Park landing or SETTLE_SECONDS, as no state may come meanwhile
+		task.spawn(function()
+			while firstCat.settling do
+				task.wait(1)
+				local current = state
+				if current ~= nil then
+					firstCatHold(current)
+				end
+			end
+		end)
+	end
+	firstCat.settling = settling
+	local tutorial = walking or settling
 	if tutorial ~= firstCat.tutorial then
 		firstCat.tutorial = tutorial
 		UI.setTutorialHold(tutorial)

@@ -6992,7 +6992,8 @@ do
 		if visit.token ~= token or kind == nil then
 			return -- the visit ended, or another came, while it waited
 		end
-		if not initialized or not UI.tips.quiet() or busy() then
+		-- #4946: nor through the walk-through or its settle hold (UI.firstCat.tutorial)
+		if not initialized or not UI.tips.quiet() or busy() or UI.firstCat.tutorial then
 			task.delay(1, present, token, away)
 			return
 		end

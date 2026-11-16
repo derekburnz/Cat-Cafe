@@ -132,6 +132,22 @@ function QuietStart.tutorialHolds(bowlFirst: boolean, tutorialStep: number?, tie
 	return bowlFirst or (tutorialStep or 0) < QuietStart.TUTORIAL_DONE
 end
 
+-- #4946 (Design-Agent's first 3 minutes audit): under bowl first the walk-through hold ends at the Tier 2 rank up,
+-- about 2 minutes in, and everything it held came at once (event cards, strip, Notify Me, first visit calls). When the
+-- hold ends in this session, a settle hold keeps the same things waiting until the player lands in the Park (the next
+-- step the strip asks for) or SETTLE_SECONDS pass, whichever is first.
+QuietStart.SETTLE_SECONDS = 90
+QuietStart.SETTLE_AREA = "park"
+
+-- Whether the settle hold is on: `endedAt` is this session's clock when the walk-through hold ended here (nil when it
+-- was not seen ending this session), `area` the wild area the player is in (nil in town).
+function QuietStart.settleHolds(endedAt: number?, now: number, area: string?): boolean
+	if endedAt == nil or area == QuietStart.SETTLE_AREA then
+		return false
+	end
+	return now - endedAt < QuietStart.SETTLE_SECONDS
+end
+
 -- The client's read: whether the local player is quiet now. Not for the specs.
 function QuietStart.live(): boolean
 	local player = game:GetService("Players").LocalPlayer

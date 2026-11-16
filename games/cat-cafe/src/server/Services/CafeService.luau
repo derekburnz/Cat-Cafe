@@ -107,6 +107,9 @@ CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, numb
 CafeService.tutorialMove = Signal.new() :: Signal.Signal<Player, string>
 
 -- Whether `player` owns pass `passId`, for the pass sign styles (#1625).
+-- #4872: the server-wide "<name>'s cafe is now a <tier>!" line is only for rank ups above this tier
+local ANNOUNCE_RANK_AFTER_TIER = 5
+
 local function ownsPassOf(player: Player): (number) -> boolean
 	return function(passId: number): boolean
 		return PassService.owns(player, passId)
@@ -2208,12 +2211,15 @@ local function onRankUp(player: Player)
 		),
 		"good"
 	)
-	-- #4005: not on a new player's screen in their quiet start
-	QuietStartService.fireAll(
-		player,
-		"Announce",
-		string.format("%s's cafe is now a %s!", player.DisplayName, def.name)
-	)
+	-- #4005: not on a new player's screen in their quiet start. #4872 (Derek, 2026-11-16): only rank ups past
+	-- Tier 5 are told to the server, so the early ones are not spammy; the player's own toast above stays
+	if def.tier > ANNOUNCE_RANK_AFTER_TIER then
+		QuietStartService.fireAll(
+			player,
+			"Announce",
+			string.format("%s's cafe is now a %s!", player.DisplayName, def.name)
+		)
+	end
 	giveLawnGifts(player, profile) -- F91: a Garden Bench at Tier 2, an Umbrella Table at Tier 3
 	CafeService.autoEquip(player, profile) -- #1534: the new slots take the best resting cats
 	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))

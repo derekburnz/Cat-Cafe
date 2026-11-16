@@ -9254,6 +9254,29 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(lit ~= nil, "uigate: the HUD's Cannon button has no ring beside the first flight's line (#4777)")
 		assert(tutorialSpotlight() ~= nil, "uigate: no dim round the Cannon button (#4777)")
+		-- #4807 (Derek 2026-11-16: "it stays there after clicking it already"): pressing the lit button takes the dim
+		-- and arrow away at once, and the next render with the same line keeps them away
+		-- on a touch screen the face stops taking input and its Hit pad takes the tap (as `press` does)
+		local pressable: GuiButton? = if (lit :: GuiObject):IsA("GuiButton") and (lit :: any).Interactable ~= false
+			then lit :: any
+			else nil
+		if pressable == nil then
+			local frame = (lit :: GuiObject):FindFirstAncestorWhichIsA("Frame")
+			for _, piece in (if frame then frame else lit :: GuiObject):GetDescendants() do
+				if piece:IsA("GuiButton") and piece.Interactable ~= false then
+					pressable = piece
+					break
+				end
+			end
+		end
+		assert(pressable ~= nil, "uigate: the Cannon button has nothing to press (#4807)")
+		UIShim.fire(UIShim.eventOf(pressable :: GuiButton, "Activated"))
+		UIShim.advance(0.3)
+		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button stays lit after it was pressed (#4807)")
+		assert(tutorialSpotlight() == nil, "uigate: the dim stays up after the Cannon button was pressed (#4807)")
+		UI.update({ tier = 1, tutorialStep = 9 } :: any)
+		UIShim.advance(0.3)
+		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button lights again after it was pressed (#4807)")
 		-- the walk-up opens the picker: the dim goes, so it never sits over the window (Review-QA on #4779)
 		UI.cannon.open()
 		UIShim.advance(0.3)

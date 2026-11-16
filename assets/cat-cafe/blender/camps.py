@@ -237,7 +237,10 @@ def _theme(s, mat, area, G, B, W, half):
             s.put(nb.flowerbed(mat), x, G - 1.6, 0)                          # the Index Board at x -27.3
         for sx in (1, -1):
             s.put(square.build_lamp(mat), sx * 9, cz, 0)
-            s.put(park.build_park_bench(mat), sx * 16, G - PAD_IN - 2, 90 * sx)
+            # #4862 (Derek 2026-11-16: "remove the bench infront of rummage bin"): the east bench at (16, 14 in)
+            # stood between the landing pad and the Rummage Bin at (26, 10 in); only the west one is left
+            if sx < 0:
+                s.put(park.build_park_bench(mat), sx * 16, G - PAD_IN - 2, 90 * sx)
             s.put(nb.flowerbed(mat), sx * 22, B + 2.5, 180)
         s.put(alley.build_dumpster(mat), -36, B + 2.1, 180)
         s.put(alley.build_garbage_bags(mat), -30.5, B + 1.8, 160)

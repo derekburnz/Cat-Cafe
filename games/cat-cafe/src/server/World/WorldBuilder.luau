@@ -665,6 +665,10 @@ local function buildPlot(index: number, parent: Instance): Plot
 	model:SetAttribute("RichTipAmount", 0) -- display only; RichTipService keeps the tip itself
 	model:SetAttribute("RichTipExpiresAt", 0)
 	model.WorldPivot = cframe -- GetPivot is the plot's own frame: -Z faces the street
+	-- #4788: Persistent, so every client always has every cafe with streaming on: about 50 client lookups go through
+	-- the Plot tag (your own cafe's map marker, door and check-in, the cat cards, the world tags) from anywhere, and
+	-- the decor inside is already Persistent (CafeService). The cafes sit together in town.
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(model, "Plot")
 
 	local halfW = W.PlotWidth / 2

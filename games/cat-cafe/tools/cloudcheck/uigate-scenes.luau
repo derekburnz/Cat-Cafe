@@ -14583,6 +14583,12 @@ for _, scene in SCENES do
 end
 
 function Scenes.open(name)
+	-- #4946: each scene starts with no pop-up shown yet this session (UI.popPace), so one scene's card does not hold
+	-- the next scene's back for 5 minutes; PopPaceHold checks the pace within one scene
+	local pace = (UI :: any).popPace
+	if pace ~= nil then
+		pace.lastAt = nil
+	end
 	for _, scene in SCENES do
 		if scene[1] == name then
 			scene[2]()

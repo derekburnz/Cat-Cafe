@@ -102,6 +102,10 @@ Remotes.ClientToServer = {
 	"BuyTicketPrize", -- (prizeId: string)  #4061 (shared/TicketBooth): a prize of TicketBooth.PRIZES under its limit, for
 	-- its price in tickets, from TicketBoothTier and only while the ticketBooth switch is on. 1 a second; answered with a
 	-- toast and a ProfileSync (PlayerState.ticketBooth)
+	"HoldToy", -- (toyId: string?)  #4061 (shared/Toys): takes an owned booth toy in hand ("squirter", "noodle") or puts
+	-- it away (nil); the server sets the character's HeldToy attribute. Only while the ticketBooth switch is on
+	"UseToy", -- ()  #4061 (shared/Toys): uses the toy in hand, at most one every Toys.COOLDOWN seconds and never in a
+	-- catch, a rescue or a flight or while carrying a cat; fun only, the server tells the players within Toys.RANGE with ToyUsed
 	"GiveToKeep", -- (uids: { string }, confirmed: boolean)  #4062 (shared/DragonKeep): at most GIVE_MAX of the player's
 	-- cats move into the Dragon Keep (DragonKeep.giveBlocker: not locked, at the spa or in a trade, never the last cat;
 	-- `confirmed` true for a gold, rainbow or Legendary and better one). Refused whole on any bad cat. 1 a second
@@ -455,6 +459,9 @@ Remotes.ServerToClient = {
 	"CatPetted", -- (userId: number, cat: Model, from: Model?)  #3651: that player petted `cat` in their cafe; `from` is
 	-- the cat the heart left, if another. To everyone, for the moment (Moments.CatPetted); a model not streamed in
 	-- arrives nil and the client drops it
+	"ToyUsed", -- (userId: number, toy: string, target: Vector3?)  #4061 (shared/Toys): that player used the booth toy in
+	-- their hand ("squirter", "noodle"). To the players within Toys.RANGE, the user included, for the effect only.
+	-- `target` is where the Water Squirter's splash lands (the server picks it); nil for the Pool Noodle
 }
 
 function Remotes.folder(): Folder

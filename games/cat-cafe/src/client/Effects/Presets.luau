@@ -101,12 +101,14 @@ export type Budget = {
 -- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
 -- frames longer than `pause` seconds. #4307 (phones leave at 61 to 180 s): it used to need 60 + 2 x 20 = 100 s, past
 -- most of the tutorial, so a struggling phone ran the full budget through its first minutes; now 20 + 2 x 10 = 40 s
--- at the earliest (cutscenes still hold the count, so the intro does not count).
+-- at the earliest (cutscenes still hold the count, so the intro does not count). #4857 read (Nov 16, first 5 minutes
+-- priority): phones average about 49 fps, so "a little laggy" ones (35 to 39) never tripped at 30; now under 40, and
+-- from 10 s in, so the lighter budget can be on by 30 s.
 Presets.slow = {
-	fps = 30,
+	fps = 40, -- 30 before
 	window = 10,
 	windows = 2,
-	after = 20,
+	after = 10, -- 20 before
 	pause = 1,
 }
 

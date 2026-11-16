@@ -164,6 +164,17 @@ return function()
 			end
 		)
 
+		it("catches a little laggy phone but not an average one (#4857 read)", function()
+			local p = Presets.slow
+			local laggy = Logic.slowStart()
+			run(laggy, 60, p.after)
+			expect(run(laggy, 35, p.window * p.windows + 1)).to.equal(true)
+			local average = Logic.slowStart()
+			run(average, 60, p.after)
+			expect(run(average, 49, p.window * 5)).to.equal(false)
+			expect(p.after + p.window * p.windows <= 30).to.equal(true)
+		end)
+
 		it("does not count pauses or cutscenes", function()
 			local p = Presets.slow
 			local state = Logic.slowStart()

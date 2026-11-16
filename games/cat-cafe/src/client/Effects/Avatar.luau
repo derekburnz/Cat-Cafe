@@ -628,26 +628,6 @@ function Avatar.netModel(level: unknown): number
 	return math.clamp(n + 1, 1, 4)
 end
 
--- #4061: the Ticket Booth toy a character's `HeldToy` names ("squirter" or "noodle", Presets.toys.kinds), nil for any
--- other value. The server alone sets it.
-function Avatar.toyOf(value: unknown): string?
-	return if type(value) == "string" and Presets.toys.kinds[value] ~= nil then value else nil
-end
-
--- #4061: the models NetHold tries for the hand, best first: the held toy's (when `toy` is one), then the nets from
--- `level`'s (Avatar.netModel) down to the Basic one, so a missing model never leaves the hand empty.
-function Avatar.heldModels(toy: unknown, level: number): { string }
-	local names: { string } = {}
-	local held = Avatar.toyOf(toy)
-	if held ~= nil then
-		table.insert(names, Presets.toys.kinds[held].model)
-	end
-	for n = math.clamp(level, 1, 4), 1, -1 do
-		table.insert(names, "CatCafe_Item_Net_L" .. n)
-	end
-	return names
-end
-
 -- How hidden a carried cat's copy (Carry.luau) is `elapsed` seconds after its carry ended (#1138), from `start`
 -- (how hidden it was then) up to 1 over what is left of `seconds`: a copy still fading in goes out in step with
 -- how far in it got.

@@ -728,6 +728,8 @@ done
 #   step_time           value account seconds of play at the step; field the onboarding step name
 #   ab_loading          value the playtime_v1 step number; fields arm (on/off), step name, device (#4314, new saves)
 #   ab_loading_seen     value the seconds the loading screen was up; fields arm, device (#4314)
+#   client_load         value seconds join to world ready; fields device, client part bucket, first or back (#4783)
+#   client_fps          value average FPS; fields device, mark (m1 m3 m10), low or std plus :q graphics quality (#4783)
 #   step_gap            value seconds between two steps; fields the gap, the bucket (#3530, shared/StepGaps)
 #   quit_have           value seconds played; fields kinds of cat, coin share of Tier 2, ready or not_ready (#3530)
 #   cat_caught_area     value 1; fields area id, rarity
@@ -886,6 +888,11 @@ fieldEvents=(
 	"client_boot|CustomField1|CustomEventAvgValue|Average seconds from join to the first save on the client, by device (#4307)"
 	"client_boot|CustomField1,CustomField2|CustomEventCountUser|Players by device and Roblox load time (join to first script line)"
 	"client_boot|CustomField1,CustomField3|CustomEventCountUser|Players by device and UI build / save wait"
+	"client_load|CustomField1|CustomEventAvgValue|Average seconds from join to the world ready, by device (#4783, read from place v757 on)"
+	"client_load|CustomField1,CustomField2|CustomEventCountUser|Players by device and client load bucket (#4783)"
+	"client_load|CustomField1,CustomField3|CustomEventCountUser|Players by device and first or back session (#4783)"
+	"client_fps|CustomField1,CustomField2|CustomEventAvgValue|Average FPS by device and minute mark m1 m3 m10 (#4783, from place v755)"
+	"client_fps|CustomField1,CustomField3|CustomEventCountUser|Players by device and low or std plus graphics quality (#4783)"
 )
 say "### Event fields"
 say ""

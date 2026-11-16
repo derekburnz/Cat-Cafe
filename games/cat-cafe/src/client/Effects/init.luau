@@ -212,8 +212,8 @@ function Effects.start()
 		StationMotion.start,
 		Rides.start,
 		HoldPulse.start,
-		RankUpPulse.start,
-		FirstMinuteFx.start, -- first minute: the first bowl cat card's sparkle and jingle, the first net catch's cheer -- #4920: RANK UP glows when ready, the tutorial strip's count tick
+		RankUpPulse.start, -- #4920: RANK UP glows when ready, the tutorial strip's count tick
+		FirstMinuteFx.start, -- first minute: the first bowl cat card's sparkle and jingle, the first net catch's cheer
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,

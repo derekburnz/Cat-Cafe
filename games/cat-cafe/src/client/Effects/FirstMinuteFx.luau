@@ -1,8 +1,8 @@
 --!strict
 -- The first minute's two payoffs (Growth-Agent's first-minute timeline, Design-Agent's edits on Nov 16; first 5
 -- minutes priority):
---   * The first bowl cat's bait card (the one wide "Tame it!", BaitCard's first card: its Let go button hidden): as
---     the card pops in, gold sparkles burst off its Tame button with two rings, and Moments.FirstBowlCard(rarity)
+--   * The first bowl cat's bait card (the account's first food, ProfileSync stats luresUsed 1 and no bait cat tamed
+--     yet; not the Let go button, which #4863 hides on every card): as the card pops in, gold sparkles burst off its Tame button with two rings, and Moments.FirstBowlCard(rarity)
 --     has Audio play that rarity's jingle. No new card: this is the reveal.
 --   * The first net catch of the walk-through (Moments.CatchSuccess while ProfileSync's tutorialStep is still before
 --     the first check-in, TutorialOrder.BOWL_STEP_BELOW): a confetti cheer round the player and
@@ -30,10 +30,18 @@ local started = false
 local cardDone = false
 local catchDone = false
 local tutorialStep: number? = nil
+local luresUsed: number? = nil
+local baitsTamed: number? = nil
 
 -- Whether a catch now is the walk-through's first net catch: before the first check-in, and not yet cheered.
 function FirstMinuteFx.cheers(step: number?, already: boolean): boolean
 	return not already and step ~= nil and step < TutorialOrder.BOWL_STEP_BELOW
+end
+
+-- Whether a bait card now is the account's first: one food in so far and no bait cat tamed yet, and not yet
+-- sparkled. Nil counts (the save not heard yet) never sparkle.
+function FirstMinuteFx.firstCard(lures: number?, tamed: number?, already: boolean): boolean
+	return not already and lures ~= nil and lures <= 1 and (tamed == nil or tamed == 0)
 end
 
 local function button(gui: Instance, name: string): GuiObject?
@@ -51,12 +59,10 @@ local function cardShown(gui: ScreenGui)
 			return
 		end
 		local tame = button(gui, "Tame")
-		local letGo = button(gui, "LetGo")
-		-- the first bowl cat's card: the wide Tame it! and no Let go
 		if
 			tame == nil
 			or not ScreenFx.shown(tame :: GuiObject)
-			or (letGo ~= nil and (letGo :: GuiObject).Visible)
+			or not FirstMinuteFx.firstCard(luresUsed, baitsTamed, cardDone)
 		then
 			return
 		end
@@ -137,6 +143,16 @@ function FirstMinuteFx.start()
 			local step = (state :: { [string]: unknown }).tutorialStep
 			if type(step) == "number" then
 				tutorialStep = step
+			end
+			local stats = (state :: { [string]: unknown }).stats
+			if type(stats) == "table" then
+				local s = stats :: { [string]: unknown }
+				if type(s.luresUsed) == "number" then
+					luresUsed = s.luresUsed :: number
+				end
+				if type(s.baitsTamed) == "number" then
+					baitsTamed = s.baitsTamed :: number
+				end
 			end
 		end
 	end)

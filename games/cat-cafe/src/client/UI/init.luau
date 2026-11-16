@@ -1731,9 +1731,11 @@ function UI.init(config: Types.InitConfig)
 		return hudInstance:edgeAvoid()
 	end)
 	popups = Popups.new(parent)
-	popups:glowOkWhen(function() -- #4836: the walk-through's new cat card points at its "Nice!"
-		return UI.firstCat.tutorial
-	end)
+	if popups then -- narrows Popups? for luau-lsp (CI)
+		popups:glowOkWhen(function() -- #4836: the walk-through's new cat card points at its "Nice!"
+			return UI.firstCat.tutorial
+		end)
+	end
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
 	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
 	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server

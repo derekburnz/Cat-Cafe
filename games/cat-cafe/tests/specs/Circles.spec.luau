@@ -1365,8 +1365,7 @@ return function()
 					fish += m.prize.fish or 0
 					expect(m.prize.coins).to.equal(nil) -- the arcade pays no coins
 				end
-				expect(fish).to.equal(240) -- #3869: about three times every prize (238 before); under TradeFishPerDay
-				expect(fish < Config.TradeFishPerDay).to.equal(true)
+				expect(fish).to.equal(240) -- #3869: about three times every prize (238 before); no trade cap since #4623
 				expect(assert(Arcade.milestoneAt(10)).prize.fish).to.equal(15) -- #3869: was 5 (Derek2 17:41)
 				expect(assert(assert(Arcade.milestoneAt(30)).prize.crates).classic_golden_crate).to.equal(
 					1

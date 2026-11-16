@@ -180,12 +180,27 @@ return function()
 			-- #4070: the Water Cat's splash
 			expect(Logic.areaCue("arrive", nil, "water")).to.equal("campSplash")
 			expect(Logic.areaCue("catch", "waterpark", "water")).to.equal("campSplash")
-			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal(nil)
+			expect(Logic.areaCue("arrive", nil, "coaster")).to.equal("cannonClouds")
+			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal("campSplash")
+			expect(Cues.cannonClouds).to.be.ok()
 			expect(Cues.campSplash).to.be.ok()
 			-- #4071: the Dragon Knight lands and is caught with a little roar
 			expect(Logic.areaCue("arrive", nil, "dragon_knight")).to.equal("dragonChirp")
 			expect(Logic.areaCue("catch", "castle", "dragon_knight")).to.equal("dragonChirp")
 			expect(Cues.dragonChirp).to.be.ok()
+			-- #4071: the Queen Cat's bell and the Castle gate's rumble
+			expect(Logic.areaCue("catch", "castle", "queen")).to.equal("museumBell")
+			expect(Logic.areaCue("arrive", nil, "queen")).to.equal(nil)
+			expect(Cues.museumBell).to.be.ok()
+			local castle = Logic.gateCues("castle")
+			expect(#castle).to.equal(2)
+			expect(castle[1]).to.equal("gateOpen")
+			expect(castle[2]).to.equal("dragonRumble")
+			expect(Cues.dragonRumble).to.be.ok()
+			expect(Logic.gateCues("snowy")[2]).to.equal("snowGust")
+			expect(Logic.gateCues("waterpark")[2]).to.equal("campSplash")
+			expect(#Logic.gateCues("desert")).to.equal(1)
+			expect(#Logic.gateCues(nil)).to.equal(1)
 			for _, cue in { "snowStep", "snowGust", "frostChime" } do
 				expect(Cues[cue]).to.be.ok()
 			end

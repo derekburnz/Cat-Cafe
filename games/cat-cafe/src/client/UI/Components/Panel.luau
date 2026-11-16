@@ -84,7 +84,7 @@ Panel.__index = Panel
 function Panel.new(props: Props): Panel
 	local color = props.color or Theme.modal.header
 	local HEADER_HEIGHT = if Scale.isShort() then HEADER_SHORT else HEADER_TALL
-	local family = props.dark == true and MenuFamily.on() -- #3558
+	local family = props.dark == true -- #3558, #4657: every dark window wears the family look
 	local frame: Frame = Create("Frame", {
 		Name = props.name or "Panel",
 		BackgroundTransparency = 1,

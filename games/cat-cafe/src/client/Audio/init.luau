@@ -2154,8 +2154,10 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	RankUp = function()
 		Audio.play("jingleRankUp")
 	end,
-	AreaUnlock = function(_areaId: any, position: any)
-		Audio.play("gateOpen", vec(position))
+	AreaUnlock = function(areaId: any, position: any)
+		for _, cue in Logic.gateCues(areaId) do -- #4071: the Castle's gate rumbles too
+			Audio.play(cue, vec(position))
+		end
 	end,
 	PlotOpened = function(position: any)
 		Audio.play("shuttersUp", vec(position))

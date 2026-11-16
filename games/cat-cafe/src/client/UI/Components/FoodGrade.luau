@@ -21,8 +21,10 @@ FoodGrade.DEFAULTS = {
 	star_treat = "Mythical",
 } :: { [string]: string }
 
+-- #4977 (Derek 2026-11-16: "the new coin items are supposed to be secret tier not mythic"): Secret is a grade too, so
+-- the Eclipse Treat (#4900, catalog rarity Secret) wears the Secret badge, border and colour, not Mythical's
 local KNOWN: { [string]: boolean } =
-	{ Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true }
+	{ Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true, Secret = true }
 
 -- The food's grade: its catalog `rarity`, else the design's grade for its id, else the rarity it attracts.
 function FoodGrade.of(lure: Types.LureDef?): string

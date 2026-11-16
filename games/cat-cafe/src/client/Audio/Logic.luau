@@ -523,8 +523,10 @@ local CAT_CATCHES: { [string]: string } = {
 	coaster = "campSplash",
 	queen = "museumBell",
 }
--- #4071: an area's gate adds its own sound on top of the barrier dissolving: the Castle's portcullis rumbles
-local GATE_EXTRA: { [string]: string } = { castle = "dragonRumble" }
+-- #4069 to #4071: a new area's gate adds its own sound on top of the barrier dissolving: a snow gust on the
+-- Snowy Mountain, a splash at the Water Park, the Castle's portcullis rumbling
+local GATE_EXTRA: { [string]: string } =
+	{ snowy = "snowGust", waterpark = "campSplash", castle = "dragonRumble" }
 function Logic.gateCues(areaId: any): { string }
 	local extra = if type(areaId) == "string" then GATE_EXTRA[areaId] else nil
 	return if extra then { "gateOpen", extra } else { "gateOpen" }

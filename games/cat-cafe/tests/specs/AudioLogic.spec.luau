@@ -197,6 +197,8 @@ return function()
 			expect(castle[1]).to.equal("gateOpen")
 			expect(castle[2]).to.equal("dragonRumble")
 			expect(Cues.dragonRumble).to.be.ok()
+			expect(Logic.gateCues("snowy")[2]).to.equal("snowGust")
+			expect(Logic.gateCues("waterpark")[2]).to.equal("campSplash")
 			expect(#Logic.gateCues("desert")).to.equal(1)
 			expect(#Logic.gateCues(nil)).to.equal(1)
 			for _, cue in { "snowStep", "snowGust", "frostChime" } do

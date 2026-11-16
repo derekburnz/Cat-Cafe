@@ -104,7 +104,8 @@ UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 -- nil until then. UI.bindAfk() hands it to the HUD.
 UI.afk = nil :: any
 -- #4821: the first cat hold (UI.setFirstCatHold); `tutorial`, the walk-through hold after it (UI.setTutorialHold)
-UI.firstCat = { held = false, tutorial = false }
+-- `clearedAt`: os.clock() the walk-through hold last ended, so a held event card waits a beat past it (CARD_AFTER)
+UI.firstCat = { held = false, tutorial = false, clearedAt = nil :: number?, CARD_AFTER = 3 }
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -2563,6 +2564,9 @@ function UI.setTutorialHold(on: boolean)
 		return
 	end
 	UI.firstCat.tutorial = on
+	if not on then
+		UI.firstCat.clearedAt = os.clock()
+	end
 	if hud ~= nil then
 		hud:holdBanner("tutorial", on)
 	end
@@ -11210,7 +11214,13 @@ do
 		-- Derek 2026-11-16 15:22 UTC: no event card or toast in the walk-through (UI.firstCat.tutorial). Its start is
 		-- not marked seen meanwhile, so the card comes once the hold ends: right after the first sync for a returning
 		-- player (the hold starts on at load), after the Tier 2 rank up for a new one, while the event still runs.
-		local held = started and UI.firstCat.tutorial
+		-- Sync's Studio read: and before the first sync (the placeholder state has no tutorialStep; the card played
+		-- under the loading cover) and CARD_AFTER seconds past the hold's end
+		local hold = UI.firstCat
+		local waiting = hold.tutorial
+			or state.tutorialStep == nil
+			or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
+		local held = started and waiting
 		if not held then
 			events.seen = seen
 		end
@@ -11254,8 +11264,13 @@ do
 		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
 		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
 		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
-		events.adminSeen = adminSeen
-		if adminBeat ~= nil and adminView ~= nil then
+		-- an admin event running at join or through the walk-through: its start card comes once the hold ends, as
+		-- the Cafe Event's (its 2 minute warning is only dropped)
+		local adminHeld = adminBeat == "start" and waiting
+		if not adminHeld then
+			events.adminSeen = adminSeen
+		end
+		if adminBeat ~= nil and adminView ~= nil and not adminHeld then
 			local card = if adminBeat == "start"
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)

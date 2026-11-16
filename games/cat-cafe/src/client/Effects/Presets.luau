@@ -6817,12 +6817,14 @@ Presets.petCat = {
 -- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).
 -- `turn` turns the drawing on its part, should the toes come out facing the wrong way in Studio.
 Presets.pawTrail = {
-	attribute = "Paws",
+	attribute = "Paws", -- UI's mark; since #4940 every tutorial trail is paws, so it gates nothing
 	home = "CatCafePawTrail",
-	size = 1.7,
+	size = 2.1, -- #4940: bigger for phones (1.7 before)
 	pixels = 64,
 	offset = 0.45,
-	brightness = 1.6,
+	brightness = 2, -- the SurfaceGui ignores light (LightInfluence 0), so this is how it glows at night (1.6 before)
+	faintest = 0.4, -- the comet's tail fades a print no further than this (GuideTrail's tail is 0.75)
+	rim = { colour = Color3.fromRGB(92, 58, 34), pixels = 2, transparency = 0.45 }, -- cocoa, for pale floors
 	turn = 0,
 	toes = {
 		{ 0.2, 0.36, 0.2, 0.26 },

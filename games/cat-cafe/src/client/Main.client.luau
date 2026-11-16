@@ -27,6 +27,7 @@ local MemoryWatchController = require(script.Parent.Controllers.MemoryWatchContr
 local Moments = require(script.Parent.Moments)
 local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryController)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
+local NoClimbController = require(script.Parent.Controllers.NoClimbController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
 local ParkTrailController = require(script.Parent.Controllers.ParkTrailController)
 local PerfSuggestController = require(script.Parent.Controllers.PerfSuggestController)
@@ -88,6 +89,7 @@ IntroController.start() -- after the UI and the world controller, whose hooks it
 PerfWatchController.start(bootAt) -- #4783: load time and average FPS for every player, analytics only
 MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()
+NoClimbController.start() -- #4073: the player's own character climbs only at the real ladders
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 AirMovesController.start() -- #4447: the Dragon Keep's Double Jump and Glide

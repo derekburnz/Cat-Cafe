@@ -15,6 +15,7 @@ export type Area = SharedTypes.Area
 export type SpotType = SharedTypes.SpotType -- v0.3: the same as Role; a role slot is still a spot in code
 export type Role = SharedTypes.Role
 export type CatchMethod = SharedTypes.CatchMethod
+export type TicketBoothView = SharedTypes.TicketBoothView -- #4061
 export type ClockPhase = "day" | "night" -- Clock folder attribute Phase (data-model section 9)
 -- the net (closing circles), a stuck cat (the rescue hold), or a dropped cat anyone can pick up with the hold and no
 -- circles (v0.8 F56, v0.10 F67: its model or prompt has PickUp = true)
@@ -254,6 +255,27 @@ export type CatInstance = {
 	trait: { id: string }?, -- #3196: its Mystic Pool trait (shared/Traits), nil for none
 }
 
+-- #4249: one Mailbox letter (Components/MailLogic, Screens/Mailbox); the server sends only this player's
+export type MailLetter = {
+	id: string,
+	title: string,
+	note: string,
+	sentAt: number,
+	endsAt: number?,
+	from: string?, -- "Derek" or "Catch a Cat Cafe"
+	prize: {
+		coins: number?,
+		coinSeconds: number?,
+		fish: number?,
+		crates: { [string]: number }?,
+		potions: { [string]: number }?,
+		spins: number?,
+		lures: { [string]: number }?,
+		catFood: { [string]: number }?,
+		traitTokens: number?,
+	},
+	claimed: boolean,
+}
 -- #4266: the Auto Bowl pass: owned, and its switches (auto claim tames an arrived cat, auto refill puts in the best
 -- food the player owns)
 export type AutoBowl = { owned: boolean, claim: boolean, refill: boolean }
@@ -284,6 +306,8 @@ export type PlayerState = {
 	tutorialStep: number?,
 	settings: { [string]: boolean | number | string }?, -- profile.settings (shared/Settings): switches, 0 to 1 volumes, tradeRequests
 	tradeLog: { TradeLogEntry }?, -- F102: the last 20 trades, for the Trades page
+	-- #4249: this player's Mailbox letters from the server, newest first (Components/MailLogic.Letter)
+	mail: { MailLetter }?,
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 	spin: SpinState?, -- F49: the free spin and the banked ones
 	goldenFish: number?, -- F52: the rare currency; nil hides its HUD counter
@@ -296,6 +320,7 @@ export type PlayerState = {
 	-- chip and card, and the odds every food and crate card shows (shared/Luck)
 	luck: number?,
 	luckSources: { LuckSource }?,
+	cardLuck: { crate: number, trait: number, spin: number }?, -- the Dragon Keep's crate, trait and spin luck
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	introAuto: boolean?, -- #3666: the intro plays itself for this player; nil reads as Config.IntroAutoPlay
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
@@ -428,6 +453,7 @@ export type ScreenName =
 	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
 	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
 	| "TradeLog" -- F102: the last 20 trades, opened from Settings
+	| "Mailbox" -- #4249: letters from Derek with a gift to claim, from the HUD's Mailbox tile
 	| "Store" -- the passes for Robux, from the HUD's Store tile (UI.store)
 	| "Arcade" -- #3062: the Cat Arcade, from its cabinet and the Menu list (UI.arcade)
 

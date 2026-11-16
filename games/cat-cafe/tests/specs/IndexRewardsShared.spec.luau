@@ -48,13 +48,6 @@ return function()
 	end
 
 	describe("Catalog tables (F54, golden-fish.md sections 5 and 5b)", function()
-		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
-		beforeAll(function()
-			IndexRewards.setLateOpen(true)
-		end)
-		afterAll(function()
-			IndexRewards.setLateOpen(nil)
-		end)
 		it("has every milestone once, each with a track and a count", function()
 			local ids: { string } = {}
 			for _, milestone in Catalog.indexMilestones do
@@ -341,13 +334,6 @@ return function()
 	end)
 
 	describe("Prizes", function()
-		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
-		beforeAll(function()
-			IndexRewards.setLateOpen(true)
-		end)
-		afterAll(function()
-			IndexRewards.setLateOpen(nil)
-		end)
 		it("pays seconds of the day rate, never under the minimum", function()
 			expect(Prizes.coins(300, 600, 0)).to.equal(300)
 			expect(Prizes.coins(300, 600, 2)).to.equal(1200)
@@ -370,13 +356,6 @@ return function()
 	end)
 
 	describe("progress and claims", function()
-		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
-		beforeAll(function()
-			IndexRewards.setLateOpen(true)
-		end)
-		afterAll(function()
-			IndexRewards.setLateOpen(nil)
-		end)
 		local function profileWith(catIds: { string }, goldIds: { string }?): any
 			local profile = ProfileSchema.template(1000)
 			for _, catId in ipairs(catIds) do
@@ -464,32 +443,9 @@ return function()
 		end)
 	end)
 	describe("All Cats, the Decor Index and the permanent bonuses (F54)", function()
-		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
-		beforeAll(function()
-			IndexRewards.setLateOpen(true)
-		end)
-		afterAll(function()
-			IndexRewards.setLateOpen(nil)
-		end)
 		local function fresh(): any
 			return ProfileSchema.template(1000)
 		end
-
-		it("#3992: shows and pays nothing past 50 while the indexTo70 switch is off", function()
-			IndexRewards.setLateOpen(false)
-			local profile = fresh()
-			expect(IndexRewards.prize("all", "total55")).never.to.be.ok()
-			expect(IndexRewards.prize("rainbow", "rainbowAll")).never.to.be.ok()
-			expect(IndexRewards.prize("all", "total50")).to.be.ok()
-			expect(IndexRewards.blocker(profile, "all", "goldtotal60")).to.equal("Unknown reward")
-			expect(IndexRewards.shownPrizes().all.total55).never.to.be.ok()
-			expect(IndexRewards.shownPrizes().all.total50).to.be.ok()
-			profile.indexRewards.all = { total55 = true, totalAll = true }
-			expect(IndexRewards.totals(profile).baitSpeed).to.equal(0)
-			IndexRewards.setLateOpen(true)
-			expect(IndexRewards.shownPrizes()).to.equal(Catalog.indexPrizes)
-			expect(IndexRewards.totals(profile).baitSpeed).to.be.near(0.08, 1e-9)
-		end)
 
 		it(
 			"#3992: the All steps need every cat the book counts, all but one is not enough",
@@ -656,13 +612,6 @@ return function()
 	end)
 
 	describe("Index rewards and Prizes edges (QA, after F54)", function()
-		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
-		beforeAll(function()
-			IndexRewards.setLateOpen(true)
-		end)
-		afterAll(function()
-			IndexRewards.setLateOpen(nil)
-		end)
 		local Client = game:GetService("StarterPlayer")
 			:WaitForChild("StarterPlayerScripts")
 			:WaitForChild("Client")

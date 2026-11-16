@@ -1,8 +1,8 @@
 --!strict
 -- Every signature effect (Presets.signature) belongs to a cat in the Catalog, so a renamed or mistyped cat id cannot
 -- leave an effect that no cat ever shows. The `minor` ones (a small touch that only takes a spare slot) are the
--- Rares; the full ones belong to rarer cats. The Medieval Castle's six wait in PENDING until Tier 10 (#4184) puts its
--- cats in the Catalog: a pending id that has arrived fails here, so the list empties with that change.
+-- Rares; the full ones belong to rarer cats. A cat in PENDING is one the Catalog does not have yet: a pending id
+-- that has arrived fails here, so the list empties with that change. A cat in SOON is allowed either way.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -11,16 +11,15 @@ return function()
 	local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 
 	local PENDING: { [string]: boolean } = {} -- #4184: the Castle's six are in the Catalog
-	-- #4369: the seven new Secret cats' effects may land before or after their Catalog rows (#4255), so these may be
-	-- missing and, unlike PENDING, arriving does not fail. Empty this list once #4255 is in.
+	-- #4251: Harvest Hollow's six may be in the Catalog or not yet (its cats merge on their own day), so neither
+	-- order of merging turns main red. Drop the list once they are in.
 	local SOON: { [string]: boolean } = {
-		lucky_clover = true,
-		moonstag = true,
-		ooze = true,
-		djinn = true,
-		phoenix = true,
-		abyss = true,
-		excalipurr = true,
+		apple_pie = true,
+		cornstalk = true,
+		pumpkin_spice = true,
+		cranberry = true,
+		maple_leaf = true,
+		harvest_moon = true,
 	}
 
 	describe("Effects signature cats and the Catalog", function()

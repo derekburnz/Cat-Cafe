@@ -99,8 +99,15 @@ def stamp_trees(base, gold):
         else:
             near = [g for g in spare if all(abs(a - b) < 2e-3 for a, b in zip(g["Size"], p["Size"])) and _dist(g, p) < 0.15]
             under = [g for g in gp if _holds(g, p, min(p["Size"]) / 2 + 0.02)]
+            # a gold body modelled a little longer, shorter or slimmer than its base (Blizzard's: 1.1875 against 1.1694
+            # long, which the "under" rule below gave to a small ice patch inside it; the Sit and Work bodies of Abyss,
+            # Djinn, Ice and Mirage too): the spare part at the same spot whose every side is within a fifth
+            close = [g for g in spare if all(abs(a - b) <= 0.2 * max(a, b) for a, b in zip(g["Size"], p["Size"]))
+                     and _dist(g, p) < 0.05]
             if near:
                 twin, how = min(near, key=lambda g: _dist(g, p)), "near"
+            elif close:
+                twin, how = min(close, key=lambda g: sum(abs(a - b) for a, b in zip(g["Size"], p["Size"]))), "near"
             elif under:
                 twin, how = min(under, key=_vol), "under"
                 if twin["Color"] == LINE and _vol(twin) < _vol(p):

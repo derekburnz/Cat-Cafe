@@ -124,22 +124,14 @@ function Logic.budgetFor(
 	return device, Presets.budget[device]
 end
 
--- #3794: whether the lighter effects budget applies: the `fxLite` switch is on and either this is a phone or tablet
+-- #3794: whether the lighter effects budget applies (shipped for everyone; #4654 retired its `fxLite` switch): this is a phone or tablet
 -- (the "low" device tier) that is struggling (`struggling`, Logic.slowStep; Derek 2026-11-14: "turn it on for
 -- phones/tablets if they are struggling (slower devices) not if they are doing fine"), or its graphics quality is
 -- set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is Automatic, which says nothing about the device,
 -- and 4 to 10 are left as they are).
 Logic.LITE_QUALITY_MAX = 3
 
-function Logic.wantsLite(
-	switchOn: boolean,
-	device: Presets.Tier,
-	quality: number?,
-	struggling: boolean?
-): boolean
-	if not switchOn then
-		return false
-	end
+function Logic.wantsLite(device: Presets.Tier, quality: number?, struggling: boolean?): boolean
 	return (device == "low" and struggling == true)
 		or (quality ~= nil and quality >= 1 and quality <= Logic.LITE_QUALITY_MAX)
 end
@@ -1532,6 +1524,19 @@ function Logic.isStuck(style: Style): boolean
 	return style == "stuck" or style == "stuckButt" or style == "stuckFlip"
 end
 
+-- A Common cat's head prop bouncing as it walks (Presets.motion.propBounce, #4069 to #4071): `degrees` is the cat's
+-- own swing (0 or less for none). Eases in from a standstill like the legs, and tips the prop through `capTip`, the
+-- same turn the Bellhop Cat's cap uses, so it rides on top of whatever else the head is doing.
+function Logic.propBounce(o: Offsets, speed: number, stride: number, degrees: number)
+	local g = Presets.motion.gait
+	if degrees <= 0 or speed < g.moveFrom then
+		return
+	end
+	local start = math.clamp((speed - g.moveFrom) / g.moveFrom, 0, 1)
+	local phase = stride * 2 * math.pi - Presets.motion.propBounce.lag
+	o.capTip += math.rad(degrees) * start * math.sin(phase)
+end
+
 -- How much of the Balloon Cat's float (motion.float) a style gets: all of it awake, `resting` of it asleep or
 -- loafing, none stuck in a trap.
 function Logic.floatShare(style: Style): number
@@ -1602,6 +1607,24 @@ function Logic.startle(o: Offsets, alpha: number)
 	o.tailYaw *= 1 - arc
 	o.earL = math.max(o.earL, math.rad(s.ears) * arc)
 	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
+end
+
+-- #4384: whether the waiting stray's beacon, call and sound wait: the switch is on (LiveFlags.shown of `checkInCalm`)
+-- and the player is on the bowl step (`tutorialStep` is Presets.waitingCat.holdStep) with a Bait bowl to fill
+-- (`bowlLevel` 1 or more), for at most `holdMost` seconds (`heldFor` is how long it has held). A step or a level not
+-- yet known holds nothing.
+function Logic.waitingHeld(
+	switchOn: boolean,
+	tutorialStep: unknown,
+	bowlLevel: unknown,
+	heldFor: number
+): boolean
+	local p = Presets.waitingCat
+	return switchOn
+		and tutorialStep == p.holdStep
+		and type(bowlLevel) == "number"
+		and bowlLevel >= 1
+		and heldFor < p.holdMost
 end
 
 -- #3022: the waiting stray's "come here" (motion.beckon), `alpha` 0 to 1 through it, layered on whatever the cat
@@ -2648,11 +2671,6 @@ end
 
 -- Luck (F88, luck-and-rare-moments.md section 1) ------------------------------------------------------------------
 
--- Whether the Lucky Day look is on: the Clock's `LuckyDay` is true and its `Phase` is not night (it is for the day).
-function Logic.luckyDayOn(luckyDay: unknown, phase: unknown): boolean
-	return luckyDay == true and phase ~= "night"
-end
-
 -- Whether the gold sky tint is on (luck-and-rare-moments.md 1g, #1572): any of the day's kinds (the Clock's
 -- `LuckyDay`, `GoldenDay` and `RainbowDay`) is true and its `Phase` is not night.
 function Logic.specialDayOn(
@@ -3346,6 +3364,16 @@ function Logic.areaAt(x: number, z: number, areas: { any }, pad: number): string
 		end
 	end
 	return nil
+end
+
+-- #4251: the area your steps are in. A box area (`area`, from Logic.areaAt) wins; outside every box it is "harvest"
+-- while you are within `within` studs of Harvest Hollow's Thankful Board (`board`, nil while it is not in the world),
+-- since that area has no box. Else nil.
+function Logic.walkArea(area: string?, board: number?, within: number): string?
+	if area ~= nil then
+		return area
+	end
+	return if board ~= nil and board <= within then "harvest" else nil
 end
 
 -- #2687's station build-in: where piece `rank` of `count` (ranked bottom to top, from 1) is at `t` seconds into the
@@ -4424,6 +4452,32 @@ function Logic.auroraRibbons(
 		})
 	end
 	return ribbons
+end
+
+-- #4687: the upright rays of one aurora curtain, laid along a ribbon from `from` to `to`: `count` feet spread evenly
+-- along it (none at the very ends), each pushed `bend` studs along `across` at the middle of the curtain and less
+-- toward its ends, so the curtain's foot curves; and each ray's height, `tall` rising and dipping by `vary` of
+-- itself in one slow wave along the curtain (a whole wave and a bit, started at `phase` radians).
+export type AuroraRay = { foot: Vector3, height: number }
+function Logic.auroraRays(
+	count: number,
+	from: Vector3,
+	to: Vector3,
+	across: Vector3,
+	bend: number,
+	tall: number,
+	vary: number,
+	phase: number
+): { AuroraRay }
+	local rays: { AuroraRay } = {}
+	local n = math.max(0, math.floor(count))
+	for i = 1, n do
+		local t = (i - 0.5) / n
+		local foot = from + (to - from) * t + across * (bend * math.sin(math.pi * t))
+		local height = tall * (1 + vary * math.sin(phase + t * 2.6 * math.pi))
+		table.insert(rays, { foot = foot, height = math.max(height, 1) })
+	end
+	return rays
 end
 
 -- #4069: where mote `i` of `count` circling a cat is `t` seconds on, from the middle of its circle: `radius` studs

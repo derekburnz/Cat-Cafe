@@ -2,7 +2,7 @@
 -- #3573 (Derek 2026-11-12: "2x rewards while afk in cafe and cats earn offline ... so we can have people afk the game
 -- more"): resting in your own cafe. A player who stands still with no input for Config.AfkCafeSeconds inside their own
 -- cafe, or on its doorstep (within DOORSTEP_STUDS of where a trip home lands), is resting, and while resting their
--- cats' cafe pay is doubled. Behind the `afkCafe` switch (LiveFlags, off by default).
+-- cats' cafe pay is doubled. (The `afkCafe` switch it shipped behind is retired, #4654.)
 --   The 2x sits in the Cafe Event's money slot (Economy.settle): the pay runs at the larger of the event's money and
 --     Config.AfkCafeMoney, so it never goes above Config.EventMoneyMax and adds nothing during a 2x party. Tips,
 --     rich tips, the Tip Jar, golden fish and offline pay are untouched (they never read it).
@@ -22,7 +22,6 @@ local Config = require(script.Parent.Config)
 
 local AfkCafe = {}
 
-AfkCafe.FLAG = "afkCafe"
 AfkCafe.ATTRIBUTE = "CafeRest" -- on the Player while resting, for the HUD's chip (Components/RestChip): true when the
 -- rest doubles the pay, false when a 2x party already does; nil when not resting
 AfkCafe.ZONE_ATTRIBUTE = "CafeRestZone" -- #3701: on the Player while a player past the tutorial stands in their rest
@@ -31,14 +30,13 @@ AfkCafe.ZONE_ATTRIBUTE = "CafeRestZone" -- #3701: on the Player while a player p
 AfkCafe.DOORSTEP_STUDS = 12
 AfkCafe.MOVE_STUDS = 1.5 -- a character further than this from where it stood has moved
 AfkCafe.TICK_SECONDS = 1
-AfkCafe.REJOIN_FLAG = "autoRejoin"
 AfkCafe.ARRIVED_ATTRIBUTE = "CafeRestArrived" -- on the Player once the server has taken up the rest again after a
 -- rejoin, so the client knows it counts as idle and reports its first input
 -- #4346 (Derek 2026-11-14: "add an afk button on the top right ... put you in cafe and 2x money mode and start the
 -- auto server reconnecting and putting you back in cafe on reconnect and in afk mode before the roblox idle kick"):
 -- AFK mode. The AfkMode remote (true) takes the player home and starts the rest as soon as they stand there (no
 -- AfkCafeSeconds wait, and input such as the camera does not end it); walking off, leaving the zone, a cat in the
--- arms, a trade or AfkMode(false) ends it. The auto rejoin carries it. Behind BUTTON_FLAG (off by default) with FLAG.
+-- arms, a trade or AfkMode(false) ends it. The auto rejoin carries it. Behind BUTTON_FLAG (off by default).
 AfkCafe.BUTTON_FLAG = "afkButton"
 AfkCafe.MODE_ATTRIBUTE = "AfkMode" -- on the Player while AFK mode is on (the HUD's AFK tile shows it), else nil
 AfkCafe.MODE_ON_TEXT = "AFK mode on. Your cats earn 2x while you rest here."

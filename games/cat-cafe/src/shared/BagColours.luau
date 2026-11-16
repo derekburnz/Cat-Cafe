@@ -19,7 +19,6 @@
 
 local BagColours = {}
 
-BagColours.FLAG = "bagColours"
 BagColours.ITEM = "backpack" -- the Mystery Market item that must be owned
 BagColours.DEFAULT_MAIN = "plum"
 BagColours.DEFAULT_TRIM = "rose"

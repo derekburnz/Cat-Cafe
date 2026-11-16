@@ -18,9 +18,11 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Shove = require(Shared:WaitForChild("Shove"))
+local TackleLogic = require(script.Parent.Parent.UI.Components.TackleLogic)
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 local WorldController = require(script.Parent.WorldController)
@@ -98,24 +100,35 @@ local function release()
 	setControls(true)
 end
 
--- True while this player stands inside a catching area their tier opens, camps included since Derek2 2026-11-07 ("no
--- tackle safe spots"), and is not flying: the server's rule, checked again there.
+-- True while this player stands in the wild part of a catching area their tier opens and is not flying. #4481
+-- (Derek 2026-11-15: "remove the tackle button while safe"): never in a camp, on the street or on the Town Square
+-- (TackleLogic.shown), so the Tackle is never taken for the Net button at home. The server still decides every
+-- tackle (Shove.tackleRefusal).
 local function inOpenArea(): boolean
 	local root = rootPart()
 	local state = UIController.state
 	local character = player.Character
-	if not Config.BumpEnabled or root == nil or state == nil or character == nil then
-		return false
-	end
-	if
-		character:GetAttribute("Launching") == true
-		or character:GetAttribute("CloudHopAt") ~= nil
-	then
+	if root == nil or state == nil or character == nil then
 		return false
 	end
 	local zone = WorldController.zoneAt(root.Position)
 	local area = if zone ~= nil then Catalog.getArea(zone:lower()) else nil
-	return area ~= nil and state.tier >= area.tier
+	return TackleLogic.shown({
+		switchedOn = Config.BumpEnabled == true,
+		flying = character:GetAttribute("Launching") == true
+			or character:GetAttribute("CloudHopAt") ~= nil,
+		-- Review-QA's first 5 minutes on a phone (2026-11-14): a player who has not checked in a first cat cannot
+		-- tackle (Shove.tackleRefusal's newcomer line), so the button stays away and never covers the tutorial cat
+		-- or takes its tap
+		newcomer = (state.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
+			and LiveFlags.shown(
+				"deviceFixes",
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "deviceFixes")
+			),
+		areaTier = if area ~= nil then area.tier else nil,
+		tier = state.tier,
+		inCamp = character:GetAttribute("Camp") ~= nil, -- CatService.markCamps
+	})
 end
 
 -- A LinearVelocity in the ground plane for `seconds`, so gravity still works and the humanoid takes over after.
@@ -214,6 +227,12 @@ local function report(ok: boolean, outcome: string?, targetUserId: number?)
 	result(ok, outcome, targetUserId)
 end
 
+-- #4499: true while this player's new player shield runs (the Player's TackleShieldUntil attribute, ShoveService).
+local function shielded(): boolean
+	local untilAt = player:GetAttribute("TackleShieldUntil")
+	return type(untilAt) == "number" and Shove.shielded(untilAt, workspace:GetServerTimeNow())
+end
+
 -- A press of the Tackle button or key. The UI hides or greys the button when a press would be refused; these are
 -- the same checks so a stray key press does not lunge for nothing.
 local function press()
@@ -223,6 +242,9 @@ local function press()
 	if
 		root == nil
 		or not inOpenArea()
+		-- #4499: no tackle from inside the new player shield; the button is hidden then (TackleBar) and the server
+		-- refuses it too
+		or shielded()
 		or (state ~= nil and state.carrying ~= nil)
 		or now < nextPressAt
 		or now < downUntil

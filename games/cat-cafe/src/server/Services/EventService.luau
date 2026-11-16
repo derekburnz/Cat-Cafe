@@ -32,12 +32,14 @@
 -- read cache, so a new schedule is seen at the next check.
 
 local DataStoreService = game:GetService("DataStoreService")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
+local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -63,6 +65,8 @@ local running: CafeEvents.Event? = nil
 local failing = false
 local lastNotes = ""
 local joined: { [Player]: boolean } = {} -- event_join logged for the running event
+-- #4197: admin_join logged for each player, by the admin event's id
+local adminJoined: { [Player]: string } = setmetatable({}, { __mode = "k" }) :: any
 local ended: CafeEvents.Event? = nil -- the last event that ended here, and when (server time), for recent()
 local endedAt = 0
 local adminSchedule: { CafeEvents.AdminEvent } = {} -- #4195
@@ -140,6 +144,76 @@ function EventService.catStorm(): (number?, number?, number?)
 	return event.effects.catStorm, event.startsAt, event.endsAt
 end
 
+-- #4197 (Trait Party): the running admin event's id while its free Mystic Pool rolls are on, else nil.
+function EventService.traitParty(): string?
+	local event = adminRunning
+	return if event ~= nil and event.effects.traitParty then event.id else nil
+end
+
+-- #4197 (Trait Party): each player's free rolls taken in the running party (its id and the count), this server only.
+local partyRolls: { [Player]: { id: string, used: number } } = setmetatable({}, { __mode = "k" }) :: any
+
+-- The free party rolls `player` has left now, 0 with no Trait Party.
+function EventService.partyLeft(player: Player): number
+	local id = EventService.traitParty()
+	if id == nil then
+		return 0
+	end
+	local mine = partyRolls[player]
+	local used = if mine ~= nil and mine.id == id then mine.used else 0
+	return math.max(0, CafeEvents.ADMIN.traitPartyRolls - used)
+end
+
+-- Whether `player`'s next Mystic Pool roll is a free party roll; counts it when it is (TraitService, before paying).
+function EventService.takePartyRoll(player: Player): boolean
+	local id = EventService.traitParty()
+	if id == nil or EventService.partyLeft(player) <= 0 then
+		return false
+	end
+	local mine = partyRolls[player]
+	if mine == nil or mine.id ~= id then
+		mine = { id = id, used = 0 }
+		partyRolls[player] = mine
+	end
+	mine.used += 1
+	return true
+end
+
+-- #4197 (Secret Hunt): the cats caught so far in the running hunt, as CatService reports them; published with the
+-- effects as `secretFound`.
+local huntFound: { id: string, found: number }? = nil
+
+-- #4197 (Secret Hunt): the running hunt's id and how many cats hide, else nil and 0.
+function EventService.secretHunt(): (string?, number)
+	local event = adminRunning
+	if event == nil or event.effects.secretHunt <= 0 then
+		return nil, 0
+	end
+	return event.id, event.effects.secretHunt
+end
+
+-- #4197: CatService's count of the hunt's cats caught so far; the attribute follows on the lane's next second.
+function EventService.setHuntFound(id: string, found: number)
+	huntFound = { id = id, found = math.max(0, math.floor(found)) }
+end
+
+-- #4197 (Fish Fountain, Crate Drop): the running admin event's id while that drop runs, else nil (AdminDropService).
+function EventService.fishFountain(): string?
+	local event = adminRunning
+	return if event ~= nil and event.effects.fishFountain then event.id else nil
+end
+
+function EventService.crateDrop(): string?
+	local event = adminRunning
+	return if event ~= nil and event.effects.crateDrop then event.id else nil
+end
+
+-- #4197 (Speed Rush): whether every player counts as wearing the Speed Shoes now.
+function EventService.speedRush(): boolean
+	local event = adminRunning
+	return event ~= nil and event.effects.speedRush
+end
+
 local function daysText(event: CafeEvents.Event): string
 	local out: { string } = {}
 	for _, kind in CafeEvents.DAY_KINDS do
@@ -184,6 +258,17 @@ end
 
 -- #4195: the admin lane's second: which one runs, which one shows (the warning before a start), the attributes when
 -- either changed, and adminChanged when the running one did.
+-- The AdminEventEffects attribute for `shown`: its effects, plus a hunt's secretFound.
+local function adminJson(shown: CafeEvents.AdminEvent): string
+	local found = huntFound
+	if shown.effects.secretHunt <= 0 or found == nil or found.id ~= shown.id then
+		return CafeEvents.adminEffectsJson(shown)
+	end
+	local data = CafeEvents.adminEffectsData(shown)
+	data.secretFound = found.found
+	return HttpService:JSONEncode(data)
+end
+
 local function applyAdmin(at: number)
 	local list = adminList(at)
 	local event = CafeEvents.adminCurrent(list, at)
@@ -195,7 +280,7 @@ local function applyAdmin(at: number)
 			shown.title,
 			shown.startsAt,
 			shown.endsAt,
-			CafeEvents.adminEffectsJson(shown),
+			adminJson(shown),
 			tostring(event ~= nil)
 		)
 		else ""
@@ -206,10 +291,7 @@ local function applyAdmin(at: number)
 		ReplicatedStorage:SetAttribute(names.title, if shown ~= nil then shown.title else "")
 		ReplicatedStorage:SetAttribute(names.startsAt, if shown ~= nil then shown.startsAt else 0)
 		ReplicatedStorage:SetAttribute(names.endsAt, if shown ~= nil then shown.endsAt else 0)
-		ReplicatedStorage:SetAttribute(
-			names.effects,
-			if shown ~= nil then CafeEvents.adminEffectsJson(shown) else ""
-		)
+		ReplicatedStorage:SetAttribute(names.effects, if shown ~= nil then adminJson(shown) else "")
 		ReplicatedStorage:SetAttribute(names.running, event ~= nil)
 	end
 	local was = adminRunning
@@ -222,6 +304,26 @@ local function applyAdmin(at: number)
 			and CafeEvents.adminEffectsJson(was) == CafeEvents.adminEffectsJson(event)
 		)
 	adminRunning = event
+	-- #4197: Golden Hour's coat boosts and Money Storm's pay floor follow the running admin event
+	local effects = if event ~= nil then event.effects else nil
+	Clock.setAdminCoats(
+		if effects ~= nil then effects.goldBoost else 1,
+		if effects ~= nil then effects.rainbowBoost else 1,
+		CafeEvents.ADMIN.coatChanceMax
+	)
+	Economy.setAdminMoney(
+		if effects ~= nil then effects.moneyStorm else 1,
+		CafeEvents.ADMIN.moneyStormMax
+	)
+	-- #4197 analytics: admin_join once per player in each running admin event (not for a test), with its title
+	if event ~= nil and not event.test then
+		for _, player in DataService.loadedPlayers() do
+			if adminJoined[player] ~= event.id then
+				adminJoined[player] = event.id
+				Telemetry.custom(player, "admin_join", 1, { event.id, event.title })
+			end
+		end
+	end
 	if same then
 		return
 	end

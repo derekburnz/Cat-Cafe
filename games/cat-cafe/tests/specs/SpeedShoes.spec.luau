@@ -20,15 +20,13 @@ return function()
 	local CARRY, WALK = Config.CarryWalkSpeed, Config.NormalWalkSpeed
 
 	describe("the item", function()
-		it("is a Mystery Market row behind a live switch that starts off", function()
+		it("is a Mystery Market row with no switch any more (#4654 batch 7)", function()
 			local item = Catalog.getMysteryItem(SpeedShoes.ID) :: any
 			expect(item.name).to.equal("Speed Shoes")
 			expect(item.text).to.equal("Carry cats faster!")
 			expect(item.cost).to.equal(500)
-			expect(item.flag).to.equal(SpeedShoes.FLAG)
-			expect(table.find(LiveFlags.KEYS, SpeedShoes.FLAG) ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT[SpeedShoes.FLAG]).to.equal(true)
-			expect(LiveFlags.defaults()[SpeedShoes.FLAG]).to.equal(false)
+			expect(item.flag).to.equal(nil)
+			expect(table.find(LiveFlags.KEYS, "speedShoes")).to.equal(nil)
 		end)
 
 		it("is kept by the save check once owned", function()

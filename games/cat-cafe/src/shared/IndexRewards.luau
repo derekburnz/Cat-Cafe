@@ -11,8 +11,8 @@
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Crates = require(script.Parent.Crates)
+local DragonKeep = require(script.Parent.DragonKeep)
 local LateStations = require(script.Parent.LateStations)
-local LiveFlags = require(script.Parent.LiveFlags)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
 
@@ -33,52 +33,12 @@ function IndexRewards.milestone(id: string): Types.IndexMilestone?
 	return milestonesById[id]
 end
 
--- #3992: the milestones marked `late` (the All Cats tracks past 50 and the Rainbow track past 25) show and pay only
--- while the `indexTo70` live switch is on. It goes on with the restart, since an older server's save check
--- (ProfileSchema) drops a claim id it does not know, and the milestone could then be claimed again. Read from the
--- switch's ReplicatedStorage attribute, which LiveFlagService sets on the server for both sides; specs set it here.
-IndexRewards.LATE_FLAG = "indexTo70"
-local lateOverride: boolean? = nil
-function IndexRewards.setLateOpen(open: boolean?)
-	lateOverride = open
-end
-function IndexRewards.lateOpen(): boolean
-	if lateOverride ~= nil then
-		return lateOverride
-	end
-	return game:GetService("ReplicatedStorage")
-		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. IndexRewards.LATE_FLAG) == true
-end
-
-local function shut(milestoneId: string): boolean
-	local milestone = milestonesById[milestoneId]
-	return milestone ~= nil and milestone.late == true and not IndexRewards.lateOpen()
-end
-
 function IndexRewards.prize(areaId: string, milestoneId: string): Types.IndexPrize?
 	local area = Catalog.indexPrizes[areaId]
-	if area == nil or shut(milestoneId) then
+	if area == nil then
 		return nil
 	end
 	return area[milestoneId]
-end
-
--- #3992: Catalog.indexPrizes as the Index shows it now: without the `late` milestones while their switch is off.
-function IndexRewards.shownPrizes(): { [string]: { [string]: Types.IndexPrize } }
-	if IndexRewards.lateOpen() then
-		return Catalog.indexPrizes
-	end
-	local out: { [string]: { [string]: Types.IndexPrize } } = {}
-	for areaId, prizes in Catalog.indexPrizes do
-		local page: { [string]: Types.IndexPrize } = {}
-		for milestoneId, prize in prizes do
-			if not shut(milestoneId) then
-				page[milestoneId] = prize
-			end
-		end
-		out[areaId] = page
-	end
-	return out
 end
 
 -- Different cats of the area in `collection` (a collection or a gold collection: catId -> first caught at), or of
@@ -282,8 +242,12 @@ function IndexRewards.luckiest(
 	local best, from = 0, nil
 	for index, profile in profiles do
 		if tierOf(profile) >= areaTier then
-			local luck = IndexRewards.totals(profile).goldLuck
-				+ (if now ~= nil then Potions.goldLuck(profile, now) else 0)
+			-- #4447: the Dragon Keep's Gold Fever sits inside GoldLuckMax with the Index's own gold luck
+			local indexLuck = math.min(
+				IndexRewards.totals(profile).goldLuck + DragonKeep.of(profile).goldLuck,
+				Config.GoldLuckMax
+			)
+			local luck = indexLuck + (if now ~= nil then Potions.goldLuck(profile, now) else 0)
 			if luck > best then
 				best, from = luck, index
 			end

@@ -67,6 +67,7 @@ local CREAM = MenuFamily.card -- #3558: what sits on a picture card (cream in th
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 -- #1146: Crates.openRefusal, the server's own in-flight and spam rule for OpenCrate
 local Crates = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Crates"))
+local DragonKeep = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("DragonKeep"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 local LuckyCharm = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LuckyCharm"))
 local SwiftPaws = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SwiftPaws"))
@@ -152,13 +153,12 @@ local REVEAL_SECONDS = 2
 local CARD = Vector2.new(228, 252) -- 32 px wider so "Buy 5x · 180" fits half a card (#1818)
 local CRATE_BUTTON_H = 42 -- Open and Buy 5: a 37 px face over the lip, a mouse's 36 px tap (#1051)
 local CRATE_BUTTON_GAP = 6
--- #3961: the family look's crate buttons (batch 1 mock): chunkier, upper case, a sky ODDS pill
--- (read when used, not when this module loads: the switch arrives after the first require)
+-- #3961, #4657: the family look's crate buttons (batch 1 mock): chunkier, upper case, a sky ODDS pill
 local function word(value: string): string
-	return if MenuFamily.on() then string.upper(value) else value
+	return string.upper(value)
 end
 local function buttonText(): number
-	return if MenuFamily.on() then Theme.sizes.textSmall + 1 else Theme.sizes.textSmall
+	return Theme.sizes.textSmall + 1
 end
 -- #1818: short of fish, a buy button still reads its price; a press flashes "Need N more" this long instead of
 -- sending, then the price comes back (no greyed "Need N more fish" buttons sitting there)
@@ -202,7 +202,7 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 		-- first words; #3317: +1 for levels 1 and 2, +0.5 for 3 to 5
 		name = "Swift Paws: +Speed",
 		icon = "💨",
-		blurb = ("Run faster, forever: +1 speed, +1, then +0.5 a level. Idea by %s"):format(
+		blurb = ("Run faster, forever: +1 speed, +1, then +0.5 a level. Idea by %s"):format( -- #4705: to level 10
 			SwiftPaws.CREDIT
 		),
 	},
@@ -711,7 +711,11 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	local state: Types.PlayerState? = self._state
 	local luck = if state and state.crateLuck then state.crateLuck[crate.area] else nil
 	-- F88: a plain crate's odds with the player's Luck in them, as shared Crates.oddsFor rolls the next open
-	local playerLuck = if state then LuckLogic.current(state, Workspace:GetServerTimeNow()) else 1
+	-- the Dragon Keep's Lucky Crate on top, as the server rolls (Crates.withCardLuck)
+	local cardLuck = if state and state.cardLuck then state.cardLuck.crate else 0
+	local playerLuck = if state
+		then Crates.withCardLuck(LuckLogic.current(state, Workspace:GetServerTimeNow()), cardLuck)
+		else 1
 	local odds =
 		MarketLogic.nextOdds(crate, luck, LUCKY_EVERY, self._goldenOdds[crate.area], playerLuck)
 	-- N167: the same test nextOdds makes, not a comparison of the odds tables
@@ -724,7 +728,10 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 		elseif lucky then "Lucky! Your next crate opens on these lucky odds"
 		elseif playerLuck > 1 then MarketLogic.luckText(
 			MarketLogic.luckLeft(luck, LUCKY_EVERY)
-		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck)
+		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck) .. DragonKeep.cardLuckNote(
+			"crate",
+			cardLuck
+		)
 		else MarketLogic.luckText(MarketLogic.luckLeft(luck, LUCKY_EVERY))
 	self._oddsNote.TextColor3 = if lucky then CREAM.gold else CREAM.subtext
 	local order = 0
@@ -1440,7 +1447,7 @@ function FishMarket._build(self: any)
 		local odds = Button.new({
 			name = "Odds",
 			text = word("Odds"),
-			style = if MenuFamily.on() then "sky" else "ghost",
+			style = "sky",
 			size = UDim2.new(1, -16, 0, ODDS_H),
 			position = UDim2.fromOffset(8, ODDS_Y),
 			textSize = Theme.sizes.textSmall,
@@ -1956,8 +1963,7 @@ function FishMarket._refresh(self: any)
 					then "..."
 					elseif flashing then MarketLogic.needShort(price - fish)
 					elseif retry then "Try again"
-					elseif MenuFamily.on() then ("BUY 1 · %s"):format(Format.short(price))
-					else ("Buy 1x · %s"):format(Format.short(price))
+					else ("BUY 1 · %s"):format(Format.short(price))
 			)
 			-- #4274 (Derek 2026-11-14: "if you click one you cant afford make it turn gray and not blue"): the "Need N
 			-- more" flash is grey
@@ -1984,7 +1990,7 @@ function FishMarket._refresh(self: any)
 				if waiting
 					then "..."
 					elseif flashing then MarketLogic.needShort(bundlePrice - fish)
-					else (if MenuFamily.on() then "BUY %d · %s" else "Buy %dx · %s"):format(
+					else ("BUY %d · %s"):format(
 						BUNDLE_COUNT :: number,
 						Format.short(bundlePrice)
 					)
@@ -2022,13 +2028,15 @@ function FishMarket._refresh(self: any)
 		local row = entry.row
 		entry.frame.Visible = rowShown(row)
 		if row.id == SwiftPaws.ID then
-			-- #3317: levels 3 to 5 show once their switch (copied to ReplicatedStorage) is on
-			local fiveOn = LiveFlags.shown(
-				SwiftPaws.FLAG_FIVE,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG_FIVE)
+			-- #3317: levels 3 to 5 always show (#4654 batch 7: their `swiftPaws5` switch is retired)
+			local fiveOn = true
+			-- #4705: and levels 6 to 10 once theirs is
+			local tenOn = LiveFlags.shown(
+				SwiftPaws.FLAG_TEN,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG_TEN)
 			)
 			local shown = table.clone(row)
-			shown.maxLevel = SwiftPaws.topLevel(row.maxLevel or 1, fiveOn)
+			shown.maxLevel = SwiftPaws.topLevel(row.maxLevel or 1, fiveOn, tenOn)
 			row = shown
 		end
 		local level = if state.fishPerks then state.fishPerks[row.id] else nil

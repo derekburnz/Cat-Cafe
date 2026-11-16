@@ -180,12 +180,40 @@ return function()
 			-- #4070: the Water Cat's splash
 			expect(Logic.areaCue("arrive", nil, "water")).to.equal("campSplash")
 			expect(Logic.areaCue("catch", "waterpark", "water")).to.equal("campSplash")
-			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal(nil)
+			expect(Logic.areaCue("arrive", nil, "coaster")).to.equal("cannonClouds")
+			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal("campSplash")
+			expect(Cues.cannonClouds).to.be.ok()
 			expect(Cues.campSplash).to.be.ok()
 			-- #4071: the Dragon Knight lands and is caught with a little roar
 			expect(Logic.areaCue("arrive", nil, "dragon_knight")).to.equal("dragonChirp")
 			expect(Logic.areaCue("catch", "castle", "dragon_knight")).to.equal("dragonChirp")
 			expect(Cues.dragonChirp).to.be.ok()
+			-- #4071: the Queen Cat's bell and the Castle gate's rumble
+			expect(Logic.areaCue("catch", "castle", "queen")).to.equal("museumBell")
+			expect(Logic.areaCue("arrive", nil, "queen")).to.equal(nil)
+			expect(Cues.museumBell).to.be.ok()
+			-- #4251: Harvest Hollow's cats
+			expect(Logic.areaCue("arrive", nil, "maple_leaf")).to.equal("leafStep")
+			expect(Logic.areaCue("arrive", nil, "harvest_moon")).to.equal("spaChime")
+			expect(Logic.areaCue("arrive", nil, "cranberry")).to.equal(nil)
+			expect(Logic.areaCue("catch", "harvest", "cranberry")).to.equal("harvestPick")
+			expect(Logic.areaCue("catch", "harvest", "maple_leaf")).to.equal("leafStep")
+			expect(Logic.areaCue("catch", "harvest", "harvest_moon")).to.equal("spaChime")
+			expect(Logic.areaCue("catch", "harvest", "apple_pie")).to.equal("orderDing")
+			expect(Logic.areaCue("catch", "harvest", "pumpkin_spice")).to.equal("orderPour")
+			expect(Logic.areaCue("catch", "harvest", "hay_bale")).to.equal(nil)
+			for _, cue in { "leafStep", "spaChime", "harvestPick", "orderDing", "orderPour" } do
+				expect(Cues[cue]).to.be.ok()
+			end
+			local castle = Logic.gateCues("castle")
+			expect(#castle).to.equal(2)
+			expect(castle[1]).to.equal("gateOpen")
+			expect(castle[2]).to.equal("dragonRumble")
+			expect(Cues.dragonRumble).to.be.ok()
+			expect(Logic.gateCues("snowy")[2]).to.equal("snowGust")
+			expect(Logic.gateCues("waterpark")[2]).to.equal("campSplash")
+			expect(#Logic.gateCues("desert")).to.equal(1)
+			expect(#Logic.gateCues(nil)).to.equal(1)
 			for _, cue in { "snowStep", "snowGust", "frostChime" } do
 				expect(Cues[cue]).to.be.ok()
 			end
@@ -1149,6 +1177,8 @@ return function()
 			expect(Logic.campExtraCue("yardSale")).to.equal(nil)
 			expect(Logic.beatCue("bellRing")).to.equal("bellhopBell")
 			expect(Logic.beatCue("lidRattle")).to.equal("campRattle")
+			expect(Logic.beatCue("toySquirt")).to.equal("campSplash")
+			expect(Logic.beatCue("toyBonk")).to.equal("toyBonk")
 			expect(Logic.beatCue("wave")).to.equal(nil)
 			for _, beat in { "bellRing", "fishJump", "rodCast", "basketOpen", "lidRattle" } do
 				expect(Cues[Logic.beatCue(beat)] ~= nil).to.equal(true)
@@ -1696,5 +1726,64 @@ return function()
 				true
 			)
 		end)
+	end)
+
+	describe("Audio admin drops (#4197)", function()
+		it("has a gentle landing cue for a fountain fish and a dropped crate", function()
+			local seen = 0
+			for kind, name in Logic.ADMIN_DROP_CUES do
+				local cue = Cues[name]
+				expect(cue).to.be.ok()
+				expect(cue.group).to.equal("Sfx")
+				-- a spray of fish or a field of crates stays a patter: spaced out, few voices, heard only nearby
+				expect(cue.minGap >= 0.3).to.equal(true)
+				expect(cue.voices <= 2).to.equal(true)
+				expect(cue.range ~= nil and cue.range <= 60).to.equal(true)
+				expect(cue.volume <= 0.5).to.equal(true)
+				expect(#cue.ids > 0 or cue.sheet ~= nil).to.equal(true)
+				expect(kind == "fish" or kind == "crate").to.equal(true)
+				seen += 1
+			end
+			expect(seen).to.equal(2)
+		end)
+	end)
+
+	describe("Audio Harvest Hollow (#4251)", function()
+		it("has a soft pick cue for the shared pumpkin patch", function()
+			local cue = Cues[Logic.HARVEST_PICK_CUE]
+			expect(cue).to.be.ok()
+			expect(cue.group).to.equal("Sfx")
+			-- twelve pumpkins and a full server stay a patter: spaced out, few voices, heard only nearby
+			expect(cue.minGap >= 0.3).to.equal(true)
+			expect(cue.voices <= 2).to.equal(true)
+			expect(cue.range ~= nil and cue.range <= 60).to.equal(true)
+			expect(cue.volume <= 0.4).to.equal(true)
+			expect(#cue.ids > 0).to.equal(true)
+		end)
+
+		it(
+			"plays the area's own song while you are in it, whatever zone the world gives",
+			function()
+				local function has(name: string): boolean
+					return name == "musicAreaHarvest" or name == "musicAreaDesert"
+				end
+				expect(Logic.songZone(nil, true)).to.equal("Harvest")
+				expect(Logic.songZone("Cafe", true)).to.equal("Harvest")
+				expect(Logic.songZone("Desert", false)).to.equal("Desert")
+				expect(Logic.songZone(nil, false)).to.equal(nil)
+				expect(Logic.areaSongFor(Logic.songZone("Cafe", true), has)).to.equal(
+					"musicAreaHarvest"
+				)
+				expect(Logic.areaSongFor(Logic.songZone("Cafe", false), has)).to.equal(nil)
+				-- the song is a looped region of its own sheet, as quiet as the other area songs
+				local song = Cues.musicAreaHarvest
+				expect(song).to.be.ok()
+				expect(song.sheet).to.equal("sheetMusicAreas3")
+				expect(song.looped).to.equal(true)
+				expect(song.group).to.equal("Music")
+				expect(song.volume).to.equal(Cues.musicAreaSnowy.volume)
+				expect(Cues.sheetMusicAreas3).to.be.ok()
+			end
+		)
 	end)
 end

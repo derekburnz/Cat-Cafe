@@ -11,41 +11,31 @@
 -- mythic or better cats still does not work on live"): the place Rojo built had no TextChatService in it, so it ran
 -- the legacy chat (ChatVersion LegacyChatService), which Roblox no longer draws a window for. default.project.json
 -- sets ChatVersion to TextChatService since then (a script cannot change it at run time; run-tests.mjs checks the
--- project file), so the line takes the DisplaySystemMessage road. The legacy road (#2902:
--- StarterGui:SetCore("ChatMakeSystemMessage"), retried for LEGACY_TRIES seconds while that chat loads) stays for a
--- place file built without the setting, and says so once in the log.
+-- project file), so the line takes the DisplaySystemMessage road. #4656: the legacy road (#2902,
+-- StarterGui:SetCore("ChatMakeSystemMessage")) is gone; a place file built without the setting says so once in the
+-- log and shows no chat line.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 
 local GlobalCatch = require(ReplicatedStorage.Shared.GlobalCatch)
-local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Net = require(script.Parent.Parent.Net)
 local RareCatsTab = require(ReplicatedStorage.Shared.RareCatsTab)
 
 local RareCatchChatController = {}
 
-local LEGACY_TRIES = 10 -- one a second while the legacy chat loads
 local CHANNEL_WAIT = 10 -- seconds a line waits for RBXGeneral just after join
 
 local general: TextChannel? = nil
 
--- #3053 (shared/RareCatsTab): the "Rare Cats" tab. While the `rareCatsTab` switch is on and the server has made the
--- channel, the chat's channel tabs are on and every Mythical or better line also goes in that channel, at most one
+-- #3053 (shared/RareCatsTab): the "Rare Cats" tab. Once the server has made the channel (#4654 batch 4: its
+-- `rareCatsTab` switch is retired), the chat's channel tabs are on and every Mythical or better line also goes in that channel, at most one
 -- every RareCatsTab.GAP_SECONDS. Off, this touches nothing: the tab bar is only ever turned off again if this
 -- script turned it on.
 local TAB_CHECK_SECONDS = 1
 local tabQueue = RareCatsTab.queue()
 local tabsTurnedOn = false
-
-local function tabOn(): boolean
-	return LiveFlags.shown(
-		RareCatsTab.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RareCatsTab.FLAG)
-	)
-end
 
 local function tabChannel(): TextChannel?
 	local channels = TextChatService:FindFirstChild("TextChannels")
@@ -59,7 +49,7 @@ end
 -- #3673: whether this player has the tab: the switch on, the channel there and this player a reader of it (a player
 -- with chat off, or one the server could not add, has no tab and keeps every line in the normal chat).
 local function hasTab(): boolean
-	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService or not tabOn() then
+	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then
 		return false
 	end
 	local current = tabChannel()
@@ -77,7 +67,7 @@ end
 
 -- One tick of the tab: the tab bar follows the switch and the channel, and one waiting line is written.
 local function tabStep()
-	local current = if tabOn() then tabChannel() else nil
+	local current = tabChannel()
 	local tabs =
 		TextChatService:FindFirstChildOfClass("ChannelTabsConfiguration") :: ChannelTabsConfiguration?
 	if tabs ~= nil then
@@ -127,26 +117,6 @@ local function showNew(text: string, rarity: string, elsewhere: boolean)
 	end
 end
 
-local function showLegacy(text: string, rarity: string, elsewhere: boolean)
-	local message = {
-		Text = GlobalCatch.plainLine(text, elsewhere),
-		Color = Color3.fromHex(GlobalCatch.color(rarity)),
-		Font = Enum.Font.GothamBold,
-	}
-	local lastError = ""
-	for _ = 1, LEGACY_TRIES do
-		local ok, err = pcall(function()
-			StarterGui:SetCore("ChatMakeSystemMessage", message)
-		end)
-		if ok then
-			return
-		end
-		lastError = tostring(err)
-		task.wait(1)
-	end
-	warn("[RareCatchChat] legacy chat: " .. lastError)
-end
-
 local function show(text: unknown, rarity: unknown, elsewhere: unknown)
 	if type(text) ~= "string" or type(rarity) ~= "string" then
 		return
@@ -163,8 +133,6 @@ local function show(text: unknown, rarity: unknown, elsewhere: unknown)
 	task.spawn(function()
 		if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
 			showNew(text, rarity, away)
-		else
-			showLegacy(text, rarity, away)
 		end
 	end)
 end
@@ -172,7 +140,7 @@ end
 function RareCatchChatController.start()
 	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then
 		warn(
-			"[RareCatchChat] this place runs the legacy chat; rare catch lines may not show. Set ChatVersion in default.project.json (#3012)"
+			"[RareCatchChat] this place runs the legacy chat; rare catch lines do not show. Set ChatVersion in default.project.json (#3012)"
 		)
 	end
 	Net.on("RareCatchChat", show)

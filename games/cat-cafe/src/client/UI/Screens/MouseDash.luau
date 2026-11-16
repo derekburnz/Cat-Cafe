@@ -3,8 +3,8 @@
 -- MouseDashService's). With the `mouseDash` switch on it is the game the Cat Arcade's cabinet and Menu row open
 -- (Derek 2026-11-11: "Swap this in for the current arcade game and vault the other one"). Two faces:
 --   - the card: this player's best and titles, the last game's line, the arcade's ten prizes with today's ticks
---     (shared with Circle Streak), the leaderboard, the rule in plain words, Play with its cost ("Play (free)",
---     "Play (1 golden fish)"), a way to Circle Streak while that game is not vaulted (setOther) and the idea credit.
+--     the leaderboard, the rule in plain words, Play with its cost ("Play (free)", "Play (1 golden fish)") and the
+--     idea credit. (#4656: the way to Circle Streak went with that game.)
 --   - the board, while a game runs: nine holes in a 3 x 3 grid, each a button of its own (never overlapping, 64 px
 --     or more where the board allows), with the hearts, the score and the best in a strip kept clear of the holes
 --     (Components/MouseDashLogic.layout; Derek 2026-11-11: the corner symbol was "too close to the possible spawn
@@ -81,7 +81,6 @@ export type Callbacks = {
 	tap: (run: number, index: number, hole: number) -> (),
 	quit: (run: number) -> (),
 	close: () -> (),
-	other: (() -> ())?, -- to Circle Streak's card
 }
 
 export type MouseDash = {
@@ -89,7 +88,6 @@ export type MouseDash = {
 	setState: (self: MouseDash, state: Rules.State) -> (),
 	setFish: (self: MouseDash, fish: number) -> (),
 	setOn: (self: MouseDash, on: boolean) -> (),
-	setOther: (self: MouseDash, on: boolean) -> (),
 	began: (self: MouseDash, run: number, hearts: number, firstAt: number, endsAt: number?) -> (),
 	wave: (self: MouseDash, run: number, index: number, pops: { any }, hint: string?) -> (),
 	judged: (
@@ -704,18 +702,6 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		LayoutOrder = 10,
 		Parent = card,
 	})
-	if callbacks.other ~= nil then
-		self._other = Button.new({
-			name = "CircleStreak",
-			text = "Play Circle Streak",
-			style = "ghost",
-			size = UDim2.new(1, 0, 0, buttonH),
-			textSize = Theme.sizes.textSmall + 1,
-			parent = card,
-			onClick = callbacks.other,
-		})
-		self._other.instance.LayoutOrder = 11
-	end
 	text({
 		Name = "IdeaBy",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -1150,10 +1136,6 @@ function MouseDash._renderCard(self: any)
 		self._play:setText(playText)
 	end
 	self._play:setEnabled(self:_canPlay())
-	local other: Button.Button? = self._other
-	if other ~= nil then
-		other.instance.Visible = self._otherOn == true
-	end
 	local why = ""
 	if not self._on then
 		why = "Mouse Dash is closed for now"
@@ -1238,12 +1220,6 @@ end
 
 function MouseDash.setOn(self: any, on: boolean)
 	self._on = on
-	self:_renderCard()
-end
-
--- Whether Circle Streak can still be played (its `circleStreak` switch): shows the way back to its card.
-function MouseDash.setOther(self: any, on: boolean)
-	self._otherOn = on
 	self:_renderCard()
 end
 
@@ -1695,9 +1671,6 @@ function MouseDash.destroy(self: any)
 	self._play:destroy()
 	for _, tab: Button.Button in self._tabs do
 		tab:destroy()
-	end
-	if self._other ~= nil then
-		self._other:destroy()
 	end
 	self._panel:destroy()
 end

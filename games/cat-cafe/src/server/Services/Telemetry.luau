@@ -30,7 +30,6 @@ local Workspace = game:GetService("Workspace")
 local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
-local Catching = require(ReplicatedStorage.Shared.Catching)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -45,10 +44,12 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
+local Journeys = require(ReplicatedStorage.Shared.Journeys)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
 local MemoryWatch = require(ReplicatedStorage.Shared.MemoryWatch)
+local MoneyCard = require(ReplicatedStorage.Shared.MoneyCard)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
 local NewKind = require(ReplicatedStorage.Shared.NewKind)
@@ -56,6 +57,7 @@ local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
+local PerfSuggest = require(ReplicatedStorage.Shared.PerfSuggest)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -137,6 +139,8 @@ export type CustomEvent =
 	| "bait_rolled"
 	| "bait_resolved"
 	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
+	| "auto_bait" -- #4452: the starter Kibble went in bowl 1 by itself (value 1; field: the tutorial step)
+	| "tier2_topup" -- #4453: the first tamed bait cat's welcome paid this many coins toward Tier 2 (field: the cost)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
@@ -187,6 +191,8 @@ export type CustomEvent =
 	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
 	| "dragon_stage" -- #4062: value the stage reached; tier
 	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
+	| "fusion_start" -- #4104: value 1; the coat it makes, the rarity
+	| "fusion_collect" -- #4104: value 1; the coat, the rarity, "first" or "repeat" for the coat in the Index
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
@@ -219,7 +225,7 @@ export type CustomEvent =
 	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
 	-- the rarity it got. A server event, logged under the first loaded player
 	| "wave_rare"
-	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait or rescue), secret_caught (value the
+	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait, rescue or hunt), secret_caught (value the
 	-- tackles it took on the way home; catch, bait or rescue, coat) and secret_lost (value 1; area, despawn or tackle)
 	| "secret_spawn"
 	| "secret_caught"
@@ -288,6 +294,7 @@ export type CustomEvent =
 	| "bin_play"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
+	| "return_hook_early_shown" -- #4626
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
@@ -426,6 +433,11 @@ export type CustomEvent =
 	-- #4174: the Starter Bundle's slide-in card, value 1; shown, closed, ignored, buy or hidden (each once a session),
 	-- the device and tier
 	| "starter_suggest"
+	-- #4437: the 2x Money boost card from the HUD, value 1; shown, buy, closed or hidden (each once a session), the
+	-- Money pass rung it offered and the tier
+	| "money_card"
+	-- #4311: the Low performance ask, value 1; how it went (PerfSuggest.OUTCOMES), the device and the tier
+	| "perf_suggest"
 	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
 	-- and "<UI build>/<save wait>" (FirstFive.bootBucket each)
 	| "client_boot"
@@ -443,6 +455,13 @@ export type CustomEvent =
 	-- #4195: an Admin Wheel spin, value 1; the prize id (AdminWheel.PRIZES), the player's tier and the event id.
 	-- Never for a test event
 	| "admin_wheel"
+	-- #4197: a player was online in a running admin event, once per event, value 1; the event id and its title (Golden
+	-- Hour, Money Storm ...). Never for a test event
+	| "admin_join"
+	-- #4197 Secret Hunt: a hunt's Secret cat caught, value how many of the hunt's are caught now; the event id
+	| "secret_hunt_found"
+	-- #4197 Crate Drop: a golden crate from an admin drop, value 1; "crate" and the event id
+	| "admin_drop"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
@@ -489,6 +508,7 @@ local REPORTS = {
 	"tutorial_closed",
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
 	"new_kind_trail", -- #3529: the five cats trail showed or was followed (shared/NewKind.REPORTS)
+	"bowl_step", -- #4674: a bowl first strip line shown, a shared/TutorialOrder.BOWL_STEPS key
 	"stray_call", -- #3378: the waiting stray's call played for this player; the value is the call's number (1 to 4)
 	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
 	"store_buy", -- #1888: a buy button pressed, the pass or product id
@@ -498,6 +518,8 @@ local REPORTS = {
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"buy_source", -- #4176: a purchase prompt about to open, "<source>:<pass or product id>" (StoreFunnel.BUY_SOURCES)
 	"starter_suggest", -- #4174: the Starter Bundle card's shown or how it ended (StarterSuggest.OUTCOMES)
+	"money_card", -- #4437: the HUD's Money boost card shown or how it ended, "<outcome>:<rung>" (MoneyCard.OUTCOMES)
+	"perf_suggest", -- #4311: the Low performance ask shown or how it ended (PerfSuggest.OUTCOMES)
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
@@ -508,6 +530,7 @@ local REPORTS = {
 	"rank_spot", -- #3555: the rank up walk-through shown or closed (RANK_SPOT)
 	"catch_reach", -- #3556: first time near a stray, first in-reach glow: near or shown (CATCH_REACH)
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
+	"return_hook_early", -- #4626: the minute 6 "come back tomorrow" line showed, its kind (ReturnHook.EARLY_KINDS)
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
@@ -624,6 +647,12 @@ type Session = {
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
 	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
+	askJourney: string?, -- #4544: this session's EventAsk journey session id, made at the first answer
+	-- #4544: the cannon trip under way (the AreaVisit journey) and how many this session
+	trip: { id: string, area: string, arrived: boolean, caught: boolean }?,
+	trips: number?,
+	-- #4544: a first session's FirstTenMinutes journey: its id, the acts logged so far and whether it has ended
+	firstTen: { id: string, acts: { string }, ended: boolean }?,
 	recapShown: boolean, -- #1920: session_recap logged this session
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
 	goals: { ShownGoal }, -- #2916: next goals shown this session (recap) or at the join, until each is met
@@ -632,6 +661,8 @@ type Session = {
 	buySources: { [string]: { source: string, at: number } }, -- #4176: the last tagged source by sku (os.clock)
 	buySourceTags: number, -- #4176: buy_source tags taken this session (StoreFunnel.BUY_SOURCES_MAX)
 	starterSuggest: { [string]: boolean }, -- #4174: starter_suggest outcomes logged this session
+	moneyCard: { [string]: boolean }, -- #4437: money_card outcomes logged this session
+	perfSuggest: { [string]: boolean }, -- #4311: perf_suggest outcomes logged this session
 	bootUi: number?, -- #4307: the client's boot_ui seconds, kept for client_boot
 	bootLogged: boolean, -- #4307: client_boot logged this session
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
@@ -945,9 +976,10 @@ function Telemetry.introShort(_profile: Profile): boolean
 	return true
 end
 
--- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
--- session: every clean step done since the last one logged, read off the ledger, the cafe's tier and the areas with
--- a catch. Called after every ledger step, every rank up and every catch in an area.
+-- #3695: the clean funnel (Onboarding.CLEAN_STEPS, onboarding_v8 since #4504), one run per player with the user id as
+-- its session: every clean step done since the last one logged, read off the ledger, the cafe's tier, the areas with
+-- a catch, the walk-through's step and the cats caught by hand, and `event`, the moment happening now (an event step,
+-- Onboarding.CLEAN_EVENTS). Called after every ledger step, every rank up, every catch in an area and every event.
 -- The areas the save has a cat from (a spare cat counts by its old area too), added to `areas`.
 local function saveAreas(profile: Profile, areas: { [string]: boolean })
 	for catId in profile.collection do
@@ -961,45 +993,110 @@ local function saveAreas(profile: Profile, areas: { [string]: boolean })
 	end
 end
 
-local function logClean(player: Player, profile: Profile)
-	local session = sessions[player]
+-- #3695: one clean funnel step out to Roblox.
+local function sendClean(
+	player: Player,
+	profile: Profile,
+	funnel: string,
+	step: number,
+	name: string
+)
+	local fields = grouped(profile, {}) -- #3666
+	remember(player, "funnel", funnel .. " " .. name, step, fields)
+	send(player, "funnel " .. funnel, function()
+		AnalyticsService:LogFunnelStepEvent(
+			player,
+			funnel,
+			tostring(player.UserId),
+			step,
+			name,
+			customFields(fields)
+		)
+	end)
+end
+
+-- #3695: v7, while the walk-through runs today's order (#4518).
+local function logCleanV7(player: Player, profile: Profile, areas: { [string]: boolean })
 	local state = profile.telemetry
 	local logged = state.cleanStep or 0
+	if logged >= Onboarding.V7_CLEAN_COUNT then
+		return
+	end
+	if logged >= Onboarding.V7_CLEAN_TUTORIAL then
+		saveAreas(profile, areas) -- a cat from bait or a rescue never passes caughtIn (Review-QA on #3697)
+	end
+	for _, step in Onboarding.v7Due(state, logged, { tier = Economy.tier(profile), areas = areas }) do
+		state.cleanStep = step
+		sendClean(
+			player,
+			profile,
+			Onboarding.V7_CLEAN_FUNNEL,
+			step,
+			Onboarding.V7_CLEAN_STEPS[step]
+		)
+	end
+end
+
+local function logClean(player: Player, profile: Profile, event: string?)
+	local session = sessions[player]
+	if session == nil or session.areasCaught == nil then
+		return -- joined is not logged yet (logJoined calls this once the session is set up)
+	end
+	local areas: { [string]: boolean } = session.areasCaught
+	if not Onboarding.v8On() then
+		logCleanV7(player, profile, areas)
+		return
+	end
+	local state = profile.telemetry
+	local logged = state.cleanV8Step or 0
+	if logged == 0 and Onboarding.reached(state, "first_catch") then
+		state.cleanV8Step = Onboarding.CLEAN_COUNT -- #4504: began on v7 before the switch: out of v8
+		return
+	end
 	if logged >= Onboarding.CLEAN_COUNT then
 		return
 	end
-	local areas: { [string]: boolean } = if session ~= nil and session.areasCaught ~= nil
-		then session.areasCaught
-		else {}
 	if logged >= Onboarding.CLEAN_TUTORIAL then
 		-- past the tutorial the next steps can be an area's: a cat from bait or a rescue never passes caughtIn, so
 		-- the save is read again (Review-QA on #3697)
 		saveAreas(profile, areas)
 	end
-	local facts: Onboarding.CleanFacts = { tier = Economy.tier(profile), areas = areas }
-	for _, step in Onboarding.cleanDue(state, logged, facts) do
-		state.cleanStep = step
-		local name = Onboarding.CLEAN_STEPS[step]
-		local fields = grouped(profile, {}) -- #3666
-		remember(player, "funnel", Onboarding.CLEAN_FUNNEL .. " " .. name, step, fields)
-		send(player, "funnel " .. Onboarding.CLEAN_FUNNEL, function()
-			AnalyticsService:LogFunnelStepEvent(
-				player,
-				Onboarding.CLEAN_FUNNEL,
-				tostring(player.UserId),
-				step,
-				name,
-				customFields(fields)
-			)
-		end)
+	-- (read as unknown: catsCaught counts bowl cats too, and baitsTamed takes them out, as SecondCat.caught does)
+	local caught: unknown, tamed: unknown = profile.stats.catsCaught, profile.stats.baitsTamed
+	local facts: Onboarding.CleanFacts = {
+		tier = Economy.tier(profile),
+		areas = areas,
+		tutorialStep = profile.tutorialStep,
+		handCats = if type(caught) == "number"
+			then caught - (if type(tamed) == "number" then tamed else 0)
+			else 0,
+	}
+	for _, step in Onboarding.cleanDue(state, logged, facts, event) do
+		state.cleanV8Step = step
+		sendClean(player, profile, Onboarding.CLEAN_FUNNEL, step, Onboarding.CLEAN_STEPS[step])
 	end
 end
+
+-- #4504: a moment an onboarding_v8 event step listens for (Onboarding.CLEAN_EVENTS, Onboarding.arrivedEvent), from
+-- the service where it happens. Logs nothing unless the save stands right before that step.
+function Telemetry.cleanEvent(player: Player, profile: Profile, event: string)
+	logClean(player, profile, event)
+end
+-- (the event names, for services that do not require Onboarding)
+Telemetry.CLEAN_EVENTS = Onboarding.CLEAN_EVENTS
+Telemetry.arrivedEvent = Onboarding.arrivedEvent
 
 -- #3695: a cat caught in `area` (CatService, as the catch is won), for the clean funnel's area steps.
 function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 	local session = sessions[player]
 	if session == nil then
 		return
+	end
+	-- #4544: the first catch in the area this trip landed in
+	local trip = session.trip
+	if trip ~= nil and trip.area == area and trip.arrived and not trip.caught then
+		trip.caught = true
+		Telemetry.journey(player, Journeys.AREA, Journeys.AreaNodes.caught, trip.id, { area })
 	end
 	local areas = session.areasCaught
 	if areas == nil then
@@ -1009,6 +1106,66 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 		areas[area] = true
 		logClean(player, profile)
 	end
+end
+
+-- #4544: the AreaVisit journey's first node. The cannon fired at `area` (CannonService checked it), or with `locked`
+-- the pick was refused because the area's Tier is above the player's. A new trip replaces the one before it.
+function Telemetry.tripPicked(player: Player, profile: Profile, area: string, locked: boolean)
+	local session = sessions[player]
+	if session == nil or (session.trips or 0) >= Journeys.TRIPS_MAX then
+		return
+	end
+	session.trips = (session.trips or 0) + 1
+	local id = HttpService:GenerateGUID(false)
+	session.trip = if locked then nil else { id = id, area = area, arrived = false, caught = false }
+	if not locked then
+		Telemetry.firstAct(player, "cannon")
+	end
+	local node = if locked then Journeys.AreaNodes.locked else Journeys.AreaNodes.picked
+	Telemetry.journey(player, Journeys.AREA, node, id, { area, tierText(profile) })
+end
+
+-- #4544: the trip to `area` landed.
+function Telemetry.tripArrived(player: Player, area: string)
+	local session = sessions[player]
+	local trip = if session ~= nil then session.trip else nil
+	if trip ~= nil and trip.area == area and not trip.arrived then
+		trip.arrived = true
+		Telemetry.journey(player, Journeys.AREA, Journeys.AreaNodes.arrived, trip.id, { area })
+	end
+end
+
+-- #4544: one act of a new player's first ten minutes (`act` one of Journeys.ACTS): the first three different acts
+-- of a first session are logged in order as the FirstTenMinutes journey. Nothing for anyone else.
+function Telemetry.firstAct(player: Player, act: string)
+	local session = sessions[player]
+	local first = if session ~= nil then session.firstTen else nil
+	if
+		session == nil
+		or first == nil
+		or first.ended
+		or table.find(first.acts, act) ~= nil
+		or os.time() - session.joinedAt > Journeys.FIRST_SECONDS
+	then
+		return
+	end
+	local node = Journeys.actNode(#first.acts + 1, act)
+	if node ~= nil then
+		table.insert(first.acts, act)
+		Telemetry.journey(player, Journeys.FIRST, node, first.id)
+	end
+end
+
+-- #4544: how the first ten minutes ended (`how` a Journeys.FirstEnds key), once.
+local function firstEnd(player: Player, how: string)
+	local session = sessions[player]
+	local first = if session ~= nil then session.firstTen else nil
+	if first == nil or first.ended then
+		return
+	end
+	first.ended = true
+	local node = (Journeys.FirstEnds :: { [string]: string })[how]
+	Telemetry.journey(player, Journeys.FIRST, node, first.id, { tostring(#first.acts) })
 end
 
 function Telemetry.onboarding(
@@ -1271,6 +1428,31 @@ local function funnelStep(
 	end)
 end
 
+-- #4544: one node of a Roblox Journey (shared/Journeys holds the names; they must match the published config). Behind
+-- the `journeys` switch. `sessionId` ties one attempt's nodes together (a Store visit, a trade, a play session).
+function Telemetry.journey(
+	player: Player,
+	journey: string,
+	node: string,
+	sessionId: string,
+	values: { string }?
+)
+	if not LiveFlagService.on(Journeys.FLAG) then
+		return
+	end
+	local fields = values or {}
+	remember(player, "journey", journey .. " " .. node, 1, fields)
+	send(player, "journey " .. journey, function()
+		(AnalyticsService :: any):LogJourneyEvent(
+			player,
+			journey,
+			node,
+			sessionId,
+			customFields(fields)
+		)
+	end)
+end
+
 -- #3378: stray_call. The client reports each call of its own waiting stray (TelemetryReport "stray_call"); a catch
 -- that starts within STRAY_CALL_SECONDS answers it "yes", otherwise it is logged "no" when the time is up.
 local STRAY_CALL_SECONDS = 10
@@ -1325,6 +1507,7 @@ function Telemetry.catchEngaged(
 ): CatchFunnel
 	local current = funnel or Telemetry.swingHit(player, rarity, method, area)
 	funnelStep(player, "catch_attempt", current.id, 2, "engaged", current.values)
+	Telemetry.firstAct(player, "catch") -- #4544
 	return current
 end
 
@@ -1383,14 +1566,10 @@ end
 
 -- #3876: the rarity_v1 funnel (shared/RarityFunnel), one run per player with the user id as its session: every step
 -- up to the best rarity in the save's Index not yet logged this session. A new session logs its steps again, which
--- the report counts once a player (FunnelUserTotalCount); no save field is needed. Only with the `secretCats` switch.
+-- the report counts once a player (FunnelUserTotalCount); no save field is needed. (#4654 batch 5: its `secretCats` switch is retired.)
 local function logRarity(player: Player, profile: Profile)
 	local session = sessions[player]
-	if
-		session == nil
-		or session.rarityStep == nil
-		or not LiveFlagService.on(Catching.SECRET_FLAG)
-	then
+	if session == nil or session.rarityStep == nil then
 		return
 	end
 	local logged = session.rarityStep :: number
@@ -1730,6 +1909,9 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 	local seconds = profile.stats.playtimeSeconds
 		+ (if session ~= nil then math.max(0, os.time() - session.joinedAt) else 0)
 	Telemetry.custom(player, "rank_up", math.floor(seconds / 60), { tostring(tier) })
+	if session ~= nil and os.time() - session.joinedAt <= Journeys.FIRST_SECONDS then
+		firstEnd(player, "rank") -- #4544
+	end
 	if tier == 2 then
 		-- RankUp is pressed on the Rank Up card with the needs met: tier_2 implies both steps before it (F87)
 		Telemetry.onboarding(player, profile, "tier_2")
@@ -1780,6 +1962,11 @@ local function storeStep(player: Player, name: string, values: { string })
 	end
 	visit.step = step
 	funnelStep(player, StoreFunnel.NAME, visit.id, step, name, values)
+	-- #4544: the same step as a StoreVisit journey node
+	local node, fields = Journeys.storeNode(name, values)
+	if node ~= nil then
+		Telemetry.journey(player, Journeys.STORE, node, visit.id, fields)
+	end
 end
 
 -- #2914: the store_v1 prompt_closed step, for the sku this visit's buy button pressed only (a bait or Cafe Pass
@@ -1889,10 +2076,6 @@ local function priceOf(kind: "pass" | "product", id: number): number?
 	return nil
 end
 
--- #2131: a pass prompt that said bought, by player and pass id: whether it was the account's first spend, kept until
--- PassService.purchased confirms it with Roblox (a faked flag never logs a purchase).
-local pendingPasses: { [Player]: { [number]: boolean } } = {} -- cleared with the session
-
 -- #1888: a game pass prompt closed (PromptGamePassPurchaseFinished on the server): bought, or store_cancelled.
 local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 	local sku = StoreFunnel.passSku(passId)
@@ -1905,26 +2088,21 @@ local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 		promptClosed(player, sku, "cancelled")
 		return
 	end
-	promptClosed(player, sku, "bought")
-	-- now, before PassService's check marks the pass owned; robux_purchase waits for that check (#2131)
-	local pending = pendingPasses[player] or {}
-	pendingPasses[player] = pending
-	pending[passId :: number] = not spentBefore(player, profile, 0, passId :: number)
+	promptClosed(player, sku, "bought") -- robux_purchase waits for PassService's check (#2131)
 end
 
 -- #2131: PassService confirmed a bought pass with Roblox: robux_purchase now.
+-- #4438: this alone decides, with no note from onPassPrompt. Both listen to PromptGamePassPurchaseFinished and
+-- PassService's runs first; when Roblox answered its ownership check without a wait, it confirmed before
+-- onPassPrompt had noted the buy, and the purchase was never logged. spentBefore leaves this pass out, so asking
+-- it now gives the same first or repeat.
 local function onPassConfirmed(player: Player, passId: number)
-	local pending = pendingPasses[player]
-	local first = if pending ~= nil then pending[passId] else nil
-	if first == nil then
-		return
-	end
-	pending[passId] = nil
 	local sku = StoreFunnel.passSku(passId)
 	local current = DataService.get(player)
 	if sku == nil or current == nil then
 		return
 	end
+	local first = not spentBefore(player, current, 0, passId)
 	task.spawn(function()
 		local price = priceOf("pass", passId) or 0 -- yields (GetProductInfo)
 		Telemetry.robuxPurchase(player, current, sku, price, first)
@@ -2145,14 +2323,18 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
 		end
+	elseif name == "bowl_step" then
+		-- #4674: once a session each, as step_time, and only in the bowl first order
+		local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
+		local step = if type(rawValue) == "string" then TutorialOrder.BOWL_STEPS[rawValue] else nil
+		if step ~= nil and TutorialOrder.bowlFirst() and not session.nudges["bowl:" .. step] then
+			session.nudges["bowl:" .. step] = true
+			Telemetry.stepTime(player, profile, step)
+		end
 	elseif name == "new_kind_trail" then
-		-- #3529: once a session each, as step_time, and only with the switch on
+		-- #3529: once a session each, as step_time (#4654: the newKindTag switch shipped)
 		local step = if type(rawValue) == "string" then NewKind.REPORTS[rawValue] else nil
-		if
-			step ~= nil
-			and LiveFlagService.on(NewKind.FLAG)
-			and not session.nudges["new_kind:" .. step]
-		then
+		if step ~= nil and not session.nudges["new_kind:" .. step] then
 			session.nudges["new_kind:" .. step] = true
 			Telemetry.stepTime(player, profile, step)
 		end
@@ -2172,11 +2354,28 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				Telemetry.custom(player, "stuck_nudge", 1, { step, kind })
 			end
 		end
+	elseif name == "return_hook_early" then
+		-- #4626: once a session, with the switch on, logged as return_hook_early_shown (one name)
+		local kind = Guard.oneOf(rawValue, ReturnHook.EARLY_KINDS)
+		if
+			kind ~= nil
+			and LiveFlagService.on(ReturnHook.EARLY_FLAG)
+			and not session.nudges["return_hook_early"]
+		then
+			session.nudges["return_hook_early"] = true
+			Telemetry.custom(player, "return_hook_early_shown", 1, { kind })
+		end
 	elseif name == "event_rsvp" then
 		local kind = Guard.oneOf(rawValue, RSVP_KINDS)
 		if kind ~= nil and not session.nudges["rsvp:" .. kind] then
 			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "event_rsvp", 1, { kind })
+			-- #4544: the same answer as an EventAsk journey node, one journey session a play session
+			local node = Journeys.askNode(kind)
+			if node ~= nil then
+				session.askJourney = session.askJourney or HttpService:GenerateGUID(false)
+				Telemetry.journey(player, Journeys.EVENT, node, session.askJourney :: string)
+			end
 		end
 	elseif name == "boot_ui" or name == "boot_sync" then
 		-- #4307: where the wait before the intro goes (FirstFive.bootBucket)
@@ -2322,6 +2521,13 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			local raw = rawValue :: string
 			session.screen = if raw == "none" then "none" else SCREENS[raw] or "other"
 			session.snapScreen = FirstFive.snapScreen(raw) -- #3098
+			if raw == "Cannon" then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.cannonOpen) -- #4504: in the cannon
+			elseif raw == "Bait" then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.bowlOpen) -- #4504: the Bait bowl window
+			elseif raw == "RankUp" and Economy.tier(profile) == 1 then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
+			end
 		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then
@@ -2384,6 +2590,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.storeVisits += 1
 			session.store = { id = HttpService:GenerateGUID(false), step = 0, sku = nil }
 			storeStep(player, "opened", { from, tierText(profile), session.source })
+			Telemetry.firstAct(player, "store") -- #4544
 			Telemetry.custom(
 				player,
 				"store_opened",
@@ -2433,6 +2640,28 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			Telemetry.custom(
 				player,
 				"starter_suggest",
+				1,
+				{ outcome, session.device or "unknown", tierText(profile) }
+			)
+		end
+	elseif name == "money_card" then
+		local outcome, rung = MoneyCard.report(rawValue)
+		if outcome ~= nil and rung ~= nil and not session.moneyCard[outcome] then
+			session.moneyCard[outcome] = true
+			Telemetry.custom(
+				player,
+				"money_card",
+				1,
+				{ outcome, tostring(rung), tierText(profile) }
+			)
+		end
+	elseif name == "perf_suggest" then
+		local outcome = Guard.oneOf(rawValue, PerfSuggest.OUTCOMES)
+		if outcome ~= nil and not session.perfSuggest[outcome] then
+			session.perfSuggest[outcome] = true
+			Telemetry.custom(
+				player,
+				"perf_suggest",
 				1,
 				{ outcome, session.device or "unknown", tierText(profile) }
 			)
@@ -2512,6 +2741,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local raw = if type(rawValue) == "string" then rawValue else nil
 		local screen = if raw ~= nil then SCREENS[raw] else nil
 		local more = if raw ~= nil then MORE_SCREENS[raw] else nil
+		-- #4544: a window opened as an act of the first ten minutes (the Store, the trade and the cannon's Areas window
+		-- count where they are used; the Bait window is the bowl)
+		local window = screen or more
+		if window == "bait" then
+			Telemetry.firstAct(player, "bowl")
+		elseif window ~= nil and window ~= "store" and window ~= "trade" and window ~= "areas" then
+			Telemetry.firstAct(player, "menu")
+		end
 		if screen == nil and more ~= nil and not session.uiOpened[more] then
 			session.uiOpened[more] = true
 			Telemetry.custom(player, "ui_opened", 1, { more }) -- #1888: not a window for first_window_opened
@@ -2597,6 +2834,8 @@ local function onLoaded(player: Player, profile: Profile)
 		buySources = {},
 		buySourceTags = 0,
 		starterSuggest = {},
+		moneyCard = {},
+		perfSuggest = {},
 		bootUi = nil,
 		bootLogged = false,
 		giftButtons = {},
@@ -2638,6 +2877,15 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	if firstSession then
+		-- #4544: the FirstTenMinutes journey, a first session only
+		session.firstTen = { id = HttpService:GenerateGUID(false), acts = {}, ended = false }
+		task.delay(Journeys.FIRST_SECONDS, function()
+			if sessions[player] == session then
+				firstEnd(player, "still")
+			end
+		end)
+	end
 	-- #4314: a new save joins the loading screen test when the Experiment gives it an arm; the client reads the
 	-- attribute (UI.intro.waiting). The read can wait up to IntroModeService.WAIT_SECONDS, so it runs apart.
 	if LoadingTest.joins(profile.stats.sessions, profile.introSeen) then
@@ -2801,6 +3049,10 @@ function Telemetry.firstBaitArrived(player: Player, seconds: number)
 		math.max(0, math.floor(seconds)),
 		{ whereOf(player) }
 	)
+	local profile = DataService.get(player)
+	if profile ~= nil then
+		logClean(player, profile, Onboarding.CLEAN_EVENTS.bowlArrived) -- #4504: bowl_cat_here
+	end
 end
 
 -- Runs after the other services' leave work (Telemetry starts last), so a carried cat saved on leave or a rich tip
@@ -2975,9 +3227,12 @@ local function onRelease(player: Player, profile: Profile)
 			),
 		})
 	end
+	-- #4544: a first session that ends inside its first ten minutes
+	if os.time() - session.joinedAt < Journeys.FIRST_SECONDS then
+		firstEnd(player, "left")
+	end
 	sessions[player] = nil
 	lastWhere[player] = nil
-	pendingPasses[player] = nil
 end
 
 -- #3098: whether a free stray (not locked by a catch) stands within FirstFive.STRAY_NEAR studs of `at`.

@@ -84,7 +84,6 @@ type Line = {
 	enabled: boolean?,
 }
 
-local MAX_SIZE = Vector2.new(500, 372)
 local FEATURED_H = 146
 local TEASER_H = 52
 local ROW_H = 72
@@ -179,13 +178,13 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		color = TEAL,
 		icon = MysteryLogic.ICON,
 		image = ShopIcons.hud("MysteryMarket"), -- #2836: the drawn badge (the emoji until it loads)
-		-- as tall as the screen allows, up to MAX_SIZE (as the Garden Nursery and the Oasis Spa): on a 705 x 338 phone
+		-- as tall as the screen allows, up to FAMILY_SIZE (as the Garden Nursery and the Oasis Spa): on a 705 x 338 phone
 		-- the fixed height ran off the top, and the title icon sat under Roblox's menu buttons (#3518)
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
 	Create("UISizeConstraint", {
-		MaxSize = if MenuFamily.on() then FAMILY_SIZE else MAX_SIZE,
+		MaxSize = FAMILY_SIZE,
 		Parent = panel.frame,
 	})
 	panel.frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -243,6 +242,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 	})
 	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = ribbon })
 	Outline.text(ribbon, 1)
+	self._ribbon = ribbon -- hidden on the no-sale card
 	local left = 12 + PICTURE + 12
 	local right = BUY_W + 24
 	self._featuredName = text({
@@ -251,7 +251,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, -(left + 12), 0, 26),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = if MenuFamily.on() then CARD.text else Theme.colors.white,
+		TextColor3 = CARD.text,
 		Parent = featured,
 	})
 	MenuFamily.outline(self._featuredName, 2)
@@ -273,7 +273,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		Size = UDim2.new(1, -(left + right), 0, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
-		TextColor3 = if MenuFamily.on() then CARD.gold else Theme.colors.gold,
+		TextColor3 = CARD.gold,
 		RichText = true,
 		Parent = featured,
 	})
@@ -381,9 +381,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Parent = panel.content,
 	})
-	if MenuFamily.on() then
-		self:_family(body, featured, teaser, others)
-	end
+	self:_family(body, featured, teaser, others) -- #4657: the family layout is the only one
 	return self :: MysteryMarket
 end
 
@@ -571,8 +569,21 @@ function MysteryMarketScreen._paint(self: any)
 	local busy = self._pending ~= nil
 	local colours = self:_colours()
 	local featured = view.featured
-	self._featured.Visible = featured ~= nil
-	if featured ~= nil then
+	-- Sync's #4695 run: the family layout keeps the tall card on the left, so a week whose featured item is behind a
+	-- switch that is off shows a calm "no sale" card there instead of an empty half window
+	self._featured.Visible = true
+	self._featuredBuy.instance.Visible = featured ~= nil
+	self._ribbon.Visible = featured ~= nil
+	if featured == nil then
+		self._featuredId = nil
+		self._featuredName.Text = "No sale this week"
+		self._featuredText.Text = "A new item goes on sale soon"
+		self._featuredPicture.Text = "❓"
+		art(self._featuredPicture, "") -- clears the last item's picture
+		self._featuredPrice.Text = ""
+		self._ends.Text = view.nextLine or ""
+		self._featuredNote.Text = ""
+	else
 		self._featuredId = featured.id
 		self._featuredName.Text = featured.name
 		self._featuredText.Text = featured.text
@@ -599,7 +610,7 @@ function MysteryMarketScreen._paint(self: any)
 			self._featuredBuy:setEnabled(enabled)
 		end
 	end
-	self._next.Text = view.nextLine or ""
+	self._next.Text = if featured ~= nil then view.nextLine or "" else "" -- the no-sale card says it once
 	local ids: { string } = {}
 	for _, row in view.others do
 		table.insert(ids, row.id)

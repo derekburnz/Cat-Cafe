@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-212 files: 201 PASS, 11 WARN, 0 FAIL.
+214 files: 202 PASS, 12 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -80,6 +80,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_ZoneSafe.ogg` | sfx | 0.75 | 1 | 48000 | 9 | -20.6 | -9.9 | 0 | - | PASS |  |
 | `sheet-parts/music/CatCafe_Music_AreaCastle.ogg` | music | 83.48 | 2 | 48000 | 1565 | -18.0 | -4.1 | - | listen | WARN | level changes -15 -> -24 dB across the seam (fade or gap) |
 | `sheet-parts/music/CatCafe_Music_AreaDesert.ogg` | music | 87.27 | 2 | 48000 | 1649 | -18.1 | -3.4 | - | listen | WARN | level changes -14 -> -28 dB across the seam (fade or gap) |
+| `sheet-parts/music/CatCafe_Music_AreaHarvest.ogg` | music | 80.00 | 2 | 48000 | 1522 | -18.0 | -4.2 | - | listen | WARN | level changes -15 -> -25 dB across the seam (fade or gap) |
 | `sheet-parts/music/CatCafe_Music_AreaRuins.ogg` | music | 91.43 | 2 | 48000 | 1504 | -18.0 | -4.9 | - | listen | WARN | level changes -15 -> -22 dB across the seam (fade or gap) |
 | `sheet-parts/music/CatCafe_Music_AreaSnowy.ogg` | music | 96.00 | 2 | 48000 | 1579 | -18.0 | -5.5 | - | ok | PASS |  |
 | `sheet-parts/music/CatCafe_Music_AreaWaterpark.ogg` | music | 71.11 | 2 | 48000 | 1210 | -17.9 | -4.5 | - | listen | WARN | level changes -14 -> -22 dB across the seam (fade or gap) |
@@ -193,6 +194,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheets/CatCafe_Sheet_Music.ogg` | music sheet | 244.47 | 2 | 48000 | 4279 | -18.0 | -2.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_MusicAreas.ogg` | music sheet | 179.20 | 2 | 48000 | 3151 | -18.0 | -3.4 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_MusicAreas2.ogg` | music sheet | 251.59 | 2 | 48000 | 4346 | -18.0 | -3.6 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_MusicAreas3.ogg` | music sheet | 80.00 | 2 | 48000 | 1522 | -18.0 | -4.2 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_MusicJukebox.ogg` | music sheet | 189.52 | 2 | 48000 | 3160 | -18.0 | -3.7 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Pool.ogg` | sheet | 6.05 | 1 | 48000 | 45 | -18.7 | -3.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Rescue.ogg` | sheet | 10.10 | 1 | 48000 | 52 | -18.9 | -4.0 | 0 | - | PASS |  |

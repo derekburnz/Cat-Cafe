@@ -49,10 +49,10 @@ CannonLogic.CARRY_REFUSED = "Bring your cat to the camp first"
 -- hint stops for good, and the Tutorial tile's × hides the tutorial strip; before it the walk-through shows anyway
 -- ("should still make the first walk through of the game play after closing the X").
 CannonLogic.WALKTHROUGH_STEP = 5
-CannonLogic.FIRST_FLIGHT = "Hop in the cannon to fly to the " -- #4777
+CannonLogic.FIRST_FLIGHT = "Hop in the cannon: " -- #4777; #4926: then "wild cats wait in the <area>!"
 -- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the line once the walk-through's last
 -- step (the bowl) is done this session, until the next flight
-CannonLogic.WRAP_UP_HINT = "Hop in the cannon to catch more cats!"
+CannonLogic.WRAP_UP_HINT = "Hop in the cannon: catch more cats to rank up!" -- #4926
 CannonLogic.HINT_TIER = 2 -- the rank up that gets its own "is open!" hint (section 3a)
 -- how long that hint, its marker and its trail of dots stay up when the player does not fly (Derek 2026-11-03: "the
 -- tutorial yellow dots are still showing")
@@ -262,14 +262,16 @@ function CannonLogic.hint(view: HintView): string?
 		-- #4674 (Sync's Studio walk 2026-11-16: nothing pointed at the cannon after the bowl part): bowl first, the
 		-- quiet strip leaves the cannon its pointer until the first Launch, whatever the step; a line on the strip
 		-- (the carry, the Rank Up) comes first
-		return if view.told then nil else "Hop in the cannon to fly to the " .. view.first .. "!"
+		return if view.told
+			then nil
+			else CannonLogic.FIRST_FLIGHT .. "wild cats wait in the " .. view.first .. "!"
 	elseif
 		not view.launched
 		and view.tier <= 1
 		and view.first
 		and view.tutorialStep < CannonLogic.WALKTHROUGH_STEP
 	then
-		text = "Hop in the cannon to fly to the " .. view.first .. "!"
+		text = CannonLogic.FIRST_FLIGHT .. "wild cats wait in the " .. view.first .. "!"
 	elseif view.wrapUp and not view.launched and view.bowlFirst ~= true then
 		return CannonLogic.WRAP_UP_HINT
 	end

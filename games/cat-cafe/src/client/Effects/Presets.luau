@@ -101,12 +101,14 @@ export type Budget = {
 -- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
 -- frames longer than `pause` seconds. #4307 (phones leave at 61 to 180 s): it used to need 60 + 2 x 20 = 100 s, past
 -- most of the tutorial, so a struggling phone ran the full budget through its first minutes; now 20 + 2 x 10 = 40 s
--- at the earliest (cutscenes still hold the count, so the intro does not count).
+-- at the earliest (cutscenes still hold the count, so the intro does not count). #4857 read (Nov 16, first 5 minutes
+-- priority): phones average about 49 fps, so "a little laggy" ones (35 to 39) never tripped at 30; now under 40, and
+-- from 10 s in, so the lighter budget can be on by 30 s.
 Presets.slow = {
-	fps = 30,
+	fps = 40, -- 30 before
 	window = 10,
 	windows = 2,
-	after = 20,
+	after = 10, -- 20 before
 	pause = 1,
 }
 
@@ -6504,6 +6506,27 @@ Presets.waitingCat = {
 		bob = 0.6, -- studs up and down
 		seconds = 1.4, -- one bob
 		glyph = "🐾",
+	},
+}
+
+-- Effects/FirstMinuteFx: the first bowl cat card's sparkle and the first net catch's cheer.
+Presets.firstMinute = {
+	card = {
+		wait = 0.35, -- the card pops in first
+		displayOrder = 36, -- over the bait card (35), under the cat found reveal (40)
+		sparks = 10,
+		sparkle = { size = 14, seconds = 0.6, reach = 46, stagger = 0.15 },
+		rings = 2,
+		ringEvery = 0.25,
+		ringGrow = 2.2,
+		ringSeconds = 0.6,
+		colour = Color3.fromRGB(255, 214, 92),
+	},
+	cheer = {
+		confetti = 0.75, -- of the budget's confetti, from each side
+		side = 3,
+		up = 3,
+		sparkle = 12,
 	},
 }
 

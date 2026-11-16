@@ -53,6 +53,7 @@ local DragonStageCut = require(script.DragonStageCut)
 local Equip = require(script.Equip)
 local FireTrail = require(script.FireTrail)
 local FirstBaitCut = require(script.FirstBaitCut)
+local FirstMinuteFx = require(script.FirstMinuteFx)
 local Fish = require(script.Fish)
 local FusionFx = require(script.FusionFx)
 local GoldenFind = require(script.GoldenFind)
@@ -212,6 +213,7 @@ function Effects.start()
 		Rides.start,
 		HoldPulse.start,
 		RankUpPulse.start, -- #4920: RANK UP glows when ready, the tutorial strip's count tick
+		FirstMinuteFx.start, -- first minute: the first bowl cat card's sparkle and jingle, the first net catch's cheer
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,

@@ -31,6 +31,7 @@ local Cues = require(script.Cues)
 local DragonRise = require(script.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
+local FlightClock = require(script.Parent.Effects.FlightClock)
 local FusionFx = require(script.Parent.Effects.FusionFx)
 local HarvestFx = require(script.Parent.Effects.HarvestFx)
 local Logic = require(script.Logic)
@@ -1386,8 +1387,15 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 			return
 		end
 		flightCue("cannonLaunch")
-		local function later(at: number, cueId: string)
-			task.delay(math.max(0, launchAt + at - Workspace:GetServerTimeNow()), function()
+		-- a shorter first flight (CannonFlightScale, Effects/FlightClock) brings the clouds and the landing in with it
+		local scale = FlightClock.scale(character, launchAt)
+		-- `at` is in the usual flight's seconds; `lead` (real seconds, the whistle's own length) is not scaled
+		local function later(at: number, cueId: string, lead: number?)
+			local delay = launchAt
+				+ FlightClock.realAt(at, scale)
+				- (lead or 0)
+				- Workspace:GetServerTimeNow()
+			task.delay(math.max(0, delay), function()
 				if
 					character.Parent ~= nil
 					and character:GetAttribute("CannonLaunchAt") == launchAt
@@ -1406,7 +1414,7 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 		if isLocal then
 			later(clouds, "cannonClouds")
 		end
-		later(math.max(0, touchdown - CANNON_LAND_LEAD), "cannonLand")
+		later(touchdown, "cannonLand", CANNON_LAND_LEAD)
 	end)
 	local hop = character:GetAttributeChangedSignal("CloudHopAt"):Connect(function()
 		if
@@ -2141,6 +2149,18 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- #2946: the first bait cutscene's bait cat eats at your bowl: a soft purr there while it eats (`seconds`, 2.5 when
 	-- not given, at most 5), fired by Effects/FirstBaitCut at the eating beat. The arrival and the bowl already sound
 	-- through ProfileSync (baitArrive, the food cue), so the cut adds only this.
+	-- First minute (Effects/FirstMinuteFx): the first bowl cat's card gets its rarity's jingle (the found jingle when
+	-- the rarity is unknown), and the first net catch a cheer on top of the catch sparkle.
+	FirstBowlCard = function(rarity: any)
+		-- a rarity whose jingle has no file yet (Rare today) falls back to the found jingle
+		local jingle = Logic.jingleFor(str(rarity))
+		if jingle == nil or Audio.play(jingle) == nil then
+			Audio.play("jingleCatFound")
+		end
+	end,
+	FirstCatchCheer = function()
+		Audio.play("jingleCatFound")
+	end,
 	FirstBaitEat = function(position: any, seconds: any)
 		local at = vec(position)
 		if at == nil then

@@ -250,6 +250,11 @@ function CannonLogic.hint(view: HintView): string?
 	local text: string? = nil
 	if view.opened then
 		text = "The " .. view.opened .. " is open! Hop in the cannon to fly there."
+	elseif view.bowlFirst == true and not view.launched and view.tier <= 1 and view.first then
+		-- #4674 (Sync's Studio walk 2026-11-16: nothing pointed at the cannon after the bowl part): bowl first, the
+		-- quiet strip leaves the cannon its pointer until the first Launch, whatever the step; a line on the strip
+		-- (the carry, the Rank Up) comes first
+		return if view.told then nil else "Hop in the cannon to fly to the " .. view.first .. "!"
 	elseif
 		not view.launched
 		and view.tier <= 1

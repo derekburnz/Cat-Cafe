@@ -5453,6 +5453,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 		and areaTitle
 		and not (toasts and toasts:isBusy())
 		and not UI.intro.playing()
+		and UI.popPace.banner("sunrise") -- #4946 (Sync's retest): not in the first 5 minutes
 	then
 		areaTitle:banner(
 			"sunrise",
@@ -5974,6 +5975,11 @@ do
 		if not TipQueue.free(tipMoment()) then
 			return
 		end
+		-- #4946 (Sync's retest: a tip card 9 s before an ask): the tip cards wait out the walk-through and the first 5
+		-- minutes too, and count as the one pop-up every 5 minutes
+		if UI.firstCat.tutorial or not UI.popPace.free() then
+			return
+		end
 		local now = os.clock()
 		local picked = tipQueue:take(now)
 		while picked ~= nil and tipKnown(picked) do
@@ -5983,15 +5989,7 @@ do
 			return
 		end
 		local id: string = picked -- closures below do not keep the refinement
-		-- #4946 (Sync's PC run: an ask card 20 s after a gift ask): an ask in the queue (the like ask) waits out the
-		-- hold and one pop-up every 5 minutes; it goes back in the queue meanwhile
-		if Tips.isAsk(id) then
-			if UI.firstCat.tutorial or not UI.popPace.free() then
-				tipQueue:push(id)
-				return
-			end
-			UI.popPace.used()
-		end
+		UI.popPace.used() -- #4946: a tip card (or an ask in the queue) is this 5 minutes' pop-up
 		tipQueue:shown(now)
 		local device: TipQueue.Device = tipDevice()
 		local area = nextAreaName()

@@ -139,8 +139,6 @@ Remotes.ClientToServer = {
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
 	"UsePotionAll", -- ()  #3326: the Bag's "Use all potions": every kind in the bag, as many as fit under
 	-- PotionMaxMinutes each (Potions.useAll); one toast and one ProfileSync, or a toast when nothing fits; 1 per 2 s
-	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
-	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, from
 	-- anywhere (#3216, his banner opens the card); on accept the cat he asks for is still owned, resting, unlocked and not the
 	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")

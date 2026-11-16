@@ -330,7 +330,8 @@ local function onPickTreat(player: Player, rawTreatId: unknown)
 	end
 	local paid = Payout.pay(player, profile, prize, "camp_extra")
 	-- #4840 (Derek 2026-11-16): the treat's potion starts at once; with its timer full it stays in the bag
-	for potionId in prize.potions or {} do
+	local treatPotions: { [string]: number } = prize.potions or {}
+	for potionId in treatPotions do
 		if not PotionService.drinkOne(player, profile, potionId) then
 			local def = Catalog.getPotion(potionId)
 			Net.toast(

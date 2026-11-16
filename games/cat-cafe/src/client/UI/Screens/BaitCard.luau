@@ -375,17 +375,14 @@ end
 function BaitCard._setFirst(self: any, first: boolean)
 	self._first = first
 	self._close.instance.Visible = not first
-	self._letGo.instance.Visible = not first
+	-- #4849 (Derek 2026-11-16: "just remove the let go button from the game as it's never needed"; onboarding v8 lost
+	-- 8% between the bowl cat arriving and its tame): Let go never shows, and Tame is the one wide button on every
+	-- card. The X still hides the card and the cat keeps waiting at the bowl.
+	self._letGo.instance.Visible = false
 	local h = Theme.sizes.touchMin + 8
-	if first then
-		self._tame.instance.AnchorPoint = Vector2.new(0.5, 1)
-		self._tame.instance.Position = UDim2.new(0.5, 0, 1, -self._foot)
-		self._tame.instance.Size = UDim2.fromOffset(FIRST_W, h)
-	else
-		self._tame.instance.AnchorPoint = Vector2.new(1, 1)
-		self._tame.instance.Position = UDim2.new(0.5, -6, 1, -self._foot)
-		self._tame.instance.Size = UDim2.fromOffset(BUTTON_W, h)
-	end
+	self._tame.instance.AnchorPoint = Vector2.new(0.5, 1)
+	self._tame.instance.Position = UDim2.new(0.5, 0, 1, -self._foot)
+	self._tame.instance.Size = UDim2.fromOffset(FIRST_W, h)
 	-- the glow brings the tutorial's big arrow and spotlight, which win over the HUD's Bowl tile arrow of step 4; the
 	-- arrow stands where the line under the cat is, so that line is hidden on this card
 	TutorialGlow.set(self._tame.instance, first)

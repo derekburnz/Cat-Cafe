@@ -57,7 +57,7 @@ return function()
 		end)
 
 		it(
-			"sells Design-Agent's #4596 shelf: no potions, 10 tokens, spins, caviar and the best golden crate",
+			"sells Design-Agent's #4596 shelf: no potions, 10 tokens, spins, Moon Milk and the best golden crate",
 			function()
 				for _, gone in { "traitToken", "bigGoldRush", "bigLucky", "swiftPaws" } do
 					expect(TicketBooth.prize(gone)).to.equal(nil)
@@ -67,16 +67,18 @@ return function()
 				end
 				local tokens = TicketBooth.prize("tokens10") :: TicketBooth.Prize
 				expect(tokens.tokens).to.equal(10)
-				expect(tokens.price).to.equal(6000)
+				expect(tokens.price).to.equal(2000) -- #4960
 				expect(tokens.limit).to.deepEqual({ per = "week", n = 1 })
 				local spins = TicketBooth.prize("spins5") :: TicketBooth.Prize
 				expect((spins.prize :: any).spins).to.equal(5)
 				expect(spins.price).to.equal(1000)
 				expect(spins.limit).to.deepEqual({ per = "day", n = 3 })
-				local caviar = TicketBooth.prize("caviar") :: TicketBooth.Prize
-				expect((caviar.prize :: any).lures.caviar).to.equal(1)
-				expect(caviar.price).to.equal(1200)
-				expect(caviar.limit).to.deepEqual({ per = "day", n = 3 })
+				-- #4959: a Legendary bait in place of Caviar
+				expect(TicketBooth.prize("caviar")).to.equal(nil)
+				local milk = TicketBooth.prize("moonMilk") :: TicketBooth.Prize
+				expect((milk.prize :: any).lures.moon_milk).to.equal(1)
+				expect(milk.price).to.equal(1200)
+				expect(milk.limit).to.deepEqual({ per = "day", n = 3 })
 				local best = TicketBooth.prize("bestGolden") :: TicketBooth.Prize
 				expect((best.prize :: any).crates.highest_golden).to.equal(1)
 				expect(best.price).to.equal(1800)

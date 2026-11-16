@@ -12671,10 +12671,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			ready = 3,
 			prizes = {
 				prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
-				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 6000, 1, "week", short), -- #4596
+				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 2000, 1, "week", short), -- #4596, #4960
 				prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
 				prize("spins5", "5 Wheel Spins", "Five spins of the wheel", 1000, 3, "day"),
-				prize("caviar", "Caviar Bait", "The best bait", 1200, 3, "day", short),
+				prize("moonMilk", "Moon Milk Bait", "Legendary bait", 1200, 3, "day", short), -- #4959
 				prize("bestGolden", "Best Golden Crate", "Your best area's golden crate", 1800, 1, "day", short),
 			},
 		}
@@ -12708,7 +12708,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 			assert(cards == 6, ("uigate: the booth shows %d prizes, not 6 (#4061)"):format(cards))
-			local lucky = grid:FindFirstChild("Prize_caviar") :: GuiObject
+			local lucky = grid:FindFirstChild("Prize_moonMilk") :: GuiObject
 			local saved = lucky:FindFirstChild("Saved") :: GuiObject
 			assert(saved.Visible, "uigate: no bar of tickets saved on a prize short of its price (#4061)")
 			local numbers = saved:FindFirstChild("Numbers") :: TextLabel
@@ -12716,7 +12716,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local function buyText(id)
 				return (grid:FindFirstChild("Prize_" .. id):FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
 			end
-			assert(buyText("caviar") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("caviar") .. " (#4061)")
+			assert(buyText("moonMilk") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("moonMilk") .. " (#4061)")
 			press("TicketBooth", "Prize_fish25.Buy")
 			assert(#sent == 1 and sent[1].remote == "BuyTicketPrize" and sent[1].id == "fish25", "uigate: BUY sent no BuyTicketPrize fish25 (#4061)")
 			-- 1,000 and over asks first

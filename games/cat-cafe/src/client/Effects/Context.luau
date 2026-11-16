@@ -82,11 +82,17 @@ function Context.init()
 	-- #4311: watch the frame rate until this device is found to be struggling, then the lighter budget applies on
 	-- a phone or tablet for the rest of the session. One add and one compare a frame; the watch ends when it trips.
 	local slow = Logic.slowStart()
+	local watchFrom = os.clock()
 	local watch: RBXScriptConnection? = nil
 	watch = RunService.RenderStepped:Connect(function(dt: number)
 		if Logic.slowStep(slow, dt, Presets.slow, Context.cutscene()) then
 			Context.struggling = true
 			rebudget()
+			-- #4945: logged once (fx_lite) with the whole seconds since effects started, for Growth
+			local report = Remotes.folder():FindFirstChild("TelemetryReport")
+			if report ~= nil and report:IsA("RemoteEvent") then
+				(report :: RemoteEvent):FireServer("fx_lite", math.floor(os.clock() - watchFrom))
+			end
 			if watch ~= nil then
 				watch:Disconnect()
 			end

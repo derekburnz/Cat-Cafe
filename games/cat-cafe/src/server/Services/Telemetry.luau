@@ -438,6 +438,9 @@ export type CustomEvent =
 	| "money_card"
 	-- #4311: the Low performance ask, value 1; how it went (PerfSuggest.OUTCOMES), the device and the tier
 	| "perf_suggest"
+	-- #4945: a device found struggling (Effects' Presets.slow), once a session; value the whole seconds since effects
+	-- started, the device, the tier and first or back
+	| "fx_lite"
 	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
 	-- and "<UI build>/<save wait>" (FirstFive.bootBucket each)
 	| "client_boot"
@@ -530,6 +533,7 @@ local REPORTS = {
 	"starter_suggest", -- #4174: the Starter Bundle card's shown or how it ended (StarterSuggest.OUTCOMES)
 	"money_card", -- #4437: the HUD's Money boost card shown or how it ended, "<outcome>:<rung>" (MoneyCard.OUTCOMES)
 	"perf_suggest", -- #4311: the Low performance ask shown or how it ended (PerfSuggest.OUTCOMES)
+	"fx_lite", -- #4945: this device was found struggling (Effects' Presets.slow); whole seconds since effects started
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
@@ -2747,6 +2751,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				1,
 				{ outcome, tostring(rung), tierText(profile) }
 			)
+		end
+	elseif name == "fx_lite" then
+		-- #4945: once a session, the seconds in, with the device and tier (a phone or tablet then runs lite effects)
+		local seconds = Guard.int(rawValue, 0, 3600)
+		if seconds ~= nil and not session.nudges["fx_lite"] then
+			session.nudges["fx_lite"] = true
+			Telemetry.custom(player, "fx_lite", seconds, {
+				session.device or "unknown",
+				tierText(profile),
+				if profile.stats.sessions <= 1 then "first" else "back",
+			})
 		end
 	elseif name == "perf_suggest" then
 		local outcome = Guard.oneOf(rawValue, PerfSuggest.OUTCOMES)

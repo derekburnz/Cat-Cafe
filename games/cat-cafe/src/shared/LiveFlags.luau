@@ -156,7 +156,6 @@ LiveFlags.KEYS = {
 	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
 	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
-	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"starterSuggest", -- #4174: the Starter Bundle's one slide-in card a session after 10 to 15 minutes (shared/StarterSuggest)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
@@ -219,7 +218,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tier10 = true,
 	rareCustomers = true,
 	goldTone = true,
-	palJoin = true,
 	dailyDeal = true,
 	starterSuggest = true,
 	updateFeature = true,

@@ -10,7 +10,6 @@
 
 local PalJoin = {}
 
-PalJoin.FLAG = "palJoin"
 PalJoin.EVENT = "pal_join" -- Telemetry.custom, value 1
 PalJoin.ATTRIBUTE = "PalNextDoor" -- on the joiner's Player: whether their cafe is next to the friend's
 -- A plot counts as next door when its door is at most this far from the friend's door, in studs. Neighbouring plots

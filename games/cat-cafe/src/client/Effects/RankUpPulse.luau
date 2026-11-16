@@ -28,7 +28,7 @@ function RankUpPulse.isRankButton(name: string): boolean
 end
 
 -- Every RANK UP button that shows now: the strip's TutorialBuy in CatCafeHUD and the Rank Up window's
--- RankUpButton (its panel is "RankUp"). Two lookups by name, cheap enough to repeat every `look` seconds.
+-- RankUpButton. Two lookups by name, cheap enough to repeat every `look` seconds.
 local function buttons(): { GuiObject }
 	local out: { GuiObject } = {}
 	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
@@ -37,8 +37,8 @@ local function buttons(): { GuiObject }
 	end
 	local hud = playerGui:FindFirstChild("CatCafeHUD")
 	local strip = if hud ~= nil then hud:FindFirstChild("TutorialBuy", true) else nil
-	local window = playerGui:FindFirstChild("RankUp", true)
-	local button = if window ~= nil then window:FindFirstChild("RankUpButton", true) else nil
+	-- "RankUpButton" is unique in the UI ("RankUp" is not: the Upgrades shop has a card of that name too)
+	local button = playerGui:FindFirstChild("RankUpButton", true)
 	for _, found in { strip, button } do
 		if found ~= nil and found:IsA("GuiObject") and RankUpPulse.isRankButton(found.Name) then
 			if ScreenFx.shown(found :: GuiObject) then

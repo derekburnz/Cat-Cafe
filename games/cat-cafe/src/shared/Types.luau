@@ -69,6 +69,9 @@ export type CatchCircle = {
 	-- one from it up to holdSeconds (Config.FirstRingHoldSeconds) later is a Perfect
 	hold: boolean?,
 	holdSeconds: number?,
+	-- #4814 (Derek 2026-11-16: "don't even let the player click early for the first cat just don't register their
+	-- hits before its in the circle"): a press before the ring reaches its Good band does nothing (Circles.press)
+	noEarly: boolean?,
 }
 export type CircleKind = "single" | "double" | "paw"
 

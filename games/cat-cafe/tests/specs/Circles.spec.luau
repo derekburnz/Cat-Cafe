@@ -523,6 +523,46 @@ return function()
 		end)
 	end)
 
+	-- #4814 (Derek 2026-11-16): the first catch by hand ignores a press before the ring is in its Good band.
+	describe("no early presses on the first catch (#4814)", function()
+		local function firstCatch(): (Circles.Attempt, number, any)
+			local circles = Circles.tutorialSchedule(NOW, constant(0.5))
+			circles[1].noEarly = true
+			local windows = Circles.tutorialWindows(0)
+			return Circles.newAttempt(circles, windows), Circles.target(circles[1]), windows
+		end
+
+		it("drops a press before the Good band: no grade, the ring still waits", function()
+			local attempt, target, windows = firstCatch()
+			local early = target - windows.good - Config.CatchLatencyCapSeconds - 0.05
+			expect(Circles.press(attempt, 1, early, early)).to.equal(nil)
+			expect(attempt.nextIndex).to.equal(1)
+			expect(Circles.isDone(attempt)).to.equal(false)
+			-- then a press in the band catches
+			expect(Circles.press(attempt, 1, target, target)).to.equal("perfect")
+			expect(Circles.succeeded(attempt)).to.equal(true)
+		end)
+
+		it(
+			"a press just before the band edge (the two clocks) counts at the edge, not as a Miss",
+			function()
+				local attempt, target, windows = firstCatch()
+				local nearly = target - windows.good - Config.CatchLatencyCapSeconds / 2
+				expect(Circles.press(attempt, 1, nearly, nearly)).never.to.equal("miss")
+				expect(math.abs(attempt.errors[1] + windows.good) < 1e-5).to.equal(true)
+			end
+		)
+
+		it("a ring without the flag still grades an early press a Miss", function()
+			local circles = Circles.tutorialSchedule(NOW, constant(0.5))
+			local windows = Circles.tutorialWindows(0)
+			local attempt = Circles.newAttempt(circles, windows)
+			local target = Circles.target(circles[1])
+			local early = target - windows.good - 0.3
+			expect(Circles.press(attempt, 1, early, early)).to.equal("miss")
+		end)
+	end)
+
 	-- #2920: a player's very first catch holds its ring on the target until the press.
 	describe("the held first ring (#2920)", function()
 		local function held(): (Circles.Attempt, number)

@@ -943,7 +943,6 @@ end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
 -- to another fires CatPlaced with the role, a cat taken off fires UnplaceCat. Unequip all fires one per cat.
--- (#2952's CatSold moment is unused since 2026-11-13: cats are not sold.)
 local function firePlacements(old: Types.PlayerState, new: Types.PlayerState)
 	for uid, cat in new.cats do
 		local before = old.cats[uid]

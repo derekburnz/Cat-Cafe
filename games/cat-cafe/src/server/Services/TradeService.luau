@@ -53,6 +53,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Journeys = require(ReplicatedStorage.Shared.Journeys)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
@@ -316,6 +317,13 @@ local function setTrading(player: Player?, on: boolean)
 	end
 end
 
+-- #4544: a Trade journey node (shared/Journeys) for `player` in trade `id`; analytics only, behind `journeys`.
+local function journey(player: Player?, id: string, node: string, values: { string }?)
+	if player ~= nil then
+		Telemetry.journey(player, Journeys.TRADE, node, id, values)
+	end
+end
+
 -- Ends `trade` with nothing moved; each player still here gets TradeState nil and TradeEnded with `reasonFor` their
 -- userId.
 local function endTrade(trade: TradeBook.OpenTrade, reasonFor: (userId: number) -> string)
@@ -323,6 +331,7 @@ local function endTrade(trade: TradeBook.OpenTrade, reasonFor: (userId: number) 
 	for _, side in { trade.a, trade.b } do
 		local player = playerOf(side.userId)
 		if player ~= nil then
+			journey(player, trade.id, Journeys.TradeNodes.cancelled) -- #4544
 			setTrading(player, false)
 			Net.fire(player, "TradeState", nil)
 			Net.fire(player, "TradeEnded", trade.id, reasonFor(side.userId))
@@ -684,6 +693,16 @@ local function finish(trade: TradeBook.OpenTrade)
 			#swap.mine.cats + #swap.theirs.cats + #gaveDecor + #gotDecor + gaveCrates + gotCrates,
 			{ tostring(#swap.mine.cats), tostring(#swap.theirs.cats), bestRarity(swap.theirs.cats) }
 		)
+		-- #4544: what moved (both sides together) and the best rarity this player got; never who
+		journey(player, record.id, Journeys.TradeNodes.done, {
+			Journeys.tradeMix(
+				#swap.mine.cats + #swap.theirs.cats,
+				#gaveDecor + #gotDecor,
+				gaveCrates + gotCrates,
+				(swap.mine.fish or 0) + (swap.theirs.fish or 0)
+			),
+			bestRarity(swap.theirs.cats),
+		})
 		local landed = DataService.get(player)
 		if landed ~= nil then
 			CafeService.autoEquip(player, landed) -- #1534: the best cats, new ones too, fill the slots
@@ -809,6 +828,8 @@ local function onRespond(player: Player, rawId: unknown, rawAccept: unknown)
 	setTrading(asker, true)
 	setTrading(player, true)
 	sendState(trade)
+	journey(asker, trade.id, Journeys.TradeNodes.opened) -- #4544
+	journey(player, trade.id, Journeys.TradeNodes.opened)
 end
 
 -- The trade `player` is in when it is `rawTradeId`, else nil.
@@ -854,6 +875,7 @@ local function onOfferDecor(
 	end
 	if TradeBook.addDecor(trade, player.UserId, id, Trade.pieceValue(id), at) then
 		sendState(trade)
+		journey(player, trade.id, Journeys.TradeNodes.decor, { "decor" }) -- #4544
 	end
 end
 
@@ -893,6 +915,7 @@ local function onOfferCrate(
 	end
 	if TradeBook.addCrates(trade, player.UserId, id, count, Trade.crateValue(id), at) then
 		sendState(trade)
+		journey(player, trade.id, Journeys.TradeNodes.other, { "crate" }) -- #4544
 	end
 end
 
@@ -929,6 +952,9 @@ local function onOfferFish(
 	end
 	if TradeBook.setFish(trade, player.UserId, amount, now()) then
 		sendState(trade)
+		if amount > 0 then
+			journey(player, trade.id, Journeys.TradeNodes.other, { "fish" }) -- #4544
+		end
 	end
 end
 
@@ -996,6 +1022,7 @@ local function onOffer(
 	end
 	if TradeBook.add(trade, player.UserId, uid, Trade.value(instance), at) then
 		sendState(trade)
+		journey(player, trade.id, Journeys.TradeNodes.cat, { "cat" }) -- #4544
 	end
 end
 
@@ -1025,6 +1052,9 @@ local function onConfirm(player: Player, rawTradeId: unknown, rawVersion: unknow
 	if TradeBook.bothConfirmed(trade) then
 		TradeBook.commit(trade)
 		sendState(trade)
+		for _, side in { trade.a, trade.b } do
+			journey(playerOf(side.userId), trade.id, Journeys.TradeNodes.accepted) -- #4544
+		end
 		task.spawn(function()
 			local ok, err = pcall(function()
 				finish(trade)

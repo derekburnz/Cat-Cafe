@@ -5859,31 +5859,33 @@ Presets.contextCut = {
 -- transparency) sits in the bottom right on a ScreenGui at `displayOrder`. Everything is given back at `cap` s
 -- whatever happened. Off when the bowl is more than `maxDistance` studs from the player.
 Presets.firstBaitCut = {
-	swingIn = 0.5,
-	swingOut = 0.5,
+	-- #4920 cut 2 (Design-Agent, first 5 minutes): about 2.5 s from the food to the camera back, with the cat out
+	-- at food + 0.3 s: swing in 0.4, walk about 0.8 (5.4 studs at SlotWalk's 7), eat 0.6, swing out 0.4
+	swingIn = 0.4,
+	swingOut = 0.4,
 	back = 10,
 	up = 6,
 	backTall = 13,
 	upTall = 7,
 	lookUp = 1.5,
 	swings = { 0, 45, -45, 90, -90 },
-	walk = 1.6,
-	walkMax = 2.2,
-	walkDistance = 9,
-	walkSide = 3,
-	eat = 1.0,
+	walk = 0.8,
+	walkMax = 1.0,
+	walkDistance = 5,
+	walkSide = 2,
+	eat = 0.6,
 	bites = 2,
 	dip = 0.1,
 	pitch = 30,
 	happy = 10,
 	happyUp = 2,
-	waitCat = 2.5,
+	waitCat = 1.5,
 	skipAfter = 0.3,
 	skipOut = 0.25,
 	skipSize = 18,
 	skipFade = 0.4,
 	displayOrder = 10,
-	cap = 6.5,
+	cap = 4.5,
 	maxDistance = 120,
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 }

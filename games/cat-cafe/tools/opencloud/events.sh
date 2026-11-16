@@ -392,13 +392,13 @@ admin)
 	esac
 	if [ "$kind" = wheel ] && [ "${#nums[@]}" -ge 1 ]; then
 		# #4876: /admin wheel <spins> [minutes]
-		spins=${nums[0]}
+		spins=$((10#${nums[0]})) # "03" is 3 (JSON has no leading zeros)
 		[ "$spins" -ge 1 ] && [ "$spins" -le 10 ] || refuse "the Admin Wheel gives 1 to 10 spins, got: $spins"
 		[ "$spins" -eq 1 ] || effects="{\"wheel\":$spins}"
 		nums=("${nums[@]:1}")
 	fi
 	[ "${#nums[@]}" -le 1 ] || refuse "admin takes one minutes number, got: ${nums[*]}"
-	[ "${#nums[@]}" -eq 0 ] || length=${nums[0]}
+	[ "${#nums[@]}" -eq 0 ] || length=$((10#${nums[0]}))
 	[ "$length" -ge 1 ] && [ "$length" -le 60 ] || refuse "an admin event runs 1 to 60 minutes, got: $length"
 	[ "$length" -le "$most" ] || length=$most
 	now=$(date +%s)

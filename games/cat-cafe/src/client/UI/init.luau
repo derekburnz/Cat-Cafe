@@ -2540,6 +2540,15 @@ task.defer(function()
 				or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
 		end)
 	end
+	-- #4877: in the walk-through nothing of an admin event is on screen at all, the strip and the tint too
+	local hideWhen: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).hideWhen
+		else nil
+	if type(hideWhen) == "function" then
+		(hideWhen :: (() -> boolean) -> ())(function()
+			return UI.firstCat.tutorial
+		end)
+	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"
 		then (adminFlash :: any).onPlaying
 		else nil
@@ -9520,6 +9529,7 @@ do
 			-- cat either, the "every pop-up muted while it plays" rule; upAt is kept, so it opens once they end
 			local current = hud
 			local busy = (current ~= nil and (current:isCatching() or current:isCarrying()))
+				or UI.firstCat.tutorial -- #4877: it opens once the walk-through is done, if the wheel is still up
 				or UI.cutscene.on
 				or UI.bigTraitCutting()
 				or UI.rollBusy.window
@@ -11297,14 +11307,16 @@ do
 			local card = if adminBeat == "start"
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)
-			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
-			if not UI.firstCat.tutorial then -- Derek 2026-11-16 15:22 UTC: the chat line only, in the walk-through
+			-- #4877 (Derek 2026-11-16 16:36 UTC: "make sure no admin events ui or anything on screen for people in
+			-- tutorial steps"): in the walk-through neither the card nor its chat line
+			if not UI.firstCat.tutorial then
+				local EventBanner = require(script.Parent.Effects.EventBanner) :: any
 				EventBanner.show(card)
 				UI.pace.took() -- #4833: shown at its time, and the next card waits
+				-- the same words as one line in the chat window, for a player who looked away
+				local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+				AdminEventChat.say(AdminEventLogic.chatLine(card))
 			end
-			-- the same words as one line in the chat window, for a player who looked away
-			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
-			AdminEventChat.say(AdminEventLogic.chatLine(card))
 		end
 		local current = hud
 		if current then
@@ -11313,7 +11325,8 @@ do
 				eventLines,
 				eventKind,
 				EventLogic.strip(view, seen, now),
-				AdminEventLogic.stripLine(adminView, now)
+				-- #4877: no admin timer on the chip or strip in the walk-through
+				AdminEventLogic.stripLine(if UI.firstCat.tutorial then nil else adminView, now)
 			)
 			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))

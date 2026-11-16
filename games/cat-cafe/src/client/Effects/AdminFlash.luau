@@ -93,6 +93,7 @@ local overUntil = 0 -- os.clock until which the end card shows
 local look: string? = nil
 local tint: ColorCorrectionEffect? = nil
 local quietProbe: (() -> boolean)? = nil
+local hideProbe: (() -> boolean)? = nil
 local playingListeners: { (on: boolean) -> () } = {}
 local wasPlaying = false
 
@@ -113,6 +114,22 @@ end
 -- still draws under every window.
 function AdminFlash.quietWhen(probe: () -> boolean)
 	quietProbe = probe
+end
+
+-- #4877 (Derek 2026-11-16: "no admin events ui or anything on screen for people in tutorial steps"): `probe()` says
+-- whether this player is in the walk-through (the UI's UI.firstCat.tutorial). While it is, nothing of an admin event
+-- shows: no splash, no strip, no tint, no drift (AdminAir reads AdminFlash.hidden). With none set, all shows.
+function AdminFlash.hideWhen(probe: () -> boolean)
+	hideProbe = probe
+end
+
+function AdminFlash.hidden(): boolean
+	local probe = hideProbe
+	if probe == nil then
+		return false
+	end
+	local ok, value = pcall(probe)
+	return ok and value == true
 end
 
 local function quiet(): boolean
@@ -464,9 +481,10 @@ local function frame()
 		local spec = p.looks[AdminFlashLogic.lookOf(current) or ""]
 		burst(made, if spec ~= nil then spec.top else p.gold)
 	end
-	setLook(if running then AdminFlashLogic.lookOf(current) else nil)
+	local away = AdminFlash.hidden() -- #4877: the walk-through
+	setLook(if running and not away then AdminFlashLogic.lookOf(current) else nil)
 
-	local hidden = TradeUnlock.blocked() or TradeUnlock.playing()
+	local hidden = TradeUnlock.blocked() or TradeUnlock.playing() or away
 	made.splash.Enabled = not hidden
 	made.low.Enabled = not hidden
 

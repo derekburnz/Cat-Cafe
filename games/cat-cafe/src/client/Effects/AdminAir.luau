@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
+local AdminFlash = require(script.Parent.AdminFlash)
 local AdminFlashLogic = require(script.Parent.AdminFlashLogic)
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
@@ -54,7 +55,8 @@ local function tick()
 	end, decode)
 	local preset = AdminAir.pick(
 		AdminFlashLogic.rainOf(view),
-		AdminEventLogic.runs(view, Workspace:GetServerTimeNow()),
+		-- #4877: none in the walk-through
+		AdminEventLogic.runs(view, Workspace:GetServerTimeNow()) and not AdminFlash.hidden(),
 		Context.lowPerformance or Context.reducedMotion(),
 		p.kinds
 	)

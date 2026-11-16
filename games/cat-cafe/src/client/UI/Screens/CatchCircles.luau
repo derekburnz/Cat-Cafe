@@ -134,6 +134,7 @@ type CircleView = {
 	scale: UIScale, -- on art
 	closer: Frame,
 	closerStroke: UIStroke,
+	closerRim: UIStroke, -- #4979: hidden with the closer's stroke faded while a plain ring is in its Perfect window
 	ring: Frame,
 	ringStroke: UIStroke,
 	ringRim: UIStroke, -- #4842: the dark rim under the ring's stroke
@@ -157,6 +158,7 @@ local LEAD_IN = 0.55 -- Catch v3 (#2060): the next ring shows this long ahead, a
 -- #4842 (Derek2 11-16: "make the circles more obvious"): 6 px strokes (4 before), each over a dark rim RIM px wider
 -- on its outside, so the white ring reads on a bright scene as well as a dark one
 local CLOSER_THICKNESS = 6
+local CLOSER_ON_GOLD = 0.6 -- #4979: the closer's see-through while a plain ring is on its gold Perfect band
 local RIM = 3
 local RIM_TRANSPARENCY = 0.25
 local RING_THICKNESS = 6
@@ -527,7 +529,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		Parent = ringEdge,
 	})
 	local closer = circleFrame("Closer", START_RADIUS, art)
-	Create("UIStroke", {
+	local closerRim: UIStroke = Create("UIStroke", {
 		Color = Theme.colors.ink,
 		Thickness = CLOSER_THICKNESS + RIM,
 		Transparency = RIM_TRANSPARENCY,
@@ -623,6 +625,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		scale = scale,
 		closer = closer,
 		closerStroke = closerStroke,
+		closerRim = closerRim,
 		ring = ring,
 		ringStroke = ringStroke,
 		ringRim = ringRim,
@@ -836,6 +839,12 @@ function CatchCircles._step(self: any, t: number)
 					end
 				end
 			end
+			-- #4979 (Sync's look at #4969): on the Perfect beat the closing ring sat right on the gold band and hid it,
+			-- so on a plain ring it thins to a faint line there and the gold shows as the spot to hit
+			local onGold = view.plain and math.abs(view.target - t) <= windows.perfect
+				or view.plain and view.hold and t >= view.target
+			view.closerStroke.Transparency = if onGold then CLOSER_ON_GOLD else 0
+			view.closerRim.Transparency = if onGold then 1 else RIM_TRANSPARENCY
 			local diameter = 2 * (radius - CLOSER_THICKNESS / 2)
 			view.closer.Size = UDim2.fromOffset(math.max(2, diameter), math.max(2, diameter))
 		end

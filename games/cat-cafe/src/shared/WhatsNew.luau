@@ -90,13 +90,6 @@ WhatsNew.rows = table.freeze({
 		text = "Cheaper rank ups",
 	},
 	{
-		id = "station_circles",
-		date = "2026-11-16",
-		startsAt = SECRETS_AT,
-		icon = "fix",
-		text = "Station circles tidied up",
-	},
-	{
 		id = "keep_costs_lower",
 		date = "2026-11-16",
 		startsAt = SECRETS_AT,

@@ -31,10 +31,8 @@
 #                 every server runs a build that has it (an older one drops the saved perk level)
 #   rareCatsTab   true gives the chat its own "Rare Cats" tab with every Mythical or better line (#3053); only
 #                 after Derek has seen the pictures (he asked for no tab of our own on 2026-11-10)
-#   afkCafe       true pays the cats' cafe pay double while a player rests (no input, standing still) in their own
-#                 cafe or on its doorstep (#3573)
 #   autoRejoin    true sends a player resting in their cafe, 18 minutes without input, back into the game before
-#                 Roblox's idle disconnect, landing at their cafe (#3602); needs afkCafe on
+#                 Roblox's idle disconnect, landing at their cafe (#3602)
 #   binRoll       true makes the Rummage Bin roll its prize before the bar and keep it until it is won, with the
 #                 board, the roll and the pad (#3608)
 #   introSplit    true plays the intro scene by itself for half of new players, by account number, and tags
@@ -172,7 +170,6 @@ show_key() {
 	introSplit) if [ "$raw" = true ]; then meaning="intro scene test ON: half of new players get the scene"; else meaning="intro scene test off (its default)"; fi ;;
 	stuckCall) if [ "$raw" = false ]; then meaning="stuck cat call OFF (no pillar, bubble or meows)"; else meaning="stuck cat call on for saves with no rescue yet"; fi ;;
 	fxLite) if [ "$raw" = false ]; then meaning="lighter effects budget OFF (phones back on the full phone budget)"; else meaning="lighter effects budget on phones and graphics quality 1 to 3"; fi ;;
-	afkCafe) if [ "$raw" = true ]; then meaning="Resting in your cafe pays 2x cat pay, ON in every server"; else meaning="Cafe rest 2x off (its default)"; fi ;;
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;
 	bagColours) if [ "$raw" = true ]; then meaning="Backpack colour picks at the Featured Shop ON"; else meaning="Backpack colour picks off (its default)"; fi ;;

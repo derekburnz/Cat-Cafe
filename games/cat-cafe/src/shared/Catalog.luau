@@ -3251,7 +3251,6 @@ Catalog.achievements = {
 		measure = "restSeconds",
 		needs = 3600,
 		size = "M",
-		flag = "afkCafe",
 	},
 	{
 		id = "a_goldcrate5",

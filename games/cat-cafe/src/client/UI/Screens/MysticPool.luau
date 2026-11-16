@@ -1175,7 +1175,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = auto,
 	})
 	local statusTop = pickTop + pickH * 2 + GAP + 2
-	local statusH = if short then 30 else 34
+	local statusH = if short then 30 else 26 -- #4890: the card got shorter, so the line gives back 8 px and Start stays inside it
 	self._autoStatus = text({
 		Name = "Status",
 		Position = UDim2.fromOffset(0, statusTop),

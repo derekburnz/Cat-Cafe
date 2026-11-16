@@ -108,8 +108,16 @@ UI.afk = nil :: any
 -- `clearedAt`: os.clock() the walk-through hold last ended, so a held event card waits a beat past it (CARD_AFTER)
 -- #4946: `tutorial` holds the pop-ups through the walk-through AND the account's first 5 minutes (QuietStart.earlyHolds);
 -- `walk` is the walk-through alone (it hides the Drop buttons, #4832)
-UI.firstCat =
-	{ held = false, tutorial = false, walk = false, clearedAt = nil :: number?, CARD_AFTER = 3 }
+-- #4854 (#4919) `onHold`: run as the pop-up hold comes or goes, so the world bubbles that are social asks (the free
+-- cat stand's "join the group") follow it with no state update; set where those bubbles are built
+UI.firstCat = {
+	held = false,
+	tutorial = false,
+	walk = false,
+	clearedAt = nil :: number?,
+	CARD_AFTER = 3,
+	onHold = nil :: (() -> ())?,
+}
 -- #4946 (Derek 2026-11-16: "one pop-up every 5 minutes, not 30 s apart"): once the hold above ends, the pop-ups that
 -- open by themselves (event cards, slide-in asks and first visit cards, the Daily Treat window, the Starter Bundle
 -- card, the welcome back recap, the return hook line) show at most one every QuietStart.POP_GAP_SECONDS this session.
@@ -2640,6 +2648,10 @@ function UI.setTutorialHold(on: boolean, walk: boolean?)
 	if hud ~= nil then
 		hud:holdBanner("tutorial", on)
 		hud:setDropHidden(walking) -- #4832: and no Drop buttons (UIController drops nothing meanwhile)
+	end
+	local onHold = hold.onHold
+	if onHold ~= nil then
+		task.spawn(onHold)
 	end
 end
 function UI.setCutscene(on: boolean)
@@ -8234,7 +8246,9 @@ do
 			tag = "BellhopStand", -- shared/StarterCat.TAG
 			name = "CatCafeStarterBang",
 			line = function(claimed: any): string?
-				if claimed ~= false then
+				-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
+				-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
+				if claimed ~= false or UI.firstCat.tutorial then
 					return nil
 				end
 				return if (SharedConfig.GroupId or 0) ~= 0
@@ -8244,6 +8258,11 @@ do
 		})
 		starterBang:update((state :: any).starterCatClaimed)
 		camp.starter = starterBang
+		UI.firstCat.onHold = function() -- #4854: the bubble comes back as the hold ends, with no state update
+			if camp.starter == starterBang then
+				starterBang:update((UI.getState() :: any).starterCatClaimed)
+			end
+		end
 		local modalView = modal
 		if modalView == nil then
 			return

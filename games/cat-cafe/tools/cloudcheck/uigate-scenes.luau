@@ -11795,7 +11795,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return nil
 		end
+		-- #4854 (#4919): none in the walk-through or the first 5 minutes (a social ask), and back as the hold ends
+		UI.setTutorialHold(true)
 		UI.update({ starterCatClaimed = false } :: any)
+		local quiet = bang()
+		assert(quiet == nil or not quiet.Enabled, "uigate: the free cat's join the group bubble shows in the hold (#4854)")
+		UI.setTutorialHold(false)
+		task.wait()
 		local gui = bang()
 		assert(gui and gui.Enabled, "uigate: no ! over the free cat's stand (#2501)")
 		local line = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel

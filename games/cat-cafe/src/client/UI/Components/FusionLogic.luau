@@ -4,6 +4,9 @@
 -- from the shared modules it reads (Catalog, CatStats, Traits), so the specs check it.
 --   groups(cats, busy) -> (ready, almost)        the cats and coats with 5+ free copies, and those at 3 or 4
 --   defaultPick(group) -> { string }             the five lowest level copies (#4588)
+--   allPlan(ready, cap) -> (sets, list)          #4589 Fuse all: how many sets one tap fuses, and a short list
+--   allButton(sets, domeState, armed)            #4589 the Fuse all button's words and whether it can be pressed
+--   madeText(made, catName) -> (name, level)     #4589 one cat on the Fuse all summary: "Gold Mochi", "Lv 12"
 --   result(group, picked) -> Result              the level, name and traits the new cat may keep
 --   dome(view, now) -> Dome                      the dome card: free, running with a timer, or ready
 --   clock(seconds) -> string                     "6:42", "1:02:05"
@@ -342,6 +345,62 @@ end
 function FusionLogic.almostText(group: Group): string
 	local more = FusionLogic.COPIES - #group.free
 	return ("%s · %d more"):format(FusionLogic.countText(group), more)
+end
+
+-- #4589 Fuse all: the sets one tap would fuse (every set of five free copies, weakest first, at most `cap`, as the
+-- server's Fusion.allSets) and a short list of them: "Mochi ×2, Gold Biscuit, +3 more".
+function FusionLogic.allPlan(ready: { Group }, cap: number): (number, string)
+	local sets = 0
+	local parts: { string } = {}
+	local more = 0
+	for _, group in ready do
+		local room = cap - sets
+		if room <= 0 then
+			break
+		end
+		local count = math.min(math.floor(#group.free / FusionLogic.COPIES), room)
+		if count <= 0 then
+			continue
+		end
+		sets += count
+		local prefix = if group.coat == "base"
+			then ""
+			else (FusionLogic.COAT_NAMES[group.coat] .. " ")
+		if #parts < 3 then
+			table.insert(
+				parts,
+				prefix .. group.name .. (if count > 1 then (" ×%d"):format(count) else "")
+			)
+		else
+			more += 1
+		end
+	end
+	if more > 0 then
+		table.insert(parts, ("+%d more"):format(more))
+	end
+	return sets, table.concat(parts, ", ")
+end
+
+-- The Fuse all button's words and whether it can be pressed: grey with the reason when it can't.
+function FusionLogic.allButton(sets: number, domeState: string, armed: boolean): (string, boolean)
+	if domeState == "running" then
+		return "Dome busy", false
+	end
+	if sets <= 0 then
+		return "Needs 5", false
+	end
+	if armed then
+		return "Tap again", true
+	end
+	return "Fuse all", true
+end
+
+-- One made cat on the summary: its name ("Gold Mochi") and its level line ("Lv 12").
+export type Made = { catId: string, coat: string, level: number, name: string?, newCoat: boolean }
+
+function FusionLogic.madeText(made: Made, catName: string): (string, string)
+	local coat = FusionLogic.COAT_NAMES[made.coat] or "Gold"
+	return ("%s %s"):format(coat, made.name or catName), ("Lv %d"):format(made.level)
 end
 
 export type Track = {

@@ -181,6 +181,7 @@ export type HUD = {
 	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
+	holdHide: (self: HUD, held: boolean) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	setMoneyBadge: (
@@ -2994,6 +2995,23 @@ end
 -- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing"): the tutorial often
 -- ends mid-moment (a catch, a cut, a window), when the pulse played unseen or not at all; it now waits up to
 -- HIDE_WAIT_SECONDS for the tile to be on screen with no catch, and a gold "Hide tips" tag beside the tile points at it.
+-- #4836: holds the ×'s pulse while the walk to the Park still guides (UI's applyTutorial); a pulse that came due
+-- meanwhile plays HIDE_AFTER after the hold lets go.
+function HUD.holdHide(self: any, held: boolean)
+	if self._hideHeld == held then
+		return
+	end
+	self._hideHeld = held
+	if not held and self._hidePending == true then
+		self._hidePending = false
+		task.delay(HIDE_AFTER, function()
+			if not self._gone then
+				self:pulseHide()
+			end
+		end)
+	end
+end
+
 function HUD._hideFree(self: any): boolean
 	return self._tutorialTile.instance.Visible == true
 		and self.screenGui.Enabled == true
@@ -3125,7 +3143,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
 		-- go first; pulseHide then waits for the HUD to be back on screen
 		task.delay(HIDE_AFTER, function()
-			if not self._gone then
+			if self._gone then
+				return
+			end
+			-- #4836 (Sync's pointer audit: "after RANK UP an extra HUD arrow at top right points at the Tutorial
+			-- button's red X"): while the walk to the Park still guides (holdHide), the × waits for the Park, so one
+			-- arrow shows at a time
+			if self._hideHeld == true then
+				self._hidePending = true
+			else
 				self:pulseHide()
 			end
 		end)

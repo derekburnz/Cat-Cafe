@@ -526,6 +526,10 @@ function applyTutorial()
 	then
 		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
 	end
+	-- #4836: the Tutorial tile's × waits to pulse until the Park is reached, so its arrow never shows beside the walk's
+	if hud then
+		hud:holdHide((walk and (state.tier or 1) >= 2 and not park.reached) == true)
+	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
 	-- #4480: with the walk off, the Tier 2 rank up ends it, so the X stops waiting for the Park there
@@ -1727,6 +1731,9 @@ function UI.init(config: Types.InitConfig)
 		return hudInstance:edgeAvoid()
 	end)
 	popups = Popups.new(parent)
+	popups:glowOkWhen(function() -- #4836: the walk-through's new cat card points at its "Nice!"
+		return UI.firstCat.tutorial
+	end)
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
 	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
 	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server

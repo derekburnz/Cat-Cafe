@@ -6,9 +6,10 @@
 -- (AssetRegistry.stowServerOnly) and no client downloads or keeps them.
 --
 -- A name belongs here only when no client script looks its template up, by a written name or a built one. The
--- client builds names from these stems, so nothing under them may ever match: CatCafe_Cat_, _Accessory_, _Decor_,
+-- client builds names from these stems, so nothing under them may ever match (but a cat's _Work body, which no
+-- client names, #4601): CatCafe_Cat_, _Accessory_, _Decor_,
 -- _Style_, _Menu_, _Door_, _CatFlap_, _Item_, _Prop_, _NPC_, _Lawn_, _Furniture_, CatCafe_Camp_<Area>_<Station>,
--- CatCafe_Camp_<Area>_Growth and CatCafe_Camp_Cannon. The spec pins both sides.
+-- and CatCafe_Camp_<Area>_Growth. The spec pins both sides.
 
 local ServerOnlyAssets = {}
 
@@ -139,6 +140,16 @@ function ServerOnlyAssets.matches(name: string): boolean
 	if string.match(name, "^CatCafe_Plot_[%w_]+_%d+x%d+$") ~= nil then
 		return true
 	end
+	-- #4601: the standing worker body of every cat (CatCafe_Cat_<Name>_Work and its _Gold_Work twin). Only the
+	-- server dresses a working cat at its station (AssetRegistry.cloneCat "work"); every client copy of a cat is
+	-- the walking body or the seated one (portraits, the Index, cafe walkers, the intro). 131 base models, about
+	-- 16,000 instances, a fifth of what a client downloads once the gold twins are stowed.
+	if
+		string.match(name, "^CatCafe_Cat_%w+_Work$") ~= nil
+		or string.match(name, "^CatCafe_Cat_%w+_Gold_Work$") ~= nil
+	then
+		return true
+	end
 	for _, kind in ANY_AREA_KINDS do
 		local stem = "^CatCafe_%a+_" .. kind
 		if
@@ -153,7 +164,16 @@ function ServerOnlyAssets.matches(name: string): boolean
 			return true
 		end
 	end
+	-- #4601: the Cat Cannons (the Town Square's and each camp's, 11 models and about 4,100 instances). WorldBuilder
+	-- places them; the client's Effects/Cannon finds the placed model in Workspace by its name and never copies a
+	-- template.
+	if name == "CatCafe_Square_Cannon" then
+		return true
+	end
 	for _, area in AREAS do
+		if name == "CatCafe_Camp_Cannon_" .. area then
+			return true
+		end
 		-- the camp set (CatCafe_Camp_Park, CatCafe_Camp_ParkF85), never a camp's station or growth model
 		if tagged(name, "CatCafe_Camp_" .. area) or name == "CatCafe_Nook_" .. area then
 			return true

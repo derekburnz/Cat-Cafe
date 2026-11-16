@@ -446,8 +446,12 @@ function Trade.fishInToday(profile: Types.PlayerProfile, now: number): number
 	return if today.day == Trade.day(now) then today.fishIn or 0 else 0
 end
 
--- Golden fish `profile` can still receive in trades this game day.
+-- Golden fish `profile` can still receive in trades this game day; math.huge while TradeFishPerDay is 0 (#4623: no
+-- daily cap).
 function Trade.fishRoom(profile: Types.PlayerProfile, now: number): number
+	if Config.TradeFishPerDay <= 0 then
+		return math.huge
+	end
 	return math.max(0, Config.TradeFishPerDay - Trade.fishInToday(profile, now))
 end
 

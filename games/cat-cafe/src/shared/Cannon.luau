@@ -31,6 +31,32 @@ Cannon.BESIDE_STRAY_STUDS = 7
 Cannon.BESIDE_MAX_FROM_PAD = 15
 Cannon.BESIDE_STRAY_RISE = 4 -- studs: a stray this much higher or lower than the pad (a tree top) is skipped
 
+-- #4920 (Derek 2026-11-16: keep new players past 60 seconds; Growth's dead-time list): the walk-through's flights out
+-- (Tier 1, fewer than FIRST_FLIGHT_CATS cats caught by hand) take FIRST_FLIGHT_SCALE of every beat: 2.5 s instead of
+-- CannonLaunchSeconds 3.75, the move to the pad at about 1.47 s instead of 2.2. The server puts the scale on the
+-- character as FLIGHT_SCALE for the flight (nil is 1), and the client's effects, sounds and name card scale by it.
+Cannon.FLIGHT_SCALE = "CannonFlightScale"
+Cannon.QUICK_FLAG = "firstFlightQuick" -- the LiveFlags key, off by default until the effects follow the scale
+Cannon.FIRST_FLIGHT_SCALE = 2 / 3
+Cannon.FIRST_FLIGHT_CATS = 2 -- SecondCat.CATS: the first catch and the second cat
+Cannon.MIN_SCALE = 0.25
+
+-- The scale of a flight to `destination` for a save at `tier` that has caught `handCaught` cats by hand.
+function Cannon.flightScale(tier: number, handCaught: number, destination: string): number
+	if destination ~= Cannon.TOWN and tier <= 1 and handCaught < Cannon.FIRST_FLIGHT_CATS then
+		return Cannon.FIRST_FLIGHT_SCALE
+	end
+	return 1
+end
+
+-- A FLIGHT_SCALE attribute's value as a scale: nil, junk or out of range is 1.
+function Cannon.scaleOf(value: unknown): number
+	if type(value) == "number" and value == value and value >= Cannon.MIN_SCALE and value <= 1 then
+		return value
+	end
+	return 1
+end
+
 -- #3671: the reach of the cannon `cannonId`'s prompt, ring and server check: the Town Square's is its own.
 function Cannon.range(cannonId: string?): number
 	return if cannonId == Cannon.TOWN

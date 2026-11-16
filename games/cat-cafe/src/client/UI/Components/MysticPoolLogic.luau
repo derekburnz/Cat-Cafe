@@ -22,8 +22,8 @@
 --   rolled(view, uid, hadTrait, trait)  the trait id a roll on `uid` gave, once the state shows it: the waiting
 --                               re-roll, or a first trait
 --   rarityId(traitId)           "rare", for the pool's colour (Effects/MysticPool.roll)
---   #4712 Auto Roll: autoTargets(secret?) the rarities it can stop at (Uncommon up); autoRolls(view) how many rolls
---     it can pay for (party, free and token rolls, never golden fish); autoHit(traitId, target) whether a roll meets
+--   #4712 Auto Roll: autoTargets(secret?) the rarities it can stop at (Uncommon up); autoRolls(view, fish) how many
+--     rolls it can pay for (party, free and token rolls, then golden fish since #4898); autoHit(traitId, target) whether a roll meets
 --     the target; autoLine(run, view) the sheet's status line
 -- Button words stay neutral ("Roll again" is never "so close"), for a young audience (spec section 1a).
 
@@ -380,8 +380,8 @@ end
 
 -- #4712 (Derek 2026-11-16: "make an auto roll option for traits where you can select what rarity to stop at"): Auto
 -- Roll sends one roll at a time with the picked rarity; the server drops a re-roll below it and holds one at it or
--- better for Keep old or Take new. It pays with party, free and token rolls only, never golden fish, and stops on a
--- hit, when nothing is left to pay with, or on Stop. The words stay plain (no "so close"), for a young audience.
+-- better for Keep old or Take new. It pays as a hand roll does (party, free, token, then golden fish since #4898) and
+-- stops on a hit, at the run's limit, when nothing is left to pay with, or on Stop. The words stay plain (no "so close"), for a young audience.
 MysticPoolLogic.AUTO = "Auto"
 MysticPoolLogic.AUTO_TITLE = "Auto Roll"
 MysticPoolLogic.AUTO_ASK = "Keep rolling until a trait is this rarity or better:"
@@ -393,8 +393,8 @@ MysticPoolLogic.AUTO_LIMIT = 10
 MysticPoolLogic.SECRET_NOTE = "A Mythic roll is skipped too."
 
 -- The run's roll limit: the pick, never more than the rolls the player can pay for (0 for none).
-function MysticPoolLogic.autoMost(view: View?, pick: number): number
-	return math.min(whole(pick), MysticPoolLogic.autoRolls(view))
+function MysticPoolLogic.autoMost(view: View?, pick: number, fish: number?): number
+	return math.min(whole(pick), MysticPoolLogic.autoRolls(view, fish))
 end
 
 -- "Start (up to 10 Trait Tokens)", "Start (up to 3 rolls)" with free or party rolls among them
@@ -428,13 +428,14 @@ function MysticPoolLogic.autoTargets(secret: boolean?): { AutoTarget }
 	return out
 end
 
-function MysticPoolLogic.autoRolls(view: View?): number
+function MysticPoolLogic.autoRolls(view: View?, fish: number?): number
 	if view == nil or view.pending ~= nil then
 		return 0
 	end
 	return whole(view.party)
 		+ math.min(whole(view.freeLeft), Traits.FREE_ROLLS)
 		+ whole(view.tokens)
+		+ whole(fish) // Traits.COST_FISH -- #4898
 end
 
 function MysticPoolLogic.autoHit(id: string?, target: string): boolean
@@ -451,6 +452,7 @@ export type AutoRun = {
 	rolls: number, -- answered so far
 	most: number?, -- the run's roll limit
 	spent: number, -- Trait Tokens used so far
+	fish: number?, -- #4898: golden fish used so far
 	last: string?, -- the last roll's trait id
 	running: boolean,
 	ended: string?, -- why it stopped: "hit", "out", "stop", "limit"
@@ -461,14 +463,19 @@ function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
 		local tokens = if view ~= nil then whole(view.tokens) else 0
 		-- Derek 2026-11-16: a Trait Party has no roll cap, only its time, so its count is never shown
 		if whole(if view ~= nil then view.party else 0) > 0 then
-			return "Trait Party: every roll is free until it ends. Golden fish are never used."
+			return "Trait Party: every roll is free until it ends."
 		end
 		local free = math.min(whole(if view ~= nil then view.freeLeft else 0), Traits.FREE_ROLLS)
 		local have = plural(tokens, "Trait Token", "Trait Tokens")
 		if free > 0 then
 			have = plural(free, "free roll", "free rolls") .. " and " .. have
 		end
-		return "Each roll uses 1 Trait Token. You have " .. have .. ". Golden fish are never used."
+		-- #4898: then golden fish, as a hand roll
+		return string.format(
+			"Each roll uses 1 Trait Token, then %d golden fish. You have %s.",
+			Traits.COST_FISH,
+			have
+		)
 	end
 	local last = ""
 	if run.last ~= nil then
@@ -478,6 +485,9 @@ function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
 		end
 	end
 	local used = plural(run.spent, "Trait Token", "Trait Tokens") .. " used"
+	if (run.fish or 0) > 0 then
+		used ..= string.format(", %d golden fish", run.fish or 0) -- #4898
+	end
 	local rolls = plural(run.rolls, "roll", "rolls")
 	if run.running then
 		if run.most ~= nil then
@@ -485,7 +495,7 @@ function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
 		end
 		return rolls .. " · " .. used .. last
 	elseif run.ended == "out" then
-		return "Out of Trait Tokens after " .. rolls .. " · " .. used
+		return "Nothing left to roll with after " .. rolls .. " · " .. used
 	end
 	return "Stopped after " .. rolls .. " · " .. used .. last
 end

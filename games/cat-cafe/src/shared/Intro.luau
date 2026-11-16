@@ -88,14 +88,19 @@ Intro.CATCH_GAP = 3.5 -- you stand this far from the stray, toward the way out, 
 
 -- Shot 1, in seconds into the shot: your copy hops from the ladder's foot into the barrel, the barrel turns toward the
 -- Alleyway and wiggles, the fuse fizzes from FUSE_AT, BOOM_LEAD before the BOOM that starts shot 2.
-Intro.CLIMB_AT = 1.4
+-- #4971 (Derek2 2026-11-16: the tutorial "shows the cannon turn and shoot but never shows you jumping into it"): the
+-- hop came at 1.4 s, while the crane was still high over Cafe Street, so it was lost. The crane now lands on the
+-- cannon by CRANE_SECONDS and holds there, and the hop starts just before it lands, in full view. Shot 1's moves grow
+-- from 2.5 to 3.0 s inside its caption hold (3.4 s, short intro 3.8 s), so the intro takes no longer to play.
+Intro.CRANE_SECONDS = 2.0
+Intro.CLIMB_AT = 1.9
 Intro.CLIMB_SECONDS = 0.4 -- until Animation-Engineer's hop in lands, a plain hop up to the cannon's Seat
 Intro.CLIMB_HEIGHT = 1.5 -- the top of the hop's arc above the straight line
-Intro.AIM_FROM = 1.8
-Intro.AIM_TO = 2.0 -- turned by the fuse, so the BOOM's smoke ring starts at the turned muzzle
-Intro.WIGGLE_TO = 2.3
+Intro.AIM_FROM = 2.3
+Intro.AIM_TO = 2.5 -- turned by the fuse, so the BOOM's smoke ring starts at the turned muzzle
+Intro.WIGGLE_TO = 2.8
 Intro.WIGGLE_DEGREES = 4
-Intro.FUSE_AT = 2.0
+Intro.FUSE_AT = 2.5
 Intro.BOOM_LEAD = 0.5 -- Effects/Cannon's fuse fizz before the BOOM
 Intro.CARD_LEAD = 0.9 -- UI.cannon.flight's launchAt this far before the BOOM puts its card up 0.7 to 1.1 s into shot 2
 Intro.CARD_HOLD = 0.4
@@ -679,7 +684,7 @@ function Intro.shots(
 			index = 1,
 			starts = 0,
 			hold = 0,
-			seconds = 2.5,
+			seconds = Intro.CRANE_SECONDS + 1.0, -- #4971: the crane, then the hop, the turn and the fuse in view
 			caption = "Fly the Cat Cannon to catch stray cats!",
 			ease = "InOut",
 			you = true,
@@ -694,8 +699,10 @@ function Intro.shots(
 						(shotFrom.look + cannonEnd.look) / 2
 					),
 					to = cannonEnd,
-					seconds = 2.5,
+					seconds = Intro.CRANE_SECONDS,
 				},
+				-- #4971: held on the cannon while your copy hops in, the barrel turns and the fuse fizzes
+				{ from = cannonEnd, to = cannonEnd, seconds = 1.0 },
 			},
 		},
 		{

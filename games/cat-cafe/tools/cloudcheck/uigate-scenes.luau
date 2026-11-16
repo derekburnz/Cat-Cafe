@@ -3130,7 +3130,8 @@ local SCENES = {
 		assert(sheet and sheet.Visible, "uigate: Auto did not open the Auto Roll sheet (#4712)")
 		press("MysticPool", "AutoRoll.Targets.TargetLegendary")
 		local start = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
-		assert(start.Text == "Start (up to 5 Trait Tokens)", "uigate: Start reads " .. start.Text .. " (#4714 review)")
+		-- #4898: 5 tokens and the scene's 34 golden fish (one roll's worth) make 6 rolls
+		assert(start.Text == "Start (up to 6 rolls)", "uigate: Start reads " .. start.Text .. " (#4714 review, #4898)")
 		local sentUid, sentAt = nil, nil
 		local connection = UI.events.rollTrait:Connect(function(uid, stopAt)
 			sentUid, sentAt = uid, stopAt
@@ -3147,7 +3148,7 @@ local SCENES = {
 		end
 		UI.update({ traits = { tokens = 4, freeLeft = 0, held = 0, autoRoll = { id = rare, n = 1 } } } :: any)
 		local status = sheet:FindFirstChild("Status")
-		assert(status.Text == "1 of 5 rolls · 1 Trait Token used · last: Rare", "uigate: the Auto Roll line reads " .. status.Text .. " (#4712)")
+		assert(status.Text == "1 of 6 rolls · 1 Trait Token used · last: Rare", "uigate: the Auto Roll line reads " .. status.Text .. " (#4712)")
 		local go = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
 		assert(go.Text == "Stop", "uigate: the running Auto Roll's button reads " .. go.Text .. " (#4712)")
 	end },
@@ -12671,10 +12672,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			ready = 3,
 			prizes = {
 				prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
-				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 6000, 1, "week", short), -- #4596
+				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 2000, 1, "week", short), -- #4596, #4960
 				prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
 				prize("spins5", "5 Wheel Spins", "Five spins of the wheel", 1000, 3, "day"),
-				prize("caviar", "Caviar Bait", "The best bait", 1200, 3, "day", short),
+				prize("moonMilk", "Moon Milk Bait", "Legendary bait", 1200, 3, "day", short), -- #4959
 				prize("bestGolden", "Best Golden Crate", "Your best area's golden crate", 1800, 1, "day", short),
 			},
 		}
@@ -12708,7 +12709,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 			assert(cards == 6, ("uigate: the booth shows %d prizes, not 6 (#4061)"):format(cards))
-			local lucky = grid:FindFirstChild("Prize_caviar") :: GuiObject
+			local lucky = grid:FindFirstChild("Prize_moonMilk") :: GuiObject
 			local saved = lucky:FindFirstChild("Saved") :: GuiObject
 			assert(saved.Visible, "uigate: no bar of tickets saved on a prize short of its price (#4061)")
 			local numbers = saved:FindFirstChild("Numbers") :: TextLabel
@@ -12716,7 +12717,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local function buyText(id)
 				return (grid:FindFirstChild("Prize_" .. id):FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
 			end
-			assert(buyText("caviar") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("caviar") .. " (#4061)")
+			assert(buyText("moonMilk") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("moonMilk") .. " (#4061)")
 			press("TicketBooth", "Prize_fish25.Buy")
 			assert(#sent == 1 and sent[1].remote == "BuyTicketPrize" and sent[1].id == "fish25", "uigate: BUY sent no BuyTicketPrize fish25 (#4061)")
 			-- 1,000 and over asks first
@@ -14291,7 +14292,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return ""
 		end
-		assert(tile:GetAttribute("On") == false and words() == "AFK", "uigate: the AFK tile looks on while the mode is off (#4346)")
+		assert(tile:GetAttribute("On") == false and words() == "AFK OFF", "uigate: the AFK tile looks on while the mode is off (#4346, #4974)")
 		tapPiece(tile)
 		assert(fake.toggles == 1, ("uigate: the AFK tile asked %d times for one tap (#4346)"):format(fake.toggles))
 		fake.onNow = true

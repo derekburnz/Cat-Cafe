@@ -198,6 +198,12 @@ local function refresh()
 	end
 end
 
+-- Swap him to this player's look now (Effects/DragonStageCut calls it as the stage-up cutscene ends, so the old
+-- look does not stand there for up to LOOK_SECONDS before the next check).
+function KeepDragon.refresh()
+	refresh()
+end
+
 -- Studio only: the stage the Workspace attribute KeepDragonTest (0 to 5) asks for, or nil when it is not set.
 local function testStage(): number?
 	if not RunService:IsStudio() then

@@ -3964,8 +3964,7 @@ Presets.harvestFx = {
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
 -- before the start; the name splash holds `splashSeconds`; the strip comes in `stripAfter` seconds in (as the
 -- splash leaves) at `stripY` of the screen's height, and in the event's last `lastSeconds` (events of
--- `lastMinEvent` seconds or longer) turns red and swells by `pulse` `pulseHz` times a second, under the 3 a second
--- flashing limit. The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
+-- `lastMinEvent` seconds or longer) turns red and stays steady (#4603: no swell). The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
 -- screen's shorter side between `scaleMin` and `scaleMax`. `looks`: the world's tint while each kind runs, eased
 -- over `tintSeconds`, and the band's and strip's colours.
 Presets.adminFlash = {
@@ -3994,13 +3993,12 @@ Presets.adminFlash = {
 	splashPop = 0.4,
 	popSeconds = 0.25,
 	stripY = 0.17,
+	stripLift = 140, -- #4616: on touch the strip's bottom edge sits this far over the screen's bottom (above My Cafe)
 	stripWidth = 220,
 	stripHeight = 56,
 	stripBig = 25,
 	stripSmall = 15,
 	earnEase = 0.12,
-	pulseHz = 1,
-	pulse = 0.08,
 	overWidth = 460,
 	overHeight = 130,
 	overTitle = 34,
@@ -6092,11 +6090,17 @@ Presets.bedWalk = { fade = 0.25 }
 -- performance. `ribbons` is per budget tier (high, medium, low).
 export type AuroraSpec = {
 	ribbons: { number },
-	brightness: number, -- Beam.Brightness
-	nest: { number }, -- each colour is these bands laid over each other, as shares of `width`: a soft edge
-	nestLow: number, -- how many of them on the low tier
-	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
-	nestBright: { number }, -- and its Beam.Brightness
+	-- #4687: each ribbon is a curtain of upright rays side by side along it, each one Beam from its foot up
+	columns: { number }, -- rays a ribbon by tier (high, medium, low)
+	tall: number, -- studs a ray reaches up from the foot
+	tallVary: number, -- of `tall`, how much the rays' tops rise and dip along the curtain, a slow wave
+	footVary: number, -- studs the rays' feet rise and dip, ray to ray, so the foot is no straight edge
+	wide: number, -- each ray's width as a share of the gap between rays: over 1 they overlap into one curtain
+	sway: number, -- studs a ray's middle bows side to side as it sways
+	bright: number, -- Beam.Brightness
+	foot: Color3, -- the curtain's colour at its foot, then `middle`, then `top`
+	middle: Color3,
+	top: Color3,
 	height: number,
 	window: number, -- studs across your look the ribbons' box is wide: they run over 0.8 of it, side to side
 	deep: number, -- studs front to back the ribbons are spread over, centred `ahead` of you
@@ -6105,15 +6109,11 @@ export type AuroraSpec = {
 	glide: number, -- seconds it takes to move
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
-	width: number,
-	overlap: number, -- of `width`, how far the top band sits over the foot band
 	curve: number,
 	curveMost: number,
 	seconds: { number },
-	shown: number, -- each band's transparency at the ribbon's middle (its ends fade to nothing)
+	shown: number, -- a ray's transparency just over its foot when fully shown; it fades to nothing going up
 	fade: number,
-	foot: Color3,
-	top: Color3,
 }
 export type AreaFxSpec = {
 	air: string,
@@ -6180,7 +6180,7 @@ Presets.areaFx = {
 			footColour = Color3.fromRGB(246, 250, 255),
 			footStuds = 3,
 			aurora = {
-				ribbons = { 3, 2, 2 },
+				ribbons = { 2, 2, 1 },
 				-- #4216 Studio look: hung over the whole 560 stud area at 90 studs they sat far off behind the
 				-- mountain and the top of the screen. So a window of them keeps ahead of you, lower. Second look: at
 				-- 62 studs they were still above what the default camera shows (it looks a little down, and the top
@@ -6195,28 +6195,33 @@ Presets.areaFx = {
 				deep = 80,
 				ahead = 150,
 				recentre = 90,
-				glide = 4,
+				glide = 6,
 				spread = 1,
-				rise = 4,
-				width = 30,
-				overlap = 0.45,
-				curve = 0.22,
-				curveMost = 60,
-				seconds = { 11, 14, 17 },
-				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
-				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
-				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
-				-- #4216: they show at dusk now (night closes the area), and against the brighter dusk sky 0.55 to 0.62
-				-- vanished, so each band is stronger.
-				shown = 0.42,
-				brightness = 1,
-				nest = { 1, 0.62, 0.3 },
-				nestShown = { 0.42, 0.45, 0.38 },
-				nestBright = { 1, 1.5, 2 },
-				nestLow = 2,
-				fade = 3,
-				foot = Presets.palette.mint,
+				rise = 6,
+				curve = 0.12,
+				curveMost = 30,
+				seconds = { 21, 27 },
+				-- #4687 (Derek 2026-11-16: "redone to look way more like a gentle aurora right now its so bad"): the
+				-- old ribbons were thick solid stripes, mint under violet, which read as coloured clouds. First redo
+				-- (stacked flat bands) was still stripes in Sync's Studio look: a Beam only fades along its length,
+				-- never across its width, so every band had hard top and bottom edges. So the curtain now stands up:
+				-- upright rays side by side along each ribbon, each one Beam from its foot to its top, its colour and
+				-- see-through running along that length, a soft green foot fading up through teal into a faint violet
+				-- top. The rays are wider than the gap between them, so they merge into one curtain with faint streaks
+				-- like a real aurora's. Each ray bows a few studs side to side on its own slow clock, so the curtain
+				-- ripples, and the tops rise and dip in a slow wave along it. Still no picture (#4085).
+				shown = 0.5,
+				columns = { 14, 10, 7 },
+				tall = 30,
+				tallVary = 0.35,
+				footVary = 3,
+				wide = 1.7,
+				sway = 3,
+				bright = 1.2,
+				foot = Color3.fromRGB(128, 242, 180),
+				middle = Color3.fromRGB(110, 214, 214),
 				top = Presets.palette.aurora,
+				fade = 4,
 			},
 		},
 		-- #4070 the Water Park: fine spray in the air and a splash where its strays come and go. #4071 the Medieval
@@ -7382,6 +7387,14 @@ Presets.dragonRise = {
 		clearGap = 1.5,
 		clearLeast = 0.25,
 		clearEase = 0.12,
+		-- #4612 (Derek: "make it show from above"): the yard shots look down on him by at least `pitch` and over the
+		-- Keep's walls by `wallGap` studs (Effects/KeepShot). The walls come from the Keep model's box (top at most
+		-- `wallsMost`); without one, `wallsHalf` and `wallsTop` (the Keep export: 15 x 15 studs, 7.5 high)
+		pitch = math.rad(38),
+		wallGap = 2,
+		wallsHalf = 7.5,
+		wallsTop = 7.5,
+		wallsMost = 16,
 	},
 	-- the ember ball
 	ball = {

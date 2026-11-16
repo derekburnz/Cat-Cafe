@@ -1952,7 +1952,9 @@ function Store._showInfo(self: any, row: StoreLogic.Row?)
 		local rowFrame: Frame = Create("Frame", {
 			Name = "Line" .. index,
 			BackgroundTransparency = 0,
-			BackgroundColor3 = if last then CARD.goldCard else Color3.new(1, 1, 1),
+			-- #4606 (Derek: "all of them are missing" the text): the rows were always white, but with the cream menu switch
+			-- off CARD.text is white, so every word vanished; the family's card colour always matches its words
+			BackgroundColor3 = if last then CARD.goldCard else CARD.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 0, info.rowH),
 			LayoutOrder = index,

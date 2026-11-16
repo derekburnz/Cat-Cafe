@@ -311068,56 +311068,6 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MuralPrint.png"
     },
     {
-      "name": "CatCafe_Decor_MuralPrint_Gold",
-      "category": "Decor",
-      "module": "decor",
-      "objects": [
-        "CatCafe_Decor_MuralPrint_Gold"
-      ],
-      "triangles": 1102,
-      "budget": 1500,
-      "size_studs": {
-        "x": 3.6,
-        "y": 0.2,
-        "z": 1.8
-      },
-      "size_roblox": [
-        3.6,
-        1.8,
-        0.2
-      ],
-      "bounds_min": [
-        -1.8,
-        -0.2,
-        0.0
-      ],
-      "bounds_max": [
-        1.8,
-        0.0,
-        1.8
-      ],
-      "pivot": "wall: back-bottom center",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MuralPrint_Gold.model.json",
-      "rbx_parts": 90,
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "1102/1500 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "543 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.10"
-        }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MuralPrint_Gold.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MuralPrint_Gold.png"
-    },
-    {
       "name": "CatCafe_Decor_ParkBench",
       "category": "Decor",
       "module": "decor",
@@ -311170,56 +311120,6 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_ParkBench.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_ParkBench.png"
-    },
-    {
-      "name": "CatCafe_Decor_ParkBench_Gold",
-      "category": "Decor",
-      "module": "decor",
-      "objects": [
-        "CatCafe_Decor_ParkBench_Gold"
-      ],
-      "triangles": 1088,
-      "budget": 1200,
-      "size_studs": {
-        "x": 3.0,
-        "y": 1.28,
-        "z": 2.38
-      },
-      "size_roblox": [
-        3.0,
-        2.38,
-        1.28
-      ],
-      "bounds_min": [
-        -1.5,
-        -0.69,
-        0.0
-      ],
-      "bounds_max": [
-        1.5,
-        0.6,
-        2.38
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_ParkBench_Gold.model.json",
-      "rbx_parts": 26,
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "1088/1200 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "656 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.05"
-        }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_ParkBench_Gold.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_ParkBench_Gold.png"
     },
     {
       "name": "CatCafe_Alley_TrashBin",
@@ -369598,6 +369498,3326 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-2.30 (want 0)",
           "centered": "footprint center x=0.26 y=-1.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Mint_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Mint_48x37",
+        "CatCafe_Plot_Cafe_Mint_48x37_Glass",
+        "CatCafe_Plot_Cafe_Mint_48x37_Roof",
+        "CatCafe_Plot_Cafe_Mint_48x37_Trim",
+        "CatCafe_Plot_Cafe_Mint_48x37_Roof_Trim",
+        "CatCafe_Plot_Cafe_Mint_48x37_SignBoard",
+        "CatCafe_Plot_Cafe_Mint_48x37_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Mint_48x37_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_48x37_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_48x37_Chimney",
+        "CatCafe_Plot_Cafe_Mint_48x37_Flowers",
+        "CatCafe_Plot_Cafe_Mint_48x37_Fireflies",
+        "CatCafe_Plot_Cafe_Mint_48x37_Paint",
+        "CatCafe_Plot_Cafe_Mint_48x37_Wallpaper",
+        "CatCafe_Plot_Cafe_Mint_48x37_Garden",
+        "CatCafe_Plot_Cafe_Mint_48x37_Path",
+        "CatCafe_Plot_Cafe_Mint_48x37_Awning"
+      ],
+      "triangles": 5676,
+      "budget": 12000,
+      "size_studs": {
+        "x": 53.86,
+        "y": 45.8,
+        "z": 28.2
+      },
+      "size_roblox": [
+        53.86,
+        28.2,
+        45.8
+      ],
+      "bounds_min": [
+        -26.93,
+        -24.5,
+        -0.3
+      ],
+      "bounds_max": [
+        26.93,
+        21.3,
+        27.9
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Mint, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        27.9,
+        11.67
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -19.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -19.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Mint laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Cafe_Mint on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint_48x37.model.json",
+      "rbx_parts": 527,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5676/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2716 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=21.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Blush_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Blush_48x37",
+        "CatCafe_Plot_Cafe_Blush_48x37_Glass",
+        "CatCafe_Plot_Cafe_Blush_48x37_Roof",
+        "CatCafe_Plot_Cafe_Blush_48x37_Trim",
+        "CatCafe_Plot_Cafe_Blush_48x37_Roof_Trim",
+        "CatCafe_Plot_Cafe_Blush_48x37_SignBoard",
+        "CatCafe_Plot_Cafe_Blush_48x37_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Blush_48x37_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_48x37_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_48x37_Chimney",
+        "CatCafe_Plot_Cafe_Blush_48x37_Flowers",
+        "CatCafe_Plot_Cafe_Blush_48x37_Fireflies",
+        "CatCafe_Plot_Cafe_Blush_48x37_Paint",
+        "CatCafe_Plot_Cafe_Blush_48x37_Wallpaper",
+        "CatCafe_Plot_Cafe_Blush_48x37_Garden",
+        "CatCafe_Plot_Cafe_Blush_48x37_Path",
+        "CatCafe_Plot_Cafe_Blush_48x37_Awning"
+      ],
+      "triangles": 5676,
+      "budget": 12000,
+      "size_studs": {
+        "x": 53.86,
+        "y": 45.8,
+        "z": 28.2
+      },
+      "size_roblox": [
+        53.86,
+        28.2,
+        45.8
+      ],
+      "bounds_min": [
+        -26.93,
+        -24.5,
+        -0.3
+      ],
+      "bounds_max": [
+        26.93,
+        21.3,
+        27.9
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Blush, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        27.9,
+        11.67
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -19.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -19.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Blush laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Cafe_Blush on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush_48x37.model.json",
+      "rbx_parts": 527,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5676/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2716 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=21.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Butter_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Butter_48x37",
+        "CatCafe_Plot_Cafe_Butter_48x37_Glass",
+        "CatCafe_Plot_Cafe_Butter_48x37_Roof",
+        "CatCafe_Plot_Cafe_Butter_48x37_Trim",
+        "CatCafe_Plot_Cafe_Butter_48x37_Roof_Trim",
+        "CatCafe_Plot_Cafe_Butter_48x37_SignBoard",
+        "CatCafe_Plot_Cafe_Butter_48x37_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Butter_48x37_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_48x37_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_48x37_Chimney",
+        "CatCafe_Plot_Cafe_Butter_48x37_Flowers",
+        "CatCafe_Plot_Cafe_Butter_48x37_Fireflies",
+        "CatCafe_Plot_Cafe_Butter_48x37_Paint",
+        "CatCafe_Plot_Cafe_Butter_48x37_Wallpaper",
+        "CatCafe_Plot_Cafe_Butter_48x37_Garden",
+        "CatCafe_Plot_Cafe_Butter_48x37_Path",
+        "CatCafe_Plot_Cafe_Butter_48x37_Awning"
+      ],
+      "triangles": 5676,
+      "budget": 12000,
+      "size_studs": {
+        "x": 53.86,
+        "y": 45.8,
+        "z": 28.2
+      },
+      "size_roblox": [
+        53.86,
+        28.2,
+        45.8
+      ],
+      "bounds_min": [
+        -26.93,
+        -24.5,
+        -0.3
+      ],
+      "bounds_max": [
+        26.93,
+        21.3,
+        27.9
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Butter, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        27.9,
+        11.67
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -19.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -19.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Butter laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Cafe_Butter on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter_48x37.model.json",
+      "rbx_parts": 527,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5676/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2716 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=21.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Lilac_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Lilac_48x37",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Glass",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Roof",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Trim",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Roof_Trim",
+        "CatCafe_Plot_Cafe_Lilac_48x37_SignBoard",
+        "CatCafe_Plot_Cafe_Lilac_48x37_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_48x37_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_48x37_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Chimney",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Flowers",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Fireflies",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Paint",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Wallpaper",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Garden",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Path",
+        "CatCafe_Plot_Cafe_Lilac_48x37_Awning"
+      ],
+      "triangles": 5676,
+      "budget": 12000,
+      "size_studs": {
+        "x": 53.86,
+        "y": 45.8,
+        "z": 28.2
+      },
+      "size_roblox": [
+        53.86,
+        28.2,
+        45.8
+      ],
+      "bounds_min": [
+        -26.93,
+        -24.5,
+        -0.3
+      ],
+      "bounds_max": [
+        26.93,
+        21.3,
+        27.9
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Lilac, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        27.9,
+        11.67
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -19.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -19.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Lilac laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Cafe_Lilac on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac_48x37.model.json",
+      "rbx_parts": 527,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5676/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2716 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=21.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Interior_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Interior_48x37",
+        "CatCafe_Plot_Interior_48x37_HangingLamp_Bulb",
+        "CatCafe_Plot_Interior_48x37_StringLights_Bulbs"
+      ],
+      "triangles": 3984,
+      "budget": 8000,
+      "size_studs": {
+        "x": 48.02,
+        "y": 37.03,
+        "z": 12.8
+      },
+      "size_roblox": [
+        48.02,
+        12.8,
+        37.03
+      ],
+      "bounds_min": [
+        -24.01,
+        -18.52,
+        0.0
+      ],
+      "bounds_max": [
+        24.01,
+        18.51,
+        12.8
+      ],
+      "pivot": "as CatCafe_Plot_Interior, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Interior laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Interior on a cafe of that size. Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Interior_48x37.model.json",
+      "rbx_parts": 290,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "3984/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2364 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=18.51 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ForRent_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ForRent_48x37",
+        "CatCafe_Plot_ForRent_48x37_Sign",
+        "CatCafe_Plot_ForRent_48x37_Shutter"
+      ],
+      "triangles": 4420,
+      "budget": 5000,
+      "size_studs": {
+        "x": 43.7,
+        "y": 39.6,
+        "z": 8.45
+      },
+      "size_roblox": [
+        43.7,
+        8.45,
+        39.6
+      ],
+      "bounds_min": [
+        -21.85,
+        -22.4,
+        0.0
+      ],
+      "bounds_max": [
+        21.85,
+        17.2,
+        8.45
+      ],
+      "pivot": "as CatCafe_Plot_ForRent, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_48x37.model.json",
+      "rbx_parts": 285,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4420/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=17.20 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier1_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier1_48x37"
+      ],
+      "triangles": 288,
+      "budget": 3000,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.24,
+        "z": 2.28
+      },
+      "size_roblox": [
+        1.0,
+        2.28,
+        1.24
+      ],
+      "bounds_min": [
+        2.45,
+        -23.7,
+        0.02
+      ],
+      "bounds_max": [
+        3.45,
+        -22.46,
+        2.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier1, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier1 laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Tier1 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier1_48x37.model.json",
+      "rbx_parts": 22,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "288/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "138 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-22.46 (want 0)",
+          "centered": "footprint center x=2.95 y=-23.08"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier2_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier2_48x37",
+        "CatCafe_Plot_Tier2_48x37_Flowers",
+        "CatCafe_Plot_Tier2_48x37_Bistro"
+      ],
+      "triangles": 624,
+      "budget": 3000,
+      "size_studs": {
+        "x": 42.8,
+        "y": 3.8,
+        "z": 5.15
+      },
+      "size_roblox": [
+        42.8,
+        5.15,
+        3.8
+      ],
+      "bounds_min": [
+        -21.4,
+        -23.7,
+        0.15
+      ],
+      "bounds_max": [
+        21.4,
+        -19.9,
+        5.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier2, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier2 laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Tier2 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier2_48x37.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "624/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-19.90 (want 0)",
+          "centered": "footprint center x=0.00 y=-21.80"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier3_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier3_48x37",
+        "CatCafe_Plot_Tier3_48x37_StringLights_Bulbs",
+        "CatCafe_Plot_Tier3_48x37_Bistro"
+      ],
+      "triangles": 880,
+      "budget": 3000,
+      "size_studs": {
+        "x": 43.68,
+        "y": 3.8,
+        "z": 9.71
+      },
+      "size_roblox": [
+        43.68,
+        9.71,
+        3.8
+      ],
+      "bounds_min": [
+        -21.84,
+        -23.8,
+        0.15
+      ],
+      "bounds_max": [
+        21.84,
+        -20.0,
+        9.86
+      ],
+      "pivot": "as CatCafe_Plot_Tier3, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier3 laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Tier3 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3_48x37.model.json",
+      "rbx_parts": 54,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "880/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "544 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-20.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-21.90"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier4_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier4_48x37",
+        "CatCafe_Plot_Tier4_48x37_Glass",
+        "CatCafe_Plot_Tier4_48x37_Water",
+        "CatCafe_Plot_Tier4_48x37_StringLights_Bulbs"
+      ],
+      "triangles": 800,
+      "budget": 3000,
+      "size_studs": {
+        "x": 33.52,
+        "y": 45.75,
+        "z": 8.85
+      },
+      "size_roblox": [
+        33.52,
+        8.85,
+        45.75
+      ],
+      "bounds_min": [
+        -19.6,
+        -16.75,
+        0.0
+      ],
+      "bounds_max": [
+        13.92,
+        29.0,
+        8.85
+      ],
+      "pivot": "as CatCafe_Plot_Tier4, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier4 laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Tier4 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier4_48x37.model.json",
+      "rbx_parts": 60,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "800/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "500 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=29.00 (want 0)",
+          "centered": "footprint center x=-2.84 y=6.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier5_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier5_48x37"
+      ],
+      "triangles": 716,
+      "budget": 3000,
+      "size_studs": {
+        "x": 48.4,
+        "y": 6.55,
+        "z": 31.05
+      },
+      "size_roblox": [
+        48.4,
+        31.05,
+        6.55
+      ],
+      "bounds_min": [
+        -24.2,
+        -24.5,
+        0.02
+      ],
+      "bounds_max": [
+        24.2,
+        -17.95,
+        31.07
+      ],
+      "pivot": "as CatCafe_Plot_Tier5, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier5 laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_Tier5 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5_48x37.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "716/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "346 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-17.95 (want 0)",
+          "centered": "footprint center x=0.00 y=-21.23"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_YardFence_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_YardFence_48x37",
+        "CatCafe_Plot_YardFence_48x37_Barrier"
+      ],
+      "triangles": 3764,
+      "budget": 8000,
+      "size_studs": {
+        "x": 50.4,
+        "y": 10.17,
+        "z": 4.38
+      },
+      "size_roblox": [
+        50.4,
+        4.38,
+        10.17
+      ],
+      "bounds_min": [
+        -25.2,
+        19.5,
+        -0.2
+      ],
+      "bounds_max": [
+        25.2,
+        29.67,
+        4.18
+      ],
+      "pivot": "as CatCafe_Plot_YardFence, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_48x37.model.json",
+      "rbx_parts": 277,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "3764/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2396 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=29.67 (want 0)",
+          "centered": "footprint center x=0.00 y=24.59"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Mint_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Mint_52x40",
+        "CatCafe_Plot_Cafe_Mint_52x40_Glass",
+        "CatCafe_Plot_Cafe_Mint_52x40_Roof",
+        "CatCafe_Plot_Cafe_Mint_52x40_Trim",
+        "CatCafe_Plot_Cafe_Mint_52x40_Roof_Trim",
+        "CatCafe_Plot_Cafe_Mint_52x40_SignBoard",
+        "CatCafe_Plot_Cafe_Mint_52x40_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Mint_52x40_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_52x40_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_52x40_Chimney",
+        "CatCafe_Plot_Cafe_Mint_52x40_Flowers",
+        "CatCafe_Plot_Cafe_Mint_52x40_Fireflies",
+        "CatCafe_Plot_Cafe_Mint_52x40_Paint",
+        "CatCafe_Plot_Cafe_Mint_52x40_Wallpaper",
+        "CatCafe_Plot_Cafe_Mint_52x40_Garden",
+        "CatCafe_Plot_Cafe_Mint_52x40_Path",
+        "CatCafe_Plot_Cafe_Mint_52x40_Awning"
+      ],
+      "triangles": 5700,
+      "budget": 12000,
+      "size_studs": {
+        "x": 57.86,
+        "y": 48.8,
+        "z": 29.13
+      },
+      "size_roblox": [
+        57.86,
+        29.13,
+        48.8
+      ],
+      "bounds_min": [
+        -28.93,
+        -26.0,
+        -0.3
+      ],
+      "bounds_max": [
+        28.93,
+        22.8,
+        28.83
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Mint, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        28.83,
+        12.53
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -21.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -20.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Mint laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Cafe_Mint on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint_52x40.model.json",
+      "rbx_parts": 529,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5700/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2728 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=22.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Blush_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Blush_52x40",
+        "CatCafe_Plot_Cafe_Blush_52x40_Glass",
+        "CatCafe_Plot_Cafe_Blush_52x40_Roof",
+        "CatCafe_Plot_Cafe_Blush_52x40_Trim",
+        "CatCafe_Plot_Cafe_Blush_52x40_Roof_Trim",
+        "CatCafe_Plot_Cafe_Blush_52x40_SignBoard",
+        "CatCafe_Plot_Cafe_Blush_52x40_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Blush_52x40_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_52x40_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_52x40_Chimney",
+        "CatCafe_Plot_Cafe_Blush_52x40_Flowers",
+        "CatCafe_Plot_Cafe_Blush_52x40_Fireflies",
+        "CatCafe_Plot_Cafe_Blush_52x40_Paint",
+        "CatCafe_Plot_Cafe_Blush_52x40_Wallpaper",
+        "CatCafe_Plot_Cafe_Blush_52x40_Garden",
+        "CatCafe_Plot_Cafe_Blush_52x40_Path",
+        "CatCafe_Plot_Cafe_Blush_52x40_Awning"
+      ],
+      "triangles": 5700,
+      "budget": 12000,
+      "size_studs": {
+        "x": 57.86,
+        "y": 48.8,
+        "z": 29.13
+      },
+      "size_roblox": [
+        57.86,
+        29.13,
+        48.8
+      ],
+      "bounds_min": [
+        -28.93,
+        -26.0,
+        -0.3
+      ],
+      "bounds_max": [
+        28.93,
+        22.8,
+        28.83
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Blush, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        28.83,
+        12.53
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -21.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -20.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Blush laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Cafe_Blush on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush_52x40.model.json",
+      "rbx_parts": 529,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5700/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2728 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=22.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Butter_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Butter_52x40",
+        "CatCafe_Plot_Cafe_Butter_52x40_Glass",
+        "CatCafe_Plot_Cafe_Butter_52x40_Roof",
+        "CatCafe_Plot_Cafe_Butter_52x40_Trim",
+        "CatCafe_Plot_Cafe_Butter_52x40_Roof_Trim",
+        "CatCafe_Plot_Cafe_Butter_52x40_SignBoard",
+        "CatCafe_Plot_Cafe_Butter_52x40_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Butter_52x40_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_52x40_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_52x40_Chimney",
+        "CatCafe_Plot_Cafe_Butter_52x40_Flowers",
+        "CatCafe_Plot_Cafe_Butter_52x40_Fireflies",
+        "CatCafe_Plot_Cafe_Butter_52x40_Paint",
+        "CatCafe_Plot_Cafe_Butter_52x40_Wallpaper",
+        "CatCafe_Plot_Cafe_Butter_52x40_Garden",
+        "CatCafe_Plot_Cafe_Butter_52x40_Path",
+        "CatCafe_Plot_Cafe_Butter_52x40_Awning"
+      ],
+      "triangles": 5700,
+      "budget": 12000,
+      "size_studs": {
+        "x": 57.86,
+        "y": 48.8,
+        "z": 29.13
+      },
+      "size_roblox": [
+        57.86,
+        29.13,
+        48.8
+      ],
+      "bounds_min": [
+        -28.93,
+        -26.0,
+        -0.3
+      ],
+      "bounds_max": [
+        28.93,
+        22.8,
+        28.83
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Butter, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        28.83,
+        12.53
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -21.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -20.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Butter laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Cafe_Butter on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter_52x40.model.json",
+      "rbx_parts": 529,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5700/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2728 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=22.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Lilac_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Lilac_52x40",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Glass",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Roof",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Trim",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Roof_Trim",
+        "CatCafe_Plot_Cafe_Lilac_52x40_SignBoard",
+        "CatCafe_Plot_Cafe_Lilac_52x40_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_52x40_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_52x40_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Chimney",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Flowers",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Fireflies",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Paint",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Wallpaper",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Garden",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Path",
+        "CatCafe_Plot_Cafe_Lilac_52x40_Awning"
+      ],
+      "triangles": 5700,
+      "budget": 12000,
+      "size_studs": {
+        "x": 57.86,
+        "y": 48.8,
+        "z": 29.13
+      },
+      "size_roblox": [
+        57.86,
+        29.13,
+        48.8
+      ],
+      "bounds_min": [
+        -28.93,
+        -26.0,
+        -0.3
+      ],
+      "bounds_max": [
+        28.93,
+        22.8,
+        28.83
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Lilac, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        28.83,
+        12.53
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -21.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -20.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Lilac laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Cafe_Lilac on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac_52x40.model.json",
+      "rbx_parts": 529,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5700/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2728 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=22.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Interior_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Interior_52x40",
+        "CatCafe_Plot_Interior_52x40_HangingLamp_Bulb",
+        "CatCafe_Plot_Interior_52x40_StringLights_Bulbs"
+      ],
+      "triangles": 4100,
+      "budget": 8000,
+      "size_studs": {
+        "x": 52.02,
+        "y": 40.03,
+        "z": 12.8
+      },
+      "size_roblox": [
+        52.02,
+        12.8,
+        40.03
+      ],
+      "bounds_min": [
+        -26.01,
+        -20.02,
+        0.0
+      ],
+      "bounds_max": [
+        26.01,
+        20.01,
+        12.8
+      ],
+      "pivot": "as CatCafe_Plot_Interior, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Interior laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Interior on a cafe of that size. Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Interior_52x40.model.json",
+      "rbx_parts": 299,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4100/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2432 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=20.01 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ForRent_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ForRent_52x40",
+        "CatCafe_Plot_ForRent_52x40_Sign",
+        "CatCafe_Plot_ForRent_52x40_Shutter"
+      ],
+      "triangles": 4420,
+      "budget": 5000,
+      "size_studs": {
+        "x": 47.7,
+        "y": 42.6,
+        "z": 8.45
+      },
+      "size_roblox": [
+        47.7,
+        8.45,
+        42.6
+      ],
+      "bounds_min": [
+        -23.85,
+        -23.9,
+        0.0
+      ],
+      "bounds_max": [
+        23.85,
+        18.7,
+        8.45
+      ],
+      "pivot": "as CatCafe_Plot_ForRent, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_52x40.model.json",
+      "rbx_parts": 285,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4420/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=18.70 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier1_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier1_52x40"
+      ],
+      "triangles": 288,
+      "budget": 3000,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.24,
+        "z": 2.28
+      },
+      "size_roblox": [
+        1.0,
+        2.28,
+        1.24
+      ],
+      "bounds_min": [
+        2.45,
+        -25.2,
+        0.02
+      ],
+      "bounds_max": [
+        3.45,
+        -23.96,
+        2.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier1, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier1 laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Tier1 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier1_52x40.model.json",
+      "rbx_parts": 22,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "288/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "138 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-23.96 (want 0)",
+          "centered": "footprint center x=2.95 y=-24.58"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier2_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier2_52x40",
+        "CatCafe_Plot_Tier2_52x40_Flowers",
+        "CatCafe_Plot_Tier2_52x40_Bistro"
+      ],
+      "triangles": 624,
+      "budget": 3000,
+      "size_studs": {
+        "x": 46.8,
+        "y": 3.8,
+        "z": 5.15
+      },
+      "size_roblox": [
+        46.8,
+        5.15,
+        3.8
+      ],
+      "bounds_min": [
+        -23.4,
+        -25.2,
+        0.15
+      ],
+      "bounds_max": [
+        23.4,
+        -21.4,
+        5.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier2, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier2 laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Tier2 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier2_52x40.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "624/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-21.40 (want 0)",
+          "centered": "footprint center x=0.00 y=-23.30"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier3_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier3_52x40",
+        "CatCafe_Plot_Tier3_52x40_StringLights_Bulbs",
+        "CatCafe_Plot_Tier3_52x40_Bistro"
+      ],
+      "triangles": 880,
+      "budget": 3000,
+      "size_studs": {
+        "x": 47.68,
+        "y": 3.8,
+        "z": 9.71
+      },
+      "size_roblox": [
+        47.68,
+        9.71,
+        3.8
+      ],
+      "bounds_min": [
+        -23.84,
+        -25.3,
+        0.15
+      ],
+      "bounds_max": [
+        23.84,
+        -21.5,
+        9.86
+      ],
+      "pivot": "as CatCafe_Plot_Tier3, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier3 laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Tier3 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3_52x40.model.json",
+      "rbx_parts": 54,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "880/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "544 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-21.50 (want 0)",
+          "centered": "footprint center x=0.00 y=-23.40"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier4_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier4_52x40",
+        "CatCafe_Plot_Tier4_52x40_Glass",
+        "CatCafe_Plot_Tier4_52x40_Water",
+        "CatCafe_Plot_Tier4_52x40_StringLights_Bulbs"
+      ],
+      "triangles": 800,
+      "budget": 3000,
+      "size_studs": {
+        "x": 35.52,
+        "y": 48.75,
+        "z": 8.85
+      },
+      "size_roblox": [
+        35.52,
+        8.85,
+        48.75
+      ],
+      "bounds_min": [
+        -21.6,
+        -18.25,
+        0.0
+      ],
+      "bounds_max": [
+        13.92,
+        30.5,
+        8.85
+      ],
+      "pivot": "as CatCafe_Plot_Tier4, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier4 laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Tier4 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier4_52x40.model.json",
+      "rbx_parts": 60,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "800/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "500 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=30.50 (want 0)",
+          "centered": "footprint center x=-3.84 y=6.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier5_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier5_52x40"
+      ],
+      "triangles": 716,
+      "budget": 3000,
+      "size_studs": {
+        "x": 52.4,
+        "y": 6.55,
+        "z": 31.98
+      },
+      "size_roblox": [
+        52.4,
+        31.98,
+        6.55
+      ],
+      "bounds_min": [
+        -26.2,
+        -26.0,
+        0.02
+      ],
+      "bounds_max": [
+        26.2,
+        -19.45,
+        32.0
+      ],
+      "pivot": "as CatCafe_Plot_Tier5, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier5 laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_Tier5 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5_52x40.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "716/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "346 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-19.45 (want 0)",
+          "centered": "footprint center x=0.00 y=-22.73"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_YardFence_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_YardFence_52x40",
+        "CatCafe_Plot_YardFence_52x40_Barrier"
+      ],
+      "triangles": 3928,
+      "budget": 8000,
+      "size_studs": {
+        "x": 54.4,
+        "y": 10.17,
+        "z": 4.38
+      },
+      "size_roblox": [
+        54.4,
+        4.38,
+        10.17
+      ],
+      "bounds_min": [
+        -27.2,
+        21.0,
+        -0.2
+      ],
+      "bounds_max": [
+        27.2,
+        31.17,
+        4.18
+      ],
+      "pivot": "as CatCafe_Plot_YardFence, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_52x40.model.json",
+      "rbx_parts": 290,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "3928/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2488 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=31.17 (want 0)",
+          "centered": "footprint center x=0.00 y=26.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Mint_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Mint_56x43",
+        "CatCafe_Plot_Cafe_Mint_56x43_Glass",
+        "CatCafe_Plot_Cafe_Mint_56x43_Roof",
+        "CatCafe_Plot_Cafe_Mint_56x43_Trim",
+        "CatCafe_Plot_Cafe_Mint_56x43_Roof_Trim",
+        "CatCafe_Plot_Cafe_Mint_56x43_SignBoard",
+        "CatCafe_Plot_Cafe_Mint_56x43_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Mint_56x43_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_56x43_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_56x43_Chimney",
+        "CatCafe_Plot_Cafe_Mint_56x43_Flowers",
+        "CatCafe_Plot_Cafe_Mint_56x43_Fireflies",
+        "CatCafe_Plot_Cafe_Mint_56x43_Paint",
+        "CatCafe_Plot_Cafe_Mint_56x43_Wallpaper",
+        "CatCafe_Plot_Cafe_Mint_56x43_Garden",
+        "CatCafe_Plot_Cafe_Mint_56x43_Path",
+        "CatCafe_Plot_Cafe_Mint_56x43_Awning"
+      ],
+      "triangles": 5724,
+      "budget": 12000,
+      "size_studs": {
+        "x": 61.86,
+        "y": 51.8,
+        "z": 30.06
+      },
+      "size_roblox": [
+        61.86,
+        30.06,
+        51.8
+      ],
+      "bounds_min": [
+        -30.93,
+        -27.5,
+        -0.3
+      ],
+      "bounds_max": [
+        30.93,
+        24.3,
+        29.76
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Mint, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        29.76,
+        13.39
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -22.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -22.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Mint laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Cafe_Mint on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint_56x43.model.json",
+      "rbx_parts": 531,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5724/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2740 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=24.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Blush_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Blush_56x43",
+        "CatCafe_Plot_Cafe_Blush_56x43_Glass",
+        "CatCafe_Plot_Cafe_Blush_56x43_Roof",
+        "CatCafe_Plot_Cafe_Blush_56x43_Trim",
+        "CatCafe_Plot_Cafe_Blush_56x43_Roof_Trim",
+        "CatCafe_Plot_Cafe_Blush_56x43_SignBoard",
+        "CatCafe_Plot_Cafe_Blush_56x43_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Blush_56x43_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_56x43_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_56x43_Chimney",
+        "CatCafe_Plot_Cafe_Blush_56x43_Flowers",
+        "CatCafe_Plot_Cafe_Blush_56x43_Fireflies",
+        "CatCafe_Plot_Cafe_Blush_56x43_Paint",
+        "CatCafe_Plot_Cafe_Blush_56x43_Wallpaper",
+        "CatCafe_Plot_Cafe_Blush_56x43_Garden",
+        "CatCafe_Plot_Cafe_Blush_56x43_Path",
+        "CatCafe_Plot_Cafe_Blush_56x43_Awning"
+      ],
+      "triangles": 5724,
+      "budget": 12000,
+      "size_studs": {
+        "x": 61.86,
+        "y": 51.8,
+        "z": 30.06
+      },
+      "size_roblox": [
+        61.86,
+        30.06,
+        51.8
+      ],
+      "bounds_min": [
+        -30.93,
+        -27.5,
+        -0.3
+      ],
+      "bounds_max": [
+        30.93,
+        24.3,
+        29.76
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Blush, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        29.76,
+        13.39
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -22.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -22.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Blush laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Cafe_Blush on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush_56x43.model.json",
+      "rbx_parts": 531,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5724/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2740 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=24.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Butter_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Butter_56x43",
+        "CatCafe_Plot_Cafe_Butter_56x43_Glass",
+        "CatCafe_Plot_Cafe_Butter_56x43_Roof",
+        "CatCafe_Plot_Cafe_Butter_56x43_Trim",
+        "CatCafe_Plot_Cafe_Butter_56x43_Roof_Trim",
+        "CatCafe_Plot_Cafe_Butter_56x43_SignBoard",
+        "CatCafe_Plot_Cafe_Butter_56x43_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Butter_56x43_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_56x43_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_56x43_Chimney",
+        "CatCafe_Plot_Cafe_Butter_56x43_Flowers",
+        "CatCafe_Plot_Cafe_Butter_56x43_Fireflies",
+        "CatCafe_Plot_Cafe_Butter_56x43_Paint",
+        "CatCafe_Plot_Cafe_Butter_56x43_Wallpaper",
+        "CatCafe_Plot_Cafe_Butter_56x43_Garden",
+        "CatCafe_Plot_Cafe_Butter_56x43_Path",
+        "CatCafe_Plot_Cafe_Butter_56x43_Awning"
+      ],
+      "triangles": 5724,
+      "budget": 12000,
+      "size_studs": {
+        "x": 61.86,
+        "y": 51.8,
+        "z": 30.06
+      },
+      "size_roblox": [
+        61.86,
+        30.06,
+        51.8
+      ],
+      "bounds_min": [
+        -30.93,
+        -27.5,
+        -0.3
+      ],
+      "bounds_max": [
+        30.93,
+        24.3,
+        29.76
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Butter, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        29.76,
+        13.39
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -22.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -22.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Butter laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Cafe_Butter on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter_56x43.model.json",
+      "rbx_parts": 531,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5724/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2740 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=24.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Lilac_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Lilac_56x43",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Glass",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Roof",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Trim",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Roof_Trim",
+        "CatCafe_Plot_Cafe_Lilac_56x43_SignBoard",
+        "CatCafe_Plot_Cafe_Lilac_56x43_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_56x43_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_56x43_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Chimney",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Flowers",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Fireflies",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Paint",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Wallpaper",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Garden",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Path",
+        "CatCafe_Plot_Cafe_Lilac_56x43_Awning"
+      ],
+      "triangles": 5724,
+      "budget": 12000,
+      "size_studs": {
+        "x": 61.86,
+        "y": 51.8,
+        "z": 30.06
+      },
+      "size_roblox": [
+        61.86,
+        30.06,
+        51.8
+      ],
+      "bounds_min": [
+        -30.93,
+        -27.5,
+        -0.3
+      ],
+      "bounds_max": [
+        30.93,
+        24.3,
+        29.76
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Lilac, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        29.76,
+        13.39
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -22.85
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -22.0
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Lilac laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Cafe_Lilac on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac_56x43.model.json",
+      "rbx_parts": 531,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5724/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2740 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=24.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Interior_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Interior_56x43",
+        "CatCafe_Plot_Interior_56x43_HangingLamp_Bulb",
+        "CatCafe_Plot_Interior_56x43_StringLights_Bulbs"
+      ],
+      "triangles": 4252,
+      "budget": 8000,
+      "size_studs": {
+        "x": 56.02,
+        "y": 43.03,
+        "z": 12.8
+      },
+      "size_roblox": [
+        56.02,
+        12.8,
+        43.03
+      ],
+      "bounds_min": [
+        -28.01,
+        -21.52,
+        0.0
+      ],
+      "bounds_max": [
+        28.01,
+        21.51,
+        12.8
+      ],
+      "pivot": "as CatCafe_Plot_Interior, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Interior laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Interior on a cafe of that size. Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Interior_56x43.model.json",
+      "rbx_parts": 309,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4252/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2548 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=21.51 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ForRent_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ForRent_56x43",
+        "CatCafe_Plot_ForRent_56x43_Sign",
+        "CatCafe_Plot_ForRent_56x43_Shutter"
+      ],
+      "triangles": 4420,
+      "budget": 5000,
+      "size_studs": {
+        "x": 51.7,
+        "y": 45.6,
+        "z": 8.45
+      },
+      "size_roblox": [
+        51.7,
+        8.45,
+        45.6
+      ],
+      "bounds_min": [
+        -25.85,
+        -25.4,
+        0.0
+      ],
+      "bounds_max": [
+        25.85,
+        20.2,
+        8.45
+      ],
+      "pivot": "as CatCafe_Plot_ForRent, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_56x43.model.json",
+      "rbx_parts": 285,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4420/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=20.20 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier1_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier1_56x43"
+      ],
+      "triangles": 288,
+      "budget": 3000,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.24,
+        "z": 2.28
+      },
+      "size_roblox": [
+        1.0,
+        2.28,
+        1.24
+      ],
+      "bounds_min": [
+        2.45,
+        -26.7,
+        0.02
+      ],
+      "bounds_max": [
+        3.45,
+        -25.46,
+        2.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier1, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier1 laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Tier1 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier1_56x43.model.json",
+      "rbx_parts": 22,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "288/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "138 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-25.46 (want 0)",
+          "centered": "footprint center x=2.95 y=-26.08"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier2_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier2_56x43",
+        "CatCafe_Plot_Tier2_56x43_Flowers",
+        "CatCafe_Plot_Tier2_56x43_Bistro"
+      ],
+      "triangles": 624,
+      "budget": 3000,
+      "size_studs": {
+        "x": 50.8,
+        "y": 3.8,
+        "z": 5.15
+      },
+      "size_roblox": [
+        50.8,
+        5.15,
+        3.8
+      ],
+      "bounds_min": [
+        -25.4,
+        -26.7,
+        0.15
+      ],
+      "bounds_max": [
+        25.4,
+        -22.9,
+        5.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier2, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier2 laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Tier2 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier2_56x43.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "624/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-22.90 (want 0)",
+          "centered": "footprint center x=0.00 y=-24.80"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier3_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier3_56x43",
+        "CatCafe_Plot_Tier3_56x43_StringLights_Bulbs",
+        "CatCafe_Plot_Tier3_56x43_Bistro"
+      ],
+      "triangles": 880,
+      "budget": 3000,
+      "size_studs": {
+        "x": 51.68,
+        "y": 3.8,
+        "z": 9.71
+      },
+      "size_roblox": [
+        51.68,
+        9.71,
+        3.8
+      ],
+      "bounds_min": [
+        -25.84,
+        -26.8,
+        0.15
+      ],
+      "bounds_max": [
+        25.84,
+        -23.0,
+        9.86
+      ],
+      "pivot": "as CatCafe_Plot_Tier3, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier3 laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Tier3 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3_56x43.model.json",
+      "rbx_parts": 54,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "880/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "544 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-23.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-24.90"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier4_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier4_56x43",
+        "CatCafe_Plot_Tier4_56x43_Glass",
+        "CatCafe_Plot_Tier4_56x43_Water",
+        "CatCafe_Plot_Tier4_56x43_StringLights_Bulbs"
+      ],
+      "triangles": 800,
+      "budget": 3000,
+      "size_studs": {
+        "x": 37.52,
+        "y": 51.75,
+        "z": 8.85
+      },
+      "size_roblox": [
+        37.52,
+        8.85,
+        51.75
+      ],
+      "bounds_min": [
+        -23.6,
+        -19.75,
+        0.0
+      ],
+      "bounds_max": [
+        13.92,
+        32.0,
+        8.85
+      ],
+      "pivot": "as CatCafe_Plot_Tier4, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier4 laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Tier4 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier4_56x43.model.json",
+      "rbx_parts": 60,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "800/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "500 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=32.00 (want 0)",
+          "centered": "footprint center x=-4.84 y=6.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier5_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier5_56x43"
+      ],
+      "triangles": 716,
+      "budget": 3000,
+      "size_studs": {
+        "x": 56.4,
+        "y": 6.55,
+        "z": 32.91
+      },
+      "size_roblox": [
+        56.4,
+        32.91,
+        6.55
+      ],
+      "bounds_min": [
+        -28.2,
+        -27.5,
+        0.02
+      ],
+      "bounds_max": [
+        28.2,
+        -20.95,
+        32.93
+      ],
+      "pivot": "as CatCafe_Plot_Tier5, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier5 laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_Tier5 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5_56x43.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "716/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "346 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-20.95 (want 0)",
+          "centered": "footprint center x=0.00 y=-24.23"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_YardFence_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_YardFence_56x43",
+        "CatCafe_Plot_YardFence_56x43_Barrier"
+      ],
+      "triangles": 4092,
+      "budget": 8000,
+      "size_studs": {
+        "x": 58.4,
+        "y": 10.17,
+        "z": 4.38
+      },
+      "size_roblox": [
+        58.4,
+        4.38,
+        10.17
+      ],
+      "bounds_min": [
+        -29.2,
+        22.5,
+        -0.2
+      ],
+      "bounds_max": [
+        29.2,
+        32.67,
+        4.18
+      ],
+      "pivot": "as CatCafe_Plot_YardFence, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_56x43.model.json",
+      "rbx_parts": 303,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4092/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2580 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=32.67 (want 0)",
+          "centered": "footprint center x=0.00 y=27.58"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Mint_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Mint_60x46",
+        "CatCafe_Plot_Cafe_Mint_60x46_Glass",
+        "CatCafe_Plot_Cafe_Mint_60x46_Roof",
+        "CatCafe_Plot_Cafe_Mint_60x46_Trim",
+        "CatCafe_Plot_Cafe_Mint_60x46_Roof_Trim",
+        "CatCafe_Plot_Cafe_Mint_60x46_SignBoard",
+        "CatCafe_Plot_Cafe_Mint_60x46_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Mint_60x46_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_60x46_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Mint_60x46_Chimney",
+        "CatCafe_Plot_Cafe_Mint_60x46_Flowers",
+        "CatCafe_Plot_Cafe_Mint_60x46_Fireflies",
+        "CatCafe_Plot_Cafe_Mint_60x46_Paint",
+        "CatCafe_Plot_Cafe_Mint_60x46_Wallpaper",
+        "CatCafe_Plot_Cafe_Mint_60x46_Garden",
+        "CatCafe_Plot_Cafe_Mint_60x46_Path",
+        "CatCafe_Plot_Cafe_Mint_60x46_Awning"
+      ],
+      "triangles": 5772,
+      "budget": 12000,
+      "size_studs": {
+        "x": 65.86,
+        "y": 54.8,
+        "z": 31.0
+      },
+      "size_roblox": [
+        65.86,
+        31.0,
+        54.8
+      ],
+      "bounds_min": [
+        -32.93,
+        -29.0,
+        -0.3
+      ],
+      "bounds_max": [
+        32.93,
+        25.8,
+        30.7
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Mint, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        30.7,
+        14.24
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -24.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -23.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Mint laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Cafe_Mint on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint_60x46.model.json",
+      "rbx_parts": 535,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5772/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2764 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=25.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Blush_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Blush_60x46",
+        "CatCafe_Plot_Cafe_Blush_60x46_Glass",
+        "CatCafe_Plot_Cafe_Blush_60x46_Roof",
+        "CatCafe_Plot_Cafe_Blush_60x46_Trim",
+        "CatCafe_Plot_Cafe_Blush_60x46_Roof_Trim",
+        "CatCafe_Plot_Cafe_Blush_60x46_SignBoard",
+        "CatCafe_Plot_Cafe_Blush_60x46_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Blush_60x46_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_60x46_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Blush_60x46_Chimney",
+        "CatCafe_Plot_Cafe_Blush_60x46_Flowers",
+        "CatCafe_Plot_Cafe_Blush_60x46_Fireflies",
+        "CatCafe_Plot_Cafe_Blush_60x46_Paint",
+        "CatCafe_Plot_Cafe_Blush_60x46_Wallpaper",
+        "CatCafe_Plot_Cafe_Blush_60x46_Garden",
+        "CatCafe_Plot_Cafe_Blush_60x46_Path",
+        "CatCafe_Plot_Cafe_Blush_60x46_Awning"
+      ],
+      "triangles": 5772,
+      "budget": 12000,
+      "size_studs": {
+        "x": 65.86,
+        "y": 54.8,
+        "z": 31.0
+      },
+      "size_roblox": [
+        65.86,
+        31.0,
+        54.8
+      ],
+      "bounds_min": [
+        -32.93,
+        -29.0,
+        -0.3
+      ],
+      "bounds_max": [
+        32.93,
+        25.8,
+        30.7
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Blush, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        30.7,
+        14.24
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -24.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -23.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Blush laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Cafe_Blush on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush_60x46.model.json",
+      "rbx_parts": 535,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5772/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2764 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=25.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Butter_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Butter_60x46",
+        "CatCafe_Plot_Cafe_Butter_60x46_Glass",
+        "CatCafe_Plot_Cafe_Butter_60x46_Roof",
+        "CatCafe_Plot_Cafe_Butter_60x46_Trim",
+        "CatCafe_Plot_Cafe_Butter_60x46_Roof_Trim",
+        "CatCafe_Plot_Cafe_Butter_60x46_SignBoard",
+        "CatCafe_Plot_Cafe_Butter_60x46_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Butter_60x46_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_60x46_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Butter_60x46_Chimney",
+        "CatCafe_Plot_Cafe_Butter_60x46_Flowers",
+        "CatCafe_Plot_Cafe_Butter_60x46_Fireflies",
+        "CatCafe_Plot_Cafe_Butter_60x46_Paint",
+        "CatCafe_Plot_Cafe_Butter_60x46_Wallpaper",
+        "CatCafe_Plot_Cafe_Butter_60x46_Garden",
+        "CatCafe_Plot_Cafe_Butter_60x46_Path",
+        "CatCafe_Plot_Cafe_Butter_60x46_Awning"
+      ],
+      "triangles": 5772,
+      "budget": 12000,
+      "size_studs": {
+        "x": 65.86,
+        "y": 54.8,
+        "z": 31.0
+      },
+      "size_roblox": [
+        65.86,
+        31.0,
+        54.8
+      ],
+      "bounds_min": [
+        -32.93,
+        -29.0,
+        -0.3
+      ],
+      "bounds_max": [
+        32.93,
+        25.8,
+        30.7
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Butter, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        30.7,
+        14.24
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -24.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -23.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Butter laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Cafe_Butter on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter_60x46.model.json",
+      "rbx_parts": 535,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5772/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2764 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=25.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Cafe_Lilac_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Cafe_Lilac_60x46",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Glass",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Roof",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Trim",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Roof_Trim",
+        "CatCafe_Plot_Cafe_Lilac_60x46_SignBoard",
+        "CatCafe_Plot_Cafe_Lilac_60x46_LampPost_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_60x46_SignLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_60x46_BackLamp_Bulb",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Chimney",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Flowers",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Fireflies",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Paint",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Wallpaper",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Garden",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Path",
+        "CatCafe_Plot_Cafe_Lilac_60x46_Awning"
+      ],
+      "triangles": 5772,
+      "budget": 12000,
+      "size_studs": {
+        "x": 65.86,
+        "y": 54.8,
+        "z": 31.0
+      },
+      "size_roblox": [
+        65.86,
+        31.0,
+        54.8
+      ],
+      "bounds_min": [
+        -32.93,
+        -29.0,
+        -0.3
+      ],
+      "bounds_max": [
+        32.93,
+        25.8,
+        30.7
+      ],
+      "pivot": "as CatCafe_Plot_Cafe_Lilac, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "chimney_top_roblox": [
+        11.1,
+        30.7,
+        14.24
+      ],
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          16.0,
+          3.2
+        ],
+        "centre": [
+          0.0,
+          15.0,
+          -24.35
+        ]
+      },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -23.5
+      ],
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Cafe_Lilac laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Cafe_Lilac on a cafe of that size. Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac_60x46.model.json",
+      "rbx_parts": 535,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5772/12000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2764 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=25.80 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Interior_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Interior_60x46",
+        "CatCafe_Plot_Interior_60x46_HangingLamp_Bulb",
+        "CatCafe_Plot_Interior_60x46_StringLights_Bulbs"
+      ],
+      "triangles": 4408,
+      "budget": 8000,
+      "size_studs": {
+        "x": 60.02,
+        "y": 46.03,
+        "z": 12.8
+      },
+      "size_roblox": [
+        60.02,
+        12.8,
+        46.03
+      ],
+      "bounds_min": [
+        -30.01,
+        -23.02,
+        0.0
+      ],
+      "bounds_max": [
+        30.01,
+        23.01,
+        12.8
+      ],
+      "pivot": "as CatCafe_Plot_Interior, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Interior laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Interior on a cafe of that size. Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Interior_60x46.model.json",
+      "rbx_parts": 320,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Interior_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4408/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2656 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=23.01 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ForRent_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ForRent_60x46",
+        "CatCafe_Plot_ForRent_60x46_Sign",
+        "CatCafe_Plot_ForRent_60x46_Shutter"
+      ],
+      "triangles": 4420,
+      "budget": 5000,
+      "size_studs": {
+        "x": 55.7,
+        "y": 48.6,
+        "z": 8.45
+      },
+      "size_roblox": [
+        55.7,
+        8.45,
+        48.6
+      ],
+      "bounds_min": [
+        -27.85,
+        -26.9,
+        0.0
+      ],
+      "bounds_max": [
+        27.85,
+        21.7,
+        8.45
+      ],
+      "pivot": "as CatCafe_Plot_ForRent, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_60x46.model.json",
+      "rbx_parts": 285,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ForRent_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4420/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=21.70 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier1_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier1_60x46"
+      ],
+      "triangles": 288,
+      "budget": 3000,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.24,
+        "z": 2.28
+      },
+      "size_roblox": [
+        1.0,
+        2.28,
+        1.24
+      ],
+      "bounds_min": [
+        2.45,
+        -28.2,
+        0.02
+      ],
+      "bounds_max": [
+        3.45,
+        -26.96,
+        2.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier1, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier1 laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Tier1 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier1_60x46.model.json",
+      "rbx_parts": 22,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier1_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "288/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "138 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-26.96 (want 0)",
+          "centered": "footprint center x=2.95 y=-27.58"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier2_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier2_60x46",
+        "CatCafe_Plot_Tier2_60x46_Flowers",
+        "CatCafe_Plot_Tier2_60x46_Bistro"
+      ],
+      "triangles": 624,
+      "budget": 3000,
+      "size_studs": {
+        "x": 54.8,
+        "y": 3.8,
+        "z": 5.15
+      },
+      "size_roblox": [
+        54.8,
+        5.15,
+        3.8
+      ],
+      "bounds_min": [
+        -27.4,
+        -28.2,
+        0.15
+      ],
+      "bounds_max": [
+        27.4,
+        -24.4,
+        5.3
+      ],
+      "pivot": "as CatCafe_Plot_Tier2, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier2 laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Tier2 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier2_60x46.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier2_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "624/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-24.40 (want 0)",
+          "centered": "footprint center x=0.00 y=-26.30"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier3_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier3_60x46",
+        "CatCafe_Plot_Tier3_60x46_StringLights_Bulbs",
+        "CatCafe_Plot_Tier3_60x46_Bistro"
+      ],
+      "triangles": 880,
+      "budget": 3000,
+      "size_studs": {
+        "x": 55.68,
+        "y": 3.8,
+        "z": 9.71
+      },
+      "size_roblox": [
+        55.68,
+        9.71,
+        3.8
+      ],
+      "bounds_min": [
+        -27.84,
+        -28.3,
+        0.15
+      ],
+      "bounds_max": [
+        27.84,
+        -24.5,
+        9.86
+      ],
+      "pivot": "as CatCafe_Plot_Tier3, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier3 laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Tier3 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3_60x46.model.json",
+      "rbx_parts": 54,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier3_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "880/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "544 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-24.50 (want 0)",
+          "centered": "footprint center x=0.00 y=-26.40"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier4_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier4_60x46",
+        "CatCafe_Plot_Tier4_60x46_Glass",
+        "CatCafe_Plot_Tier4_60x46_Water",
+        "CatCafe_Plot_Tier4_60x46_StringLights_Bulbs"
+      ],
+      "triangles": 800,
+      "budget": 3000,
+      "size_studs": {
+        "x": 39.52,
+        "y": 54.75,
+        "z": 8.85
+      },
+      "size_roblox": [
+        39.52,
+        8.85,
+        54.75
+      ],
+      "bounds_min": [
+        -25.6,
+        -21.25,
+        0.0
+      ],
+      "bounds_max": [
+        13.92,
+        33.5,
+        8.85
+      ],
+      "pivot": "as CatCafe_Plot_Tier4, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier4 laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Tier4 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier4_60x46.model.json",
+      "rbx_parts": 60,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier4_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "800/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "500 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=33.50 (want 0)",
+          "centered": "footprint center x=-5.84 y=6.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_Tier5_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_Tier5_60x46"
+      ],
+      "triangles": 716,
+      "budget": 3000,
+      "size_studs": {
+        "x": 60.4,
+        "y": 6.55,
+        "z": 33.85
+      },
+      "size_roblox": [
+        60.4,
+        33.85,
+        6.55
+      ],
+      "bounds_min": [
+        -30.2,
+        -29.0,
+        0.02
+      ],
+      "bounds_max": [
+        30.2,
+        -22.45,
+        33.87
+      ],
+      "pivot": "as CatCafe_Plot_Tier5, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_Tier5 laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_Tier5 on a cafe of that size. Cumulative: place every tier up to the cafe's tier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5_60x46.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_Tier5_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "716/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "346 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-22.45 (want 0)",
+          "centered": "footprint center x=0.00 y=-25.73"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_YardFence_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_YardFence_60x46",
+        "CatCafe_Plot_YardFence_60x46_Barrier"
+      ],
+      "triangles": 4256,
+      "budget": 8000,
+      "size_studs": {
+        "x": 62.4,
+        "y": 10.17,
+        "z": 4.38
+      },
+      "size_roblox": [
+        62.4,
+        4.38,
+        10.17
+      ],
+      "bounds_min": [
+        -31.2,
+        24.0,
+        -0.2
+      ],
+      "bounds_max": [
+        31.2,
+        34.17,
+        4.18
+      ],
+      "pivot": "as CatCafe_Plot_YardFence, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_60x46.model.json",
+      "rbx_parts": 316,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "4256/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2672 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=34.17 (want 0)",
+          "centered": "footprint center x=0.00 y=29.08"
         }
       }
     },

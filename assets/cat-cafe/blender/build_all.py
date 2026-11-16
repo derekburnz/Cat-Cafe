@@ -105,6 +105,7 @@ import woodsf85  # noqa: E402
 import sewerf85  # noqa: E402
 import woodsset  # noqa: E402
 import yardfence  # noqa: E402
+import plotsizes  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
 import pitysign  # noqa: E402
@@ -145,7 +146,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
            arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, dragon,
            updateposter, decorstand, mysterysign,
-           waterparkshelf, wallperch]
+           waterparkshelf, wallperch, plotsizes]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -191,7 +192,6 @@ PIVOT_NOTES = {
     "CatCafe_Decor_NeonSign": "wall: back-bottom center",
     "CatCafe_Decor_MenuBoard": "wall: back-bottom center",
     "CatCafe_Decor_MuralPrint": "wall: back-bottom center",
-    "CatCafe_Decor_MuralPrint_Gold": "wall: back-bottom center",
     "CatCafe_Decor_HangingLamp": "ceiling hook (geometry hangs below the pivot)",
     "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
     "CatCafe_Decor_StringLights": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
@@ -675,6 +675,13 @@ STUDIO_NOTES[yardfence.NAME] = (
     "picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing "
     "roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is "
     "the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.")
+for _n, _b in plotsizes.BASE_OF.items():        # #4543: the cafe at its bigger room sizes
+    _w, _d = _n.rsplit("_", 1)[1].split("x")
+    PIVOT_NOTES[_n] = (f"as {_b}, on its own {_w} x {_d} room's floor centre: place it {plotsizes.set_back(_n):g} studs "
+                       "behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are")
+    STUDIO_NOTES[_n] = (f"#4543 the cafe grows with rank ups: {_b} laid out for the {_w} x {_d} room (Tier "
+                        + {"48": "3 and 4", "52": "5 and 6", "56": "7 and 8", "60": "9 and 10"}[_w]
+                        + f"), in place of {_b} on a cafe of that size. " + STUDIO_NOTES.get(_b, ""))
 for _n in alleyblockers.ASSETS:
     if "_Row" in _n:                             # the one-lane Alleyway's whole rows (Derek 11-02)
         PIVOT_NOTES[_n] = "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0"
@@ -942,7 +949,8 @@ def main():
             extra = {**extra, **crate_decor.MOVING[name]}
         if name.startswith("CatCafe_Plot_Cafe_"):  # the roof's trims ride the roof (it fades while you are inside)
             extra = {"nest": {"_Roof_Trim": "_Roof", "_LampPost_Bulb": "_Garden", "_Flowers": "_Garden"}}
-            extra["attachments"] = [(name, "SignHook", Matrix.Translation(Vector(common.RB.p(*plot.SIGN_HOOK))))]   # #1140
+            extra["attachments"] = [(name, "SignHook", Matrix.Translation(Vector(common.RB.p(
+                *plotsizes.plot_of(name).SIGN_HOOK))))]   # #1140; #4543: a sized shell's own hook
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
@@ -1117,9 +1125,10 @@ def main():
         if name.endswith(("_Gate", "_GateF85")) and name in areas.ASSETS:
             entry["sign_board_roblox"] = areas.SIGN_INFO
         if name.startswith("CatCafe_Plot_Cafe_"):
-            entry["chimney_top_roblox"] = list(plot.CHIMNEY_TOP)
-            entry["sign_board_roblox"] = plot.SIGN_INFO
-            entry["sign_hook_roblox"] = list(plot.SIGN_HOOK)          # #1140: the door sign hangs here
+            _pm = plotsizes.plot_of(name)                             # #4543: a sized shell's own numbers
+            entry["chimney_top_roblox"] = list(_pm.CHIMNEY_TOP)
+            entry["sign_board_roblox"] = _pm.SIGN_INFO
+            entry["sign_hook_roblox"] = list(_pm.SIGN_HOOK)           # #1140: the door sign hangs here
         if name in boards.AREA_OF:
             host, (px, py, pz, turn) = boards.PLACEMENT[boards.AREA_OF[name]]
             entry["area"] = boards.AREA_OF[name]

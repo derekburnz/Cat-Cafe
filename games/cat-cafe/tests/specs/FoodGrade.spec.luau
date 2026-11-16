@@ -23,7 +23,7 @@ return function()
 				star_treat = "Mythical",
 				honey_cream = "Legendary", -- #3462: the Day Cart's own two
 				comet_treat = "Mythical",
-				eclipse_treat = "Mythical", -- #4900: Secret is not a badge grade, so it shows as Mythical
+				eclipse_treat = "Secret", -- #4977 (Derek: "secret tier not mythic"): Mythical before
 			}
 			local seen = 0
 			for _, def in Catalog.lures do
@@ -49,6 +49,7 @@ return function()
 		it("writes the badge as a word, or a letter for a small picture", function()
 			expect(FoodGrade.badge("Legendary")).to.equal("LEGENDARY")
 			expect(FoodGrade.badge("Mythical", true)).to.equal("M")
+			expect(FoodGrade.badge("Secret")).to.equal("SECRET")
 		end)
 
 		it("keeps the attracts chip's meaning", function()

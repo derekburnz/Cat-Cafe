@@ -462,6 +462,16 @@ function Circles.press(
 			return nil
 		end
 		pressTime = Circles.target(circle)
+	elseif circle.noEarly == true then
+		-- #4814: the first catch by hand: a press before the Good band is dropped, not a Miss. A press the client
+		-- took at the band's edge that reads up to CatchLatencyCapSeconds early here (the two clocks) counts at the edge.
+		local edge = Circles.target(circle) - attempt.windows.good
+		if pressTime < edge then
+			if pressTime < edge - Config.CatchLatencyCapSeconds then
+				return nil
+			end
+			pressTime = edge + 1e-6 -- just inside the band, so the subtraction below never rounds it out to a Miss
+		end
 	end
 	if pressTime < circle.startsAt then
 		return nil

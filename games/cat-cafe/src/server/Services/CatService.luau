@@ -2642,6 +2642,12 @@ function startCatch(
 			stray.area,
 			dragonFx.slowRings
 		) -- #3140, #4447
+	-- #4814 (Derek 2026-11-16): the first catch by hand ignores every press before its ring is in the Good band
+	if SecondCat.caught(profile.stats) == 0 then
+		for _, circle in circles do
+			circle.noEarly = true
+		end
+	end
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial

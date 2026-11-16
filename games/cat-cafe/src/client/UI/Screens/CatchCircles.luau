@@ -880,6 +880,9 @@ function CatchCircles._press(self: any)
 		end
 		return
 	end
+	if view.circle.noEarly == true and t < view.target - self._windows.good then
+		return -- #4814: the first catch by hand: a press before the ring is in its Good band does nothing
+	end
 	if self._v3 then
 		-- Catch v3: every press is graded and the catch goes on whatever it was; a tapped paw ring is a Miss
 		local held: Types.CatchWindows = self._windows

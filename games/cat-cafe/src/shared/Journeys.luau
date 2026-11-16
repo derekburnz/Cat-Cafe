@@ -66,6 +66,29 @@ Journeys.AreaNodes = table.freeze({
 })
 Journeys.TRIPS_MAX = 30 -- AreaVisit journeys a play session; a trip past it logs nothing
 
+-- A new player's first ten minutes (first session only; the session id is one per play session): their first three
+-- different acts in order, then how the ten minutes ended. Each stage has its own names, so the same act as a first
+-- and as a second step can be told apart on the chart.
+Journeys.FIRST = "FirstTenMinutes"
+Journeys.FIRST_SECONDS = 600
+Journeys.ACTS = table.freeze({ "catch", "cannon", "bowl", "store", "trade", "menu" })
+Journeys.ACT_STAGES = table.freeze({ "First", "Second", "Third" })
+Journeys.FirstEnds = table.freeze({
+	rank = "RankedUp", -- reached Tier 2 inside the ten minutes
+	still = "StillPlaying", -- still here at minute ten
+	left = "Left", -- left before minute ten
+})
+
+-- The node for a new player's `index`th different act (1 to 3) of kind `act` (one of ACTS): "FirstCatch",
+-- "SecondStore"; nil outside those.
+function Journeys.actNode(index: number, act: string): string?
+	local stage = (Journeys.ACT_STAGES :: { string })[index]
+	if stage == nil or table.find(Journeys.ACTS, act) == nil then
+		return nil
+	end
+	return stage .. string.upper(string.sub(act, 1, 1)) .. string.sub(act, 2)
+end
+
 Journeys.NONE = "na" -- a field with nothing to say (fields are positional, so field 2 needs a field 1)
 
 -- A store_v1 funnel step (`step` one of StoreFunnel.STEPS, `values` its fields) as a StoreVisit node and its fields,
@@ -128,6 +151,12 @@ Journeys.CONFIG = table.freeze({
 		{ "PickedArea", "PickedLocked" },
 		{ "Arrived" },
 		{ "Caught" },
+	},
+	[Journeys.FIRST] = {
+		{ "FirstCatch", "FirstCannon", "FirstBowl", "FirstStore", "FirstTrade", "FirstMenu" },
+		{ "SecondCatch", "SecondCannon", "SecondBowl", "SecondStore", "SecondTrade", "SecondMenu" },
+		{ "ThirdCatch", "ThirdCannon", "ThirdBowl", "ThirdStore", "ThirdTrade", "ThirdMenu" },
+		{ "RankedUp", "StillPlaying", "Left" },
 	},
 	[Journeys.EVENT] = {
 		{ "SawAsk" },

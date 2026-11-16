@@ -46,6 +46,17 @@ return function()
 			for _, node in Journeys.AreaNodes do
 				expect(inConfig(Journeys.AREA, node)).to.equal(true)
 			end
+			for index = 1, 3 do
+				for _, act in Journeys.ACTS do
+					local node = Journeys.actNode(index, act)
+					expect(table.find(Journeys.CONFIG[Journeys.FIRST][index], node) ~= nil).to.equal(
+						true
+					)
+				end
+			end
+			for _, node in Journeys.FirstEnds do
+				expect(table.find(Journeys.CONFIG[Journeys.FIRST][4], node) ~= nil).to.equal(true)
+			end
 		end)
 	end)
 
@@ -79,6 +90,20 @@ return function()
 		it("has no node for completed or an unknown step", function()
 			expect((Journeys.storeNode("completed", { "vip" }))).to.equal(nil)
 			expect((Journeys.storeNode("nope", {}))).to.equal(nil)
+		end)
+	end)
+
+	describe("Journeys.actNode", function()
+		it("names the first three acts by their place", function()
+			expect(Journeys.actNode(1, "catch")).to.equal("FirstCatch")
+			expect(Journeys.actNode(2, "store")).to.equal("SecondStore")
+			expect(Journeys.actNode(3, "menu")).to.equal("ThirdMenu")
+		end)
+
+		it("has no node past the third act or for an unknown act", function()
+			expect(Journeys.actNode(4, "catch")).to.equal(nil)
+			expect(Journeys.actNode(0, "catch")).to.equal(nil)
+			expect(Journeys.actNode(1, "nap")).to.equal(nil)
 		end)
 	end)
 

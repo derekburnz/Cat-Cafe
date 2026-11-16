@@ -109,6 +109,7 @@ LiveFlags.KEYS = {
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
 	"moneyCard", -- #4437: the HUD Money button's first tap opens the boost card (UI/Screens/MoneyCard); false prompts at once
+	"autoRankUp", -- #4924: the Rank Up window opens by itself once a tier when it is ready (UI/Components/AutoRankUp)
 	"autoFirstBait", -- #4452: the starter Kibble goes in bowl 1 by itself at the tutorial's bowl step (shared/SecondCatHelp)
 	"tier2TopUp", -- #4453: the first tamed bait cat's welcome tops coins up to Tier 2's cost once (shared/SecondCatHelp)
 	"stuckAfterSecond", -- #4473: the stuck cat goal, pointer and call wait until the second cat is caught (shared/StuckGoal)

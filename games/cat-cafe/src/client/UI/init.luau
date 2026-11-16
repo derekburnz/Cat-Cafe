@@ -2048,6 +2048,7 @@ function UI.update(partial: Types.PartialState)
 	deriveState(partial)
 	render()
 	UI.giftLadder.refresh() -- #2791
+	UI.autoRank.check() -- #4924
 end
 
 function UI.getState(): Types.PlayerState
@@ -7417,6 +7418,12 @@ do
 	end
 
 	-- UI.destroy: the card goes with the rest of the screens.
+	-- #4924: whether the card is up (the Rank Up window waits for it)
+	function UI.bigPull.showing(): boolean
+		local screen = pull.screen
+		return screen ~= nil and screen:showing()
+	end
+
 	function UI.bigPull.reset()
 		local screen = pull.screen
 		if screen ~= nil then
@@ -11109,6 +11116,86 @@ function UI.calmForMoment(): boolean
 		and not UI.cutscene.on
 		and not UI.bait.busy()
 		and not (card ~= nil and card:isShowing())
+end
+
+-- #4924 (Derek 2026-11-16: "when its ready pull the rankup screen into their screen to click"): the Rank Up window
+-- opens by itself the first time each tier's rank up is ready this session, once the screen has been calm for
+-- AutoRankUp.CALM_SECONDS (no window, card, catch, rescue, carry, cutscene, roll or intro). Closed, it waits for the
+-- HUD button. One watcher at a time looks again every CHECK_SECONDS while a ready rank up waits for calm.
+UI.autoRank = { opened = {} :: { [number]: boolean }, watching = false, calmSince = nil :: number? }
+
+function UI.autoRank.ready(): (boolean, number)
+	local GoalLines = require(script.Components.GoalLines) :: any
+	local RankUpNeeds = require(script.Components.RankUpNeeds) :: any
+	local tier = state.tier or 1
+	local catalog = currentCatalog
+	if catalog == nil or (state :: any).plotIndex == 0 then
+		return false, tier
+	end
+	local nextTier = GoalLines.nextTier(catalog.tiers, tier)
+	if nextTier == nil then
+		return false, tier
+	end
+	return RankUpNeeds.of(nextTier, state :: any).ready == true, tier
+end
+
+function UI.autoRank.calm(): boolean
+	return modal ~= nil
+		and UI.calmForMoment()
+		and not UI.intro.playing()
+		and not UI.bigPull.showing()
+end
+
+function UI.autoRank.check()
+	local auto = UI.autoRank
+	if auto.watching then
+		return
+	end
+	local AutoRankUp = require(script.Components.AutoRankUp) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local function on(): boolean
+		return LiveFlags.shown(
+			AutoRankUp.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AutoRankUp.FLAG)
+		)
+	end
+	local ready, tier = auto.ready()
+	if not on() or not ready or auto.opened[tier] then
+		return
+	end
+	auto.watching = true
+	auto.calmSince = nil
+	task.spawn(function()
+		while true do
+			local nowReady, nowTier = auto.ready()
+			if modal == nil or not on() or not nowReady or auto.opened[nowTier] then
+				break
+			end
+			local now = os.clock()
+			if auto.calm() then
+				auto.calmSince = auto.calmSince or now
+			else
+				auto.calmSince = nil
+			end
+			if
+				AutoRankUp.due({
+					on = true,
+					tier = nowTier,
+					ready = nowReady,
+					opened = false,
+					calmFor = now - (auto.calmSince or now),
+				})
+			then
+				auto.opened[nowTier] = true
+				local window = modal :: Modal.Modal
+				window:open("RankUp")
+				break
+			end
+			task.wait(AutoRankUp.CHECK_SECONDS)
+		end
+		auto.watching = false
+	end)
 end
 
 UI.gift = {

@@ -10504,6 +10504,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local opens = goal:FindFirstChild("GoalLine1") :: TextLabel
 		assert(opens.Visible and string.find(opens.Text, "Opens Cozy Cafe", 1, true) and opens.TextFits, "uigate: the new kinds goal's line reads " .. opens.Text .. " (#4098)")
 		assert(opens.AbsolutePosition.Y + opens.AbsoluteSize.Y <= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y + 0.5, "uigate: the new kinds goal's line runs out of the card (#4098)")
+		-- #4625: and the coins half of Cozy Cafe as a short meter line, in the card
+		local coins = goal:FindFirstChild("GoalLine2") :: TextLabel
+		assert(coins.Visible and string.find(coins.Text, "💰", 1, true) and string.find(coins.Text, "$120 / ", 1, true) and coins.TextFits, "uigate: the new kinds goal has no coins line, it reads " .. coins.Text .. " (#4625)")
+		assert(coins.AbsolutePosition.Y + coins.AbsoluteSize.Y <= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y + 0.5, "uigate: the coins line runs out of the card (#4625)")
 		-- the stuck cat goal wins while both are set
 		UI.update({ stuckGoal = true } :: any)
 		UIShim.advance(0.1)

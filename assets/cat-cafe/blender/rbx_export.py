@@ -125,7 +125,11 @@ MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
                "_Harvest_Arch": {"ModelStreamingMode": "Atomic"},     # #4251: their Screens with them
                "_Harvest_Board": {"ModelStreamingMode": "Atomic"},
                "_UpdatePoster": {"ModelStreamingMode": "Atomic"},   # #4362: its Screen with it
-               "_ArcadeCabinet": {"ModelStreamingMode": "Atomic"}}   # #3062: its Screen with it
+               "_ArcadeCabinet": {"ModelStreamingMode": "Atomic"},   # #3062: its Screen with it
+               # #4788: a tier gate comes whole, so the client never finds the gate without its Bars (which it makes
+               # solid below the tier) or its SignBoard (which the UI draws the lock and tier on)
+               "_Gate": {"ModelStreamingMode": "Atomic"},
+               "_GateF85": {"ModelStreamingMode": "Atomic"}}
 # #4788 (instance streaming): a child Model that Effects/Motion moves about its pivot (`_Swing`, `_Spin`, `_Bob`)
 # streams in whole. Motion turns the Model with PivotTo, which moves only the parts a device has at that moment, so a
 # part arriving later would sit where the server left it, apart from the rest of its cloth, sails or sign.

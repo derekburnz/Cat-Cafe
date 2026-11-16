@@ -558,6 +558,11 @@ function applyTutorial()
 			end)
 		end
 	end
+	-- #4973: the beat after a walk-through catch's result (UI.catch.retry.stripUntil, finishCatch)
+	local catchBeat: any = UI.catch
+	if catchBeat ~= nil and catchBeat.retry ~= nil and os.clock() < catchBeat.retry.stripUntil then
+		text = nil
+	end
 	if hud then
 		hud:holdTutorial(introPending)
 		hud:setTutorial(text)
@@ -4614,7 +4619,7 @@ end
 UI.catch = {}
 -- #4973: a tutorial Miss keeps the HUD aside until its circle comes back (finishCatch); `starts` counts the circles
 -- shown, `token` the results, and GRACE is the wait past TutorialRetrySeconds before it gives up on a new circle
-UI.catch.retry = { token = 0, starts = 0, GRACE = 1.0 }
+UI.catch.retry = { token = 0, starts = 0, GRACE = 1.0, stripUntil = 0, STRIP_BEAT = 0.6 }
 -- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
@@ -4873,6 +4878,17 @@ do
 				end
 			end
 		end
+		-- #4973 (Sync's forced Miss run): the server's easy catch (CatService.easyCatch) covers every free stray of
+		-- the walk-through, not only the Beginner one, and its Miss comes back after TutorialRetrySeconds, which the
+		-- result's retryAt says (an ordinary Miss waits StraySelfRetrySeconds, 3 s or more)
+		if
+			not outcome.success
+			and outcome.hint == nil
+			and type(retryAt) == "number"
+			and retryAt - Workspace:GetServerTimeNow() <= Config.TutorialRetrySeconds + 0.5
+		then
+			outcome.hint = "Try again!"
+		end
 		if not outcome.success and outcome.hint == nil then
 			local now = Workspace:GetServerTimeNow()
 			for id, retry in retries do
@@ -4912,6 +4928,17 @@ do
 			if not outcome.success and activePrompt ~= nil and info ~= nil and prompt ~= nil then
 				prompt:show(info)
 			end
+		end
+		-- #4973 (Sync's run: the old step's line flashed 0.09 s after a Perfect, until the next step's sync): in the
+		-- walk-through a catch's result keeps the strip down for STRIP_BEAT, so the next line is the first it shows
+		if outcome.success and UI.firstCat.tutorial then
+			retry.stripUntil = os.clock() + retry.STRIP_BEAT
+			applyTutorial()
+			task.delay(retry.STRIP_BEAT + 0.05, function()
+				if hud ~= nil then
+					applyTutorial()
+				end
+			end)
 		end
 		if held then
 			task.delay(Config.TutorialRetrySeconds + retry.GRACE, function()

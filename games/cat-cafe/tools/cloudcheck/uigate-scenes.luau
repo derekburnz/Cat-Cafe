@@ -8599,6 +8599,24 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(1.0)
 		back("after a tutorial Miss with no new circle")
 		UIShim.advance(2)
+		-- Sync's forced Miss run: an easy catch on a stray that is not the Beginner one; its retryAt (now + 1 s) says
+		-- the circle comes back, so the HUD stays aside too
+		startCatchV3("gate_tm3", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		local t = workspace:GetServerTimeNow()
+		UI.catch.showGrades("gate_tm3", { "miss" }, false, 0, t + 1, nil)
+		assert(aside(), "uigate: the HUD came back on an easy catch's Miss whose circle comes back (#4973)")
+		startCatchV3("gate_tm3", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm3", { "perfect" }, true, 0)
+		back("the moment the easy catch lands")
+		UIShim.advance(2)
+		-- an ordinary Miss (retryAt 3 s or more away): the HUD is back at once (#3078)
+		startCatchV3("gate_tm4", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm4", { "miss" }, false, 0, workspace:GetServerTimeNow() + 3, nil)
+		back("the moment an ordinary Miss lands")
+		UIShim.advance(4)
 	end },
 	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): with a PackedCatId on the character
 	-- and nothing in the arms, a small "Drop bag cat" pill sits where the carry banner would, thumb sized, on screen,

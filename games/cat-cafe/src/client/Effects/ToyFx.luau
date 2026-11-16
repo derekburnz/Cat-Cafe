@@ -73,7 +73,9 @@ local function launch(from: Vector3, to: Vector3, height: number)
 	part.Transparency = 0.25
 	part.Position = from
 	part.Parent = Context.folder()
-	table.insert(drops, { part = part, from = from, to = to, height = height, born = os.clock() })
+	local drop: Drop =
+		{ part = part :: BasePart, from = from, to = to, height = height, born = os.clock() }
+	table.insert(drops, drop)
 	if flying == nil then
 		flying = RunService.Heartbeat:Connect(fly)
 	end

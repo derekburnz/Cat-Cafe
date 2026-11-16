@@ -3585,6 +3585,13 @@ function UIController.start()
 			return Audio.play(cueId)
 		end,
 	})
+	-- #4821 (Sync's Studio read): the hold starts on, so nothing pops up before the first sync says who this is (an
+	-- event's banner and splash at 4 s on a fresh save); that sync clears it for anyone past the bowl part
+	firstCat.held = true
+	UI.setFirstCatHold(true)
+	if state ~= nil then
+		firstCatHold(state)
+	end
 	UI.catch.bindProximityPrompts()
 	-- The HUD clock chip reads Phase and PhaseEndsAt off the server's Clock folder and follows its changes.
 	task.spawn(function()

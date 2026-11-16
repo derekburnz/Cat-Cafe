@@ -1771,7 +1771,7 @@ function UI.init(config: Types.InitConfig)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
-	UI.lateStations.start() -- the Oasis Spa and Relic Museum cards (#2651 part 4)
+	UI.lateStations.start(parent) -- the Oasis Spa and Relic Museum cards (#2651 part 4)
 	UI.mysticPool.start() -- the Mystic Pool's card (#3196)
 	UI.mouseDash.start() -- the arcade's Mouse Dash window (#3296)
 	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
@@ -8382,6 +8382,7 @@ do
 	local OasisSpa = require(script.Screens.OasisSpa)
 	local RelicMuseum = require(script.Screens.RelicMuseum)
 	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
+	local ToyButton = require(script.Screens.ToyButton) -- #4061 spec 1.3: the toy in hand's use button
 	local DragonKeepScreen = require(script.Screens.DragonKeep) -- #4062
 	local FusionScreen = require(script.Screens.FusionObservatory) -- #4104
 	local StationFixtures = require(script.Components.StationFixtures) -- Studio only (#4103)
@@ -8402,6 +8403,8 @@ do
 		spa = nil :: OasisSpa.OasisSpa?,
 		museum = nil :: RelicMuseum.RelicMuseum?,
 		booth = nil :: TicketBooth.TicketBooth?, -- #4061
+		toyButton = nil :: ToyButton.ToyButton?, -- #4061 spec 1.3
+		heldLinks = nil :: { RBXScriptConnection }?, -- the HeldToy watch
 		keep = nil :: DragonKeepScreen.DragonKeep?, -- #4062
 		fusion = nil :: FusionScreen.FusionObservatory?, -- #4104
 		test = nil :: { [string]: any }?, -- Studio only: StationFixtures views in place of PlayerState's (#4103)
@@ -8477,7 +8480,7 @@ do
 	end
 
 	-- UI.init: both cards in the modal.
-	function UI.lateStations.start()
+	function UI.lateStations.start(parent: Instance?)
 		UI.lateStations.reset()
 		local modalView = modal
 		if modalView == nil then
@@ -8536,9 +8539,46 @@ do
 			buy = function(prizeId: string)
 				send("BuyTicketPrize", prizeId)
 			end,
+			hold = function(toyId: string?)
+				send("HoldToy", toyId) -- nil puts it away
+			end,
 			close = closer(WINDOWS.ticketBooth),
 		})
 		late.booth = booth
+		-- #4061 spec 1.3: the toy in hand is the character's HeldToy (the server's alone); the booth cards and the use
+		-- button follow it, and a respawn starts with none
+		if parent ~= nil then
+			local toyButton = ToyButton.new(parent, {
+				use = function()
+					send("UseToy")
+				end,
+				blocked = function()
+					return UI.catch.circlesActive() or UI.rescue.isActive() or UI.intro.playing()
+				end,
+			})
+			late.toyButton = toyButton
+			local function heldNow()
+				local character = Players.LocalPlayer.Character
+				local raw = if character then character:GetAttribute("HeldToy") else nil
+				local held = if type(raw) == "string" and raw ~= "" then raw else nil
+				toyButton:setHeld(held)
+				booth:setHeld(held)
+			end
+			local heldLinks: { RBXScriptConnection } = {}
+			local function watch(character: Model?)
+				local old = heldLinks[2]
+				if old then
+					old:Disconnect()
+				end
+				if character then
+					heldLinks[2] = character:GetAttributeChangedSignal("HeldToy"):Connect(heldNow)
+				end
+				heldNow()
+			end
+			heldLinks[1] = Players.LocalPlayer.CharacterAdded:Connect(watch)
+			watch(Players.LocalPlayer.Character)
+			late.heldLinks = heldLinks
+		end
 		modalView:register(WINDOWS.ticketBooth, {
 			frame = booth.frame,
 			onOpen = function()
@@ -8858,6 +8898,15 @@ do
 			booth:destroy()
 		end
 		late.booth = nil
+		local toyButton = late.toyButton
+		if toyButton then
+			toyButton:destroy()
+		end
+		late.toyButton = nil
+		for _, link in late.heldLinks or {} do
+			link:Disconnect()
+		end
+		late.heldLinks = nil
 		local keep = late.keep
 		if keep then
 			keep:destroy()

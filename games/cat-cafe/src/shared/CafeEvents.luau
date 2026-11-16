@@ -133,6 +133,9 @@ CafeEvents.ADMIN = {
 -- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
 -- Derek 2026-11-16 16:10 UTC: the longest a Trait Party (free trait rolls) may run
 CafeEvents.TRAIT_PARTY_MAX_SECONDS = 180
+-- #4871 (Derek 2026-11-16 16:28 UTC: a one-time spawn "no need to put a 15min banner just have it be like a 3 min
+-- banner"): the longest a Secret Hunt runs. Its cats come out in the first seconds and stay until dusk after it ends.
+CafeEvents.SECRET_HUNT_MAX_SECONDS = 180
 
 CafeEvents.ADMIN_KINDS = {
 	bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
@@ -145,7 +148,8 @@ CafeEvents.ADMIN_KINDS = {
 	-- never longer (TRAIT_PARTY_MAX_SECONDS)
 	traits = { title = "Trait Party", minutes = 3, effects = { traitParty = true } },
 	speed = { title = "Speed Rush", minutes = 10, effects = { speedRush = true } },
-	hunt = { title = "Secret Hunt", minutes = 15, effects = { secretHunt = 3 } },
+	-- #4871: 3, was 15, and never longer (SECRET_HUNT_MAX_SECONDS)
+	hunt = { title = "Secret Hunt", minutes = 3, effects = { secretHunt = 3 } },
 	fountain = { title = "Fish Fountain", minutes = 5, effects = { fishFountain = true } },
 	crates = { title = "Crate Drop", minutes = 5, effects = { crateDrop = true } },
 	-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
@@ -475,9 +479,16 @@ local function adminOf(
 	end
 	-- Derek 2026-11-16: free trait rolls run 3 minutes at most, whatever the record says (the owner's /admin, the
 	-- events workflow or a hand-written record)
+	-- #4871: the same for a Secret Hunt, a one-time spawn
 	local party: any = (effects :: any).traitParty
-	if party == true or (type(party) == "number" and party > 0) then
-		endsAt = math.min(endsAt, startsAt + CafeEvents.TRAIT_PARTY_MAX_SECONDS)
+	local most = if party == true or (type(party) == "number" and party > 0)
+		then CafeEvents.TRAIT_PARTY_MAX_SECONDS
+		else nil
+	if effects.secretHunt > 0 then
+		most = math.min(most or math.huge, CafeEvents.SECRET_HUNT_MAX_SECONDS)
+	end
+	if most ~= nil then
+		endsAt = math.min(endsAt, startsAt + most)
 		if endsAt <= now then
 			return nil, nil
 		end
@@ -900,6 +911,7 @@ local function adminSeconds(kind: string, minutes: number?): number
 		else CafeEvents.ADMIN_KINDS[kind].minutes
 	local most = if kind == "traits"
 		then CafeEvents.TRAIT_PARTY_MAX_SECONDS
+		elseif kind == "hunt" then CafeEvents.SECRET_HUNT_MAX_SECONDS
 		else CafeEvents.ADMIN.maxSeconds
 	return math.clamp(math.floor(asked) * 60, CafeEvents.ADMIN.minSeconds, most)
 end

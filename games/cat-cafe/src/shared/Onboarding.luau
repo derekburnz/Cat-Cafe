@@ -673,10 +673,6 @@ local CLEAN_RULES: { CleanRule } = {
 	{ name = "catch_started", ledger = "catch_started" }, -- the net swung
 	{ name = "first_catch", ledger = "first_catch" },
 	{ name = "first_checkin", ledger = "first_checkin" }, -- saved at camp
-	{ name = "near_stray_2", event = EV.nearStray },
-	{ name = "catch_2_started", event = EV.catchStart }, -- the net swung at the second cat
-	{ name = "second_net_catch", event = EV.netCatch },
-	{ name = "second_checkin", handCats = 2 }, -- three cats with the bowl's
 	{ name = "rank_up_ready_shown", event = EV.rankUpShown },
 	{ name = "rank_up_pressed", event = EV.rankUpPressed },
 	{ name = "tier_2", tier = 2 },
@@ -711,10 +707,6 @@ Onboarding.CLEAN_STEPS = {
 	"catch_started",
 	"first_catch",
 	"first_checkin",
-	"near_stray_2",
-	"catch_2_started",
-	"second_net_catch",
-	"second_checkin",
 	"rank_up_ready_shown",
 	"rank_up_pressed",
 	"tier_2",
@@ -746,7 +738,7 @@ Onboarding.CLEAN_STEPS = {
 	"castle_catch",
 } :: { string }
 Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
-Onboarding.CLEAN_TUTORIAL = 22 -- park_arrived, the walk-through's end: the areas come after
+Onboarding.CLEAN_TUTORIAL = 18 -- park_arrived, the walk-through's end: the areas come after
 Onboarding.CLEAN_RULE_NAMES = table.create(#CLEAN_RULES) :: { string } -- for the spec
 for index, rule in CLEAN_RULES do
 	Onboarding.CLEAN_RULE_NAMES[index] = rule.name

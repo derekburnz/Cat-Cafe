@@ -642,10 +642,10 @@ return function()
 		}
 
 		it(
-			"is onboarding_v8: 47 steps in the bowl first order, ending at the Park, then catch, tier and arrival per area",
+			"is onboarding_v8: 43 steps in the bowl first order, ending at the Park, then catch, tier and arrival per area",
 			function()
 				expect(Onboarding.CLEAN_FUNNEL).to.equal("onboarding_v8")
-				expect(Onboarding.CLEAN_COUNT).to.equal(47)
+				expect(Onboarding.CLEAN_COUNT).to.equal(43)
 				expect(Onboarding.CLEAN_STEPS :: any).to.deepEqual(Onboarding.CLEAN_RULE_NAMES)
 				expect(Onboarding.CLEAN_STEPS[4]).to.equal("bowl_opened")
 				expect(Onboarding.CLEAN_STEPS[5]).to.equal("first_bowl")
@@ -654,17 +654,14 @@ return function()
 				expect(Onboarding.CLEAN_STEPS[8]).to.equal("in_cannon")
 				expect(Onboarding.CLEAN_STEPS[10]).to.equal("alley_arrived")
 				expect(Onboarding.CLEAN_STEPS[14]).to.equal("first_checkin")
-				expect(Onboarding.CLEAN_STEPS[16]).to.equal("catch_2_started")
-				expect(Onboarding.CLEAN_STEPS[17]).to.equal("second_net_catch")
-				expect(Onboarding.CLEAN_STEPS[18]).to.equal("second_checkin")
-				expect(Onboarding.CLEAN_STEPS[19]).to.equal("rank_up_ready_shown")
-				expect(Onboarding.CLEAN_STEPS[21]).to.equal("tier_2")
+				expect(Onboarding.CLEAN_STEPS[15]).to.equal("rank_up_ready_shown")
+				expect(Onboarding.CLEAN_STEPS[17]).to.equal("tier_2")
 				expect(Onboarding.CLEAN_STEPS[Onboarding.CLEAN_TUTORIAL]).to.equal("park_arrived")
-				expect(Onboarding.CLEAN_TUTORIAL).to.equal(22)
-				expect(Onboarding.CLEAN_STEPS[23]).to.equal("park_catch")
-				expect(Onboarding.CLEAN_STEPS[24]).to.equal("tier_3")
-				expect(Onboarding.CLEAN_STEPS[25]).to.equal("neighbourhood_arrived")
-				expect(Onboarding.CLEAN_STEPS[47]).to.equal("castle_catch")
+				expect(Onboarding.CLEAN_TUTORIAL).to.equal(18)
+				expect(Onboarding.CLEAN_STEPS[19]).to.equal("park_catch")
+				expect(Onboarding.CLEAN_STEPS[20]).to.equal("tier_3")
+				expect(Onboarding.CLEAN_STEPS[21]).to.equal("neighbourhood_arrived")
+				expect(Onboarding.CLEAN_STEPS[43]).to.equal("castle_catch")
 				local seen: { [string]: boolean } = {}
 				for _, name in Onboarding.CLEAN_STEPS do
 					expect(seen[name]).to.equal(nil)
@@ -704,28 +701,22 @@ return function()
 			expect(#Onboarding.cleanDue(state, 11, facts, EV.netCatch)).to.equal(0)
 			play(state, { "first_catch", "first_checkin" })
 			expect(Onboarding.cleanDue(state, 11, facts) :: any).to.deepEqual({ 12, 13, 14 })
-			expect(Onboarding.cleanDue(state, 14, facts, EV.nearStray) :: any).to.deepEqual({ 15 })
-			expect(Onboarding.cleanDue(state, 15, facts, EV.catchStart) :: any).to.deepEqual({ 16 })
-			expect(Onboarding.cleanDue(state, 16, facts, EV.netCatch) :: any).to.deepEqual({ 17 })
-			-- a Rank Up shown before the second cat is saved waits for it
-			expect(#Onboarding.cleanDue(state, 17, facts, EV.rankUpShown)).to.equal(0)
-			facts.handCats = 2
-			expect(Onboarding.cleanDue(state, 17, facts) :: any).to.deepEqual({ 18 })
-			expect(Onboarding.cleanDue(state, 18, facts, EV.rankUpShown) :: any).to.deepEqual({ 19 })
-			expect(Onboarding.cleanDue(state, 19, facts, EV.rankUpPressed) :: any).to.deepEqual({
-				20,
+			-- one Alleyway catch is the walk-through's only hand catch (#4674): the Rank Up shows after it
+			expect(Onboarding.cleanDue(state, 14, facts, EV.rankUpShown) :: any).to.deepEqual({ 15 })
+			expect(Onboarding.cleanDue(state, 15, facts, EV.rankUpPressed) :: any).to.deepEqual({
+				16,
 			})
 			facts.tier = 2
-			expect(Onboarding.cleanDue(state, 20, facts) :: any).to.deepEqual({ 21 })
-			expect(Onboarding.cleanDue(state, 21, facts, Onboarding.arrivedEvent("park")) :: any).to.deepEqual({
-				22,
+			expect(Onboarding.cleanDue(state, 16, facts) :: any).to.deepEqual({ 17 })
+			expect(Onboarding.cleanDue(state, 17, facts, Onboarding.arrivedEvent("park")) :: any).to.deepEqual({
+				18,
 			})
 			facts.areas.park = true
 			facts.tier = 3
-			expect(Onboarding.cleanDue(state, 22, facts) :: any).to.deepEqual({ 23, 24 })
+			expect(Onboarding.cleanDue(state, 18, facts) :: any).to.deepEqual({ 19, 20 })
 			expect(
-				Onboarding.cleanDue(state, 24, facts, Onboarding.arrivedEvent("neighbourhood")) :: any
-			).to.deepEqual({ 25 })
+				Onboarding.cleanDue(state, 20, facts, Onboarding.arrivedEvent("neighbourhood")) :: any
+			).to.deepEqual({ 21 })
 		end)
 
 		it(
@@ -735,32 +726,30 @@ return function()
 				play(state, tutorial)
 				local facts: Onboarding.CleanFacts =
 					{ tier = 1, areas = { park = true }, handCats = 2 }
-				-- the second cat saved by any route proves near_stray_2, its start and the net catch
-				expect(Onboarding.cleanDue(state, 14, facts) :: any).to.deepEqual({ 15, 16, 17, 18 })
 				-- a Park cat at Tier 1 (a gift) passes no tier
-				expect(#Onboarding.cleanDue(state, 18, facts)).to.equal(0)
+				expect(#Onboarding.cleanDue(state, 14, facts)).to.equal(0)
 				local all: Onboarding.CleanFacts = { tier = 10, areas = {}, handCats = 2 }
 				for _, area in Onboarding.CLEAN_AREAS do
 					all.areas[area] = true
 				end
-				local due = Onboarding.cleanDue(state, 18, all)
-				expect(#due).to.equal(47 - 18)
-				expect(due[#due]).to.equal(47)
+				local due = Onboarding.cleanDue(state, 14, all)
+				expect(#due).to.equal(43 - 14)
+				expect(due[#due]).to.equal(43)
 			end
 		)
 
 		it("says when a moment can count, for the checks that run every tick", function()
-			expect(Onboarding.cleanWants(14, EV.nearStray)).to.equal(true)
-			expect(Onboarding.cleanWants(13, EV.nearStray)).to.equal(false) -- first_checkin is a stored step
-			expect(Onboarding.cleanWants(15, EV.nearStray)).to.equal(false)
-			expect(Onboarding.cleanWants(Onboarding.CLEAN_COUNT, EV.nearStray)).to.equal(false)
+			expect(Onboarding.cleanWants(14, EV.rankUpShown)).to.equal(true)
+			expect(Onboarding.cleanWants(13, EV.rankUpShown)).to.equal(false) -- first_checkin is a stored step
+			expect(Onboarding.cleanWants(15, EV.rankUpShown)).to.equal(false)
+			expect(Onboarding.cleanWants(Onboarding.CLEAN_COUNT, EV.rankUpShown)).to.equal(false)
 		end)
 
 		it("names the furthest step of the funnel that runs", function()
 			local state = fresh()
 			expect(Onboarding.cleanFurthest(state, true)).to.equal("none")
-			state.cleanV8Step = 17
-			expect(Onboarding.cleanFurthest(state, true)).to.equal("second_net_catch")
+			state.cleanV8Step = 15
+			expect(Onboarding.cleanFurthest(state, true)).to.equal("rank_up_ready_shown")
 			state.cleanV8Step = Onboarding.CLEAN_COUNT
 			expect(Onboarding.cleanFurthest(state, true)).to.equal("done")
 			state.cleanStep = 10

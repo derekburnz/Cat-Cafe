@@ -137,6 +137,7 @@ type CircleView = {
 	ring: Frame,
 	ringStroke: UIStroke,
 	ringRim: UIStroke, -- #4842: the dark rim under the ring's stroke
+	plain: boolean, -- #4966: a plain ring's target is drawn in the Perfect gold with no rim
 	number: TextLabel,
 	hint: Types.CircleGrade?, -- the grade drawn: this device's guess, then the server's
 	judged: boolean,
@@ -503,21 +504,28 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 	local edge = if paw then PAW_COLOR elseif second then DOUBLE_COLOR else Theme.colors.paper
 	local goodColor = if paw then PAW_COLOR else Theme.colors.good
 	local perfectColor = if paw then PAW_COLOR else Theme.colors.gold
-	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, goodColor, 0.45, art)
-	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, perfectColor, 0.1, art)
+	-- #4966 (Derek2 11-16: "a lot of colors ... have a thick green layer and just a gold layer that is the perfect"):
+	-- a solid green Good band (0.45 see-through before, which read dark green at night) and a solid gold Perfect band;
+	-- on a plain ring the target line is that same gold with no dark rim, so there is no cream ring between them
+	local plain = not paw and not second
+	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, goodColor, 0.15, art)
+	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, perfectColor, 0, art)
 	-- #4842: each frame's own stroke is the dark rim; a same-size child ("Edge") carries the coloured stroke over it,
 	-- so the rim shows RIM px outside the colour only
 	local ring = circleFrame("Ring", RING_RADIUS - RING_THICKNESS / 2, art)
 	local ringRim: UIStroke = Create("UIStroke", {
 		Color = Theme.colors.ink,
 		Thickness = RING_THICKNESS + RIM,
-		Transparency = RIM_TRANSPARENCY,
+		Transparency = if plain then 1 else RIM_TRANSPARENCY,
 		Parent = ring,
 	})
 	local ringEdge = circleFrame("Edge", 0, ring)
 	ringEdge.Size = UDim2.fromScale(1, 1)
-	local ringStroke: UIStroke =
-		Create("UIStroke", { Color = edge, Thickness = RING_THICKNESS, Parent = ringEdge })
+	local ringStroke: UIStroke = Create("UIStroke", {
+		Color = if plain then perfectColor else edge,
+		Thickness = RING_THICKNESS,
+		Parent = ringEdge,
+	})
 	local closer = circleFrame("Closer", START_RADIUS, art)
 	Create("UIStroke", {
 		Color = Theme.colors.ink,
@@ -618,6 +626,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		ring = ring,
 		ringStroke = ringStroke,
 		ringRim = ringRim,
+		plain = plain,
 		number = number,
 		hint = nil,
 		judged = false,
@@ -798,7 +807,10 @@ function CatchCircles._step(self: any, t: number)
 		local started = t >= circle.startsAt
 		view.closer.Visible = started
 		view.ringStroke.Transparency = if started then 0 else 0.6
-		view.ringRim.Transparency = if started then RIM_TRANSPARENCY else 0.8
+		view.ringRim.Transparency = if view.plain
+			then 1
+			elseif started then RIM_TRANSPARENCY
+			else 0.8
 		if started then
 			local radius = RING_RADIUS + (view.target - t) * view.speed
 			radius = math.max(RING_RADIUS - windows.good * view.speed - 8, radius)

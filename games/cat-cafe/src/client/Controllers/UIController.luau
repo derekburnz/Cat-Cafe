@@ -1336,7 +1336,15 @@ end
 -- #4821 (shared/QuietStart.firstCatHolds): under bowl first, the pop-ups wait until the first bowl cat is claimed and
 -- FIRST_CAT_AFTER seconds more. `before` is the last sync's answer; `claimedAt` the clock when it turned false here.
 -- `tutorial` (QuietStart.tutorialHolds, Derek 2026-11-16 15:22 UTC): the softer hold through the rest of the tutorial.
-local firstCat = { before = false, claimedAt = nil :: number?, held = false, tutorial = false }
+-- `early` (#4946, QuietStart.earlyHolds): the account's first 5 minutes of play, which hold the pop-ups (not the Drop)
+local firstCat = {
+	before = false,
+	claimedAt = nil :: number?,
+	held = false,
+	tutorial = false,
+	early = false,
+	earlyTimer = false,
+}
 local function firstCatHold(s: Types.PlayerState)
 	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
 	local QuietStart = require(Shared:WaitForChild("QuietStart")) :: any
@@ -1363,9 +1371,25 @@ local function firstCatHold(s: Types.PlayerState)
 	end
 	local tutorial = QuietStart.tutorialHolds(TutorialOrder.bowlFirst(), s.tutorialStep, s.tier)
 		== true
-	if tutorial ~= firstCat.tutorial then
+	-- #4946: and the account's first 5 minutes, checked again as they end
+	local untilAt = player:GetAttribute(QuietStart.ATTRIBUTE)
+	local now = Workspace:GetServerTimeNow()
+	local early = QuietStart.earlyHolds(untilAt, now) == true
+	local endsAt: number? = QuietStart.earlyEndsAt(untilAt, now)
+	if endsAt ~= nil and not firstCat.earlyTimer then
+		firstCat.earlyTimer = true
+		task.delay(endsAt - now + 0.1, function()
+			firstCat.earlyTimer = false
+			local current = state
+			if current ~= nil then
+				firstCatHold(current)
+			end
+		end)
+	end
+	if tutorial ~= firstCat.tutorial or early ~= firstCat.early then
 		firstCat.tutorial = tutorial
-		UI.setTutorialHold(tutorial)
+		firstCat.early = early
+		UI.setTutorialHold(tutorial or early, tutorial)
 	end
 end
 
@@ -2546,7 +2570,8 @@ local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
 	end
-	if firstCat.held or firstCat.tutorial then
+	if firstCat.held or firstCat.tutorial or firstCat.early then
+		-- #4946: nor in the account's first 5 minutes
 		-- #4821: no asks (notifications, favorite, like, invite, the event's Notify Me) before the first cat, and
 		-- (Derek 2026-11-16 15:22 UTC) none until the walk-through is done
 		return false
@@ -3363,8 +3388,8 @@ local function wireServerEvents()
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
 				return
 			end
-			if firstCat.tutorial then
-				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through; the gift still comes
+			if firstCat.tutorial or firstCat.early then
+				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through (#4946: or the first 5 minutes)
 			end
 			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
@@ -3621,7 +3646,7 @@ function UIController.start()
 	firstCat.held = true
 	UI.setFirstCatHold(true)
 	firstCat.tutorial = true
-	UI.setTutorialHold(true)
+	UI.setTutorialHold(true, true)
 	if state ~= nil then
 		firstCatHold(state)
 	end

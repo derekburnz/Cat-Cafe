@@ -8129,6 +8129,51 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #4174 (Derek 2026-11-14: "make sure it has a good art for the pop up", and it "stays forever on screen until X"):
 	-- an ask with a picture and a line has the picture on the left, the line and its one button beside it, all fitting;
 	-- with no seconds it has no draining bar and is still up half a minute later
+	-- #4946 (Derek 2026-11-16: "one pop-up every 5 minutes, not 30 s apart", and none until the tutorial steps are done
+	-- or the first 5 minutes have passed): no first visit card nor ask through the hold, then one pop-up, and the next
+	-- only 5 minutes on; the Tutorial tile's × does not pulse through the hold
+	{ "PopPaceHold", function()
+		UI.asks.skipPace()
+		local function visit(): boolean
+			return UI.asks.card({
+				title = "A first visitor!",
+				line = "Someone came to see your cafe",
+				choices = { { id = "ok", label = "Nice!", style = "primary" } },
+				seconds = 4, -- it goes by itself, so the next one is held by the pace alone
+				answer = function() end,
+			}, true)
+		end
+		local function hide()
+			UIShim.advance(6)
+		end
+		UI.setTutorialHold(true, false) -- the account's first 5 minutes, the walk-through done
+		assert(not visit(), "uigate: a first visit card showed in the first 5 minutes (#4946)")
+		assert(not UI.asks.paced(), "uigate: an ask may show in the first 5 minutes (#4946)")
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local dot: Instance? = nil
+		for _, piece in (hud :: Instance):GetDescendants() do
+			if piece.Name == "Dot" and piece.Parent and piece.Parent.Name == "Hide" then
+				dot = piece
+			end
+		end
+		assert(dot, "uigate: no × on the Tutorial tile")
+		UI.update({ tutorialStep = 4, tier = 2 } :: any)
+		UI.update({ tutorialStep = 9, tier = 2 } :: any)
+		UIShim.advance(8)
+		assert((dot :: Instance):FindFirstChild("PulseRing") == nil, "uigate: the × pulsed in the first 5 minutes (#4946)")
+		UI.setTutorialHold(false, false)
+		UIShim.advance(1)
+		assert((dot :: Instance):FindFirstChild("PulseRing"), "uigate: the × did not pulse once the hold ended (#4946)")
+		UIShim.advance(7)
+		assert(visit(), "uigate: the first visit card did not show once the hold ended (#4946)")
+		UIShim.advance(10)
+		hide()
+		assert(not visit(), "uigate: a second pop-up showed within 5 minutes of the first (#4946)")
+		assert(not UI.asks.paced(), "uigate: an ask may show within 5 minutes of a pop-up (#4946)")
+		UIShim.advance(300)
+		assert(visit(), "uigate: no pop-up 5 minutes after the last (#4946)")
+		hide()
+	end },
 	{ "AskPicture", function()
 		UI.asks.skipPace()
 		local ended = nil

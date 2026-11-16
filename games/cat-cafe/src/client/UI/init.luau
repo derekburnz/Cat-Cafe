@@ -106,7 +106,24 @@ UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 UI.afk = nil :: any
 -- #4821: the first cat hold (UI.setFirstCatHold); `tutorial`, the walk-through hold after it (UI.setTutorialHold)
 -- `clearedAt`: os.clock() the walk-through hold last ended, so a held event card waits a beat past it (CARD_AFTER)
-UI.firstCat = { held = false, tutorial = false, clearedAt = nil :: number?, CARD_AFTER = 3 }
+-- #4946: `tutorial` holds the pop-ups through the walk-through AND the account's first 5 minutes (QuietStart.earlyHolds);
+-- `walk` is the walk-through alone (it hides the Drop buttons, #4832)
+UI.firstCat =
+	{ held = false, tutorial = false, walk = false, clearedAt = nil :: number?, CARD_AFTER = 3 }
+-- #4946 (Derek 2026-11-16: "one pop-up every 5 minutes, not 30 s apart"): once the hold above ends, the pop-ups that
+-- open by themselves (event cards, slide-in asks and first visit cards, the Daily Treat window, the Starter Bundle
+-- card, the welcome back recap, the return hook line) show at most one every QuietStart.POP_GAP_SECONDS this session.
+-- Admin event cards keep their own timing (Derek's admin event rules) but count as the one. Warnings, the strip and
+-- walk-through lines, and cards that answer the player (a catch, a gift, a window they opened) are never paced.
+UI.popPace = { lastAt = nil :: number? }
+function UI.popPace.free(): boolean
+	local QuietStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+	return QuietStart.popFree(UI.popPace.lastAt, os.clock())
+end
+function UI.popPace.used()
+	UI.popPace.lastAt = os.clock()
+end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -660,6 +677,7 @@ local function autoOpenDailyTreat()
 		or tutorialText ~= nil
 		or hintShown ~= nil
 		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC: and not until the walk-through is done
+		or not UI.popPace.free() -- #4946: one pop-up every 5 minutes
 		-- #4005: on the account's first day the "!" on its button is enough
 		or not (function(): boolean
 			local QuietStart =
@@ -673,6 +691,7 @@ local function autoOpenDailyTreat()
 		return
 	end
 	dailyAutoOpen = false
+	UI.popPace.used()
 	windows:open("DailyTreat")
 end
 
@@ -2580,17 +2599,22 @@ end
 -- UIController says when): through the rest of the walk-through the event and day strip steps aside, the asks wait
 -- (UIController's quiet), and the Starter Bundle card, the Daily Treat window opening itself, the return hook line, the
 -- big event cards and the admin event's middle of the screen wait. Toasts and the walk-through's tips still show.
-function UI.setTutorialHold(on: boolean)
-	if UI.firstCat.tutorial == on then
+-- `on`: the pop-up hold (the walk-through or, #4946, the account's first 5 minutes); `walk`: the walk-through alone
+-- (defaults to `on`)
+function UI.setTutorialHold(on: boolean, walk: boolean?)
+	local hold = UI.firstCat
+	local walking = if walk == nil then on else walk
+	if hold.tutorial == on and hold.walk == walking then
 		return
 	end
-	UI.firstCat.tutorial = on
-	if not on then
-		UI.firstCat.clearedAt = os.clock()
+	if hold.tutorial ~= on and not on then
+		hold.clearedAt = os.clock()
 	end
+	hold.tutorial = on
+	hold.walk = walking
 	if hud ~= nil then
 		hud:holdBanner("tutorial", on)
-		hud:setDropHidden(on) -- #4832: and no Drop buttons (UIController drops nothing meanwhile)
+		hud:setDropHidden(walking) -- #4832: and no Drop buttons (UIController drops nothing meanwhile)
 	end
 end
 function UI.setCutscene(on: boolean)
@@ -6181,6 +6205,10 @@ do
 		if card == nil or not initialized or card:isShowing() or not (news or pace.paced()) then
 			return false -- #2880: too soon after the last ask, or too early in the session; offered again later
 		end
+		-- #4946: news too waits out the walk-through and first 5 minutes, then one pop-up every 5 minutes
+		if news and (UI.firstCat.tutorial or not UI.popPace.free()) then
+			return false
+		end
 		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
 		-- no ask card while a roll or its reveal plays (UI.rollBusy)
 		if UI.rollBusy.held() then
@@ -6189,6 +6217,8 @@ do
 		card:show(ask)
 		if not news then
 			pace.shown()
+		else
+			UI.popPace.used()
 		end
 		return true
 	end
@@ -6304,18 +6334,25 @@ do
 		if not tutorialButtonOn then
 			return false
 		end
+		-- #4946: no ask in the walk-through or the account's first 5 minutes, and one pop-up every 5 minutes
+		if UI.firstCat.tutorial or not UI.popPace.free() then
+			return false
+		end
 		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
 	end
 
-	-- #2880: a slide-in ask just showed, so the next one waits AskPacing.GAP_SECONDS
+	-- #2880: a slide-in ask just showed, so the next one waits AskPacing.GAP_SECONDS (#4946: and the next pop-up
+	-- UI.popPace's)
 	function UI.asks.shown()
 		early.lastAsk = os.clock() - sessionStart
+		UI.popPace.used()
 	end
 
 	-- #2880: the pace as if the session had run long enough with no ask yet (QA in Studio and the UI gate)
 	function UI.asks.skipPace()
 		sessionStart = os.clock() - AskPacing.FIRST_SECONDS
 		early.lastAsk = nil
+		UI.popPace.lastAt = nil -- #4946
 	end
 
 	local function openAsk(card: AskCard.AskCard)
@@ -6620,7 +6657,7 @@ do
 			tutorialDone = type(state.tutorialStep) == "number"
 				and state.tutorialStep >= 5
 				and not UI.firstCat.tutorial,
-			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
+			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(), -- (#4946: popPace too)
 			priced = robux ~= nil,
 		})
 		if due and id ~= nil and robux ~= nil then
@@ -10907,6 +10944,8 @@ local function recapTry(): boolean
 		or (tipCard ~= nil and tipCard:isShowing())
 		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
 		or not visible
+		or UI.firstCat.tutorial -- #4946: not in the walk-through or the account's first 5 minutes
+		or not UI.popPace.free() -- #4946: one pop-up every 5 minutes
 	if
 		not RecapLogic.canShow({
 			enabled = true,
@@ -10921,6 +10960,7 @@ local function recapTry(): boolean
 	end
 	UI.recap.shown = true
 	UI.recap.waiting = nil
+	UI.popPace.used()
 	card:show(recapLines(view), function(secondsUp: number)
 		UI.events.sessionRecapClose:Fire(secondsUp)
 	end, recapGoals(view))
@@ -10987,10 +11027,12 @@ function UI.returnHook.try(): boolean
 		or UI.firstCat.held -- #4821
 		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC
 		or UI.rollBusy.held()
+		or not UI.popPace.free() -- #4946
 	if busy then
 		return false
 	end
 	hook.shown = true
+	UI.popPace.used()
 	UI.toast(words, "info", ReturnHookLine.SHOW_SECONDS)
 	UI.events.returnHookEarly:Fire(ReturnHookLine.kind((state :: any).tomorrowHook))
 	return true
@@ -11300,11 +11342,13 @@ do
 		local waiting = hold.tutorial
 			or state.tutorialStep == nil
 			or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
-		local held = started and waiting
+		-- #4946: the event's own card (not the admin event's) also waits for UI.popPace
+		local held = started and (waiting or not UI.popPace.free())
 		if not held then
 			events.seen = seen
 		end
 		if started and view ~= nil and toasts and not held then
+			UI.popPace.used()
 			-- #3420: an Update Party starts with the party card; any other event with the toast
 			local party = EventLogic.partyBanner(
 				view,
@@ -11357,6 +11401,7 @@ do
 			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
 			if not UI.firstCat.tutorial then -- Derek 2026-11-16 15:22 UTC: the chat line only, in the walk-through
 				EventBanner.show(card)
+				UI.popPace.used() -- #4946: it counts as the one pop-up
 			end
 			-- the same words as one line in the chat window, for a player who looked away
 			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any

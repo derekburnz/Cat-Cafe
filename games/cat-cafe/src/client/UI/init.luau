@@ -1765,8 +1765,9 @@ function UI.init(config: Types.InitConfig)
 	end)
 	popups = Popups.new(parent)
 	if popups then -- narrows Popups? for luau-lsp (CI)
-		popups:glowOkWhen(function() -- #4836: the walk-through's new cat card points at its "Nice!"
-			return UI.firstCat.tutorial
+		-- #4836: the new cat card points at its "Nice!" in the walk-through alone (#4953: not the first 5 minutes)
+		popups:glowOkWhen(function()
+			return UI.firstCat.walk
 		end)
 	end
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;

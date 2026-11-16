@@ -3,7 +3,7 @@
 -- never press it): two small screen moments, drawn over the UI through ScreenFx. It only reads the UI.
 --   * The first time each tier's rank up is ready this session (the LocalPlayer attribute `RankUpReady`, the tier,
 --     set by Gameplay-Engineer's HUD), every RANK UP button that shows (the strip's `TutorialBuy` in CatCafeHUD, the
---     Rank Up window's button) gets `pulses` gold glows: a rounded frame the button's shape swells off it and fades,
+--     Rank Up window's `RankUpButton`) gets `pulses` gold glows: a rounded frame the button's shape swells off it and fades,
 --     then a few sparkles. Reduce Motion: one glow, no sparkles.
 --   * When the tutorial strip's count moves on (the attribute `TutorialCount`, "1/2" and so on), a small tick of
 --     sparkles off the strip's `Tutorial` label and one ring. None with Reduce Motion.
@@ -22,38 +22,27 @@ local RankUpPulse = {}
 local started = false
 local GUI = "EffectsRankUpPulse"
 
--- Whether `object` is a RANK UP button or the label on one.
-function RankUpPulse.isRankButton(name: string, text: string?): boolean
-	if name == "TutorialBuy" then
-		return true
-	end
-	-- the button words are capitals ("RANK UP", "RANK UP  ·  $1.2K"); the strip's "Rank up! Tap RANK UP" is not one
-	return text ~= nil and string.sub(text, 1, 7) == "RANK UP"
+-- Whether a UI object of this name is a RANK UP button: the tutorial strip's (HUD) or the Rank Up window's.
+function RankUpPulse.isRankButton(name: string): boolean
+	return name == "TutorialBuy" or name == "RankUpButton"
 end
 
--- Every RANK UP button that shows now: the strip's TutorialBuy, and any button (or its label) reading RANK UP.
+-- Every RANK UP button that shows now: the strip's TutorialBuy in CatCafeHUD and the Rank Up window's
+-- RankUpButton (its panel is "RankUp"). Two lookups by name, cheap enough to repeat every `look` seconds.
 local function buttons(): { GuiObject }
 	local out: { GuiObject } = {}
 	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	if playerGui == nil then
 		return out
 	end
-	local seen: { [Instance]: boolean } = {}
-	local own = playerGui:FindFirstChild(GUI)
-	for _, d in playerGui:GetDescendants() do
-		if d:IsA("GuiObject") and (own == nil or not d:IsDescendantOf(own)) then
-			local text = if d:IsA("TextButton") or d:IsA("TextLabel") then (d :: any).Text else nil
-			if RankUpPulse.isRankButton(d.Name, text) then
-				-- a label inside a button glows the button
-				local target: GuiObject = d :: GuiObject
-				local parent = d.Parent
-				if d:IsA("TextLabel") and parent ~= nil and parent:IsA("GuiButton") then
-					target = parent :: GuiObject
-				end
-				if not seen[target] and ScreenFx.shown(target) then
-					seen[target] = true
-					table.insert(out, target)
-				end
+	local hud = playerGui:FindFirstChild("CatCafeHUD")
+	local strip = if hud ~= nil then hud:FindFirstChild("TutorialBuy", true) else nil
+	local window = playerGui:FindFirstChild("RankUp", true)
+	local button = if window ~= nil then window:FindFirstChild("RankUpButton", true) else nil
+	for _, found in { strip, button } do
+		if found ~= nil and found:IsA("GuiObject") and RankUpPulse.isRankButton(found.Name) then
+			if ScreenFx.shown(found :: GuiObject) then
+				table.insert(out, found :: GuiObject)
 			end
 		end
 	end
@@ -96,34 +85,77 @@ local function glow(gui: ScreenGui, object: GuiObject, p: typeof(Presets.rankUpP
 	end)
 end
 
-local function ready(tier: unknown)
-	if type(tier) ~= "number" then
-		return
-	end
-	local p = Presets.rankUpPulse
-	local still = Context.reducedMotion()
-	task.delay(p.wait, function() -- the window that opens with it slides in first
-		local gui = ScreenFx.gui(GUI, p.displayOrder)
-		if gui == nil then
-			return
-		end
+-- The glows on one button: `pulses` of them (one with Reduce Motion), then corner sparkles.
+local function pulse(
+	gui: ScreenGui,
+	object: GuiObject,
+	p: typeof(Presets.rankUpPulse),
+	still: boolean
+)
+	task.spawn(function()
 		local count = if still then 1 else p.pulses
-		local found = buttons() -- one look through the UI; each glow follows its button
 		for i = 1, count do
-			for _, object in found do
-				glow(gui, object, p)
-				if i == count and not still then
-					local c = ScreenFx.centre(gui, object)
-					local half = object.AbsoluteSize / 2
-					ScreenFx.sparkle(gui, {
-						c + Vector2.new(-half.X, -half.Y),
-						c + Vector2.new(half.X, -half.Y),
-						c + Vector2.new(-half.X, half.Y),
-						c + Vector2.new(half.X, half.Y),
-					}, p.colour, p.sparkle)
-				end
+			if object.Parent == nil then
+				return
+			end
+			glow(gui, object, p)
+			if i == count and not still then
+				local c = ScreenFx.centre(gui, object)
+				local half = object.AbsoluteSize / 2
+				ScreenFx.sparkle(gui, {
+					c + Vector2.new(-half.X, -half.Y),
+					c + Vector2.new(half.X, -half.Y),
+					c + Vector2.new(-half.X, half.Y),
+					c + Vector2.new(half.X, half.Y),
+				}, p.colour, p.sparkle)
 			end
 			task.wait(p.every)
+		end
+	end)
+end
+
+local glowed: { [number]: boolean } = {} -- tiers whose rank up has glowed this session
+local watching = 0
+local looking: number? = nil -- the tier being looked for now
+
+-- Review-QA on #4927: the Rank Up window opens only on a calm screen, often well after RankUpReady, so this keeps
+-- looking (every `look` seconds for up to `lookFor`, while the attribute still names this tier) and glows each
+-- RANK UP button once as it first shows. Once per tier a session, however often coins dip under the cost and back:
+-- a tier counts as glowed once a glow has played, so a look that found nothing tries again on the next flip.
+local function ready(tier: unknown)
+	if type(tier) ~= "number" or glowed[tier :: number] or looking == tier then
+		return
+	end
+	local n = tier :: number
+	looking = n
+	watching += 1
+	local mine = watching
+	local p = Presets.rankUpPulse
+	task.spawn(function()
+		local done: { [GuiObject]: boolean } = {}
+		local began = os.clock()
+		local player = Players.LocalPlayer
+		while
+			mine == watching
+			and os.clock() - began < p.lookFor
+			and player:GetAttribute("RankUpReady") == n
+		do
+			for _, object in buttons() do
+				if not done[object] then
+					done[object] = true
+					task.delay(p.wait, function() -- a window that just opened slides in first
+						local gui = ScreenFx.gui(GUI, p.displayOrder)
+						if gui ~= nil and ScreenFx.shown(object) then
+							glowed[n] = true
+							pulse(gui, object, p, Context.reducedMotion())
+						end
+					end)
+				end
+			end
+			task.wait(p.look)
+		end
+		if mine == watching then
+			looking = nil
 		end
 	end)
 end

@@ -6,12 +6,11 @@ return function()
 	local RankUpPulse = require(Client:WaitForChild("Effects"):WaitForChild("RankUpPulse")) :: any
 
 	describe("RankUpPulse", function()
-		it("glows the strip's button and anything reading RANK UP", function()
-			expect(RankUpPulse.isRankButton("TutorialBuy", nil)).to.equal(true)
-			expect(RankUpPulse.isRankButton("Button", "RANK UP  ·  $1.2K")).to.equal(true)
-			expect(RankUpPulse.isRankButton("Label", "Rank up! Tap RANK UP")).to.equal(false)
-			expect(RankUpPulse.isRankButton("Buy", "Buy")).to.equal(false)
-			expect(RankUpPulse.isRankButton("Buy", nil)).to.equal(false)
+		it("glows the strip's button and the Rank Up window's", function()
+			expect(RankUpPulse.isRankButton("TutorialBuy")).to.equal(true)
+			expect(RankUpPulse.isRankButton("RankUpButton")).to.equal(true)
+			expect(RankUpPulse.isRankButton("Tutorial")).to.equal(false)
+			expect(RankUpPulse.isRankButton("Buy")).to.equal(false)
 		end)
 	end)
 end

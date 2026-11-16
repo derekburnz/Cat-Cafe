@@ -12287,6 +12287,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "HUDMoneyBadgeQuiet", function()
 		-- Scenes.close puts the play time and an earlier scene's 2x Money pass back
 		Scenes._quiet = { passBoosts = (UI.getState() :: any).passBoosts or false }
+		-- #4472: the quiet half hour sits behind the storeGuard switch (off live); Scenes.close turns it back off
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_storeGuard", true)
 		UI.update({ playSeconds = 600, passBoosts = false } :: any)
 		UI.store.preview(storePrices(true), {})
 		local badge = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("MoneyBadge", true)
@@ -14489,6 +14491,7 @@ function Scenes.close()
 		local before = Scenes._quiet
 		Scenes._quiet = nil
 		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_storeGuard", nil)
 	end
 	if Scenes._passXp then
 		-- #2070's pass XP scene: the pass closed again and the S prize as it was

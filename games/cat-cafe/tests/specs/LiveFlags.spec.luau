@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, introSplit, parkGateTrail, rankUpSpotlight, bagColours, menuFamily, speedShoes, storeRework, quietAway, riftRun, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion and giftCard alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, introSplit, parkGateTrail, rankUpSpotlight, bagColours, menuFamily, speedShoes, storeRework, quietAway, riftRun, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion, giftCard and storeGuard alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -185,10 +185,11 @@ return function()
 							or key == "earlyKindBonus" -- #4624
 							or key == "returnHookEarly" -- #4626
 							or key == "giftCard" -- #4527
+							or key == "storeGuard" -- #4472
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(46) -- #4654: 56 less the 11 shipped switches retired in batches 1 to 3, plus giftCard (#4527)
+				expect(count).to.equal(47) -- #4654: 56 less the 11 shipped switches retired in batches 1 to 3, plus giftCard (#4527) and storeGuard (#4472)
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)

@@ -10,6 +10,7 @@
 --   jump(viewport) -> (Vector2, number)                          the jump button's top left and size by formula
 --   place(viewport, jumpAt?, jumpSize?) -> (Vector2, number)     the Net button's top left and size, screen px
 --   tackle(viewport, jumpAt?, jumpSize?) -> (Vector2, number)    the touch Tackle button's
+--   toy(viewport, jumpAt?, jumpSize?) -> (Vector2, number)       #4061: the booth toy's use button, straight above
 -- Pure, so the cloud spec runner checks it.
 
 local NetButtonPlace = {}
@@ -69,6 +70,23 @@ function NetButtonPlace.tackle(
 	local reach = jump * NetButtonPlace.REACH
 	local cx = at.X + jump / 2 - math.cos(angle) * reach
 	local cy = at.Y + jump / 2 - math.sin(angle) * reach
+	local corner = Vector2.new(math.floor(cx - size / 2 + 0.5), math.floor(cy - size / 2 + 0.5))
+	return onScreen(viewport, corner, size), size
+end
+
+-- #4061 (spec 1.3): the use button of the booth toy in hand, the Tackle's size, on the same arc straight above the
+-- jump button (Net at 0 degrees, Tackle at 45, this at 90), so all three stay under the right thumb.
+function NetButtonPlace.toy(
+	viewport: Vector2,
+	jumpAt: Vector2?,
+	jumpSize: number?
+): (Vector2, number)
+	local at, jump = jumpOf(viewport, jumpAt, jumpSize)
+	local _, netSize = NetButtonPlace.place(viewport, at, jump)
+	local size = math.floor(netSize * NetButtonPlace.TACKLE + 0.5)
+	local reach = jump * NetButtonPlace.REACH
+	local cx = at.X + jump / 2
+	local cy = at.Y + jump / 2 - reach
 	local corner = Vector2.new(math.floor(cx - size / 2 + 0.5), math.floor(cy - size / 2 + 0.5))
 	return onScreen(viewport, corner, size), size
 end

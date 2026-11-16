@@ -366,7 +366,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
 		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG)
 				and TicketBooth.open(Economy.tier(profile))
-			then TicketBooth.view(profile.tickets, now)
+			then TicketBooth.view(profile.tickets, now, LiveFlagService.on("toys"))
 			else nil, -- #4061
 		dragon = if LiveFlagService.on(DragonKeep.FLAG)
 				and DragonKeep.open(Economy.tier(profile))

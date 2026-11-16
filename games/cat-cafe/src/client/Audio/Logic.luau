@@ -1019,8 +1019,6 @@ local BEAT_CUES: { [string]: string } = {
 	basketOpen = "campBasket",
 	lidRattle = "campRattle",
 	stuckCall = "strayCall", -- #2912: the starter trap's cat calls for help (Effects/StuckCall)
-	toySquirt = "campSplash", -- #4061: the Water Squirter's splash landing (Effects/ToyFx)
-	toyBonk = "toyBonk", -- #4061: the Pool Noodle's bonk (Effects/ToyFx)
 }
 
 function Logic.beatCue(beat: any): string?

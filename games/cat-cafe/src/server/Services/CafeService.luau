@@ -108,11 +108,6 @@ CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, numb
 CafeService.tutorialMove = Signal.new() :: Signal.Signal<Player, string>
 
 -- Whether `player` owns pass `passId`, for the pass sign styles (#1625).
--- #4251 part 7: the items Looks reads: the Cafe Pass's (profile.pass.items) and the Harvest Stall hats bought.
-local function lookItems(profile: Types.PlayerProfile): { [string]: boolean }
-	return HarvestSave.lookItems(profile.harvest, profile.pass.items)
-end
-
 local function ownsPassOf(player: Player): (number) -> boolean
 	return function(passId: number): boolean
 		return PassService.owns(player, passId)
@@ -316,8 +311,12 @@ end
 
 -- #4061: the Looks items a save has: the Cafe Pass's, plus the Ticket Booth wearables it bought (TicketBooth.lookItems
 -- adds them to a copy, so profile.pass.items never holds them and CafePass.sanitize keeps working as it is).
+-- #4251 part 7: and the Harvest Stall hats bought (HarvestSave.lookItems, also a copy).
 local function lookItems(profile: Profile): { [string]: boolean }
-	return TicketBooth.lookItems(profile.tickets, profile.pass.items)
+	return TicketBooth.lookItems(
+		profile.tickets,
+		HarvestSave.lookItems(profile.harvest, profile.pass.items)
+	)
 end
 
 -- The Dragon Keep's crate, trait and spin luck for the odds lists, the same numbers the rolls use (DragonKeep.of).

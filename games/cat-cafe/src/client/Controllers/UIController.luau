@@ -1317,6 +1317,35 @@ local function refreshCarry()
 	end
 end
 
+-- #4821 (shared/QuietStart.firstCatHolds): under bowl first, the pop-ups wait until the first bowl cat is claimed and
+-- FIRST_CAT_AFTER seconds more. `before` is the last sync's answer; `claimedAt` the clock when it turned false here.
+local firstCat = { before = false, claimedAt = nil :: number?, held = false }
+local function firstCatHold(s: Types.PlayerState)
+	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
+	local QuietStart = require(Shared:WaitForChild("QuietStart")) :: any
+	local before = TutorialOrder.bowlFirst()
+		and TutorialOrder.bowlPending(
+			s.tutorialStep,
+			(s.stats :: any).luresUsed or 0,
+			s.bait ~= nil
+		)
+	if firstCat.before and not before then
+		firstCat.claimedAt = os.clock()
+		task.delay(QuietStart.FIRST_CAT_AFTER + 0.1, function()
+			local current = state
+			if current ~= nil then
+				firstCatHold(current)
+			end
+		end)
+	end
+	firstCat.before = before
+	local held = QuietStart.firstCatHolds(before, firstCat.claimedAt, os.clock()) == true
+	if held ~= firstCat.held then
+		firstCat.held = held
+		UI.setFirstCatHold(held)
+	end
+end
+
 local function applyState(s: Types.PlayerState)
 	local previous = state
 	local shopBuy = os.clock() - lastCornerShopBuy < CORNER_SHOP_QUIET_SECONDS
@@ -1329,6 +1358,7 @@ local function applyState(s: Types.PlayerState)
 	end
 	state = s
 	UIController.state = s
+	firstCatHold(s) -- #4821
 	predictedMoney = s.money
 	lastPushedMoney = s.money
 	UI.update({
@@ -2489,6 +2519,9 @@ local ASK_SETTLE_SECONDS = 3 -- after a catch or rescue ends, before an ask
 local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
+	end
+	if firstCat.held then
+		return false -- #4821: no asks (notifications, favorite, like, invite, the event's) before the first cat
 	end
 	if AfkController.rejoinQuiet() then
 		return false -- #3602: away since before an automatic rejoin; asks wait for the first input

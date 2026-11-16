@@ -102,6 +102,19 @@ function QuietStart.treatOpensItself(firstDay: unknown, today: number): boolean
 	return type(firstDay) ~= "number" or firstDay <= 0 or today > firstDay
 end
 
+-- #4821 (Growth-Agent's Home research and Design-Agent's first-60-seconds spec, 2026-11-16: 35.56% of Home players
+-- leave at 61 to 180 s, phone worst): under bowl first, until the first bowl cat is claimed (TutorialOrder.bowlPending)
+-- only the walk-through shows (its strip, ring and arrow, the first bait's cutscene and the Tame card). Toasts other
+-- than warnings, tips, asks, the event strip and the admin event's middle of the screen wait, and keep waiting
+-- FIRST_CAT_AFTER seconds past the claim, so the cat's own card has the screen. The client holds them (UI.firstCat).
+QuietStart.FIRST_CAT_AFTER = 10
+
+-- Whether the first cat hold is on: `before` the bowl cat is claimed, or less than FIRST_CAT_AFTER seconds since
+-- `claimedAt` (this session's clock as the claim was seen, nil when it was not seen this session).
+function QuietStart.firstCatHolds(before: boolean, claimedAt: number?, now: number): boolean
+	return before or (claimedAt ~= nil and now - claimedAt < QuietStart.FIRST_CAT_AFTER)
+end
+
 -- The client's read: whether the local player is quiet now. Not for the specs.
 function QuietStart.live(): boolean
 	local player = game:GetService("Players").LocalPlayer

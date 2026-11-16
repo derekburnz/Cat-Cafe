@@ -103,6 +103,7 @@ UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 -- #4346: AFK mode's side for the HUD's AFK tile, set by Controllers/AfkController.start (shown, on, toggle, changed);
 -- nil until then. UI.bindAfk() hands it to the HUD.
 UI.afk = nil :: any
+UI.firstCat = { held = false } -- #4821: the first cat hold (UI.setFirstCatHold)
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -1600,7 +1601,9 @@ function UI.init(config: Types.InitConfig)
 			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
 			-- shout-outs drop and the event and day strip steps aside until it closes
 			UI.rollBusy.window = name == dashWindow or name == poolWindow or name == "Store"
-			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held())
+			view:setBusy(
+				UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held() or UI.firstCat.held
+			)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
 		hudInstance:holdBanner("window", UI.rollBusy.window)
@@ -2437,7 +2440,7 @@ function UI.setRollBusy(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or on or UI.cutscene.held())
+		view:setBusy(UI.rollBusy.window or on or UI.cutscene.held() or UI.firstCat.held)
 	end
 end
 -- #4018 (Derek OK'd the Mythic and up trait pull cutscene, 2026-11-13: every banner and pop-up muted while it plays,
@@ -2496,7 +2499,7 @@ function UI.setQuiet(key: string, on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held() or UI.firstCat.held)
 	end
 	if not cut.held() then
 		(cut :: any).flush()
@@ -2512,6 +2515,15 @@ task.defer(function()
 		return
 	end
 	local ok, adminFlash = pcall(require, flash)
+	-- #4821: nothing of the admin event takes the middle of the screen before the first bowl cat (UI.firstCat)
+	local quietWhen: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).quietWhen
+		else nil
+	if type(quietWhen) == "function" then
+		(quietWhen :: (() -> boolean) -> ())(function()
+			return UI.firstCat.held
+		end)
+	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"
 		then (adminFlash :: any).onPlaying
 		else nil
@@ -2522,6 +2534,24 @@ task.defer(function()
 		end)
 	end
 end)
+-- #4821 (shared/QuietStart.firstCatHolds; UIController says when): before the first bowl cat is claimed, and
+-- QuietStart.FIRST_CAT_AFTER seconds after, toasts but warnings wait (as through a cutscene), tips, asks and first
+-- visit cards wait, the event and day strip steps aside, and the admin event's countdown, splash and end card leave the
+-- middle of the screen (AdminFlash.quietWhen, below). The strip, its ring and arrow, the first bait's cutscene and the
+-- Tame card are not held.
+function UI.setFirstCatHold(on: boolean)
+	if UI.firstCat.held == on then
+		return
+	end
+	UI.firstCat.held = on
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held() or on)
+	end
+	if hud ~= nil then
+		hud:holdBanner("firstCat", on)
+	end
+end
 function UI.setCutscene(on: boolean)
 	local cut = UI.cutscene
 	if cut.on == on then
@@ -2533,7 +2563,7 @@ function UI.setCutscene(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held() or UI.firstCat.held)
 	end
 	-- the event strip steps aside too (HUD.holdBanner, #4032)
 	if hud ~= nil then
@@ -5714,6 +5744,7 @@ do
 			flying = os.clock() < tipsHeldUntil,
 			window = (modal ~= nil and modal:current() ~= nil)
 				or UI.cutscene.held() -- #4018: tips, ask and first visit cards wait through a cutscene
+				or UI.firstCat.held -- #4821: and until the first bowl cat is claimed
 				or (popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing()),
@@ -10851,6 +10882,7 @@ function UI.returnHook.try(): boolean
 		or (hud ~= nil and hud:isCatching())
 		or state.carrying ~= nil
 		or UI.cutscene.held()
+		or UI.firstCat.held -- #4821
 		or UI.rollBusy.held()
 	if busy then
 		return false

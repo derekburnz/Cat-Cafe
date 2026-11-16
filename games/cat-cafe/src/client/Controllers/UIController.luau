@@ -2165,13 +2165,13 @@ local function wireIntents()
 		Net.fire("TelemetryReport", "tutorial_closed", "x")
 	end)
 	-- The net (data-model section 10): since F93 a swing starts the circles or picks a Dropped cat up
-	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends only
-	-- its index, since the server stamps the time itself.
+	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends its
+	-- index and the tap's time on the ring clock (#4597), which the server believes only within a short bound.
 	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
 	-- The server's own grades come back in CatchResult.
 	UI.events.catchPressed:Connect(
 		function(strayId: string, index: number, grade: Types.CircleGrade?)
-			Net.fire("CatchPress", strayId, index)
+			Net.fire("CatchPress", strayId, index, Workspace:GetServerTimeNow())
 			Moments.NetSwing:Fire(index)
 			if grade ~= nil then
 				Moments.CircleGrade:Fire(index, grade)
@@ -2353,7 +2353,7 @@ local function bindStations()
 		table.insert(arcadePrompts, prompt)
 		prompt.Enabled = arcadeOn()
 	end)
-	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game; `circleStreak` off vaults Circle Streak
+	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game (#4656: the only one, Circle Streak is gone)
 	local function flagOn(key: string): boolean
 		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 		return LiveFlags.shown(
@@ -2363,15 +2363,14 @@ local function bindStations()
 	end
 	local function applyArcade()
 		local on = arcadeOn()
-		local circle = flagOn("circleStreak")
 		local dash = on and flagOn("mouseDash")
-		UI.arcade.setOn(on and circle, on and (circle or dash))
-		UI.mouseDash.setFlags(dash, on and circle)
+		UI.arcade.setOn(on, dash)
+		UI.mouseDash.setFlags(dash)
 		for _, prompt in arcadePrompts do
-			prompt.Enabled = on and (circle or dash)
+			prompt.Enabled = dash
 		end
 	end
-	for _, key in { Arcade.FLAG, "mouseDash", "circleStreak" } do
+	for _, key in { Arcade.FLAG, "mouseDash" } do
 		ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. key):Connect(applyArcade)
 	end
 	applyArcade()
@@ -2775,7 +2774,7 @@ local function wireServerEvents()
 		function(areaId: string, catId: string, strayId: string, toast: boolean)
 			Moments.RainbowSpawned:Fire(areaId, catId, strayId)
 			-- #4005: the cat stays, the toast waits out a new player's quiet start
-			if toast ~= true or select(2, require(Shared:WaitForChild("QuietStart")).live()) then
+			if toast ~= true or require(Shared:WaitForChild("QuietStart")).live() then
 				return
 			end
 			local hook: unknown = (UI :: any).rainbowSpawned
@@ -3102,92 +3101,16 @@ local function wireServerEvents()
 			end
 		end
 	)
-	-- #3062: the Cat Arcade. Its circles sound as a catch's do (CircleAppear, CircleGrade), with Sound-Agent's
-	-- ArcadeStart, ArcadeMilestone and ArcadeEnd moments when the build has them.
-	local arcadeTimers: { thread } = {}
-	local arcadeRun: number? = nil
+	-- #3062, #4656: the Cat Arcade's game is Mouse Dash (Circle Streak is gone). ArcadeState still carries today's
+	-- free play and the records for the cabinet's "!" (UI.arcade.state). The sound moments play when the build has them.
 	local function arcadeMoment(name: string, ...: any)
 		local moment: any = (Moments :: any)[name]
 		if moment ~= nil then
 			moment:Fire(...)
 		end
 	end
-	local function cancelArcadeTimers()
-		for _, timer in arcadeTimers do
-			pcall(task.cancel, timer)
-		end
-		table.clear(arcadeTimers)
-	end
 	Net.on("ArcadeState", function(view: any)
 		UI.arcade.state(view)
-	end)
-	Net.on(
-		"ArcadeBlock",
-		function(
-			run: number,
-			block: number,
-			circles: { Types.CatchCircle },
-			windows: Types.CatchWindows,
-			points: number
-		)
-			if arcadeRun ~= run then
-				arcadeRun = run
-				arcadeMoment("ArcadeStart")
-			end
-			UI.arcade.block(run, block, circles, windows, points)
-			cancelArcadeTimers()
-			for index, circle in circles do
-				local shrink = circle.shrinkSeconds
-				table.insert(
-					arcadeTimers,
-					task.delay(
-						math.max(0, circle.startsAt - Workspace:GetServerTimeNow()),
-						function()
-							if UI.arcade.playing() then
-								Moments.CircleAppear:Fire(index, shrink)
-							end
-						end
-					)
-				)
-			end
-		end
-	)
-	Net.on(
-		"ArcadeJudged",
-		function(
-			run: number,
-			block: number,
-			index: number,
-			grade: string,
-			points: number,
-			milestones: { number }
-		)
-			if grade == "perfect" or grade == "good" or grade == "miss" then
-				Moments.CircleGrade:Fire(index, grade)
-			end
-			if type(milestones) == "table" and #milestones > 0 then
-				arcadeMoment("ArcadeMilestone", milestones[#milestones])
-			end
-			UI.arcade.judged(run, block, index, grade, points, milestones)
-		end
-	)
-	Net.on("ArcadeOver", function(run: number, result: any)
-		cancelArcadeTimers()
-		arcadeRun = nil
-		if type(result) == "table" then
-			arcadeMoment("ArcadeEnd", result.points, result.win == true)
-		end
-		UI.arcade.over(run, result)
-	end)
-	UI.events.arcadePlay:Connect(function()
-		Net.fire("ArcadeStart")
-	end)
-	UI.events.arcadePress:Connect(function(run: number, block: number, index: number)
-		Net.fire("ArcadePress", run, block, index)
-		Moments.NetSwing:Fire(index)
-	end)
-	UI.events.arcadeQuit:Connect(function(run: number)
-		Net.fire("ArcadeQuit", run)
 	end)
 	-- #3296: Mouse Dash. The server draws and judges everything; these only pass its answers to the window and the
 	-- sound moments (Motion-FX-Agent's, played when the build has them).
@@ -3560,14 +3483,6 @@ function UIController.start()
 		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
-	-- #3992: the Index's milestones past 50 (and the Rainbow track's past 25) wait for the `indexTo70` switch; the UI
-	-- reads catalog.indexPrizes each time, so a switch change shows at the next render
-	local SharedIndexRewards = require(Shared:WaitForChild("IndexRewards")) :: any
-	catalog.indexPrizes = SharedIndexRewards.shownPrizes()
-	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. SharedIndexRewards.LATE_FLAG)
-		:Connect(function()
-			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
-		end)
 	-- #4607 (Derek 2026-11-15: menus "reverted to the old menu style" after the 22:00 publish): a new server publishes
 	-- the switches' defaults before its first read of the store, and MenuFamily takes its look once, at the first
 	-- window built, so the first players in a fresh server latched the old look (and white words on the Store's

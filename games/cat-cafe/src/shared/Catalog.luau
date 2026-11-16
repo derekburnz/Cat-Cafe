@@ -1794,7 +1794,7 @@ Catalog.tiers = {
 		name = "Famous Cafe",
 		cost = 1000000, -- #4685 (Derek 2026-11-16: "lower the money needed from tier 3 to 4 to like 1million and tier 4 to 5 also"): 2,600,000 before; #4320: 4,000,000 before; #4189: 8,000,000 at first, 16,800,000 before; #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
 		distinctCats = 13, -- #4320: 17 before; #4189 (the 4x Money 2 hour floor is dropped): 22 before; #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
-		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
+		needsRarity = "Legendary", -- #4713 (Derek 2026-11-16: "make tier 3-4 just a legendary needed not a mythic"): Mythical before; #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
 		multiplier = 1.75,
@@ -3699,12 +3699,11 @@ Catalog.indexMilestones = {
 	{ id = "total50", track = "normal", needs = 50 },
 	-- #3992 (Derek: "add more index rewards for rainbow /gold up to 70"; Design-Agent's table on the issue): every All
 	-- Cats track runs to the whole book. The last step is `whole`, so it needs every cat the book counts (100 with Tier 10, #4184)
-	-- and moves up when an area adds cats. `late`: nothing shows or pays until the `indexTo70` switch is on, which waits
-	-- for the restart, as an older server's save check drops a claim id it does not know (shared/IndexRewards).
-	{ id = "total55", track = "normal", needs = 55, late = true },
-	{ id = "total60", track = "normal", needs = 60, late = true },
-	{ id = "total65", track = "normal", needs = 65, late = true },
-	{ id = "totalAll", track = "normal", needs = 100, whole = true, late = true },
+	-- and moves up when an area adds cats.
+	{ id = "total55", track = "normal", needs = 55 },
+	{ id = "total60", track = "normal", needs = 60 },
+	{ id = "total65", track = "normal", needs = 65 },
+	{ id = "totalAll", track = "normal", needs = 100, whole = true },
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
@@ -3715,15 +3714,15 @@ Catalog.indexMilestones = {
 	{ id = "rainbow10", track = "rainbow", needs = 10 },
 	{ id = "rainbow25", track = "rainbow", needs = 25 },
 	-- #3992: on to every rainbow cat
-	{ id = "rainbow30", track = "rainbow", needs = 30, late = true },
-	{ id = "rainbow35", track = "rainbow", needs = 35, late = true },
-	{ id = "rainbow40", track = "rainbow", needs = 40, late = true },
-	{ id = "rainbow45", track = "rainbow", needs = 45, late = true },
-	{ id = "rainbow50", track = "rainbow", needs = 50, late = true },
-	{ id = "rainbow55", track = "rainbow", needs = 55, late = true },
-	{ id = "rainbow60", track = "rainbow", needs = 60, late = true },
-	{ id = "rainbow65", track = "rainbow", needs = 65, late = true },
-	{ id = "rainbowAll", track = "rainbow", needs = 100, whole = true, late = true },
+	{ id = "rainbow30", track = "rainbow", needs = 30 },
+	{ id = "rainbow35", track = "rainbow", needs = 35 },
+	{ id = "rainbow40", track = "rainbow", needs = 40 },
+	{ id = "rainbow45", track = "rainbow", needs = 45 },
+	{ id = "rainbow50", track = "rainbow", needs = 50 },
+	{ id = "rainbow55", track = "rainbow", needs = 55 },
+	{ id = "rainbow60", track = "rainbow", needs = 60 },
+	{ id = "rainbow65", track = "rainbow", needs = 65 },
+	{ id = "rainbowAll", track = "rainbow", needs = 100, whole = true },
 	-- #1772 (Derek2: "Gold cats X / 50" like the Rainbow cats): the gold track on the All Cats page, different gold
 	-- cats across every area (profile.goldCollection), next to total5 to total50
 	{ id = "goldtotal5", track = "gold", needs = 5 },
@@ -3737,10 +3736,10 @@ Catalog.indexMilestones = {
 	{ id = "goldtotal45", track = "gold", needs = 45 },
 	{ id = "goldtotal50", track = "gold", needs = 50 },
 	-- #3992: on to every gold cat
-	{ id = "goldtotal55", track = "gold", needs = 55, late = true },
-	{ id = "goldtotal60", track = "gold", needs = 60, late = true },
-	{ id = "goldtotal65", track = "gold", needs = 65, late = true },
-	{ id = "goldtotalAll", track = "gold", needs = 100, whole = true, late = true },
+	{ id = "goldtotal55", track = "gold", needs = 55 },
+	{ id = "goldtotal60", track = "gold", needs = 60 },
+	{ id = "goldtotal65", track = "gold", needs = 65 },
+	{ id = "goldtotalAll", track = "gold", needs = 100, whole = true },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server

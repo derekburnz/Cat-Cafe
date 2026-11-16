@@ -8,7 +8,7 @@
 -- #2791: the gift ladder's small steps (2, 4, 6, 15 and 20 minutes) pay the same way, with a "Gift! ..." toast in place
 -- of the card; each paid step logs playtime_gift {step, "paid"}.
 -- #3772: and the welcome back gift (shared/ReturnGift), a golden crate once per account on its first later-day join,
--- behind the returnGift switch.
+-- (the returnGift switch shipped and is gone, #4654).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,7 +17,6 @@ local CafeService = require(script.Parent.CafeService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
@@ -121,11 +120,7 @@ end
 local function returnGift(player: Player): boolean
 	local profile = DataService.get(player)
 	local now = os.time()
-	if
-		profile == nil
-		or not LiveFlagService.on(ReturnGift.FLAG)
-		or not ReturnGift.due(profile, now)
-	then
+	if profile == nil or not ReturnGift.due(profile, now) then
 		return false
 	end
 	profile.codesRedeemed[ReturnGift.KEY] = now

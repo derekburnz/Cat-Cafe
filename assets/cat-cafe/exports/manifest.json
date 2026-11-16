@@ -313617,8 +313617,6 @@
         ],
         "body": "walk"
       },
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Hat.model.json",
-      "rbx_parts": 4,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Accessory_Hat.fbx",
         "assets/cat-cafe/exports/CatCafe_Accessory_Hat.glb"

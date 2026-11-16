@@ -44,6 +44,19 @@ local UIController = require(script.Parent.Controllers.UIController)
 local WalkUpController = require(script.Parent.Controllers.WalkUpController)
 local WorldController = require(script.Parent.Controllers.WorldController)
 
+do
+	-- #4613: a switch the UI takes once (the menu family look, the Store's rework) would latch the defaults on a server
+	-- that has not read its switches yet, so wait for that first read, a few seconds at most, usually none
+	local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
+	LiveFlags.awaitReady(
+		ReplicatedStorage,
+		LiveFlags.CLIENT_WAIT_SECONDS,
+		os.clock,
+		function(seconds: number)
+			task.wait(seconds)
+		end
+	)
+end
 Audio.start()
 Audio.bindMoments(Moments :: any)
 UIController.start()

@@ -1397,6 +1397,10 @@ local function applyState(s: Types.PlayerState)
 		tradeLog = s.tradeLog, -- F102: the Trades page
 		-- #3686: sent since #1714 but never copied, so "Codes you've used" stayed empty in the live game
 		codesRedeemed = s.codesRedeemed,
+		-- #4472 (Sync's Studio check): sent since #2791 but never copied, so the gift ladder, the #1936 store guard
+		-- and the newcomer quiet clock all saw no play time
+		playSeconds = s.playSeconds,
+		giftNext = s.giftNext,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.

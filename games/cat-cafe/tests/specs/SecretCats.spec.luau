@@ -102,9 +102,9 @@ return function()
 			expect(CatStats.areaMultiplier(ghost, 1)).to.equal(ghost.incomePerSecond / 300)
 		end)
 
-		it("starts with its switch off", function()
-			expect(LiveFlags.OFF_BY_DEFAULT[Catching.SECRET_FLAG]).to.equal(true)
-			expect(LiveFlags.parse({})[Catching.SECRET_FLAG]).to.equal(false)
+		it("has no switch any more (#4654 batch 5)", function()
+			expect(table.find(LiveFlags.KEYS, "secretCats")).to.equal(nil)
+			expect(LiveFlags.OFF_BY_DEFAULT.secretCats).to.equal(nil)
 		end)
 	end)
 
@@ -463,9 +463,8 @@ return function()
 		it(
 			"needs no switch: the load never reads secretCats, and a traded one is made whole",
 			function()
-				-- ProfileSchema is pure and takes no flags, so a build with the switch off (LiveFlags.OFF_BY_DEFAULT)
-				-- loads these saves exactly as above
-				expect(LiveFlags.OFF_BY_DEFAULT.secretCats).to.equal(true)
+				-- ProfileSchema is pure and takes no flags, so any build loads these saves exactly as above (the
+				-- switch itself is retired since #4654 batch 5)
 				for _, catId in secretIds() do
 					local cat: any =
 						ProfileSchema.cleanCat({ uid = "t", catId = catId, variant = "gold" }, NOW)

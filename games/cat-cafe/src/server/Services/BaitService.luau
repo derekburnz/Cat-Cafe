@@ -158,9 +158,9 @@ local function useLure(
 			{ "bait", rarity, tostring(Economy.tier(profile)) }
 		)
 	end
-	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on (the card's Mythical line is
-	-- "Mythical or better", so it stays true)
-	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 (the card's Mythical line is "Mythical or better", so it
+	-- stays true)
+	local secret = if rarity == "Mythical"
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),

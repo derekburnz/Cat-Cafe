@@ -11067,12 +11067,9 @@ do
 					lines = party.lines,
 				}) == true
 				-- #3535: Friday's party is followed by the Secret cats card (queued behind the party card)
-				local LiveFlags = require(
-					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
-				) :: any
 				local secrets = EventLogic.secretsBanner(
 					view,
-					LiveFlags.shown("secretCats", get(LiveFlags.ATTRIBUTE_PREFIX .. "secretCats")),
+					true, -- #4654 batch 5: the `secretCats` switch is retired
 					#EventBanner.shapeModels() -- #4221: the first three only, as the shapes under it
 				)
 				if secrets ~= nil then

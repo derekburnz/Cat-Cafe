@@ -3235,7 +3235,6 @@ Catalog.achievements = {
 		measure = "secretCats",
 		needs = 1,
 		size = "L",
-		flag = "secretCats",
 	},
 	{
 		id = "a_secret3",
@@ -3244,7 +3243,6 @@ Catalog.achievements = {
 		measure = "secretCats",
 		needs = 3,
 		size = "XL",
-		flag = "secretCats",
 	},
 	{
 		id = "a_rest1h",

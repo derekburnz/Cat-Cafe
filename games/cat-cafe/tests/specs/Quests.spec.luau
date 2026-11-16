@@ -349,7 +349,7 @@ return function()
 				for _ in Quests.achievementsView(p) do
 					n += 1
 				end
-				expect(n).to.equal(61) -- the 60 (Lucky Picker has no switch since #4654) and golden crates
+				expect(n).to.equal(63) -- the 60 (Lucky Picker has no switch since #4654), golden crates and the two Secret ones (batch 5)
 			end)
 			Quests.setFlagReader(default)
 			if not ok then
@@ -731,8 +731,8 @@ return function()
 				expect(row.progress <= (Catalog.getAchievement(id) :: any).needs).to.equal(true)
 			end
 			-- every switch at its default: the Rummage Bin's two (alleyBin is on by default) and the golden crates
-			-- one join the 60 (Lucky Picker has no switch since #4654); the four whose switch starts off stay out
-			expect(n).to.equal(63)
+			-- one join the 60 (Lucky Picker has no switch since #4654); the two whose switch starts off stay out
+			expect(n).to.equal(65) -- #4654 batch 5: the two Secret cat achievements have no switch
 		end)
 	end)
 

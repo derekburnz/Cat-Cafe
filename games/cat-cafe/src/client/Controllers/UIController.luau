@@ -1335,7 +1335,8 @@ end
 
 -- #4821 (shared/QuietStart.firstCatHolds): under bowl first, the pop-ups wait until the first bowl cat is claimed and
 -- FIRST_CAT_AFTER seconds more. `before` is the last sync's answer; `claimedAt` the clock when it turned false here.
-local firstCat = { before = false, claimedAt = nil :: number?, held = false }
+-- `tutorial` (QuietStart.tutorialHolds, Derek 2026-11-16 15:22 UTC): the softer hold through the rest of the tutorial.
+local firstCat = { before = false, claimedAt = nil :: number?, held = false, tutorial = false }
 local function firstCatHold(s: Types.PlayerState)
 	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
 	local QuietStart = require(Shared:WaitForChild("QuietStart")) :: any
@@ -1359,6 +1360,12 @@ local function firstCatHold(s: Types.PlayerState)
 	if held ~= firstCat.held then
 		firstCat.held = held
 		UI.setFirstCatHold(held)
+	end
+	local tutorial = QuietStart.tutorialHolds(TutorialOrder.bowlFirst(), s.tutorialStep, s.tier)
+		== true
+	if tutorial ~= firstCat.tutorial then
+		firstCat.tutorial = tutorial
+		UI.setTutorialHold(tutorial)
 	end
 end
 
@@ -1812,6 +1819,9 @@ local function wireIntents()
 	local dropCat = (UI.events :: any).dropCat
 	if dropCat ~= nil then
 		dropCat:Connect(function()
+			if firstCat.tutorial then
+				return -- #4832 (Derek 2026-11-16): no dropping in the tutorial, the G key and the d-pad included
+			end
 			local character = player.Character
 			local root = if character ~= nil
 				then character:FindFirstChild("HumanoidRootPart")
@@ -2536,8 +2546,10 @@ local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
 	end
-	if firstCat.held then
-		return false -- #4821: no asks (notifications, favorite, like, invite, the event's) before the first cat
+	if firstCat.held or firstCat.tutorial then
+		-- #4821: no asks (notifications, favorite, like, invite, the event's Notify Me) before the first cat, and
+		-- (Derek 2026-11-16 15:22 UTC) none until the walk-through is done
+		return false
 	end
 	if AfkController.rejoinQuiet() then
 		return false -- #3602: away since before an automatic rejoin; asks wait for the first input
@@ -3351,6 +3363,9 @@ local function wireServerEvents()
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
 				return
 			end
+			if firstCat.tutorial then
+				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through; the gift still comes
+			end
 			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
 	)
@@ -3605,6 +3620,8 @@ function UIController.start()
 	-- event's banner and splash at 4 s on a fresh save); that sync clears it for anyone past the bowl part
 	firstCat.held = true
 	UI.setFirstCatHold(true)
+	firstCat.tutorial = true
+	UI.setTutorialHold(true)
 	if state ~= nil then
 		firstCatHold(state)
 	end

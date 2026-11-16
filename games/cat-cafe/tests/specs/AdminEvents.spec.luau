@@ -243,6 +243,18 @@ return function()
 			expect(#(both :: { any })).to.equal(2)
 		end)
 
+		it("/admin stop ends every admin event running or in its warning (#4870)", function()
+			local running =
+				frenzy({ id = "workflow-storm", startsAt = NOW - 60, endsAt = NOW + 540 })
+			local warning = frenzy({ id = "frenzy-warn", startsAt = NOW + 90, endsAt = NOW + 990 })
+			local later =
+				frenzy({ id = "frenzy-later", startsAt = NOW + 3000, endsAt = NOW + 3600 })
+			local party = CafeEvents.ownerRecord("money", NOW, 10) :: { [string]: any }
+			local list, count = CafeEvents.stopRemove({ running, warning, later, party }, NOW, true)
+			expect(count).to.equal(2)
+			expect(list).to.deepEqual({ later, party })
+		end)
+
 		it("stops only its own lane", function()
 			local admin = CafeEvents.adminRecord("bowl", NOW, nil) :: { [string]: any }
 			local own = CafeEvents.ownerRecord("money", NOW, 10) :: { [string]: any }

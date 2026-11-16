@@ -54,8 +54,8 @@
 --   `moneyStorm` (Money Storm): every player's cafe pay is at least that many times while it runs, in place of the
 --   event money slot and the rest's 2x when larger, never on top of them, 1 to ADMIN.moneyStormMax
 --   (Economy.setAdminMoney); `traitParty` (Trait Party): Mystic Pool rolls cost nothing while it runs, at most
---   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player counts as
---   wearing the Speed Shoes while it runs (CatService). traitParty and speedRush are on with true or a number above
+--   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player walks
+--   ADMIN.speedRushWalk faster while it runs, carrying a cat too (CatService; #4878, was a loan of the Speed Shoes). traitParty and speedRush are on with true or a number above
 --   0, and travel as 1 in AdminEventEffects. `secretHunt` (Secret Hunt): that many Secret cats hide in this server's
 --   open areas by day, 1 to ADMIN.secretHuntMax; whoever catches one keeps it, and when all are caught everyone
 --   online gets ADMIN.huntFish golden fish (CatService). The server adds `secretFound`, the count caught so far, to
@@ -124,6 +124,7 @@ CafeEvents.ADMIN = {
 	traitPartyRolls = 30, -- #4197 Trait Party: free rolls an account may take in one party
 	secretHuntMax = 5, -- #4197 Secret Hunt
 	wheelSpinsMax = 10, -- #4876 the most Admin Wheel spins an account may get in one wheel event
+	speedRushWalk = 10, -- #4878 Speed Rush: walk speed every player gains while it runs
 	huntFish = 100, -- each player online when the last hunted cat is caught
 	fountainFish = 5, -- #4197 Fish Fountain: golden fish in each pickup
 	fountainCap = 150, -- the most one player can pick up in one fountain
@@ -132,6 +133,12 @@ CafeEvents.ADMIN = {
 	crateCap = 5, -- the most crates one player can get in one Crate Drop
 }
 -- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
+-- Derek 2026-11-16 16:10 UTC: the longest a Trait Party (free trait rolls) may run
+CafeEvents.TRAIT_PARTY_MAX_SECONDS = 180
+-- #4871 (Derek 2026-11-16 16:28 UTC: a one-time spawn "no need to put a 15min banner just have it be like a 3 min
+-- banner"): the longest a Secret Hunt runs. Its cats come out in the first seconds and stay until dusk after it ends.
+CafeEvents.SECRET_HUNT_MAX_SECONDS = 180
+
 CafeEvents.ADMIN_KINDS = {
 	bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
 	storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
@@ -139,9 +146,12 @@ CafeEvents.ADMIN_KINDS = {
 	golden = { title = "Golden Hour", minutes = 15, effects = { goldBoost = 10, rainbowBoost = 5 } },
 	-- Derek 2026-11-14 22:09 UTC (#4325): "make it like 4x money for a little bit": 4x for 5 minutes
 	money = { title = "Money Storm", minutes = 5, effects = { moneyStorm = 4 } },
-	traits = { title = "Trait Party", minutes = 10, effects = { traitParty = true } },
+	-- Derek 2026-11-16 16:10 UTC ("don't make the free trait rerolls 15 minutes make it 3 min MAX"): 3, was 10, and
+	-- never longer (TRAIT_PARTY_MAX_SECONDS)
+	traits = { title = "Trait Party", minutes = 3, effects = { traitParty = true } },
 	speed = { title = "Speed Rush", minutes = 10, effects = { speedRush = true } },
-	hunt = { title = "Secret Hunt", minutes = 15, effects = { secretHunt = 3 } },
+	-- #4871: 3, was 15, and never longer (SECRET_HUNT_MAX_SECONDS)
+	hunt = { title = "Secret Hunt", minutes = 3, effects = { secretHunt = 3 } },
 	fountain = { title = "Fish Fountain", minutes = 5, effects = { fishFountain = true } },
 	crates = { title = "Crate Drop", minutes = 5, effects = { crateDrop = true } },
 	-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
@@ -484,6 +494,22 @@ local function adminOf(
 	end
 	if not adminActive(effects) then
 		return nil, id .. ": no admin effect"
+	end
+	-- Derek 2026-11-16: free trait rolls run 3 minutes at most, whatever the record says (the owner's /admin, the
+	-- events workflow or a hand-written record)
+	-- #4871: the same for a Secret Hunt, a one-time spawn
+	local party: any = (effects :: any).traitParty
+	local most = if party == true or (type(party) == "number" and party > 0)
+		then CafeEvents.TRAIT_PARTY_MAX_SECONDS
+		else nil
+	if effects.secretHunt > 0 then
+		most = math.min(most or math.huge, CafeEvents.SECRET_HUNT_MAX_SECONDS)
+	end
+	if most ~= nil then
+		endsAt = math.min(endsAt, startsAt + most)
+		if endsAt <= now then
+			return nil, nil
+		end
 	end
 	local event: AdminEvent = {
 		id = id,
@@ -854,6 +880,10 @@ end
 --                                                   schedule is full, or the stored value is not a list
 --   ownerRemove(raw, now, admin?) -> (list?, count)   the schedule without the owner's records (normal ones, or
 --                                                   with `admin` the admin ones) that are not over yet
+--   stopRemove(raw, now, adminOnly?) -> (list?, count)  #4870 `/event stop` and `/admin stop`: the schedule
+--                                                   without every record, whoever wrote it, that runs or shows (its
+--                                                   countdown or warning) now; `adminOnly` admin ones only; later
+--                                                   ones stay
 CafeEvents.OWNER_PREFIX = "owner-"
 CafeEvents.OWNER_TITLE = "Cafe Party"
 CafeEvents.OWNER_SHOWER_FIRST = 120
@@ -905,11 +935,11 @@ local function adminSeconds(kind: string, minutes: number?): number
 	local asked = if minutes ~= nil and minutes == minutes
 		then minutes
 		else CafeEvents.ADMIN_KINDS[kind].minutes
-	return math.clamp(
-		math.floor(asked) * 60,
-		CafeEvents.ADMIN.minSeconds,
-		CafeEvents.ADMIN.maxSeconds
-	)
+	local most = if kind == "traits"
+		then CafeEvents.TRAIT_PARTY_MAX_SECONDS
+		elseif kind == "hunt" then CafeEvents.SECRET_HUNT_MAX_SECONDS
+		else CafeEvents.ADMIN.maxSeconds
+	return math.clamp(math.floor(asked) * 60, CafeEvents.ADMIN.minSeconds, most)
 end
 
 -- #4876: the effects of `kind` with `spins` (`/admin wheel <spins>`) for the wheel; any other kind ignores it
@@ -1006,7 +1036,7 @@ function CafeEvents.ownerAdd(
 			if admin.startsAt < record.endsAt and record.startsAt < admin.endsAt then
 				return nil,
 					string.format(
-						"%s is running or coming until %d minutes from now (/admin stop ends one you started)",
+						"%s is running or coming until %d minutes from now (/admin stop ends it)",
 						admin.title,
 						math.ceil((admin.endsAt - now) / 60)
 					)
@@ -1019,7 +1049,7 @@ function CafeEvents.ownerAdd(
 			if event.startsAt <= now then
 				return nil,
 					string.format(
-						"%s is already running for %d more minutes (/event stop ends one you started)",
+						"%s is already running for %d more minutes (/event stop ends it)",
 						event.title,
 						math.ceil((event.endsAt - now) / 60)
 					)
@@ -1054,6 +1084,34 @@ function CafeEvents.ownerRemove(raw: unknown, now: number, admin: boolean?): ({ 
 		local mine = type(id) == "string" and string.sub(id, 1, #prefix) == prefix
 		local isAdmin = type(id) == "string" and string.sub(id, 1, #adminPrefix) == adminPrefix
 		if mine and isAdmin == (admin == true) then
+			removed += 1
+		else
+			table.insert(kept, item)
+		end
+	end
+	return kept, removed
+end
+
+-- #4870 (Derek 2026-11-16: "make /event stop clear all event banners also", and 16:35 UTC: "event stop should
+-- also clear that banner", the Admin Wheel's): `/event stop` ends every event on screen now, normal and admin, from
+-- the owner, the events workflow or a thread alike. A normal one is on screen while it runs or counts down (starts
+-- within Config.EventCountdownSeconds), an admin one while it runs or shows its warning (ADMIN.warnSeconds).
+-- `adminOnly` (`/admin stop`) takes the admin ones only. Ones further off stay, so a planned update event is not
+-- lost. A record with no start is left for parse to drop.
+function CafeEvents.stopRemove(raw: unknown, now: number, adminOnly: boolean?): ({ any }?, number)
+	local list = standing(raw, now)
+	if list == nil then
+		return nil, 0
+	end
+	local kept: { any } = {}
+	local removed = 0
+	for _, item in list do
+		local record = if type(item) == "table" then item :: { [string]: any } else nil
+		local startsAt = if record ~= nil then record.startsAt else nil
+		local admin = record ~= nil and record.admin == true
+		local lead = if admin then CafeEvents.ADMIN.warnSeconds else Config.EventCountdownSeconds
+		local lane = admin or adminOnly ~= true
+		if record ~= nil and lane and type(startsAt) == "number" and startsAt <= now + lead then
 			removed += 1
 		else
 			table.insert(kept, item)

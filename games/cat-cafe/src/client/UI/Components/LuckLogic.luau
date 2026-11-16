@@ -348,18 +348,18 @@ function LuckLogic.dayBanner(view: DayView): (string?, string?)
 	if #today == 0 then
 		return nil, nil
 	end
+	-- #4867 (Derek 2026-11-16: "for the day pop ups like lucky day / gold day put less text no need to explain make it
+	-- just show the days"): the day names only, no effect line
 	if #today >= 3 then
-		-- three names (35 letters) and three effects run off a small phone's screen (the 72 px title), so a
-		-- Triple Day says so and names them on the line
-		return "Triple Day!", kindWords(today) .. " Day until night"
+		-- three names (35 letters) run off a small phone's screen (the 72 px title), so a Triple Day says so and names
+		-- them on the line
+		return "Triple Day!", kindWords(today) .. " Day"
 	end
 	local titles: { string } = {}
-	local effects: { string } = {}
 	for _, kind in today do
 		table.insert(titles, kind.name .. "!")
-		table.insert(effects, kind.effect)
 	end
-	return table.concat(titles, " "), table.concat(effects, ". ") .. " until night"
+	return table.concat(titles, " "), nil
 end
 
 -- #1572 (luck-and-rare-moments.md 1g): the warning LuckyDayWarnSeconds before a sunrise names every kind it brings,
@@ -378,10 +378,10 @@ function LuckLogic.warnBanner(
 	if #coming == 0 then
 		return nil, nil
 	elseif #coming == 1 then
-		return coming[1].name .. " soon!", coming[1].effect .. " from sunrise"
+		return coming[1].name .. " soon!", nil -- #4867: the day's name only
 	end
 	local title = if #coming == 2 then "Double Day soon!" else "Triple Day soon!"
-	return title, kindWords(coming) .. " Day at sunrise"
+	return title, kindWords(coming) .. " Day" -- #4867: the days, no "at sunrise"
 end
 
 -- #1153 (Derek 11-04: the odds blocks were hard to read): whole percents, one decimal below 1% ("42%", "0.6%").

@@ -47,7 +47,7 @@ return function()
 
 	describe("catalog and switches", function()
 		it(
-			"is a ten-level perk from 60 to 3800 golden fish, each dearer, first of the perks",
+			"is a ten-level perk from 60 to 1100 golden fish, each dearer, first of the perks (#4860)",
 			function()
 				local row = Catalog.getFishShopRow(SwiftPaws.ID)
 				assert(row and row.costs)
@@ -59,11 +59,11 @@ return function()
 					300,
 					500,
 					800,
-					1200,
-					1700,
-					2300,
-					3000,
-					3800,
+					850,
+					900,
+					950,
+					1000,
+					1100,
 				})
 				expect(#SwiftPaws.LEVELS).to.equal(10)
 				local firstPerk: string? = nil

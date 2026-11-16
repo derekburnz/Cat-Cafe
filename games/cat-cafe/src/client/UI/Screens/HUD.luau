@@ -152,6 +152,7 @@ export type HUD = {
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
 	setPacked: (self: HUD, packed: boolean) -> (), -- #2731: a cat in the backpack
+	setDropHidden: (self: HUD, hidden: boolean) -> (), -- #4832: no Drop buttons in the tutorial
 	isPacked: (self: HUD) -> boolean, -- #2731: the PackDrop pill shows (a backpack cat, empty arms)
 	carryShown: (self: HUD) -> boolean, -- #3145: the carry banner itself is up (UI.carryView)
 	bottomTop: (self: HUD) -> number,
@@ -2286,6 +2287,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		keycap(drop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0), PAD_DROP)
 	end
 	table.insert(self._buttons, drop)
+	self._carryDrop = drop
+	self._dropHidden = false -- #4832 (setDropHidden)
 
 	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): a small Drop pill where the carry
 	-- banner sits, while the character has a PackedCatId and the arms are empty; it and G fire the same dropCat, and
@@ -2738,7 +2741,7 @@ end
 
 function HUD.setPacked(self: any, packed: boolean)
 	self._packed = packed
-	local show = packed and not self:isCarrying()
+	local show = packed and not self:isCarrying() and not self._dropHidden
 	if self._packDrop.instance.Visible ~= show then
 		self._packDrop.instance.Visible = show
 		if show then
@@ -2746,6 +2749,17 @@ function HUD.setPacked(self: any, packed: boolean)
 		end
 		self:_layoutBottom()
 	end
+end
+
+-- #4832 (Derek 2026-11-16: "doesn't show drop during tutorial steps as players get confused"): while `hidden` the
+-- carry banner's Drop button and the Drop bag cat pill do not show (UI.setTutorialHold says when)
+function HUD.setDropHidden(self: any, hidden: boolean)
+	if self._dropHidden == hidden then
+		return
+	end
+	self._dropHidden = hidden
+	self._carryDrop.instance.Visible = not hidden
+	self:setPacked(self._packed)
 end
 
 function HUD.isPacked(self: any): boolean

@@ -601,7 +601,7 @@ return function()
 						"perfect"
 					)
 					expect(attempt.errors[1]).to.equal(0)
-					expect(Circles.succeeded(attempt)).to.equal(true)
+					expect(attempt.nextIndex).to.equal(2) -- #4845: two more held rings follow
 				end
 				-- a press just before the target (the clock between the client's freeze and the server) counts too
 				local attempt, target = held()
@@ -617,7 +617,64 @@ return function()
 			expect(Circles.expire(attempt, target + 30)).to.equal(0)
 			expect(Circles.expire(attempt, deadline + 0.01)).to.equal(1)
 			expect(attempt.grades[1]).to.equal("miss")
-			expect(Circles.lockUntil(attempt.circles, windows)).to.be.near(deadline + 1, 1e-9)
+			-- #4845: the lock covers the last ring's whole hold and the two holds before it
+			local last = Circles.deadline(attempt.circles[3], windows)
+			expect(Circles.lockUntil(attempt.circles, windows)).to.be.near(last + 120 + 1, 1e-9)
+		end)
+
+		-- #4845 (Derek 2026-11-16): the held first catch is 3 guided rings, each waiting for its press
+		it("runs three held rings on the beat, one each at its own spot", function()
+			local circles = Circles.tutorialSchedule(NOW, lcg(7), true)
+			expect(#circles).to.equal(Circles.GUIDED_RINGS)
+			expect(Circles.GUIDED_RINGS).to.equal(3)
+			for index, circle in circles do
+				expect(circle.hold).to.equal(true)
+				if index > 1 then
+					local previous = circles[index - 1]
+					expect(circle.startsAt).to.be.near(
+						previous.startsAt + previous.shrinkSeconds + Config.CircleGapMin,
+						1e-9
+					)
+				end
+			end
+			expect(#Circles.tutorialSchedule(NOW, lcg(7))).to.equal(1) -- not held: one ring as before
+		end)
+
+		it(
+			"moves the later rings back by how long a held ring waited, and catches on the third",
+			function()
+				local circles = Circles.tutorialSchedule(NOW, constant(0.5), true)
+				local attempt = Circles.newAttempt(
+					circles,
+					Circles.tutorialWindows(0),
+					Circles.tutorialTrust(#circles)
+				)
+				local second = Circles.target(circles[2])
+				local third = Circles.target(circles[3])
+				local first = Circles.target(circles[1])
+				expect(Circles.press(attempt, 1, first + 4, first + 4)).to.equal("perfect")
+				expect(Circles.target(circles[2])).to.be.near(second + 4, 1e-9)
+				expect(Circles.target(circles[3])).to.be.near(third + 4, 1e-9)
+				expect(attempt.caught).to.equal(false)
+				local t2 = Circles.target(circles[2])
+				expect(Circles.press(attempt, 2, t2, t2)).to.equal("perfect") -- on time: no further shift
+				expect(Circles.target(circles[3])).to.be.near(third + 4, 1e-9)
+				expect(attempt.caught).to.equal(false)
+				local t3 = Circles.target(circles[3]) + 1
+				expect(Circles.press(attempt, 3, t3, t3)).to.equal("perfect")
+				expect(attempt.caught).to.equal(true)
+				expect(Circles.isDone(attempt)).to.equal(true)
+			end
+		)
+
+		it("keeps one ring's trust as it was: one Good catches", function()
+			local one = Circles.tutorialTrust(1)
+			expect(one.need).to.equal(Circles.tutorialTrust().need)
+			local three = Circles.tutorialTrust(3)
+			expect(three.start + 2 * Config.TrustPerfect + Config.TrustGood >= three.need).to.equal(
+				true
+			)
+			expect(three.start + 2 * Config.TrustPerfect < three.need).to.equal(true)
 		end)
 	end)
 

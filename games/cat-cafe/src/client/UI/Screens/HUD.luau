@@ -3495,9 +3495,13 @@ function HUD.holdTutorial(self: any, held: boolean)
 end
 
 function HUD.setTutorial(self: any, text: string?)
+	-- #4920 (Sync's stopwatch runs 2026-11-16: "Follow the trail and catch the cat" flashed back for 0.4 s while a held
+	-- ring waited): a sync mid catch keeps the strip with the rest of the HUD that stepped aside (_applyFocus), and
+	-- it comes back with them when the catch ends
+	local catching = self._catching == true
 	if text and text ~= "" then
 		-- only a new line chimes and pops; the same line again (a sync, a zone change) stays still
-		if not self._tutorial.Visible or self._tutorial.Text ~= text then
+		if not catching and (not self._tutorial.Visible or self._tutorial.Text ~= text) then
 			Sound.play("uiHint")
 			Tween.popIn(self._tutorial, 0.92)
 		end
@@ -3508,9 +3512,15 @@ function HUD.setTutorial(self: any, text: string?)
 			self._tutorial.Text = text
 			self:_wrapTutorial(text)
 		end
-		self._tutorial.Visible = true
+		if catching then
+			self._tutorial.Visible = false
+			self._focusHidden[self._tutorial] = true
+		else
+			self._tutorial.Visible = true
+		end
 	else
 		self._tutorial.Visible = false
+		self._focusHidden[self._tutorial] = nil
 	end
 	self:_renderStripBuy()
 end

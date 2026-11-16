@@ -8454,9 +8454,22 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.3)
 		assert(toast("Tip Jar: 2 gifts claimed!") == nil, "uigate: a toast showed mid-catch (#2727)")
 		assert(toast("Your paws are shaking!") ~= nil, "uigate: a warning waited mid-catch (#2727)")
+		-- #4920 (Sync's stopwatch): a sync mid catch sends the step line again; the strip stays down, then comes back
+		local strip = root:FindFirstChild("Tutorial") :: TextLabel
+		local wasLine = strip.Visible and strip.Text or nil
+		UI.tutorial.show("Follow the trail and catch the cat! Click by it")
+		UIShim.advance(0.1)
+		assert(not strip.Visible, "uigate: the step strip came back mid-catch on a sync (#4920)")
 		UI.catch.hideCircles()
 		UI.catch.hide()
 		UIShim.advance(0.5)
+		assert(strip.Visible and strip.Text == "Follow the trail and catch the cat! Click by it", "uigate: the step strip did not come back after the catch (#4920)")
+		if wasLine == nil then
+			UI.tutorial.hide()
+		else
+			UI.tutorial.show(wasLine)
+		end
+		UIShim.advance(0.1)
 		for child, was in before do
 			assert((child :: GuiObject).Visible == was, "uigate: the HUD's " .. child.Name .. " did not come back after the catch (#2724)")
 		end

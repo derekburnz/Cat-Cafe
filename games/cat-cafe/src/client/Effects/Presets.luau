@@ -6093,7 +6093,6 @@ Presets.bedWalk = { fade = 0.25 }
 -- performance. `ribbons` is per budget tier (high, medium, low).
 export type AuroraSpec = {
 	ribbons: { number },
-	brightness: number, -- Beam.Brightness
 	-- #4687: each ribbon is a curtain of upright rays side by side along it, each one Beam from its foot up
 	columns: { number }, -- rays a ribbon by tier (high, medium, low)
 	tall: number, -- studs a ray reaches up from the foot

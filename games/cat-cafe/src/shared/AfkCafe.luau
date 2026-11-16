@@ -30,7 +30,6 @@ AfkCafe.ZONE_ATTRIBUTE = "CafeRestZone" -- #3701: on the Player while a player p
 AfkCafe.DOORSTEP_STUDS = 12
 AfkCafe.MOVE_STUDS = 1.5 -- a character further than this from where it stood has moved
 AfkCafe.TICK_SECONDS = 1
-AfkCafe.REJOIN_FLAG = "autoRejoin"
 AfkCafe.ARRIVED_ATTRIBUTE = "CafeRestArrived" -- on the Player once the server has taken up the rest again after a
 -- rejoin, so the client knows it counts as idle and reports its first input
 -- #4346 (Derek 2026-11-14: "add an afk button on the top right ... put you in cafe and 2x money mode and start the

@@ -1,7 +1,8 @@
 --!strict
 -- #4061 Ticket Booth window (Design-Agent/notes/ticket-booth-and-dragon-keep.md 1.4, the station menus picture Derek
 -- OK'd 2026-11-14 00:43 UTC): what each prize card shows from PlayerState.ticketBooth. Pure, so the specs check it.
---   card(row, tickets, armed) -> Card     the chip under the name, the price, the button and the bar of tickets saved
+--   card(row, tickets, armed, held?) -> Card  the chip under the name, the price, the button and the bar of tickets
+--                                         saved; an owned toy (spec 1.3) reads Owned with HOLD, or PUT AWAY while in hand
 --   rushLine(view, now) -> string         "Ticket Rush: x2 for 42 min", or when it comes
 --   ticketText(n) -> string               "🎟️ 3,240"
 --   CONFIRM_AT, ARM_SECONDS               at this price and over, BUY turns into "Tap again" for ARM_SECONDS first
@@ -85,6 +86,9 @@ export type Row = {
 	left: number?,
 	per: string?,
 	blocker: string?,
+	kind: string?, -- "toy" for the two toys (shared/Toys), with `item` its toy id
+	item: string?,
+	owned: boolean?,
 }
 
 export type Card = {
@@ -92,7 +96,7 @@ export type Card = {
 	button: string,
 	style: string, -- a Button style
 	enabled: boolean,
-	action: string, -- "buy" (send it), "arm" (the first of two taps) or "none"
+	action: string, -- "buy" (send it), "arm" (the first of two taps), "hold" or "away" (an owned toy) or "none"
 	progress: number?, -- 0 to 1 while short of the price: the thin bar
 	saved: string?, -- "1,240 / 3,000" under the bar
 }
@@ -111,7 +115,18 @@ local function limitChip(row: Row): string
 	return if left <= 0 then "Yours" else "Once"
 end
 
-function TicketBoothLogic.card(row: Row, tickets: number, armed: boolean): Card
+function TicketBoothLogic.card(row: Row, tickets: number, armed: boolean, held: string?): Card
+	-- #4061 spec 1.3: an owned toy is taken in hand from its card, and put away from it again
+	if row.kind == "toy" and row.owned == true then
+		local inHand = held ~= nil and held == row.item
+		return {
+			chip = if inHand then "In your hand" else "Owned",
+			button = if inHand then "PUT AWAY" else "HOLD",
+			style = if inHand then "secondary" else "primary",
+			enabled = true,
+			action = if inHand then "away" else "hold",
+		}
+	end
 	local chip = limitChip(row)
 	if row.left ~= nil and (row.left :: number) <= 0 then
 		return {

@@ -3,7 +3,7 @@
 -- OK'd 2026-11-14 00:43 UTC): what the window shows from PlayerState.dragon and the player's cats. Pure apart from the
 -- shared modules it reads (DragonKeep, Catalog), so the specs check it.
 --   title(view) -> string                     "Cinder · Drake", "Cinder · Egg" before the first stage
---   warmth(view) -> (string, number)          "1,480 / 2,500 warmth" and the bar's 0 to 1
+--   warmth(view) -> (string, number)          "1,480 / 2,100 warmth" and the bar's 0 to 1
 --   slots(view) -> { Slot }                   the five slots: a card, empty or "Stage 4" locked
 --   setsLine(view) -> string                  "Sets: Flame 2/3 · Wing 4/5", or how sets work
 --   setRows(view) -> { SetRow }               every family's 3 and 5 card bonuses for the Sets tab

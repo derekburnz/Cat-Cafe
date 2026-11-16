@@ -64,7 +64,7 @@ import math
 
 from alleyway import _arch, flower_clump, label, lantern
 from common import RB
-from plot import SQUARE_HALF_D, TOWN_EDGE_X, rot_x, rot_y, rot_z
+from plot import SQUARE_EDGE_X, SQUARE_HALF_D, rot_x, rot_y, rot_z
 
 SQ_W, SQ_D = 60.0, SQUARE_HALF_D               # the square's half width (x) and half depth (z): 48 x 32 until #2707,
                                                # 48 x 44 until #3001 (Derek2 11-10)
@@ -73,7 +73,7 @@ LANE, CROSS = 8.0, 6.0                         # half widths of the street's lin
 # #3001: the square grew to |x| 60 inside the same town edge (69), so the beds are 7 deep and stand against the wall's
 # inner face (67.5), x 60.5 to 67.5, centred on 64; 58.5 with 12 deep beds before.
 GARDEN_D = 7.0
-GARDEN_CX = TOWN_EDGE_X - 1.5 - GARDEN_D / 2
+GARDEN_CX = SQUARE_EDGE_X - 1.5 - GARDEN_D / 2
 BORDER, KERB = 2.0, 0.6
 TILE_X, TILE_Z, JOINT = 4.2, 4.4, 0.14         # #4532: 3.8 x 4.0 until the 180 deep square (the triangle budget)
 PAVER_L, PAVER_W = 3.7, 2.2                    # across the walk, along the walk

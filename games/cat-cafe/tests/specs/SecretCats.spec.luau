@@ -51,7 +51,10 @@ return function()
 				expect(def.area).to.equal("secret")
 				expect(Catalog.getArea(def.area)).to.equal(nil)
 				expect(def.exclusive).to.equal(nil)
-				expect(def.incomePerSecond).to.equal(300)
+				local home = Catalog.getArea(def.secretArea :: string) :: Types.AreaDef
+				expect(def.incomePerSecond).to.equal(
+					10 * Catalog.rarities.Mythical.incomePerSecond * home.incomeMultiplier * 3
+				)
 				expect(Catalog.getCat(def.id)).to.equal(def)
 			end
 		end)
@@ -68,6 +71,35 @@ return function()
 			expect(Catalog.rarities.Secret.incomePerSecond).to.equal(
 				4 * Catalog.rarities.Mythical.incomePerSecond
 			)
+		end)
+
+		it("earns 10 times the next tier's Mythical (Derek 2026-11-15)", function()
+			local mythicals: { [string]: number } = {}
+			for _, def in Catalog.cats do
+				if def.rarity == "Mythical" and Catalog.getArea(def.area) ~= nil then
+					mythicals[def.area] = def.incomePerSecond
+				end
+			end
+			-- Secret Tier 9 (the Water Park's) is 10 times a Tier 10 (Castle) Mythical
+			for _, def in Catalog.secretCats do
+				if def.secretArea == "waterpark" then
+					expect(def.incomePerSecond).to.equal(10 * mythicals.castle)
+				elseif def.secretArea == "alley" then
+					expect(def.incomePerSecond).to.equal(10 * mythicals.park)
+				elseif def.secretArea == "castle" then
+					expect(def.incomePerSecond).to.equal(10 * 3 * mythicals.castle)
+				end
+			end
+		end)
+
+		it("never earns less than four Mythicals at the owner's best area", function()
+			local ghost = Catalog.getCat("cafe_ghost") :: Types.CatDef
+			local castle = 0
+			for _, area in Catalog.areas do
+				castle = math.max(castle, area.incomeMultiplier)
+			end
+			expect(CatStats.areaMultiplier(ghost, 10)).to.equal(castle)
+			expect(CatStats.areaMultiplier(ghost, 1)).to.equal(ghost.incomePerSecond / 300)
 		end)
 
 		it("starts with its switch off", function()
@@ -320,17 +352,21 @@ return function()
 	end)
 
 	describe("income", function()
-		it("is the rarity's rate at the owner's best open area", function()
-			local def = Catalog.secretCats[1]
-			expect(CatStats.areaMultiplier(def)).to.equal(1)
-			expect(CatStats.areaMultiplier(def, 1)).to.equal(1)
-			local best = 1
-			for _, area in Catalog.areas do
-				best = math.max(best, area.incomeMultiplier)
-				expect(CatStats.areaMultiplier(def, area.tier)).to.equal(best)
+		it(
+			"is its own rate, or the rarity's rate at the owner's best open area when that pays more",
+			function()
+				-- #4221 (Derek 2026-11-15): its own rate is 10 times the next tier's Mythical (Catalog's secret)
+				for _, def in Catalog.secretCats do
+					local own = def.incomePerSecond / Catalog.rarities.Secret.incomePerSecond
+					expect(CatStats.areaMultiplier(def)).to.equal(own)
+					local best = own
+					for _, area in Catalog.areas do
+						best = math.max(best, area.incomeMultiplier)
+						expect(CatStats.areaMultiplier(def, area.tier)).to.equal(best)
+					end
+				end
 			end
-			expect(best > 1).to.equal(true)
-		end)
+		)
 	end)
 
 	describe("the Index", function()

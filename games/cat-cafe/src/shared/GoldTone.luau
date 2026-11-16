@@ -36,6 +36,15 @@ function GoldTone.open(): boolean
 	return ReplicatedStorage:GetAttribute("LiveFlag_" .. GoldTone.FLAG) == true
 end
 
+-- Whether `name` is a cat's _Gold model: the walking, seated or working twin ("CatCafe_Cat_Tabby_Gold",
+-- "..._Gold_Sit", "..._Gold_Work"). With the switch on nothing looks these up (GoldTone.names), so the server keeps
+-- them out of what clients download (AssetRegistry.followGoldTone, #4601). Gold crates, decor and the like are not
+-- cats and never match.
+function GoldTone.isTwin(name: string): boolean
+	local rest = string.match(name, "^CatCafe_Cat_%w+_Gold(.*)$")
+	return rest == "" or rest == "_Sit" or rest == "_Work"
+end
+
 -- The colour for a GoldTone attribute value, or nil when it is not 1, 2 or 3.
 function GoldTone.toneColor(tone: unknown): Color3?
 	if type(tone) ~= "number" then

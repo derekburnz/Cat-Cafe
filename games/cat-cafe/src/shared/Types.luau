@@ -735,6 +735,8 @@ export type TraitsView = {
 	bundles: boolean?,
 	-- #4197: the free Trait Party rolls left while an admin Trait Party runs; nil with none
 	party: number?,
+	-- #4712: the last Auto Roll this session: the trait it gave and a count that moves on with each; nil with none
+	autoRoll: { id: string, n: number }?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }

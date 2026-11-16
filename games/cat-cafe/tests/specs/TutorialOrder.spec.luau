@@ -26,5 +26,12 @@ return function()
 				expect(TutorialOrder.bowlPending(2, 0, false)).to.equal(false) -- past the first check-in
 			end
 		)
+
+		it("names the bowl part's three funnel stand-ins (#4674)", function()
+			expect(TutorialOrder.REPORT).to.equal("bowl_step")
+			expect(TutorialOrder.BOWL_STEPS.food).to.equal("tut_bowl_food")
+			expect(TutorialOrder.BOWL_STEPS.waiting).to.equal("tut_bowl_waiting")
+			expect(TutorialOrder.BOWL_STEPS.arrived).to.equal("tut_bowl_arrived")
+		end)
 	end)
 end

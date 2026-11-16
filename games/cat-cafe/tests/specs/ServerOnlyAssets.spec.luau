@@ -24,35 +24,62 @@ return function()
 			end
 		end)
 
-		it(
-			"takes the cafe's bigger room sizes, and leaves the 44 x 34 dressing where it is (#4543)",
-			function()
-				for _, name in
-					{
-						"CatCafe_Plot_Cafe_Mint_48x37",
-						"CatCafe_Plot_Cafe_Lilac_60x46",
-						"CatCafe_Plot_Interior_52x40",
-						"CatCafe_Plot_ForRent_56x43",
-						"CatCafe_Plot_Tier4_60x46",
-						"CatCafe_Plot_YardFence_48x37",
-					}
-				do
-					expect(ServerOnlyAssets.matches(name)).to.equal(true)
-				end
-				for _, name in
-					{
-						"CatCafe_Plot_Interior",
-						"CatCafe_Plot_Tier4",
-						"CatCafe_Plot_YardFence",
-						"CatCafe_Plot_BackDoor",
-						"CatCafe_Plot_LuckyCat_3",
-						"CatCafe_Plot_SignSnowyBanner",
-					}
-				do
-					expect(ServerOnlyAssets.matches(name)).to.equal(false)
-				end
+		it("takes the world pieces no client names (#4601) and leaves their ring art", function()
+			for _, name in
+				{
+					"CatCafe_Square_Fountain",
+					"CatCafe_Square_MysteryCart",
+					"CatCafe_Street_SpinWheel",
+					"CatCafe_Street_FishMarket",
+					"CatCafe_Town_DayCart",
+					"CatCafe_Town_LeaderboardRow",
+					"CatCafe_Park_IndexBoard",
+					"CatCafe_Snowy_IndexBoard",
+					"CatCafe_Plot_Interior",
+					"CatCafe_Plot_Tier3",
+					"CatCafe_Plot_YardFence",
+					"CatCafe_Alley_CrateStack",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(true)
 			end
-		)
+			for _, name in
+				{
+					"CatCafe_Street_DealerCart_RingIcon_Decor",
+					"CatCafe_Square_MysteryCart_RingIcon_Decor",
+					"CatCafe_Square_Cannon",
+					"CatCafe_Plot_BackDoor",
+					"CatCafe_Plot_LuckyCat_3",
+					"CatCafe_Town_ArcadeCabinet",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(false)
+			end
+		end)
+		it("takes the cafe's bigger room sizes, and leaves what a client names (#4543)", function()
+			for _, name in
+				{
+					"CatCafe_Plot_Cafe_Mint_48x37",
+					"CatCafe_Plot_Cafe_Lilac_60x46",
+					"CatCafe_Plot_Interior_52x40",
+					"CatCafe_Plot_ForRent_56x43",
+					"CatCafe_Plot_Tier4_60x46",
+					"CatCafe_Plot_YardFence_48x37",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(true)
+			end
+			for _, name in
+				{
+
+					"CatCafe_Plot_BackDoor",
+					"CatCafe_Plot_LuckyCat_3",
+					"CatCafe_Plot_SignSnowyBanner",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(false)
+			end
+		end)
 
 		it("takes every set the layout names", function()
 			for _, spec in Layout.areas do

@@ -372,6 +372,32 @@ MysticPoolLogic.AUTO = "Auto"
 MysticPoolLogic.AUTO_TITLE = "Auto Roll"
 MysticPoolLogic.AUTO_ASK = "Keep rolling until a trait is this rarity or better:"
 MysticPoolLogic.AUTO_DEFAULT = "epic"
+-- Review-QA on #4714 (monetization-policy, young audience): a run rolls at most this many times, picked on the
+-- sheet, so one tap never spends every bought token
+MysticPoolLogic.AUTO_LIMITS = { 5, 10, 25 }
+MysticPoolLogic.AUTO_LIMIT = 10
+MysticPoolLogic.SECRET_NOTE = "A Mythic roll is skipped too."
+
+-- The run's roll limit: the pick, never more than the rolls the player can pay for (0 for none).
+function MysticPoolLogic.autoMost(view: View?, pick: number): number
+	return math.min(whole(pick), MysticPoolLogic.autoRolls(view))
+end
+
+-- "Start (up to 10 Trait Tokens)", "Start (up to 3 rolls)" with free or party rolls among them
+function MysticPoolLogic.autoStart(view: View?, most: number): string
+	local tokens = if view ~= nil then whole(view.tokens) else 0
+	if most <= 0 then
+		return "Start"
+	end
+	if
+		most <= tokens
+		and whole(if view ~= nil then view.party else 0) == 0
+		and whole(if view ~= nil then view.freeLeft else 0) == 0
+	then
+		return "Start (up to " .. plural(most, "Trait Token", "Trait Tokens") .. ")"
+	end
+	return "Start (up to " .. plural(most, "roll", "rolls") .. ")"
+end
 
 export type AutoTarget = { id: string, name: string, color: string, rank: number }
 
@@ -409,10 +435,11 @@ end
 
 export type AutoRun = {
 	rolls: number, -- answered so far
+	most: number?, -- the run's roll limit
 	spent: number, -- Trait Tokens used so far
 	last: string?, -- the last roll's trait id
 	running: boolean,
-	ended: string?, -- why it stopped: "hit", "out", "stop"
+	ended: string?, -- why it stopped: "hit", "out", "stop", "limit"
 }
 
 function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
@@ -436,6 +463,9 @@ function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
 	local used = plural(run.spent, "Trait Token", "Trait Tokens") .. " used"
 	local rolls = plural(run.rolls, "roll", "rolls")
 	if run.running then
+		if run.most ~= nil then
+			rolls = string.format("%d of %s", run.rolls, plural(run.most, "roll", "rolls"))
+		end
 		return rolls .. " · " .. used .. last
 	elseif run.ended == "out" then
 		return "Out of Trait Tokens after " .. rolls .. " · " .. used

@@ -166,6 +166,7 @@ local remembered = {
 	seeded = false,
 	saved = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, show = "" },
 	autoTarget = MysticPoolLogic.AUTO_DEFAULT, -- #4712: the Auto Roll rarity picked last this session
+	autoLimit = MysticPoolLogic.AUTO_LIMIT, -- and the roll limit
 }
 
 local function text(props: { [string]: any }, children: { Instance }?): TextLabel
@@ -1238,12 +1239,35 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		ZIndex = 12,
 		Parent = auto,
 	})
+	-- Review-QA on #4714: the roll limit (5, 10 or 25) beside Start, which says it ("Start (up to 10 Trait Tokens)")
+	local goTop = statusTop + statusH + 2
+	local limitW = 52
+	self._autoLimits = {} :: { [number]: Button.Button }
+	for index, limit in MysticPoolLogic.AUTO_LIMITS do
+		self._autoLimits[limit] = Button.new({
+			name = "Limit" .. limit,
+			text = tostring(limit),
+			style = "ghost",
+			size = UDim2.fromOffset(limitW, buttonH),
+			position = UDim2.fromOffset((index - 1) * (limitW + GAP), goTop),
+			textSize = Theme.sizes.textSmall + 1,
+			parent = auto,
+			zIndex = 12,
+			onClick = function()
+				if not (self._auto ~= nil and self._auto.running) then
+					remembered.autoLimit = limit
+					self:_paintAuto()
+				end
+			end,
+		})
+	end
+	local limitsW = #MysticPoolLogic.AUTO_LIMITS * (limitW + GAP)
 	self._autoGo = Button.new({
 		name = "Go",
 		text = "Start",
 		style = "primary",
-		size = UDim2.new(1, 0, 0, buttonH),
-		position = UDim2.fromOffset(0, statusTop + statusH + 2),
+		size = UDim2.new(1, -limitsW, 0, buttonH),
+		position = UDim2.fromOffset(limitsW, goTop),
 		textSize = Theme.sizes.textBody,
 		parent = auto,
 		zIndex = 12,
@@ -1450,7 +1474,12 @@ function MysticPool._autoPress(self: any)
 	if uid == nil or self._pending or MysticPoolLogic.autoRolls(self._view) <= 0 then
 		return
 	end
-	self._auto = { rolls = 0, spent = 0, running = true }
+	self._auto = {
+		rolls = 0,
+		spent = 0,
+		running = true,
+		most = MysticPoolLogic.autoMost(self._view, remembered.autoLimit),
+	}
 	self._autoUid = uid
 	self._autoStop = false
 	self:_autoStep()
@@ -1478,6 +1507,11 @@ function MysticPool._autoStep(self: any)
 		return
 	end
 	local view = self._view
+	if run.most ~= nil and run.rolls >= run.most then
+		self:_autoEnd("limit")
+		self:_paintAuto()
+		return
+	end
 	if MysticPoolLogic.autoRolls(view) <= 0 then
 		self:_autoEnd("out")
 		self:_paintAuto()
@@ -1551,8 +1585,21 @@ function MysticPool._paintAuto(self: any)
 		pick:setStyle(if id == remembered.autoTarget then "purple" else "ghost")
 		pick:setEnabled(not running or id == remembered.autoTarget)
 	end
-	self._autoStatus.Text = MysticPoolLogic.autoLine(run, self._view)
-	local goText = if running then (if self._autoStop then "Stopping..." else "Stop") else "Start"
+	for limit, chip: Button.Button in self._autoLimits do
+		chip:setStyle(if limit == remembered.autoLimit then "purple" else "ghost")
+		chip:setEnabled(not running or limit == remembered.autoLimit)
+	end
+	local line = MysticPoolLogic.autoLine(run, self._view)
+	if not running and remembered.autoTarget == "secret" then
+		line ..= " " .. MysticPoolLogic.SECRET_NOTE
+	end
+	self._autoStatus.Text = line
+	local goText = if running
+		then (if self._autoStop then "Stopping..." else "Stop")
+		else MysticPoolLogic.autoStart(
+			self._view,
+			MysticPoolLogic.autoMost(self._view, remembered.autoLimit)
+		)
 	if self._autoGoText ~= goText then
 		self._autoGoText = goText
 		self._autoGo:setText(goText)
@@ -2391,6 +2438,9 @@ function MysticPool.destroy(self: any)
 	self._autoButton:destroy()
 	self._autoBack:destroy()
 	self._autoGo:destroy()
+	for _, chip: Button.Button in self._autoLimits do
+		chip:destroy()
+	end
 	self._scrolled:Disconnect()
 	self._skipPressed:Disconnect()
 	for _, chip: Button.Button in self._sorts do

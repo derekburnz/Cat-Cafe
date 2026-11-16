@@ -105,6 +105,14 @@ UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 UI.afk = nil :: any
 -- #4821: the first cat hold (UI.setFirstCatHold); `tutorial`, the walk-through hold after it (UI.setTutorialHold)
 UI.firstCat = { held = false, tutorial = false }
+-- #4833 (Components/PopupPace): one self-opening card every 5 minutes; `last` the os.clock() the last one showed
+UI.pace = { last = nil :: number? }
+function UI.pace.free(): boolean
+	return require(script.Components.PopupPace).free(UI.pace.last, os.clock())
+end
+function UI.pace.took()
+	UI.pace.last = os.clock()
+end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -658,6 +666,7 @@ local function autoOpenDailyTreat()
 		or tutorialText ~= nil
 		or hintShown ~= nil
 		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC: and not until the walk-through is done
+		or not UI.pace.free() -- #4833: and 5 minutes after any other card that opened by itself
 		-- #4005: on the account's first day the "!" on its button is enough
 		or not (function(): boolean
 			local QuietStart =
@@ -671,6 +680,7 @@ local function autoOpenDailyTreat()
 		return
 	end
 	dailyAutoOpen = false
+	UI.pace.took() -- #4833
 	windows:open("DailyTreat")
 end
 
@@ -2785,6 +2795,7 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 				Format.money
 			)
 		end
+		UI.pace.took() -- #4833: it shows at once (the claim), and the next card waits
 		popups:showOffline(amount, seconds, function()
 			Sound.play("offlineClaim")
 			UI.events.claimOffline:Fire()
@@ -6153,6 +6164,7 @@ do
 			or not initialized
 			or (id ~= Tips.FAVORITE_ASK and id ~= Tips.LIKE_ASK)
 			or not TipQueue.free(tipMoment())
+			or not UI.pace.free() -- #4833
 		then
 			return false
 		end
@@ -6163,6 +6175,7 @@ do
 		tipBusy = true
 		tipAnswered[id] = true -- so the queue never shows it again this session
 		tipQueue:shown(os.clock())
+		UI.pace.took() -- #4833
 		card:show(text, TipQueue.icon(id), TipQueue.ASK_SECONDS, function()
 			tipBusy = false
 		end)
@@ -6252,18 +6265,20 @@ do
 		if not tutorialButtonOn then
 			return false
 		end
-		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
+		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk) and UI.pace.free() -- #4833
 	end
 
 	-- #2880: a slide-in ask just showed, so the next one waits AskPacing.GAP_SECONDS
 	function UI.asks.shown()
 		early.lastAsk = os.clock() - sessionStart
+		UI.pace.took() -- #4833
 	end
 
 	-- #2880: the pace as if the session had run long enough with no ask yet (QA in Studio and the UI gate)
 	function UI.asks.skipPace()
 		sessionStart = os.clock() - AskPacing.FIRST_SECONDS
 		early.lastAsk = nil
+		UI.pace.last = nil -- #4833
 	end
 
 	local function openAsk(card: AskCard.AskCard)
@@ -10824,6 +10839,7 @@ local function recapTry(): boolean
 		or (tipCard ~= nil and tipCard:isShowing())
 		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
 		or not visible
+		or not UI.pace.free() -- #4833: 5 minutes after any other card that opened by itself
 	if
 		not RecapLogic.canShow({
 			enabled = true,
@@ -10838,6 +10854,7 @@ local function recapTry(): boolean
 	end
 	UI.recap.shown = true
 	UI.recap.waiting = nil
+	UI.pace.took() -- #4833
 	card:show(recapLines(view), function(secondsUp: number)
 		UI.events.sessionRecapClose:Fire(secondsUp)
 	end, recapGoals(view))
@@ -11211,11 +11228,13 @@ do
 		-- Derek 2026-11-16 15:22 UTC: no event card or toast in the walk-through (UI.firstCat.tutorial). Its start is
 		-- not marked seen meanwhile, so the card comes once the hold ends: right after the first sync for a returning
 		-- player (the hold starts on at load), after the Tier 2 rank up for a new one, while the event still runs.
-		local held = started and UI.firstCat.tutorial
+		-- #4833: and 5 minutes after any other card that opened by itself (the start stays unseen till then)
+		local held = started and (UI.firstCat.tutorial or not UI.pace.free())
 		if not held then
 			events.seen = seen
 		end
 		if started and view ~= nil and toasts and not held then
+			UI.pace.took() -- #4833
 			-- #3420: an Update Party starts with the party card; any other event with the toast
 			local party = EventLogic.partyBanner(
 				view,
@@ -11263,6 +11282,7 @@ do
 			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
 			if not UI.firstCat.tutorial then -- Derek 2026-11-16 15:22 UTC: the chat line only, in the walk-through
 				EventBanner.show(card)
+				UI.pace.took() -- #4833: shown at its time, and the next card waits
 			end
 			-- the same words as one line in the chat window, for a player who looked away
 			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any

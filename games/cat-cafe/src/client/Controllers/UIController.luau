@@ -2554,6 +2554,9 @@ local function quiet(): boolean
 	if AfkController.rejoinQuiet() then
 		return false -- #3602: away since before an automatic rejoin; asks wait for the first input
 	end
+	if not UI.pace.free() then
+		return false -- #4833: 5 minutes after any card that opened by itself
+	end
 	local tips: any = (UI :: any).tips
 	if tips == nil or type(tips.quiet) ~= "function" then
 		return true
@@ -2620,6 +2623,9 @@ local function showAsk(id: string)
 				and pcall(function()
 					ExperienceNotificationService:PromptOptIn()
 				end)
+			if prompted then
+				UI.pace.took() -- #4833
+			end
 			Net.fire("TipSeen", id, not prompted)
 			return
 		end
@@ -3363,9 +3369,12 @@ local function wireServerEvents()
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
 				return
 			end
-			if firstCat.tutorial then
-				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through; the gift still comes
+			if firstCat.tutorial or not UI.pace.free() then
+				-- Derek 2026-11-16 15:22 UTC: no big card in the walk-through, nor (#4833) within 5 minutes of another
+				-- card that opened by itself; the gift still comes
+				return
 			end
+			UI.pace.took()
 			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
 	)

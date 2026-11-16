@@ -142,8 +142,6 @@ UI.events = {
 	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
 	-- design v0.3
-	-- #3062 (the Cat Arcade): Play on its card, a press on circle `index` of the game's block, and Close mid game:
-	-- forward as ArcadeStart, ArcadePress(run, block, index) and ArcadeQuit(run)
 	-- #3296 (Mouse Dash): Play, a tap on a hole while wave `index` is up, and Close mid game: forward as
 	-- MouseDashStart, MouseDashTap(run, index, hole) and MouseDashQuit(run)
 	mouseDashPlay = Signal.new(),

@@ -38,9 +38,6 @@
 --   until QA passes: off refuses a start; a game already running finishes and pays. On, it is the game the
 --   cabinet and the Menu row open (Derek 2026-11-11: "Swap this in for the current arcade game and vault the other
 --   one").
--- - `circleStreak` (#3296): false vaults Circle Streak: no start from the cabinet, the Menu row or the remote. Its
---   code, save and board stay, so switching it back on brings the game back. The swap is `mouseDash` on and this
---   off; while both are on (testing) the Mouse Dash card has a button to Circle Streak.
 -- - `cartTier6` (#3462): the Day Cart's Tier 6 shelf, its own two baits and three potions (shared/CornerShop's top
 --   shelf). It starts OFF (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the
 --   items is running, since an older server's save check drops a food or potion id it does not know.
@@ -129,7 +126,6 @@ LiveFlags.KEYS = {
 	"swiftPaws5",
 	"swiftPaws10", -- #4705
 	"mouseDash",
-	"circleStreak",
 	"cartTier6",
 	"secretCats",
 	"luckyCharm",

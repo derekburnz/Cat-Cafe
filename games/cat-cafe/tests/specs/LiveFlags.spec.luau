@@ -199,9 +199,6 @@ return function()
 				expect(LiveFlags.parse({ secretCats = "yes" }).secretCats).to.equal(false)
 				-- #3296: no Mouse Dash until QA passes and it is switched on
 				expect(LiveFlags.defaults().mouseDash).to.equal(false)
-				-- Circle Streak stays until it is vaulted by an explicit false
-				expect(LiveFlags.defaults().circleStreak).to.equal(true)
-				expect(LiveFlags.parse({ circleStreak = false }).circleStreak).to.equal(false)
 				expect(LiveFlags.parse({ mouseDash = true }).mouseDash).to.equal(true)
 				-- #2912: the stuck cat's call stays on (it is live) until an explicit false hides it
 				expect(LiveFlags.defaults().stuckCall).to.equal(true)

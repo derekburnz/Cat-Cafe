@@ -139,6 +139,8 @@ export type CustomEvent =
 	| "bait_rolled"
 	| "bait_resolved"
 	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
+	| "auto_bait" -- #4452: the starter Kibble went in bowl 1 by itself (value 1; field: the tutorial step)
+	| "tier2_topup" -- #4453: the first tamed bait cat's welcome paid this many coins toward Tier 2 (field: the cost)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
@@ -290,6 +292,7 @@ export type CustomEvent =
 	| "bin_play"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
+	| "return_hook_early_shown" -- #4626
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
@@ -503,6 +506,7 @@ local REPORTS = {
 	"tutorial_closed",
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
 	"new_kind_trail", -- #3529: the five cats trail showed or was followed (shared/NewKind.REPORTS)
+	"bowl_step", -- #4674: a bowl first strip line shown, a shared/TutorialOrder.BOWL_STEPS key
 	"stray_call", -- #3378: the waiting stray's call played for this player; the value is the call's number (1 to 4)
 	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
 	"store_buy", -- #1888: a buy button pressed, the pass or product id
@@ -524,6 +528,7 @@ local REPORTS = {
 	"rank_spot", -- #3555: the rank up walk-through shown or closed (RANK_SPOT)
 	"catch_reach", -- #3556: first time near a stray, first in-reach glow: near or shown (CATCH_REACH)
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
+	"return_hook_early", -- #4626: the minute 6 "come back tomorrow" line showed, its kind (ReturnHook.EARLY_KINDS)
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
@@ -2214,6 +2219,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
 		end
+	elseif name == "bowl_step" then
+		-- #4674: once a session each, as step_time, and only in the bowl first order
+		local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
+		local step = if type(rawValue) == "string" then TutorialOrder.BOWL_STEPS[rawValue] else nil
+		if step ~= nil and TutorialOrder.bowlFirst() and not session.nudges["bowl:" .. step] then
+			session.nudges["bowl:" .. step] = true
+			Telemetry.stepTime(player, profile, step)
+		end
 	elseif name == "new_kind_trail" then
 		-- #3529: once a session each, as step_time, and only with the switch on
 		local step = if type(rawValue) == "string" then NewKind.REPORTS[rawValue] else nil
@@ -2240,6 +2253,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				session.nudges[key] = true
 				Telemetry.custom(player, "stuck_nudge", 1, { step, kind })
 			end
+		end
+	elseif name == "return_hook_early" then
+		-- #4626: once a session, with the switch on, logged as return_hook_early_shown (one name)
+		local kind = Guard.oneOf(rawValue, ReturnHook.EARLY_KINDS)
+		if
+			kind ~= nil
+			and LiveFlagService.on(ReturnHook.EARLY_FLAG)
+			and not session.nudges["return_hook_early"]
+		then
+			session.nudges["return_hook_early"] = true
+			Telemetry.custom(player, "return_hook_early_shown", 1, { kind })
 		end
 	elseif name == "event_rsvp" then
 		local kind = Guard.oneOf(rawValue, RSVP_KINDS)

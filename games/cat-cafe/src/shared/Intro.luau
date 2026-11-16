@@ -346,8 +346,8 @@ function Intro.plot(index: number): Plot
 		* (
 			W.TownSquareHalfDepth
 			+ W.PlotRowGap
-			+ W.PlotWidth / 2
-			+ ring * (W.PlotWidth + W.PlotRowGap)
+			+ W.PlotCapWidth / 2
+			+ ring * (W.PlotCapWidth + W.PlotRowGap)
 		)
 	local x = side * (W.StreetHalfWidth + 2 + W.FrontGardenDepth + 1 + W.PlotDepth / 2)
 	return { x = x, z = z, side = side, index = index }
@@ -667,9 +667,11 @@ function Intro.shots(
 	-- (29 and 25 degrees) and still look over the cannon; #3454's four corners put them at (-26, 54) and (-44, -23),
 	-- 79 apart, so the camera stands 14 further east and 4 higher and looks at the point between them (29 degrees
 	-- off the axis each); #4532's 120 x 180 square put them at (-26, 56) and (-45, -30), 88 apart, so the camera stands
-	-- 14 further east again, 4 higher and 6 north, and looks along their bisector (28 degrees off the axis each)
-	local stations = v(-31.4, 3, 16)
-	local stationsCam = v(48, 32, 6)
+	-- 14 further east again, 4 higher and 6 north, and looks along their bisector (28 degrees off the axis each);
+	-- #4667 stood every station on the square's edge: (-50, 48.75) and (-50, -48.75), 97.5 apart and mirrored on the
+	-- lane, so the camera looks straight west along z = 0 from the same distance (26 degrees off the axis each)
+	local stations = v(-50, 3, 0)
+	local stationsCam = v(48, 34, 0)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {

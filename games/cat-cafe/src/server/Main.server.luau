@@ -110,6 +110,8 @@ local started = os.clock()
 local placeholders = AssetRegistry.ensurePlaceholders()
 -- #3743: the area sets and backdrops leave ReplicatedStorage before anyone joins, so no client is sent them
 local stowed = AssetRegistry.stowServerOnly()
+-- #4601: and the cats' _Gold models while the goldTone switch is on (it follows the switch)
+stowed += AssetRegistry.followGoldTone()
 local world = WorldBuilder.build()
 
 Net.start()

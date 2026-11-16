@@ -1,6 +1,6 @@
 --!strict
--- shared/SwiftPaws.luau (#3063, #3317): the Golden Fish Market's Swift Paws perk, five levels (+1, +1, then +0.5),
--- levels 3 to 5 behind their own switch, first in the Market's perks.
+-- shared/SwiftPaws.luau (#3063, #3317, #4705): the Golden Fish Market's Swift Paws perk, ten levels (+1, +1, then
+-- +0.5), levels 3 to 5 and 6 to 10 each behind their own switch, first in the Market's perks.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
@@ -11,16 +11,16 @@ return function()
 
 	describe("bonus", function()
 		it(
-			"adds +1 for levels 1 and 2 and +0.5 for 3 to 5, and nothing without the perk",
+			"adds +1 for levels 1 and 2 and +0.5 for 3 to 10, and nothing without the perk",
 			function()
 				local profile = ProfileSchema.template(100)
 				expect(SwiftPaws.bonus(profile, true)).to.equal(0)
-				local want = { 1, 2, 2.5, 3, 3.5 }
-				for level = 1, 5 do
+				local want = { 1, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6 }
+				for level = 1, 10 do
 					profile.fishPerks[SwiftPaws.ID] = level
 					expect(SwiftPaws.bonus(profile, true)).to.be.near(want[level])
 				end
-				expect(SwiftPaws.speedAt(9)).to.be.near(3.5)
+				expect(SwiftPaws.speedAt(14)).to.be.near(6)
 				expect(SwiftPaws.speedAt(-1)).to.equal(0)
 			end
 		)
@@ -34,11 +34,10 @@ return function()
 		end)
 
 		it(
-			"keeps a full carry slower than a plain walk, both under the catch rush, and under the Swift Potion",
+			"keeps the first five levels' carry slower than a plain walk, under the catch rush and the Swift Potion",
 			function()
-				local row = Catalog.getFishShopRow(SwiftPaws.ID)
-				assert(row and row.costs and row.maxLevel)
-				local most = SwiftPaws.speedAt(row.maxLevel)
+				-- #4705: levels 6 to 10 (Derek's ask) go past these on purpose; the first five keep them
+				local most = SwiftPaws.speedAt(SwiftPaws.MID_TOP)
 				expect(most < 4).to.equal(true) -- the Swift Potion's +4, sold for Robux, stays the bigger bump
 				expect(Config.CarryWalkSpeed + most < Config.NormalWalkSpeed).to.equal(true)
 				expect(Config.NormalWalkSpeed + most < Config.CatchRushWalkSpeed).to.equal(true)
@@ -48,13 +47,25 @@ return function()
 
 	describe("catalog and switches", function()
 		it(
-			"is a five-level perk at 60, 150, 300, 500 and 800 golden fish, first of the perks",
+			"is a ten-level perk from 60 to 3800 golden fish, each dearer, first of the perks",
 			function()
 				local row = Catalog.getFishShopRow(SwiftPaws.ID)
 				assert(row and row.costs)
 				expect(row.kind).to.equal("perk")
-				expect(row.maxLevel).to.equal(5)
-				expect(row.costs :: any).to.deepEqual({ 60, 150, 300, 500, 800 })
+				expect(row.maxLevel).to.equal(10)
+				expect(row.costs :: any).to.deepEqual({
+					60,
+					150,
+					300,
+					500,
+					800,
+					1200,
+					1700,
+					2300,
+					3000,
+					3800,
+				})
+				expect(#SwiftPaws.LEVELS).to.equal(10)
 				local firstPerk: string? = nil
 				for _, shopRow in Catalog.fishShop do
 					if shopRow.kind ~= "crate" then
@@ -73,6 +84,8 @@ return function()
 				expect(LiveFlags.defaults()[SwiftPaws.FLAG]).to.equal(true)
 				expect(table.find(LiveFlags.KEYS, SwiftPaws.FLAG_FIVE) ~= nil).to.equal(true)
 				expect(LiveFlags.defaults()[SwiftPaws.FLAG_FIVE]).to.equal(false)
+				expect(table.find(LiveFlags.KEYS, SwiftPaws.FLAG_TEN) ~= nil).to.equal(true)
+				expect(LiveFlags.defaults()[SwiftPaws.FLAG_TEN]).to.equal(false)
 			end
 		)
 
@@ -80,11 +93,20 @@ return function()
 			expect(SwiftPaws.topLevel(5, false)).to.equal(2)
 			expect(SwiftPaws.topLevel(5, true)).to.equal(5)
 			expect(SwiftPaws.topLevel(1, false)).to.equal(1)
+			-- #4705: levels 6 to 10 wait on their own switch, and only after levels 3 to 5 are open
+			expect(SwiftPaws.topLevel(10, true)).to.equal(5)
+			expect(SwiftPaws.topLevel(10, true, false)).to.equal(5)
+			expect(SwiftPaws.topLevel(10, true, true)).to.equal(10)
+			expect(SwiftPaws.topLevel(10, false, true)).to.equal(2)
 		end)
 
 		it("caps a saved level at the row's max, and keeps levels 3 to 5", function()
 			local raw = ProfileSchema.template(100) :: any
-			raw.fishPerks = { [SwiftPaws.ID] = 9 }
+			raw.fishPerks = { [SwiftPaws.ID] = 14 }
+			expect(ProfileSchema.migrate(raw, 100).fishPerks[SwiftPaws.ID]).to.equal(10)
+			-- #4705: an old level 5 save is kept as it is, ready for level 6
+			raw = ProfileSchema.template(100) :: any
+			raw.fishPerks = { [SwiftPaws.ID] = 5 }
 			expect(ProfileSchema.migrate(raw, 100).fishPerks[SwiftPaws.ID]).to.equal(5)
 			raw = ProfileSchema.template(100) :: any
 			raw.fishPerks = { [SwiftPaws.ID] = 4 }

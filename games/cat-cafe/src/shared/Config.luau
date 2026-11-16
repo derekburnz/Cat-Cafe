@@ -8,8 +8,9 @@ local Config = {
 	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
 	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins. #4097:
 	-- 850 to 250 now the table (#3660), the bowl and its Kibble are given: what a new player had left after buying the
-	-- bowl, so the money after the tutorial is as before
-	StartCoins = 250,
+	-- bowl, so the money after the tutorial is as before. #4674 (Derek 2026-11-16: "start players at 1,000$ so by the
+	-- time they hit the 1 catch its ready for rankup"): 250 before
+	StartCoins = 1000,
 	-- #3660 (Derek 2026-11-12: "make the players start with one table upgrade done and remove it from tutorial
 	-- steps"): the Tables level a new save starts at. Saves made before keep what they have
 	StartTables = 1,
@@ -1057,6 +1058,10 @@ local Config = {
 	FusionGoldSeconds = 0,
 	FusionRainbowSeconds = 0,
 	FusionTier = 8,
+	-- #4221 (Derek 2026-11-15 21:57 UTC: "make them behave like 10x money of the mythic cat from the next tier area so
+	-- secret tier 9 is 10x the tier 10 mythic"): an area's Secret earns this many times the Mythical of the area one
+	-- tier past its home (Catalog's secret). Tier 10's next area is taken as three times the Castle, the ladder's step.
+	SecretNextMythicTimes = 10,
 	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
 	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
@@ -1543,6 +1548,13 @@ local Config = {
 	GroupId = 107520049, -- Creampuff Games, the community group (since 2026-11-03, #999): the starter cat's gate and
 	-- requiresGroup codes. 0 turns both off (the starter cat back on the first goals)
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
+	-- #4679 (Derek 2026-11-16: players join the group and still cannot take the Bellhop Cat until they rejoin, as
+	-- Roblox keeps its "not a member" answer for the session): for this long after a player presses "Join the group",
+	-- a claim asks Roblox again GroupJoinRetries times, GroupJoinRetrySeconds apart, and if the answer is still "no"
+	-- the cat goes home anyway. The cat is a one-time gift; the group check is a nudge, not a lock.
+	GroupJoinTrustSeconds = 600,
+	GroupJoinRetries = 2, -- with the wait below it stays inside the card's 5 s wait for an answer
+	GroupJoinRetrySeconds = 1.5,
 
 	-- The free Bellhop Cat (F96, starter-cat.md sections 2 and 4). Its stand's card opens and ClaimStarterCat is taken
 	-- within StarterCatRangeStuds (flat) of a BellhopStand's pivot. While GroupId is 0 a claim needs the first goals
@@ -1620,17 +1632,23 @@ local Config = {
 		PlotWidth = 44, -- along the street (Z)
 		PlotDepth = 34, -- away from the street (X)
 		PlotRowGap = 8, -- a side passage from the street to the back alley between neighbouring cafes
+		-- #4543 (Derek 2026-11-15: the cafe grows with rank ups, "bigger lots of land to each of the 8 players"): every
+		-- plot is laid out for the biggest room (Design-Agent's cap B, Tier 9 and 10), whatever room stands on it. The
+		-- room keeps its front wall and its middle along the street; the rest of the plot is lawn. PlotWidth and
+		-- PlotDepth stay the room built today, until the room follows the tier.
+		PlotCapWidth = 60,
+		PlotCapDepth = 46,
 		FrontGardenDepth = 5, -- path, bench and chalkboard between the sidewalk and the front wall
 		YardDepth = 10, -- the patio yard between the back wall and the back alley
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
-		StreetSouthZ = -198, -- #4532: -178 before the 120 x 180 square (#3070: -163, #3001: -152, #2707: -140 before that)
-		StreetNorthZ = 198, -- #4532: 178 before (#3070: 163 before); the street ends at the hometown's north welcome arch (v4)
+		StreetSouthZ = -230, -- #4543: -198 before the 60 wide plots; #4532: -178 before the 120 x 180 square (#3070: -163, #3001: -152, #2707: -140 before that)
+		StreetNorthZ = 230, -- #4543: 198 before; #4532: 178 before (#3070: 163 before); the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
 		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 272 by 332 (#917): tell Model-Agent when these change
-		TownGroundWidth = 272,
-		TownGroundDepth = 448, -- #4532: 408 before (#3070: 378, #3001: 356, #2707: 332 before that)
+		TownGroundWidth = 296, -- #4543: 272 before the 46 deep plots
+		TownGroundDepth = 512, -- #4543: 448 before; #4532: 408 before (#3070: 378, #3001: 356, #2707: 332 before that)
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
@@ -1648,7 +1666,9 @@ local Config = {
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
 		-- cafes' yards, where the back alleys began until v4.
-		TownEdgeX = 69,
+		TownEdgeX = 81, -- #4543: 69 before the 46 deep plots
+		-- #4543: the Town Square's garden wall keeps its line (the beds and lamps are built against it)
+		TownSquareEdgeX = 69,
 		-- The Alleyway's set (v4, F84, section 6a): laid out in lane space, the v3.2 back alleys' numbers (|x|
 		-- AlleyInnerX..AlleyOuterX from AlleySouthZ to AlleyNorthZ), and stood in the wild with its middle at
 		-- (AlleyCenterX, AlleyCenterZ), everything AlleyLaneShift nearer the middle than in lane space. Since F85

@@ -2679,11 +2679,6 @@ end
 
 -- Luck (F88, luck-and-rare-moments.md section 1) ------------------------------------------------------------------
 
--- Whether the Lucky Day look is on: the Clock's `LuckyDay` is true and its `Phase` is not night (it is for the day).
-function Logic.luckyDayOn(luckyDay: unknown, phase: unknown): boolean
-	return luckyDay == true and phase ~= "night"
-end
-
 -- Whether the gold sky tint is on (luck-and-rare-moments.md 1g, #1572): any of the day's kinds (the Clock's
 -- `LuckyDay`, `GoldenDay` and `RainbowDay`) is true and its `Phase` is not night.
 function Logic.specialDayOn(
@@ -4465,6 +4460,32 @@ function Logic.auroraRibbons(
 		})
 	end
 	return ribbons
+end
+
+-- #4687: the upright rays of one aurora curtain, laid along a ribbon from `from` to `to`: `count` feet spread evenly
+-- along it (none at the very ends), each pushed `bend` studs along `across` at the middle of the curtain and less
+-- toward its ends, so the curtain's foot curves; and each ray's height, `tall` rising and dipping by `vary` of
+-- itself in one slow wave along the curtain (a whole wave and a bit, started at `phase` radians).
+export type AuroraRay = { foot: Vector3, height: number }
+function Logic.auroraRays(
+	count: number,
+	from: Vector3,
+	to: Vector3,
+	across: Vector3,
+	bend: number,
+	tall: number,
+	vary: number,
+	phase: number
+): { AuroraRay }
+	local rays: { AuroraRay } = {}
+	local n = math.max(0, math.floor(count))
+	for i = 1, n do
+		local t = (i - 0.5) / n
+		local foot = from + (to - from) * t + across * (bend * math.sin(math.pi * t))
+		local height = tall * (1 + vary * math.sin(phase + t * 2.6 * math.pi))
+		table.insert(rays, { foot = foot, height = math.max(height, 1) })
+	end
+	return rays
 end
 
 -- #4069: where mote `i` of `count` circling a cat is `t` seconds on, from the middle of its circle: `radius` studs

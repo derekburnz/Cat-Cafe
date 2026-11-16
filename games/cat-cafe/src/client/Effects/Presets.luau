@@ -6094,10 +6094,16 @@ Presets.bedWalk = { fade = 0.25 }
 export type AuroraSpec = {
 	ribbons: { number },
 	brightness: number, -- Beam.Brightness
-	-- #4687: each ribbon is a curtain, these bands from its bright foot up to its faint top
-	curtain: { AuroraBand },
-	curtainLow: number, -- how many of them (from the foot) on the low tier
-	sway: number, -- seconds more each band up takes to sway, so the curtain ripples instead of moving as one
+	-- #4687: each ribbon is a curtain of upright rays side by side along it, each one Beam from its foot up
+	columns: { number }, -- rays a ribbon by tier (high, medium, low)
+	tall: number, -- studs a ray reaches up from the foot
+	tallVary: number, -- of `tall`, how much the rays' tops rise and dip along the curtain, a slow wave
+	wide: number, -- each ray's width as a share of the gap between rays: over 1 they overlap into one curtain
+	sway: number, -- studs a ray's middle bows side to side as it sways
+	bright: number, -- Beam.Brightness
+	foot: Color3, -- the curtain's colour at its foot, then `middle`, then `top`
+	middle: Color3,
+	top: Color3,
 	height: number,
 	window: number, -- studs across your look the ribbons' box is wide: they run over 0.8 of it, side to side
 	deep: number, -- studs front to back the ribbons are spread over, centred `ahead` of you
@@ -6109,15 +6115,8 @@ export type AuroraSpec = {
 	curve: number,
 	curveMost: number,
 	seconds: { number },
-	shown: number, -- the foot band's transparency at the ribbon's middle (its ends fade to nothing): fully shown
+	shown: number, -- a ray's transparency just over its foot when fully shown; it fades to nothing going up
 	fade: number,
-}
-export type AuroraBand = {
-	up: number, -- studs its middle hangs over the ribbon's line
-	width: number, -- studs tall (a Beam facing the camera, so its width stands up on screen)
-	shown: number, -- its own transparency at the ribbon's middle when the lights are fully shown
-	bright: number, -- Beam.Brightness
-	colour: Color3,
 }
 export type AreaFxSpec = {
 	air: string,
@@ -6194,9 +6193,9 @@ Presets.areaFx = {
 				-- Fourth look: the camera at the landing looks along the area's short side, so nothing hung by the
 				-- area's sides is sure to be in view. They hang from the camera's own look now, 15 to 30 studs over
 				-- your feet: 6 to 14 degrees up, the upper third of the screen.
-				height = 16,
+				height = 20,
 				window = 300,
-				deep = 90,
+				deep = 80,
 				ahead = 150,
 				recentre = 90,
 				glide = 6,
@@ -6206,45 +6205,24 @@ Presets.areaFx = {
 				curveMost = 30,
 				seconds = { 21, 27 },
 				-- #4687 (Derek 2026-11-16: "redone to look way more like a gentle aurora right now its so bad"): the
-				-- old ribbons were two thick solid stripes, mint under violet, at 0.42 with bright cores, which read as
-				-- coloured clouds. A real aurora is a curtain: a thin brighter green foot, then light that widens and
-				-- fades upward through teal into a faint violet top. So each ribbon is these bands stacked upward,
-				-- each wider and fainter than the one below, and each sways a little slower than the one under it, so
-				-- the curtain ripples gently instead of moving as one sheet. Slower and smaller sways, one ribbon
-				-- fewer. Still no picture on the bands (#4085: the smoke picture drew as nothing on a Beam).
-				shown = 0.55,
-				curtain = {
-					{
-						up = 0,
-						width = 7,
-						shown = 0.55,
-						bright = 1.3,
-						colour = Color3.fromRGB(132, 240, 186),
-					},
-					{
-						up = 5,
-						width = 12,
-						shown = 0.7,
-						bright = 1.1,
-						colour = Color3.fromRGB(116, 224, 200),
-					},
-					{
-						up = 12,
-						width = 17,
-						shown = 0.8,
-						bright = 1,
-						colour = Color3.fromRGB(120, 196, 230),
-					},
-					{
-						up = 21,
-						width = 22,
-						shown = 0.88,
-						bright = 0.9,
-						colour = Presets.palette.aurora,
-					},
-				},
-				curtainLow = 2,
-				sway = 2.5,
+				-- old ribbons were thick solid stripes, mint under violet, which read as coloured clouds. First redo
+				-- (stacked flat bands) was still stripes in Sync's Studio look: a Beam only fades along its length,
+				-- never across its width, so every band had hard top and bottom edges. So the curtain now stands up:
+				-- upright rays side by side along each ribbon, each one Beam from its foot to its top, its colour and
+				-- see-through running along that length, a soft green foot fading up through teal into a faint violet
+				-- top. The rays are wider than the gap between them, so they merge into one curtain with faint streaks
+				-- like a real aurora's. Each ray bows a few studs side to side on its own slow clock, so the curtain
+				-- ripples, and the tops rise and dip in a slow wave along it. Still no picture (#4085).
+				shown = 0.5,
+				columns = { 14, 10, 7 },
+				tall = 30,
+				tallVary = 0.35,
+				wide = 1.7,
+				sway = 3,
+				bright = 1.2,
+				foot = Color3.fromRGB(128, 242, 180),
+				middle = Color3.fromRGB(110, 214, 214),
+				top = Presets.palette.aurora,
 				fade = 4,
 			},
 		},

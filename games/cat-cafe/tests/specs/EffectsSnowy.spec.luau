@@ -223,25 +223,19 @@ return function()
 			local a = Presets.areaFx.areas.snowy.aurora :: any
 			expect(#a.ribbons).to.equal(3) -- one count per budget tier, fewer as the tier drops
 			expect(a.ribbons[1] >= a.ribbons[2] and a.ribbons[2] >= a.ribbons[3]).to.equal(true)
-			expect(a.ribbons[1] <= 3).to.equal(true) -- two Beams a ribbon: six at most
-			-- soft, never a solid band: the smoke picture thins it further (#4085: 0.72 could not be seen at all)
-			-- #4216: seen at dusk, when 0.55 to 0.62 vanished against the sky, so stronger than the night values were
+			-- #4687: a curtain of upright rays a ribbon, a few dozen Beams at most on the high tier
+			expect(#a.columns).to.equal(3)
+			expect(a.columns[1] >= a.columns[2] and a.columns[2] >= a.columns[3]).to.equal(true)
+			expect(a.ribbons[1] * a.columns[1] <= 32).to.equal(true)
+			expect(a.ribbons[3] * a.columns[3] <= 10).to.equal(true)
+			-- soft: each ray is see-through at its strongest and fades to nothing going up (AreaFx.auroraLook)
 			expect(a.shown >= 0.35 and a.shown < 1).to.equal(true)
-			expect(a.brightness >= 1 and a.brightness <= 3).to.equal(true)
-			-- thinner bands over wider ones, never more than three, and even all three together stay see-through
-			expect(#a.nest >= 2 and #a.nest <= 3).to.equal(true)
-			expect(a.nest[1]).to.equal(1)
-			for n = 2, #a.nest do
-				expect(a.nest[n] < a.nest[n - 1]).to.equal(true)
-			end
-			expect(a.nestLow >= 1 and a.nestLow <= #a.nest).to.equal(true)
-			local through = 1
-			for n = 1, #a.nest do
-				expect(a.nestShown[n] >= 0.35 and a.nestShown[n] < 1).to.equal(true)
-				expect(a.nestBright[n] >= 1 and a.nestBright[n] <= 2).to.equal(true)
-				through *= a.nestShown[n]
-			end
-			expect(through >= 0.05).to.equal(true)
+			expect(a.bright >= 1 and a.bright <= 2).to.equal(true)
+			-- the rays overlap into one curtain, their tops wave but never vanish, and the sway is a few studs
+			expect(a.wide > 1 and a.wide <= 2.5).to.equal(true)
+			expect(a.tallVary > 0 and a.tallVary < 0.6).to.equal(true)
+			expect(a.tall >= 15 and a.tall <= 60).to.equal(true)
+			expect(a.sway > 0 and a.sway <= 8).to.equal(true)
 			for _, seconds in a.seconds do
 				expect(seconds >= 8).to.equal(true) -- a slow sway
 			end
@@ -284,6 +278,31 @@ return function()
 			expect(#Logic.auroraRibbons(0, centre, { width = 1, depth = 1 }, 1, 1, 1, 1, { 1 })).to.equal(
 				0
 			)
+		end)
+	end)
+
+	describe("Logic.auroraRays (#4687)", function()
+		it("spreads upright rays along the ribbon, curves the foot and waves the tops", function()
+			local from = Vector3.new(-100, 0, 0)
+			local to = Vector3.new(100, 0, 0)
+			local rays = Logic.auroraRays(10, from, to, Vector3.new(0, 0, 1), 8, 30, 0.35, 0)
+			expect(#rays).to.equal(10)
+			local tallest, shortest = 0, math.huge
+			for i, ray in rays do
+				-- evenly along it, inside its ends
+				expect(math.abs(ray.foot.X - (-100 + 200 * (i - 0.5) / 10)) < 1e-6).to.equal(true)
+				expect(ray.foot.Y).to.equal(0)
+				-- the foot bows out across it, most in the middle
+				expect(ray.foot.Z > 0 and ray.foot.Z <= 8).to.equal(true)
+				expect(ray.height >= 30 * 0.65 - 1e-6 and ray.height <= 30 * 1.35 + 1e-6).to.equal(
+					true
+				)
+				tallest = math.max(tallest, ray.height)
+				shortest = math.min(shortest, ray.height)
+			end
+			expect(rays[5].foot.Z > rays[1].foot.Z).to.equal(true)
+			expect(tallest - shortest > 10).to.equal(true)
+			expect(#Logic.auroraRays(0, from, to, Vector3.new(0, 0, 1), 8, 30, 0.35, 0)).to.equal(0)
 		end)
 	end)
 end

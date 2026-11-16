@@ -1387,7 +1387,7 @@ function FusionObservatory._paintConfirm(self: any)
 	-- #4588 (GE, after the lowest five became the default pick): the picked copies lead the strip, then the rest
 	-- strongest first. The order is set when a set opens (or its copies change) and then held, so a tap that swaps
 	-- a cat does not make the strip jump under the finger.
-	local copies = table.clone(group.free) :: typeof(group.free)
+	local copies = table.clone(group.free) :: { FusionLogic.Copy }
 	local rank: { [string]: number }? = self._stripRank
 	local same = self._stripKey == group.key and rank ~= nil
 	if same and rank ~= nil then

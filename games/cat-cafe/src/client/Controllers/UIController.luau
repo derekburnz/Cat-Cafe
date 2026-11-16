@@ -1255,6 +1255,7 @@ local function applySettings()
 	Effects.applySettings({
 		screenShake = setting("screenShake"),
 		lowPerformance = setting("lowPerformance"),
+		stationCircles = setting("stationCircles"), -- #4668: the walk-up rings, off by default
 	})
 end
 

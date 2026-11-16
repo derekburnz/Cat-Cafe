@@ -767,6 +767,7 @@ local SETTING_ART: { [string]: string } = {
 	lowPerformance = "Icon_Hud_SetGraphics",
 	showOtherCats = "Icon_Hud_SetOtherCats",
 	markers = "Icon_Hud_SetMapIcons",
+	stationCircles = "Icon_Hud_SetMapIcons", -- #4668: the station circles, map pins as the nearest picture
 	shopAlerts = "Icon_Hud_SetAlerts",
 	sessionRecap = "Icon_Hud_SetRecap",
 	autoEquip = "Icon_Hud_SetAutoEquip",

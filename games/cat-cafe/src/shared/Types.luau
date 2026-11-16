@@ -1400,6 +1400,7 @@ export type Settings = {
 	autoBowlClaim: boolean, -- #4266: the Auto Bowl pass tames arrived bowl cats (shared/AutoBowl)
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
+	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished

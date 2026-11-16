@@ -114,6 +114,7 @@ local TILE_COLORS: { [string]: Color3 } = {
 	showOtherCats = Theme.colors.caramel,
 	catIncome = Theme.colors.gold, -- #2551
 	markers = Theme.colors.good,
+	stationCircles = Theme.colors.sky, -- #4668
 	tutorialButton = Theme.colors.gold,
 	replayTutorial = Theme.colors.gold,
 	showTips = Theme.colors.sky,

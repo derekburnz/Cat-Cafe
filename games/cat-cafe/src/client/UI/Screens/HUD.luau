@@ -3511,6 +3511,9 @@ function HUD._renderStripBuy(self: any)
 	local rank = self._tutorial.Visible and rankFirst.isLine(self._tutorial.Text)
 	self._stripRank = rank
 	local shown = rank or (offer ~= nil and self._tutorial.Visible)
+	-- Derek 2026-11-16 ("point to rank-up after its ready"): the RANK UP button gets the tutorial's ring and arrow,
+	-- with no dim (the dimmed walk-through stays on the safe side of the gates, RankSpot)
+	TutorialGlow.set(button.instance, rank, nil, true)
 	if rank then
 		button:setText(rankFirst.BUTTON)
 		if not button.instance.Visible then

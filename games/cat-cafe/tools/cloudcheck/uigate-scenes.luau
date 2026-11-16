@@ -9838,6 +9838,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(text ~= nil, "uigate: the strip's button does not say " .. RankFirst.BUTTON)
 		assert((text :: TextLabel).TextFits ~= false, "uigate: RANK UP does not fit its button")
+		assert((buy :: GuiObject):FindFirstChild("TutorialGlow") ~= nil, "uigate: the RANK UP button has no ring (Derek 2026-11-16)")
+		assert(tutorialSpotlight() == nil, "uigate: the RANK UP button dims the screen (the dim is the safe side's walk-through)")
 		local b, st = (buy :: GuiObject), (strip :: GuiObject)
 		local screen = hud.AbsoluteSize
 		assert(b.AbsolutePosition.X >= 0 and b.AbsolutePosition.X + b.AbsoluteSize.X <= screen.X and b.AbsolutePosition.Y >= 0, "uigate: the RANK UP button runs off screen")
@@ -9845,6 +9847,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.tutorial.hide()
 		task.wait(0.1)
 		assert(not b.Visible, "uigate: the RANK UP button stays after the line goes")
+		assert(b:FindFirstChild("TutorialGlow") == nil, "uigate: the RANK UP ring stays on the strip's button after the line goes")
 	end },
 	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
 	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
@@ -10228,6 +10231,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		words = caption()
 		assert(words ~= nil and words.Visible, "uigate: no words by the lit rank up button (#3555)")
 		assert(words.Text == "Press to rank up" and words.TextFits, "uigate: the button's words do not fit (#3555)")
+		-- Derek 2026-11-16: inside the window the button is pointed at with no dim, so the window's X stays clear
+		UIShim.advance(0.3)
+		assert(tutorialSpotlight() == nil, "uigate: the lit rank up button dims the open window (its X must stay usable)")
 		local screen = (words:FindFirstAncestorOfClass("ScreenGui") :: ScreenGui).AbsoluteSize
 		assert(
 			words.AbsolutePosition.X >= 0

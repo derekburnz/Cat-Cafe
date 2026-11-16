@@ -7,7 +7,9 @@
 -- spacing check still measures the tile alone.
 --   set(target, on, outside?)   puts the outline on the target, or takes it off; calling it again with the same
 --       answer is free. `outside` draws the ring round the target's edge instead of inside it, for a card whose
---       words reach its edge (the goal card: the inside ring covered the first letters of its lines)
+--       words reach its edge (the goal card: the inside ring covered the first letters of its lines). `noDim` (Derek
+--       2026-11-16, the rank up window's button and the strip's RANK UP): the ring and the arrow with no dim round
+--       it, so nothing covers the window's X
 -- #2314: each glowing target also gets Components/TutorialArrow, the big arrow pointing at it for a while.
 
 local GuiService = game:GetService("GuiService")
@@ -24,7 +26,7 @@ local THIN = 3
 local THICK = 7
 local PULSE_SECONDS = 0.6
 
-function TutorialGlow.set(target: GuiObject?, on: boolean, outside: boolean?)
+function TutorialGlow.set(target: GuiObject?, on: boolean, outside: boolean?, noDim: boolean?)
 	if target == nil then
 		return
 	end
@@ -39,7 +41,7 @@ function TutorialGlow.set(target: GuiObject?, on: boolean, outside: boolean?)
 	if existing then
 		return
 	end
-	TutorialArrow.add(target) -- #2314: and a big arrow points at it for a while
+	TutorialArrow.add(target, noDim) -- #2314: and a big arrow points at it for a while (a `low` one: no dim)
 	local still = GuiService.ReducedMotionEnabled
 	local frame: Frame = Create("Frame", {
 		Name = TutorialGlow.NAME,

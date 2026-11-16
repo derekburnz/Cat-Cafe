@@ -1306,7 +1306,7 @@ local Config = {
 			tier: number?,
 		}
 	},
-	BinPadRadius = 4,
+	BinPadRadius = 7, -- #4862 (Derek 2026-11-16: "make it work from further away"): 4 before
 	BinPadDwellSeconds = 0.5,
 	BinRollSeconds = 2.5,
 	BinRevealSeconds = 1,

@@ -194,7 +194,7 @@ local function inkOn(fill: Color3): Color3
 end
 -- a trait's name in its rarity's colour on the cream card: the colour itself, a little deeper so pale ones read
 local function deep(color: Color3): Color3
-	return if MenuFamily.on() then color:Lerp(Theme.colors.ink, 0.35) else color
+	return color:Lerp(Theme.colors.ink, 0.35)
 end
 
 -- A page over the card's content: a little past its edges (and the bottom row's button lips), so nothing under it

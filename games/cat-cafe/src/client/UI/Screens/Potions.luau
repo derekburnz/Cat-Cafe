@@ -716,7 +716,7 @@ function Potions._titleRow(self: any, entry: TitlesLogic.Row)
 		Text = entry.text,
 		Parent = frame,
 	})
-	if entry.color or not MenuFamily.on() then
+	if entry.color then
 		Outline.text(name, 2) -- a title's own bright colour keeps its outline on the cream card too
 	end
 	local how = text({

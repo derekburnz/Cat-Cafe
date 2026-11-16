@@ -61,7 +61,6 @@ export type UpgradeShop = {
 local TAB_HEIGHT = Theme.sizes.touchMin
 local ROW_HEIGHT = 104
 local ICON_BOX = 72
-local STAR = 22
 local SLOT = Theme.sizes.touchMin -- reviewer N102: tappable slot squares
 local RANK_HEIGHT = 76
 local TEXT_LEFT = 12 + ICON_BOX + 14
@@ -244,9 +243,8 @@ function UpgradeShop.new(
 	})
 
 	-- #3558: the family look's grid of picture cards, two across where they fit
-	self._grid = MenuFamily.on()
-	self._list = scrollList("List", panel.content, self._grid)
-	if self._grid then
+	self._list = scrollList("List", panel.content, true)
+	do
 		local list: ScrollingFrame = self._list
 		local cells = list:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
 		local function fit()
@@ -335,12 +333,11 @@ function UpgradeShop._buildRows(self: any)
 
 	for index, upgrade in catalog.upgrades do
 		local row = card(upgrade.id, ROW_HEIGHT, index, self._list)
-		local grid: boolean = self._grid
 		local glyph = iconBox(
 			row,
 			Theme.upgradeIcons[upgrade.id] or Theme.icons.upgrades,
-			if grid then CARD.goldCard else Theme.colors.caramel,
-			grid
+			CARD.goldCard,
+			true
 		)
 		local drawn = ShopIcons.upgrade(upgrade.id) -- #2836: the drawn picture over the emoji
 		if drawn then
@@ -348,26 +345,20 @@ function UpgradeShop._buildRows(self: any)
 		end
 		local name = text({
 			Name = "Name",
-			Position = if grid
-				then UDim2.fromOffset(GRID_LEFT, 6)
-				else UDim2.fromOffset(TEXT_LEFT, 8),
-			Size = if grid
-				then UDim2.new(1, -(GRID_LEFT + 8), 0, 24)
-				else UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, 28),
+			Position = UDim2.fromOffset(GRID_LEFT, 6),
+			Size = UDim2.new(1, -(GRID_LEFT + 8), 0, 24),
 			FontFace = Theme.fonts.display,
-			TextSize = if grid then Theme.sizes.textBody + 2 else Theme.sizes.textLarge,
+			TextSize = Theme.sizes.textBody + 2,
 			TextColor3 = CARD.text,
 			Text = upgrade.name,
 			Parent = row,
 		})
 		-- one star per level, gold up to the level owned (the fishing games' purple stars, in cafe gold)
-		local star = if grid then GRID_STAR else STAR
+		local star = GRID_STAR
 		local starRow: Frame = Create("Frame", {
 			Name = "Stars",
 			BackgroundTransparency = 1,
-			Position = if grid
-				then UDim2.fromOffset(GRID_LEFT, 31)
-				else UDim2.fromOffset(TEXT_LEFT, 38),
+			Position = UDim2.fromOffset(GRID_LEFT, 31),
 			Size = UDim2.fromOffset(upgrade.maxLevel * (star + 2), star),
 			Parent = row,
 		}, {
@@ -398,18 +389,14 @@ function UpgradeShop._buildRows(self: any)
 		local twoLines = upgrade.id == "lure_bowl" or upgrade.id == LuckLogic.UPGRADE
 		local description = text({
 			Name = "Description",
-			Position = if grid
-				then UDim2.fromOffset(GRID_LEFT, 50)
-				else UDim2.fromOffset(TEXT_LEFT, if twoLines then 62 else 64),
-			Size = if grid
-				-- the Bait bowl's second line can wrap on a card two across: room for a third line, whose short
-				-- tail ends left of the button (Studio look, 2026-11-13)
-				then UDim2.new(1, -(GRID_LEFT + 8), 0, if twoLines then 44 else 30)
-				else UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, if twoLines then 36 else 20),
-			TextSize = if grid then Theme.sizes.textTiny else Theme.sizes.textSmall,
-			TextWrapped = grid,
-			ClipsDescendants = grid, -- two lines at most on a card; a longer one is cut, never under the button
-			TextYAlignment = if grid then Enum.TextYAlignment.Top else Enum.TextYAlignment.Center,
+			Position = UDim2.fromOffset(GRID_LEFT, 50),
+			-- the Bait bowl's second line can wrap on a card two across: room for a third line, whose short tail ends
+			-- left of the button (Studio look, 2026-11-13)
+			Size = UDim2.new(1, -(GRID_LEFT + 8), 0, if twoLines then 44 else 30),
+			TextSize = Theme.sizes.textTiny,
+			TextWrapped = true,
+			ClipsDescendants = true, -- two lines at most on a card; a longer one is cut, never under the button
+			TextYAlignment = Enum.TextYAlignment.Top,
 			TextColor3 = CARD.subtext,
 			Text = upgrade.description,
 			Parent = row,
@@ -417,12 +404,10 @@ function UpgradeShop._buildRows(self: any)
 		local buy = Button.new({
 			name = "Buy",
 			text = "",
-			style = if grid then "primary" else "gold",
-			size = if grid
-				then UDim2.fromOffset(GRID_BUTTON_W, Theme.sizes.touchMin)
-				else UDim2.fromOffset(BUTTON_W, Theme.sizes.touchMin + 6),
-			anchorPoint = if grid then Vector2.new(1, 1) else Vector2.new(1, 0.5),
-			position = if grid then UDim2.new(1, -8, 1, -8) else UDim2.new(1, -12, 0.5, 0),
+			style = "primary",
+			size = UDim2.fromOffset(GRID_BUTTON_W, Theme.sizes.touchMin),
+			anchorPoint = Vector2.new(1, 1),
+			position = UDim2.new(1, -8, 1, -8),
 			textSize = Theme.sizes.textBody + 1,
 			parent = row,
 			onClick = function()

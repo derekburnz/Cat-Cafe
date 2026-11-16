@@ -3948,6 +3948,34 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },
+	-- #4540: at Tier 2 before the Park is reached, the picker rings the Park card; after a visit it does not
+	{ "CannonParkRing", function()
+		atTier(2)
+		UI.cannon.clearFly()
+		-- a Launch rings only while it is live: in a full run the clock an earlier scene set has reached dusk ("Night
+		-- soon"), so no day clock and the areas open
+		UI.clock.clear()
+		UI.clock.setAreasOpen(true)
+		local reachedWas = UI.parkTrail.reached
+		local function ringed(): boolean
+			local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+			local park = window:FindFirstChild("park", true)
+			assert(park ~= nil, "uigate: no Park card in the picker (#4540)")
+			local glow = park:FindFirstChild("TutorialGlow", true)
+			return glow ~= nil and (not glow:IsA("GuiObject") or glow.Visible)
+		end
+		UI.parkTrail.reached = true
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(not ringed(), "uigate: the Park card is ringed after the Park was reached (#4540)")
+		UI.close()
+		UIShim.advance(0.5)
+		UI.parkTrail.reached = false
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(ringed(), "uigate: the Park card is not ringed at Tier 2 before the Park (#4540)")
+		UI.parkTrail.reached = reachedWas
+	end },
 	-- #4227: three spawn lines at once show one at a time: the first with a "+2" badge and its drain bar
 	{ "SpawnQueueBadge", function()
 		UIShim.advance(31) -- earlier scenes' shout-out gap and queue are past

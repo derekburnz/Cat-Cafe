@@ -4185,6 +4185,16 @@ function UI.cannon.open(cannonId: string?)
 		screen:setRing(walk)
 	else
 		UI.cannon.endWalkRing()
+		-- #4540 (Derek 2026-11-15: "point at park in cannon menu after unlocking"): from the Tier 2 rank up until the
+		-- player first reaches the Park (been in it, or owns a Park cat: UI.parkTrail.reached), every picker rings the
+		-- Park card's Launch, whatever parkGateTrail says. "Fly to the Park" keeps its own ring while it runs.
+		if UI.cannon.fly.ring == nil then
+			local parkFirst = require(script.Components.ParkFirstLogic)
+			local due = type(state.tier) == "number"
+				and state.tier >= 2
+				and not UI.parkTrail.reached
+			screen:setRing(if due then parkFirst.AREA else nil)
+		end
 	end
 	windows:open("Cannon")
 end

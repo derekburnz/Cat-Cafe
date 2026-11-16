@@ -368,7 +368,7 @@ Remotes.ServerToClient = {
 	-- per id until TipSeen. The client queues and times it, then answers TipSeen
 	"SpinAllResult", -- (rolls: { Spin.SpinRoll }, totals: { Spin.SpinTotal })  #1078: each spin's slice and amount in
 	-- order, and the prizes added up for the one results card; both empty when nothing was spent
-	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string })  #4195: where an AdminWheelSpin landed
+	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string }, catId: string)  #4195: where an AdminWheelSpin landed; #4876 catId
 	-- (the place in AdminWheel.PRIZES) and what it paid, as short lines; 0, "", {} when refused
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)

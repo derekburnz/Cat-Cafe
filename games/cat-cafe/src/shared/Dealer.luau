@@ -15,7 +15,17 @@ local Types = require(script.Parent.Types)
 local Dealer = {}
 
 -- The dealer foods in the order they are rolled and shown (section 8b).
-Dealer.FOODS = { "sardines", "caviar", "moon_milk", "star_treat" }
+-- #4900: the Eclipse Treat rolls last, so the four older foods' rolls are as before
+Dealer.FOODS = { "sardines", "caviar", "moon_milk", "star_treat", "eclipse_treat" }
+
+-- #4900: whether the dealer sells `def` to a player at `tier`: a "dealer" food, or one of Dealer.FOODS from another
+-- shop (the Eclipse Treat is the Day Cart's too), from its `needsTier` on.
+function Dealer.sells(def: Types.LureDef, tier: number): boolean
+	if def.source ~= "dealer" and table.find(Dealer.FOODS, def.id) == nil then
+		return false
+	end
+	return def.needsTier == nil or tier >= def.needsTier
+end
 
 -- The amount at `roll` (0 to 1) through `weights` (shared with the Fresh Catch shelf).
 Dealer.pickAmount = FreshCatch.pickAmount

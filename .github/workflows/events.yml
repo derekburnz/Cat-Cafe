@@ -45,7 +45,7 @@ on:
         required: false
         default: ""
       admin:
-        description: "admin (#4326): the admin event and how, e.g. bowl, storm, wheel, \"storm 10 now\" (kind, then minutes 1 to 60 and/or now; without now it starts after the 2 minute warning)"
+        description: "admin (#4326): the admin event and how, e.g. bowl, storm, golden, money, traits, speed, hunt, fountain, crates, wheel, \"storm 10 now\", \"wheel 3 now\" (kind, then minutes 1 to 60 and/or now; for wheel a first number is the spins; without now it starts after the 2 minute warning)"
         required: false
         default: ""
       effects:
@@ -103,7 +103,7 @@ jobs:
           show) bash "$script" show ;;
           admin)
             read -r -a ask <<<"$ADMIN"
-            [ "${#ask[@]}" -ge 1 ] || { echo "::error::admin needs a kind: bowl, storm or wheel"; exit 1; }
+            [ "${#ask[@]}" -ge 1 ] || { echo "::error::admin needs a kind: bowl, storm, golden, money, traits, speed, hunt, fountain, crates or wheel"; exit 1; }
             bash "$script" admin "${ask[@]}"
             ;;
           admin-stop) bash "$script" admin-stop ;;

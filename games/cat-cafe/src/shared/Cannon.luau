@@ -31,6 +31,32 @@ Cannon.BESIDE_STRAY_STUDS = 7
 Cannon.BESIDE_MAX_FROM_PAD = 15
 Cannon.BESIDE_STRAY_RISE = 4 -- studs: a stray this much higher or lower than the pad (a tree top) is skipped
 
+-- #4920 (Derek 2026-11-16: keep new players past 60 seconds; Growth's dead-time list): the walk-through's flights out
+-- (Tier 1, fewer than FIRST_FLIGHT_CATS cats caught by hand) take FIRST_FLIGHT_SCALE of every beat: 2.5 s instead of
+-- CannonLaunchSeconds 3.75, the move to the pad at about 1.47 s instead of 2.2. The server puts the scale on the
+-- character as FLIGHT_SCALE for the flight (nil is 1), and the client's effects, sounds and name card scale by it.
+Cannon.FLIGHT_SCALE = "CannonFlightScale"
+Cannon.QUICK_FLAG = "firstFlightQuick" -- the LiveFlags key, off by default until the effects follow the scale
+Cannon.FIRST_FLIGHT_SCALE = 2 / 3
+Cannon.FIRST_FLIGHT_CATS = 2 -- SecondCat.CATS: the first catch and the second cat
+Cannon.MIN_SCALE = 0.25
+
+-- The scale of a flight to `destination` for a save at `tier` that has caught `handCaught` cats by hand.
+function Cannon.flightScale(tier: number, handCaught: number, destination: string): number
+	if destination ~= Cannon.TOWN and tier <= 1 and handCaught < Cannon.FIRST_FLIGHT_CATS then
+		return Cannon.FIRST_FLIGHT_SCALE
+	end
+	return 1
+end
+
+-- A FLIGHT_SCALE attribute's value as a scale: nil, junk or out of range is 1.
+function Cannon.scaleOf(value: unknown): number
+	if type(value) == "number" and value == value and value >= Cannon.MIN_SCALE and value <= 1 then
+		return value
+	end
+	return 1
+end
+
 -- #3671: the reach of the cannon `cannonId`'s prompt, ring and server check: the Town Square's is its own.
 function Cannon.range(cannonId: string?): number
 	return if cannonId == Cannon.TOWN
@@ -268,6 +294,12 @@ Cannon.REJOIN_HOME_WAIT_SECONDS = 120
 -- by Roblox's idle reconnect or a rejoin of their own also waits on the old server's session lock, and they stand
 -- still at the spawn until the save comes, so the move is still only for a character that has not walked off.
 Cannon.HOME_SPAWN_STUDS = 10
+-- #4967 (Derek 2026-11-16: "for when new players join put them infront of cafe doors ... sometimes when skipping
+-- loading screen right away it shows them infront of cannon"): a new player (before the first check-in) who skipped
+-- the loading screen at once can walk off the spawn before the save and the cafe are ready, and was left by the
+-- cannon. A new player still anywhere in the Town Square goes to their door; only a returning player keeps the
+-- 10 stud rule.
+Cannon.HOME_SPAWN_STUDS_NEW = 90
 Cannon.HOME_ATTRIBUTE = "HomeArrival"
 -- Review-QA's fresh join runs, 2026-11-12 (Derek: "the cannon step of tutorial steps pulls you super far out so you
 -- cant see"): the tutorial's own move to the cannon turned the character and left the camera where it was, in front
@@ -310,9 +342,11 @@ function Cannon.homeWaitSeconds(_restRejoin: boolean): number
 end
 
 -- Whether a character at `at` still stands at the spawn `spawn` (flat distance), so moving it surprises nobody.
-function Cannon.stillAtSpawn(at: Vector3, spawn: Vector3): boolean
+-- #4967: `newPlayer` (before the first check-in) counts the whole Town Square, HOME_SPAWN_STUDS_NEW.
+function Cannon.stillAtSpawn(at: Vector3, spawn: Vector3, newPlayer: boolean?): boolean
 	local dx, dz = at.X - spawn.X, at.Z - spawn.Z
-	return math.sqrt(dx * dx + dz * dz) <= Cannon.HOME_SPAWN_STUDS
+	local reach = if newPlayer == true then Cannon.HOME_SPAWN_STUDS_NEW else Cannon.HOME_SPAWN_STUDS
+	return math.sqrt(dx * dx + dz * dz) <= reach
 end
 
 -- The camera's place and what it looks at for a character whose root is at `at`, facing `facing`: behind and above

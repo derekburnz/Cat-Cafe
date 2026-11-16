@@ -28,6 +28,7 @@ export type Modal = {
 	screenGui: ScreenGui,
 	container: Frame,
 	changed: Signal.Signal, -- fires (name: string?)
+	closed: Signal.Signal, -- #4835: fires (name: string, from: string?) as a window closes, with the window it opened from
 	register: (self: Modal, name: string, screen: Screen) -> (),
 	open: (self: Modal, name: string) -> (),
 	close: (self: Modal) -> (),
@@ -121,6 +122,7 @@ function Modal.new(parent: Instance): Modal
 	self._dimTween = nil :: Tween?
 	self.container = container
 	self.changed = Signal.new()
+	self.closed = Signal.new()
 	self._backdrop = backdrop
 	self._root = root
 	self._uiScale = uiScale
@@ -212,6 +214,7 @@ function Modal.close(self: any)
 	end
 	local screen: Screen = self._screens[name]
 	local frame = screen.frame
+	local from: string? = self._from
 	self._from = nil
 	self._closing = frame
 	self._tucked = nil
@@ -239,6 +242,7 @@ function Modal.close(self: any)
 		screen.onClose()
 	end
 	self.changed:Fire(nil)
+	self.closed:Fire(name, from)
 	if self._selecting then
 		self._selecting = false
 		local before: GuiObject? = self._selectedBefore
@@ -312,6 +316,7 @@ function Modal.destroy(self: any)
 	self._fitConnection:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.changed:DisconnectAll()
+	self.closed:DisconnectAll()
 	self.screenGui:Destroy()
 	self._dimGui:Destroy()
 end

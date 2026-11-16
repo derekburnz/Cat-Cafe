@@ -1,9 +1,11 @@
 --!strict
 -- The Admin Wheel on the server (#4195; shared/AdminWheel for the rules). While an admin event with the `wheel`
 -- effect runs (EventService.admin(), behind the adminEvents switch), AdminWheelSpin() spins it for the caller: once
--- per account per event, with the server's own Random and nothing read from the client. The spin is marked in the
+-- per account per event (#4876: or the event's wheelSpins, `/admin wheel <spins>`), with the server's own Random and
+-- nothing read from the client. The spin is marked in the
 -- save (codesRedeemed, AdminWheel.key) before anything is paid, the prize is paid at once, so leaving mid-animation
--- keeps it, and AdminWheelResult(slice, prizeId, paid) tells the window where to land. A refused spin answers
+-- keeps it, and AdminWheelResult(slice, prizeId, paid, catId) tells the window where to land (#4876: catId, the cat
+-- a cat slice gave, "" for none, for the prize pop-up's picture). A refused spin answers
 -- AdminWheelResult(0, "", {}). PlayerState.adminWheel (CafeService.buildState) says which wheel is up and whether
 -- this account has spun it; every player is synced when the wheel comes up or goes.
 -- A test event (`/admin wheel` in Studio or a private server) pays only in Studio and to an owner, as a test Cafe
@@ -56,8 +58,9 @@ local function pay(
 	player: Player,
 	profile: Types.PlayerProfile,
 	prize: AdminWheel.Prize
-): { string }
+): ({ string }, string)
 	local paid: { string } = {}
+	local catId = ""
 	local tokens = prize.tokens
 	if tokens ~= nil and tokens > 0 then
 		local added = Traits.give(profile.traits, tokens)
@@ -88,9 +91,10 @@ local function pay(
 		if def ~= nil then
 			CafeService.addGiftCat(player, profile, def, CatStats.DEFAULT_CHARM)
 			table.insert(paid, string.format("%s (%s cat)", def.name, def.rarity))
+			catId = def.id
 		end
 	end
-	return paid
+	return paid, catId
 end
 
 local function onSpin(player: Player)
@@ -103,8 +107,8 @@ local function onSpin(player: Player)
 		Net.fire(player, "AdminWheelResult", 0, "", {})
 		return
 	end
-	-- marked before anything is paid, so no error or second call can pay twice
-	profile.codesRedeemed[AdminWheel.key(event)] = os.time()
+	-- marked before anything is paid, so no error or second call can pay twice; #4876 the key counts the spins used
+	profile.codesRedeemed[AdminWheel.key(event)] = AdminWheel.used(profile.codesRedeemed, event) + 1
 	local forced = forcedPrize[player]
 	forcedPrize[player] = nil
 	local prize, slice = AdminWheel.pick(random:NextNumber())
@@ -114,7 +118,7 @@ local function onSpin(player: Player)
 			prize, slice = forcedRow, forcedSlice
 		end
 	end
-	local paid = pay(player, profile, prize)
+	local paid, catId = pay(player, profile, prize)
 	print(`[AdminWheelService] {player.UserId} spun {event.id}: {prize.id}`)
 	if not event.test then
 		Telemetry.custom(
@@ -124,7 +128,7 @@ local function onSpin(player: Player)
 			{ prize.id, tostring(Economy.tier(profile)), event.id }
 		)
 	end
-	Net.fire(player, "AdminWheelResult", slice, prize.id, paid)
+	Net.fire(player, "AdminWheelResult", slice, prize.id, paid, catId)
 	CafeService.sync(player)
 end
 

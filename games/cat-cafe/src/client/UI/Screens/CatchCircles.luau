@@ -60,6 +60,7 @@ local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local TrustBar = require(script.Parent.Parent.Components.TrustBar)
+local TutorialArrow = require(script.Parent.Parent.Components.TutorialArrow)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -135,6 +136,8 @@ type CircleView = {
 	closerStroke: UIStroke,
 	ring: Frame,
 	ringStroke: UIStroke,
+	ringRim: UIStroke, -- #4842: the dark rim under the ring's stroke
+	plain: boolean, -- #4966: a plain ring's target is drawn in the Perfect gold with no rim
 	number: TextLabel,
 	hint: Types.CircleGrade?, -- the grade drawn: this device's guess, then the server's
 	judged: boolean,
@@ -151,8 +154,12 @@ local RING_RADIUS = 46 -- design pixels at 1280 x 720
 local START_RADIUS = RING_RADIUS * 3
 local PREVIEW_SECONDS = 0.35 -- the ring fades in this long before its circle starts
 local LEAD_IN = 0.55 -- Catch v3 (#2060): the next ring shows this long ahead, at its new spot, to be found in time
-local CLOSER_THICKNESS = 4
-local RING_THICKNESS = 4
+-- #4842 (Derek2 11-16: "make the circles more obvious"): 6 px strokes (4 before), each over a dark rim RIM px wider
+-- on its outside, so the white ring reads on a bright scene as well as a dark one
+local CLOSER_THICKNESS = 6
+local RIM = 3
+local RIM_TRANSPARENCY = 0.25
+local RING_THICKNESS = 6
 -- data-model CatchLatencyCapSeconds (0.15): the server stops waiting for a circle's press this long
 -- after the good window closes. Read from Config once the engineer adds it.
 local LATENCY_CAP: number = Config.CatchLatencyCapSeconds
@@ -497,16 +504,41 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 	local edge = if paw then PAW_COLOR elseif second then DOUBLE_COLOR else Theme.colors.paper
 	local goodColor = if paw then PAW_COLOR else Theme.colors.good
 	local perfectColor = if paw then PAW_COLOR else Theme.colors.gold
-	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, goodColor, 0.45, art)
-	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, perfectColor, 0.1, art)
+	-- #4966 (Derek2 11-16: "a lot of colors ... have a thick green layer and just a gold layer that is the perfect"):
+	-- a solid green Good band (0.45 see-through before, which read dark green at night) and a solid gold Perfect band;
+	-- on a plain ring the target line is that same gold with no dark rim, so there is no cream ring between them
+	local plain = not paw and not second
+	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, goodColor, 0.15, art)
+	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, perfectColor, 0, art)
+	-- #4842: each frame's own stroke is the dark rim; a same-size child ("Edge") carries the coloured stroke over it,
+	-- so the rim shows RIM px outside the colour only
 	local ring = circleFrame("Ring", RING_RADIUS - RING_THICKNESS / 2, art)
-	local ringStroke: UIStroke =
-		Create("UIStroke", { Color = edge, Thickness = RING_THICKNESS, Parent = ring })
+	local ringRim: UIStroke = Create("UIStroke", {
+		Color = Theme.colors.ink,
+		Thickness = RING_THICKNESS + RIM,
+		Transparency = if plain then 1 else RIM_TRANSPARENCY,
+		Parent = ring,
+	})
+	local ringEdge = circleFrame("Edge", 0, ring)
+	ringEdge.Size = UDim2.fromScale(1, 1)
+	local ringStroke: UIStroke = Create("UIStroke", {
+		Color = if plain then perfectColor else edge,
+		Thickness = RING_THICKNESS,
+		Parent = ringEdge,
+	})
 	local closer = circleFrame("Closer", START_RADIUS, art)
+	Create("UIStroke", {
+		Color = Theme.colors.ink,
+		Thickness = CLOSER_THICKNESS + RIM,
+		Transparency = RIM_TRANSPARENCY,
+		Parent = closer,
+	})
+	local closerEdge = circleFrame("Edge", 0, closer)
+	closerEdge.Size = UDim2.fromScale(1, 1)
 	local closerStroke: UIStroke = Create("UIStroke", {
 		Color = edge,
 		Thickness = CLOSER_THICKNESS,
-		Parent = closer,
+		Parent = closerEdge,
 	})
 	local number: TextLabel = Create("TextLabel", {
 		Name = "Number",
@@ -593,6 +625,8 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		closerStroke = closerStroke,
 		ring = ring,
 		ringStroke = ringStroke,
+		ringRim = ringRim,
+		plain = plain,
 		number = number,
 		hint = nil,
 		judged = false,
@@ -737,9 +771,23 @@ end
 function CatchCircles._step(self: any, t: number)
 	local windows: Types.CatchWindows = self._windows
 	local lead = if self._v3 then LEAD_IN else PREVIEW_SECONDS
+	-- #4845: while a held ring waits for its press, the rings after it wait too (their clock runs `lag` behind); the
+	-- press makes it for good (CatchCircles._press shifts them, as the server does)
+	-- and stay hidden, so only the waiting ring is on screen
+	local lag = 0
+	local waiting = false
+	local point: GuiObject? = nil -- #4836: the held ring the tutorial's arrow points at this frame
 	for ringIndex, view in self._views :: { CircleView } do
 		local circle = view.circle
-		local visible = t >= circle.startsAt - lead
+		local t = t - lag
+		local behind = waiting
+		if view.hold and not view.pressed and not view.judged then
+			waiting = true
+			if t > view.target then
+				lag += t - view.target
+			end
+		end
+		local visible = t >= circle.startsAt - lead and not behind
 		if
 			visible
 			and not view.holder.Visible
@@ -759,6 +807,10 @@ function CatchCircles._step(self: any, t: number)
 		local started = t >= circle.startsAt
 		view.closer.Visible = started
 		view.ringStroke.Transparency = if started then 0 else 0.6
+		view.ringRim.Transparency = if view.plain
+			then 1
+			elseif started then RIM_TRANSPARENCY
+			else 0.8
 		if started then
 			local radius = RING_RADIUS + (view.target - t) * view.speed
 			radius = math.max(RING_RADIUS - windows.good * view.speed - 8, radius)
@@ -773,6 +825,9 @@ function CatchCircles._step(self: any, t: number)
 						Moments.CircleHold:Fire(ringIndex) -- Sound's "now!" ping (#2928)
 					end
 					prompt.Visible = frozen
+					if frozen and not view.pressed then
+						point = view.ringStroke.Parent :: GuiObject?
+					end
 					local promptScale = view.promptScale
 					if promptScale then
 						promptScale.Scale = if frozen and not Motion.reduced()
@@ -785,6 +840,7 @@ function CatchCircles._step(self: any, t: number)
 			view.closer.Size = UDim2.fromOffset(math.max(2, diameter), math.max(2, diameter))
 		end
 	end
+	self:_pointAt(point)
 	self:_expire(t)
 	if self._awaitingResult == false and self._next > #self._views and #self._views > 0 then
 		self._awaitingResult = true
@@ -865,6 +921,18 @@ function CatchCircles._press(self: any)
 			return
 		end
 		view.pressed = true
+		-- #4845: the rings after it start as much later as this press came after the target (the server shifts its
+		-- copy by the same press time)
+		local delay = t - view.target
+		if delay > 0 then
+			for later = index + 1, #self._views do
+				local next: CircleView = self._views[later]
+				next.circle.startsAt += delay
+				next.target += delay
+				next.holdUntil += delay
+			end
+			self._lastTarget += delay
+		end
 		if self._v3 then
 			self:_trustBy("perfect")
 		end
@@ -1216,7 +1284,24 @@ function CatchCircles.isActive(self: any): boolean
 	return self._active
 end
 
+-- #4836 (Sync's pointer audit: "Catch ring: text only"): while the first catch's held ring waits on its ring for
+-- the press, the tutorial's big arrow (with its spotlight) points at that ring; it goes with the press or the catch.
+function CatchCircles._pointAt(self: any, ring: GuiObject?)
+	local was: GuiObject? = self._pointed
+	if was == ring then
+		return
+	end
+	if was ~= nil then
+		TutorialArrow.remove(was)
+	end
+	self._pointed = ring
+	if ring ~= nil then
+		TutorialArrow.add(ring)
+	end
+end
+
 function CatchCircles.hide(self: any)
+	self:_pointAt(nil)
 	self._token += 1
 	self._active = false
 	self._awaitingResult = false

@@ -16,10 +16,16 @@
 #         events.sh remove <id>
 #         events.sh clear                     an empty schedule: no event runs or counts down
 #         events.sh admin <kind> [minutes] [now]
+#         events.sh admin wheel [spins] [minutes] [now]
 #                                             #4326: an admin event on every live server, as the owner's /admin
-#                                             in a live server writes it (CafeEvents.adminRecord): bowl (Bowl Frenzy,
-#                                             15 min), storm (Cat Storm, 10) or wheel (Admin Wheel, 5); minutes 1 to
-#                                             60; it starts after the 2 minute warning, or at once with "now"
+#                                             in a live server writes it (CafeEvents.adminRecord), any of the ten
+#                                             ADMIN_KINDS: bowl (Bowl Frenzy, 15 min), storm (Cat Storm, 10), golden
+#                                             (Golden Hour, 15), money (Money Storm, 5), traits (Trait Party, 3),
+#                                             speed (Speed Rush, 10), hunt (Secret Hunt, 3), fountain (Fish
+#                                             Fountain, 5), crates (Crate Drop, 5) or wheel (Admin Wheel, 2; #4876 a
+#                                             first number is the spins each, 1 to 10); minutes 1 to 60 (Trait
+#                                             Party and Secret Hunt at most 3); it starts after the 2 minute warning,
+#                                             or at once with "now"
 #         events.sh admin-stop                ends every admin event started this way or by /admin
 #         events.sh roblox                    list the experience's Roblox Experience Events (Creator Hub > Engagement >
 #                                             Events & Updates; Open Cloud game-events, needs universe.event:read)
@@ -73,7 +79,7 @@ BIG_GAP=$(cap EventBigMinGapSeconds 518400)
 LIST_MAX=$(cap EventScheduleMax 10)
 
 usage() {
-	echo 'usage: events.sh show | admin <bowl|storm|wheel> [minutes] [now] | admin-stop | roblox | roblox-create <title> <subtitle> <description> <start> <end> [category] [image id] | roblox-update <event id> [title] [subtitle] [description] [start] [end] [category] [image id] | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
+	echo 'usage: events.sh show | admin <kind> [minutes] [now] | admin wheel [spins] [minutes] [now] | admin-stop | roblox | roblox-create <title> <subtitle> <description> <start> <end> [category] [image id] | roblox-update <event id> [title] [subtitle] [description] [start] [end] [category] [image id] | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
 	exit 2
 }
 
@@ -359,22 +365,42 @@ admin)
 	# record CafeEvents.adminRecord makes for /admin in a live server; the kinds, lengths and effects are its
 	# ADMIN_KINDS, the warning ADMIN.warnSeconds and the limits ADMIN.minSeconds and maxSeconds. It may run beside a
 	# normal event, never beside another admin event (CafeEvents.ownerAdd). Needs adminEvents on to show in game.
-	[ $# -ge 2 ] && [ $# -le 4 ] || usage
-	kind=$2 minutes="" skip=false
+	[ $# -ge 2 ] && [ $# -le 5 ] || usage
+	kind=$2 skip=false
 	shift 2
+	nums=()
 	for arg in "$@"; do
 		if [ "$arg" = now ]; then skip=true
-		elif [[ $arg =~ ^[0-9]{1,3}$ ]]; then minutes=$arg
+		elif [[ $arg =~ ^[0-9]{1,3}$ ]]; then nums+=("$arg")
 		elif [ -n "$arg" ]; then refuse "admin takes a kind, then minutes and/or now, got: $arg"; fi
 	done
+	# the lengths and effects are CafeEvents.ADMIN_KINDS'; most is the longest the game runs it (TRAIT_PARTY_MAX_SECONDS,
+	# SECRET_HUNT_MAX_SECONDS)
+	most=60
 	case "$kind" in
 	bowl) title="Bowl Frenzy" length=15 effects='{"bowlSpeed":4}' ;;
 	storm) title="Cat Storm" length=10 effects='{"catStorm":10}' ;;
-	wheel) title="Admin Wheel" length=5 effects='{"wheel":true}' ;;
-	*) refuse "no such admin event: bowl, storm or wheel (got: $kind)" ;;
+	golden) title="Golden Hour" length=15 effects='{"goldBoost":10,"rainbowBoost":5}' ;;
+	money) title="Money Storm" length=5 effects='{"moneyStorm":4}' ;;
+	traits) title="Trait Party" length=3 most=3 effects='{"traitParty":true}' ;;
+	speed) title="Speed Rush" length=10 effects='{"speedRush":true}' ;;
+	hunt) title="Secret Hunt" length=3 most=3 effects='{"secretHunt":3}' ;;
+	fountain) title="Fish Fountain" length=5 effects='{"fishFountain":true}' ;;
+	crates) title="Crate Drop" length=5 effects='{"crateDrop":true}' ;;
+	wheel) title="Admin Wheel" length=2 effects='{"wheel":true}' ;;
+	*) refuse "no such admin event: bowl, storm, golden, money, traits, speed, hunt, fountain, crates or wheel (got: $kind)" ;;
 	esac
-	[ -z "$minutes" ] || length=$minutes
+	if [ "$kind" = wheel ] && [ "${#nums[@]}" -ge 1 ]; then
+		# #4876: /admin wheel <spins> [minutes]
+		spins=$((10#${nums[0]})) # "03" is 3 (JSON has no leading zeros)
+		[ "$spins" -ge 1 ] && [ "$spins" -le 10 ] || refuse "the Admin Wheel gives 1 to 10 spins, got: $spins"
+		[ "$spins" -eq 1 ] || effects="{\"wheel\":$spins}"
+		nums=("${nums[@]:1}")
+	fi
+	[ "${#nums[@]}" -le 1 ] || refuse "admin takes one minutes number, got: ${nums[*]}"
+	[ "${#nums[@]}" -eq 0 ] || length=$((10#${nums[0]}))
 	[ "$length" -ge 1 ] && [ "$length" -le 60 ] || refuse "an admin event runs 1 to 60 minutes, got: $length"
+	[ "$length" -le "$most" ] || length=$most
 	now=$(date +%s)
 	startsAt=$now
 	[ "$skip" = true ] || startsAt=$((now + 120))

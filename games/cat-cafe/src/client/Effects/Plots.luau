@@ -243,12 +243,8 @@ end
 
 -- Your own rank up: a gold beam from roof height over the door, a gold ring across the street, confetti from both
 -- sides of the door and sparkle fountains rising in turn.
-local function ownRankUp(plot: Model, door: BasePart)
+local function celebrate(foot: Vector3, right: Vector3, roof: number)
 	local r = Presets.rankUp
-	local foot = door.Position - Vector3.new(0, door.Size.Y / 2 - 0.1, 0)
-	local right = door.CFrame.RightVector
-	local frame, size = plot:GetBoundingBox()
-	local roof = frame.Position.Y + size.Y / 2
 	Particles.beam(
 		Vector3.new(foot.X, roof, foot.Z),
 		Presets.palette.golden,
@@ -267,6 +263,12 @@ local function ownRankUp(plot: Model, door: BasePart)
 			Particles.burst("gateSparkle", foot + right * across + Vector3.new(0, 2, 0), r.fountain)
 		end)
 	end
+end
+
+local function ownRankUp(plot: Model, door: BasePart)
+	local foot = door.Position - Vector3.new(0, door.Size.Y / 2 - 0.1, 0)
+	local frame, size = plot:GetBoundingBox()
+	celebrate(foot, door.CFrame.RightVector, frame.Position.Y + size.Y / 2)
 end
 
 local function rankUp(plot: Model, mine: boolean)
@@ -542,6 +544,29 @@ local function watchClock(clock: Instance)
 	end)
 end
 
+-- #4922 (first 5 minutes: 34% of players with a rank up ready never press it): a rank up pressed away from your
+-- door (in an area, far down the street, or with the cafe not streamed in) plays the same celebration around you.
+-- Near the door the plot's own Tier change plays it there (rankUp above), so it never plays twice.
+local function rankedUp(_tier: number)
+	local me = Players.LocalPlayer
+	for plot in plots do
+		if plot.Parent ~= nil and numberAttribute(plot, "OwnerUserId") == me.UserId then
+			if Logic.rankUpHere(Context.distance(frontOf(plot)), Presets.rankUp.within) then
+				return
+			end
+			break
+		end
+	end
+	local character = me.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return
+	end
+	local part = root :: BasePart
+	local foot = part.Position - Vector3.new(0, part.Size.Y / 2 + 2, 0)
+	celebrate(foot, part.CFrame.RightVector, foot.Y + Presets.rankUp.awayRoof)
+end
+
 -- Plots -----------------------------------------------------------------------------------------------------
 
 local function evaluate(plot: Model, state: PlotState)
@@ -631,6 +656,7 @@ function Plots.start()
 	end
 	CollectionService:GetInstanceAddedSignal("AreaGate"):Connect(watchGate)
 	Moments.Purchase:Connect(purchased)
+	Moments.RankUp:Connect(rankedUp)
 	local clock = ReplicatedStorage:FindFirstChild("Clock")
 	if clock ~= nil then
 		watchClock(clock)

@@ -161,6 +161,24 @@ return function()
 			)
 		end)
 
+		it("counts the spins of a wheel that gives more than one (#4876)", function()
+			local redeemed: { [string]: number } = {}
+			local up = event("wheel-1117")
+			up.effects.wheelSpins = 3
+			expect(AdminWheel.spins(up)).to.equal(3)
+			expect(AdminWheel.used(redeemed, up)).to.equal(0)
+			redeemed[AdminWheel.key(up)] = 1
+			local view = AdminWheel.view(redeemed, up, true) :: any
+			expect(view.left).to.equal(2)
+			expect(view.spun).to.equal(false)
+			redeemed[AdminWheel.key(up)] = 3
+			expect(AdminWheel.spun(redeemed, up)).to.equal(true)
+			-- a spin marked before #4876 holds its os.time(): one spin used
+			redeemed[AdminWheel.key(up)] = NOW
+			expect(AdminWheel.used(redeemed, up)).to.equal(1)
+			expect(AdminWheel.spun(redeemed, up)).to.equal(false)
+		end)
+
 		it("shows the wheel that is up, and whether it was spun", function()
 			local redeemed: { [string]: number } = {}
 			local up = event("wheel-1115")
@@ -168,6 +186,8 @@ return function()
 				eventId = "wheel-1115",
 				spun = false,
 				endsAt = NOW + 300,
+				spins = 1,
+				left = 1,
 			})
 			redeemed[AdminWheel.key(up)] = NOW
 			expect((AdminWheel.view(redeemed, up, true) :: any).spun).to.equal(true)

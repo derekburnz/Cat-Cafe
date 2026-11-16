@@ -1,9 +1,9 @@
 --!strict
--- The account's first bait (#1895): it waits at most FirstBaitWaitSeconds (2 minutes, shared Bait.firstWait) so a
+-- The account's first bait (#1895): it waits at most FirstBaitReadySeconds (3 s since #4920, shared Bait.firstWait) so a
 -- first session sees its first bait cat, and while it waits the game says so ("A cat is coming! 1m 42s") on the HUD's
 -- row over the money and in the Bait bowl window, so the player stays and does something else meanwhile. No Robux
 -- skip, ever. Pure, so the cloud specs check it.
---   wait() -> number                          FirstBaitWaitSeconds (120 until Config has it)
+--   wait() -> number                          FirstBaitReadySeconds (else FirstBaitWaitSeconds, else 120)
 --   firstWait(firstBait, wait) -> number      the empty bowl's promised wait: capped while state.firstBait is true
 --   coming(bait) -> boolean                   the bait in the bowl is the short first one: a day bait whose whole
 --                                             wait (readyAt - placedAt) is the first wait or less, not yet ready
@@ -25,7 +25,8 @@ FirstBait.NUDGE_ICON = "🐾"
 export type Bait = { readyAt: number, placedAt: number?, night: boolean? }
 
 function FirstBait.wait(): number
-	local value = (Config :: any).FirstBaitWaitSeconds
+	-- #4920: the first bait is ready after FirstBaitReadySeconds (shared Bait.firstWait)
+	local value = (Config :: any).FirstBaitReadySeconds or (Config :: any).FirstBaitWaitSeconds
 	return if type(value) == "number" and value > 0 then value else 120
 end
 

@@ -71,6 +71,40 @@ return function()
 		end)
 	end)
 
+	describe("Cannon.flightScale (#4920)", function()
+		it("makes the walk-through's flights out quicker, nothing else", function()
+			local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+			local SecondCat = require(game:GetService("ReplicatedStorage").Shared.SecondCat)
+			expect(Cannon.FIRST_FLIGHT_CATS).to.equal(SecondCat.CATS)
+			expect(Cannon.flightScale(1, 0, "alley")).to.equal(Cannon.FIRST_FLIGHT_SCALE)
+			expect(Cannon.flightScale(1, 1, "alley")).to.equal(Cannon.FIRST_FLIGHT_SCALE) -- the second cat's trip
+			expect(Cannon.flightScale(1, 2, "alley")).to.equal(1)
+			expect(Cannon.flightScale(2, 0, "park")).to.equal(1)
+			expect(Cannon.flightScale(1, 0, Cannon.TOWN)).to.equal(1) -- home is as before
+			-- 2.5 s instead of 3.75, the move to the pad still inside the flight
+			expect(math.abs(Config.CannonLaunchSeconds * Cannon.FIRST_FLIGHT_SCALE - 2.5) < 1e-6).to.equal(
+				true
+			)
+			expect(Config.CannonTeleportAtSeconds * Cannon.FIRST_FLIGHT_SCALE < 2.5).to.equal(true)
+		end)
+
+		it("reads the attribute safely", function()
+			expect(Cannon.scaleOf(nil)).to.equal(1)
+			expect(Cannon.scaleOf("x")).to.equal(1)
+			expect(Cannon.scaleOf(0 / 0)).to.equal(1)
+			expect(Cannon.scaleOf(0.1)).to.equal(1)
+			expect(Cannon.scaleOf(2)).to.equal(1)
+			expect(Cannon.scaleOf(2 / 3)).to.equal(2 / 3)
+		end)
+
+		it("names the attribute and the switch", function()
+			local LiveFlags = require(game:GetService("ReplicatedStorage").Shared.LiveFlags)
+			expect(Cannon.FLIGHT_SCALE).to.equal("CannonFlightScale")
+			expect(table.find(LiveFlags.KEYS, Cannon.QUICK_FLAG) ~= nil).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT[Cannon.QUICK_FLAG]).to.equal(true)
+		end)
+	end)
+
 	describe("Cannon.downRefusal", function()
 		it("refuses for TackledDownSeconds after a tackle lands, then lets go", function()
 			expect(Cannon.downRefusal(0)).to.equal(Cannon.DOWN_TEXT)
@@ -338,6 +372,20 @@ return function()
 			expect(Cannon.stillAtSpawn(Vector3.new(40, 3, 85), spawn)).to.equal(false)
 			-- height does not count: a jump at the spawn is still at the spawn
 			expect(Cannon.stillAtSpawn(Vector3.new(0, 30, -14), spawn)).to.equal(true)
+		end)
+
+		it("moves a new player from anywhere in the Town Square (#4967)", function()
+			local spawn = Vector3.new(0, 0.6, -14)
+			-- walked to the cannon after a fast loading skip: a new player still goes to the door
+			expect(Cannon.stillAtSpawn(Vector3.new(0, 3, 40), spawn, true)).to.equal(true)
+			expect(Cannon.stillAtSpawn(Vector3.new(0, 3, 40), spawn, false)).to.equal(false)
+			expect(
+				Cannon.stillAtSpawn(
+					Vector3.new(0, 3, -14 + Cannon.HOME_SPAWN_STUDS_NEW + 1),
+					spawn,
+					true
+				)
+			).to.equal(false)
 		end)
 
 		it("puts the camera behind and above the character, looking the way it faces", function()

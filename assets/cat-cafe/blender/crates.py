@@ -627,3 +627,101 @@ def build_crate(pool, mat, golden=False):
 
 ASSETS = {f"CatCafe_Prop_Crate_{p}{'_Gold' if g else ''}": ((lambda m, p=p, g=g: build_crate(p, m, g)), 1500)
           for p in POOLS for g in ((False,) if p in NO_GOLD else (False, True))}
+
+
+# ------------------------------------------------------------------------------------------------ Crate Drop --
+# #4888 (Derek 2026-11-16: "for golden crate drop make the model soo much better and more cool"): the crate the
+# Crate Drop admin event parachutes into each area (AdminDropService), a plain gold block until now. A big golden
+# treasure crate, about 4.2 wide, 3.2 deep and 5.4 tall to the star: dark gold frame and feet, navy panels, a glowing
+# paw on the front and back, glowing gems on the sides and a glowing seam under the lid, a domed lid with a red ribbon,
+# a bow and a gold star on top. Pivot base centre, front -Z. Children: <name>_Lid (hinged at the back top edge, as the
+# shelf crates) and <name>_Glow (Neon day and night). Nothing collides: the server adds its own solid box.
+DW, DD, DH = 1.9, 1.5, 2.3        # half width, half depth, body height
+DROP_HINGE = (0.0, DH, DD + 0.08)
+DROP = "CatCafe_Prop_Crate_Drop"
+
+
+def _drop(b, lid, glow):
+    for sx in (-1, 1):                                                   # feet
+        for sz in (-1, 1):
+            b.span((min(sx * (DW + 0.1), sx * (DW - 0.5)), 0.0, min(sz * (DD + 0.1), sz * (DD - 0.5))),
+                   (max(sx * (DW + 0.1), sx * (DW - 0.5)), 0.22, max(sz * (DD + 0.1), sz * (DD - 0.5))), "gold_dark")
+    b.span((-DW + 0.12, 0.12, -DD + 0.12), (DW - 0.12, DH - 0.02, DD - 0.12), "pants_navy")      # the core
+    b.span((-DW, 0.16, -DD), (DW, 0.5, DD), "gold_dark")                                          # plinth
+    b.span((-DW, DH - 0.3, -DD), (DW, DH, DD), "gold_dark")                                       # top rail
+    for sx in (-1, 1):                                                   # corner posts with rivets
+        for sz in (-1, 1):
+            b.span((min(sx * DW, sx * (DW - 0.34)), 0.5, min(sz * DD, sz * (DD - 0.34))),
+                   (max(sx * DW, sx * (DW - 0.34)), DH - 0.3, max(sz * DD, sz * (DD - 0.34))), "gold_mid")
+        for y in (0.33, DH - 0.15):
+            for sz in (-1,):
+                b.span((sx * (DW - 0.17) - 0.07, y - 0.07, sz * DD - 0.05), (sx * (DW - 0.17) + 0.07, y + 0.07, sz * DD),
+                       "gold_light")
+
+    def side(axis, sign):
+        half = (DW if axis == "z" else DD) - 0.34
+        out = (DD if axis == "z" else DW)
+        # a raised gold frame round each navy panel
+        _side_span(b, axis, sign, -half, half, 0.5, 0.66, out - 0.1, out - 0.03, "gold_light")
+        _side_span(b, axis, sign, -half, half, DH - 0.46, DH - 0.3, out - 0.1, out - 0.03, "gold_light")
+        for su in (-1, 1):
+            u0, u1 = sorted((su * half, su * (half - 0.16)))
+            _side_span(b, axis, sign, u0, u1, 0.66, DH - 0.46, out - 0.1, out - 0.03, "gold_light")
+    _faces(side)
+    for sz in (-1, 1):                                                   # the paw, front and back, glowing
+        zf = sz * (DD - 0.12)
+        for (x0, x1, y0, y1) in _paw_blocks(0.0, 1.12, 1.0):
+            glow.span((x0, y0, min(zf, zf + sz * 0.06)), (x1, y1, max(zf, zf + sz * 0.06)), "rarity_legend")
+    for sx in (-1, 1):                                                   # a gem in a gold setting on each side
+        xf = sx * (DW - 0.12)
+        b.box((xf + sx * 0.03, 1.22, 0.0), (0.06, 0.7, 0.7), "gold_light", rot=None)
+        glow.span((min(xf, xf + sx * 0.1), 1.0, -0.22), (max(xf, xf + sx * 0.1), 1.44, 0.22), "rarity_legend")
+        for sz in (-1, 1):                                               # carry rings
+            b.span((min(sx * DW, sx * (DW + 0.14)), 1.5, sz * 0.75 - 0.08), (max(sx * DW, sx * (DW + 0.14)), 1.72,
+                                                                              sz * 0.75 + 0.08), "gold_dark")
+        b.span((min(sx * (DW + 0.08), sx * (DW + 0.2)), 1.52, -0.83), (max(sx * (DW + 0.08), sx * (DW + 0.2)), 1.68,
+                                                                      0.83), "gold_light")
+    # the glowing seam under the lid, all the way round
+    glow.span((-DW - 0.03, DH - 0.02, -DD - 0.03), (DW + 0.03, DH + 0.08, DD + 0.03), "lamp_warm")
+    # the lock
+    b.span((-0.26, DH - 0.34, -DD - 0.08), (0.26, DH - 0.02, -DD), "gold_light")
+    b.span((-0.06, DH - 0.26, -DD - 0.11), (0.06, DH - 0.1, -DD - 0.08), "fur_black")
+    # lid: a rim and a dome in three steps, dark bands across it, a red ribbon both ways, a bow and a star
+    lid.span((-DW - 0.1, DH + 0.08, -DD - 0.1), (DW + 0.1, DH + 0.34, DD + 0.1), "gold_dark")
+    steps = ((0.0, 0.34, 0.7, "gold_mid"), (0.22, 0.7, 0.98, "gold_mid"), (0.5, 0.98, 1.16, "gold_light"))
+    for inset, y0, y1, sw in steps:
+        lid.span((-DW + 0.04, DH + y0, -DD + inset), (DW - 0.04, DH + y1, DD - inset), sw)
+    for sx in (-1, 1):
+        for inset, y0, y1, _ in steps:
+            lid.span((sx * 1.25 - 0.14, DH + y0, -DD + inset - 0.05), (sx * 1.25 + 0.14, DH + y1 + 0.05, DD - inset + 0.05),
+                     "gold_dark")
+    for inset, y0, y1, _ in steps:                                       # ribbon front to back
+        lid.span((-0.24, DH + y0, -DD + inset - 0.07), (0.24, DH + y1 + 0.07, DD - inset + 0.07), "shirt_red")
+    lid.span((-DW + 0.02, DH + 1.16, -0.24), (DW - 0.02, DH + 1.23, 0.24), "shirt_red")           # and side to side
+    for sx in (-1, 1):
+        lid.span((min(sx * (DW - 0.04), sx * (DW + 0.03)), DH + 0.34, -0.24),
+                 (max(sx * (DW - 0.04), sx * (DW + 0.03)), DH + 1.23, 0.24), "shirt_red")
+    for sx in (-1, 1):                                                   # the bow's loops and tails
+        lid.box((sx * 0.42, DH + 1.42, 0.0), (0.62, 0.34, 0.42), "shirt_red", rot=rot_z(sx * 22))
+        lid.box((sx * 0.5, DH + 1.24, -0.42), (0.26, 0.06, 0.6), "bowl_red", rot=None)
+    lid.span((-0.17, DH + 1.23, -0.2), (0.17, DH + 1.56, 0.2), "bowl_red")                        # the knot
+    sy = DH + 2.3                                                        # the star, standing on the knot
+    lid.span((-0.06, DH + 1.56, -0.06), (0.06, sy - 0.4, 0.06), "gold_dark")
+    lid.box((0.0, sy, 0.0), (0.66, 0.66, 0.22), "gold_light", rot=rot_z(45))
+    lid.span((-0.13, sy - 0.76, -0.1), (0.13, sy + 0.76, 0.1), "gold_light")
+    lid.span((-0.76, sy - 0.13, -0.1), (0.76, sy + 0.13, 0.1), "gold_light")
+    glow.box((0.0, sy, 0.0), (0.34, 0.34, 0.3), "rarity_legend", rot=rot_z(45))
+
+
+def build_drop(mat):
+    b, lid, glow = RB(), RB(), RB()
+    _drop(b, lid, glow)
+    body = b.finalize(DROP, mat)
+    top = lid.finalize(DROP + "_Lid", mat)
+    top.matrix_world = Matrix.Translation(-Vector(RB.p(*DROP_HINGE)))
+    bake_transform(top)
+    top.location = RB.p(*DROP_HINGE)
+    return [body, top, glow.finalize(DROP + "_Glow", mat)]
+
+
+ASSETS[DROP] = (build_drop, 2500)

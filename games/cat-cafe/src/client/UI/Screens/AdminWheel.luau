@@ -31,13 +31,20 @@ local AdminWheelShared =
 export type Callbacks = {
 	spin: () -> (),
 	close: () -> (),
-	toast: (text: string) -> (), -- a prize that lands while the window is closed
+	-- #4876: the prize card (Screens/WheelPrize): a second after the wheel lands, or at once when the window is closed
+	won: (prizeId: string, words: string, catId: string) -> (),
 }
 
 export type AdminWheel = {
 	frame: Frame,
 	setWheel: (self: AdminWheel, wheel: AdminBarLogic.Wheel?) -> (),
-	result: (self: AdminWheel, slice: number, prizeId: string, paid: { string }) -> (),
+	result: (
+		self: AdminWheel,
+		slice: number,
+		prizeId: string,
+		paid: { string },
+		catId: string?
+	) -> (),
 	refresh: (self: AdminWheel) -> (),
 	isOpen: (self: AdminWheel) -> boolean,
 	destroy: (self: AdminWheel) -> (),
@@ -54,10 +61,19 @@ local RIM_LIGHTS = 20
 local ROW_H = 26
 local SPIN_H = 50
 local SPIN_SECONDS = 4.5
+local SHOW_AFTER = 1 -- #4876: seconds the landed wheel rests before the prize card takes over
 local SPIN_TURNS = 5
 local RIM = Theme.colors.cocoa
 local INK = Theme.colors.outline
 local BULB = { Color3.fromHex("FFF096"), Color3.fromHex("FFFFFF") }
+-- #4881 (Derek 2026-11-16, "make the admin wheel a much better model / look"): two pictures over the drawn wheel,
+-- assets/cat-cafe/ui/admin-wheel. The face turns with the Face frame: the eight slices at PRIZES' weights, slice 1
+-- centred at the top and then clockwise (SpinLogic's order), each with its prize picture. The frame stays still: the
+-- gold rim with its lights, the Lucky Cat hub and the pointer. The drawn wheel stays underneath, so the window still
+-- reads while Roblox is still checking the pictures. Redraw both with the weights if PRIZES change.
+local FACE_IMAGE = "rbxassetid://76596036710944"
+local FRAME_IMAGE = "rbxassetid://104531670337320"
+local FRAME_SCALE = 512 / 490 -- the frame picture's rim is 490 px of its 512 px half
 
 local AdminWheel = {}
 AdminWheel.__index = AdminWheel
@@ -158,6 +174,14 @@ function AdminWheel.new(callbacks: Callbacks): AdminWheel
 	})
 	self._face = face
 	self:_buildSlices()
+	Create("ImageLabel", {
+		Name = "FacePicture",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Image = FACE_IMAGE,
+		ZIndex = 4,
+		Parent = face,
+	})
 	-- the hub and the pointer stay still
 	local hub: Frame = Create("Frame", {
 		Name = "Hub",
@@ -196,6 +220,16 @@ function AdminWheel.new(callbacks: Callbacks): AdminWheel
 		Parent = wheel,
 	})
 	Outline.text(pointer, 3, INK)
+	Create("ImageLabel", {
+		Name = "FramePicture",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(FRAME_SCALE, FRAME_SCALE),
+		BackgroundTransparency = 1,
+		Image = FRAME_IMAGE,
+		ZIndex = 8,
+		Parent = wheel,
+	})
 
 	-- the side: every prize and its odds, Spin, and the line
 	local side: Frame = Create("Frame", {
@@ -436,7 +470,13 @@ function AdminWheel.setWheel(self: any, wheel: AdminBarLogic.Wheel?)
 end
 
 -- From AdminWheelResult: the wheel turns to `slice` and says what it paid. 0 is a refusal.
-function AdminWheel.result(self: any, slice: number, prizeId: string, paid: { string })
+function AdminWheel.result(
+	self: any,
+	slice: number,
+	prizeId: string,
+	paid: { string },
+	catId: string?
+)
 	if slice < 1 or slice > #prizes() then
 		self._spinning = false
 		self:refresh()
@@ -447,12 +487,12 @@ function AdminWheel.result(self: any, slice: number, prizeId: string, paid: { st
 	local words = if type(paid) == "table" and #paid > 0
 		then table.concat(paid, ", ")
 		else prize.name
-	local _ = prizeId
+	local cat = catId or ""
 	if not self.frame.Visible then
 		self._spinning = false
 		self._won = words
 		self:refresh()
-		self._callbacks.toast("Admin Wheel: you won " .. words .. "!")
+		self._callbacks.won(prizeId, words, cat)
 		return
 	end
 	self._spinning = true
@@ -477,6 +517,10 @@ function AdminWheel.result(self: any, slice: number, prizeId: string, paid: { st
 		self._spinning = false
 		self._won = words
 		self:refresh()
+		-- #4876: a second to see where it landed, then the prize card
+		task.delay(SHOW_AFTER, function()
+			self._callbacks.won(prizeId, words, cat)
+		end)
 	end)
 	tween:Play()
 end

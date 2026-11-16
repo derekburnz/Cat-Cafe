@@ -31,14 +31,16 @@ return function()
 				local line = RankFirst.line(device)
 				expect(RankFirst.isLine(line)).to.equal(true)
 			end
-			expect(RankFirst.isLine("Hop in the cannon to catch more cats!")).to.equal(false)
+			expect(RankFirst.isLine("Hop in the cannon: catch more cats to rank up!")).to.equal(
+				false
+			)
 			expect(RankFirst.isLine(nil)).to.equal(false)
 		end)
 
 		it("names the goal card in each device's words, one strip line each", function()
-			expect(RankFirst.line("touch")).to.equal("Rank up! Tap YOUR GOAL")
-			expect(RankFirst.line("keyboard")).to.equal("Rank up! Click YOUR GOAL")
-			expect(RankFirst.line("gamepad")).to.equal("Rank up! Select YOUR GOAL")
+			expect(RankFirst.line("touch")).to.equal("Rank up! Tap RANK UP to open the Park")
+			expect(RankFirst.line("keyboard")).to.equal("Rank up! Click RANK UP to open the Park")
+			expect(RankFirst.line("gamepad")).to.equal("Rank up! Select RANK UP to open the Park")
 			expect(RankFirst.line("vr")).to.equal(RankFirst.line("keyboard"))
 			for _, line in RankFirst.LINES :: any do
 				expect((utf8.len(line) or 99) <= 50).to.equal(true) -- the strip holds about 50 characters (TutorialHints)

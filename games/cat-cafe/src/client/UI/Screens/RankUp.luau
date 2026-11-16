@@ -23,6 +23,7 @@ local RankUpNeeds = require(script.Parent.Parent.Components.RankUpNeeds) -- #114
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow) -- #4847
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -703,6 +704,10 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	self._button:setText(
 		if progress.ready then "RANK UP  ·  " .. Format.money(nextTier.cost) else fly or "Not yet"
 	)
+	-- #4847 (Derek 2026-11-16, his screenshot: the Tier 1 window, both requirements met, nothing pointing): the first
+	-- rank up's button gets the tutorial's ring and arrow whenever it is ready, wherever the window was opened (the
+	-- dimmed walk-through, RankSpot, lights it only on the safe side). No dim, so the window's X still works.
+	TutorialGlow.set(self._button.instance, progress.ready and progress.tier == 1, nil, true)
 end
 
 -- #3961: one cream card per line of what the tier opens, its picture on the left

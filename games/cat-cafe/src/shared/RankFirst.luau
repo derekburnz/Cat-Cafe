@@ -22,6 +22,11 @@ RankFirst.LINES = table.freeze({
 	gamepad = "Rank up! Select YOUR GOAL",
 })
 
+-- The strip's button beside a rank up line (client HUD): it opens the rank up window from anywhere, since the
+-- walk-through's spotlight only shows on the safe side of the gates (the Nov 16 drop-off read: 148 of 431 ready
+-- players never pressed).
+RankFirst.BUTTON = "RANK UP"
+
 -- Whether the rank up goes first now: the switch on, the cafe at Tier 1 and every Tier 2 need met.
 function RankFirst.holds(on: boolean, tier: number?, ready: boolean): boolean
 	return on and (tier or 1) == 1 and ready

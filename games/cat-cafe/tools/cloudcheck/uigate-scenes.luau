@@ -9813,6 +9813,39 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not b.Visible, "uigate: the Buy button shows with 100 coins for a 150 table (#2912)")
 		UI.update({ money = 850 } :: any)
 	end },
+	-- The Nov 16 drop-off read (a third of ready players never pressed rank up): beside the rank up line the strip's
+	-- button reads RANK UP, whole on screen and over the strip, and goes with the line
+	{ "TutorialRankUp", function()
+		local RankFirst = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("RankFirst")) :: any
+		UI.update({ tutorialStep = 99, tier = 1, money = 2000 } :: any)
+		UI.tutorial.show(RankFirst.line("touch"))
+		task.wait(0.2)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local buy = hud:FindFirstChild("TutorialBuy", true) :: GuiObject?
+		local strip: GuiObject? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Text ~= "" then
+				strip = piece
+			end
+		end
+		assert(strip ~= nil and strip.Visible, "uigate: the rank up line is not on the strip")
+		assert(buy ~= nil and buy.Visible, "uigate: no RANK UP button beside the rank up line")
+		local text: TextLabel? = nil
+		for _, piece in (buy :: GuiObject):GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == RankFirst.BUTTON then
+				text = piece
+			end
+		end
+		assert(text ~= nil, "uigate: the strip's button does not say " .. RankFirst.BUTTON)
+		assert((text :: TextLabel).TextFits ~= false, "uigate: RANK UP does not fit its button")
+		local b, st = (buy :: GuiObject), (strip :: GuiObject)
+		local screen = hud.AbsoluteSize
+		assert(b.AbsolutePosition.X >= 0 and b.AbsolutePosition.X + b.AbsoluteSize.X <= screen.X and b.AbsolutePosition.Y >= 0, "uigate: the RANK UP button runs off screen")
+		assert(b.AbsolutePosition.Y + b.AbsoluteSize.Y <= st.AbsolutePosition.Y + 1, "uigate: the RANK UP button overlaps the strip")
+		UI.tutorial.hide()
+		task.wait(0.1)
+		assert(not b.Visible, "uigate: the RANK UP button stays after the line goes")
+	end },
 	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
 	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
 	-- table row; the step done, it is gone

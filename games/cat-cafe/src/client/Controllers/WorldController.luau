@@ -496,12 +496,11 @@ local function followClock()
 		end
 	end)
 	while true do
-		-- a phase change's SKY_JUMP_SECONDS ease (a jump of the clock) keeps the fast step, so it never shows as steps
-		task.wait(
-			if (lowPerformance or Effects.tier() == "low") and blendFrom == nil
-				then SKY_STEP_LOW_SECONDS
-				else SKY_STEP_SECONDS
-		)
+		-- a phase change's SKY_JUMP_SECONDS ease (a jump of the clock) keeps the fast step, so it never shows as steps;
+		-- so does the night on a phone or tablet: it is short (NightLengthSeconds) and its sky falls fast, so a 0.5 s
+		-- step moved the moon about 5 degrees (Sync's Studio read on #4785). Low performance keeps its slow night.
+		local slow = lowPerformance or (Effects.tier() == "low" and not isNight)
+		task.wait(if slow and blendFrom == nil then SKY_STEP_LOW_SECONDS else SKY_STEP_SECONDS)
 		stepSky(clock)
 	end
 end

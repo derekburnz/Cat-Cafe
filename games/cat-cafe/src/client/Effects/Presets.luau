@@ -4489,7 +4489,7 @@ Presets.tradeFly = {
 -- random point of its cycle; Reduce Motion and Low performance hold them all still as modelled.
 Presets.decorMotion = {
 	angle = { default = 10, least = 0, most = 45 },
-	seconds = { default = 2, least = 0.3, most = 30 },
+	seconds = { default = 2, least = 0.3, most = 120 }, -- up to 120 for a slow lookout turn (#4069 telescope, Seconds 90)
 	rise = { default = 0.08, least = 0, most = 1 },
 	pick = 1, -- seconds between choosing which parts move
 }

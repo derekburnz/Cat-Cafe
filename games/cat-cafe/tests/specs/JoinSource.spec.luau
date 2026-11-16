@@ -47,5 +47,11 @@ return function()
 			expect(JoinSource.parse("notify_away ")).to.equal("unknown")
 			expect(JoinSource.parse("notify_other")).to.equal("unknown")
 		end)
+
+		it("knows a join from a shared catch picture (#4911), which is not an ad", function()
+			expect(JoinSource.parse("share_catch")).to.equal(JoinSource.SHARE)
+			expect(JoinSource.isAd(JoinSource.SHARE)).to.equal(false)
+			expect(JoinSource.parse("share_catch2")).to.equal("unknown")
+		end)
 	end)
 end

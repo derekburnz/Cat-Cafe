@@ -10826,6 +10826,23 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(word and word.Text == "YOUR FIRST EPIC!", "uigate: the wow card reads " .. tostring(word and word.Text))
 		end)
 	end },
+	-- #4911: Moments share: a Mythical cat's big card with "Share this catch!" under the kind line (the switch on,
+	-- sharing allowed and five minutes played); the card stays up to 6 s with the button
+	{ "BigPullShare", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		ReplicatedStorage:SetAttribute("LiveFlag_momentsShare", true)
+		UI.bigPull.share.allowed = true
+		UI.bigPull.share.startedAt = os.clock() - 600
+		UI.bigPull.share.offered = false
+		UI.update({ tutorialStep = 9 } :: any) -- the walk-through done
+		task.delay(0.5, function()
+			UI.securedRare(localUserId(), mythicalCat(), "Mythical", false, nil)
+			local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+			local button = pull and pull:FindFirstChild("ShareCatch", true)
+			ReplicatedStorage:SetAttribute("LiveFlag_momentsShare", nil)
+			assert(button and button.Visible, "uigate: no Share this catch! on the Mythical card")
+		end)
+	end },
 	-- F89 and F99: the longest rarity word, RAINBOW LEGENDARY!, on a rainbow card
 	{ "BigPullRainbow", function()
 		task.delay(0.5, function()

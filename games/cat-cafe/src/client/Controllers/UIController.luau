@@ -2166,6 +2166,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "return_hook_early", kind)
 		end)
 	end
+	-- #4911: Moments share on the big catch card: shown, tapped and how it ended (the server allowlists each)
+	if events.shareCatch ~= nil then
+		events.shareCatch:Connect(function(what: string)
+			Net.fire("TelemetryReport", "share", what)
+		end)
+	end
 	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both
 	if events.sessionRecap ~= nil then
 		events.sessionRecap:Connect(function()

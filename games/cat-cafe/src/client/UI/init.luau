@@ -238,6 +238,7 @@ UI.events = {
 	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
 	returnHookEarly = Signal.new(), -- (kind)   #4626: the minute 6 "come back tomorrow" line showed: forward as TelemetryReport("return_hook_early", kind)
+	shareCatch = Signal.new(), -- (what)   #4911: a ShareCatchLogic.REPORTS value, forward as TelemetryReport("share", what)
 	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
 	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
@@ -7358,6 +7359,9 @@ do
 	local BigPullLogic = require(script.Components.BigPullLogic)
 	local BigPullScreen = require(script.Screens.BigPull)
 	local DecorPieces = require(script.Components.DecorPieces)
+	local ShareCatchLogic = require(script.Components.ShareCatchLogic)
+	local ShareFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 	local RareMoments =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RareMoments")) :: any
 	local pull = {
@@ -7367,6 +7371,67 @@ do
 		firstEpicAt = nil :: number?,
 		wowAt = nil :: number?,
 	}
+	-- #4911: Moments share: PolicyService's IsContentSharingAllowed (nil until it came), when this session started
+	-- (os.clock) and whether the button already showed this session. On UI.bigPull so the UI gate's BigPullShare scene
+	-- can draw the button.
+	local share = { allowed = nil :: boolean?, startedAt = os.clock(), offered = false }
+	UI.bigPull.share = share
+	task.spawn(function()
+		local ok, info = pcall(function(): any
+			return game:GetService("PolicyService"):GetPolicyInfoForPlayerAsync(Players.LocalPlayer)
+		end)
+		if ok and type(info) == "table" and share.allowed == nil then
+			share.allowed = info.IsContentSharingAllowed == true
+		end
+	end)
+
+	-- #4911: takes the picture with the card on screen, closes the card (`done`) and opens Roblox's share sheet with
+	-- the picture; a join through it carries ShareCatchLogic.LAUNCH_DATA. Anything that fails closes the card quietly.
+	local function shareCatch(done: () -> ())
+		UI.events.shareCatch:Fire("tapped")
+		local CaptureService = game:GetService("CaptureService")
+		local ok = pcall(function()
+			CaptureService:CaptureScreenshot(function(contentId: any)
+				done()
+				local prompted = pcall(function()
+					CaptureService:PromptShareCapture(
+						Content.fromUri(tostring(contentId)),
+						ShareCatchLogic.LAUNCH_DATA,
+						function()
+							UI.events.shareCatch:Fire("shared")
+						end,
+						function()
+							UI.events.shareCatch:Fire("cancelled")
+						end
+					)
+				end)
+				if not prompted then
+					UI.events.shareCatch:Fire("failed")
+				end
+			end)
+		end)
+		if not ok then
+			UI.events.shareCatch:Fire("failed")
+			done()
+		end
+	end
+
+	-- #4911: whether this cat's card carries Share this catch!
+	local function shareOffer(rarity: string): boolean
+		return ShareCatchLogic.offer({
+			on = ShareFlags.shown(
+				"momentsShare",
+				ReplicatedStorage:GetAttribute(ShareFlags.ATTRIBUTE_PREFIX .. "momentsShare")
+			),
+			allowed = share.allowed,
+			rarity = rarity,
+			tutorialDone = type(state.tutorialStep) == "number"
+				and state.tutorialStep >= 5
+				and not UI.firstCat.tutorial,
+			played = os.clock() - share.startedAt,
+			offered = share.offered,
+		})
+	end
 	local ONE_CAT_SECONDS = 10
 
 	local function screenFor(): BigPullScreen.BigPull?
@@ -7430,6 +7495,11 @@ do
 			end
 			pull.firstEpicAt = os.clock()
 		end
+		local offer = shareOffer(rarity)
+		if offer then
+			share.offered = true
+			UI.events.shareCatch:Fire("shown")
+		end
 		screen:show({
 			card = card,
 			rarity = rarity,
@@ -7438,6 +7508,7 @@ do
 			name = def.name, -- the cat's kind, never its nickname
 			cat = def,
 			shiny = gold == true or variant == "gold",
+			onShare = if offer then shareCatch else nil,
 		})
 	end
 

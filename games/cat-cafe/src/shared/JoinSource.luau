@@ -10,18 +10,19 @@ local JoinSource = {}
 JoinSource.ORGANIC = "organic" -- no launch data: the game page, a search, a friend's join
 JoinSource.UNKNOWN = "unknown" -- launch data that is not one of our ad tags
 JoinSource.NOTIFY = "notify_away" -- #2768: the "your cats earned X while you were away" notification (AwayNotify)
+JoinSource.SHARE = "share_catch" -- #4911: a player's shared big catch picture (Moments share, UI ShareCatchLogic)
 JoinSource.PREFIX = "ad_"
 JoinSource.TAG_MAX = 20 -- characters after the prefix
 
 -- The source for `launchData` (GetJoinData's LaunchData, any value): "ad_<tag>" for an ad tag (lower case letters,
--- digits and _ after "ad_", 1 to TAG_MAX of them), NOTIFY for our away notification, ORGANIC for none or an empty
--- string, UNKNOWN for anything else.
+-- digits and _ after "ad_", 1 to TAG_MAX of them), NOTIFY for our away notification, SHARE for a shared catch picture,
+-- ORGANIC for none or an empty string, UNKNOWN for anything else.
 function JoinSource.parse(launchData: unknown): string
 	if launchData == nil or launchData == "" then
 		return JoinSource.ORGANIC
 	end
-	if launchData == JoinSource.NOTIFY then
-		return JoinSource.NOTIFY
+	if launchData == JoinSource.NOTIFY or launchData == JoinSource.SHARE then
+		return launchData :: string
 	end
 	if type(launchData) ~= "string" then
 		return JoinSource.UNKNOWN

@@ -454,6 +454,13 @@ export type CustomEvent =
 	-- #4945: once a session, a phone or tablet that tripped the lighter effects budget (client Effects, Logic.slowStep);
 	-- value the seconds from the join; the device, the slow windows' average fps, "low" or "std" (Low performance)
 	| "fx_lite"
+	-- #4911 (Moments share, behind momentsShare): once a session each; value 1, the device. share_result's second
+	-- field is how the share sheet ended ("shared", "cancelled" or "failed")
+	| "share_offer_shown"
+	| "share_tapped"
+	| "share_result"
+	-- #4911: a join through a shared catch picture (JoinSource.SHARE), value 1; "first" or "back" (sessions)
+	| "share_join"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -555,6 +562,15 @@ local REPORTS = {
 	PerfWatch.READY, -- #4783: seconds from the client's first script line to the world ready (client_load), once
 	PerfWatch.FPS, -- #4783: the average fps up to a mark (PerfWatch.encode), once a mark a session (client_fps)
 	"fx_lite", -- #4945: the lighter effects budget tripped, seconds x 100 + fps (Effects Logic.liteReport), once
+	"share", -- #4911: Moments share on the big catch card, SHARE_REPORTS
+}
+-- #4911: the client's share reports to the event each logs (UI/Components/ShareCatchLogic.REPORTS)
+local SHARE_REPORTS: { [string]: CustomEvent } = {
+	shown = "share_offer_shown",
+	tapped = "share_tapped",
+	shared = "share_result",
+	cancelled = "share_result",
+	failed = "share_result",
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -2585,6 +2601,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				low .. ":q" .. tostring(quality),
 			})
 		end
+	elseif name == "share" then
+		-- #4911: once a session each event (the button shows once a session); share_result keeps the first ending
+		local event = if type(rawValue) == "string" then SHARE_REPORTS[rawValue] else nil
+		if event ~= nil and not session.nudges["share:" .. event] then
+			session.nudges["share:" .. event] = true
+			local fields = { session.device or "unknown" }
+			if event == "share_result" then
+				table.insert(fields, rawValue :: string)
+			end
+			Telemetry.custom(player, event, 1, fields)
+		end
 	elseif name == "fx_lite" then
 		-- #4945: once a session; seconds 0 to 3600 and fps 0 to 60, else dropped
 		if
@@ -2998,6 +3025,10 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	if session.source == JoinSource.SHARE then
+		-- #4911: a join through a shared catch picture
+		Telemetry.custom(player, "share_join", 1, { if firstSession then "first" else "back" })
+	end
 	if firstSession then
 		-- #4544: the FirstTenMinutes journey, a first session only
 		session.firstTen = { id = HttpService:GenerateGUID(false), acts = {}, ended = false }

@@ -8,6 +8,9 @@
 -- itself at 2.4 seconds (2 for the first Epic). Controls stay on: only the card takes taps.
 -- Reduce Motion: no shake and no turning rays. VFX's confetti and sparkles (Effects/Pull, DisplayOrder 47) burst over
 -- it; DisplayOrder 44 sits over the windows (20), toasts (30) and popups (40) and under the cannon card (46).
+-- #4911 (Moments share, behind momentsShare): a Mythical or Secret cat's card can carry "Share this catch!" in Use it's
+-- place (ShareCatchLogic.offer decides); the card then stays up to 6 seconds, and a tap on the button hides it, lets
+-- the caller take the picture with the card on screen and closes the card once the picture is taken.
 
 local GuiService = game:GetService("GuiService")
 
@@ -19,6 +22,7 @@ local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
+local ShareCatchLogic = require(script.Parent.Parent.Components.ShareCatchLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -36,6 +40,9 @@ export type View = {
 	shiny: boolean?, -- a gold coat on the portrait
 	piece: Piece?, -- a crate piece's icon, in place of the portrait
 	onUse: (() -> ())?, -- "Use it" on a new style piece
+	-- #4911: "Share this catch!"; called with `done` once tapped, the button already hidden, and the card closes when
+	-- `done` is called (or after SHARE_WAIT seconds)
+	onShare: ((done: () -> ()) -> ())?,
 }
 
 export type BigPull = {
@@ -48,6 +55,8 @@ export type BigPull = {
 
 local CARD = Vector2.new(340, 330)
 local USE_H = 46 -- Use it, taller on a phone for a 44 px face (Scale.tapHeight)
+local SHARE_WIDTH = 0.6 -- #4911: Share this catch! is this share of the card's width
+local SHARE_WAIT = 4 -- #4911: the card closes this long after a share tap if the picture never comes
 local ART_H = 196
 local WORD_Y = 14 + ART_H + 6
 local RAYS = 600
@@ -315,6 +324,22 @@ function BigPull.new(parent: Instance): BigPull
 		end,
 	})
 	self._use.instance.Visible = false
+	self._share = Button.new({
+		name = "ShareCatch",
+		text = "Share this catch!",
+		icon = "📷",
+		style = "primary",
+		size = UDim2.new(SHARE_WIDTH, 0, 0, useH),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -12),
+		textSize = Theme.sizes.textBody + 2,
+		zIndex = 6,
+		parent = card,
+		onClick = function()
+			self:_shareIt()
+		end,
+	})
+	self._share.instance.Visible = false
 
 	card.Activated:Connect(function()
 		self:_tapped()
@@ -324,6 +349,8 @@ function BigPull.new(parent: Instance): BigPull
 	self._startedAt = 0
 	self._tapAfter = 1
 	self._onUse = nil :: (() -> ())?
+	self._onShare = nil :: ((done: () -> ()) -> ())?
+	self._sharing = false -- #4911: the share was tapped and the picture is being taken
 	self._open = false
 	return self :: BigPull
 end
@@ -384,9 +411,18 @@ function BigPull.show(self: any, view: View)
 	self._onUse = view.onUse
 	local useIt = view.onUse ~= nil
 	self._use.instance.Visible = useIt
-	self._holder.Size = UDim2.fromOffset(CARD.X, CARD.Y + (if useIt then self._useRoom else 0))
+	-- #4911: Share this catch! takes Use it's room (a cat's card never has Use it)
+	self._onShare = if useIt then nil else view.onShare
+	self._sharing = false
+	local share = self._onShare ~= nil
+	self._share.instance.Visible = share
+	self._holder.Size =
+		UDim2.fromOffset(CARD.X, CARD.Y + (if useIt or share then self._useRoom else 0))
 	self._holder.Position = UDim2.fromScale(0.5, 0.5)
 	local tapAfter, closeAt = BigPullLogic.times(view.card)
+	if share then
+		closeAt = math.max(closeAt, ShareCatchLogic.CLOSE_AT)
+	end
 	self._tapAfter = tapAfter
 	self._startedAt = os.clock()
 	self._open = true
@@ -430,7 +466,7 @@ function BigPull.show(self: any, view: View)
 		end
 	end)
 	task.delay(closeAt, function()
-		if self._token == token then
+		if self._token == token and not self._sharing then
 			self:_close()
 		end
 	end)
@@ -447,7 +483,7 @@ end
 
 -- A tap on the card closes it once it has been up `tapAfter` seconds.
 function BigPull._tapped(self: any)
-	if not self._open or os.clock() - self._startedAt < self._tapAfter then
+	if not self._open or self._sharing or os.clock() - self._startedAt < self._tapAfter then
 		return
 	end
 	self:_close()
@@ -464,6 +500,26 @@ function BigPull._useIt(self: any)
 	end
 end
 
+-- #4911: hides the button (so the picture shows the card without it), hands the caller `done`, and closes the card
+-- when the picture is taken, or SHARE_WAIT seconds on.
+function BigPull._shareIt(self: any)
+	local onShare = self._onShare
+	if not self._open or self._sharing or onShare == nil then
+		return
+	end
+	self._sharing = true
+	self._share.instance.Visible = false
+	local token = self._token
+	local function done()
+		if self._token == token then
+			self:_close()
+		end
+	end
+	task.delay(SHARE_WAIT, done)
+	-- a few frames on, so the button's hide is on screen before the picture is taken
+	task.delay(0.1, onShare, done)
+end
+
 -- Shrinks the card away and cools the edges; with Reduce Motion it goes at once.
 function BigPull._close(self: any)
 	if not self._open then
@@ -471,6 +527,8 @@ function BigPull._close(self: any)
 	end
 	self._open = false
 	self._onUse = nil
+	self._onShare = nil
+	self._sharing = false
 	GamepadNav.popBack("bigPull")
 	self._token += 1
 	local token = self._token
@@ -493,6 +551,9 @@ function BigPull.hide(self: any)
 	self._token += 1
 	self._open = false
 	self._onUse = nil
+	self._onShare = nil
+	self._sharing = false
+	self._share.instance.Visible = false
 	if self._raySpin then
 		self._raySpin:Cancel()
 		self._raySpin = nil
@@ -515,6 +576,7 @@ function BigPull.destroy(self: any)
 	self._portrait:destroy()
 	self._icon:destroy()
 	self._use:destroy()
+	self._share:destroy()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

@@ -250,7 +250,7 @@ function Codes.new(callbacks: Callbacks): Codes
 	self._box = box
 	self._redeem = Button.new({
 		name = "Redeem",
-		text = "Redeem",
+		text = "REDEEM",
 		style = "primary",
 		size = UDim2.fromOffset(REDEEM_WIDTH, ROW),
 		anchorPoint = Vector2.new(1, 0),
@@ -470,33 +470,29 @@ function Codes._renderUsed(self: any)
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		})
 		-- #3961: the family look (Codes Cat mock): a green tick before each used code, the code upper case
-		local family = MenuFamily.on()
-		local codeLeft = 10
-		if family then
-			local tick: TextLabel = text({
-				Name = "Tick",
-				AnchorPoint = Vector2.new(0, 0.5),
-				Position = UDim2.new(0, 8, 0.5, 0),
-				Size = UDim2.fromOffset(24, 24),
-				BackgroundTransparency = 0,
-				BackgroundColor3 = Theme.colors.good,
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textSmall,
-				TextColor3 = Theme.colors.white,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = "✓",
-				Parent = frame,
-			})
-			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = tick })
-			codeLeft = 40
-		end
+		local tick: TextLabel = text({
+			Name = "Tick",
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 8, 0.5, 0),
+			Size = UDim2.fromOffset(24, 24),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = Theme.colors.good,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = "✓",
+			Parent = frame,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = tick })
+		local codeLeft = 40
 		text({
 			Name = "Code",
 			Position = UDim2.fromOffset(codeLeft, 0),
 			Size = UDim2.new(0.34, -codeLeft, 1, 0),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			Text = if family then string.upper(entry.code) else entry.code,
+			Text = string.upper(entry.code),
 			Parent = frame,
 		})
 		text({
@@ -560,9 +556,7 @@ end
 function Codes._setAnswer(self: any, ok: boolean?, message: string?, prize: Types.IndexPrize?)
 	self._failed = ok == false
 	-- #3961: the family look's redeemed card leads with a tick, upper case
-	self._answer.Text = if ok
-			and message ~= nil
-			and MenuFamily.on()
+	self._answer.Text = if ok and message ~= nil
 		then "✓ " .. string.upper(message)
 		else message or ""
 	self._answer.TextColor3 = if ok then Theme.colors.white else CARD.subtext
@@ -584,9 +578,7 @@ function Codes._refresh(self: any)
 	-- refused
 	local lock = self:_tierLock()
 	self._box.TextEditable = not self._pending and lock == nil
-	self._redeem:setText(
-		if self._pending then "..." elseif MenuFamily.on() then "REDEEM" else "Redeem"
-	)
+	self._redeem:setText(if self._pending then "..." else "REDEEM")
 	local ready = not self._pending and not self:_resting() and lock == nil
 	self._redeem:setEnabled(ready and CodeEntry.canRedeem(self._box.Text))
 	-- Review-QA: in the Store the gold hint strip says it in place of "Check the game description for codes", which

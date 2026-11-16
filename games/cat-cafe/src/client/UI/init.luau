@@ -6292,6 +6292,10 @@ do
 			or not initialized
 			or (id ~= Tips.FAVORITE_ASK and id ~= Tips.LIKE_ASK)
 			or not TipQueue.free(tipMoment())
+			-- #4854 (folded in from #4902): no favourite or like ask in the hold (the walk-through and the first 5
+			-- minutes), and it is the one pop-up of its 5 minutes
+			or UI.firstCat.tutorial
+			or not UI.popPace.free()
 		then
 			return false
 		end
@@ -6302,6 +6306,7 @@ do
 		tipBusy = true
 		tipAnswered[id] = true -- so the queue never shows it again this session
 		tipQueue:shown(os.clock())
+		UI.popPace.used()
 		card:show(text, TipQueue.icon(id), TipQueue.ASK_SECONDS, function()
 			tipBusy = false
 		end)
@@ -11489,7 +11494,9 @@ do
 
 	function UI.rest.calm(): boolean
 		local tips: any = UI.tips
-		return tips.calm()
+		-- #4848 (folded in from #4902): no "Stand still for 2x money" banner in the hold (the walk-through and the
+		-- first 5 minutes)
+		return tips.calm() and not UI.firstCat.tutorial
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session

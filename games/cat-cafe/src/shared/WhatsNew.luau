@@ -75,6 +75,34 @@ WhatsNew.rows = table.freeze({
 		icon = "cat",
 		text = "10 Secret Cats, one per area",
 	},
+	{
+		id = "new_player_flow",
+		date = "2026-11-16",
+		startsAt = SECRETS_AT,
+		icon = "fix",
+		text = "Smoother start for new playe",
+	},
+	{
+		id = "rank_costs_lower",
+		date = "2026-11-16",
+		startsAt = SECRETS_AT,
+		icon = "faster",
+		text = "Cheaper rank ups",
+	},
+	{
+		id = "station_circles",
+		date = "2026-11-16",
+		startsAt = SECRETS_AT,
+		icon = "fix",
+		text = "Station circles tidied up",
+	},
+	{
+		id = "keep_costs_lower",
+		date = "2026-11-16",
+		startsAt = SECRETS_AT,
+		icon = "faster",
+		text = "Cheaper Dragon Keep stages",
+	},
 	-- 3 New Worlds update (Growth-Agent launch pack, Sun 2026-11-15 20:00 UTC): each row waits for startsAt, so it can
 	-- merge early and the board shows it only once the worlds and the UPDATE5 code are open. Tier 8 to 10 gates stay as they are (Derek 2026-11-14 14:55 UTC).
 	{

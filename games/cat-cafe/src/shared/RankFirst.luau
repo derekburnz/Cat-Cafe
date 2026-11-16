@@ -18,10 +18,11 @@ RankFirst.REST_SECONDS = 20 -- a press outside the spotlight hides it this long
 RankFirst.PRESSES = 3 -- the press that puts it away for good
 -- #4836 (Sync's pointer audit: the strip said "Tap YOUR GOAL" while the arrow pointed at the green RANK UP button):
 -- the line names the button the arrow and the strip's own button show
+-- #4926 (Derek 2026-11-16: what to do and why): and what the rank up opens
 RankFirst.LINES = table.freeze({
-	touch = "Rank up! Tap RANK UP",
-	keyboard = "Rank up! Click RANK UP",
-	gamepad = "Rank up! Select RANK UP",
+	touch = "Rank up! Tap RANK UP to open the Park",
+	keyboard = "Rank up! Click RANK UP to open the Park",
+	gamepad = "Rank up! Select RANK UP to open the Park",
 })
 
 -- The strip's button beside a rank up line (client HUD): it opens the rank up window from anywhere, since the

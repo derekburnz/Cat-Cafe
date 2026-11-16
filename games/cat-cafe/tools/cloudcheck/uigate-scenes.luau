@@ -1083,7 +1083,7 @@ local function stepFourFood()
 	-- #3285: an empty bowl is false in the UI's state (UIController), as UI.update skips a nil
 	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 }, bait = false } :: any)
 	UI.bait.set(nil)
-	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap Bowl, then Use on Kibble")
+	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap Bowl, then Use on Kibble to call a cat")
 	task.wait(0.1)
 end
 -- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
@@ -9268,7 +9268,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				strip = piece.Text
 			end
 		end
-		assert(string.find(strip, "Hop in the cannon to fly to the", 1, true) ~= nil, "uigate: bowl first's strip reads " .. strip .. " (#4777)")
+		assert(string.find(strip, "Hop in the cannon: wild cats wait in the", 1, true) ~= nil, "uigate: bowl first's strip reads " .. strip .. " (#4777)")
 		local lit: GuiObject? = nil
 		for _, piece in hud:GetDescendants() do
 			if piece.Name == "TutorialGlow" and piece.Parent and piece.Parent:IsA("GuiObject") then
@@ -9330,7 +9330,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(
-			table.find(texts, "Hop in the cannon to catch more cats!"),
+			table.find(texts, "Catch more cats to earn more and rank up!"),
 			"uigate: the tutorial strip after the bowl reads " .. table.concat(texts, " | ") .. " (#2477)"
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
@@ -10055,7 +10055,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(tile:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Bowl tile still rings with food in the bowl (#3285)")
 		assert(tutorialSpotlight() == nil, "uigate: the screen still dims with food in the bowl (#3285)")
 		local line = UI.tutorial.hint(UI.getState())
-		assert(line == "A cat is on its way to your bowl", ("uigate: the food step's strip says %q with food in the bowl (#3285)"):format(tostring(line)))
+		assert(line == "A cat smells your food. It's on its way!", ("uigate: the food step's strip says %q with food in the bowl (#3285)"):format(tostring(line)))
 		UI.update({ bait = false } :: any)
 	end },
 	{ "TutorialFoodUse", function()
@@ -10461,7 +10461,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		UI.cannon.wrapUp.on = false
 		assert(
-			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Hop in the cannon to catch more cats!"),
+			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Catch more cats to earn more and rank up!"),
 			"uigate: after the walk-through the strip reads " .. table.concat(texts, " | ") .. ", not the rank up line (#4383)"
 		)
 	end },

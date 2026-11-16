@@ -4038,8 +4038,9 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
-	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
-	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
+	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
+	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
+	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same with the paw trail switched off
 }
 
 -- #4480: whether the walk to the Park shows at all (the strip line, the "is open" hint, "Fly to the Park"): the

@@ -35,7 +35,7 @@ return function()
 					local text = line(view, device)
 					expect(type(text)).to.equal("string")
 					expect(#(text :: string) > 10).to.equal(true)
-					expect(#(text :: string) <= 50).to.equal(true)
+					expect(#(text :: string) <= 52).to.equal(true)
 				end
 			end
 		end)
@@ -99,10 +99,10 @@ return function()
 			)
 			expect(line({ step = 4 }, "touch")).to.equal("Tap Upgrades and buy the Bait bowl")
 			expect(line({ step = 4, bowl = true }, "keyboard")).to.equal(
-				"Put Kibble in your bowl on the back step (F)"
+				"Press F, then Use on Kibble to call a cat"
 			)
 			expect(line({ step = 4, bowl = true, baited = true }, "gamepad")).to.equal(
-				"A cat is on its way to your bowl"
+				"A cat smells your food. It's on its way!"
 			)
 		end)
 
@@ -239,7 +239,9 @@ return function()
 			owned.bait = { readyAt = 10, cat = { catId = "tabby" } }
 			local view = TutorialHints.view(owned, spots)
 			expect(TutorialHints.ask(view)).to.equal("arrived")
-			expect(TutorialHints.line(view)).to.equal("Your bowl cat is here! Tame it")
+			expect(TutorialHints.line(view)).to.equal(
+				"Click Tame to keep your cat. It earns you money!"
+			)
 		end)
 
 		it(
@@ -355,9 +357,20 @@ return function()
 				"Catch more cats, or buy a table in Upgrades (U)"
 			)
 			expect(TutorialHints.lineFor("waiting", "touch")).to.equal(
-				"A cat is on its way to your bowl"
+				"A cat smells your food. It's on its way!"
 			)
 			expect(TutorialHints.lineFor("nope", "touch")).to.equal(nil)
+			-- #4926: what to do and why, one line on the smallest phone's strip (52 characters at most on touch)
+			for _, id in { "food", "waiting", "arrived", "alleyCatch" } do
+				local touch = TutorialHints.lineFor(id, "touch") :: string
+				expect((utf8.len(touch) or 99) <= 52).to.equal(true)
+			end
+			expect(TutorialHints.lineFor("arrived", "touch")).to.equal(
+				"Tap Tame to keep your cat. It earns you money!"
+			)
+			expect(TutorialHints.lineFor("alleyCatch", "gamepad")).to.equal(
+				"Catch 2 cats to rank up! Press R2 by one"
+			)
 		end)
 	end)
 

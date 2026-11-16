@@ -88,14 +88,26 @@ local LINES: { [string]: Line } = {
 		touch = "Tap Upgrades and buy the Bait bowl",
 		gamepad = "Open Upgrades and buy the Bait bowl",
 	},
+	-- #4926 (Derek 2026-11-16: "make sure the players know what they are doing and why they are doing it"; Design's
+	-- words): each line says what to do, then what it gets you
 	food = {
-		keyboard = "Put Kibble in your bowl on the back step (F)",
-		touch = "Tap Bowl, then Use on Kibble", -- #4384: names the HUD tile and its button, not a bowl in the world
-		gamepad = "Put Kibble in your bowl on the back step",
+		keyboard = "Press F, then Use on Kibble to call a cat",
+		touch = "Tap Bowl, then Use on Kibble to call a cat", -- #4384: names the HUD tile and its button
+		gamepad = "Open Bowl, then Use on Kibble to call a cat",
 	},
-	waiting = "A cat is on its way to your bowl",
+	waiting = "A cat smells your food. It's on its way!",
 	-- #3158: step 4 lasts until the first bowl cat is tamed or let go
-	arrived = "Your bowl cat is here! Tame it",
+	arrived = {
+		keyboard = "Click Tame to keep your cat. It earns you money!",
+		touch = "Tap Tame to keep your cat. It earns you money!",
+		gamepad = "Press A on Tame to keep your cat. It earns money!",
+	},
+	-- #4926: bowl first, the Alleyway catches before the rank up; UIController adds the count (" · 1/2")
+	alleyCatch = {
+		keyboard = "Catch 2 cats to rank up! Click by one",
+		touch = "Catch 2 cats to rank up! Tap NET by one",
+		gamepad = "Catch 2 cats to rank up! Press R2 by one",
+	},
 }
 
 -- What the view asks for, nil when none.

@@ -1652,7 +1652,7 @@ case(
 case(
 	"ownership",
 	Enum.KeyCode.Minus,
-	"Ownership: place, sell and unplace a cat uid that is not mine",
+	"Ownership: place and unplace a cat uid that is not mine",
 	function()
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
@@ -1660,7 +1660,6 @@ case(
 		local before, cats = freshWallet(), catCount()
 		local startedAt = os.clock()
 		fire("PlaceCat", "not_my_cat", "waiter_1")
-		fire("SellCat", "not_my_cat")
 		fire("UnplaceCat", "not_my_cat")
 		task.wait(1.5)
 		local coinsOk, coinsText = coinsMovedBy(before, 0)
@@ -1674,11 +1673,11 @@ case(
 	end
 )
 
--- F62 (engineer PR #493): a locked cat cannot be sold; LockCat takes only the player's own uid and a boolean.
+-- F62 (engineer PR #493): LockCat takes only the player's own uid and a boolean (a locked cat cannot be traded or given).
 case(
 	"catLock",
 	Enum.KeyCode.RightBracket,
-	"Cat lock: lock a resting cat, SellCat it, LockCat junk and another uid, then unlock (F62)",
+	"Cat lock: lock a resting cat, LockCat junk and another uid, then unlock (F62; the SellCat step went with the remote, #4656)",
 	function()
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
@@ -1708,24 +1707,7 @@ case(
 		if locked() ~= true then
 			return "FAIL", "LockCat(uid, true) did not lock my own resting cat"
 		end
-		local before, cats = freshWallet(), catCount()
-		local sellAt = os.clock()
-		fire("SellCat", id)
-		task.wait(1.5)
-		local coinsOk, coinsText = coinsMovedBy(before, 0)
-		if catCount() ~= cats or locked() == nil or not coinsOk then
-			return "FAIL",
-				string.format(
-					"a locked cat was sold: %s, cats %d -> %d",
-					coinsText,
-					cats,
-					catCount()
-				)
-		end
-		local notes = {
-			"SellCat refused"
-				.. (if toasted(sellAt, "locked") then " with the locked toast" else ""),
-		}
+		local notes = { "locked" }
 		-- junk, 0.3 s apart so the 4 a second limit drops none: the cat stays locked and nobody answers
 		local junkAt = os.clock()
 		for _, args in
@@ -1747,70 +1729,21 @@ case(
 			return "FAIL", "LockCat(uid, false) did not unlock it again"
 		end
 		table.insert(notes, "junk ignored, unlocked again")
-		local verdict: Verdict = if toasted(sellAt, "locked") then "PASS" else "CHECK"
-		return verdict,
-			table.concat(notes, "; ") .. string.format(
-				" (%s, run %.1f s)",
-				coinsText,
-				os.clock() - startedAt
-			)
+		return "PASS",
+			table.concat(notes, "; ") .. string.format(" (run %.1f s)", os.clock() - startedAt)
 	end
 )
 
 case(
 	"doubleSpend",
 	Enum.KeyCode.Equals,
-	"Double spend: SellCat twice in one frame (refused since #3924), ClaimOffline twice 2 s apart",
+	"Double spend: ClaimOffline twice 2 s apart (the SellCat half went with the remote, #4656)",
 	function()
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
 		end
 		local notes = {}
 		local verdict: Verdict = "PASS"
-		if catCount() >= 2 then
-			local uid: string? = nil
-			local value = 0
-			for candidate, instance in state.cats do
-				local def = Catalog.getCat(instance.catId)
-				-- F62: a locked cat is never sold, so this case takes an unlocked one
-				if
-					def ~= nil
-					and instance.locked ~= true
-					and (uid == nil or instance.spotId == nil)
-				then
-					uid = candidate
-					-- #3924: selling is gone, so SellCat moves no coins and no cat
-					value = 0
-				end
-			end
-			if uid ~= nil then
-				local before, cats = freshWallet(), catCount()
-				log("    SellCat twice (refused since #3924)")
-				fire("SellCat", uid)
-				fire("SellCat", uid)
-				task.wait(1.5)
-				local coinsOk, coinsText = coinsMovedBy(before, value)
-				local lost = cats - catCount()
-				if coinsOk and lost == 0 then
-					table.insert(
-						notes,
-						string.format("both refused, nothing moved (%s)", coinsText)
-					)
-				else
-					verdict = "FAIL"
-					table.insert(
-						notes,
-						string.format(
-							"sell: %s and %d cat(s) gone, selling is off (#3924)",
-							coinsText,
-							lost
-						)
-					)
-				end
-			end
-		else
-			table.insert(notes, "sell skipped: fewer than 2 cats")
-		end
 		-- ClaimOffline allows 1 call per 2 s, so the second call waits out the bucket and reaches the handler, which
 		-- must have zeroed the pending amount on the first.
 		local startedAt = os.clock()
@@ -5368,7 +5301,7 @@ end
 case(
 	"starterCat",
 	Enum.KeyCode.Z,
-	"Bellhop Cat: a far claim, a flood of claims with junk, a claim again, SellCat it",
+	"Bellhop Cat: a far claim, a flood of claims with junk, a claim again",
 	function()
 		if table.find(Remotes.ClientToServer, "ClaimStarterCat") == nil then
 			return "SKIP", "no ClaimStarterCat remote (engineer PR #734)"
@@ -5560,24 +5493,6 @@ case(
 			end
 		end
 
-		-- SellCat the Bellhop Cat: refused with the exclusive toast, the cat stays and no coins beyond income.
-		mine = bellhops()
-		if #mine > 0 then
-			local uid = mine[1]
-			local w = freshWallet()
-			local sellAt = os.clock()
-			fire("SellCat", uid)
-			task.wait(1.5)
-			if state == nil or state.cats[uid] == nil or money() - w.money > incomeSince(w) then
-				return done("FAIL", "SellCat sold the Bellhop Cat; " .. table.concat(notes, ", "))
-			end
-			if toasted(sellAt, "be sold") then -- #3924: "Cats can't be sold. ..."
-				table.insert(notes, "SellCat refused with the exclusive toast")
-			else
-				verdict = downgrade(verdict, "CHECK")
-				table.insert(notes, "SellCat kept the cat but no toast said why")
-			end
-		end
 		return done(verdict, table.concat(notes, ", "))
 	end
 )

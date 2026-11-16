@@ -1366,7 +1366,7 @@ return function()
 
 	describe("Tier 5 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 1.25 to 3.5 hours in one go for a player who buys the best affordable lawn (#1283; #4685: 1 h 32, was 1.75 to 3.5; #4320: 2 h 20, was 3 to 5; #4189: 3 h 41, was 4 to 7; #3195 + #3204: was 4.25; #3170: was 4.5; #2683: was 9 to 14)",
+			"takes 0.75 to 3.5 hours in one go for a player who buys the best affordable lawn (#1283; #4713: 1 h 14, was 1.25 to 3.5; #4685: 1 h 32, was 1.75 to 3.5; #4320: 2 h 20, was 3 to 5; #4189: 3 h 41, was 4 to 7; #3195 + #3204: was 4.25; #3170: was 4.5; #2683: was 9 to 14)",
 			function()
 				local list, text = toTier5({
 					catches = 4,
@@ -1381,8 +1381,9 @@ return function()
 				-- #3195 + #3204: 4 h 14 with 45 s nights, the Tier 2 caps and Tier 3 at 520,000
 				-- #4320: 2 h 20 with every tier lower
 				-- #4685: 1 h 32 with Tier 4 at 1,000,000 and Tier 5 at 17,000,000
-				if median < 1.25 * HOUR or median > 3.5 * HOUR then
-					error("Tier 5 outside 1.25 to 3.5 hours of play: " .. text)
+				-- #4713: 1 h 14 with a Legendary for Tier 4 (Tier 4 at 0 h 40)
+				if median < 0.75 * HOUR or median > 3.5 * HOUR then
+					error("Tier 5 outside 0.75 to 3.5 hours of play: " .. text)
 				end
 			end
 		)

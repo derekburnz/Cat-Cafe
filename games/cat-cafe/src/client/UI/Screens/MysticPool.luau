@@ -5,7 +5,7 @@
 --     the right (name in the rarity's colour, rarity and one line per effect, or "No trait yet");
 --   Roll under them ("Free roll (5 left)", "Re-roll · 1 Trait Token", "Roll · 10 golden fish"), greyed with the
 --     reason while the player cannot pay, and Odds beside it: the rarity odds, one tap from Roll;
---   the odds line, always on the card, and what the player has ("2 Trait Tokens · 34 golden fish");
+--   what the player has ("2 Trait Tokens · 34 golden fish"); #4890: the odds show only behind Odds (and on the token panel);
 --   the station's free tokens ("1 Trait Token ready" with Collect, or "Next free token in 3h 12m").
 -- Pick a cat turns the card to the player's cats, as the Oasis Spa's list (#3136): a search box, All / Resting /
 -- Working and a face per row, built a few a frame and with faces only near the visible rows, so hundreds of cats stay
@@ -14,7 +14,7 @@
 -- is the next PlayerState: the buttons rest until it shows (MysticPoolLogic.stamp) or PENDING_SECONDS, then
 -- `callbacks.play` (the pool's animation, Effects/MysticPool) runs with a tap to skip, and the card shows the
 -- result. The server decides every roll and payment; this only asks. #3864: once the free rolls are used, the Trait
--- Token bundles sit on a slim panel beside the card (#4006) with the roll's full odds, while the card is open
+-- Token bundles sit on a slim panel beside the card (#4006) with the roll odds under them, while the card is open
 -- (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own prompt.
 -- #4712: Auto beside Roll opens the Auto Roll sheet: pick the rarity to stop at, Start, and it sends one roll at a
 -- time (no animation, the roll count, Trait Tokens used and the last rarity on the sheet) until a roll meets it, the
@@ -99,12 +99,15 @@ local TILE_W = 150
 local TILE_H = 100 -- the cat's tile and the trait's card
 local ODDS_W = 84
 local AUTO_W = 72 -- #4712
-local ODDS_SHARE = 0.66 -- #3961: the odds pills' share of the row, the "equally likely" line in the rest
-local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the odds on two lines
+-- #4890 (Derek 2026-11-16: "make it so odds only show when odds is clicked and collect button isnt squished"): the
+-- rarity pills left the card, so only the line of what the player has (or why Roll is grey) sits above the token row;
+-- the odds are Odds beside Roll (the full list) and one small line on the token panel under its Buys
+local WORDS_H = 18
 -- #3848 (Derek 2026-11-13: "the collect trait reroll button is cutoff a bit on mobile"): on a short screen the card
 -- reached the screen's bottom edge, so the line of what the player has moves beside Collect, over the token line, and
 -- the Roll row and the spaces between rows are a little shorter
-local SHORT_WORDS_H = 28
+local SHORT_WORDS_H = 0 -- short: that line sits beside Collect
+local BOTTOM_PAD = 14 -- #4890: room under Collect (the panel chrome runs a few px over CHROME), so it is never cut
 local PENDING_SECONDS = 4
 local RETRY_SECONDS = 1.5 -- #3875: a tap on a grey choice after this sends it again
 -- #4477 (Derek 2026-11-15: "when using lots of rerolls mystic pool gets stuck on ..."): the server takes RollTrait,
@@ -362,77 +365,6 @@ local function oddsLines(parent: Instance, top: number, z: number)
 	end
 end
 
--- #3961 (the station menus picture): the main card's odds as six pills of the rarities' colours, "Common 30%", in two
--- rows of three, with the "equally likely" line beside them, in the two lines' place at `top`. #3908: with the Secret
--- rarity on, seven pills in two rows of four across the whole width; the "equally likely" line is then on the Odds
--- list only (its Equal line), as the pills need the room.
-local function oddsPills(parent: Instance, top: number, z: number)
-	for _, name in { "OddsPills", "OddsNote" } do
-		local old = parent:FindFirstChild(name)
-		if old then
-			old:Destroy()
-		end
-	end
-	local rows = MysticPoolLogic.odds()
-	local perRow = math.max(3, math.ceil(#rows / 2))
-	local wide = perRow > 3
-	local row: Frame = Create("Frame", {
-		Name = "OddsPills",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, top),
-		Size = UDim2.new(if wide then 1 else ODDS_SHARE, 0, 0, 28),
-		ZIndex = z,
-		Parent = parent,
-	}, {
-		Create("UIGridLayout", {
-			CellPadding = UDim2.fromOffset(3, 2),
-			CellSize = UDim2.new(1 / perRow, -3, 0, 13),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-	})
-	for order, odds in rows do
-		local color = Color3.fromHex(odds.color)
-		text({
-			Name = odds.name,
-			LayoutOrder = order,
-			BackgroundTransparency = 0,
-			BackgroundColor3 = color,
-			FontFace = Theme.fonts.bodyBold,
-			TextScaled = true,
-			TextColor3 = inkOn(color),
-			TextTruncate = Enum.TextTruncate.None,
-			Text = odds.name .. " " .. odds.label,
-			ZIndex = z,
-			Parent = row,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }),
-			Create("UIStroke", {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = CARD.cardStroke,
-				Thickness = 1,
-			}),
-			Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textTiny, MinTextSize = 9 }),
-		})
-	end
-	if wide then
-		return
-	end
-	text({
-		Name = "OddsNote",
-		Position = UDim2.new(ODDS_SHARE, 6, 0, top),
-		Size = UDim2.new(1 - ODDS_SHARE, -6, 0, 28),
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = PAL.subtext,
-		TextWrapped = true,
-		TextTruncate = Enum.TextTruncate.None,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = MysticPoolLogic.oddsLines()[2],
-		ZIndex = z,
-		Parent = parent,
-	})
-end
-
 -- `rarity` is the line under the name: the trait's rarity, or `none` for a card without one ("Now: no trait").
 local function fill(card: TraitCard, trait: MysticPoolLogic.Card, head: string?, none: string?)
 	local color = Color3.fromHex(trait.color)
@@ -501,7 +433,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	local wordsH = if short then SHORT_WORDS_H else WORDS_H
 	local rowH = if short then buttonH else buttonH + 4 -- the Roll row; short: no extra 4 px
 	local space = if short then 2 else 4 -- between the rows
-	local contentH = TILE_H + GAP + rowH + space + wordsH + space + buttonH
+	local contentH = TILE_H + GAP + rowH + space + wordsH + space + buttonH + BOTTOM_PAD
 	local height = contentH + CHROME
 
 	local panel = Panel.new({
@@ -633,12 +565,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		textSize = Theme.sizes.textSmall + 1,
 		parent = content,
 		onClick = function()
-			self._oddsSheet.Visible = true
-			GamepadNav.pushBack("mysticOdds", self._oddsSheet, function()
-				self._oddsSheet.Visible = false
-				self:_refocus()
-				return true
-			end)
+			self:_openOdds()
 		end,
 	})
 	local lineTop = rollTop + rowH + space
@@ -655,15 +582,6 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
-	-- the pills sit in their own layer, made here, so drawing them again (secretChanged) keeps them under the sheets
-	local pillsLayer: Frame = Create("Frame", {
-		Name = "OddsLayer",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		ZIndex = 1,
-		Parent = content,
-	})
-	oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
 	-- the station's free tokens
 	self._tokens = text({
 		Name = "Tokens",
@@ -1074,9 +992,12 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	-- #4314 follow-up: Secret 0.1% shows (or goes) on every odds display as soon as the switch flips
 	-- and the Dragon Keep's trait luck: render draws them again when a slotted Trait Spark changes it
 	self._redrawOdds = function()
-		oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
 		oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
 		oddsRows()
+		local refresh: (() -> ())? = self._sideOddsRefresh
+		if refresh ~= nil then
+			refresh()
+		end
 	end
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
@@ -1134,7 +1055,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = head,
 	})
 	-- Derek 2026-11-13 ("no need to say odds they are already on screen just keep it simple"): the token's one line;
-	-- the card's odds pills stay in view beside the panel, so the odds still show before any Buy
+	-- #4890: the roll odds are the small line under the bundles
 	text({
 		Name = "Line",
 		Size = UDim2.new(1, 0, 0, 0),
@@ -1169,6 +1090,32 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		})
 		button.instance.LayoutOrder = 2 + index
 		table.insert(self._offerButtons, button)
+	end
+	-- #4890: the pills left the card, so the token panel itself shows the roll odds in one small line under the Buys
+	-- (Review-QA: monetization-policy rule 1, odds in the purchase UI); Odds on the card has the full list
+	local function sideOddsText(): string
+		local parts: { string } = {}
+		for _, row in MysticPoolLogic.odds() do
+			table.insert(parts, row.name .. " " .. row.label)
+		end
+		return "Roll odds: " .. table.concat(parts, " · ")
+	end
+	local sideOdds = text({
+		Name = "SideOdds",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextSize = Theme.sizes.textTiny,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = CARD.subtext,
+		Text = sideOddsText(),
+		LayoutOrder = 3 + #Traits.BUNDLES,
+		ZIndex = 6,
+		Parent = side,
+	})
+	self._sideOddsRefresh = function()
+		sideOdds.Text = sideOddsText()
 	end
 	self._offerBundles = nil :: { MysticPoolLogic.Bundle }?
 	self._sideOn = false
@@ -1228,7 +1175,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = auto,
 	})
 	local statusTop = pickTop + pickH * 2 + GAP + 2
-	local statusH = if short then 30 else 34
+	local statusH = if short then 30 else 26 -- #4890: the card got shorter, so the line gives back 8 px and Start stays inside it
 	self._autoStatus = text({
 		Name = "Status",
 		Position = UDim2.fromOffset(0, statusTop),
@@ -1431,6 +1378,16 @@ function MysticPool._autoTargets(self: any)
 		})
 	end
 	self:_paintAuto()
+end
+
+-- #4890: the odds list, from Odds beside Roll
+function MysticPool._openOdds(self: any)
+	self._oddsSheet.Visible = true
+	GamepadNav.pushBack("mysticOdds", self._oddsSheet, function()
+		self._oddsSheet.Visible = false
+		self:_refocus()
+		return true
+	end)
 end
 
 function MysticPool._showAuto(self: any, on: boolean)

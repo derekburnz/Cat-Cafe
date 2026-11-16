@@ -208,10 +208,16 @@ function EventService.crateDrop(): string?
 	return if event ~= nil and event.effects.crateDrop then event.id else nil
 end
 
--- #4197 (Speed Rush): whether every player counts as wearing the Speed Shoes now.
+-- #4197 (Speed Rush): whether it runs now.
 function EventService.speedRush(): boolean
 	local event = adminRunning
 	return event ~= nil and event.effects.speedRush
+end
+
+-- #4878 (Derek 2026-11-16: "make it so everyone gets more speed by like 10 speed"): the walk speed Speed Rush adds
+-- to every player now, 0 when it does not run.
+function EventService.speedRushWalk(): number
+	return if EventService.speedRush() then CafeEvents.ADMIN.speedRushWalk else 0
 end
 
 local function daysText(event: CafeEvents.Event): string
@@ -590,7 +596,12 @@ end
 
 -- #4195: `/admin <kind> [minutes] [now]` in Studio or a private server: the admin event in this server only, after
 -- a short warning (none with `skipWarning`); "stop" ends it. Writes nothing to the store. Returns its line.
-function EventService.startAdminTest(kind: string, minutes: number?, skipWarning: boolean?): string
+function EventService.startAdminTest(
+	kind: string,
+	minutes: number?,
+	skipWarning: boolean?,
+	spins: number? -- #4876: the wheel's spins an account
+): string
 	if kind == "stop" then
 		adminTest = nil
 		applyAdmin(now())
@@ -600,7 +611,7 @@ function EventService.startAdminTest(kind: string, minutes: number?, skipWarning
 	if off ~= nil then
 		return off
 	end
-	local event = CafeEvents.adminTest(kind, now(), minutes, skipWarning)
+	local event = CafeEvents.adminTest(kind, now(), minutes, skipWarning, spins)
 	if event == nil then
 		return "no such admin event: " .. adminKinds() .. ", or stop"
 	end
@@ -621,13 +632,14 @@ end
 function EventService.ownerAdmin(
 	kind: string,
 	minutes: number?,
-	skipWarning: boolean?
+	skipWarning: boolean?,
+	spins: number? -- #4876: the wheel's spins an account
 ): (string, boolean)
 	local off = adminOff()
 	if off ~= nil then
 		return off, false
 	end
-	local record = CafeEvents.adminRecord(kind, now(), minutes, skipWarning)
+	local record = CafeEvents.adminRecord(kind, now(), minutes, skipWarning, spins)
 	if record == nil then
 		return "no such admin event: " .. adminKinds() .. ", or stop", false
 	end
@@ -649,12 +661,17 @@ function EventService.ownerAdmin(
 	EventService.refresh()
 	print(string.format("[EventService] owner admin event %s written to the schedule", record.id))
 	local length = (record.endsAt - record.startsAt) // 60
+	-- #4876: "Admin Wheel (3 spins each)"
+	local wheel = (record.effects :: any).wheel
+	local title = if type(wheel) == "number" and wheel > 1
+		then string.format("%s (%d spins each)", record.title, wheel)
+		else record.title
 	if skipWarning then
-		return string.format("%s started on all servers for %d minutes", record.title, length), true
+		return string.format("%s started on all servers for %d minutes", title, length), true
 	end
 	return string.format(
 		"%s starts on all servers in %d minutes, for %d minutes",
-		record.title,
+		title,
 		CafeEvents.ADMIN.warnSeconds // 60,
 		length
 	),

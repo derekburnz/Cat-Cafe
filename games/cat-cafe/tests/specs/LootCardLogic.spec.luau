@@ -74,6 +74,24 @@ return function()
 			end
 		end)
 
+		it("lists the Mystery gift's money, spins and cat food (#4884)", function()
+			local rows = LootCardLogic.rows({
+				items = {
+					{ kind = "coins", count = 12500 },
+					{ kind = "spin", count = 2 },
+					{ kind = "food", id = "big_cat_snack", count = 4 },
+					{ kind = "food", id = "no_such_food", count = 1 },
+				},
+			})
+			expect(#rows).to.equal(3)
+			expect(rows[1].name).to.equal("Money")
+			expect(string.sub(rows[1].amount, 1, 2)).to.equal("+$")
+			expect(rows[2].name).to.equal("Wheel spin")
+			expect(rows[2].amount).to.equal("x2")
+			expect(rows[3].name).to.equal("Big Snack")
+			expect(rows[3].amount).to.equal("x4")
+		end)
+
 		it("draws nothing from a damaged message", function()
 			expect(#LootCardLogic.rows(nil)).to.equal(0)
 			expect(#LootCardLogic.rows({ id = "tuna" })).to.equal(0)
@@ -81,7 +99,7 @@ return function()
 			local rows = LootCardLogic.rows({
 				items = {
 					"tuna",
-					{ kind = "coins", count = 5 },
+					{ kind = "hat", count = 5 },
 					{ kind = "lure", id = "no_such_food", count = 1 },
 					{ kind = "lure", id = "tuna", count = 0 },
 					{ kind = "lure", id = "tuna", count = 0 / 0 },

@@ -372,7 +372,7 @@ Remotes.ServerToClient = {
 	-- order, and the prizes added up for the one results card; both empty when nothing was spent
 	"ChatTagOf", -- (userId: number, tagId: string)  #4882: the answer to ChatTagAsk: that user's shown ChatTags id,
 	-- "" for none or not known
-	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string })  #4195: where an AdminWheelSpin landed
+	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string }, catId: string)  #4195: where an AdminWheelSpin landed; #4876 catId
 	-- (the place in AdminWheel.PRIZES) and what it paid, as short lines; 0, "", {} when refused
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)

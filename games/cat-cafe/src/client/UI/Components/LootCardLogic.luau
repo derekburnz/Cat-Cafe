@@ -10,6 +10,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
+local ShortNumber = require(script.Parent.ShortNumber) -- not Format: Theme does not load in the spec runner
 
 local LootCardLogic = {}
 
@@ -20,11 +21,24 @@ LootCardLogic.ROW_GAP_SECONDS = 0.15 -- the rows land one after the other
 
 export type Row = { kind: string, id: string?, name: string, amount: string }
 
-local KINDS: { [string]: boolean } = { lure = true, crate = true, potion = true, fish = true }
+-- #4884: the Mystery gift's prizes too: coins (an amount of money, already priced), spins and cat food
+local KINDS: { [string]: boolean } = {
+	lure = true,
+	crate = true,
+	potion = true,
+	fish = true,
+	coins = true,
+	spin = true,
+	food = true,
+}
 
 local function nameOf(kind: string, id: string?): string?
 	if kind == "fish" then
 		return "Golden fish"
+	elseif kind == "coins" then
+		return "Money"
+	elseif kind == "spin" then
+		return "Wheel spin"
 	elseif id == nil then
 		return nil
 	elseif kind == "lure" then
@@ -36,6 +50,9 @@ local function nameOf(kind: string, id: string?): string?
 	elseif kind == "potion" then
 		local potion = Catalog.getPotion(id)
 		return if potion ~= nil then potion.name else nil
+	elseif kind == "food" then
+		local food = Catalog.getCatFood(id)
+		return if food ~= nil then food.name else nil
 	end
 	return nil
 end
@@ -74,8 +91,9 @@ function LootCardLogic.rows(win: unknown): { Row }
 			kind = kind,
 			id = if type(id) == "string" then id else nil,
 			name = name,
-			amount = if kind == "fish"
-				then string.format("+%d", whole)
+			amount = if kind == "coins"
+				then "+$" .. ShortNumber.format(whole)
+				elseif kind == "fish" then string.format("+%d", whole)
 				else string.format("x%d", whole),
 		})
 	end

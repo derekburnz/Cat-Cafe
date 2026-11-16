@@ -51,7 +51,7 @@ AdminEventLogic.EXTRA = {
 		times = false,
 	},
 	{ name = "crateDrop", line = "Golden crates drop into every area", times = false },
-	{ name = "speedRush", line = "Speed Shoes for everyone", times = false },
+	{ name = "speedRush", line = "+10 speed for everyone", times = false }, -- #4878
 	-- the Admin Wheel event (the server writes `wheel = true`; Design-Agent's wheel window opens by itself)
 	{ name = "wheel", line = "One free spin of the Admin Wheel", times = false },
 }

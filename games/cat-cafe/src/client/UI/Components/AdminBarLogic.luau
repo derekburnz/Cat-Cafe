@@ -25,7 +25,8 @@ export type Info = {
 	bowlSpeed: number?,
 }
 
-export type Wheel = { eventId: string, spun: boolean, endsAt: number }
+-- #4876: `spins` each account gets and `left` unused (nil from an older server: one spin)
+export type Wheel = { eventId: string, spun: boolean, endsAt: number, spins: number?, left: number? }
 
 export type View = {
 	phase: "soon" | "live",
@@ -149,10 +150,19 @@ function AdminBarLogic.wheelView(
 	if spinning then
 		return { button = "Spinning...", enabled = false, line = "Good luck!" }
 	end
+	local open = wheel ~= nil and now < wheel.endsAt
+	-- #4876: spins left after a win: spin again
+	if won ~= nil and wheel ~= nil and open and not wheel.spun then
+		return {
+			button = string.format("SPIN AGAIN (%d left)", wheel.left or 1),
+			enabled = true,
+			line = "You won " .. won .. "!",
+		}
+	end
 	if won ~= nil then
 		return { button = "Spun", enabled = false, line = "You won " .. won .. "!" }
 	end
-	if wheel == nil or now >= wheel.endsAt then
+	if wheel == nil or not open then
 		return {
 			button = "Closed",
 			enabled = false,
@@ -166,8 +176,9 @@ function AdminBarLogic.wheelView(
 			line = "You have spun this wheel. See you at the next update!",
 		}
 	end
+	local left = wheel.left or 1
 	return {
-		button = "SPIN (free)",
+		button = if left > 1 then string.format("SPIN (%d free)", left) else "SPIN (free)",
 		enabled = true,
 		line = "Free for everyone online. Nothing to buy. Ends in "
 			.. AdminBarLogic.clock(wheel.endsAt - now),

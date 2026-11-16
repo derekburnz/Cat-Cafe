@@ -46,21 +46,25 @@ function AdminEventController.start()
 	admin.spin:Connect(function()
 		Net.fire("AdminWheelSpin")
 	end)
-	Net.on("AdminWheelResult", function(slice: unknown, prizeId: unknown, paid: unknown)
-		local lines: { string } = {}
-		if type(paid) == "table" then
-			for _, line in paid :: { any } do
-				if type(line) == "string" then
-					table.insert(lines, line)
+	Net.on(
+		"AdminWheelResult",
+		function(slice: unknown, prizeId: unknown, paid: unknown, catId: unknown)
+			local lines: { string } = {}
+			if type(paid) == "table" then
+				for _, line in paid :: { any } do
+					if type(line) == "string" then
+						table.insert(lines, line)
+					end
 				end
 			end
+			admin.result(
+				if type(slice) == "number" then slice else 0,
+				if type(prizeId) == "string" then prizeId else "",
+				lines,
+				if type(catId) == "string" then catId else "" -- #4876: the cat a cat slice gave
+			)
 		end
-		admin.result(
-			if type(slice) == "number" then slice else 0,
-			if type(prizeId) == "string" then prizeId else "",
-			lines
-		)
-	end)
+	)
 	task.spawn(function()
 		while true do
 			tick()

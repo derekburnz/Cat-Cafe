@@ -313133,6 +313133,68 @@
       }
     },
     {
+      "name": "CatCafe_Item_EclipseTreat",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_EclipseTreat"
+      ],
+      "triangles": 536,
+      "budget": 900,
+      "size_studs": {
+        "x": 0.58,
+        "y": 0.64,
+        "z": 0.76
+      },
+      "size_roblox": [
+        0.58,
+        0.76,
+        0.64
+      ],
+      "bounds_min": [
+        -0.29,
+        -0.17,
+        -0.04
+      ],
+      "bounds_max": [
+        0.3,
+        0.47,
+        0.73
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "food_in_bowl_roblox": [
+        0,
+        0.18,
+        0
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_EclipseTreat.model.json",
+      "rbx_parts": 76,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_EclipseTreat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_EclipseTreat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "536/900 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "326 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.04 (want 0)",
+          "centered": "footprint center x=0.00 y=0.15"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_EclipseTreat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_EclipseTreat.png"
+    },
+    {
       "name": "CatCafe_Prop_TipPile",
       "category": "Prop",
       "module": "items",
@@ -319356,6 +319418,121 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_FishCoin.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_FishCoin.png"
+    },
+    {
+      "name": "CatCafe_Square_FishFountain",
+      "category": "Square",
+      "module": "coins",
+      "objects": [
+        "CatCafe_Square_FishFountain",
+        "CatCafe_Square_FishFountain_Water",
+        "CatCafe_Square_FishFountain_Glow"
+      ],
+      "triangles": 732,
+      "budget": 2500,
+      "size_studs": {
+        "x": 9.6,
+        "y": 9.6,
+        "z": 10.04
+      },
+      "size_roblox": [
+        9.6,
+        10.04,
+        9.6
+      ],
+      "bounds_min": [
+        -4.8,
+        -4.8,
+        0.0
+      ],
+      "bounds_max": [
+        4.8,
+        4.8,
+        10.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_FishFountain.model.json",
+      "rbx_parts": 51,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_FishFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_FishFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "732/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "330 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_FishFountain.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_FishFountain.png"
+    },
+    {
+      "name": "CatCafe_Prop_GoldenFish",
+      "category": "Prop",
+      "module": "coins",
+      "objects": [
+        "CatCafe_Prop_GoldenFish",
+        "CatCafe_Prop_GoldenFish_Glow"
+      ],
+      "triangles": 196,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.38,
+        "y": 1.8,
+        "z": 1.6
+      },
+      "size_roblox": [
+        2.38,
+        1.6,
+        1.8
+      ],
+      "bounds_min": [
+        -0.98,
+        -0.9,
+        -0.1
+      ],
+      "bounds_max": [
+        1.4,
+        0.9,
+        1.51
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_GoldenFish.model.json",
+      "rbx_parts": 15,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_GoldenFish.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_GoldenFish.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "196/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "94 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.10 (want 0)",
+          "centered": "footprint center x=0.21 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_GoldenFish.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_GoldenFish.png"
     },
     {
       "name": "CatCafe_Street_FishMarket",
@@ -368813,6 +368990,77 @@
           "centered": "footprint center x=0.00 y=-0.01"
         }
       }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Drop",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Drop",
+        "CatCafe_Prop_Crate_Drop_Lid",
+        "CatCafe_Prop_Crate_Drop_Glow"
+      ],
+      "triangles": 984,
+      "budget": 2500,
+      "size_studs": {
+        "x": 4.2,
+        "y": 3.21,
+        "z": 5.36
+      },
+      "size_roblox": [
+        4.2,
+        5.36,
+        3.21
+      ],
+      "bounds_min": [
+        -2.1,
+        -1.61,
+        0.0
+      ],
+      "bounds_max": [
+        2.1,
+        1.6,
+        5.36
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Drop_Lid": [
+          -0.0,
+          1.58,
+          2.3
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Drop_Lid": [
+          0.0,
+          2.3,
+          1.58
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Drop_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Drop.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Drop.model.json",
+      "rbx_parts": 82,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Drop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Drop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "984/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "492 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_Crate_Drop.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_Crate_Drop.png"
     },
     {
       "name": "CatCafe_Camp_Cannon_Castle",

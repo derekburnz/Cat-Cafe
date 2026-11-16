@@ -116,6 +116,23 @@ return function()
 				Logic.wheelView({ eventId = "w", spun = true, endsAt = 1300 }, 1048, false, nil).enabled
 			).to.equal(false)
 			expect(Logic.wheelView(nil, 1048, false, nil).enabled).to.equal(false)
+			-- #4876: spins left after a win: spin again
+			local again = Logic.wheelView(
+				{ eventId = "w", spun = false, endsAt = 1300, spins = 3, left = 2 },
+				1048,
+				false,
+				"200 Golden Fish"
+			)
+			expect(again.enabled).to.equal(true)
+			expect(again.button).to.equal("SPIN AGAIN (2 left)")
+			expect(
+				Logic.wheelView(
+					{ eventId = "w", spun = false, endsAt = 1300, spins = 3, left = 3 },
+					1048,
+					false,
+					nil
+				).button
+			).to.equal("SPIN (3 free)")
 			local won = Logic.wheelView(
 				{ eventId = "w", spun = true, endsAt = 1300 },
 				1048,

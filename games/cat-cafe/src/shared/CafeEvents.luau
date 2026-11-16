@@ -54,8 +54,8 @@
 --   `moneyStorm` (Money Storm): every player's cafe pay is at least that many times while it runs, in place of the
 --   event money slot and the rest's 2x when larger, never on top of them, 1 to ADMIN.moneyStormMax
 --   (Economy.setAdminMoney); `traitParty` (Trait Party): Mystic Pool rolls cost nothing while it runs, at most
---   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player counts as
---   wearing the Speed Shoes while it runs (CatService). traitParty and speedRush are on with true or a number above
+--   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player walks
+--   ADMIN.speedRushWalk faster while it runs, carrying a cat too (CatService; #4878, was a loan of the Speed Shoes). traitParty and speedRush are on with true or a number above
 --   0, and travel as 1 in AdminEventEffects. `secretHunt` (Secret Hunt): that many Secret cats hide in this server's
 --   open areas by day, 1 to ADMIN.secretHuntMax; whoever catches one keeps it, and when all are caught everyone
 --   online gets ADMIN.huntFish golden fish (CatService). The server adds `secretFound`, the count caught so far, to
@@ -121,8 +121,12 @@ CafeEvents.ADMIN = {
 	rainbowBoostMax = 5,
 	coatChanceMax = 0.5, -- a boosted gold or rainbow chance never goes over this
 	moneyStormMax = 5, -- #4197 Money Storm
-	traitPartyRolls = 30, -- #4197 Trait Party: free rolls an account may take in one party
+	-- #4197 Trait Party: free rolls an account may take in one party. Derek 2026-11-16 16:53 UTC ("don't put a cap just
+	-- make it a cap time"): no real cap, the party's 3 minutes are the limit (was 30)
+	traitPartyRolls = 100000,
 	secretHuntMax = 5, -- #4197 Secret Hunt
+	wheelSpinsMax = 10, -- #4876 the most Admin Wheel spins an account may get in one wheel event
+	speedRushWalk = 10, -- #4878 Speed Rush: walk speed every player gains while it runs
 	huntFish = 100, -- each player online when the last hunted cat is caught
 	fountainFish = 5, -- #4197 Fish Fountain: golden fish in each pickup
 	fountainCap = 150, -- the most one player can pick up in one fountain
@@ -153,7 +157,8 @@ CafeEvents.ADMIN_KINDS = {
 	fountain = { title = "Fish Fountain", minutes = 5, effects = { fishFountain = true } },
 	crates = { title = "Crate Drop", minutes = 5, effects = { crateDrop = true } },
 	-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
-	wheel = { title = "Admin Wheel", minutes = 5, effects = { wheel = true } },
+	-- #4876 (Derek 2026-11-16: "no need for admin wheel event banner for 5 mins make it 2 mins"): 2, was 5
+	wheel = { title = "Admin Wheel", minutes = 2, effects = { wheel = true } },
 } :: {
 	[string]: { title: string, minutes: number, effects: { [string]: any } },
 }
@@ -187,7 +192,8 @@ export type Effects = {
 export type AdminEffects = {
 	bowlSpeed: number, -- 1 when the record has none
 	catStorm: number, -- 1 when the record has none
-	wheel: boolean, -- the Admin Wheel is up (AdminWheelService: one spin an account for this event's id)
+	wheel: boolean, -- the Admin Wheel is up (AdminWheelService: wheelSpins spins an account for this event's id)
+	wheelSpins: number?, -- #4876: spins each account gets, 1 to ADMIN.wheelSpinsMax (nil read as 1; 0 with no wheel)
 	goldBoost: number, -- #4197: 1 when the record has none
 	rainbowBoost: number,
 	moneyStorm: number,
@@ -415,10 +421,24 @@ local function adminEffectsOf(
 		end
 		out[row.key] = clamped
 	end
-	if values.wheel ~= nil and type(values.wheel) ~= "boolean" then
+	-- #4876: `wheel` is true (one spin) or the spins each account gets, 1 to ADMIN.wheelSpinsMax
+	local spins = 0
+	if values.wheel == true then
+		spins = 1
+	elseif type(values.wheel) == "number" then
+		local n = finite(values.wheel)
+		if n == nil then
+			return nil, id .. ": a bad wheel"
+		end
+		spins = math.clamp(math.floor(n), 0, CafeEvents.ADMIN.wheelSpinsMax)
+		if spins ~= n then
+			table.insert(notes, `{id}: wheel {n} clamped to {spins}`)
+		end
+	elseif values.wheel ~= nil and values.wheel ~= false then
 		return nil, id .. ": a bad wheel"
 	end
-	out.wheel = values.wheel == true
+	out.wheel = spins > 0
+	out.wheelSpins = spins
 	for _, key in ADMIN_SWITCHES do
 		local value = values[key]
 		if value == nil or value == false then
@@ -629,6 +649,10 @@ function CafeEvents.adminEffectsData(event: AdminEvent): { [string]: any }
 	end
 	if event.effects.wheel then
 		out.wheel = true
+		local spins = event.effects.wheelSpins or 1
+		if spins > 1 then
+			out.wheelSpins = spins -- #4876
+		end
 	end
 	for _, key in { "goldBoost", "rainbowBoost", "moneyStorm" } do
 		local value = (event.effects :: any)[key] :: number
@@ -920,11 +944,21 @@ local function adminSeconds(kind: string, minutes: number?): number
 	return math.clamp(math.floor(asked) * 60, CafeEvents.ADMIN.minSeconds, most)
 end
 
+-- #4876: the effects of `kind` with `spins` (`/admin wheel <spins>`) for the wheel; any other kind ignores it
+local function kindEffects(kind: string, spins: number?): { [string]: any }
+	local effects = table.clone(CafeEvents.ADMIN_KINDS[kind].effects)
+	if effects.wheel ~= nil and spins ~= nil and spins == spins then
+		effects.wheel = math.clamp(math.floor(spins), 1, CafeEvents.ADMIN.wheelSpinsMax)
+	end
+	return effects
+end
+
 function CafeEvents.adminRecord(
 	kind: string,
 	now: number,
 	minutes: number?,
-	skipWarning: boolean?
+	skipWarning: boolean?,
+	spins: number?
 ): { [string]: any }?
 	local def = CafeEvents.ADMIN_KINDS[kind]
 	if def == nil then
@@ -937,7 +971,7 @@ function CafeEvents.adminRecord(
 		admin = true,
 		startsAt = startsAt,
 		endsAt = startsAt + adminSeconds(kind, minutes),
-		effects = table.clone(def.effects),
+		effects = kindEffects(kind, spins),
 	}
 end
 
@@ -946,14 +980,15 @@ function CafeEvents.adminTest(
 	kind: string,
 	now: number,
 	minutes: number?,
-	skipWarning: boolean?
+	skipWarning: boolean?,
+	spins: number?
 ): AdminEvent?
 	local def = CafeEvents.ADMIN_KINDS[kind]
 	if def == nil then
 		return nil
 	end
 	local startsAt = math.floor(now) + (if skipWarning then 0 else CafeEvents.ADMIN.testWarnSeconds)
-	local effects = adminEffectsOf(def.effects, "test-admin-" .. kind, {})
+	local effects = adminEffectsOf(kindEffects(kind, spins), "test-admin-" .. kind, {})
 	if effects == nil then
 		return nil
 	end

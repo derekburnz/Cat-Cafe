@@ -10632,10 +10632,25 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		Glow.set(cannon, true)
 		local was = UI.firstCat.tutorial
 		UI.firstCat.tutorial = true
-		UI.showCatFound(Catalog.cats[2].id, true)
-		UIShim.advance(1) -- the card's pop in settles
+		local big = Catalog.cats[2]
+		for _, def in Catalog.cats do
+			if def.rarity == "Legendary" then
+				big = def -- a big card whatever the save already holds (CatFoundLogic.big)
+				break
+			end
+		end
+		UI.showCatFound(big.id, true)
 		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups") :: ScreenGui
 		local card = popups:FindFirstChild("CatFound", true) :: GuiObject
+		-- the card may wait its turn behind a pop-up an earlier scene left; then its pop in settles
+		for _ = 1, 20 do
+			if card.Visible then
+				break
+			end
+			UIShim.advance(0.5)
+		end
+		assert(card.Visible, "uigate: the cat found card did not show")
+		UIShim.advance(1)
 		local ok = card:FindFirstChild("Ok", true) :: GuiObject
 		assert(ok ~= nil, "uigate: no Nice! on the cat found card")
 		assertArrowAt(ok, "Nice! on the cat found card")

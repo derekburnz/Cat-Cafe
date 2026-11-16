@@ -54,8 +54,8 @@
 --   `moneyStorm` (Money Storm): every player's cafe pay is at least that many times while it runs, in place of the
 --   event money slot and the rest's 2x when larger, never on top of them, 1 to ADMIN.moneyStormMax
 --   (Economy.setAdminMoney); `traitParty` (Trait Party): Mystic Pool rolls cost nothing while it runs, at most
---   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player counts as
---   wearing the Speed Shoes while it runs (CatService). traitParty and speedRush are on with true or a number above
+--   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player walks
+--   ADMIN.speedRushWalk faster while it runs, carrying a cat too (CatService; #4878, was a loan of the Speed Shoes). traitParty and speedRush are on with true or a number above
 --   0, and travel as 1 in AdminEventEffects. `secretHunt` (Secret Hunt): that many Secret cats hide in this server's
 --   open areas by day, 1 to ADMIN.secretHuntMax; whoever catches one keeps it, and when all are caught everyone
 --   online gets ADMIN.huntFish golden fish (CatService). The server adds `secretFound`, the count caught so far, to
@@ -123,6 +123,7 @@ CafeEvents.ADMIN = {
 	moneyStormMax = 5, -- #4197 Money Storm
 	traitPartyRolls = 30, -- #4197 Trait Party: free rolls an account may take in one party
 	secretHuntMax = 5, -- #4197 Secret Hunt
+	speedRushWalk = 10, -- #4878 Speed Rush: walk speed every player gains while it runs
 	huntFish = 100, -- each player online when the last hunted cat is caught
 	fountainFish = 5, -- #4197 Fish Fountain: golden fish in each pickup
 	fountainCap = 150, -- the most one player can pick up in one fountain

@@ -120,8 +120,8 @@ AdminFlashLogic.KINDS = {
 	},
 	{
 		name = "speedRush",
-		head = "SPEED SHOES",
-		stay = "Everyone is fast. Go catch cats!",
+		head = "SPEED RUSH", -- #4878: +10 walk speed, no shoes
+		stay = "Everyone is faster. Go catch cats!",
 		look = "mint",
 		rain = "speedRush",
 	},

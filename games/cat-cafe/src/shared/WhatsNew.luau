@@ -86,7 +86,7 @@ WhatsNew.rows = table.freeze({
 		id = "tutorial_walk",
 		date = "2026-11-16",
 		icon = "fix",
-		text = "Walk to the cannon yourself",
+		text = "Clearer path to the Park",
 	},
 	{
 		id = "badges_calm",

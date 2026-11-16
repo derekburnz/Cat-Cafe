@@ -10182,7 +10182,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
 		local RS = game:GetService("ReplicatedStorage")
 		RS:SetAttribute("LiveFlag_menuFamily", false)
-		assert(MenuFamily.on() == true and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
+		assert(MenuFamily.on == nil and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
 		RS:SetAttribute("LiveFlag_menuFamily", nil)
 		UI.open("Quests")
 	end },
@@ -11278,10 +11278,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		print(("[CornerShop] %d cards a row"):format(most))
-		-- the grids are the family look's (#3961); the old look's list has none, so the count is only for the family look
-		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		-- the grids are the family look's (#3961), the only look since #4657
 		assert(
-			not MenuFamily.on() or most >= 4,
+			most >= 4,
 			("uigate: the Day Cart grid has room for only %d cards a row (#4007)"):format(most)
 		)
 	end },

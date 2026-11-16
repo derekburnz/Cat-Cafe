@@ -1768,6 +1768,9 @@ Catalog.tiers = {
 		name = "Cozy Cafe",
 		cost = 1500, -- #4188 (Derek 2026-11-14: "build the cheaper tier 2 we need to get them into the next area's asap"; Pace's focused player holds about 1,660 at 150 s of play, 30 s after the tutorial's bait cat at about 120 s): 7,500 before; #4098 (Derek 2026-11-14: "Tier 2 is another huge fall off"; Design-Agent's Pace runs: the focused player 9.7 to 5.4 min, the buy-everything player 10.3 to 8.3, below 7,500 barely helps): 13,500 before; #3195 (Design-Agent: nights 45 s give more daytime; holds Tier 2 near 8.5 min): 12,000 before; #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
 		distinctCats = 3, -- #4188: the tutorial cat, the second cat and the bait cat (always a new kind); 4 for #4098, 5 before
+		-- #4809 (Derek 2026-11-16 13:38 UTC: "if the tutorial cat first one caught from alleyway is the same as one you
+		-- own it doesn't work make the first rank up 3 of ANY cat not different"): any 3 cats, duplicates count
+		anyCats = true,
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",

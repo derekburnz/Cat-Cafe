@@ -33,7 +33,7 @@ function RankUpNeeds.of(nextTier: Types.TierDef, state: Types.PlayerState): Need
 	local needs: Needs = {
 		coinsHave = state.money,
 		coinsNeed = nextTier.cost,
-		catsHave = Economy.rankUpCatCount(caught),
+		catsHave = Economy.rankUpCats(caught, state.cats, nextTier), -- #4809: any 3 cats for Tier 2
 		catsNeed = nextTier.distinctCats,
 		rarity = rarity,
 		-- "or better": a rarer cat also counts (designer, data-model 5b)

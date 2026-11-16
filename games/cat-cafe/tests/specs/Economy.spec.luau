@@ -1222,11 +1222,39 @@ return function()
 				local p = freshProfile()
 				p.coins = 1500
 				p.collection.ginger = 1000
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 2)")
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 cats (you have 2)") -- #4809: any cats
 				p.collection.tuxedo = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
 				p.coins = 1499
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
+			end
+		)
+
+		it(
+			"#4809: Tier 2 counts any 3 cats, duplicates included; Tier 3 still counts different kinds",
+			function()
+				local p = freshProfile()
+				p.coins = 1500
+				p.cats = { a = cat("a", "tabby"), b = cat("b", "tabby") }
+				p.collection = { tabby = 1000 }
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 cats (you have 2)")
+				p.cats.c = cat("c", "tabby")
+				expect(Economy.rankUpCats(p.collection, p.cats, Catalog.getTier(2) :: any)).to.equal(
+					3
+				)
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+				-- a sold cat never takes away a kind already caught
+				p.cats = {}
+				p.collection = { tabby = 1000, ginger = 1000, tuxedo = 1000 }
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+				-- Tier 3 is unchanged: three tabbies are one kind
+				expect(
+					Economy.rankUpCats(
+						{ tabby = 1000 },
+						{ a = cat("a", "tabby"), b = cat("b", "tabby") },
+						Catalog.getTier(3) :: any
+					)
+				).to.equal(1)
 			end
 		)
 
@@ -1374,7 +1402,7 @@ return function()
 				local p = freshProfile()
 				p.tier = damaged
 				p.coins = 1e9
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 1)") -- #4188: 4 before
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 cats (you have 1)") -- #4809: any cats; #4188: 4 before
 			end
 		end)
 

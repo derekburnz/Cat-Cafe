@@ -575,6 +575,8 @@ export type TierDef = {
 	name: string,
 	cost: number, -- coins spent on rank up; 0 for Tier 1
 	distinctCats: number, -- entries in the collection
+	-- #4809: true when the cat need counts cats of any kind, duplicates included (Economy.rankUpCats); Tier 2 only
+	anyCats: boolean?,
 	needsRarity: Rarity?, -- and this many different cats of this rarity in the collection
 	needsRarityCount: number?,
 	slots: number, -- role slots open at this tier

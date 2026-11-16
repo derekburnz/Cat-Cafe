@@ -4762,12 +4762,8 @@ do
 			charmGain = charmGain,
 			finish = ending,
 		}, retryAt)
-		-- #2282: the first catch whose Perfects added Charm says what Charm is for, once an account (the tip card
-		-- waits until the catch is over, as every tip does)
-		if success and type(charmGain) == "number" and charmGain > 0 and state.tipsSeen ~= nil then
-			local tips: any = (UI :: any).tips -- filled later in the file
-			tips.show("perfect")
-		end
+		-- #4838 (Derek 2026-11-16: "remove the tip for perfects giving more charm just adds bloat"): #2282's Charm tip
+		-- after the first Perfect catch is gone
 	end
 
 	function UI.catch.hideCircles()

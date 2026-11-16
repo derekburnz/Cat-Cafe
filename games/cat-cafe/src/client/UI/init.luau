@@ -1589,6 +1589,22 @@ function UI.init(config: Types.InitConfig)
 			end
 		end)
 	)
+	-- #4835 (Derek 2026-11-16: "when closing menus for stations you went into from the cannon to bring you back to the
+	-- cannon menu so you dont have to walk off and back on"): a station window opened from the Cannon picker's strip
+	-- hands back to the picker as it closes, while the player still stands at a cannon and nothing else has opened
+	modalInstance.closed:Connect(function(name: string, from: string?)
+		if from ~= "Cannon" or name == "Cannon" then
+			return
+		end
+		task.defer(function()
+			-- (through any: UI.cannon.nearest is declared further down the file)
+			local nearest: (() -> string?)? = (UI.cannon :: any).nearest
+			local near: string? = if nearest ~= nil then nearest() else nil
+			if near ~= nil and modalInstance:current() == nil then
+				(UI.cannon :: any).open(near)
+			end
+		end)
+	end)
 	modalInstance.changed:Connect(function(name: string?)
 		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)

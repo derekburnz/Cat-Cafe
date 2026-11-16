@@ -936,7 +936,6 @@ end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
 -- to another fires CatPlaced with the role, a cat taken off fires UnplaceCat. Unequip all fires one per cat.
--- (#2952's CatSold moment is unused since 2026-11-13: cats are not sold.)
 local function firePlacements(old: Types.PlayerState, new: Types.PlayerState)
 	for uid, cat in new.cats do
 		local before = old.cats[uid]
@@ -1392,6 +1391,10 @@ local function applyState(s: Types.PlayerState)
 		tradeLog = s.tradeLog, -- F102: the Trades page
 		-- #3686: sent since #1714 but never copied, so "Codes you've used" stayed empty in the live game
 		codesRedeemed = s.codesRedeemed,
+		-- #4472 (Sync's Studio check): sent since #2791 but never copied, so the gift ladder, the #1936 store guard
+		-- and the newcomer quiet clock all saw no play time
+		playSeconds = s.playSeconds,
+		giftNext = s.giftNext,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.

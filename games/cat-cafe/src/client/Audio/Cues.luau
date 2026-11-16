@@ -629,7 +629,6 @@ local Cues: { [string]: Cue } = {
 		volume = 0.55,
 		minGap = 0.3,
 	}, -- a cat leaves its role; Unequip All plays one
-	catSold = { ids = { "rbxassetid://74026102899667" }, group = "Sfx", volume = 0.6 }, -- #2952, run 42830310860 (group)
 	strayCall = {
 		ids = { "rbxassetid://115966888994390" },
 		group = "Sfx",
@@ -1327,6 +1326,16 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.3,
 		range = 30,
 	}, -- your swing hit nothing: a rubbery boing and one more tap
+	toyBonk = {
+		ids = {},
+		sheet = "sheetCatch",
+		region = { 0.850, 1.350 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 1.35, 1.5 },
+		minGap = 0.3,
+		range = 30,
+	}, -- #4061: the Pool Noodle's bonk, netBounce's boing pitched up into a squeak
 	strayHop = {
 		ids = {},
 		sheet = "sheetCatch",

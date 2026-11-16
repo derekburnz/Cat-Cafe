@@ -1094,10 +1094,6 @@ local function baitWindow()
 	return window
 end
 -- #4266: the Auto Bowl switch on, the pass made (a made-up id) and on sale at R$19; Scenes.close puts all back
--- #4266: the menu family look is on (the Auto Bowl card is part of its bowl column)
-local function familyLook(): boolean
-	return UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily").on()
-end
 local function autoBowlOn()
 	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 	Scenes._autoBowl = true
@@ -5041,9 +5037,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #4266 (Derek 2026-11-14): the Auto Bowl pass in the empty space over Refill: the offer with Roblox's price over
 	-- the free New cat pop-ups switch, clear of the wait chip above and the buttons below
 	{ "BaitAutoOffer", function()
-		if not familyLook() then
-			return -- the card lives in the family look's status column (live since #3961); the old look has no room
-		end
 		autoBowlOn()
 		UI.bait.openPicker()
 		local window = baitWindow()
@@ -5069,9 +5062,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- #4266: with the pass, AUTO BOWL's three switches, all on; a tap turns one off and keeps it through a stale sync
 	{ "BaitAutoOwned", function()
-		if not familyLook() then
-			return -- the card lives in the family look's status column (live since #3961); the old look has no room
-		end
 		autoBowlOn()
 		UI.update({ autoBowl = { owned = true } } :: any)
 		UI.bait.openPicker()
@@ -10174,7 +10164,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
 		local RS = game:GetService("ReplicatedStorage")
 		RS:SetAttribute("LiveFlag_menuFamily", false)
-		assert(MenuFamily.on() == true and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
+		assert(MenuFamily.on == nil and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
 		RS:SetAttribute("LiveFlag_menuFamily", nil)
 		UI.open("Quests")
 	end },
@@ -11270,10 +11260,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		print(("[CornerShop] %d cards a row"):format(most))
-		-- the grids are the family look's (#3961); the old look's list has none, so the count is only for the family look
-		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		-- the grids are the family look's (#3961), the only look since #4657
 		assert(
-			not MenuFamily.on() or most >= 4,
+			most >= 4,
 			("uigate: the Day Cart grid has room for only %d cards a row (#4007)"):format(most)
 		)
 	end },
@@ -12279,6 +12268,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "HUDMoneyBadgeQuiet", function()
 		-- Scenes.close puts the play time and an earlier scene's 2x Money pass back
 		Scenes._quiet = { passBoosts = (UI.getState() :: any).passBoosts or false }
+		-- #4472: the quiet half hour sits behind the storeGuard switch (off live); Scenes.close turns it back off
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_storeGuard", true)
 		UI.update({ playSeconds = 600, passBoosts = false } :: any)
 		UI.store.preview(storePrices(true), {})
 		local badge = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("MoneyBadge", true)
@@ -14481,6 +14472,7 @@ function Scenes.close()
 		local before = Scenes._quiet
 		Scenes._quiet = nil
 		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_storeGuard", nil)
 	end
 	if Scenes._passXp then
 		-- #2070's pass XP scene: the pass closed again and the S prize as it was

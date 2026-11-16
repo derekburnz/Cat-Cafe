@@ -2067,17 +2067,6 @@ local function onUnequipAll(player: Player)
 	CafeService.sync(player)
 end
 
--- Derek 2026-11-13 ("remove sell from game it's not needed"): cats are not sold. The two old sell remotes stay
--- registered only to say so to an old client (an exploiter firing them gets the same words and nothing else).
-CafeService.NO_SELL = "Cats can't be sold. Trade them or give them to the Cat Collector."
-local function onSellCat(player: Player, _rawUid: unknown)
-	Net.toast(player, CafeService.NO_SELL, "info")
-end
-
-local function onSellExtraCommons(player: Player)
-	Net.toast(player, CafeService.NO_SELL, "info")
-end
-
 -- F62 (section 4): the lock icon on a cat card. A locked cat cannot be traded or given to the Cat Collector.
 local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	local uid = Guard.id(rawUid)
@@ -2684,8 +2673,6 @@ function CafeService.start()
 	Net.on("UnplaceCat", onUnplaceCat)
 	Net.on("EquipBest", onEquipBest)
 	Net.on("UnequipAll", onUnequipAll)
-	Net.on("SellCat", onSellCat)
-	Net.on("SellExtraCommons", onSellExtraCommons)
 	Net.on("LockCat", onLockCat)
 	Net.on("LockDecor", onLockDecor)
 	Net.on("BuyUpgrade", onBuyUpgrade)

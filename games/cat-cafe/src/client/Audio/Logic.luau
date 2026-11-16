@@ -509,11 +509,16 @@ local AREA_STEPS: { [string]: string } = { snowy = "snowStep", harvest = "leafSt
 -- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
 -- #4070: the Coaster Cat rushes in on a whoosh of air and is caught with a splash, like the end of a water ride
 -- #4071: the Queen Cat is caught with a royal bell (the Cat Museum's)
+-- #4251: Harvest Hollow's cats. The Maple Leaf Cat lands and is caught in a crunch of dry leaves (leafStep), the
+-- Harvest Moon Cat with a soft chime (the Oasis Spa's); the Cranberry Cat is caught with the patch's pick pop
+-- (harvestPick), the Apple Pie Cat with the cafe's order ding and the Pumpkin Spice Cat with its pour
 local CAT_ARRIVES: { [string]: string } = {
 	blizzard = "snowGust",
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
 	coaster = "cannonClouds",
+	maple_leaf = "leafStep",
+	harvest_moon = "spaChime",
 }
 local CAT_CATCHES: { [string]: string } = {
 	blizzard = "snowGust",
@@ -522,6 +527,11 @@ local CAT_CATCHES: { [string]: string } = {
 	dragon_knight = "dragonChirp",
 	coaster = "campSplash",
 	queen = "museumBell",
+	cranberry = "harvestPick",
+	maple_leaf = "leafStep",
+	harvest_moon = "spaChime",
+	apple_pie = "orderDing",
+	pumpkin_spice = "orderPour",
 }
 -- #4069 to #4071: a new area's gate adds its own sound on top of the barrier dissolving: a snow gust on the
 -- Snowy Mountain, a splash at the Water Park, the Castle's portcullis rumbling
@@ -1009,6 +1019,8 @@ local BEAT_CUES: { [string]: string } = {
 	basketOpen = "campBasket",
 	lidRattle = "campRattle",
 	stuckCall = "strayCall", -- #2912: the starter trap's cat calls for help (Effects/StuckCall)
+	toySquirt = "campSplash", -- #4061: the Water Squirter's splash landing (Effects/ToyFx)
+	toyBonk = "toyBonk", -- #4061: the Pool Noodle's bonk (Effects/ToyFx)
 }
 
 function Logic.beatCue(beat: any): string?

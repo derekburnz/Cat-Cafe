@@ -50,8 +50,8 @@ return function()
 		end)
 
 		it("an off-by-default switch reads off until the server has copied it out", function()
-			expect(LiveFlags.shown("menuFamily", nil)).to.equal(false)
-			expect(LiveFlags.shown("menuFamily", true)).to.equal(true)
+			expect(LiveFlags.shown("goldenDrops", nil)).to.equal(false)
+			expect(LiveFlags.shown("goldenDrops", true)).to.equal(true)
 		end)
 	end)
 
@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws10, luckyCharm, introSplit, parkGateTrail, menuFamily, storeRework, riftRun, rareCustomers, goldTone, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion and giftCard alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws10, luckyCharm, introSplit, parkGateTrail, storeRework, rareCustomers, goldTone, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion, giftCard and storeGuard alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -147,12 +147,10 @@ return function()
 							or key == "luckyCharm"
 							or key == "introSplit"
 							or key == "parkGateTrail"
-							or key == "menuFamily"
 							or key == "storeRework"
 							or key == "fishStore"
 							or key == "ticketBooth"
 							or key == "dragonKeep"
-							or key == "riftRun"
 							or key == "rareCustomers"
 							or key == "goldTone"
 							or key == "dailyDeal"
@@ -171,16 +169,16 @@ return function()
 							or key == "fusion" -- #4104
 							or key == "earlyKindBonus" -- #4624
 							or key == "returnHookEarly" -- #4626
+							or key == "journeys" -- #4544
 							or key == "giftCard" -- #4527
+							or key == "storeGuard" -- #4472
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(33) -- #4654: 56 less the 11 shipped switches retired in batches 1 to 3 and the 13 in batches 4 to 10, plus giftCard (#4527)
-				-- #2912: the stuck cat's call stays on (it is live) until an explicit false hides it
-				expect(LiveFlags.defaults().stuckCall).to.equal(true)
-				expect(LiveFlags.parse({ stuckCall = false }).stuckCall).to.equal(false)
-				expect(LiveFlags.shown("stuckCall", nil)).to.equal(true)
-				expect(LiveFlags.shown("stuckCall", false)).to.equal(false)
+				expect(count).to.equal(33) -- #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
+				-- #4654: the shipped stuckCall and fxLite switches are gone
+				expect(table.find(LiveFlags.KEYS, "stuckCall")).to.equal(nil)
+				expect(table.find(LiveFlags.KEYS, "fxLite")).to.equal(nil)
 				-- #3222: no Golden drop until it is switched on, even with a broken store
 				expect(LiveFlags.defaults().goldenDrops).to.equal(false)
 				expect(LiveFlags.parse(nil).goldenDrops).to.equal(false)

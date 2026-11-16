@@ -67,6 +67,33 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE6",
 	},
+	-- #2718 refresh, 2026-11-16 07:00 UTC (about 70 PRs since the 03:30 UTC rows): changes that are live with no switch
+	-- to wait for. Fuse all #4639, Auto Roll #4714, Tier 4's kinds #4719, the lighter join #4635 #4730 #4735. Four rows
+	-- only, so the 03:30 rows stay on the visible list (Review-QA).
+	{
+		id = "fuse_all",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Fuse all at the Observatory",
+	},
+	{
+		id = "trait_auto_roll",
+		date = "2026-11-16",
+		icon = "new",
+		text = "Auto Roll for cat traits",
+	},
+	{
+		id = "tier4_legendary",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Tier 4 needs a Legendary now",
+	},
+	{
+		id = "join_lighter",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Faster to join the game",
+	},
 	-- 10 Secret Cats (#4221, Mon 2026-11-16 03:30 UTC): in tonight's build, shown only once the secretAreas switch opens.
 	{
 		id = "secret_areas",

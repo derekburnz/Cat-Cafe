@@ -2364,6 +2364,19 @@ local function followAreas()
 end
 
 -- #3690: this player's bounce on the trampoline, in 3D at the mat.
+-- #4985: the intro's cannon shot on its copy of you (Effects/Cannon.onStaged): the launch cue at the BOOM, flat,
+-- unless Skip ended the flight first.
+local function followStagedCannon()
+	local Cannon = require(script.Parent.Effects.Cannon)
+	Cannon.onStaged(function(_beat, at, model)
+		task.delay(math.max(0, at - Workspace:GetServerTimeNow()), function()
+			if Cannon.stagedLive(model) then
+				Audio.play("cannonLaunch")
+			end
+		end)
+	end)
+end
+
 local function followTrampoline()
 	Trampoline.onBounce(function(mat)
 		Audio.play(Logic.TRAMPOLINE_CUE, mat.Position)
@@ -2574,6 +2587,7 @@ function Audio.start()
 	followFusion()
 	followBinRoll()
 	followTrampoline()
+	followStagedCannon()
 	followPetCat()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)

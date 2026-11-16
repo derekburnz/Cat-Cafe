@@ -2199,6 +2199,12 @@ local function onRankUp(player: Player)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 	LeaderboardService.rankedUp(player) -- F98: after the sync noted the new rate
+	-- #4674: under bowl first the rank up to Tier 2 takes the player into the Park (TutorialMoveService)
+	local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
+	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
+	if TutorialMoves.parkAfterRankUp(def.tier, TutorialOrder.bowlFirst()) then
+		CafeService.tutorialMove:Fire(player, "park")
+	end
 end
 
 local function onBuyDecor(player: Player, rawId: unknown)

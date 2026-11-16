@@ -4,6 +4,8 @@
 -- catch or rescue, or fly; a move skipped that way is not tried again (the client's step pointers still lead them).
 -- #3158: the move to the cannon waits TutorialMoves.CANNON_DELAY seconds after the step and is dropped for a player
 -- who walked off in that time.
+-- #4674: under bowl first the rank up to Tier 2 moves the player onto the Park's landing pad (CannonService.landOnPad,
+-- as a flight's landing, beside a waiting first stray when that spot is clear), PARK_DELAY seconds after it.
 -- Also tags each plot's BaitBowl part for the client's pointers (the cannons carry CatCannon already).
 
 local CollectionService = game:GetService("CollectionService")
@@ -12,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
+local CannonService = require(script.Parent.CannonService)
 local CatService = require(script.Parent.CatService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local PlotService = require(script.Parent.PlotService)
@@ -79,6 +82,16 @@ local function move(player: Player, target: TutorialMoves.Target)
 	if character == nil or freeRoot(player) == nil then
 		return
 	end
+	if target == "park" then
+		-- the Park's landing pad, as a cannon flight lands there
+		if CannonService.landOnPad(player, "park") then
+			local root = character.PrimaryPart
+			if root ~= nil then
+				Cannon.noteMove(player, root.CFrame) -- the client's camera goes behind the character there
+			end
+		end
+		return
+	end
 	local landing = targetFor(player, target)
 	if landing ~= nil then
 		character:PivotTo(landing)
@@ -133,7 +146,7 @@ end
 
 -- #4518: a move asked for outside a step change (CafeService.tutorialMove)
 local function onMove(player: Player, target: string)
-	if target == "cannon" or target == "bowl" then
+	if target == "cannon" or target == "bowl" or target == "park" then
 		schedule(player, target :: TutorialMoves.Target)
 	end
 end

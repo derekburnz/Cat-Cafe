@@ -1412,7 +1412,7 @@ return function()
 		)
 
 		it(
-			"comes on day 2 to 6 for an hour a day on a server of 4 friends (#4189: day 2, was 3; #2895: was 4 to 6)",
+			"comes on day 1 to 6 for an hour a day on a server of 4 friends (#4763: day 1; #4189: day 2, was 3; #2895: was 4 to 6)",
 			function()
 				local list, text = toTier5({
 					catches = 4,
@@ -1426,8 +1426,9 @@ return function()
 				local day = quantile(list, function(run: Run): number?
 					return run.dayAt[5]
 				end, 0.5, math.huge)
-				if day < 2 or day > 6 then
-					error("Tier 5 outside day 2 to 6: " .. text)
+				-- #4763: 1 h 00 median, the end of day 1, follows #4713's 0 h 57 nonstop for the same 4 friends
+				if day < 1 or day > 6 then
+					error("Tier 5 outside day 1 to 6: " .. text)
 				end
 			end
 		)

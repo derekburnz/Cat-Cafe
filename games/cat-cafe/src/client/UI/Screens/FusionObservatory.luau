@@ -1325,6 +1325,7 @@ function FusionObservatory._openConfirm(self: any, key: string)
 	end
 	self._keep = nil
 	self._armed = false
+	self._stripKey = nil -- the strip's order is set fresh, picked copies first
 	self:_restoreTiles()
 	self._confirm.Visible = true
 	self:_paintConfirm()
@@ -1337,6 +1338,7 @@ function FusionObservatory._closeConfirm(self: any)
 	self._picked = {}
 	self._keep = nil
 	self._armed = false
+	self._stripKey = nil
 	self._confirm.Visible = false
 end
 
@@ -1382,14 +1384,43 @@ function FusionObservatory._paintConfirm(self: any)
 		#picked,
 		FusionLogic.COPIES
 	)
-	-- strongest first in the strip, so the kept copy leads
-	local copies = table.clone(group.free)
-	table.sort(copies, function(a: FusionLogic.Copy, b: FusionLogic.Copy): boolean
-		if a.level ~= b.level then
-			return a.level > b.level
+	-- #4588 (GE, after the lowest five became the default pick): the picked copies lead the strip, then the rest
+	-- strongest first. The order is set when a set opens (or its copies change) and then held, so a tap that swaps
+	-- a cat does not make the strip jump under the finger.
+	local copies = table.clone(group.free) :: { FusionLogic.Copy }
+	local rank: { [string]: number }? = self._stripRank
+	local same = self._stripKey == group.key and rank ~= nil
+	if same and rank ~= nil then
+		for _, copy in copies do
+			if rank[copy.uid] == nil then
+				same = false
+				break
+			end
 		end
-		return a.uid < b.uid
-	end)
+	end
+	if not same or rank == nil then
+		table.sort(copies, function(a: FusionLogic.Copy, b: FusionLogic.Copy): boolean
+			local pa, pb = self._picked[a.uid] == true, self._picked[b.uid] == true
+			if pa ~= pb then
+				return pa
+			end
+			if a.level ~= b.level then
+				return if pa then a.level < b.level else a.level > b.level
+			end
+			return a.uid < b.uid
+		end)
+		local made: { [string]: number } = {}
+		for index, copy in copies do
+			made[copy.uid] = index
+		end
+		self._stripRank = made
+		self._stripKey = group.key
+	else
+		local held: { [string]: number } = rank
+		table.sort(copies, function(a: FusionLogic.Copy, b: FusionLogic.Copy): boolean
+			return held[a.uid] < held[b.uid]
+		end)
+	end
 	local def = Catalog.getCat(group.catId)
 	for index = 1, math.max(#copies, #self._copyCells) do
 		local copy = copies[index]

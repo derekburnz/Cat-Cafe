@@ -175,12 +175,16 @@ LiveFlags.KEYS = {
 	"tier2TopUp", -- #4453: the first tamed bait cat's welcome tops coins up to Tier 2's cost once (shared/SecondCatHelp)
 	"stuckAfterSecond", -- #4473: the stuck cat goal, pointer and call wait until the second cat is caught (shared/StuckGoal)
 	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
+	-- #4527 (Derek 2026-11-15: "too much popups on screen maybe remove popups from claiming stuff"): the Mystery gift's
+	-- centre card; off (the default) the gift opens with its sound alone
+	"giftCard",
 	"catchFirst", -- #4518: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
 	"earlyKindBonus", -- #4624: kinds 2 to 5 pay 3x a Common's new-kind money in Tier 1 (shared/SecondCat); off until the Nov 16 read
 	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
+	giftCard = true, -- #4527
 	tradeFish = true,
 	nightCatch = true,
 	loadingScreen = true,

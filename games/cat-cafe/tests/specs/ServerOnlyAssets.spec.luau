@@ -47,7 +47,6 @@ return function()
 				{
 					"CatCafe_Street_DealerCart_RingIcon_Decor",
 					"CatCafe_Square_MysteryCart_RingIcon_Decor",
-					"CatCafe_Square_Cannon",
 					"CatCafe_Plot_BackDoor",
 					"CatCafe_Plot_LuckyCat_3",
 					"CatCafe_Town_ArcadeCabinet",
@@ -137,14 +136,64 @@ return function()
 					local model = Catalog.catModelName(cat.id)
 					expect(ServerOnlyAssets.matches(model)).to.equal(false)
 					expect(ServerOnlyAssets.matches(Catalog.sitModelName(model))).to.equal(false)
-					expect(ServerOnlyAssets.matches(Catalog.workModelName(model))).to.equal(false)
 					expect(ServerOnlyAssets.matches(Catalog.goldModelName(cat.id))).to.equal(false)
+					-- #4601: the standing worker body is the server's alone
+					expect(ServerOnlyAssets.matches(Catalog.workModelName(model))).to.equal(true)
+					expect(
+						ServerOnlyAssets.matches(
+							Catalog.workModelName(Catalog.goldModelName(cat.id))
+						)
+					).to.equal(true)
 				end
 				for _, extra in Catalog.campExtras do
 					expect(ServerOnlyAssets.matches(extra.model)).to.equal(false)
 				end
 			end
 		)
+
+		it(
+			"takes every cat's standing worker body and leaves its walking and seated ones (#4601)",
+			function()
+				for _, name in
+					{
+						"CatCafe_Cat_Tabby_Work",
+						"CatCafe_Cat_Tabby_Gold_Work",
+						"CatCafe_Cat_BellhopCat_Work",
+						"CatCafe_Cat_SnowLeopard_Gold_Work",
+					}
+				do
+					expect(ServerOnlyAssets.matches(name)).to.equal(true)
+				end
+				for _, name in
+					{
+						"CatCafe_Cat_Tabby",
+						"CatCafe_Cat_Tabby_Sit",
+						"CatCafe_Cat_Tabby_Gold",
+						"CatCafe_Cat_Tabby_Gold_Sit",
+						"CatCafe_Cat_Work", -- a cat named Work would be a walking body
+					}
+				do
+					expect(ServerOnlyAssets.matches(name)).to.equal(false)
+				end
+			end
+		)
+
+		it("takes the Cat Cannons, the Town Square's and every camp's (#4601)", function()
+			for _, name in
+				{
+					"CatCafe_Square_Cannon",
+					"CatCafe_Camp_Cannon_Alleyway",
+					"CatCafe_Camp_Cannon_Park",
+					"CatCafe_Camp_Cannon_WaterPark",
+					"CatCafe_Camp_Cannon_Castle",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(true)
+			end
+			-- not a model today; a part of a cannon or a plain name is left alone
+			expect(ServerOnlyAssets.matches("CatCafe_Camp_Cannon")).to.equal(false)
+			expect(ServerOnlyAssets.matches("CatCafe_Camp_Cannon_Barrel")).to.equal(false)
+		end)
 
 		it("leaves the models a client clones or draws", function()
 			for _, name in
@@ -154,9 +203,7 @@ return function()
 					"CatCafe_Camp_Snowy_FusionObservatory", -- #4070: a camp's station stays with the client
 					"CatCafe_Camp_Snowy_CocoaStand",
 					"CatCafe_Camp_WaterPark_TicketBooth",
-					"CatCafe_Camp_Cannon_WaterPark",
 					"CatCafe_Camp_Castle_DragonKeep",
-					"CatCafe_Camp_Cannon_Castle",
 					"CatCafe_Furniture_TableRound",
 					"CatCafe_Furniture_Chair",
 					"CatCafe_Cat_Tabby",
@@ -177,7 +224,6 @@ return function()
 					"CatCafe_Plot_ThemeGarden",
 					"CatCafe_Plot_Cafe_Oven",
 					"CatCafe_Cafe_Oven",
-					"CatCafe_Square_Cannon",
 					"CatCafe_Town_FeedbackStand",
 					"CatCafe_Town_ArcadeCabinet",
 					"CatCafe_Town_Gate",

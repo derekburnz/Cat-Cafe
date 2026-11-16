@@ -5863,7 +5863,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.giftWait.start()
 		local line = UIShim.playerGui:FindFirstChild("GiftWaiting", true) :: TextLabel?
 		assert(line and line.Visible and string.find(line.Text, "super gift", 1, true), "uigate: no gift line (#2614)")
+		-- #4527: the card shows only with the giftCard switch on (off by default)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_giftCard", true)
 		UI.potions.giftResult("crate", "highest", 1, "Super", 15)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_giftCard", nil)
 		local card = UIShim.playerGui:FindFirstChild("Gift", true)
 		local title = card and card:FindFirstChild("Title") :: TextLabel?
 		assert(title and string.find(title.Text, "Super gift!", 1, true), "uigate: the gift card's heading (#2614)")
@@ -12775,9 +12778,16 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
 			assert(chip and chip.Visible, "uigate: no trait to keep (#4104)")
 			local goText = (confirm:FindFirstChild("FuseGo", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
-			press("FusionObservatory", "Copy7") -- the Lv 1 copy ends the strip: untick it
+			-- #4588: the five picked copies lead the strip
+			for index = 1, 5 do
+				local cell = copies:FindFirstChild("Copy" .. index, true) :: GuiObject
+				assert(cell and (cell:FindFirstChild("Check") :: GuiObject).Visible, "uigate: Copy" .. index .. " is not a picked copy at the strip's head (#4588)")
+			end
+			press("FusionObservatory", "Copy1") -- a picked copy leads the strip: untick it
 			assert(goText.Text == "Pick 1 more", "uigate: four picked reads " .. goText.Text .. " (#4104)")
-			press("FusionObservatory", "Copy2") -- the Lv 12 copy follows the working Lv 30 one: swap Mochi in by hand
+			-- the strip holds its order on a tap: the unticked copy stays first, so nothing jumps under the finger
+			assert(not ((copies:FindFirstChild("Copy1", true) :: GuiObject):FindFirstChild("Check") :: GuiObject).Visible, "uigate: the strip moved its copies on a tap (#4588)")
+			press("FusionObservatory", "Copy7") -- the Lv 12 copy ends the strip, after the working Lv 30 one: swap Mochi in by hand
 			result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
 			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: with Mochi picked the result reads " .. result .. " (#4104)")
 			press("FusionObservatory", "Trait1") -- the rarest trait leads the chips: keep Mochi's

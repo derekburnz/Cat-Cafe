@@ -31,6 +31,7 @@ local Cues = require(script.Cues)
 local DragonRise = require(script.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
+local FlightClock = require(script.Parent.Effects.FlightClock)
 local FusionFx = require(script.Parent.Effects.FusionFx)
 local HarvestFx = require(script.Parent.Effects.HarvestFx)
 local Logic = require(script.Logic)
@@ -1386,8 +1387,11 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 			return
 		end
 		flightCue("cannonLaunch")
+		-- a shorter first flight (CannonFlightScale, Effects/FlightClock) brings the clouds and the landing in with it
+		local scale = FlightClock.scale(character, launchAt)
 		local function later(at: number, cueId: string)
-			task.delay(math.max(0, launchAt + at - Workspace:GetServerTimeNow()), function()
+			local delay = launchAt + FlightClock.realAt(at, scale) - Workspace:GetServerTimeNow()
+			task.delay(math.max(0, delay), function()
 				if
 					character.Parent ~= nil
 					and character:GetAttribute("CannonLaunchAt") == launchAt

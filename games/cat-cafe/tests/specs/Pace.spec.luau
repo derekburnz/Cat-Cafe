@@ -1106,7 +1106,7 @@ return function()
 			)
 
 			it(
-				"takes 1.75 to 4 hours in one go with one 2-hour x2 Cafe Event in the run (#2486; #4189: was 3 to 5.5; #2895: was 4 to 6; #2683: was 8 to 9.2)",
+				"takes 1.25 to 4 hours in one go with one 2-hour x2 Cafe Event in the run (#2486; #4685: 1 h 41, was 1.75 to 4; #4189: was 3 to 5.5; #2895: was 4 to 6; #2683: was 8 to 9.2)",
 				function()
 					-- live-events.md 2b: if not, the event's window gets shorter, not its multiplier smaller. The window
 					-- sits late in the run, where the cafe earns the most and the boost is worth the most.
@@ -1120,9 +1120,11 @@ return function()
 					local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
 					-- #2557 with #2559 (Design-Agent): 8 h 00, plus 15%, with the one-go floor of 8 h (was 9 to 14)
 					-- #2683: at least 4 h (Design-Agent; the old one-go floor of 8 h is gone), at most the one-go top
-					if median < 1.75 * HOUR or median > 4 * HOUR then
+					-- #4685 (Derek 2026-11-16: Tier 4 at 1,000,000 and Tier 5 at 17,000,000): 1 h 41; the cats needed
+					-- now set the pace (Tier 4 at 1 h 30), so the floor comes down to 1.25 h
+					if median < 1.25 * HOUR or median > 4 * HOUR then
 						error(
-							"Tier 5 outside 1.75 to 4 hours of play with a 2-hour x2 event: "
+							"Tier 5 outside 1.25 to 4 hours of play with a 2-hour x2 event: "
 								.. text
 						)
 					end
@@ -1354,7 +1356,7 @@ return function()
 
 	describe("Tier 5 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 1.75 to 3.5 hours in one go for a player who buys the best affordable lawn (#1283; #4320: 2 h 20, was 3 to 5; #4189: 3 h 41, was 4 to 7; #3195 + #3204: was 4.25; #3170: was 4.5; #2683: was 9 to 14)",
+			"takes 1.25 to 3.5 hours in one go for a player who buys the best affordable lawn (#1283; #4685: 1 h 32, was 1.75 to 3.5; #4320: 2 h 20, was 3 to 5; #4189: 3 h 41, was 4 to 7; #3195 + #3204: was 4.25; #3170: was 4.5; #2683: was 9 to 14)",
 			function()
 				local list, text = toTier5({
 					catches = 4,
@@ -1368,8 +1370,9 @@ return function()
 				-- #3170: 4 h 28 with the Alleyway's strays spread through it
 				-- #3195 + #3204: 4 h 14 with 45 s nights, the Tier 2 caps and Tier 3 at 520,000
 				-- #4320: 2 h 20 with every tier lower
-				if median < 1.75 * HOUR or median > 3.5 * HOUR then
-					error("Tier 5 outside 1.75 to 3.5 hours of play: " .. text)
+				-- #4685: 1 h 32 with Tier 4 at 1,000,000 and Tier 5 at 17,000,000
+				if median < 1.25 * HOUR or median > 3.5 * HOUR then
+					error("Tier 5 outside 1.25 to 3.5 hours of play: " .. text)
 				end
 			end
 		)

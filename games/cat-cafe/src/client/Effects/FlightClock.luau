@@ -12,8 +12,8 @@ local Logic = require(script.Parent.Logic)
 local FlightClock = {}
 
 FlightClock.ATTRIBUTE = "CannonFlightScale"
-FlightClock.MIN = 0.3
-FlightClock.MAX = 1.5
+FlightClock.MIN = 0.25 -- the same bounds as the server's shared Cannon.scaleOf (#4936)
+FlightClock.MAX = 1
 
 type Kept = { at: number, scale: number }
 

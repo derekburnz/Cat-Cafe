@@ -1389,8 +1389,12 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 		flightCue("cannonLaunch")
 		-- a shorter first flight (CannonFlightScale, Effects/FlightClock) brings the clouds and the landing in with it
 		local scale = FlightClock.scale(character, launchAt)
-		local function later(at: number, cueId: string)
-			local delay = launchAt + FlightClock.realAt(at, scale) - Workspace:GetServerTimeNow()
+		-- `at` is in the usual flight's seconds; `lead` (real seconds, the whistle's own length) is not scaled
+		local function later(at: number, cueId: string, lead: number?)
+			local delay = launchAt
+				+ FlightClock.realAt(at, scale)
+				- (lead or 0)
+				- Workspace:GetServerTimeNow()
 			task.delay(math.max(0, delay), function()
 				if
 					character.Parent ~= nil
@@ -1410,7 +1414,7 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 		if isLocal then
 			later(clouds, "cannonClouds")
 		end
-		later(math.max(0, touchdown - CANNON_LAND_LEAD), "cannonLand")
+		later(touchdown, "cannonLand", CANNON_LAND_LEAD)
 	end)
 	local hop = character:GetAttributeChangedSignal("CloudHopAt"):Connect(function()
 		if

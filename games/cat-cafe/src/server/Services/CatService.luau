@@ -2663,7 +2663,7 @@ function startCatch(
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial
-		then Circles.tutorialTrust()
+		then Circles.tutorialTrust(#circles) -- #4845: a held first catch runs 3 rings and lands on the last
 		else Circles.trustFor(stray.def.rarity, M.Moods.trustBonus(stray.curiousAt, now))
 	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))

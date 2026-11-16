@@ -2696,12 +2696,14 @@ function startCatch(
 			if deadline == nil then
 				return
 			end
-			task.wait(math.max(0, deadline - serverNow()) + 0.05)
+			-- #4597: a tap made before the deadline may still be on its way, so wait CatchPressStampSeconds more
+			local grace = M.Config.CatchPressStampSeconds
+			task.wait(math.max(0, deadline + grace - serverNow()) + 0.05)
 			if stray.attempt ~= attempt then
 				return
 			end
 			local before = attempt.nextIndex
-			Circles.expire(attempt, serverNow())
+			Circles.expire(attempt, serverNow() - grace)
 			sendJudged(player, stray.id, attempt, before)
 			if
 				Circles.isDone(attempt)
@@ -2721,10 +2723,16 @@ function startCatch(
 	return nil
 end
 
--- One press for circle `index`. The client sends no time: the press is stamped on arrival and half the player's
--- ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press). A Miss or the
+-- One press for circle `index`. #4597: the client sends its own tap time (`rawStamp`, the ring clock), believed up to
+-- CatchPressStampSeconds before the arrival (Circles.pressTime); with none, the press is stamped on arrival and half
+-- the player's ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press). A Miss or the
 -- last circle ends the catch at once.
-local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unknown)
+local function onCatchPress(
+	player: Player,
+	rawStrayId: unknown,
+	rawIndex: unknown,
+	rawStamp: unknown
+)
 	local strayId = M.Guard.id(rawStrayId)
 	local index = M.Guard.int(rawIndex, 1, MAX_CIRCLES)
 	if strayId == nil or index == nil then
@@ -2739,7 +2747,8 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 		return
 	end
 	local arrival = serverNow()
-	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
+	-- #4597: the tap's own time when the client sent one (held to a short bound), else arrival less half the ping
+	local pressTime = Circles.pressTime(arrival, player:GetNetworkPing(), rawStamp)
 	local before = attempt.nextIndex
 	Circles.press(attempt, index, pressTime, arrival)
 	-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest

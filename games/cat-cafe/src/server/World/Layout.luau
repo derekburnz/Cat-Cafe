@@ -2566,6 +2566,20 @@ local function station(x: number, z: number): Point
 	return { x = x, y = 0.1, z = z, rotY = facing(x, z, 0, 0) }
 end
 
+-- #4667 (Derek2 2026-11-15: the stations "more on the edges facing straight inside and not infront of eachother"):
+-- a station on the square's east or west edge, facing straight in across the square, and one on its north or south
+-- edge, facing straight in along the street.
+local function sideStation(x: number, z: number): Point
+	return { x = x, y = 0.1, z = z, rotY = facing(x, z, 0, z) }
+end
+local function endStation(x: number, z: number): Point
+	return { x = x, y = 0.1, z = z, rotY = facing(x, z, x, 0) }
+end
+-- The edge spots: SIDE_X in from the east and west borders, at the three lamps of each quarter (SLOT_Z), so a bench
+-- stands between every two stations and nothing stands in front of anything else.
+local SIDE_X = 50
+local SLOT_Z = { 28.625, 48.75, 68.875 }
+
 Layout.townSquare = {
 	floor = { x1 = -TSW, z1 = -TSD, x2 = TSW, z2 = TSD } :: Rect,
 	-- the open cross: the street's line and the lane to the side arches, the lane in two halves either side of the
@@ -2601,13 +2615,21 @@ Layout.townSquare = {
 	rallyBoards = {
 		-- #3070: out from behind the cannon, so the spawn sees the whole board
 		-- #3454: the north-west corner, behind the Spin Wheel's spot, still facing the spawn; (-26, 54) before
-		{ asset = "CatCafe_Square_RallyBoard", x = -46, y = 0.1, z = 78, rotY = -26.57 },
+		-- #4667: the north-west quarter's far edge spot, facing straight in
+		{ asset = "CatCafe_Square_RallyBoard", x = -SIDE_X, y = 0.1, z = SLOT_Z[3], rotY = -90 },
 	} :: { Prop },
 	-- The pity cat's sign (#1572, luck-and-rare-moments.md 1h; Model-Agent #1592: `CatCafe_Square_PitySign`, front
 	-- -Z, its Screen 5.6 x 2.8): the manifest's suggested spot across the street from the Day Cart, turned to face the
 	-- player spawn (#1753: it was never placed). WorldBuilder tags it PitySign for the countdown on its Screen.
 	-- #3454: to the south-west, on the Day Cart's old spot, facing the spawn; (19, -53.5) before (#3070)
-	pitySign = { asset = "CatCafe_Square_PitySign", x = -20, y = 0.1, z = -62, rotY = -157.38 } :: Prop,
+	-- #4667: the west edge spot nearest the spawn, facing straight in
+	pitySign = {
+		asset = "CatCafe_Square_PitySign",
+		x = -SIDE_X,
+		y = 0.1,
+		z = -SLOT_Z[1],
+		rotY = -90,
+	} :: Prop,
 	-- The update poster (#4362, Derek 2026-11-15: nudge players to Notify Me for the next update, "including
 	-- posters"; Model-Agent's `CatCafe_Square_UpdatePoster`, front -Z, its Screen 8.0 x 4.5, about 9.3 wide): east of
 	-- the street between the spawn and the Feedback stand, turned to face the spawn, so a player who lands sees the
@@ -2615,12 +2637,13 @@ Layout.townSquare = {
 	-- #4474 (Derek2 2026-11-15: "the 3 worlds sign in game is infront of feedback stand move it off to side a little
 	-- bit"): at (20, -40) it stood on the line from the spawn, and from the cannon, to the Feedback stand at (28, -54).
 	-- It stands beside the street now, 8 studs west of both lines, still facing the spawn.
+	-- #4667: the east edge spot nearest the spawn, across from the pity sign, facing straight in
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
-		x = 13.5,
+		x = SIDE_X,
 		y = 0.1,
-		z = -66,
-		rotY = 165.44,
+		z = -SLOT_Z[1],
+		rotY = 90,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
@@ -2722,7 +2745,8 @@ Layout.townSquare = {
 		-- Skipped until its model is in (AssetRegistry.known).
 		-- #4532: with the square 180 deep the market stands at (47, 79); the stand keeps its place off the market's
 		-- end on the Coin Cart's side, where its arrow points at the market.
-		{ asset = "CatCafe_Square_DecorStand", x = 39, y = 0.1, z = 83.1, rotY = 21.9 },
+		-- #4667: the market stands on the east edge; the stand stays off its north end, facing straight in
+		{ asset = "CatCafe_Square_DecorStand", x = SIDE_X, y = 0.1, z = 79, rotY = 90 },
 		-- #4508 (Derek2 2026-11-15: "make a signboard beside the mystery market ... that shows the new items like
 		-- backpack/shoes on it so people know where that is"): Model-Agent's `CatCafe_Square_MysterySign` (front -Z,
 		-- about 5.3 x 2.9), just past the wagon's easel end (Layout.mysteryCart), turned to face the spawn. Its arrow
@@ -2730,7 +2754,8 @@ Layout.townSquare = {
 		-- (world scan). Skipped until its model is in (AssetRegistry.known).
 		-- #4532: with the square 180 deep the wagon stands at (-46, -78); the sign keeps its place off the wagon's
 		-- easel end, where its arrow points at the wagon.
-		{ asset = "CatCafe_Square_MysterySign", x = -37.3, y = 0.1, z = -82, rotY = -151.2 },
+		-- #4667: the wagon stands on the west edge; the sign stays off its easel end, facing straight in
+		{ asset = "CatCafe_Square_MysterySign", x = -SIDE_X, y = 0.1, z = -79, rotY = -90 },
 	} :: { Prop },
 }
 
@@ -2765,28 +2790,33 @@ Layout.townSquare = {
 -- side station at (45, 30), the street side one near (25, 56) and the corner one near (46, 78), mirrored, so no two
 -- stations stand closer than 30 studs (the Coin Cart and the Golden Fish Market were 21 apart, 31 now). The Bellhop
 -- stand, the leaderboards, the cannon, its pad and the spawn stay. The notes below keep each station's history; the
--- numbers are #4532's.
-Layout.spinWheel = station(-26, 56) -- #3454: (-35, 35) before
+-- numbers were #4532's until #4667.
+-- #4667 (Derek2 2026-11-15: "the new town square size and everything moved evenly spaced but ideally more on the
+-- edges facing straight inside and not infront of eachother"): every station stands on the east or west edge
+-- (SIDE_X), facing straight in, at the three lamps of its quarter (SLOT_Z, 20 apart, a bench between each two); the
+-- Thank You board takes the south edge. The quarters keep their themes. The middle is open paving from the street to
+-- the walk-up rings. The Bellhop stand, the leaderboards, the cannon, its pad and the spawn stay.
+Layout.spinWheel = sideStation(-SIDE_X, SLOT_Z[2]) -- #4667; (-26, 56) before
 -- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it/notice the update"): the Mystic Pool
 -- stands in the Town Square. It stood on the Park camp's picnic spot before; the Picnic Basket has that spot back.
 -- #3770 (Derek 2026-11-13: "not have it blocking anything and move it to the sides and not close to middle of map"):
 -- on the market corner's free spot at the east side, (44, 22), the mirror of the Arcade cabinet's (-44, 22) and
 -- fitted for a station with a radius 8 ring in #3454. It faces the cannon like every corner station. Its first
 -- Town Square spot, (26, 28), was 38 studs from the cannon, in the open quarter between the lanes.
-Layout.mysticPool = station(45, 30)
-Layout.fishMarket = station(47, 79) -- #3454: (42, 44.5) before
+Layout.mysticPool = sideStation(SIDE_X, SLOT_Z[1]) -- #4667; (45, 30) before
+Layout.fishMarket = sideStation(SIDE_X, SLOT_Z[3]) -- #4667; (47, 79) before
 -- #3000 (Derek2 2026-11-10: "push the codes back between mystery market and codes cat", option A): the whole Codes
 -- stand stands back from the middle, in the gap between the Mystery Market and the Bellhop Cat (#3070: at
 -- (-45, -25.5) on the deeper square, (-45, -20) before).
 -- #3454: (-45, -25.5) before. One stud south of Design's (-44, -22), so the radius 8 circle and the Bellhop stand's
 -- reach never overlap (Layout.spec).
-Layout.codesCat = station(-45, -30)
+Layout.codesCat = sideStation(-SIDE_X, -SLOT_Z[2]) -- #4667; (-45, -30) before
 -- #1388: the night market parked in front of the Thank You board (below), on its line to the cannon. #3070: the
 -- board stands south of the cart now, clear of it from the spawn and from the cannon.
 -- #3189 (Derek2 2026-11-10: "move the night market slightly to the left so more space for feedback stand on right"):
 -- 4 studs toward the street and 4 toward the lane, from (37, -35); the Thanks board stays clear of it from the spawn
 -- and the cannon (fit70.py, Animation-Engineer/tasks/stand3189).
-Layout.dealerCart = station(45, -30) -- #3454: (33, -31) before
+Layout.dealerCart = sideStation(SIDE_X, -SLOT_Z[2]) -- #4667; (45, -30) before
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
@@ -2796,7 +2826,7 @@ Layout.bellhopStand = station(-48, 0)
 -- between the Codes Cat and the Day Cart (Model-Agent's spot, 2026-11-09; the two south-west benches came out). For
 -- its 12 x 7 wagon with the r4 walk-in circle 1 stud in front: the Codes circle is 2.6 studs off, the Day Cart 3.2
 -- and the lane 2.5. Design's (-24, -14) put the circle 0.3 into the lane.
-Layout.mysteryCart = station(-46, -78) -- #3454: (-45, -49.6) before
+Layout.mysteryCart = sideStation(-SIDE_X, -SLOT_Z[3]) -- #4667; (-46, -78) before
 
 -- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow, three chalkboards
 -- in a row 23.8 long and 2.7 deep, at the lane's east end, mirroring the Bellhop stand, facing the cannon. Turned, the
@@ -2809,19 +2839,20 @@ Layout.leaderboards = station(50, 0)
 -- street by 7.1.
 -- #1577 (day-cart.md section 3): the shop's old building, built only until the Day Cart's model arrives.
 -- #3454: the Day Cart stands on this corner now, so the fallback building shares its spot (only one is ever built).
-Layout.cornerShop = station(25, 57)
+Layout.cornerShop = sideStation(SIDE_X, SLOT_Z[2]) -- #4667
 
 -- The Day Cart (#1577, day-cart.md section 3): the Corner Shop on CatCafe_Town_DayCart, in the square's south-west
 -- quarter opposite the Golden Fish Market. Model-Agent's spot (#1592) keeps the walk lines and the cannon clear.
 -- #2565: nudged from (-17, -24) for the Mystery Market corner; 2.6 studs from the street and 4.2 from the arch post.
 -- #3454: across the square to the north-east, beside the street and the Golden Fish Market; (-21, -56) before.
-Layout.dayCart = station(25, 57)
+Layout.dayCart = sideStation(SIDE_X, SLOT_Z[2]) -- #4667; (25, 57) before
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
 -- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),
 -- with the night dealer's cart parked in front of it. Model-Agent's spot: it runs from about (34, -25) to (40, -15),
 -- clear of the row's corner by 2.5 studs, the east bench behind it by 5, the south bench by 3.1 and the lane by 8.4.
-Layout.thanksBoard = station(47, -79) -- #3454: the south-east corner; (43, -47.8) before (#3070)
+-- #4667: on the south edge between two lamps, facing straight in along the street; (47, -79) before
+Layout.thanksBoard = endStation(33.125, -82)
 
 -- #3070: two spots the bigger square keeps free, mirrored either side of the street north of the lane, each facing
 -- the cannon: the feedback stand's (#3066, CatCafe_Town_FeedbackStand, a mailbox that opens the feedback box) and
@@ -2830,12 +2861,12 @@ Layout.thanksBoard = station(47, -79) -- #3454: the south-east corner; (43, -47.
 -- the stand leaves (34, 18) for the east side south of the lane, on the Thanks board's right as you face the board,
 -- between the night cart and the leaderboard row (9.3 off every body, 4.7 off the lamps and benches). The arcade's
 -- spot north of the lane stayed until #3359 (below).
-Layout.feedbackStand = station(26, -56) -- #3454: beside the street in the south-east; (50, -25) before
+Layout.feedbackStand = sideStation(SIDE_X, -SLOT_Z[3]) -- #4667; (26, -56) before
 -- #3359 (Derek2 2026-11-11: "the arcade is too close to spin and the circle is on top of it"): at (-34, 18) the
 -- cabinet's walk-in ring lay over the cabinet and 0.4 studs into the Spin Wheel's ring. It stands 9 studs further
 -- west now, between the wheel and the Bellhop stand: its ring (touching its front, Arcade.RING_RANGE) is 3 studs off
 -- the wheel's ring and 2.9 off the lane, and the cabinet is 18 studs from both stations (Layout.spec).
-Layout.arcadeCabinet = station(-45, 30) -- #3454: (-43, 18) before
+Layout.arcadeCabinet = sideStation(-SIDE_X, SLOT_Z[1]) -- #4667; (-45, 30) before
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.
@@ -3102,9 +3133,12 @@ Layout.dragonKeep = { area = "castle", x = 32, y = 0, z = -293, turn = 90, front
 -- Mountain's camp, as Layout.dragonKeep: right of the way out, its centre level with the pad, turned 90 so its front
 -- faces the pad. Model-Agent's fit against the Snowy camp's parts (2026-11-15 18:05 UTC): turned, it runs x 20.5 to
 -- 33.4 and z -299.9 to -284.9, clear of the opening, the ski rack and the Cocoa Lodge front (x 33.7 on).
--- #4628: a ring of radius 6 (8 before, which lay over the landing pad's east side): x 8.5 to 20.5
+-- #4628: a ring of radius 6 (8 before, which lay over the landing pad's east side).
+-- #4670 (Derek2 2026-11-15: "push the observatory a little bit back"): 5 studs further from the pad, x 32 (27
+-- before): it runs x 25.5 to 38.4 now, still in front of the Cocoa Lodge (z -303.4 on) with nothing else in its
+-- footprint, and its ring x 13.5 to 25.5.
 Layout.fusionObservatory =
-	{ area = "snowy", x = 27, y = 0, z = -294, turn = 90, front = 6.5, ring = 6 }
+	{ area = "snowy", x = 32, y = 0, z = -294, turn = 90, front = 6.5, ring = 6 }
 
 -- Where a camp spot ({area, x, y, z, turn} in its area's set space) stands in the world, as lawnStallAt, or nil
 -- without that area or its camp.

@@ -73,7 +73,7 @@ return function()
 		)
 
 		it(
-			"rolls a wrap, Common 70, Rare 25, Super 5, each wrap's rows summing to 100 (#2614)",
+			"rolls a wrap, Common 60, Rare 30, Super 10, each wrap's rows summing to 100 (#2614, #4884)",
 			function()
 				local total = 0
 				for _, tier in Catalog.mysteryGiftTiers do
@@ -86,9 +86,9 @@ return function()
 				end
 				expect(total).to.equal(100)
 				expect(Catalog.mysteryGiftTiers[1].tier).to.equal("Common")
-				expect(Catalog.mysteryGiftTiers[1].chance).to.equal(70)
-				expect(Catalog.mysteryGiftTiers[2].chance).to.equal(25)
-				expect(Catalog.mysteryGiftTiers[3].chance).to.equal(5)
+				expect(Catalog.mysteryGiftTiers[1].chance).to.equal(60)
+				expect(Catalog.mysteryGiftTiers[2].chance).to.equal(30)
+				expect(Catalog.mysteryGiftTiers[3].chance).to.equal(10)
 				expect(Catalog.mysteryGift).to.equal(Catalog.mysteryGiftTiers[1].rows)
 			end
 		)
@@ -470,41 +470,41 @@ return function()
 			expect(Potions.rollGift(rolls({ 0, 0, 0 })) :: any).to.deepEqual({
 				kind = "potion",
 				id = "tip_potion",
-				count = 1,
+				count = 2,
 				tier = "Common",
 			})
 			expect(Potions.rollGift(rolls({ 0, 0.5 })) :: any).to.deepEqual({
 				kind = "coins",
-				count = 180,
+				count = 600,
 				tier = "Common",
 			})
-			expect(Potions.rollGift(rolls({ 0.69, 0.9 })) :: any).to.deepEqual({
+			expect(Potions.rollGift(rolls({ 0.59, 0.9 })) :: any).to.deepEqual({
 				kind = "fish",
-				count = 8,
+				count = 25,
 				tier = "Common",
 			})
-			expect(Potions.rollGift(rolls({ 0.7, 0.1, 0 })) :: any).to.deepEqual({
+			expect(Potions.rollGift(rolls({ 0.6, 0.1, 0 })) :: any).to.deepEqual({
 				kind = "potion",
 				id = "big_tip_potion",
-				count = 1,
-				tier = "Rare",
-			})
-			expect(Potions.rollGift(rolls({ 0.94, 0.9 })) :: any).to.deepEqual({
-				kind = "food",
-				id = "big_cat_snack",
 				count = 2,
 				tier = "Rare",
 			})
-			expect(Potions.rollGift(rolls({ 0.96, 0.1 })) :: any).to.deepEqual({
+			expect(Potions.rollGift(rolls({ 0.89, 0.9 })) :: any).to.deepEqual({
+				kind = "food",
+				id = "big_cat_snack",
+				count = 4,
+				tier = "Rare",
+			})
+			expect(Potions.rollGift(rolls({ 0.91, 0.1 })) :: any).to.deepEqual({
 				kind = "crate",
 				id = "highest",
-				count = 1,
-				fish = 15,
+				count = 2,
+				fish = 40,
 				tier = "Super",
 			})
 			expect(Potions.rollGift(rolls({ 0.9999, 0.9999 })) :: any).to.deepEqual({
 				kind = "fish",
-				count = 50,
+				count = 150,
 				tier = "Super",
 			})
 		end)
@@ -524,7 +524,7 @@ return function()
 		end)
 
 		it(
-			"lands near 70/25/5 over 10,000 seeded rolls and pays about 3.8 golden fish a gift",
+			"lands near 60/30/10 over 10,000 seeded rolls and pays about 15.9 golden fish a gift (#4884)",
 			function()
 				local rng = Random.new(2614)
 				local counts: { [string]: number } = { Common = 0, Rare = 0, Super = 0 }
@@ -534,10 +534,10 @@ return function()
 					end)
 					counts[tier] += 1
 				end
-				expect(math.abs(counts.Common - 7000) <= 100).to.equal(true)
-				expect(math.abs(counts.Rare - 2500) <= 100).to.equal(true)
-				expect(math.abs(counts.Super - 500) <= 100).to.equal(true)
-				expect(Potions.giftFishAverage()).to.be.near(3.82, 1e-9)
+				expect(math.abs(counts.Common - 6000) <= 150).to.equal(true)
+				expect(math.abs(counts.Rare - 3000) <= 150).to.equal(true)
+				expect(math.abs(counts.Super - 1000) <= 150).to.equal(true)
+				expect(Potions.giftFishAverage()).to.be.near(15.9, 1e-9)
 			end
 		)
 
@@ -545,7 +545,7 @@ return function()
 			expect(Config.MysteryRareStreak).to.equal(4)
 			expect(Potions.rollGiftTier(rolls({ 0 }), 3)).to.equal("Common")
 			expect(Potions.rollGiftTier(rolls({ 0 }), 4)).to.equal("Rare")
-			expect(Potions.rollGiftTier(rolls({ 0.82 }), 4)).to.equal("Rare") -- 24.6 of 30
+			expect(Potions.rollGiftTier(rolls({ 0.74 }), 4)).to.equal("Rare") -- 29.6 of 40
 			expect(Potions.rollGiftTier(rolls({ 0.9 }), 4)).to.equal("Super")
 			expect(Config.MysteryGiftKeepSeconds).to.equal(900)
 		end)
@@ -585,13 +585,13 @@ return function()
 				expect(Potions.giftPaid(spin, Config.SpinBankCap - 1) :: any).to.deepEqual(spin)
 				expect(Potions.giftPaid(spin, Config.SpinBankCap) :: any).to.deepEqual({
 					kind = "fish",
-					count = 8,
+					count = 25,
 				})
-				-- a Rare spin with the bank full pays the Rare wrap's 20
+				-- a Rare spin with the bank full pays the Rare wrap's 60 (#4884)
 				local rare = { kind = "spin", count = 1, tier = "Rare" } :: any
 				expect(Potions.giftPaid(rare, Config.SpinBankCap) :: any).to.deepEqual({
 					kind = "fish",
-					count = 20,
+					count = 60,
 					tier = "Rare",
 				})
 				local potion = { kind = "potion", id = "tip_potion", count = 1 } :: any

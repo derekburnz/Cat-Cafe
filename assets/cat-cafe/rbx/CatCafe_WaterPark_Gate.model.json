@@ -11820,6 +11820,7 @@
      ]
     ]
    }
-  }
+  },
+  "ModelStreamingMode": "Atomic"
  }
 }

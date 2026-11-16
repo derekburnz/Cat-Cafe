@@ -299157,7 +299157,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Snowy_Set_247_SummitFlag_Swing"
   },

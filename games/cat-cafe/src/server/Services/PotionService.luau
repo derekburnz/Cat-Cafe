@@ -207,6 +207,32 @@ function PotionService.give(player: Player, profile: Types.PlayerProfile, potion
 	return true
 end
 
+-- #4840 (Derek 2026-11-16: "whenever someone picks a treat from picnic basket make it automatically apply the
+-- potion/buff so they don't need to"): drinks one `potionId` already in the bag at once, as the bag's Use does. The time
+-- so far is paid at the old multipliers first. When its timer has no room (PotionMaxMinutes) it stays in the bag and
+-- this returns false. The caller syncs.
+function PotionService.drinkOne(
+	player: Player,
+	profile: Types.PlayerProfile,
+	potionId: string
+): boolean
+	local def = Catalog.getPotion(potionId)
+	if def == nil then
+		return false
+	end
+	local now = os.time()
+	Economy.settle(profile, now, ClockService.epoch())
+	if not Potions.use(profile, def.id, now) then
+		return false
+	end
+	if drank(player, def.id) == Potions.SWIFT then
+		CatService.refreshSpeed(player)
+	end
+	showActive(player)
+	Telemetry.custom(player, "potion_used", 1, { def.id, tostring(Economy.tier(profile)) })
+	return true
+end
+
 function PotionService.start()
 	Net.on("UsePotion", onUsePotion)
 	Net.on("UsePotionAll", onUsePotionAll) -- #3326

@@ -53,6 +53,13 @@ return function()
 			profile.tutorialStep = 3
 			profile.stats.sessions = 1
 			profile.stats.catsCaught = 2 -- two caught by hand: past the walk-through's trip out (#3659, #4494)
+			-- #4916: and a Park cat, so the walk-through's pass is over too
+			for _, cat in (require(Shared.Catalog) :: any).cats do
+				if cat.area == NightPass.PARK_AREA then
+					profile.collection[cat.id] = { count = 1 }
+					break
+				end
+			end
 			expect(Economy.tier(profile)).to.equal(1)
 			expect(NightPass.of(profile, true)).to.equal(true)
 			expect(NightPass.firstOf(profile, true)).to.equal(true)
@@ -95,9 +102,47 @@ return function()
 			expect(NightPass.of(profile, false)).to.equal(true)
 			profile.stats.catsCaught = 3 -- the second was caught by hand and checked in
 			expect(NightPass.learnerOf(profile)).to.equal(false)
-			expect(NightPass.of(profile, false)).to.equal(false)
-			expect(NightPass.nightCatOf(profile, false)).to.equal(false)
+			-- #4916: still on the walk-through (Tier 1, no Park cat), so the pass and the night cat stay
+			expect(NightPass.of(profile, false)).to.equal(true)
+			expect(NightPass.nightCatOf(profile, false)).to.equal(true)
 		end)
+
+		it(
+			"keeps the walk-through's pass up to the Park, and a night cat at Tier 1 (#4916)",
+			function()
+				expect(NightPass.walk(1, 0)).to.equal(true)
+				expect(NightPass.walk(2, 0)).to.equal(true) -- ranked up, the Park flight still ahead
+				expect(NightPass.walk(2, 1)).to.equal(false) -- a Park cat caught
+				expect(NightPass.walk(3, 0)).to.equal(false)
+				expect(NightPass.holds(5, 2, 9, false, 2, 0)).to.equal(true)
+				expect(NightPass.holds(5, 2, 9, false, 2, 1)).to.equal(false)
+				expect(NightPass.holds(5, 2, 9, false, 2)).to.equal(false) -- not asked: as before
+				local Catalog = require(Shared.Catalog) :: any
+				local parkId: string? = nil
+				local alleyId: string? = nil
+				for _, cat in Catalog.cats do
+					if cat.area == "park" and parkId == nil then
+						parkId = cat.id
+					elseif cat.area == "alley" and alleyId == nil then
+						alleyId = cat.id
+					end
+				end
+				assert(parkId ~= nil and alleyId ~= nil, "a Park and an Alleyway cat")
+				expect(NightPass.parkCats(nil)).to.equal(0)
+				expect(NightPass.parkCats({ [alleyId] = {} })).to.equal(0)
+				expect(NightPass.parkCats({ [alleyId] = {}, [parkId] = {} })).to.equal(1)
+				local profile: any = ProfileSchema.template(1700000000)
+				profile.tutorialStep = 5
+				profile.stats.sessions = 4
+				profile.stats.catsCaught = 4
+				expect(NightPass.of(profile, false)).to.equal(true)
+				expect(NightPass.nightCatOf(profile, false)).to.equal(true)
+				profile.collection[parkId] = { count = 1 }
+				expect(NightPass.walkOf(profile)).to.equal(false)
+				expect(NightPass.of(profile, false)).to.equal(false)
+				expect(NightPass.nightCatOf(profile, false)).to.equal(false)
+			end
+		)
 
 		it("names the switch and the two analytics markers", function()
 			expect(NightPass.FLAG).to.equal("nightCatch")

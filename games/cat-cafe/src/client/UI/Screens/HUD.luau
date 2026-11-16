@@ -152,6 +152,7 @@ export type HUD = {
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
 	setPacked: (self: HUD, packed: boolean) -> (), -- #2731: a cat in the backpack
+	setDropHidden: (self: HUD, hidden: boolean) -> (), -- #4832: no Drop buttons in the tutorial
 	isPacked: (self: HUD) -> boolean, -- #2731: the PackDrop pill shows (a backpack cat, empty arms)
 	carryShown: (self: HUD) -> boolean, -- #3145: the carry banner itself is up (UI.carryView)
 	bottomTop: (self: HUD) -> number,
@@ -180,6 +181,7 @@ export type HUD = {
 	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
+	holdHide: (self: HUD, held: boolean) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	setMoneyBadge: (
@@ -2286,6 +2288,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		keycap(drop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0), PAD_DROP)
 	end
 	table.insert(self._buttons, drop)
+	self._carryDrop = drop
+	self._dropHidden = false -- #4832 (setDropHidden)
 
 	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): a small Drop pill where the carry
 	-- banner sits, while the character has a PackedCatId and the arms are empty; it and G fire the same dropCat, and
@@ -2345,6 +2349,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	Outline.text(self._tutorial) -- label() skips the outline on wrapped text
+	-- #4928 (Sync's run): the cannon arrow kept off the strip's words ("wait in" was covered on PC)
+	self._tutorial:SetAttribute(TutorialArrow.AVOID, true)
 	Create("UICorner", { CornerRadius = UDim.new(0, 20), Parent = self._tutorial })
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, strip.padX),
@@ -2611,6 +2617,10 @@ function HUD.pressTravel(self: any, destination: string): boolean
 		return false
 	end
 	self._callbacks.travel(destination)
+	if destination == "cannon" then
+		self._cannonPressed = true -- #4807: the tutorial's dim and arrow on this button go at once
+		self:pointCannon(false)
+	end
 	self._travelUntil = os.clock() + TRAVEL_COOLDOWN
 	self:_renderTravel()
 	task.delay(TRAVEL_COOLDOWN, function()
@@ -2734,7 +2744,7 @@ end
 
 function HUD.setPacked(self: any, packed: boolean)
 	self._packed = packed
-	local show = packed and not self:isCarrying()
+	local show = packed and not self:isCarrying() and not self._dropHidden
 	if self._packDrop.instance.Visible ~= show then
 		self._packDrop.instance.Visible = show
 		if show then
@@ -2742,6 +2752,17 @@ function HUD.setPacked(self: any, packed: boolean)
 		end
 		self:_layoutBottom()
 	end
+end
+
+-- #4832 (Derek 2026-11-16: "doesn't show drop during tutorial steps as players get confused"): while `hidden` the
+-- carry banner's Drop button and the Drop bag cat pill do not show (UI.setTutorialHold says when)
+function HUD.setDropHidden(self: any, hidden: boolean)
+	if self._dropHidden == hidden then
+		return
+	end
+	self._dropHidden = hidden
+	self._carryDrop.instance.Visible = not hidden
+	self:setPacked(self._packed)
 end
 
 function HUD.isPacked(self: any): boolean
@@ -2976,6 +2997,23 @@ end
 -- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing"): the tutorial often
 -- ends mid-moment (a catch, a cut, a window), when the pulse played unseen or not at all; it now waits up to
 -- HIDE_WAIT_SECONDS for the tile to be on screen with no catch, and a gold "Hide tips" tag beside the tile points at it.
+-- #4836: holds the ×'s pulse while the walk to the Park still guides (UI's applyTutorial); a pulse that came due
+-- meanwhile plays HIDE_AFTER after the hold lets go.
+function HUD.holdHide(self: any, held: boolean)
+	if self._hideHeld == held then
+		return
+	end
+	self._hideHeld = held
+	if not held and self._hidePending == true then
+		self._hidePending = false
+		task.delay(HIDE_AFTER, function()
+			if not self._gone then
+				self:pulseHide()
+			end
+		end)
+	end
+end
+
 function HUD._hideFree(self: any): boolean
 	return self._tutorialTile.instance.Visible == true
 		and self.screenGui.Enabled == true
@@ -3107,7 +3145,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
 		-- go first; pulseHide then waits for the HUD to be back on screen
 		task.delay(HIDE_AFTER, function()
-			if not self._gone then
+			if self._gone then
+				return
+			end
+			-- #4836 (Sync's pointer audit: "after RANK UP an extra HUD arrow at top right points at the Tutorial
+			-- button's red X"): while the walk to the Park still guides (holdHide), the × waits for the Park, so one
+			-- arrow shows at a time
+			if self._hideHeld == true then
+				self._hidePending = true
+			else
 				self:pulseHide()
 			end
 		end)
@@ -3231,8 +3277,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
 	self._tierProgress = tierProgress -- #4625: the new kinds goal's coins line
 	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
-	local second =
-		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
+	-- #4920 (Sync's night run): a night pass holder (the walk-through) has its own cat out at night, so the card
+	-- does not send it to bed with "Strays come back at sunrise"
+	local me = game:GetService("Players").LocalPlayer
+	local second = SecondCatGoal.view(
+		state,
+		TOUCH,
+		if nextTier then nextTier.name else nil,
+		self._areasOpen or (me ~= nil and me:GetAttribute("NightPass") == true)
+	)
 	local started = second ~= nil and self._second == nil
 	self._second = second
 	-- #3554: after it, on the way to a first Park catch, "Visit the Park 🐾" then "Catch a Park cat 🐾"
@@ -3477,9 +3530,13 @@ function HUD.holdTutorial(self: any, held: boolean)
 end
 
 function HUD.setTutorial(self: any, text: string?)
+	-- #4920 (Sync's stopwatch runs 2026-11-16: "Follow the trail and catch the cat" flashed back for 0.4 s while a held
+	-- ring waited): a sync mid catch keeps the strip with the rest of the HUD that stepped aside (_applyFocus), and
+	-- it comes back with them when the catch ends
+	local catching = self._catching == true
 	if text and text ~= "" then
 		-- only a new line chimes and pops; the same line again (a sync, a zone change) stays still
-		if not self._tutorial.Visible or self._tutorial.Text ~= text then
+		if not catching and (not self._tutorial.Visible or self._tutorial.Text ~= text) then
 			Sound.play("uiHint")
 			Tween.popIn(self._tutorial, 0.92)
 		end
@@ -3490,9 +3547,15 @@ function HUD.setTutorial(self: any, text: string?)
 			self._tutorial.Text = text
 			self:_wrapTutorial(text)
 		end
-		self._tutorial.Visible = true
+		if catching then
+			self._tutorial.Visible = false
+			self._focusHidden[self._tutorial] = true
+		else
+			self._tutorial.Visible = true
+		end
 	else
 		self._tutorial.Visible = false
+		self._focusHidden[self._tutorial] = nil
 	end
 	self:_renderStripBuy()
 end
@@ -3513,7 +3576,9 @@ function HUD._renderStripBuy(self: any)
 	local shown = rank or (offer ~= nil and self._tutorial.Visible)
 	-- Derek 2026-11-16 ("point to rank-up after its ready"): the RANK UP button gets the tutorial's ring and arrow,
 	-- with no dim (the dimmed walk-through stays on the safe side of the gates, RankSpot)
-	TutorialGlow.set(button.instance, rank, nil, true)
+	-- #4847 (Sync's audit): not while a window is open; under the rank up window the ring sat on this button, not on
+	-- the window's own (RankUp lights that one)
+	TutorialGlow.set(button.instance, rank and self._openScreen == nil, nil, true)
 	if rank then
 		button:setText(rankFirst.BUTTON)
 		if not button.instance.Visible then
@@ -4034,12 +4099,15 @@ end
 -- #4777 (Derek 2026-11-16: "instead of teleporting player to the cannon after food bowl have them click the cannon
 -- button with dim screen and arrow"): the tutorial's spotlight on the Cannon travel button (the dim, the gold ring and
 -- the big arrow), while `on`; a controller's selection goes to it once, so A presses it.
+-- #4807 (Derek 2026-11-16 13:37 UTC: "when clicking cannon should move onto walking it not continue with the dim
+-- background and pointing at cannon it stays there after clicking it already"): once the lit button is pressed the
+-- spotlight goes for the session; the strip line and the marker on the cannon lead the walk in.
 function HUD.pointCannon(self: any, on: boolean)
 	local button = self._travelButtons.cannon
 	if button == nil then
 		return
 	end
-	local lit = on and button.instance.Visible
+	local lit = on and button.instance.Visible and self._cannonPressed ~= true
 	TutorialGlow.set(button.face, lit)
 	if lit and not self._cannonPadOnce then
 		self._cannonPadOnce = true
@@ -4051,7 +4119,18 @@ function HUD.pointCannon(self: any, on: boolean)
 end
 
 -- #3555: the goal card, the button that opens the rank up window, while it is on screen.
+-- #4909 (Sync's Studio run: the strip said "Tap RANK UP" while the walk-through's arrow moved to YOUR GOAL): the
+-- strip's RANK UP button first while it shows, so the arrow stays on the button the words name
 function HUD.goalButton(self: any): GuiObject?
+	local buy = self._stripBuy
+	if
+		buy ~= nil
+		and buy.instance.Visible
+		and self._tutorial.Visible
+		and self.screenGui.Enabled
+	then
+		return buy.instance
+	end
 	local frame: GuiObject = self._goal.frame
 	if frame.Visible and self.screenGui.Enabled then
 		return frame
@@ -5163,6 +5242,7 @@ function HUD.screenOpened(self: any, name: string?)
 		end
 		self:_renderFoldDot()
 	end
+	self:_renderStripBuy() -- #4847: the RANK UP ring steps aside for a window
 end
 
 function HUD._stopClock(self: any)
@@ -5669,6 +5749,15 @@ function HUD._layoutMenu(self: any)
 	-- (Derek 2026-11-02: "the luck on mobile should be moved somewhere better"); else they go beside the arrow tab
 	self._buffsLow = roomy
 		or self._menuTop + storeH + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
+	-- #4826: the grid and its arrow tab go in place first, so _liftTop's _leftClear reads where they are now (the Luck
+	-- chip sat under the arrow tab on a 667 x 375 phone when it read the tab's old spot)
+	self._menu.Position =
+		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._gridTop)
+	if not TOUCH then
+		store.Position =
+			UDim2.new(0, if self._menuFolded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop)
+	end
+	self:_placeMenuFold()
 	if TOUCH then
 		-- #2393: under the counters at the top middle, wherever the menu goes
 		self:_liftTop()
@@ -5678,14 +5767,6 @@ function HUD._layoutMenu(self: any)
 			Vector2.new(0, 1)
 		)
 	end
-
-	self._menu.Position =
-		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._gridTop)
-	if not TOUCH then
-		store.Position =
-			UDim2.new(0, if self._menuFolded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop)
-	end
-	self:_placeMenuFold()
 
 	-- the bottom row (and its arrow tab) keeps clear of the counters
 	-- #2334: the money badge sits after the golden fish now, so the counters' measured width counts too (the badge
@@ -5863,7 +5944,7 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 		-- #3529 (shared/NewKind): "Catch new kinds of cat 3/5" while five different cats is the goal
 		local newKind = if state ~= nil then state.newKindGoal else nil
 		if state ~= nil and type(newKind) == "number" and state.carrying == nil then
-			local title = NewKind.title(newKind, TOUCH)
+			local title = NewKind.title(newKind, TOUCH, NewKind.anyAt(state.tier or 1)) -- #4809: "Catch cats 2/3"
 			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
 			local opens = GoalLines.opens(self._nextTierName, TOUCH)
 			local lines: { string } = if opens then { opens } else {}

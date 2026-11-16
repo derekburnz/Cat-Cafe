@@ -6516,7 +6516,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_StoneFireplace_Fire_Bob"
   }

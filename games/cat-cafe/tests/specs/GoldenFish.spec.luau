@@ -358,7 +358,7 @@ return function()
 				golden_espresso = { 40, 80, 150, 250, 400 },
 				big_bowl = { 150 },
 				extra_decor_spot = { 100, 250 },
-				swift_paws = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 }, -- #3317, #4705 (ten levels)
+				swift_paws = { 60, 150, 300, 500, 800, 850, 900, 950, 1000, 1100 }, -- #3317, #4705, #4860
 				lucky_charm = { 100, 250, 500 }, -- #3298 (new-activities.md section 5)
 			}
 			for _, def in Catalog.crates do

@@ -2338,7 +2338,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_BirdBath_Bird_Bob"
   }

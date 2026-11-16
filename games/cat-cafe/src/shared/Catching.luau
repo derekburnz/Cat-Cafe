@@ -276,9 +276,10 @@ function Catching.secret(
 	roll: number,
 	pick: number,
 	on: boolean,
-	areas: { string }?
+	areas: { string }?,
+	share: number? -- #4900: a Secret tier food's own share (LureDef.secretShare), else Catalog.secretPerMythical
 ): Types.CatDef?
-	if not on or rarity ~= "Mythical" or roll >= Catalog.secretPerMythical then
+	if not on or rarity ~= "Mythical" or roll >= (share or Catalog.secretPerMythical) then
 		return nil
 	end
 	local list: { Types.CatDef } = {}

@@ -831,6 +831,37 @@ function Economy.rankUpCatCount(collection: { [string]: any }): number
 	return n
 end
 
+-- #4809: the cats toward `tierDef`'s cat need. A tier with anyCats (Tier 2) counts the cats owned now, any kind and
+-- duplicates included (each that countsForRankUp), or the different kinds ever caught when that is more, so it is
+-- never lower than before; every other tier counts different kinds (rankUpCatCount). `cats` is the profile's or the
+-- client state's uid -> instance map; without it the count is the different kinds.
+function Economy.rankUpCats(
+	collection: { [string]: any },
+	cats: { [string]: any }?,
+	tierDef: Types.TierDef
+): number
+	local kinds = Economy.rankUpCatCount(collection)
+	if tierDef.anyCats ~= true or cats == nil then
+		return kinds
+	end
+	local owned = 0
+	for _, instance in cats do
+		local catId = if type(instance) == "table" then instance.catId else nil
+		if type(catId) == "string" and Economy.countsForRankUp(catId) then
+			owned += 1
+		end
+	end
+	return math.max(kinds, owned)
+end
+
+-- The cat need's words: "3 cats" for an anyCats tier, else "5 different cats" (#4809).
+function Economy.rankUpCatWords(tierDef: Types.TierDef): string
+	return string.format(
+		if tierDef.anyCats == true then "%d cats" else "%d different cats",
+		tierDef.distinctCats
+	)
+end
+
 -- Of those, the ones of this rarity or rarer, for the Tier 3 to 5 requirement. An unknown id has no rarity, so it
 -- never meets one.
 function Economy.rankUpCatsAtLeast(collection: { [string]: any }, rarity: Types.Rarity): number
@@ -857,9 +888,9 @@ function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
 		local top = math.max(Economy.tier(profile), LateTiers.topTier())
 		return "Your cafe is already a " .. (Catalog.getTier(top) :: Types.TierDef).name
 	end
-	local cats = Economy.rankUpCatCount(profile.collection)
+	local cats = Economy.rankUpCats(profile.collection, profile.cats, nextTier)
 	if cats < nextTier.distinctCats then
-		return string.format("Needs %d different cats (you have %d)", nextTier.distinctCats, cats)
+		return string.format("Needs %s (you have %d)", Economy.rankUpCatWords(nextTier), cats)
 	end
 	local rarity: Types.Rarity? = nextTier.needsRarity
 	if rarity ~= nil then

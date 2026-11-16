@@ -74,6 +74,12 @@ export type Offsets = {
 export type Candidate<K> = { key: K, distance: number }
 
 export type PlotChange = "claim" | "release" | "rankUp"
+
+-- #4922: whether your own rank up plays at your door (it is `doorDistance` studs off, nil when not streamed in, and
+-- within `within`), so the celebration around you is not needed.
+function Logic.rankUpHere(doorDistance: number?, within: number): boolean
+	return doorDistance ~= nil and doorDistance <= within
+end
 export type AreasTurn = "dusk" | "sunrise"
 export type PrizeTier = "small" | "good" | "jackpot"
 

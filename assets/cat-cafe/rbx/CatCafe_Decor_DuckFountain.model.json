@@ -7495,7 +7495,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin"
   }

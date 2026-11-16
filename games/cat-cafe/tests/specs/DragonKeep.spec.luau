@@ -389,6 +389,7 @@ return function()
 				local profile = ProfileSchema.migrate({ version = 49 }, T) :: any
 				-- three Claw cards light the Claw set: +0.25 bowl luck, with Sharp Eye's 0.03
 				profile.dragon = withSlots({ "sharpEye", "quickPaws", "steadyClaw" })
+				profile.tier = 2 -- #4815: past the walk-through's bigger net
 				DragonKeep.setOn(false)
 				local off = DragonKeep.of(profile)
 				DragonKeep.setOn(true)

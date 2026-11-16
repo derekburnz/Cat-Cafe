@@ -11,8 +11,8 @@
 -- so the `Cat` model (CafeService.refreshBowl) appears in the plot's Bait folder while the camera is already there.
 -- SlotWalk walks a copy of it in from the yard on the walking body and swaps it for the real cat at the bowl; then
 -- the cat's local FirstBaitEatingLocal attribute has Cats.luau dip its head (Logic.eatPose). The server's model is
--- never moved. Design-Agent's spec on #2946 sets the shot and the timing. It does not play with Reduce Motion or at
--- night, when the camera is busy (the intro, a cannon flight, a context cut), when the bowl is not streamed in or far
+-- never moved. Design-Agent's spec on #2946 sets the shot and the timing. It does not play with Reduce Motion, when
+-- the camera is busy (the intro, a cannon flight, a context cut), when the bowl is not streamed in or far
 -- away, or when walls block every camera spot; the cat then just arrives. It swings back early when the cat does not
 -- come within `waitCat` seconds. Its outcome goes to the server as TelemetryReport("first_bait_cutscene", "shown",
 -- "skipped" or "none"). It never fires anything else.
@@ -221,8 +221,9 @@ function FirstBaitCut.play(): boolean
 		or camera == nil
 		or camera.CameraType ~= Enum.CameraType.Custom
 		or ContextCut.playing()
-		or Context.reducedMotion() -- the spec: no cut with Reduce Motion or at night; the cat just arrives
-		or Context.isNight()
+		-- no cut with Reduce Motion; the cat just arrives. #4850 (Derek: the tutorial bowl should always close the menu
+		-- and show the cat coming to the bowl): it plays at night too, so a new player who starts at night sees it
+		or Context.reducedMotion()
 	then
 		return false
 	end
@@ -435,8 +436,13 @@ function FirstBaitCut.start(clientUi: any)
 		local was = wasFirst
 		wasFirst = first
 		if was == true and first == false then
-			-- the first food just went in
+			-- the first food just went in. #4850: the bowl's window closes whether or not the cut plays (Reduce Motion,
+			-- a cut already running and the other skips left the food picker open over the screen). play() is
+			-- tried first and closes it itself, so a cut that plays sees the screen exactly as before.
 			if not FirstBaitCut.play() then
+				if ui ~= nil and type(ui.close) == "function" then
+					pcall(ui.close)
+				end
 				report("none")
 			end
 		end

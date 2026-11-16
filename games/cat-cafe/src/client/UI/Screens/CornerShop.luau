@@ -775,7 +775,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 				nil,
 				if food then ShopIcons.snackGlyph(food) else Theme.icons.potion,
 				"Rare",
-				nil
+				if food then ShopIcons.catFood(food) else nil -- #4900: its drawn picture when it has one
 			)
 		end
 		-- the name with "x2 left" at its end, and what it does under them, centred on the row
@@ -869,7 +869,12 @@ function CornerShop._pictureCard(
 		icon:setFood(Catalog.getLure(lureId), lureId)
 	else
 		local food = if def and def.kind == "food" then def.foodId or itemId else nil
-		icon:set(nil, if food then ShopIcons.snackGlyph(food) else Theme.icons.potion, "Rare", nil)
+		icon:set(
+			nil,
+			if food then ShopIcons.snackGlyph(food) else Theme.icons.potion,
+			"Rare",
+			if food then ShopIcons.catFood(food) else nil -- #4900
+		)
 	end
 	local y = 8 + CARD_PICTURE + 4
 	local name = text({

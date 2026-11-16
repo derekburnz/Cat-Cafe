@@ -9375,6 +9375,7 @@
      ]
     ]
    }
-  }
+  },
+  "ModelStreamingMode": "Atomic"
  }
 }

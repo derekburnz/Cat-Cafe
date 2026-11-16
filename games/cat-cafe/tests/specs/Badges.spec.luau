@@ -348,7 +348,7 @@ return function()
 		)
 
 		it(
-			"awards only First Catch and Cozy Cafe before Tier 3, everything from Tier 3 (#4775)",
+			"awards nothing before Tier 2, only First Catch and Cozy Cafe before Tier 3, everything from Tier 3 (#4775)",
 			function()
 				local profile = fresh()
 				-- the bowl-first walk-through's whole run up to the Tier 2 rank up
@@ -359,12 +359,16 @@ return function()
 				profile.stats.purrfectCatches = 1
 				profile.tutorialStep = 5
 				profile.grandOpening.finished = true
-				profile.tier = 2
+				profile.tier = 1
 				local ids: { [string]: number } = {}
 				for i, badge in Badges.LIST do
 					ids[badge.key] = i
 				end
 				withIds(ids, function()
+					-- Derek 2026-11-16 15:22 UTC: none at all in the walk-through, which ends at the Tier 2 rank up
+					expect(#Badges.due(profile, {}, {}, 0, { metOwner = true })).to.equal(0)
+					expect(Badges.allowed(profile, "firstCatch")).to.equal(false)
+					profile.tier = 2
 					expect(#Badges.earned(profile) >= 8).to.equal(true)
 					local due = Badges.due(profile, {}, {}, 0, { metOwner = true })
 					expect(table.concat(due, ",")).to.equal("firstCatch,cozyCafe")

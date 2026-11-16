@@ -26,7 +26,14 @@ local THIN = 3
 local THICK = 7
 local PULSE_SECONDS = 0.6
 
-function TutorialGlow.set(target: GuiObject?, on: boolean, outside: boolean?, noDim: boolean?)
+-- `lead` (#4909): with noDim, the arrow still leads over the HUD's tutorial targets (a card's button over the HUD)
+function TutorialGlow.set(
+	target: GuiObject?,
+	on: boolean,
+	outside: boolean?,
+	noDim: boolean?,
+	lead: boolean?
+)
 	if target == nil then
 		return
 	end
@@ -41,7 +48,7 @@ function TutorialGlow.set(target: GuiObject?, on: boolean, outside: boolean?, no
 	if existing then
 		return
 	end
-	TutorialArrow.add(target, noDim) -- #2314: and a big arrow points at it for a while (a `low` one: no dim)
+	TutorialArrow.add(target, noDim and lead ~= true, noDim and lead == true) -- #2314: and a big arrow points at it for a while (a `low` one: no dim)
 	local still = GuiService.ReducedMotionEnabled
 	local frame: Frame = Create("Frame", {
 		Name = TutorialGlow.NAME,

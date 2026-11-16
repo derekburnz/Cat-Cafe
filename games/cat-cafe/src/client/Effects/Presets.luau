@@ -2743,7 +2743,9 @@ Presets.netSmack = {
 
 -- #4061 (Ticket Booth spec 1.3): the two toys (`kinds`), fun only. While the server's `HeldToy` names one, NetHold puts its
 -- model in the hand in place of the net, by its `Grip` like a net, then turned by `turn` (degrees about X, Y, Z in
--- the Grip's space; 0 keeps the net's hold). Effects/ToyFx plays each use from the server's ToyUsed, for players
+-- the Grip's space; 0 keeps the net's hold). With `aim` the toy keeps the hand's place but turns with the body (the
+-- squirter's barrel along the facing, its Grip lined up with the HumanoidRootPart), since the net's hold points back
+-- over the shoulder (Studio, #4755). Effects/ToyFx plays each use from the server's ToyUsed, for players
 -- within `radius` studs:
 -- - squirter: `drops` water drops (`dropsLow` on a low budget, none with reduced motion) leave the Muzzle `every`
 --   seconds apart and arc `lift` studs (plus `liftPer` a stud of the shot) over `seconds` to the splash point, where
@@ -2754,9 +2756,9 @@ Presets.netSmack = {
 --   toyBonk squeak.
 Presets.toys = {
 	kinds = {
-		squirter = { model = "CatCafe_Item_WaterSquirter", turn = Vector3.new(0, 0, 0) },
-		noodle = { model = "CatCafe_Item_PoolNoodle", turn = Vector3.new(0, 0, 0) },
-	} :: { [string]: { model: string, turn: Vector3 } },
+		squirter = { model = "CatCafe_Item_WaterSquirter", turn = Vector3.new(0, 0, 0), aim = true },
+		noodle = { model = "CatCafe_Item_PoolNoodle", turn = Vector3.new(0, 0, 0), aim = false },
+	} :: { [string]: { model: string, turn: Vector3, aim: boolean } },
 	radius = 90,
 	drops = 7,
 	dropsLow = 3,

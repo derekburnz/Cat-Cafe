@@ -37,6 +37,7 @@ type Held = {
 	key: string, -- the model it should be (Avatar.heldModels' first: the toy's, or the net's)
 	toy: string?, -- the toy in the hand (Avatar.toyOf), nil for the net
 	turn: CFrame, -- the toy's extra turn in the hand (Presets.toys), identity for the net
+	aim: boolean, -- the toy turns with the body instead of the hand (Presets.toys `aim`)
 	offset: CFrame, -- the model's pivot from its Grip
 	parts: { BasePart }, -- the net's parts, to fade with the hand
 	smackAt: number?, -- server time the last smack began
@@ -108,6 +109,7 @@ local function entryOf(character: Model, rig: Avatar.Rig): Held
 			key = "",
 			toy = nil,
 			turn = CFrame.identity,
+			aim = false,
 			offset = CFrame.identity,
 			parts = {},
 			smackAt = nil,
@@ -152,6 +154,10 @@ function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boo
 			entry.model, entry.offset, entry.parts, entry.key = model, offset, parts, names[1]
 			local turn = if toy ~= nil then Presets.toys.kinds[toy].turn else Vector3.zero
 			entry.toy = toy
+			entry.aim = toy ~= nil and Presets.toys.kinds[toy].aim
+			if model ~= nil then
+				model:PivotTo(character:GetPivot()) -- near its owner until the hand places it
+			end
 			entry.turn = CFrame.Angles(math.rad(turn.X), math.rad(turn.Y), math.rad(turn.Z))
 			if model == nil then
 				entry.weight = 0 -- no net to hold, so the arm stays down
@@ -244,7 +250,12 @@ local function place()
 		end
 		local hand, grip = Avatar.netHand(entry.rig)
 		if hand ~= nil then
-			model:PivotTo(hand.CFrame * grip * entry.turn * entry.offset)
+			local at = hand.CFrame * grip
+			local root = if entry.aim then character:FindFirstChild("HumanoidRootPart") else nil
+			if root ~= nil and root:IsA("BasePart") then
+				at = CFrame.new(at.Position) * (root :: BasePart).CFrame.Rotation
+			end
+			model:PivotTo(at * entry.turn * entry.offset)
 			local fade = hand.LocalTransparencyModifier
 			for _, part in entry.parts do
 				part.LocalTransparencyModifier = fade

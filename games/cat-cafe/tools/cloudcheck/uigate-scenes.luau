@@ -10863,6 +10863,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(found, "uigate: the sunrise warning doesn't say tomorrow is a Triple Day (#1572)")
+		-- #4867: just the days, no explaining line
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and d.Visible and (d.Text:find("sunrise", 1, true) or d.Text:find("likely", 1, true)) and d:FindFirstAncestor("CatCafeAreaTitle") then
+				error("uigate: the day banner still explains itself: " .. d.Text .. " (#4867)")
+			end
+		end
 	end },
 	-- #2453: the Bag tile is a backpack, not the Potions tile's bottle (nor the gold money bag)
 	{ "HUDBagBackpack", function()

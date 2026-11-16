@@ -17,6 +17,11 @@
 -- same "!" and bubble over other tagged models, options.tag (the Spin Wheel's "SpinWheel"), with options.line(value)
 -- for the words or nil for none; :update(value) hands it the value. The words are read again every LOOK_SECONDS too,
 -- so a line that depends on the time (the free spin at 00:00 UTC) changes by itself.
+-- #4677 (Derek 2026-11-16: "the text here flashes when you walk", the Fish Market's Treats and perks bubble): the
+-- billboard now stands on its point (SizeOffset) instead of hanging half below it, so far away, where its pixel
+-- minimum makes it taller than its studs, it grows up into the sky rather than down into the stall's roof and sign,
+-- which cut through it from frame to frame as the camera moved. Its height over the stall is also held steady: the
+-- one-second look only moves it when the stall's top really changed (JUMP_STUDS), not for a part that sways.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -46,7 +51,9 @@ MarketBang.__index = MarketBang
 
 MarketBang.TAG = "FishMarket" -- FishMarketService.TAG
 MarketBang.RANGE = 150 -- studs, as the camp stations' "!" (ReadyBangRange)
-MarketBang.LIFT = 2 -- studs over the top of the stall
+MarketBang.LIFT = 0.5 -- studs from the top of the stall to the bubble's bottom edge (as before #4677 up close)
+MarketBang.STAND = 0.5 -- #4677: SizeOffset.Y, the billboard's bottom edge on its point
+MarketBang.JUMP_STUDS = 0.75 -- #4677: a smaller change in the stall's top leaves the "!" where it is
 MarketBang.BOB_STUDS = 1
 MarketBang.BOB_SECONDS = 2 -- one full bob, up and back down
 MarketBang.LOOK_SECONDS = 1 -- a stall not streamed in yet is looked for again
@@ -240,6 +247,7 @@ function MarketBang._apply(self: any)
 		local bang: Bang? = self._bangs[model]
 		if bang == nil and words ~= nil then
 			bang = MarketBang.build(self._parent, self._name)
+			bang.gui.SizeOffset = Vector2.new(0, MarketBang.STAND) -- #4677
 			self._bangs[model] = bang
 		end
 		if bang ~= nil then
@@ -248,10 +256,12 @@ function MarketBang._apply(self: any)
 				anchor, lift = anchorOf(model)
 			end
 			local gui: any = bang.gui
-			if gui.Adornee ~= anchor then
+			local moved = gui.Adornee ~= anchor
+			if moved then
 				gui.Adornee = anchor -- nil while hidden, so a streamed-out stall isn't held on to
 			end
-			if gui.StudsOffsetWorldSpace ~= lift then
+			-- #4677: a new stall part, or a top that moved more than JUMP_STUDS; a part that sways leaves it be
+			if moved or (gui.StudsOffsetWorldSpace - lift).Magnitude > MarketBang.JUMP_STUDS then
 				gui.StudsOffsetWorldSpace = lift
 			end
 			local on = anchor ~= nil

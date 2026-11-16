@@ -1,0 +1,152 @@
+--!strict
+-- The first minute's two payoffs (Growth-Agent's first-minute timeline, Design-Agent's edits on Nov 16; first 5
+-- minutes priority):
+--   * The first bowl cat's bait card (the one wide "Tame it!", BaitCard's first card: its Let go button hidden): as
+--     the card pops in, gold sparkles burst off its Tame button with two rings, and Moments.FirstBowlCard(rarity)
+--     has Audio play that rarity's jingle. No new card: this is the reveal.
+--   * The first net catch of the walk-through (Moments.CatchSuccess while ProfileSync's tutorialStep is still before
+--     the first check-in, TutorialOrder.BOWL_STEP_BELOW): a confetti cheer round the player and
+--     Moments.FirstCatchCheer for Audio's cheer.
+-- Each once a session. Screen parts through ScreenFx (it only reads the UI); Reduce Motion: no confetti or rings,
+-- the sounds still play. Listening only: no remotes, no game state.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Context = require(script.Parent.Context)
+local Moments = require(script.Parent.Parent.Moments)
+local Net = require(script.Parent.Parent.Net)
+local Particles = require(script.Parent.Particles)
+local Presets = require(script.Parent.Presets)
+local ScreenFx = require(script.Parent.ScreenFx)
+local WowBaitGlow = require(script.Parent.WowBaitGlow)
+
+local TutorialOrder =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder"))
+
+local FirstMinuteFx = {}
+
+local started = false
+local cardDone = false
+local catchDone = false
+local tutorialStep: number? = nil
+
+-- Whether a catch now is the walk-through's first net catch: before the first check-in, and not yet cheered.
+function FirstMinuteFx.cheers(step: number?, already: boolean): boolean
+	return not already and step ~= nil and step < TutorialOrder.BOWL_STEP_BELOW
+end
+
+local function button(gui: Instance, name: string): GuiObject?
+	local found = gui:FindFirstChild(name, true)
+	return if found ~= nil and found:IsA("GuiObject") then found :: GuiObject else nil
+end
+
+local function cardShown(gui: ScreenGui)
+	if cardDone or not gui.Enabled then
+		return
+	end
+	local p = Presets.firstMinute.card
+	task.delay(p.wait, function() -- the card pops in first
+		if cardDone or not gui.Enabled then
+			return
+		end
+		local tame = button(gui, "Tame")
+		local letGo = button(gui, "LetGo")
+		-- the first bowl cat's card: the wide Tame it! and no Let go
+		if
+			tame == nil
+			or not ScreenFx.shown(tame :: GuiObject)
+			or (letGo ~= nil and (letGo :: GuiObject).Visible)
+		then
+			return
+		end
+		cardDone = true
+		Moments.FirstBowlCard:Fire(WowBaitGlow.rarity())
+		if Context.reducedMotion() then
+			return
+		end
+		local fx = ScreenFx.gui("EffectsFirstMinute", p.displayOrder)
+		if fx == nil then
+			return
+		end
+		local object = tame :: GuiObject
+		local centre = ScreenFx.centre(fx, object)
+		local half = object.AbsoluteSize / 2
+		local spots = {}
+		for i = 1, p.sparks do
+			local side = if i % 2 == 0 then 1 else -1
+			local along = ((i - 1) / math.max(p.sparks - 1, 1)) * 2 - 1
+			table.insert(spots, centre + Vector2.new(along * half.X, side * half.Y))
+		end
+		ScreenFx.sparkle(fx, spots, p.colour, p.sparkle)
+		for i = 1, p.rings do
+			task.delay((i - 1) * p.ringEvery, function()
+				ScreenFx.ring(fx, centre, half.X, half.X * p.ringGrow, p.colour, p.ringSeconds)
+			end)
+		end
+	end)
+end
+
+local function watchCard(playerGui: Instance)
+	local function hook(child: Instance)
+		if child.Name == "CatCafeBaitCard" and child:IsA("ScreenGui") then
+			local gui = child :: ScreenGui
+			gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+				cardShown(gui)
+			end)
+			cardShown(gui)
+		end
+	end
+	for _, child in playerGui:GetChildren() do
+		hook(child)
+	end
+	playerGui.ChildAdded:Connect(hook)
+end
+
+local function caught()
+	if not FirstMinuteFx.cheers(tutorialStep, catchDone) then
+		return
+	end
+	catchDone = true
+	Moments.FirstCatchCheer:Fire()
+	if Context.reducedMotion() then
+		return
+	end
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return
+	end
+	local p = Presets.firstMinute.cheer
+	local at = (root :: BasePart).Position
+	local right = (root :: BasePart).CFrame.RightVector
+	local count = math.ceil(Context.budget.confetti * p.confetti)
+	for _, side in { -1, 1 } do
+		Particles.confetti(at + right * (side * p.side) + Vector3.new(0, p.up, 0), count)
+	end
+	Particles.burst("gateSparkle", at + Vector3.new(0, p.up, 0), p.sparkle)
+end
+
+function FirstMinuteFx.start()
+	if started then
+		return
+	end
+	started = true
+	Net.on("ProfileSync", function(state: unknown)
+		if type(state) == "table" then
+			local step = (state :: { [string]: unknown }).tutorialStep
+			if type(step) == "number" then
+				tutorialStep = step
+			end
+		end
+	end)
+	Moments.CatchSuccess:Connect(caught)
+	task.spawn(function()
+		local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui", 30)
+		if playerGui ~= nil then
+			watchCard(playerGui)
+		end
+	end)
+end
+
+return FirstMinuteFx

@@ -6505,6 +6505,27 @@ Presets.waitingCat = {
 	},
 }
 
+-- Effects/FirstMinuteFx: the first bowl cat card's sparkle and the first net catch's cheer.
+Presets.firstMinute = {
+	card = {
+		wait = 0.35, -- the card pops in first
+		displayOrder = 36, -- over the bait card (35), under the cat found reveal (40)
+		sparks = 10,
+		sparkle = { size = 14, seconds = 0.6, reach = 46, stagger = 0.15 },
+		rings = 2,
+		ringEvery = 0.25,
+		ringGrow = 2.2,
+		ringSeconds = 0.6,
+		colour = Color3.fromRGB(255, 214, 92),
+	},
+	cheer = {
+		confetti = 0.75, -- of the budget's confetti, from each side
+		side = 3,
+		up = 3,
+		sparkle = 12,
+	},
+}
+
 -- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.
 Presets.rankUpPulse = {
 	displayOrder = 29, -- over the HUD and windows, under toasts (30)

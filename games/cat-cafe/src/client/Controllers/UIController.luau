@@ -689,6 +689,15 @@ local function refreshTutorial(s: Types.PlayerState)
 	local bowlRest = TutorialOrder.bowlFirst() and s.tutorialStep >= 2 and (s.tier or 1) == 1
 	if bowlNow then
 		local bait: any = s.bait
+		-- #4674: the bowl part's three lines stand in for tut_0_shown and tut_1_shown (TutorialOrder.BOWL_STEPS)
+		local key = if bait ~= nil and bait.cat ~= nil
+			then "arrived"
+			elseif bait ~= nil then "waiting"
+			else "food"
+		if not stepsReported["bowl:" .. key] then
+			stepsReported["bowl:" .. key] = true
+			Net.fire("TelemetryReport", TutorialOrder.REPORT, key)
+		end
 		if bait ~= nil and bait.cat ~= nil then
 			showTutorial(s, "Your bowl cat is here! Tame it", UIController.ownBaitBowl(), "Bowl")
 		elseif bait ~= nil then
@@ -1865,8 +1874,12 @@ local function wireIntents()
 			end
 		end)
 	end
-	UI.events.rollTrait:Connect(function(uid: string)
-		Net.fire("RollTrait", uid)
+	UI.events.rollTrait:Connect(function(uid: string, stopAt: string?)
+		if stopAt ~= nil then
+			Net.fire("RollTrait", uid, stopAt) -- #4712: one Auto Roll step
+		else
+			Net.fire("RollTrait", uid)
+		end
 	end)
 	UI.events.chooseTrait:Connect(function(takeNew: boolean)
 		Net.fire("ChooseTrait", takeNew == true)

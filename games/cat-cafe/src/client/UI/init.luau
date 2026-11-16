@@ -259,7 +259,7 @@ UI.events = {
 	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
 	-- #3196 (the Mystic Pool's card): forward as RollTrait(uid), ChooseTrait(takeNew) and CollectTraitTokens()
-	rollTrait = Signal.new(), -- (uid)
+	rollTrait = Signal.new(), -- (uid, stopAt?)  #4712: stopAt (a rarity id) makes it one Auto Roll step
 	chooseTrait = Signal.new(), -- (takeNew)
 	collectTraitTokens = Signal.new(), -- ()
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
@@ -8499,6 +8499,9 @@ do
 			collect = function()
 				send("CollectFusion")
 			end,
+			fuseAll = function()
+				send("FuseAll") -- #4589
+			end,
 			close = closer(WINDOWS.fusion),
 		})
 		late.fusion = fusion
@@ -8724,6 +8727,14 @@ do
 	end
 
 	-- LateStationResult: a refusal wakes the card (the server's toast says why); a gift bursts its exhibit.
+	-- #4589: FusionSummary, what one Fuse all made (LateStationsController)
+	function UI.lateStations.fusionSummary(made: any)
+		local fusion = late.fusion
+		if fusion and type(made) == "table" then
+			fusion:summary(made)
+		end
+	end
+
 	function UI.lateStations.result(stationId: string, ok: boolean, detail: any)
 		if not ok then
 			local card: any = if stationId == LateStationsLogic.SPA then late.spa else late.museum
@@ -8810,8 +8821,8 @@ do
 			return
 		end
 		local card = MysticPool.new({
-			roll = function(uid: string)
-				UI.events.rollTrait:Fire(uid)
+			roll = function(uid: string, stopAt: string?)
+				UI.events.rollTrait:Fire(uid, stopAt)
 			end,
 			choose = function(takeNew: boolean)
 				UI.events.chooseTrait:Fire(takeNew)

@@ -11,7 +11,9 @@ local StoreTabs =
 local MarketBangLogic = {}
 
 MarketBangLogic.TREATS_TAB = "treats" -- shared/StoreTabs id, sent with MarkStoreSeen
-MarketBangLogic.TREATS_LINE = "🍪 Treats and perks to check out!"
+-- #4677: a fixed line break, so the scaled text no longer re-wraps between "to / check out!" and "to check / out!"
+-- as you walk up (Sync's Studio look)
+MarketBangLogic.TREATS_LINE = "🍪 Treats and perks\nto check out!"
 
 function MarketBangLogic.count(crates: { [string]: number }?): number
 	local total = 0

@@ -114,6 +114,13 @@ function LateStationsController.start()
 			result(stationId, ok, detail)
 		end
 	end)
+	-- #4589: what one Fuse all made, for the Observatory's summary card
+	Net.on("FusionSummary", function(made: any)
+		local summary = hook("fusionSummary")
+		if summary ~= nil then
+			summary(made)
+		end
+	end)
 	for _, instance in CollectionService:GetTagged(LateStations.TAG) do
 		track(instance)
 	end

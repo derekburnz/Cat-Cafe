@@ -135,7 +135,11 @@ return function()
 				for _, cat in Catalog.cats do
 					local model = Catalog.catModelName(cat.id)
 					expect(ServerOnlyAssets.matches(model)).to.equal(false)
-					expect(ServerOnlyAssets.matches(Catalog.sitModelName(model))).to.equal(false)
+					-- #4601: the seated body is the server's alone too, but the three a client script names
+					local seated = Catalog.sitModelName(model)
+					expect(ServerOnlyAssets.matches(seated)).to.equal(
+						ServerOnlyAssets.CLIENT_SIT[seated] ~= true
+					)
 					expect(ServerOnlyAssets.matches(Catalog.goldModelName(cat.id))).to.equal(false)
 					-- #4601: the standing worker body is the server's alone
 					expect(ServerOnlyAssets.matches(Catalog.workModelName(model))).to.equal(true)
@@ -152,30 +156,63 @@ return function()
 			end
 		)
 
+		it("takes every cat's standing worker body and leaves its walking one (#4601)", function()
+			for _, name in
+				{
+					"CatCafe_Cat_Tabby_Work",
+					"CatCafe_Cat_Tabby_Gold_Work",
+					"CatCafe_Cat_BellhopCat_Work",
+					"CatCafe_Cat_SnowLeopard_Gold_Work",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(true)
+			end
+			for _, name in
+				{
+					"CatCafe_Cat_Tabby",
+					"CatCafe_Cat_Tabby_Gold",
+					"CatCafe_Cat_Work", -- a cat named Work would be a walking body
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(false)
+			end
+		end)
+
 		it(
-			"takes every cat's standing worker body and leaves its walking and seated ones (#4601)",
+			"takes every cat's seated body but the three a client script copies by name (#4601)",
 			function()
 				for _, name in
 					{
-						"CatCafe_Cat_Tabby_Work",
-						"CatCafe_Cat_Tabby_Gold_Work",
-						"CatCafe_Cat_BellhopCat_Work",
-						"CatCafe_Cat_SnowLeopard_Gold_Work",
+						"CatCafe_Cat_Siamese_Sit",
+						"CatCafe_Cat_SnowLeopard_Sit",
+						"CatCafe_Cat_Tabby_Gold_Sit",
+						"CatCafe_Cat_Tuxedo_Gold_Sit",
+						"CatCafe_Cat_BellhopCat_Gold_Sit",
 					}
 				do
 					expect(ServerOnlyAssets.matches(name)).to.equal(true)
 				end
-				for _, name in
-					{
-						"CatCafe_Cat_Tabby",
-						"CatCafe_Cat_Tabby_Sit",
-						"CatCafe_Cat_Tabby_Gold",
-						"CatCafe_Cat_Tabby_Gold_Sit",
-						"CatCafe_Cat_Work", -- a cat named Work would be a walking body
-					}
-				do
+				-- the three stay with the clients, and they are the ones the client scripts name
+				local Intro =
+					require(game:GetService("ReplicatedStorage"):WaitForChild("Shared").Intro)
+				local kept = {
+					Catalog.sitModelName(Catalog.catModelName(Intro.DEMO_CAT)), -- IntroController's demo cat
+					"CatCafe_Cat_BellhopCat_Sit", -- Effects Presets.bellhop.sitModel
+					"CatCafe_Cat_Tabby_Sit", -- Effects Presets.mysticIntro.cat
+				}
+				local count = 0
+				for _ in ServerOnlyAssets.CLIENT_SIT do
+					count += 1
+				end
+				expect(count).to.equal(#kept)
+				for _, name in kept do
+					expect(ServerOnlyAssets.CLIENT_SIT[name]).to.equal(true)
 					expect(ServerOnlyAssets.matches(name)).to.equal(false)
 				end
+				-- a customer's seated twin and an accessory's seated cut are not cats
+				expect(ServerOnlyAssets.matches("CatCafe_NPC_Customer_A_Sit")).to.equal(false)
+				expect(ServerOnlyAssets.matches("CatCafe_Accessory_Vest_Sit")).to.equal(false)
+				expect(ServerOnlyAssets.matches("CatCafe_Cat_Sit")).to.equal(false) -- a cat named Sit
 			end
 		)
 

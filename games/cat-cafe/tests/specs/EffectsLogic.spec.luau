@@ -52,6 +52,12 @@ return function()
 			expect(Logic.plotChange(42, 3, 42, 3, 10)).to.equal(nil)
 		end)
 
+		it("plays your rank up at the door only when it is near (#4922)", function()
+			expect(Logic.rankUpHere(40, 120)).to.equal(true)
+			expect(Logic.rankUpHere(300, 120)).to.equal(false)
+			expect(Logic.rankUpHere(nil, 120)).to.equal(false)
+		end)
+
 		it("opens only the gates crossed by a rank up", function()
 			local opened = Logic.newlyOpen({ Park = 2, Woods = 3, Sewer = 5 }, 2, 3)
 			expect(#opened).to.equal(1)

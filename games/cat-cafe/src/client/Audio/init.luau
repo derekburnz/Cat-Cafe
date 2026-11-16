@@ -2141,9 +2141,6 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	UnplaceCat = function()
 		Audio.play("catRest")
 	end,
-	CatSold = function()
-		Audio.play("catSold")
-	end,
 
 	CoinPop = function(position: any)
 		Audio.play("coinPop", vec(position))

@@ -8099,7 +8099,9 @@ do
 			tag = "BellhopStand", -- shared/StarterCat.TAG
 			name = "CatCafeStarterBang",
 			line = function(claimed: any): string?
-				if claimed ~= false then
+				-- #4854 follow-up (Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none in the
+				-- session's first 5 minutes or the walk-through (UI.pace.early); every state update reads it again
+				if claimed ~= false or UI.pace.early() then
 					return nil
 				end
 				return if (SharedConfig.GroupId or 0) ~= 0
@@ -8109,6 +8111,17 @@ do
 		})
 		starterBang:update((state :: any).starterCatClaimed)
 		camp.starter = starterBang
+		-- #4854: and once more as the first 5 minutes end, should no state update come then
+		local quietLeft = UI.pace.startedAt
+			+ require(script.Components.PopupPace).EARLY_SECONDS
+			- os.clock()
+		if quietLeft > 0 then
+			task.delay(quietLeft + 1, function()
+				if camp.starter == starterBang then
+					starterBang:update((state :: any).starterCatClaimed)
+				end
+			end)
+		end
 		local modalView = modal
 		if modalView == nil then
 			return

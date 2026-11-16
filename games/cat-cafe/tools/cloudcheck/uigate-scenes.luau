@@ -11615,7 +11615,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return nil
 		end
+		-- #4854: none in the session's first 5 minutes (a social ask), then the bubble
+		local pace = (UI :: any).pace
+		local startedAt = pace.startedAt
+		pace.startedAt = os.clock()
 		UI.update({ starterCatClaimed = false } :: any)
+		local quiet = bang()
+		assert(quiet == nil or not quiet.Enabled, "uigate: the free cat's join the group bubble shows in the first 5 minutes (#4854)")
+		UI.asks.skipPace()
+		UI.update({ starterCatClaimed = false, money = ((UI.getState() :: any).money or 0) + 1 } :: any)
 		local gui = bang()
 		assert(gui and gui.Enabled, "uigate: no ! over the free cat's stand (#2501)")
 		local line = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel
@@ -11623,6 +11631,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ starterCatClaimed = true } :: any)
 		assert(not (gui :: BillboardGui).Enabled, "uigate: the stand's ! stays after the cat is taken (#2501)")
 		UI.update({ starterCatClaimed = before } :: any)
+		pace.startedAt = startedAt
 		stand:Destroy()
 	end },
 	-- #3195: the red "!" over the Night Market's cart from nightfall until the market is opened that night

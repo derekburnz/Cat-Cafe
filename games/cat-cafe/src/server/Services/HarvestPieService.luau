@@ -93,10 +93,12 @@ local function publish()
 end
 
 -- One push and read: the catches since the last push go in with the total; with none, the total is read.
+-- Sync's Studio run: GetHashMap throws in an unpublished place (and could in a MemoryStore outage), so it is inside the
+-- pcall with the calls, and a failed sync keeps the catches to push next time.
 local function sync()
-	local map = MemoryStoreService:GetHashMap(MAP)
 	local adding = pending
 	local ok, result = pcall(function(): any
+		local map = MemoryStoreService:GetHashMap(MAP)
 		if adding > 0 then
 			return map:UpdateAsync(KEY, function(old: any): any
 				local before = if type(old) == "number" and old == old and old >= 0 then old else 0
@@ -124,7 +126,10 @@ function HarvestPieService.start()
 	end
 	task.delay(math.max(0, from - os.time()), function()
 		while os.time() < untilAt do
-			sync()
+			-- one bad sync must not end the pie for the server's life
+			xpcall(sync, function(err: unknown)
+				warn("[HarvestPie] sync: " .. tostring(err))
+			end)
 			task.wait(PUSH_SECONDS)
 		end
 	end)

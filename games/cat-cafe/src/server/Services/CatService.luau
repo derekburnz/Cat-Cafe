@@ -984,9 +984,10 @@ local function spawnAt(
 	return stray
 end
 
--- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84).
-local function tutorialPoints(): { number }
-	local area = world.areas[TUTORIAL_AREA]
+-- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84). #4920: another
+-- area's with `areaId` (the Park's, for the walk-through's Park trip at night).
+local function tutorialPoints(areaId: string?): { number }
+	local area = world.areas[areaId or TUTORIAL_AREA]
 	local list: { number } = {}
 	if area ~= nil then
 		for i, point in area.spawnPoints do
@@ -1038,7 +1039,22 @@ local function tutorialTick()
 			-- a new one within a tick of the last being caught. Not reserved and no easy catch: the Beginner
 			-- attribute would give them the tutorial's "Try again!" and swing help on the client.
 			-- #3659: and so does a Tier 1 player who has not caught a cat by hand yet, in any session
-			if night and NightPass.nightCatOf(profile, nightCatch) then
+			if
+				night
+				and M.Economy.tier(profile) == NightPass.WALK_TIER
+				and NightPass.walkOf(profile)
+			then
+				-- #4920 (Sync's night run 2026-11-16): the walk-through's Park trip at night (#4916's pass flies it
+				-- there) finds one Common at a Park `near` point, a kind the save lacks, as Tier 1 does in the Alleyway
+				nightHolders[player.UserId] = true
+				local points = tutorialPoints(NightPass.PARK_AREA)
+				local point = if #points > 0 then points[(plot.index - 1) % #points + 1] else nil
+				local taken = occupiedPoints[NightPass.PARK_AREA] or {}
+				if point ~= nil and taken[point] == nil then
+					spawnAt(NightPass.PARK_AREA, point, "Common", nil, profile.collection).nightFor =
+						player.UserId
+				end
+			elseif night and NightPass.nightCatOf(profile, nightCatch) then
 				nightHolders[player.UserId] = true
 				local point = near[plot.index]
 				if point ~= nil and occupied[point] == nil then

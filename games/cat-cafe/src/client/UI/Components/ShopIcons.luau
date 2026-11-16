@@ -243,8 +243,6 @@ local IDS: { [string]: string } = {
 	Icon_DragonFamily_Crown = "rbxassetid://91850271285128",
 	-- #4061: the Ticket Booth's prizes and weekly shelf (Model-Agent); ShopIcons.booth
 	Icon_ShopCat_BoothPlush = "rbxassetid://126308376800797",
-	Icon_Booth_WaterSquirter = "rbxassetid://127849436597884",
-	Icon_Booth_PoolNoodle = "rbxassetid://137047405302523",
 	Icon_Booth_FlamingoFloat = "rbxassetid://104577381956407",
 	Icon_Booth_SplashFountain = "rbxassetid://73775856027824",
 	Icon_Booth_TicketArch = "rbxassetid://123078102631830",
@@ -623,7 +621,7 @@ function ShopIcons.dragonFamily(family: string?): string?
 	)]
 end
 
--- #4061: a Ticket Booth prize or shelf picture by its name ("PoolNoodle", "BoothPlush"), or nil.
+-- #4061: a Ticket Booth prize or shelf picture by its name ("BoothPlush"), or nil.
 function ShopIcons.booth(name: string?): string?
 	if type(name) ~= "string" then
 		return nil

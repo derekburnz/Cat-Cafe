@@ -33,8 +33,6 @@ local REMOTES: { [string]: boolean } = {
 	MuseumDonate = true,
 	MuseumFill = true, -- #3130
 	BuyTicketPrize = true, -- #4061: the Ticket Booth's BUY (prize id)
-	HoldToy = true, -- #4061 spec 1.3: a toy card's HOLD (toy id) or PUT AWAY (nil)
-	UseToy = true, -- #4061 spec 1.3: the ToyButton
 	-- #4062: the Dragon Keep window
 	GiveToKeep = true,
 	PickDragonCard = true,

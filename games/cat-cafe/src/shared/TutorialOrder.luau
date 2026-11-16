@@ -19,6 +19,15 @@ local TutorialOrder = {}
 
 TutorialOrder.FLAG = "catchFirst"
 TutorialOrder.BOWL_STEP_BELOW = 2 -- the bowl part runs before the first check-in (tutorialStep 0 and 1)
+-- #4674 (Review-QA and Growth-Agent 2026-11-16): bowl first skips tut_0_shown and tut_1_shown while the bowl part
+-- runs, so its three strip lines are reported instead, each once a session, as step_time events
+-- (TelemetryReport("bowl_step", key), Telemetry): the food ask, the cat on its way, the cat at the bowl.
+TutorialOrder.REPORT = "bowl_step"
+TutorialOrder.BOWL_STEPS = {
+	food = "tut_bowl_food",
+	waiting = "tut_bowl_waiting",
+	arrived = "tut_bowl_arrived",
+} :: { [string]: string }
 
 -- Whether the walk-through runs bowl first: the switch stored false. Read from ReplicatedStorage's copy, so it is the
 -- same answer on both sides.

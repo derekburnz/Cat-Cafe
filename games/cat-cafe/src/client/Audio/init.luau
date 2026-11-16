@@ -1948,22 +1948,8 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	CircleHold = function(index: any)
 		Audio.play("circleHold", nil, num(index))
 	end,
-	-- #3062 Cat Arcade (Circle Streak): ArcadeStart() as a run begins (the fish is paid), ArcadeMilestone() at each
-	-- 10 circles, ArcadeEnd(streak, won) when the run ends (a win plays the Museum's reward jingle). The circles
-	-- sound through CircleAppear and CircleGrade. Skipped until Gameplay-Engineer adds the moments.
-	ArcadeStart = function()
-		Audio.play("arcadeStart")
-	end,
-	ArcadeMilestone = function()
-		Audio.play("arcadeMilestone")
-	end,
-	ArcadeEnd = function(streak: any, won: any)
-		if won == true then
-			Audio.play("indexReward")
-		elseif (num(streak) or 0) > 0 then
-			Audio.play("arcadeEnd")
-		end
-	end,
+	-- #4722: Circle Streak's ArcadeStart, ArcadeMilestone and ArcadeEnd handlers went with the game; its cues stay,
+	-- Mouse Dash plays them.
 	-- #3296 Mouse Dash (the second Cat Arcade game; UIController fires these like the Arcade* ones). `kind` is
 	-- "mouse", "golden" or "kitten". MouseDashStart() as a run begins, MouseDashPop(kind) as one pops up,
 	-- MouseDashCatch(points, kind, streak) for a catch, MouseDashMiss(kind) for a heart lost ("escape", "kitten" or

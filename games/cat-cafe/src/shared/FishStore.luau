@@ -2,8 +2,9 @@
 -- #4055 (Derek 2026-11-13 23:53 UTC, store-fish-prices plan): some Store passes can also be bought with golden fish, at
 -- about 50 fish per Robux (rounded to 50). A pass bought with fish gives exactly what the Robux pass gives: its id
 -- joins the player's owned set (PassService.addBought), so every check that reads PassService reads it the same way.
--- The money passes, VIP, the Royal and King cats, Extra Slot, Second Bowl, the Starter Bundle, the Cafe Pass and the
--- Thank You Badge are never on this list (Robux only). Nothing random is sold here. Pure.
+-- #4610 (Derek 2026-11-15 22:21 UTC: "make it only 2x/3x/4x money and starter pack robux only rest can be earned with
+-- fish"): every Store pass is on the list except the 2x, 3x and 4x Money passes (ROBUX_ONLY_PASSES), and the
+-- Starter Bundle stays a Robux only product. Nothing random is sold here. Pure.
 
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
@@ -16,8 +17,9 @@ FishStore.PER_ROBUX = 50
 export type Item = {
 	key: string, -- the save key in profile.fishBought, and what BuyWithFish sends
 	name: string,
-	passField: string, -- the Config field that holds the Robux pass id
-	robux: number, -- the Robux price (passes.json), the fish price's base
+	passField: string, -- the Config field that holds the Robux pass id (a number, or a list whose first made id counts)
+	robux: number, -- the full Robux price before any sale (Config.StoreWasPrice `was`), the fish price's base
+	flag: string?, -- a LiveFlag the pass waits for (its Store card hides while off), so a fish buy waits too
 }
 
 -- In the Store's order. Robux prices from passes.json.
@@ -42,7 +44,25 @@ FishStore.LIST = {
 		robux = 149,
 	},
 	{ key = "signStyles", name = "Sign Style Pack", passField = "SignStylePackPassId", robux = 79 },
+	-- #4610: the rest of the Store's passes, at the full price (the half price sale does not lower a fish price).
+	-- Design-Agent may set final fish prices; until then the same 50 a Robux rule.
+	{ key = "vip", name = "VIP", passField = "VipPassId", robux = 25 },
+	{ key = "extraSlot", name = "Extra Slot", passField = "ExtraSlotPassIds", robux = 149 },
+	{ key = "longNap", name = "Long Nap", passField = "LongNapPassId", robux = 199 },
+	{ key = "secondBowl", name = "Second Bait Bowl", passField = "SecondBowlPassId", robux = 149 },
+	{
+		key = "autoBowl",
+		name = "Auto Bowl",
+		passField = "AutoBowlPassId",
+		robux = 19,
+		flag = "autoBowl",
+	},
+	{ key = "royalCat", name = "Royal Cat Pack", passField = "RoyalCatPassId", robux = 599 },
+	{ key = "kingPack", name = "Cat King Pack", passField = "KingPackPassId", robux = 999 },
 } :: { Item }
+
+-- #4610: the only passes that are never sold for fish (with the Starter Bundle, a product, never on this list).
+FishStore.ROBUX_ONLY_PASSES = { "MoneyPassIds" } :: { string }
 
 local byKey: { [string]: Item } = {}
 for _, item in FishStore.LIST do
@@ -58,9 +78,18 @@ function FishStore.price(item: Item): number
 	return math.floor(item.robux * FishStore.PER_ROBUX / 50 + 0.5) * 50
 end
 
--- The Robux pass's id, 0 while it is not made (then it cannot be bought with fish either).
+-- The Robux pass's id, 0 while it is not made (then it cannot be bought with fish either). For a list field
+-- (ExtraSlotPassIds), its first made id, as the Store card reads it.
 function FishStore.passId(item: Item): number
 	local id = (Config :: any)[item.passField]
+	if type(id) == "table" then
+		for _, each in id do
+			if type(each) == "number" and each ~= 0 then
+				return each
+			end
+		end
+		return 0
+	end
 	return if type(id) == "number" then id else 0
 end
 

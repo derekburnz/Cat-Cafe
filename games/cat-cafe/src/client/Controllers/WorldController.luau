@@ -496,8 +496,9 @@ local function followClock()
 		end
 	end)
 	while true do
+		-- a phase change's SKY_JUMP_SECONDS ease (a jump of the clock) keeps the fast step, so it never shows as steps
 		task.wait(
-			if lowPerformance or Effects.tier() == "low"
+			if (lowPerformance or Effects.tier() == "low") and blendFrom == nil
 				then SKY_STEP_LOW_SECONDS
 				else SKY_STEP_SECONDS
 		)

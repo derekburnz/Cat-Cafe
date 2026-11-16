@@ -3,13 +3,14 @@
 -- OK'd 2026-11-14 00:43 UTC): what the window shows from PlayerState.dragon and the player's cats. Pure apart from the
 -- shared modules it reads (DragonKeep, Catalog), so the specs check it.
 --   title(view) -> string                     "Cinder · Drake", "Cinder · Egg" before the first stage
---   warmth(view) -> (string, number)          "1,480 / 2,500 warmth" and the bar's 0 to 1
+--   warmth(view) -> (string, number)          "1,480 / 2,100 warmth" and the bar's 0 to 1
 --   slots(view) -> { Slot }                   the five slots: a card, empty or "Stage 4" locked
---   setsLine(view) -> string                  "Sets: Flame 2/3 · Wing 1/3", or how sets work
+--   setsLine(view) -> string                  "Sets: Flame 2/3 · Wing 4/5", or how sets work
+--   setRows(view) -> { SetRow }               every family's 3 and 5 card bonuses for the Sets tab
 --   oddsLine(odds) -> string                  "Card odds: Common 45% · Rare 30% · ..."
 --   binder(view) -> { Entry }                 every card in family order, owned or not, with its slot
 --   candidates(cats, busy) -> { Candidate }   the cats that may move in, weakest first
---   quick(candidates, kind) -> { string }     the "Spare Commons" and "Repeats" picks
+--   byRarity(candidates, rarity, total)       the "All Common" to "All Mythical" picks
 --   picked(candidates, set) -> (count, warmth, special)
 --   FAMILY_NAMES, FAMILY_COLOURS, FAMILY_ICONS
 
@@ -138,7 +139,8 @@ function DragonKeepLogic.slots(view: any): { Slot }
 	return out
 end
 
-function DragonKeepLogic.setsLine(view: any): string
+-- Cards of each family in the slots.
+local function slotCounts(view: any): { [string]: number }
 	local counts: { [string]: number } = {}
 	for _, id in (if view ~= nil then view.slots or {} else {}) do
 		local card = if id ~= "" then DragonKeep.card(id) else nil
@@ -146,23 +148,83 @@ function DragonKeepLogic.setsLine(view: any): string
 			counts[card.family] = (counts[card.family] or 0) + 1
 		end
 	end
+	return counts
+end
+
+-- The next set step for `count` cards: 3, then 5 (SET_FULL) once 3 are in.
+local function goal(count: number): number
+	return if count >= DragonKeep.SET_SIZE
+		then DragonKeep.SET_FULL or DragonKeep.SET_SIZE
+		else DragonKeep.SET_SIZE
+end
+
+function DragonKeepLogic.setsLine(view: any): string
+	local counts = slotCounts(view)
 	local parts: { string } = {}
 	for _, family in DragonKeepLogic.FAMILIES do
 		if counts[family] and DragonKeep.SETS[family] ~= nil then
+			local need = goal(counts[family])
 			table.insert(
 				parts,
 				("%s %d/%d"):format(
 					DragonKeepLogic.FAMILY_NAMES[family],
-					math.min(counts[family], DragonKeep.SET_SIZE),
-					DragonKeep.SET_SIZE
+					math.min(counts[family], need),
+					need
 				)
 			)
 		end
 	end
 	if #parts == 0 then
-		return "3 cards of one family in your slots light a set bonus"
+		return "3 cards of one family light a set bonus · tap to see them"
 	end
-	return "Sets: " .. table.concat(parts, " · ")
+	return "Sets: " .. table.concat(parts, " · ") .. " · tap to see"
+end
+
+export type SetRow = {
+	family: string,
+	title: string, -- "🔥 Flame"
+	count: string, -- "2/3", "4/5" or "5/5"
+	level: number, -- 0, SET_SIZE or SET_FULL reached
+	three: string, -- "3 cards: +25% money"
+	five: string?, -- "5 cards: +200% money"
+}
+
+-- #4576 (Derek 2026-11-15 18:36 UTC): every family's set bonuses for the Sets tab, in family order, with the cards of
+-- it in the slots and the level reached.
+function DragonKeepLogic.setRows(view: any): { SetRow }
+	local counts = slotCounts(view)
+	local full = DragonKeep.SET_FULL or DragonKeep.SET_SIZE
+	local fives: { [string]: string } = DragonKeep.SETS_FULL or {}
+	local out: { SetRow } = {}
+	for _, name in DragonKeepLogic.FAMILIES do
+		local family: string = name
+		local maybe: string? = DragonKeep.SETS[family]
+		if maybe == nil then
+			continue
+		end
+		local three: string = maybe
+		local fiveWords: string? = fives[family]
+		local five: string? = nil
+		if fiveWords ~= nil then
+			five = tostring(full) .. " cards: " .. fiveWords
+		end
+		local count = counts[family] or 0
+		local need = goal(count)
+		table.insert(out, {
+			family = family,
+			title = (DragonKeepLogic.FAMILY_ICONS[family] or "")
+				.. " "
+				.. (DragonKeepLogic.FAMILY_NAMES[family] or family),
+			count = ("%d/%d"):format(math.min(count, need), need),
+			level = if count >= full
+				then full
+				elseif count >= DragonKeep.SET_SIZE then DragonKeep.SET_SIZE
+				else 0,
+			three = ("%d cards: %s"):format(DragonKeep.SET_SIZE, three),
+			five = five,
+		})
+	end
+	return out
 end
 
 function DragonKeepLogic.oddsLine(odds: { [string]: number }?): string
@@ -278,24 +340,15 @@ function DragonKeepLogic.candidates(
 	return out
 end
 
--- "commons": every spare Common; "repeats": every copy past the first of its cat. Both skip working and special cats
--- and keep one copy of each cat (as DragonKeep.quickPlan on the server). Never all the player's cats.
-function DragonKeepLogic.quick(list: { Candidate }, kind: string, total: number): { string }
-	local kept: { [string]: number } = {}
+-- #4566 (Derek 2026-11-15): "All Commons", "All Rares" and so on pick every cat of that rarity the list holds. The
+-- list already leaves out locked cats and cats at the spa or waiting on a trait; working cats stay at their spots too.
+-- Never all the player's cats (the server keeps one) and never past GIVE_MAX.
+function DragonKeepLogic.byRarity(list: { Candidate }, rarity: string, total: number): { string }
 	local out: { string } = {}
 	for _, cand in list do
-		if cand.working or cand.special or not cand.spare then
+		if cand.working or cand.rarity ~= rarity then
 			continue
 		end
-		if kind == "commons" and cand.rarity ~= "Common" then
-			continue
-		end
-		-- the last copy stays (at most copies - 1 go, as the server's quickPlan); list is weakest first
-		local used = kept[cand.catId] or 0
-		if used >= cand.copies - 1 then
-			continue
-		end
-		kept[cand.catId] = used + 1
 		if #out >= math.min(DragonKeep.GIVE_MAX, total - 1) then
 			break
 		end

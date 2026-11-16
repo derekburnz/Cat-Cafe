@@ -145,11 +145,9 @@ ToastRules.KEEP = {
 	"^Golden find! ", -- #3222 LawnService.giveDrop: a drop-only Golden lawn piece from a freed cat
 	"^Update gift! ", -- #2997 PlaytimeGiftService: the Saturday update gift, paid with no card
 	"^Welcome back gift! ", -- #3772 PlaytimeGiftService: the welcome back golden crate (shared/ReturnGift.TOAST)
-	-- #3106 (Derek2 11-10, after two new players left in the tutorial: "maybe add those two buttons back"): a new
-	-- player's first delivery and first cat. Each comes once: the server sends the second on the first check-in
-	-- only, and UI.cannon.checkedIn sends the first only while the first walk-through is not done
-	" is on its way to your cafe!$",
-	"^Your first cat! ",
+	-- #4497 (Derek 2026-11-15: "remove all the pop ups that happen after first catch like "cat" is captured, "cat" is
+	-- on the way to your cafe etc"): the first delivery and first cat lines (#3106) are dropped again; the catch card,
+	-- the flight and the goal card say it
 	"^Welcome back! Your cats earned ", -- #3573 AfkCafe.welcome: what a rest in the cafe paid, once on coming back
 	"^Welcome gift: ", -- #4453 BaitService: the Tier 2 top up after the first bait cat, so the coins never jump unsaid
 }

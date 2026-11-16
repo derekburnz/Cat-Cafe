@@ -20,7 +20,11 @@
 -- back at sunrise 🌅", "Next cat at sunrise 🌅" on a narrow card) instead of sending the player out to an empty alley.
 --   view(state, narrow, nextTier?, areasOpen?) -> View?   nil when there is nothing to say
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local ShortNumber = require(script.Parent.ShortNumber)
+local TutorialOrder =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder"))
 
 local SecondCatGoal = {}
 
@@ -64,7 +68,8 @@ function SecondCatGoal.view(
 	state: any,
 	narrow: boolean,
 	nextTier: string?,
-	areasOpen: boolean?
+	areasOpen: boolean?,
+	bowlFirst: boolean? -- #4518: nil reads the catchFirst switch
 ): View?
 	local second = if type(state) == "table" then state.secondCat else nil
 	if type(second) ~= "table" then
@@ -80,7 +85,10 @@ function SecondCatGoal.view(
 	-- #4097: a new save opens with a table, so after the first job the tutorial goes straight to the Bait bowl (step
 	-- 4) and its first cat is the second one; the card asked to catch one while the strip asked for the bowl. While
 	-- the bowl step is on, the card names the bowl too, so both ask for the same thing.
-	local title = if state.tutorialStep == SecondCatGoal.BOWL_STEP
+	-- #4674 (Derek 2026-11-16: "food bowl into cannon into 1 alley cat"): bowl first, the bowl cat is the first of
+	-- the two, so the card reads "Catch a 2nd cat 1/2" as in today's order; the Bait bowl title is for catch first only
+	local first = if bowlFirst == nil then TutorialOrder.bowlFirst() else bowlFirst
+	local title = if not first and state.tutorialStep == SecondCatGoal.BOWL_STEP
 		then SecondCatGoal.BOWL_TITLE .. " " .. count
 		else "Catch a 2nd cat 🐾 " .. count
 	if areasOpen == false then

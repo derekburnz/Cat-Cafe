@@ -33,9 +33,40 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 local SECRETS_AT = 1794799800 -- 2026-11-16 03:30 UTC (Sunday 10:30 PM ET): 10 Secret Cats, the secretAreas switch
+local UPDATE_NOV_18 = 1795032000 -- 2026-11-18 20:00 UTC: Better on Every Device, when UPDATE6 opens too
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
 
 WhatsNew.rows = table.freeze({
+	-- Better on Every Device update (Growth-Agent launch pack, Wed 2026-11-18 20:00 UTC): each row waits for
+	-- startsAt. Drop any row whose part does not ship (Gameplay-Engineer confirms by Tue 20:00 UTC).
+	{
+		id = "pad_controls",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "faster",
+		text = "Pad: B back, L1/R1 tabs",
+	},
+	{
+		id = "pad_menus",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "faster",
+		text = "Every menu works on a pad",
+	},
+	{
+		id = "smooth_mode_lite",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "faster",
+		text = "Lighter Smooth mode",
+	},
+	{
+		id = "code_update6",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "new",
+		text = "New code: UPDATE6",
+	},
 	-- 10 Secret Cats (#4221, Mon 2026-11-16 03:30 UTC): in tonight's build, shown only once the secretAreas switch opens.
 	{
 		id = "secret_areas",
@@ -95,6 +126,47 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE5",
 	},
+	-- Golden fish trading (tradeFish switch on 2026-11-15 22:03 UTC, Golden Fish Store 22:02 UTC; 24 h hold).
+	{
+		id = "trade_golden_fish",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Trade golden fish with pals",
+	},
+	-- Derek 2026-11-15 15:54 UTC ("update whats new board with recent changes"): the changes that reach every server
+	-- with the 20:00 UTC restart (Tier 3 to 7 pace #4500, #4511, #4538, the decor stand #4524, the Coin Cart name
+	-- #4533, the trade note #4520, fewer pop-ups #4478 to #4528) wait for it. Gold fish trading has its row now that
+	-- the tradeFish switch is on (22:03 UTC 2026-11-15).
+	{
+		id = "tiers_sooner",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "faster",
+		text = "Easier rank ups to Tier 7",
+	},
+	{
+		id = "decor_stand",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Decor stand by Fish Market",
+	},
+	{
+		id = "coin_cart",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "look",
+		text = "Day Cart is now Coin Cart",
+	},
+	{
+		id = "trade_note",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "look",
+		text = "Trade shows true earnings",
+	},
+	-- Growth-Agent 2026-11-15 19:00 UTC: rows for #4511 (Epics) and #4528 (pop-up card) dropped, both PRs have merge conflicts
+	-- and will not be in the 20:00 UTC build. Re-add them with their PRs.
 	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
 	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town
 	-- Square update poster (#4371), Smooth mode (#4322), the painted sky (#4297), the Cat Arcade
@@ -433,7 +505,7 @@ WhatsNew.rows = table.freeze({
 		id = "day_cart_top_shelf",
 		date = "2026-11-12",
 		icon = "new",
-		text = "Day Cart: Tier 6 top shelf",
+		text = "Coin Cart: Tier 6 top shelf",
 	},
 	-- #3448: take this row out if the bigger circles are not on main at the launch
 	{
@@ -917,7 +989,7 @@ WhatsNew.rows = table.freeze({
 		id = "day_cart_buy_all",
 		date = "2026-11-09",
 		icon = "faster",
-		text = "Buy all at the Day Cart",
+		text = "Buy all at the Coin Cart",
 	},
 	{
 		id = "rare_rescue_easier",

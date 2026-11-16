@@ -89,6 +89,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	KeepCards = RateLimiter.new(1, 1),
 	SlotDragonCard = RateLimiter.new(4, 1),
 	SetDragonColour = RateLimiter.new(1, 1),
+	StartFusion = RateLimiter.new(1, 1), -- #4104
+	CollectFusion = RateLimiter.new(1, 1),
+	FuseAll = RateLimiter.new(1, 2), -- #4589: 1 every 2 seconds
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
 	SetBagColours = RateLimiter.new(1, 1), -- #3699: 1 a second
 	PromptDeal = RateLimiter.new(1, 1), -- #3996
@@ -113,6 +116,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 	SessionFeedback = RateLimiter.new(1, 30), -- #3272: 1 per 30 s; TipService also holds it to once a UTC day
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
+	GroupJoinPrompted = RateLimiter.new(1, 5), -- #4679: 1 per 5 s; a note that the join prompt opened
 	-- F100 (camp-extras.md section 4) was 1 a second for every station together. #3993 (Derek 2026-11-13: "sometimes
 	-- the claiming fish pond from cannon menu doesnt work"): the Cat Cannon menu has a Collect per station, so a
 	-- Picnic Basket then a Fish Pond inside a second dropped the pond's with no answer. 4 a second; each call is

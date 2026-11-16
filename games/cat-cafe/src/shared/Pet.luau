@@ -29,6 +29,8 @@ Pet.HEART = "💗"
 
 export type Save = Types.PetSave
 
+Pet.EXTRA_MAX = 15 * 60 -- #4447: the most a card (Pat Pat) adds to one pet, so a saved end stays checkable
+
 -- A saved pet made safe, or nil: a cat id and an end still ahead, no further off than one full pet.
 function Pet.sanitize(raw: unknown, now: number): Save?
 	if type(raw) ~= "table" then
@@ -41,7 +43,10 @@ function Pet.sanitize(raw: unknown, now: number): Save?
 	if type(untilAt) ~= "number" or untilAt ~= untilAt or untilAt <= now then
 		return nil
 	end
-	return { uid = uid, untilAt = math.min(math.floor(untilAt), now + Config.PetSeconds) }
+	return {
+		uid = uid,
+		untilAt = math.min(math.floor(untilAt), now + Config.PetSeconds + Pet.EXTRA_MAX),
+	}
 end
 
 -- The happy cat's uid at `now`, or nil: the hour still runs and the cat is still owned and on a job.
@@ -80,9 +85,16 @@ end
 
 -- Pets `uid` at `now`: it is the happy cat for a full fresh hour. Returns how the heart came ("first": no heart
 -- was running, "same": this cat had it, "moved": another cat had it) and the uid that had it before, if another.
-function Pet.pet(profile: Types.PlayerProfile, uid: string, now: number): (string, string?)
+-- `extra` (#4447, Pat Pat) is seconds more, at most EXTRA_MAX.
+function Pet.pet(
+	profile: Types.PlayerProfile,
+	uid: string,
+	now: number,
+	extra: number?
+): (string, string?)
 	local had = Pet.active(profile.pet, profile.cats, now)
-	profile.pet = { uid = uid, untilAt = now + Config.PetSeconds }
+	local more = math.clamp(extra or 0, 0, Pet.EXTRA_MAX)
+	profile.pet = { uid = uid, untilAt = now + Config.PetSeconds + more }
 	if had == nil then
 		return "first", nil
 	elseif had == uid then

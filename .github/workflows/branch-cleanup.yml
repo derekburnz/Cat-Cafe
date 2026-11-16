@@ -1,6 +1,6 @@
 # Deletes finished branches: every branch whose pull request was merged, plus every branch whose tip is already in
 # main (if its last commit is over 2 days old). Branches with an open pull request, main itself, fresh branches and
-# branches that never had a merged pull request are kept.
+# branches that never had a merged pull request are kept, and so is every friend/ branch (the friend's project's).
 # Run from the Actions tab (branch-cleanup > Run workflow) or the GitHub actions_run_trigger tool. dry_run (default
 # true) only lists what would go; set it to false to delete. A deleted branch can be restored from its pull request
 # page ("Restore branch") or from refs/pull/<n>/head. Added 2026-11-04 at Derek's ask (friend's project).
@@ -63,7 +63,9 @@ jobs:
           set -f
           printf '%s\n' $ALSO_DELETE | { grep -v -x -e '' -e main -e HEAD || true; } | sort -u > also.txt
           set +f
-          sort -u merged_pr.txt in_main.txt also.txt | comm -12 - all.txt | comm -23 - open.txt > delete.txt
+          # the friend's project's branches (friend/...) are theirs to clean up, so this job never deletes them
+          sort -u merged_pr.txt in_main.txt also.txt | comm -12 - all.txt | comm -23 - open.txt \
+            | { grep -v '^friend/' || true; } > delete.txt
           comm -23 all.txt delete.txt > keep.txt
           echo "Branches: $(wc -l < all.txt). To delete: $(wc -l < delete.txt). Kept: $(wc -l < keep.txt) (open PRs: $(wc -l < open.txt))."
           echo "== kept (not open, never merged):"

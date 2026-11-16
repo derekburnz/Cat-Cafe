@@ -75,6 +75,7 @@ Trade.Messages = {
 	-- #2745 (section 1d): golden fish
 	fishAmount = "Pick how many golden fish",
 	fishNotEnough = "You don't have that many golden fish",
+	fishPassHold = "Golden fish trades open 24 hours after buying the Golden Pond pass", -- #2745
 	fullFish = "Up to %d golden fish each",
 	fishRoom = "They can get %d more golden fish today",
 	fishOff = "Golden fish trading is resting for now",
@@ -445,8 +446,12 @@ function Trade.fishInToday(profile: Types.PlayerProfile, now: number): number
 	return if today.day == Trade.day(now) then today.fishIn or 0 else 0
 end
 
--- Golden fish `profile` can still receive in trades this game day.
+-- Golden fish `profile` can still receive in trades this game day; math.huge while TradeFishPerDay is 0 (#4623: no
+-- daily cap).
 function Trade.fishRoom(profile: Types.PlayerProfile, now: number): number
+	if Config.TradeFishPerDay <= 0 then
+		return math.huge
+	end
 	return math.max(0, Config.TradeFishPerDay - Trade.fishInToday(profile, now))
 end
 
@@ -468,6 +473,16 @@ function Trade.fishRefusal(
 	end
 	if n > Config.TradeMaxFish then
 		return string.format(Trade.Messages.fullFish, Config.TradeMaxFish)
+	end
+	-- #2745: the giver bought the Golden Pond pass with Robux less than a day ago (read as unknown: a save from before
+	-- the field has none)
+	local boughtAt: unknown = profile.stats.pondPassAt
+	if
+		type(boughtAt) == "number"
+		and boughtAt > 0
+		and now - boughtAt < Config.TradeFishPassHoldSeconds
+	then
+		return Trade.Messages.fishPassHold
 	end
 	if n > math.floor(profile.goldenFish) then
 		return Trade.Messages.fishNotEnough

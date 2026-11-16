@@ -50,6 +50,7 @@ type GateState = {
 	center: Vector3,
 	size: Vector3,
 	pending: boolean,
+	area: string?, -- the gate's `Area`: an area with its own effects opens in its colour (Presets.gate)
 }
 
 local GATE_CHECK_SECONDS = 0.5
@@ -405,6 +406,7 @@ end
 
 local function watchGate(instance: Instance)
 	local requires = instance:GetAttribute("RequiresTier")
+	local area = instance:GetAttribute("Area")
 	local existing: GateState? = gates[instance]
 	if type(requires) ~= "number" or existing ~= nil then
 		return
@@ -431,6 +433,7 @@ local function watchGate(instance: Instance)
 		center = frame.Position,
 		size = size,
 		pending = false,
+		area = if type(area) == "string" then area else nil,
 	}
 end
 
@@ -445,6 +448,23 @@ local function openGates(previous: number, tier: number)
 			state.pending = true
 		end
 	end
+end
+
+-- Places spread along a gate's width a stud above its foot, where the haze and the sparkle come from.
+local function alongGate(state: GateState): { Vector3 }
+	local n = Presets.areas.points
+	local size = state.size
+	local wide = size.X >= size.Z
+	local width = if wide then size.X else size.Z
+	local points: { Vector3 } = {}
+	for i = 1, n do
+		local k = ((i - 0.5) / n - 0.5) * width
+		local offset = if wide
+			then Vector3.new(k, 1 - size.Y / 2, 0)
+			else Vector3.new(0, 1 - size.Y / 2, k)
+		table.insert(points, (state.frame * CFrame.new(offset)).Position)
+	end
+	return points
 end
 
 local function dissolve(state: GateState)
@@ -466,7 +486,18 @@ local function dissolve(state: GateState)
 	local center = state.center
 	Particles.burst("gateSparkle", center, Presets.bursts.gateSparkle)
 	Particles.confetti(center + Vector3.new(0, 2, 0), Context.budget.confetti)
-	Particles.ring(center - Vector3.new(0, state.size.Y / 2 - 0.2, 0), Presets.palette.mint)
+	-- #4069, #4070, #4071: an area with its own effects (the Desert on) opens in its colour: the ring in the area's
+	-- cannon tint and a puff of the area's own stuff (snow, spray, gold) along the gate's foot
+	local area = state.area
+	local spec: Presets.AreaFxSpec? = if area ~= nil then Presets.areaFx.areas[area] else nil
+	local tint: Color3? = if area ~= nil then Presets.cannon.tints[area] else nil
+	local foot = center - Vector3.new(0, state.size.Y / 2 - 0.2, 0)
+	Particles.ring(foot, if spec ~= nil and tint ~= nil then tint else Presets.palette.mint)
+	if spec ~= nil and not Context.lowPerformance then
+		for _, point in alongGate(state) do
+			Particles.burst(spec.puffPreset, point, g.areaPuff, spec.colour)
+		end
+	end
 end
 
 local function checkGates()
@@ -475,23 +506,6 @@ local function checkGates()
 			dissolve(state)
 		end
 	end
-end
-
--- Places spread along a gate's width a stud above its foot, where the haze and the sparkle come from.
-local function alongGate(state: GateState): { Vector3 }
-	local n = Presets.areas.points
-	local size = state.size
-	local wide = size.X >= size.Z
-	local width = if wide then size.X else size.Z
-	local points: { Vector3 } = {}
-	for i = 1, n do
-		local k = ((i - 0.5) / n - 0.5) * width
-		local offset = if wide
-			then Vector3.new(k, 1 - size.Y / 2, 0)
-			else Vector3.new(0, 1 - size.Y / 2, k)
-		table.insert(points, (state.frame * CFrame.new(offset)).Position)
-	end
-	return points
 end
 
 -- The areas closing at dusk or opening at sunrise, at each gate this player's tier lets them through and close

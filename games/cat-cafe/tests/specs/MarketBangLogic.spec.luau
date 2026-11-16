@@ -29,10 +29,10 @@ return function()
 			"asks to check the treats and perks until that tab is opened, crates first (#2571)",
 			function()
 				expect(MarketBangLogic.line(nil, true)).to.equal(
-					"🍪 Treats and perks to check out!"
+					"🍪 Treats and perks\nto check out!"
 				)
 				expect(MarketBangLogic.line({ park = 0 }, true)).to.equal(
-					"🍪 Treats and perks to check out!"
+					"🍪 Treats and perks\nto check out!"
 				)
 				expect(MarketBangLogic.line({ park = 2 }, true)).to.equal("📦 2 crates to open")
 				expect(MarketBangLogic.line(nil, false)).to.equal(nil)

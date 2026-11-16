@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local AdminDropService = require(script.Parent.Services.AdminDropService)
 local AdminWheelService = require(script.Parent.Services.AdminWheelService)
 local AfkCafeService = require(script.Parent.Services.AfkCafeService)
 local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
@@ -39,6 +40,7 @@ local FallCatchService = require(script.Parent.Services.FallCatchService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local FishStoreService = require(script.Parent.Services.FishStoreService)
+local FusionService = require(script.Parent.Services.FusionService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local HarvestService = require(script.Parent.Services.HarvestService)
@@ -109,6 +111,8 @@ local started = os.clock()
 local placeholders = AssetRegistry.ensurePlaceholders()
 -- #3743: the area sets and backdrops leave ReplicatedStorage before anyone joins, so no client is sent them
 local stowed = AssetRegistry.stowServerOnly()
+-- #4601: and the cats' _Gold models while the goldTone switch is on (it follows the switch)
+stowed += AssetRegistry.followGoldTone()
 local world = WorldBuilder.build()
 
 Net.start()
@@ -127,6 +131,7 @@ NightService.start(world) -- after the cats, traps and travel: the first sunrise
 PityService.start() -- #1572: the global pity cat, after the cats it spawns and the clock it counts on
 CannonService.start(world) -- F84: after the cats, travel and the night sweep it hands landings to
 TutorialMoveService.start(world) -- #2697: the bowl and cannon moves, after the cats and the cannons
+AdminDropService.start(world) -- #4197: Fish Fountain and Crate Drop
 FallCatchService.start() -- #2651: the Ruins' mist catch, after the cannon whose pads it lands you on
 DealerService.start()
 RankSpotService.start() -- #3555: when the first rank up's walk-through may show, behind rankUpSpotlight
@@ -154,6 +159,7 @@ FishStoreService.start() -- #4055: Store passes for golden fish
 HarvestService.start() -- #4251: Harvest Hollow's Stall, Pumpkin Patch and arrival
 TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
 DragonKeepService.start() -- #4062: the Castle's Dragon Keep
+FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags
@@ -162,7 +168,7 @@ StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes
 RareMomentService.start() -- F89: the toast clock
 GlobalCatchService.start() -- #2203: rare catches from other servers, as chat lines
-RareCatsTabService.start() -- #3053: the chat's Rare Cats tab, behind the rareCatsTab switch (off)
+RareCatsTabService.start() -- #3053: the chat's Rare Cats tab (its rareCatsTab switch retired in #4654 batch 4)
 IntroService.start()
 IntroModeService.start() -- #4001: the short intro test arm, read as each player joins
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join

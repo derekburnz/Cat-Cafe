@@ -7,9 +7,9 @@ return function()
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 
 	describe("PalJoin", function()
-		it("ships behind an off switch", function()
-			expect(LiveFlags.OFF_BY_DEFAULT[PalJoin.FLAG]).to.equal(true)
-			expect(table.find(LiveFlags.KEYS, PalJoin.FLAG) ~= nil).to.equal(true)
+		it("has no switch any more (#4654 batch 8)", function()
+			expect(LiveFlags.OFF_BY_DEFAULT.palJoin).to.equal(nil)
+			expect(table.find(LiveFlags.KEYS, "palJoin")).to.equal(nil)
 		end)
 
 		it("picks the free door nearest the friend's", function()

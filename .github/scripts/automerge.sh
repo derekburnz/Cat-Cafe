@@ -3,11 +3,12 @@
 # which only starts check.yml on the branch, and by the last job of check.yml, which merges.
 #
 # It merges only when the project rule holds: the PR is open, not a draft, based on main, labeled `automerge`,
-# and CI passed on its head merged with the latest main. check.yml checks every PR merged with main
-# (.github/scripts/merge-main.sh), so the code that passed is the code main gets.
-#   - Main moved since the run started: start check.yml on the branch with the new main merged in. Nothing is
-#     pushed to the branch, so nobody gets mail and no dead "check" run is left behind. That run's last job comes
-#     back here and merges.
+# and CI passed on its head merged with main as it was when the run started. check.yml checks every PR merged with
+# main (.github/scripts/merge-main.sh); a main that moved since is merged in by GitHub when there is no conflict.
+#   - Main moved since the run started (#4241, 2026-11-15): merge anyway when GitHub reports no conflict, the way
+#     native auto-merge does (main's ruleset is not strict). Only while GitHub has not worked out the merge yet,
+#     start check.yml on the branch with the new main merged in (nothing is pushed to the branch); that run's last
+#     job comes back here.
 #   - Conflict with main, or GitHub refuses the merge (for example a PR that changes .github/workflows, which the
 #     workflow token may not touch): drop the label and comment, so the PR's own thread gets woken and finishes
 #     by hand.
@@ -96,11 +97,19 @@ if [ -z "$checked" ] || [ "$checked" != "${CHECKED_MAIN_UNITS:-}" ] || [ "$check
 		drop "Automerge stopped: this branch conflicts with main. Merge main in and resolve the conflict by hand."
 		exit 0
 	fi
-	run_check
-	echo "This run checked $head against main ${checked:-?} (unit tests: ${CHECKED_MAIN_UNITS:-?}), but main is at $main now: started check.yml on $branch with it merged in."
-	exit 0
+	# #4241 (2026-11-15): main moved during the run. Re-checking on every move never caught up on a busy main (#4387
+	# went green four times, about 40 runner minutes a lap, and never merged), and main's ruleset is not strict, so
+	# native auto-merge already merges a green head without this re-check. A green head with no conflict merges now;
+	# only an unknown merge state (GitHub still working it out) gets one more run.
+	if [ "$(jq -r .mergeable <<<"$pr")" != MERGEABLE ]; then
+		run_check
+		echo "This run checked $head against main ${checked:-?} (unit tests: ${CHECKED_MAIN_UNITS:-?}), but main is at $main now and GitHub has not worked out the merge yet: started check.yml on $branch with it merged in."
+		exit 0
+	fi
+	echo "The gate and the unit tests passed on $head merged with main ${checked:-?}; main is at $main now and the merge has no conflict, so it goes ahead (as native auto-merge would)."
+else
+	echo "The gate and the unit tests passed on $head merged with the latest main ($main) in this run."
 fi
-echo "The gate and the unit tests passed on $head merged with the latest main ($main) in this run."
 
 if gh api -X PUT "repos/$REPO/pulls/$PR/merge" -f merge_method=merge -f sha="$head" >/dev/null; then
 	echo "Merged PR #$PR at $head."

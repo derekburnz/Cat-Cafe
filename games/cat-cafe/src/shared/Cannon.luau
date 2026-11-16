@@ -263,6 +263,10 @@ Cannon.HOME_WAIT_SECONDS = 20
 -- the move gave up and left the resting player at the Town Square spawn, outside the rest zone. A rest's rejoin
 -- waits this long instead; the player is idle, so they still stand at the spawn when the save comes.
 Cannon.REJOIN_HOME_WAIT_SECONDS = 120
+-- #4716 (Derek 2026-11-16: "when joining game teleport your character infront of your cafe so the afk rejoin still
+-- keeps you there"): every join waits the rejoin's long wait now, not only a rest's rejoin. An AFK player brought back
+-- by Roblox's idle reconnect or a rejoin of their own also waits on the old server's session lock, and they stand
+-- still at the spawn until the save comes, so the move is still only for a character that has not walked off.
 Cannon.HOME_SPAWN_STUDS = 10
 Cannon.HOME_ATTRIBUTE = "HomeArrival"
 -- Review-QA's fresh join runs, 2026-11-12 (Derek: "the cannon step of tutorial steps pulls you super far out so you
@@ -284,21 +288,25 @@ Cannon.HOME_CAMERA = table.freeze({ back = 14, up = 7, look = 2 })
 -- Whether a join starts at home. A player whose intro is still to play stays at the Town Square, where the intro
 -- starts (`introPlays`: Config.IntroAutoPlay), and so does one who has not caught their first cat yet
 -- (`tutorialStep` below `doneStep`, Config.TutorialGuaranteedStrayStep): the walk-through leads from the cannon.
+-- #4716: in the bowl first order (`bowlFirst`, shared/TutorialOrder) the walk-through starts at the player's own bowl,
+-- so a new player starts at home too.
 function Cannon.joinsAtHome(
 	introSeen: boolean?,
 	introPlays: boolean,
 	tutorialStep: number?,
-	doneStep: number
+	doneStep: number,
+	bowlFirst: boolean?
 ): boolean
 	if introPlays and introSeen ~= true then
 		return false
 	end
-	return (tutorialStep or 0) >= doneStep
+	return bowlFirst == true or (tutorialStep or 0) >= doneStep
 end
 
--- How long a join's move home waits for the save and the cafe: longer for a rest's rejoin (AfkCafe.REJOIN_ATTRIBUTE).
-function Cannon.homeWaitSeconds(restRejoin: boolean): number
-	return if restRejoin then Cannon.REJOIN_HOME_WAIT_SECONDS else Cannon.HOME_WAIT_SECONDS
+-- How long a join's move home waits for the save and the cafe. #4716: the rejoin's long wait for every join (a rest's
+-- rejoin, AfkCafe.REJOIN_ATTRIBUTE, or any other); `_restRejoin` stays for the callers.
+function Cannon.homeWaitSeconds(_restRejoin: boolean): number
+	return Cannon.REJOIN_HOME_WAIT_SECONDS
 end
 
 -- Whether a character at `at` still stands at the spawn `spawn` (flat distance), so moving it surprises nobody.

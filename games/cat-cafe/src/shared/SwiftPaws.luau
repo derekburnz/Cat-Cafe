@@ -9,8 +9,12 @@
 -- #3317 (Derek2 2026-11-11: "make swiftpaws have 5 upgrades and move to the top of perks"; Monetization-Agent's
 -- numbers): five levels, +1 for levels 1 and 2 (so nobody who bought them loses anything) and +0.5 for 3 to 5, +3.5 in
 -- all, under the Swift Potion's +4. A carrier at 16 + 3.5 still stays slower than anyone on foot (20). Levels 3 to 5
--- wait on the live switch FLAG_FIVE (off by default): a server older than this publish keeps a saved level only up to
--- its own top of 2, so they open only once no such server is left. Pure.
+-- waited on the live switch `swiftPaws5` until no server older than this publish was left (retired in #4654 batch 7;
+-- the callers pass fiveOn = true).
+-- #4705 (Derek 2026-11-16: "add more speed upgrade stages past 5 in perks"): five more levels, +0.5 each, +6 in all at
+-- level 10. Past level 5 the perk outgrows the Swift Potion's +4 and a full carry passes a plain walk; players
+-- already stack past both with speed traits and the Dragon Keep's cards. Levels 6 to 10 wait on FLAG_TEN (off by
+-- default) the same way: a server older than this publish keeps a saved level only up to 5. Pure.
 
 local Types = require(script.Parent.Types)
 
@@ -18,9 +22,10 @@ local SwiftPaws = {}
 
 SwiftPaws.ID = "swift_paws"
 SwiftPaws.FLAG = "swiftPaws" -- the LiveFlags key
-SwiftPaws.FLAG_FIVE = "swiftPaws5" -- the LiveFlags key that opens levels 3 to 5 (#3317)
-SwiftPaws.LEVELS = { 1, 1, 0.5, 0.5, 0.5 } :: { number } -- the walk speed each level adds
+SwiftPaws.FLAG_TEN = "swiftPaws10" -- the LiveFlags key that opens levels 6 to 10 (#4705)
+SwiftPaws.LEVELS = { 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 } :: { number } -- the walk speed each level adds
 SwiftPaws.OLD_TOP = 2 -- the top level a server older than #3317 keeps
+SwiftPaws.MID_TOP = 5 -- the top level a server older than #4705 keeps
 SwiftPaws.CREDIT = "its_cuzu098" -- the player who suggested it, on the Market card (#3063)
 
 -- The walk speed `level` levels add: LEVELS added up to it.
@@ -40,9 +45,13 @@ function SwiftPaws.bonus(profile: Types.PlayerProfile?, on: boolean): number
 	return SwiftPaws.speedAt(profile.fishPerks[SwiftPaws.ID] or 0)
 end
 
--- The top level a player can buy to now: the row's top with FLAG_FIVE on, else OLD_TOP.
-function SwiftPaws.topLevel(rowMax: number, fiveOn: boolean): number
-	return if fiveOn then rowMax else math.min(rowMax, SwiftPaws.OLD_TOP)
+-- The top level a player can buy to now: OLD_TOP until fiveOn, then MID_TOP until FLAG_TEN is on too
+-- (#4705), then the row's top. `tenOn` nil reads as off.
+function SwiftPaws.topLevel(rowMax: number, fiveOn: boolean, tenOn: boolean?): number
+	if not fiveOn then
+		return math.min(rowMax, SwiftPaws.OLD_TOP)
+	end
+	return if tenOn == true then rowMax else math.min(rowMax, SwiftPaws.MID_TOP)
 end
 
 return SwiftPaws

@@ -1,6 +1,6 @@
 --!strict
--- #3573 (shared/AfkCafe): resting in your own cafe. Once a second each loaded player is checked: resting while the
--- `afkCafe` switch is on, the client last said it has had no input (AfkIdle), the character has stood still for
+-- #3573 (shared/AfkCafe): resting in your own cafe. Once a second each loaded player is checked: resting while
+-- the client last said it has had no input (AfkIdle), the character has stood still for
 -- Config.AfkCafeSeconds as this server saw it, it stands in its own cafe or on its doorstep (the home landing), and
 -- the player carries no cat and is in no trade. A rest starts and ends on a settle, so every second is paid at the
 -- rate it was earned at (Economy.setResting, Economy.moneyFor). The Player's CafeRest attribute tells the HUD's chip.
@@ -192,18 +192,11 @@ local function setMode(player: Player, watch: Watch, on: boolean)
 end
 
 local function modeOn(): boolean
-	return LiveFlagService.on(AfkCafe.FLAG) and LiveFlagService.on(AfkCafe.BUTTON_FLAG)
+	return LiveFlagService.on(AfkCafe.BUTTON_FLAG)
 end
 
 local function check(player: Player, now: number)
 	local watch = watchOf(player)
-	if not LiveFlagService.on(AfkCafe.FLAG) and watch.restSince == nil then
-		-- switch off and nobody resting: nothing to measure (the stillness clock starts when it comes on)
-		watch.at = nil
-		watch.stillSince = now
-		player:SetAttribute(AfkCafe.ZONE_ATTRIBUTE, nil)
-		return
-	end
 	local plot = PlotService.get(player)
 	local profile = DataService.get(player)
 	local root = rootOf(player)
@@ -228,12 +221,11 @@ local function check(player: Player, now: number)
 		W.PlotWidth,
 		W.PlotDepth
 	)
-	local on = LiveFlagService.on(AfkCafe.FLAG)
 	-- #3701: the rest banner's zone, for a player past the tutorial. It replaces the once a session line (Derek
 	-- 2026-11-12: it "only pops up once not everytime your in cafe and also gets cut off"): the client's banner
 	-- shows on every walk in (Components/RestBannerLogic).
 	local zone: boolean? = nil
-	if on and inZone and profile.tutorialStep >= TUTORIAL_DONE then
+	if inZone and profile.tutorialStep >= TUTORIAL_DONE then
 		zone = AfkCafe.doubled(Economy.eventMoney())
 	end
 	if player:GetAttribute(AfkCafe.ZONE_ATTRIBUTE) ~= zone then
@@ -245,8 +237,7 @@ local function check(player: Player, now: number)
 		if now - arrivedAt > AfkCafe.ARRIVAL_SECONDS then
 			watch.arrivedAt = nil
 		elseif
-			on
-			and AfkCafe.arrivalRests(now - arrivedAt, now - watch.stillSince, inZone, busy(player))
+			AfkCafe.arrivalRests(now - arrivedAt, now - watch.stillSince, inZone, busy(player))
 		then
 			watch.arrivedAt = nil
 			watch.idle = true
@@ -256,12 +247,11 @@ local function check(player: Player, now: number)
 			player:SetAttribute(AfkCafe.ARRIVED_ATTRIBUTE, true)
 		end
 	end
-	local resting = on and AfkCafe.resting(watch.idle, now - watch.stillSince, inZone, busy(player))
+	local resting = AfkCafe.resting(watch.idle, now - watch.stillSince, inZone, busy(player))
 	-- #4346: AFK mode rests without the wait and whatever the input, and ends once its rest does (walked off)
 	local modeSince = watch.modeSince
 	if modeSince ~= nil then
-		local modeResting = on
-			and LiveFlagService.on(AfkCafe.BUTTON_FLAG)
+		local modeResting = LiveFlagService.on(AfkCafe.BUTTON_FLAG)
 			and AfkCafe.modeRests(now - watch.stillSince, inZone, busy(player))
 		if AfkCafe.modeEnds(watch.modeRested, modeResting, now - modeSince) then
 			setMode(player, watch, false)
@@ -283,11 +273,7 @@ local function check(player: Player, now: number)
 			player:SetAttribute(AfkCafe.ATTRIBUTE, doubled)
 		end
 		local since = watch.idleSince
-		if
-			since ~= nil
-			and LiveFlagService.on(AfkCafe.REJOIN_FLAG)
-			and AfkCafe.rejoinDue(now - since, watch.rejoinTry, now)
-		then
+		if since ~= nil and AfkCafe.rejoinDue(now - since, watch.rejoinTry, now) then
 			watch.rejoinTry = now
 			rejoin(player)
 		end

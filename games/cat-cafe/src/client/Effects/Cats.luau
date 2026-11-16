@@ -62,6 +62,7 @@ type Entry = {
 	napGui: BillboardGui?,
 	floats: boolean, -- a cat that bobs as if it might float off (motion.float.cats: Balloon Cat)
 	bellhop: boolean, -- the Bellhop Cat (F96): its bell, cap and bow on top (Bellhop.layer)
+	propBounce: number, -- degrees its head prop bounces as it walks (motion.propBounce), 0 for none
 	making: number, -- how far into the working bob it is (F90), 0 to 1, easing with its Making attribute
 	makingAt: number, -- os.clock() its current making started, for the bob's loop
 }
@@ -511,6 +512,11 @@ local function canFloat(model: Model): boolean
 	return type(id) == "string" and Presets.motion.float.cats[id] == true
 end
 
+local function propBounceOf(model: Model): number
+	local id = model:GetAttribute("CatId")
+	return if type(id) == "string" then Presets.motion.propBounce.cats[id] or 0 else 0
+end
+
 local function bind(model: Model): Entry?
 	local rig = Pose.bind(model)
 	if rig == nil then
@@ -548,6 +554,7 @@ local function bind(model: Model): Entry?
 		napGui = nil,
 		floats = canFloat(model),
 		bellhop = Bellhop.is(model),
+		propBounce = propBounceOf(model),
 		making = 0,
 		makingAt = 0,
 	}
@@ -766,6 +773,7 @@ local function step(dt: number)
 			end
 		else
 			Logic.gait(o, rig.speed, rig.stride)
+			Logic.propBounce(o, rig.speed, rig.stride, entry.propBounce)
 		end
 		Logic.float(o, t, float * (1 - Logic.runFactor(rig.speed)))
 		if Logic.runFactor(rig.speed) > 0.3 and now - entry.dustAt >= gait.dustEvery then

@@ -1,5 +1,5 @@
 --!strict
--- #3609 / #3614 (camp-stations.md section 3a), behind the `yardSaleRoll` switch (YardPick.FLAG): the Yard Sale's free
+-- #3609 / #3614 (camp-stations.md section 3a), (#4654: the `yardSaleRoll` switch shipped): the Yard Sale's free
 -- lucky pick. Every Config.YardSaleRollHours a player may take one pick; it always wins a crate and is never paid
 -- for in any way. Config.YardSaleTable gives the four groups' chances: the Classic Crate, a crate of one of the
 -- player's open areas (the group's chance split evenly), the Golden Classic Crate and a golden crate of one of the
@@ -13,7 +13,6 @@ local Config = require(script.Parent.Config)
 
 local YardPick = {}
 
-YardPick.FLAG = "yardSaleRoll" -- LiveFlags, off by default
 YardPick.CLASSIC = "classic_crate"
 YardPick.GOLDEN_CLASSIC = "classic_golden_crate"
 

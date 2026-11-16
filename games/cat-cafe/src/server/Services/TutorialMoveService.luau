@@ -4,6 +4,8 @@
 -- catch or rescue, or fly; a move skipped that way is not tried again (the client's step pointers still lead them).
 -- #3158: the move to the cannon waits TutorialMoves.CANNON_DELAY seconds after the step and is dropped for a player
 -- who walked off in that time.
+-- #4674: under bowl first the rank up to Tier 2 moves the player onto the Park's landing pad (CannonService.landOnPad,
+-- as a flight's landing, beside a waiting first stray when that spot is clear), PARK_DELAY seconds after it.
 -- Also tags each plot's BaitBowl part for the client's pointers (the cannons carry CatCannon already).
 
 local CollectionService = game:GetService("CollectionService")
@@ -12,10 +14,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
+local CannonService = require(script.Parent.CannonService)
 local CatService = require(script.Parent.CatService)
+local DataService = require(script.Parent.DataService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local PlotService = require(script.Parent.PlotService)
+local Telemetry = require(script.Parent.Telemetry)
 local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
+local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local TutorialMoveService = {}
@@ -78,6 +84,21 @@ local function move(player: Player, target: TutorialMoves.Target)
 	if character == nil or freeRoot(player) == nil then
 		return
 	end
+	if target == "park" then
+		-- the Park's landing pad, as a cannon flight lands there
+		if CannonService.landOnPad(player, "park") then
+			local root = character.PrimaryPart
+			if root ~= nil then
+				Cannon.noteMove(player, root.CFrame) -- the client's camera goes behind the character there
+			end
+			-- #4694: the onboarding funnel's park_arrived, as a cannon landing logs it (landOnPad does not)
+			local profile = DataService.get(player)
+			if profile ~= nil then
+				Telemetry.cleanEvent(player, profile, Telemetry.arrivedEvent("park"))
+			end
+		end
+		return
+	end
 	local landing = targetFor(player, target)
 	if landing ~= nil then
 		character:PivotTo(landing)
@@ -87,14 +108,11 @@ end
 
 local pending: { [Player]: number } = {} -- the newest waiting move's token, so only that one happens
 
-local function onStepped(player: Player, from: number, to: number)
-	local target = TutorialMoves.target(from, to)
-	if target == nil then
-		return
-	end
-	local wait = TutorialMoves.delay(target :: TutorialMoves.Target)
+-- Does the move to `target` after its wait (TutorialMoves.delay).
+local function schedule(player: Player, target: TutorialMoves.Target)
+	local wait = TutorialMoves.delay(target)
 	if wait <= 0 then
-		move(player, target :: TutorialMoves.Target)
+		move(player, target)
 		return
 	end
 	-- #3158: the move to the cannon waits a beat after the step (#3640: 2 seconds), and is dropped
@@ -116,9 +134,28 @@ local function onStepped(player: Player, from: number, to: number)
 		end
 		local now = freeRoot(player)
 		if now ~= nil and TutorialMoves.stayed(stood, now.Position) then
-			move(player, target :: TutorialMoves.Target)
+			move(player, target)
 		end
 	end)
+end
+
+local function onStepped(player: Player, from: number, to: number)
+	-- #4518: bowl first has no step moves: the bowl comes first by itself, and the walk-through ends at a camp
+	-- cannon, so the old move to the Town Square cannon at the last step would pull the player away from it
+	if TutorialOrder.bowlFirst() then
+		return
+	end
+	local target = TutorialMoves.target(from, to)
+	if target ~= nil then
+		schedule(player, target :: TutorialMoves.Target)
+	end
+end
+
+-- #4518: a move asked for outside a step change (CafeService.tutorialMove)
+local function onMove(player: Player, target: string)
+	if target == "cannon" or target == "bowl" or target == "park" then
+		schedule(player, target :: TutorialMoves.Target)
+	end
 end
 
 function TutorialMoveService.start(builtWorld: WorldBuilder.World)
@@ -127,6 +164,7 @@ function TutorialMoveService.start(builtWorld: WorldBuilder.World)
 		CollectionService:AddTag(plot.baitBowl, TutorialMoves.BOWL_TAG)
 	end
 	CafeService.tutorialStepped:Connect(onStepped)
+	CafeService.tutorialMove:Connect(onMove)
 	Players.PlayerRemoving:Connect(function(player)
 		pending[player] = nil
 	end)

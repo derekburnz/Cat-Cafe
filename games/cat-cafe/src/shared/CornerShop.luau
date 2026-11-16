@@ -76,8 +76,9 @@ export type ItemAmount = { itemId: string, amount: number }
 -- know, so nothing new is sold while one may still run. Shut, its rows are left out of `view` and refused by
 -- `buyBlocker`. Its rows roll after every other row's, so the rest of the cart's stock is the same with or without
 -- them. Buy all takes them only while the shelf is open (#3915), and its confirm card shows the total first.
-CornerShop.TOP_SHELF_FLAG = "cartTier6"
-local topShelfOpen = false
+-- #4654 batch 4: the `cartTier6` switch is retired (on live since 2026-11-13), so the shelf starts open; the client
+-- still shuts it from the stock it was sent (CornerShopLogic.topShelfShown) and the specs flip it.
+local topShelfOpen = true
 function CornerShop.setTopShelf(open: boolean)
 	topShelfOpen = open == true
 end

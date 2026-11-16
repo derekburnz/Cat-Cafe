@@ -149,9 +149,6 @@ return function()
 						"Owner test mode: 3 Luck Potions",
 						"Your bait cat is here! Head home to your bowl to meet it.",
 						"It dropped! Pick it up quick!",
-						-- #3106: a new player's first delivery and first cat are back
-						"🧺 Mochi is on its way to your cafe!",
-						"Your first cat! Mochi is your Waiter now ($2/s)",
 						"Welcome back! Your cats earned $113K while you rested 💤", -- #3573
 					}
 				do
@@ -160,6 +157,20 @@ return function()
 				end
 			end
 		)
+
+		it("drops the first catch lines (#4497)", function()
+			for _, line in
+				{
+					"🧺 Mochi is on its way to your cafe!",
+					"Your first cat! Mochi is your Waiter now ($2/s)",
+					"Your first cat! Mochi is your Barista (+$50)",
+					"New cat! Mochi joins the collection (+$50, 3 golden fish)",
+				}
+			do
+				expect(ToastRules.kept(line)).to.equal(false)
+				expect(ToastRules.quiet(line, "good")).to.equal(true)
+			end
+		end)
 
 		it("leaves info toasts and warnings to the older rules", function()
 			expect(ToastRules.quiet("Trade cancelled", "info")).to.equal(false)
@@ -202,6 +213,15 @@ return function()
 			expect(ToastRules.oneLine("good", "Claimed 3 quests")).to.equal(true)
 		end)
 
+		it("lets the minute 6 come back tomorrow line wrap (#4626)", function()
+			expect(
+				ToastRules.oneLine("info", "\u{1F381} Tomorrow: Daily Treat day 2, 2 Cat Snacks")
+			).to.equal(false)
+			expect(ToastRules.quiet("\u{1F381} Come back tomorrow for a golden crate", "info")).to.equal(
+				false
+			)
+		end)
+
 		-- Review-QA on #4260: a purchase's confirmation gets through a busy window (the Store)
 		it("lets purchase confirmations through a busy window, and nothing else", function()
 			expect(ToastRules.purchase("Thank you! You got 4 Big Money potions")).to.equal(true)
@@ -211,6 +231,32 @@ return function()
 			expect(ToastRules.purchase("Opened 3 crates: Lantern, Rug and Bench")).to.equal(true)
 			expect(ToastRules.purchase("Sam caught a Mythical Moonpaw!")).to.equal(false)
 			expect(ToastRules.purchase("Your bait cat is here!")).to.equal(false)
+		end)
+	end)
+	-- #4472: a new account's first 5 minutes keep only warnings and purchases
+	describe("ToastRules.newcomer", function()
+		it("is quiet under 5 minutes of play with the switch on", function()
+			expect(ToastRules.newcomer(true, 0)).to.equal(true)
+			expect(ToastRules.newcomer(true, 299)).to.equal(true)
+			expect(ToastRules.newcomer(true, 300)).to.equal(false)
+			expect(ToastRules.newcomer(false, 10)).to.equal(false)
+			expect(ToastRules.newcomer(true, nil)).to.equal(false)
+		end)
+		it("drops all but a warning and a purchase", function()
+			expect(ToastRules.newcomerDrops("good", "New cat! Tabby")).to.equal(true)
+			expect(ToastRules.newcomerDrops("info", "Grand Opening 1/8")).to.equal(true)
+			expect(ToastRules.newcomerDrops(nil, "Anything")).to.equal(true)
+			expect(ToastRules.newcomerDrops("warn", "Not enough coins")).to.equal(false)
+			expect(ToastRules.newcomerDrops("good", "Thank you! Starter Bundle")).to.equal(false)
+			expect(
+				ToastRules.newcomerDrops(
+					"good",
+					"Welcome gift: +$900. Your cafe is ready to rank up!"
+				)
+			).to.equal(false)
+			expect(ToastRules.quiet("Welcome gift: +$900. Your cafe is ready to rank up!", "good")).to.equal(
+				false
+			)
 		end)
 	end)
 end

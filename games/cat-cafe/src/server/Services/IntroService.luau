@@ -3,7 +3,10 @@
 -- replay) marks the intro seen on the first play and logs intro_cutscene (finished or skipped, the intro's version
 -- and the shot, first or replay) for the growth thread; one played out is the intro funnel's intro_done (#1273).
 -- Replays save nothing. Since the reshoot for the hometown and the cannon (F84, version 3) the intro starts and ends
--- at the hometown spawn, so nothing here moves anyone; where a respawn lands is CannonService's.
+-- at the hometown spawn; where a respawn lands is CannonService's. #4716 (Derek 2026-11-16: a join lands in front of
+-- your own cafe): in the bowl first order a new player's first intro, played out or skipped, ends with the move to
+-- their own bowl (TutorialMoveService's "bowl"), where the walk-through starts; a join with the intro seen starts at
+-- home already (Cannon.joinsAtHome).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +17,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
+local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
 
 local IntroService = {}
 
@@ -43,6 +47,10 @@ local function onIntroDone(
 	if firstSeen then
 		profile.introSeen = true
 		CafeService.sync(player)
+		-- #4716: from the town spawn to the player's own bowl, before the first bowl cat (tutorial step 0)
+		if TutorialOrder.bowlFirst() and (profile.tutorialStep or 0) == 0 then
+			CafeService.tutorialMove:Fire(player, "bowl")
+		end
 	end
 	-- #2495: the tackling lesson is the intro's last steps on the client (IntroController), saved by its TipSeen;
 	-- since #2544 nothing else sends it, so nothing is sent from here

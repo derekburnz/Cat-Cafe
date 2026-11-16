@@ -51,13 +51,16 @@ function FusionLogic.blocker(instance: any, uid: string, busy: { [string]: boole
 	if instance.locked == true then
 		return "Locked"
 	end
-	if instance.spotId ~= nil then
-		return "Working"
-	end
+	-- #4605: a working copy may go in (it leaves its spot; FusionLogic.working tags it)
 	if busy and busy[uid] then
 		return "Busy"
 	end
 	return nil
+end
+
+-- #4605: whether a copy is working now, for the picker's "Working" tag and the confirm card's line.
+function FusionLogic.working(instance: any): boolean
+	return type(instance) == "table" and instance.spotId ~= nil
 end
 
 export type Copy = {

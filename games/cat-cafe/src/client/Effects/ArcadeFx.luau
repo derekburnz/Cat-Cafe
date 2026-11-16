@@ -1,9 +1,7 @@
 --!strict
--- The Cat Arcade's pops (#3062, Circle Streak; Gameplay-Engineer's arcade window calls them). Each is a short burst on
+-- The Cat Arcade's pops (#3062; Circle Streak's ring taps went with that game, #4722). Each is a short burst on
 -- this player's screen round a UI object the window hands over, drawn on its own effects ScreenGui; it never changes
 -- a UI object, sends nothing to the server and shows no toast.
---   ArcadeFx.hit(target, grade)          a ring tap: "perfect" a gold ring, sparkles and "Perfect!"; "good" a mint
---                                        ring and "Good"; "miss" a grey "Miss" that rises and fades
 --   ArcadeFx.milestone(target, points)   every 10 points: two gold rings, a big sparkle and the points rising
 --   ArcadeFx.goldenFish(target)          the run's golden fish: a 🐟 hops up off the target with a few sparkles
 --   ArcadeFx.shine(face, corner)          #3338: a soft white band sweeps across the Play button now and then; returns
@@ -22,8 +20,6 @@ local ArcadeFx = {}
 
 local GUI_NAME = "EffectsArcade"
 local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
-
-export type Grade = "perfect" | "good" | "miss"
 
 export type Burst = { colour: Color3, sparkles: number, rings: number, ringGap: number? }
 
@@ -125,25 +121,6 @@ function ArcadeFx.ready(target: GuiObject): ScreenGui?
 		return nil
 	end
 	return ScreenFx.gui(GUI_NAME, Presets.arcade.displayOrder)
-end
-
-function ArcadeFx.hit(target: GuiObject, grade: Grade)
-	local grades: { [string]: { word: string, colour: Color3, sparkles: number, rings: number } } =
-		Presets.arcade.grades :: any
-	local spec = grades[grade]
-	if spec == nil then
-		return
-	end
-	local gui = ArcadeFx.ready(target)
-	if gui == nil then
-		return
-	end
-	ArcadeFx.burst(
-		gui,
-		target,
-		{ colour = spec.colour, sparkles = spec.sparkles, rings = spec.rings }
-	)
-	ArcadeFx.word(gui, target, spec.word, spec.colour, Presets.arcade.wordSize)
 end
 
 function ArcadeFx.milestone(target: GuiObject, points: number)

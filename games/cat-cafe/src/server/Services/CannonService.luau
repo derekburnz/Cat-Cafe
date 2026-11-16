@@ -287,6 +287,8 @@ local function cafeLanding(player: Player): CFrame?
 	return plot.cframe * CFrame.new(spot.x, spot.y, spot.z) * CFrame.Angles(0, math.pi, 0)
 end
 
+-- #4716 (Derek 2026-11-16): every join, AFK rejoins included, waits Cannon.homeWaitSeconds (2 minutes) and a new
+-- player in the bowl first order starts home too.
 -- #3072: a returning player's first character of the session moves from the Town Square spawn to the street outside
 -- their own front door, facing it (TravelService.homeFront, where the Home button lands). The save and the cafe come
 -- a moment after the character (PlotService assigns the plot once the profile has loaded), so this waits for both,
@@ -317,7 +319,8 @@ local function homeArrival(player: Player, character: Model)
 			-- #3666: the intro test's scene half starts at home as everyone did while the intro played itself
 			Telemetry.introPlays(player, profile),
 			profile.tutorialStep,
-			Config.TutorialGuaranteedStrayStep
+			Config.TutorialGuaranteedStrayStep,
+			require(ReplicatedStorage.Shared.TutorialOrder).bowlFirst() -- #4716: a new player starts home too
 		)
 	then
 		return

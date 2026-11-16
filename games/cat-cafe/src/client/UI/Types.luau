@@ -320,6 +320,7 @@ export type PlayerState = {
 	-- chip and card, and the odds every food and crate card shows (shared/Luck)
 	luck: number?,
 	luckSources: { LuckSource }?,
+	cardLuck: { crate: number, trait: number, spin: number }?, -- the Dragon Keep's crate, trait and spin luck
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	introAuto: boolean?, -- #3666: the intro plays itself for this player; nil reads as Config.IntroAutoPlay
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag

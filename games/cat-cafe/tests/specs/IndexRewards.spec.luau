@@ -498,7 +498,6 @@ return function()
 		-- The Claim button and the red badges promise a payout, so they light exactly where
 		-- ClaimIndexReward pays.
 		it("shows Claim where the server pays, as every page fills and is claimed", function()
-			SharedRewards.setLateOpen(true) -- #3992: the whole table, as the UI shows it with indexTo70 on
 			local profile: any = ProfileSchema.template(1000)
 			table.clear(profile.collection)
 			expect(agree(profile)).to.equal(0)
@@ -532,7 +531,6 @@ return function()
 					expect(agree(profile)).to.equal(open)
 				end
 			end
-			SharedRewards.setLateOpen(nil)
 		end)
 	end)
 

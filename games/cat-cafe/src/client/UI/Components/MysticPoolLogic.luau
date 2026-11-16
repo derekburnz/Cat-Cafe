@@ -30,6 +30,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local DragonKeep = require(Shared:WaitForChild("DragonKeep")) :: any
 local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 local Traits = require(Shared:WaitForChild("Traits")) :: any
 
@@ -57,11 +58,28 @@ function MysticPoolLogic.secretChanged(fn: () -> ()): RBXScriptConnection
 		:Connect(fn)
 end
 
--- The odds line as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".
--- `secret` defaults to the switch (MysticPoolLogic.secret).
+-- The Dragon Keep's trait luck (PlayerState.cardLuck.trait) every odds list here reads, as the server rolls with it
+-- (Traits.rarities). MysticPool.render sets it; true when it changed, so the screen draws its odds again.
+local traitLuck = 0
+function MysticPoolLogic.setLuck(luck: number?): boolean
+	local value = if type(luck) == "number" and luck > 0 then luck else 0
+	if value == traitLuck then
+		return false
+	end
+	traitLuck = value
+	return true
+end
+
+function MysticPoolLogic.luck(): number
+	return traitLuck
+end
+
+-- The odds line as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ..." (with
+-- the Dragon Keep note while Trait Spark is slotted). `secret` defaults to the switch (MysticPoolLogic.secret).
 function MysticPoolLogic.oddsLines(secret: boolean?): { string }
 	local on = if secret == nil then MysticPoolLogic.secret() else secret
-	local line: string = Traits.oddsText(on)
+	local line: string = Traits.oddsText(on, traitLuck)
+		.. DragonKeep.cardLuckNote("trait", traitLuck)
 	local cut = string.find(line, ". ", 1, true)
 	if cut == nil then
 		return { line, "" }
@@ -267,7 +285,7 @@ end
 function MysticPoolLogic.odds(secret: boolean?): { OddsRow }
 	local on = if secret == nil then MysticPoolLogic.secret() else secret
 	local rows: { OddsRow } = {}
-	for _, rarity in Traits.rarities(on) do
+	for _, rarity in Traits.rarities(on, traitLuck) do
 		table.insert(rows, {
 			name = rarity.name,
 			color = rarity.color,
@@ -504,7 +522,9 @@ function MysticPoolLogic.oddsLine(secret: boolean?): string
 	for _, row in MysticPoolLogic.odds(secret) do
 		table.insert(parts, row.name .. " " .. row.label)
 	end
-	return "Roll odds: " .. table.concat(parts, " · ")
+	return "Roll odds: "
+		.. table.concat(parts, " · ")
+		.. DragonKeep.cardLuckNote("trait", traitLuck)
 end
 
 -- #3948: `tokens` and `price` ("R$99") for the bundle's picture card, `rolls` its plain fact ("50 rolls")

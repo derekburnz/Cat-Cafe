@@ -3446,6 +3446,30 @@ Presets.signature = {
 	},
 	-- #4251 Harvest Hollow's rarer cats (Wed Nov 25 to Sun Dec 6), the same ladder in autumn colours, on the lit
 	-- parts of their models (`..._Leaves_Glow`, `..._Wheat_Glow`, `..._Glow`; a copy without them shows on its body).
+	-- the three Rares: a small touch each, never ahead of a rarer cat
+	apple_pie = { -- Apple Pie Cat (Rare): a warm glint now and then off its pie's glaze
+		emitter = "sigGlintSmall",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 220, 160), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+		minor = true,
+	},
+	cornstalk = { -- Cornstalk Cat (Rare): a few husk flecks fall off its stalk as it moves
+		emitter = "sigSnowKick",
+		on = "Prop",
+		colors = { Color3.fromRGB(246, 214, 110), Color3.fromRGB(196, 178, 96) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	pumpkin_spice = { -- Pumpkin Spice Cat (Rare): a puff of cinnamon behind it as it walks
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(214, 130, 70), Color3.fromRGB(240, 196, 150) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
 	cranberry = { -- Cranberry Cat (Epic): a glint now and then off its berries
 		emitter = "sigGlint",
 		on = "Prop",
@@ -4330,8 +4354,9 @@ Presets.moneyBag = {
 	colours = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.offwhite },
 }
 
--- #3062 (Cat Arcade, Circle Streak): the pops round a ring hit, a 10-point milestone and the golden fish a run
--- costs (Effects/ArcadeFx). Pixels and seconds.
+-- #3062 (Cat Arcade): the pops round a 10-point milestone and the golden fish a run costs, and the sparkles, rings
+-- and words Mouse Dash draws with them (Effects/ArcadeFx). Circle Streak's ring grades went with it (#4722). Pixels
+-- and seconds.
 Presets.arcade = {
 	displayOrder = 23, -- over the arcade window (a modal, 20), under toasts (30)
 	sparkSize = 10,
@@ -4341,14 +4366,8 @@ Presets.arcade = {
 	ringFrom = 0.5, -- of the target's longer side
 	ringTo = 1.5,
 	ringSeconds = 0.35,
-	wordSize = 26,
 	wordRise = 34,
 	wordSeconds = 0.6,
-	grades = {
-		perfect = { word = "Perfect!", colour = Presets.palette.golden, sparkles = 8, rings = 1 },
-		good = { word = "Good", colour = Presets.palette.mint, sparkles = 4, rings = 1 },
-		miss = { word = "Miss", colour = Presets.palette.furGrey, sparkles = 0, rings = 0 },
-	},
 	milestone = {
 		colour = Presets.palette.golden,
 		sparkles = 12, -- the phone's burst cap

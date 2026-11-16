@@ -875,6 +875,11 @@ RETIRED = {f"CatCafe_{a}_{k}" for a in ("Park", "Neighbourhood", "Woods", "Sewer
     f"CatCafe_{a}_SetV32" for a in ("Neighbourhood", "Woods", "Sewer")} | {
     f"CatCafe_Camp_{a}" for a in ("Park", "Neighbourhood", "Woods", "Sewer")}
 
+# Built for Blender only (#4656): the game never loads these, so a normal build writes their FBX and GLB and no rbx
+# file. The Tiny Hat left the Looks list (it is "tail_bow" now); its mesh stays as the Hat slot's attach reference
+# for the head pieces (accessories.HEAD_LOOKS, poses.py, the pack scripts).
+NO_RBX = {"CatCafe_Accessory_Hat"}
+
 
 def all_assets():
     out = {}
@@ -1000,7 +1005,8 @@ def main():
             extra = {**extra, "attachments": [*extra.get("attachments", ()), *areakit.SMOKE[name]]}
         rbx_dir = os.path.join(args.rbx, riftrun.RBX_DIR) if name in riftrun.ASSETS else args.rbx   # Assets.RiftRun
         rbx_dir = os.path.join(args.rbx, dragon.RBX_DIR) if name in dragon.ASSETS else rbx_dir      # Assets.Dragon
-        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, rbx_dir, **extra)
+        rbx_path, rbx_parts = ((None, 0) if args.no_rbx or name in NO_RBX
+                               else rbx_export.write_model(objs, name, rbx_dir, **extra))
         if rbx_path and name.startswith("CatCafe_Cat_"):      # #3918: the base cat's parts say how its gold twin differs
             pair = goldtone.twin_paths(rbx_path)
             if pair:

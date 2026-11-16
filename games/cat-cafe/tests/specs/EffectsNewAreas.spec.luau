@@ -151,6 +151,10 @@ return function()
 					cotton_candy = true,
 					jester = true,
 					rogue = true,
+					-- #4251: Harvest Hollow's three Rares take the same small touch
+					apple_pie = true,
+					cornstalk = true,
+					pumpkin_spice = true,
 				}
 				for catId in rares do
 					local spec = sig[catId]

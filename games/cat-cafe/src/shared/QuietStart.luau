@@ -1,7 +1,8 @@
 --!strict
 -- #4005 (Derek 2026-11-13: "putting less pop ups at the start of gameplay that are not needed" and "making the new
 -- player immune to getting other player pop ups on their screen for first 15 minute"; Growth-Agent's
--- home-recs-2026-11-13/first-5-min-popups.md, Part 1 confirmed by Design-Agent). Behind the `quietStart` switch.
+-- home-recs-2026-11-13/first-5-min-popups.md, Part 1 confirmed by Design-Agent). Always on since #4654 (the
+-- `quietStart` switch shipped and is gone).
 --   * A new player is quiet for their account's first SECONDS of play, counted across visits like the tackle shield
 --     (#3629, stats.playtimeSeconds): the server puts the end time on the player as ATTRIBUTE at load.
 --   * While quiet, other players' pop ups do not reach them (the rank up, rare catch, rare decor, lucky cat and cat
@@ -11,13 +12,10 @@
 --     customer, Mystery Visitor gift, Cat Collector) and the full "cat found" card for a kind below Epic wait or shrink
 --     to a toast; with the rank up walk through on, the rank up camera cut goes; on the first day the Daily Treat
 --     window does not open itself (its "!" still shows).
--- Pure, so the cloud specs check it; the callers read the switch and the clock.
-
-local LiveFlags = require(script.Parent.LiveFlags)
+-- Pure, so the cloud specs check it; the callers read the clock.
 
 local QuietStart = {}
 
-QuietStart.FLAG = "quietStart"
 QuietStart.ATTRIBUTE = "QuietUntil"
 QuietStart.DAY_ATTRIBUTE = "QuietFirstDay" -- the UTC day number the save was first seen (telemetry.firstDay)
 QuietStart.DAY_SECONDS = 86400
@@ -61,23 +59,19 @@ function QuietStart.untilAt(joinedAt: number, played: unknown): number?
 	return joinedAt + left
 end
 
--- Whether a player whose attribute reads `untilAt` is quiet at `now` with the switch `on`.
-function QuietStart.quiet(on: boolean, untilAt: unknown, now: number): boolean
-	return on and type(untilAt) == "number" and now < untilAt
+-- Whether a player whose attribute reads `untilAt` is quiet at `now`.
+function QuietStart.quiet(untilAt: unknown, now: number): boolean
+	return type(untilAt) == "number" and now < untilAt
 end
 
 -- Whether tip `id` waits now. `tier` is the player's tier (nil reads as 1); `quiet` is QuietStart.quiet's answer;
 -- `spotlight` says the rank up walk through (`rankUpSpotlight`) is on.
 function QuietStart.holdsTip(
-	on: boolean,
 	id: string,
 	tier: number?,
 	quiet: boolean,
 	spotlight: boolean?
 ): boolean
-	if not on then
-		return false
-	end
 	if QuietStart.TIER_TIPS[id] and (tier or 1) < QuietStart.TIER then
 		return true
 	end
@@ -89,14 +83,14 @@ function QuietStart.holdsTip(
 end
 
 -- Whether the first visit calls wait (before TIER).
-function QuietStart.holdsFirstVisit(on: boolean, tier: number?): boolean
-	return on and (tier or 1) < QuietStart.TIER
+function QuietStart.holdsFirstVisit(tier: number?): boolean
+	return (tier or 1) < QuietStart.TIER
 end
 
 -- Whether a "cat found" card for a new kind of `rarity` is a toast instead. The first catch's card always shows
 -- (`first`): it is the big reward moment.
-function QuietStart.foundToast(on: boolean, tier: number?, rarity: string?, first: boolean): boolean
-	if not on or first or (tier or 1) >= QuietStart.TIER then
+function QuietStart.foundToast(tier: number?, rarity: string?, first: boolean): boolean
+	if first or (tier or 1) >= QuietStart.TIER then
 		return false
 	end
 	return rarity == nil or not QuietStart.FULL_CARD[rarity]
@@ -104,30 +98,20 @@ end
 
 -- Whether the Daily Treat window may open itself: not on the account's first day (`firstDay`, the UTC day number
 -- the save was first seen; `today` the same for now).
-function QuietStart.treatOpensItself(on: boolean, firstDay: unknown, today: number): boolean
-	if not on then
-		return true
-	end
+function QuietStart.treatOpensItself(firstDay: unknown, today: number): boolean
 	return type(firstDay) ~= "number" or firstDay <= 0 or today > firstDay
 end
 
--- The client's read: whether the switch is on, and whether the local player is quiet now. Not for the specs.
-function QuietStart.live(): (boolean, boolean)
-	local on = LiveFlags.shown(
-		QuietStart.FLAG,
-		game:GetService("ReplicatedStorage")
-			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. QuietStart.FLAG)
-	)
+-- The client's read: whether the local player is quiet now. Not for the specs.
+function QuietStart.live(): boolean
 	local player = game:GetService("Players").LocalPlayer
 	if player == nil then
-		return on, false
+		return false
 	end
-	local quiet = QuietStart.quiet(
-		on,
+	return QuietStart.quiet(
 		player:GetAttribute(QuietStart.ATTRIBUTE),
 		game:GetService("Workspace"):GetServerTimeNow()
 	)
-	return on, quiet
 end
 
 return QuietStart

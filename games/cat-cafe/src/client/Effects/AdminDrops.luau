@@ -16,9 +16,14 @@
 --   with a player's character within `pickup.reach` studs of it (the server takes it on a touch), a small gold bead
 --   hops up out of it and shrinks away, a few glints and a small gold ring. Reduce Motion: the glints only. Low
 --   performance or far off: nothing. A fish that runs out untouched has nobody beside it, so it just goes.
+-- #4888 (Derek2 11-16: "a little animation/vfx on pop grabbing it"): when a landed crate goes with a character within
+--   `cratePop.reach` studs, a copy of the crate art (Model-Agent's CatCafe_Prop_Crate_Drop from ReplicatedStorage.Assets)
+--   stands on its spot, its lid flips open, gold sparkles burst out of it with a ring, then it shrinks away. Reduce
+--   Motion: the sparkles only. Low performance or far off: nothing. No art in Assets: sparkles and ring only.
 -- Sound: AdminDrops.onLand(listener) is told "fish" or "crate" and where, as a stand-in lands.
 -- Listening only: it sends nothing and changes nothing the server reads. Numbers in Presets.adminDrops.
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -267,8 +272,100 @@ local function fish(part: BasePart)
 	})
 end
 
+-- The crate's lid hinge (its back top edge; a positive turn about X lifts the front), from its bounding box.
+local function lidHinge(lid: Model): CFrame
+	local box, size = lid:GetBoundingBox()
+	return box * CFrame.new(0, size.Y / 2, size.Z / 2)
+end
+
+-- The crate grab pop at `pivot` (the crate's spot on the ground).
+local function popCrate(pivot: CFrame)
+	local q = Presets.adminDrops.cratePop
+	if Context.lowPerformance or Context.distance(pivot.Position) > q.within then
+		return
+	end
+	Particles.burst(q.burst, pivot.Position + Vector3.new(0, q.lift, 0), q.count, q.colour)
+	if Context.reducedMotion() then
+		return
+	end
+	Particles.ring(pivot.Position + Vector3.new(0, 0.1, 0), q.colour, q.ring, q.ringSeconds)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local template = if assets ~= nil then assets:FindFirstChild(q.art, true) else nil
+	if template == nil or not template:IsA("Model") then
+		return
+	end
+	local copy = (template :: Model):Clone()
+	for _, piece in copy:GetDescendants() do
+		if piece:IsA("BasePart") then
+			local part = piece :: BasePart
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+			part.CastShadow = false
+		end
+	end
+	copy.Name = "EffectsCratePop"
+	copy:PivotTo(pivot)
+	local lid: Model? = nil
+	for _, piece in copy:GetDescendants() do
+		if piece:IsA("Model") and string.sub(piece.Name, -4) == "_Lid" then
+			lid = piece :: Model
+			break
+		end
+	end
+	local hinge = if lid ~= nil then lidHinge(lid) else nil
+	local lidAt = if lid ~= nil then lid:GetPivot() else nil
+	copy.Parent = Context.folder()
+	local startedAt = Workspace:GetServerTimeNow()
+	run({
+		step = function(now: number): boolean
+			local t = now - startedAt
+			if lid ~= nil and hinge ~= nil and lidAt ~= nil and t <= q.open + 0.05 then
+				local u = math.clamp(t / q.open, 0, 1)
+				local turn = math.rad(q.lidDegrees * (1 - (1 - u) * (1 - u)))
+				lid:PivotTo(hinge * CFrame.Angles(turn, 0, 0) * hinge:Inverse() * lidAt)
+			end
+			local shrinkFrom = q.open + q.hold
+			if t >= shrinkFrom + q.shrink or copy.Parent == nil then
+				copy:Destroy()
+				return false
+			end
+			if t > shrinkFrom then
+				copy:ScaleTo(math.max(0.05, 1 - (t - shrinkFrom) / q.shrink))
+			end
+			return true
+		end,
+	})
+end
+
 local function crate(model: Model)
 	local p = Presets.adminDrops
+	-- #4888: the grab pop, wherever the crate is when it goes (the art's spot on the ground, else under the box)
+	local art = model:FindFirstChild("Art")
+	local spot: CFrame
+	if art ~= nil and art:IsA("Model") then
+		spot = (art :: Model):GetPivot()
+	else
+		local box, size = model:GetBoundingBox()
+		spot = box * CFrame.new(0, -size.Y / 2, 0)
+	end
+	local opens = model:GetAttribute("LandsAt")
+	local gone: RBXScriptConnection? = nil
+	gone = model.AncestryChanged:Connect(function(_, parent: Instance?)
+		if parent ~= nil then
+			return
+		end
+		if gone ~= nil then
+			gone:Disconnect()
+			gone = nil
+		end
+		local landed = type(opens) ~= "number"
+			or Workspace:GetServerTimeNow() >= (opens :: number) - 0.5
+		if landed and AdminDrops.grabbed(spot.Position, roots(), p.cratePop.reach) then
+			popCrate(spot)
+		end
+	end)
 	local landsAt = model:GetAttribute("LandsAt")
 	if type(landsAt) ~= "number" then
 		return

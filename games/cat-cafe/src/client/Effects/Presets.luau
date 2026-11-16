@@ -3973,6 +3973,24 @@ Presets.adminDrops = {
 		puff = "stormPuff",
 		puffCount = 10,
 	},
+	-- #4888 the crate grab pop (Effects/AdminDrops.popCrate): a copy of `art` on the spot, its lid turning `lidDegrees`
+	-- over `open` seconds, held `hold`, then shrunk away over `shrink`; `count` sparkles `lift` studs up and a `ring`
+	-- stud ring. Only within `within` studs, and only when a character was within `reach` studs as it went.
+	cratePop = {
+		art = "CatCafe_Prop_Crate_Drop",
+		reach = 9,
+		within = 140,
+		lidDegrees = 110,
+		open = 0.25,
+		hold = 0.25,
+		shrink = 0.3,
+		burst = "catchSparkle",
+		count = 14,
+		lift = 2.5,
+		ring = 6,
+		ringSeconds = 0.4,
+		colour = Presets.palette.golden,
+	},
 }
 
 -- #4251 (Effects/HarvestFx): Harvest Hollow. Leaves (`air`) fall from a `box` held `height` studs over the camera's

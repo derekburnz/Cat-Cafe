@@ -182,5 +182,12 @@ return function()
 				expect(q.glints <= 8 and q.seconds <= 0.5 and q.bead <= 1).to.equal(true) -- very small, for phones
 			end
 		)
+
+		it("keeps the crate grab pop short and light (#4888)", function()
+			local c = Presets.adminDrops.cratePop
+			expect(c.open + c.hold + c.shrink <= 1).to.equal(true)
+			expect(c.count <= 16).to.equal(true)
+			expect(c.reach > 0 and c.within >= c.reach).to.equal(true)
+		end)
 	end)
 end

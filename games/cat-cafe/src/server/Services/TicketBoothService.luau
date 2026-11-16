@@ -7,7 +7,12 @@
 -- buy that takes the save past TicketBooth.REGULAR_SPENT shows the Park Regular title at once. The weekly Water Park
 -- shelf's cards (TicketBooth.weekShelf) are bought the same way: a decor piece goes into decorOwned, a wearable is owned
 -- by its used once-limit.
+-- The two toys (shared/Toys, spec 1.3): HoldToy(toyId?) takes an owned toy in hand or puts it away, as the character
+-- attribute Toys.ATTRIBUTE (a respawn starts with none); UseToy() uses it, at most once every Toys.COOLDOWN seconds and
+-- never in a catch, a rescue or a flight or with a cat in the arms, and tells the players within Toys.RANGE with ToyUsed. Fun only: a use
+-- changes nothing on the server and touches no other player. The client clones the model and plays the effect.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -15,10 +20,12 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
+local Toys = require(ReplicatedStorage.Shared.Toys)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 
 local CafePassService = require(script.Parent.CafePassService)
 local CafeService = require(script.Parent.CafeService)
+local CatService = require(script.Parent.CatService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -112,8 +119,87 @@ local function onBuy(player: Player, rawId: unknown)
 	CafeService.sync(player)
 end
 
+local lastUse: { [Player]: number } = {}
+
+local function rootOf(player: Player): BasePart?
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root ~= nil and root:IsA("BasePart") then
+		return root :: BasePart
+	end
+	return nil
+end
+
+-- HoldToy: nil (or anything that is not an owned toy's id) puts the toy away.
+local function onHold(player: Player, rawId: unknown)
+	local character = player.Character
+	if character == nil then
+		return
+	end
+	local profile = DataService.get(player)
+	local toy = Toys.get(Guard.id(rawId))
+	if
+		toy == nil
+		or profile == nil
+		or not LiveFlagService.on(TicketBooth.FLAG)
+		or not Toys.owns(profile.tickets, toy)
+	then
+		character:SetAttribute(Toys.ATTRIBUTE, nil)
+		return
+	end
+	character:SetAttribute(Toys.ATTRIBUTE, toy.id)
+end
+
+local function onUse(player: Player)
+	local character = player.Character
+	local root = rootOf(player)
+	local profile = DataService.get(player)
+	if character == nil or root == nil or profile == nil then
+		return
+	end
+	local raw = character:GetAttribute(Toys.ATTRIBUTE)
+	local toy = Toys.get(if typeof(raw) == "string" then raw else nil)
+	if
+		toy == nil
+		or not LiveFlagService.on(TicketBooth.FLAG)
+		or not Toys.owns(profile.tickets, toy)
+	then
+		character:SetAttribute(Toys.ATTRIBUTE, nil) -- the switch went off, or nothing owned is in hand
+		return
+	end
+	local now = os.clock()
+	local last = lastUse[player]
+	-- a carried or packed cat keeps the hand busy too (Motion-FX on #4755: nothing would show)
+	local busy = CatService.inMinigame(player)
+		or CatService.inFlight(player)
+		or CatService.isLoaded(player)
+	if Toys.useBlocker(toy.id, if last ~= nil then now - last else nil, busy) ~= nil then
+		return
+	end
+	lastUse[player] = now
+	local origin = root.Position
+	local near: { Player } = { player }
+	local others: { Vector3 } = {}
+	for _, other in Players:GetPlayers() do
+		local otherRoot = if other ~= player then rootOf(other) else nil
+		if otherRoot ~= nil and (otherRoot.Position - origin).Magnitude <= Toys.RANGE then
+			table.insert(near, other)
+			table.insert(others, otherRoot.Position)
+		end
+	end
+	local target = if toy.aimed then Toys.target(origin, root.CFrame.LookVector, others) else nil
+	for _, other in near do
+		Net.fire(other, "ToyUsed", player.UserId, toy.id, target)
+	end
+end
+
 function TicketBoothService.start()
 	Net.on("BuyTicketPrize", onBuy)
+	Net.on("HoldToy", onHold)
+	Net.on("UseToy", onUse)
+	Players.PlayerRemoving:Connect(function(player)
+		lastUse[player] = nil
+	end)
 end
 
 return TicketBoothService

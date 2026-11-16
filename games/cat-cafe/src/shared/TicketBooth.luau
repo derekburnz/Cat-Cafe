@@ -43,6 +43,7 @@ export type Prize = {
 	-- the weekly Water Park shelf (spec 1.3): a decor piece (Catalog.boothDecor, into decorOwned) or a wearable (a Looks
 	-- accessory, owned once its once-limit is used); only buyable the weeks it is on the shelf (weekShelf)
 	weekly: { kind: "decor" | "look", item: string }?,
+	toy: string?, -- a held toy's id (shared/Toys): owned once its once-limit is used
 }
 
 -- In shelf order (section 1.3)
@@ -106,12 +107,31 @@ TicketBooth.PRIZES = {
 		limit = { per = "once", n = 1 },
 		cat = "booth_plush",
 	},
+	-- Spec 1.3 "Toys (fun only)", 2,000 each: held toys (shared/Toys), bought once. They sit on the fixed shelf, not in
+	-- WEEKLY: the weekly shelf takes its cards in turn by the pool's size, so two more cards there would change which
+	-- four show this week.
+	{
+		id = "toySquirter",
+		name = "Water Squirter",
+		line = "A toy: spray a harmless splash",
+		price = 2000,
+		limit = { per = "once", n = 1 },
+		toy = "squirter",
+	},
+	{
+		id = "toyNoodle",
+		name = "Pool Noodle",
+		line = "A toy: bonk with a squeak",
+		price = 2000,
+		limit = { per = "once", n = 1 },
+		toy = "noodle",
+	},
 } :: { Prize }
 
 -- #4061 (spec 1.3): the weekly Water Park shelf, SHELF_SIZE cards a week taken in turn from WEEKLY (Monday 00:00 UTC).
 -- Decor pays like a crate piece of its rarity while in use (Rare +4%, Epic +8%); a wearable pays WEAR_BONUS while it
 -- is the cafe's accessory. Bought once, owned for good; "Owned" when it comes round again. The Water Squirter and
--- Pool Noodle toys join the pool once their held play exists (Motion-FX).
+-- Pool Noodle toys are fixed prizes above (PRIZES), not weekly cards.
 TicketBooth.SHELF_SIZE = 4
 TicketBooth.WEAR_BONUS = 0.05
 local function weekly(
@@ -436,9 +456,9 @@ function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoot
 			left = TicketBooth.left(save, prize, now),
 			per = if prize.limit ~= nil then prize.limit.per :: string else nil,
 			blocker = TicketBooth.blocker(save, prize, now),
-			kind = if w ~= nil then w.kind :: string else nil,
-			item = if w ~= nil then w.item else nil,
-			owned = if w ~= nil then TicketBooth.owns(save, prize) else nil,
+			kind = if w ~= nil then w.kind :: string elseif prize.toy ~= nil then "toy" else nil,
+			item = if w ~= nil then w.item else prize.toy,
+			owned = if w ~= nil or prize.toy ~= nil then TicketBooth.owns(save, prize) else nil,
 		}
 	end
 	local rows: { Types.TicketPrizeRow } = {}

@@ -2363,7 +2363,6 @@ local function followAreas()
 	end)
 end
 
--- #3690: this player's bounce on the trampoline, in 3D at the mat.
 -- #4985: the intro's cannon shot on its copy of you (Effects/Cannon.onStaged): the launch cue at the BOOM, flat,
 -- unless Skip ended the flight first.
 local function followStagedCannon()
@@ -2377,6 +2376,7 @@ local function followStagedCannon()
 	end)
 end
 
+-- #3690: this player's bounce on the trampoline, in 3D at the mat.
 local function followTrampoline()
 	Trampoline.onBounce(function(mat)
 		Audio.play(Logic.TRAMPOLINE_CUE, mat.Position)

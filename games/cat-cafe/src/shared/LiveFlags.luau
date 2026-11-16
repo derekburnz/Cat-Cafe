@@ -27,8 +27,6 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
--- - `traits` (#3196): the Mystic Pool's cat traits (shared/Traits). It starts OFF (OFF_BY_DEFAULT): switch it on only with
---   the restart publish that ships the trait save fields, so no older server can drop a cat's trait.
 -- - `swiftPaws5` (#3317): Swift Paws levels 3 to 5 in the Golden Fish Market (shared/SwiftPaws). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added them is running, since an
 --   older server keeps a saved level only up to 2.
@@ -80,9 +78,6 @@
 -- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
 --   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
 --   publish that added the row is running, since an older server's save check drops an item id it does not know.
--- - `traitBundles` (#3864): the Trait Token bundles (20 and 50, developer products) on the Mystic Pool card once the
---   free rolls are used. It starts OFF (OFF_BY_DEFAULT); off, no offer shows (a receipt still pays, since Roblox
---   took the Robux).
 -- - `storeRework` (#3572): the Store as in Model-Agent's OK'd mock: Cats above Passes on the rail, each tab cheapest
 --   first, two columns of cards with the picture at the left and the price button under the words
 --   (client/UI/Screens/Store). It starts OFF (OFF_BY_DEFAULT); read by the client alone, once when the Store is built.
@@ -122,7 +117,6 @@ LiveFlags.KEYS = {
 	"alleyBin",
 	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 	"goldenDrops",
-	"traits",
 	"swiftPaws5",
 	"swiftPaws10", -- #4705
 	"mouseDash",
@@ -143,14 +137,12 @@ LiveFlags.KEYS = {
 	"speedShoes",
 	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
 	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
-	"traitBundles", -- #3864: the Trait Token bundles at the Mystic Pool
 	"storeRework", -- #3572: the reworked Store layout
 	"quietAway", -- #4035: food bowl cards wait while the player is out catching
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
 	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
-	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"tier8", -- #3997: Tier 8 and the Snowy Mountain (shared/LateTiers); on once the area is built, after a restart
 	"tier9", -- #4070: Tier 9 and the Water Park (shared/LateTiers); on once the area is built, after a restart, never before tier8
 	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
@@ -189,7 +181,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightCatch = true,
 	loadingScreen = true,
 	goldenDrops = true,
-	traits = true,
 	swiftPaws5 = true,
 	swiftPaws10 = true, -- #4705
 	mouseDash = true,
@@ -206,14 +197,12 @@ LiveFlags.OFF_BY_DEFAULT = {
 	bagColours = true,
 	menuFamily = true,
 	speedShoes = true,
-	traitBundles = true,
 	storeRework = true,
 	quietAway = true,
 	fishStore = true,
 	ticketBooth = true,
 	dragonKeep = true,
 	riftRun = true,
-	secretTrait = true,
 	tier8 = true,
 	tier9 = true,
 	tier10 = true,

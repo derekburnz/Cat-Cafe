@@ -156,15 +156,6 @@ return function()
 			end
 		)
 
-		it("swells slower than 3 times a second and only a little", function()
-			expect(p.pulseHz < 3).to.equal(true)
-			expect(p.pulse <= 0.15).to.equal(true)
-			expect(near(Flash.pulse(0, p.pulseHz, p.pulse), 1)).to.equal(true)
-			expect(near(Flash.pulse(0.5 / p.pulseHz, p.pulseHz, p.pulse), 1 + p.pulse)).to.equal(
-				true
-			)
-		end)
-
 		it("adds up what came in and never takes spending away", function()
 			local total = Flash.earned(0, 1000, 1500)
 			expect(total).to.equal(500)

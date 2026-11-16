@@ -3211,6 +3211,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
+	self._tierProgress = tierProgress -- #4625: the new kinds goal's coins line
 	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
 	local second =
 		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
@@ -5812,7 +5813,14 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 			local title = NewKind.title(newKind, TOUCH)
 			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
 			local opens = GoalLines.opens(self._nextTierName, TOUCH)
-			return { title = title, lines = if opens then { opens } else {}, chip = title }
+			local lines: { string } = if opens then { opens } else {}
+			-- #4625: and the coins half of that tier as a short meter line, until the coins are there
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
 		end
 		return nil
 	end

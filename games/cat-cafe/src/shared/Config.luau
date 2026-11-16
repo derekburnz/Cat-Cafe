@@ -1540,6 +1540,13 @@ local Config = {
 	GroupId = 107520049, -- Creampuff Games, the community group (since 2026-11-03, #999): the starter cat's gate and
 	-- requiresGroup codes. 0 turns both off (the starter cat back on the first goals)
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
+	-- #4679 (Derek 2026-11-16: players join the group and still cannot take the Bellhop Cat until they rejoin, as
+	-- Roblox keeps its "not a member" answer for the session): for this long after a player presses "Join the group",
+	-- a claim asks Roblox again GroupJoinRetries times, GroupJoinRetrySeconds apart, and if the answer is still "no"
+	-- the cat goes home anyway. The cat is a one-time gift; the group check is a nudge, not a lock.
+	GroupJoinTrustSeconds = 600,
+	GroupJoinRetries = 2, -- with the wait below it stays inside the card's 5 s wait for an answer
+	GroupJoinRetrySeconds = 1.5,
 
 	-- The free Bellhop Cat (F96, starter-cat.md sections 2 and 4). Its stand's card opens and ClaimStarterCat is taken
 	-- within StarterCatRangeStuds (flat) of a BellhopStand's pivot. While GroupId is 0 a claim needs the first goals

@@ -1305,7 +1305,7 @@ return function()
 		}
 
 		it(
-			"stands each station in its own quarter, off the open cross, facing the fountain",
+			"stands each station in its own quarter on the edge, off the open cross, facing straight in (#4667)",
 			function()
 				local quarters: { [string]: string } = {}
 				for name, point in stations do
@@ -1327,15 +1327,16 @@ return function()
 					-- WorldBuilder turns a point by CFrame.Angles(0, rad(rotY), 0), whose LookVector is (-sin, 0, -cos).
 					local yaw = math.rad(point.rotY or 0)
 					local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
-					local length = math.sqrt(point.x * point.x + point.z * point.z)
-					local dot = (lookX * -point.x + lookZ * -point.z) / length
-					expect(dot > 0.999).to.equal(true)
+					-- #4667: on the east or west edge, facing straight in across the square
+					expect(math.abs(point.x)).to.equal(50)
+					expect(math.abs(lookZ) < 0.001).to.equal(true)
+					expect(lookX * -math.sign(point.x) > 0.999).to.equal(true)
 				end
 			end
 		)
 
 		it(
-			"fits the Codes Cat and Juniper's cart in the south-west corner, facing the cannon (#2565, #3454)",
+			"fits the Codes Cat and Juniper's cart in the south-west corner, facing straight in (#2565, #3454, #4667)",
 			function()
 				-- #3454: the Day Cart left this corner for the north-east, beside the Golden Fish Market
 				expect(Layout.dayCart.x > 0 and Layout.dayCart.z > 0).to.equal(true)
@@ -1350,8 +1351,9 @@ return function()
 					expect(inside(point.x, point.z, square.floor, 4)).to.equal(true)
 					local yaw = math.rad(point.rotY or 0)
 					local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
-					local length = math.sqrt(point.x * point.x + point.z * point.z)
-					expect((lookX * -point.x + lookZ * -point.z) / length > 0.999).to.equal(true)
+					-- #4667: facing straight in across the square
+					expect(math.abs(lookZ) < 0.001).to.equal(true)
+					expect(lookX * -math.sign(point.x) > 0.999).to.equal(true)
 				end
 				-- Model-Agent's check used the real footprints; centres at least 12 studs apart keep the wagon
 				-- (12 x 7) off its neighbours
@@ -2313,7 +2315,7 @@ return function()
 		)
 
 		it(
-			"stands one Rally board left of the street's path at its north end, facing the spawn, off the cross and the stations (F101, #2224, #2367)",
+			"stands one Rally board left of the street's path at its north end, facing straight in, off the cross and the stations (F101, #2224, #2367)",
 			function()
 				local boards = square.rallyBoards
 				expect(#boards).to.equal(1)
@@ -2335,11 +2337,8 @@ return function()
 						end
 						expect(math.sqrt(x ^ 2 + z ^ 2) > square.fountainRadius + 3).to.equal(true)
 					end
-					-- front -Z turned toward the spawn on the street's line
-					local spawn = Layout.playerSpawn
-					local toX, toZ = spawn.x - board.x, spawn.z - board.z
-					local length = math.sqrt(toX ^ 2 + toZ ^ 2)
-					expect((-sin * toX - cos * toZ) / length > 0.95).to.equal(true)
+					-- #4667: front -Z turned straight in across the square (toward +X from the west edge)
+					expect(-sin > 0.999).to.equal(true)
 					for name, point in
 						{
 							spinWheel = Layout.spinWheel,
@@ -2387,7 +2386,7 @@ return function()
 		)
 
 		it(
-			"stands the update poster on the square facing the spawn, off the lanes (#4362)",
+			"stands the update poster on the square's edge facing straight in, off the lanes (#4362, #4667)",
 			function()
 				local poster = square.updatePoster
 				expect(poster.asset).to.equal("CatCafe_Square_UpdatePoster")
@@ -2402,10 +2401,9 @@ return function()
 						expect(inside(x, z, lane, -0.5)).to.equal(false)
 					end
 				end
-				local spawn = Layout.playerSpawn
-				local toX, toZ = spawn.x - poster.x, spawn.z - poster.z
-				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
-				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- #4667: on the edge, front -Z turned straight in across the square
+				expect(math.abs(poster.x)).to.equal(50)
+				expect(-sin * -math.sign(poster.x) > 0.999).to.equal(true)
 				local sign = square.pitySign
 				expect(math.sqrt((sign.x - poster.x) ^ 2 + (sign.z - poster.z) ^ 2) > 12).to.equal(
 					true
@@ -2414,7 +2412,7 @@ return function()
 		)
 
 		it(
-			"stands the Mystery Market's signboard beside the wagon, facing the spawn (#4508)",
+			"stands the Mystery Market's signboard beside the wagon, facing straight in (#4508, #4667)",
 			function()
 				local sign: any = nil
 				for _, prop in square.props :: { any } do
@@ -2440,10 +2438,9 @@ return function()
 						expect(inside(x, z, lane, -0.5)).to.equal(false)
 					end
 				end
-				local spawn = Layout.playerSpawn
-				local toX, toZ = spawn.x - sign.x, spawn.z - sign.z
-				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
-				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- #4667: on the edge, front -Z turned straight in across the square
+				expect(math.abs(sign.x)).to.equal(50)
+				expect(-sin * -math.sign(sign.x) > 0.999).to.equal(true)
 				-- the arrow on its top points along the board's +X (cos, -sin): toward the wagon
 				local cartX, cartZ = cart.x - sign.x, cart.z - sign.z
 				expect((cos * cartX - sin * cartZ) / apart > 0.7).to.equal(true)
@@ -2451,7 +2448,7 @@ return function()
 		)
 
 		it(
-			"stands the decor stand beside the Golden Fish Market, facing the spawn (#4516)",
+			"stands the decor stand beside the Golden Fish Market, facing straight in (#4516, #4667)",
 			function()
 				local stand: any = nil
 				for _, prop in square.props :: { any } do
@@ -2482,10 +2479,9 @@ return function()
 						expect(inside(x, z, lane, -0.5)).to.equal(false)
 					end
 				end
-				local spawn = Layout.playerSpawn
-				local toX, toZ = spawn.x - stand.x, spawn.z - stand.z
-				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
-				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- #4667: on the edge, front -Z turned straight in across the square
+				expect(math.abs(stand.x)).to.equal(50)
+				expect(-sin * -math.sign(stand.x) > 0.999).to.equal(true)
 				-- the arrow on its top points along the stand's +X (cos, -sin): toward the market
 				local toMarketX, toMarketZ = market.x - stand.x, market.z - stand.z
 				expect((cos * toMarketX - sin * toMarketZ) / apart > 0.7).to.equal(true)
@@ -2493,7 +2489,7 @@ return function()
 		)
 
 		it(
-			"stands the pity sign across from the Day Cart facing the spawn, off the lanes (#1753)",
+			"stands the pity sign on the square's edge facing straight in, off the lanes (#1753, #4667)",
 			function()
 				local sign = square.pitySign
 				expect(sign.asset).to.equal("CatCafe_Square_PitySign")
@@ -2508,10 +2504,9 @@ return function()
 						expect(inside(x, z, lane, -0.5)).to.equal(false)
 					end
 				end
-				local spawn = Layout.playerSpawn
-				local toX, toZ = spawn.x - sign.x, spawn.z - sign.z
-				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
-				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- #4667: on the edge, front -Z turned straight in across the square
+				expect(math.abs(sign.x)).to.equal(50)
+				expect(-sin * -math.sign(sign.x) > 0.999).to.equal(true)
 				for name, point in
 					{
 						dayCart = Layout.dayCart,

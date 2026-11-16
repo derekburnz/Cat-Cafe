@@ -1110,6 +1110,7 @@ function UI.init(config: Types.InitConfig)
 	})
 	cannonScreen = Cannon.new({
 		launch = function(cannonId: string, destination: string)
+			UI.cannon.endWalkRing() -- #4674: Launch pressed, the walk-through's Alleyway ring goes
 			UI.events.launchCannon:Fire(cannonId, destination)
 		end,
 		-- #3082: Collect on a card's strip, from anywhere (UIController sends CollectCampExtra; #1463 had it for a
@@ -3923,6 +3924,7 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 -- that the trip to the cannon is under way (UI.travel.result opens the picker when it lands), `token` the newest press.
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
 UI.cannon.bowlPending = false -- #4674: bowl first, the bowl part still to do (UIController)
+UI.cannon.walkRing = nil :: string? -- #4674: the walk-through's Alleyway ring on the picker, until Launch
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
 UI.cannon.area = nil :: string?
 
@@ -4142,7 +4144,35 @@ function UI.cannon.open(cannonId: string?)
 		return
 	end
 	screen:setCannon(cannonId or CannonLogic.TOWN)
+	-- #4674: in the bowl first walk-through the Alleyway card's Launch is ringed until it is pressed
+	local WalkRingLogic = require(script.Components.WalkRingLogic)
+	local TutorialOrder =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+	local walk = WalkRingLogic.area({
+		bowlFirst = TutorialOrder.bowlFirst(),
+		tier = state.tier,
+		secondCatDone = (state :: any).secondCatDone, -- (UIController's; PlayerState has no field for it)
+		cannonId = cannonId or CannonLogic.TOWN,
+		flyRing = UI.cannon.fly.ring,
+	})
+	if walk ~= nil then
+		UI.cannon.walkRing = walk
+		screen:setRing(walk)
+	else
+		UI.cannon.endWalkRing()
+	end
 	windows:open("Cannon")
+end
+
+-- #4674: ends the walk-through's Alleyway ring (Launch pressed), leaving the Park ring from Rank Up alone.
+function UI.cannon.endWalkRing()
+	if UI.cannon.walkRing == nil then
+		return
+	end
+	UI.cannon.walkRing = nil
+	if cannonScreen and UI.cannon.fly.ring == nil then
+		cannonScreen:setRing(nil)
+	end
 end
 
 -- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
@@ -10836,12 +10866,6 @@ function UI.gift.show(kind: any, paid: any)
 		end)
 	end
 end
-
--- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). #2399 (Derek2: "auto equip bubble pop-ups are
--- also just more bloat on the screen"): no toast any more; the Cats window shows the jobs.
-UI.autoEquip = {}
-
-function UI.autoEquip.swapped(_raw: any) end
 
 ----------------------------------------------------------------------------------------------------
 -- Cafe Events (#2487, live-events.md section 3)

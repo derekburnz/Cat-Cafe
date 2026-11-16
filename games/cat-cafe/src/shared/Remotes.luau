@@ -127,6 +127,9 @@ Remotes.ClientToServer = {
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
 	-- Bellhop Cat not yet claimed, and the first goals done (GroupId 0) or the player in GroupId; 1 per 2 s, answered
 	-- with StarterCatResult
+	"GroupJoinPrompted", -- ()  #4679: the player pressed "Join the group" on the Bellhop Cat's card and Roblox's join
+	-- prompt opened. A note only, kept for the session: a ClaimStarterCat inside Config.GroupJoinTrustSeconds of it
+	-- asks Roblox again a few times and, if the answer is still an old "no", lets the cat go home; 1 per 5 s
 	"IntroDone", -- (shot: number, replay: boolean, seconds: number?)  integer 0 to 10: 0 when the intro cutscene played
 	-- to the end, else the shot showing at Skip (F72, shared/Intro); seconds watched, whole, 0 to 600 (#3773, optional
 	-- so an old client still counts); 1 a second. The first non-replay call sets introSeen
@@ -438,8 +441,6 @@ Remotes.ServerToClient = {
 	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish, spins, secondsLeft, crates: number)  #3420, #3535: the
 	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
 	-- first); the client shows the banner with UpdateGift.banner's words
-	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
-	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
 	-- server's best, on join once the arcade is read and after every game
 	"ArcadeBlock", -- (run: number, block: number, circles: { Types.CatchCircle }, windows: Types.CatchWindows,

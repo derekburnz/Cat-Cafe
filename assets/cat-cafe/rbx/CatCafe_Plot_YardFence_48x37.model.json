@@ -2607,7 +2607,7 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.435,
+       1.375,
        21.0967
       ],
       "orientation": [
@@ -2631,7 +2631,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2656,7 +2656,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.355,
+       2.7,
+       21.0967
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        21.7167
       ],
       "orientation": [
@@ -2680,7 +2729,7 @@
     },
     "Size": [
      0.12,
-     2.61,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2705,7 +2754,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.435,
+       2.7,
+       21.7167
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        22.3367
       ],
       "orientation": [
@@ -2729,7 +2827,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2754,7 +2852,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.435,
+       2.7,
+       22.3367
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        24.13
       ],
       "orientation": [
@@ -2778,7 +2925,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2803,7 +2950,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.355,
+       2.7,
+       24.13
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        24.75
       ],
       "orientation": [
@@ -2827,7 +3023,7 @@
     },
     "Size": [
      0.12,
-     2.61,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2852,7 +3048,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.435,
+       2.7,
+       24.75
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        25.37
       ],
       "orientation": [
@@ -2876,7 +3121,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2901,7 +3146,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.435,
+       2.7,
+       25.37
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        27.1633
       ],
       "orientation": [
@@ -2925,7 +3219,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2950,7 +3244,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.355,
+       2.7,
+       27.1633
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        27.7833
       ],
       "orientation": [
@@ -2974,7 +3317,7 @@
     },
     "Size": [
      0.12,
-     2.61,
+     2.65,
      0.36
     ],
     "Color": [
@@ -2999,7 +3342,56 @@
      "CFrame": {
       "position": [
        -24.86,
-       1.435,
+       2.7,
+       27.7833
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       1.375,
        28.4033
       ],
       "orientation": [
@@ -3023,7 +3415,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3036,6 +3428,55 @@
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.86,
+       2.7,
+       28.4033
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -3590,7 +4031,7 @@
      "CFrame": {
       "position": [
        24.86,
-       1.435,
+       1.375,
        21.0967
       ],
       "orientation": [
@@ -3614,7 +4055,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3639,7 +4080,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.355,
+       2.7,
+       21.0967
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        21.7167
       ],
       "orientation": [
@@ -3663,7 +4153,7 @@
     },
     "Size": [
      0.12,
-     2.61,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3688,7 +4178,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.435,
+       2.7,
+       21.7167
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        22.3367
       ],
       "orientation": [
@@ -3712,7 +4251,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3737,7 +4276,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.435,
+       2.7,
+       22.3367
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        24.13
       ],
       "orientation": [
@@ -3761,7 +4349,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3786,7 +4374,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.355,
+       2.7,
+       24.13
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        24.75
       ],
       "orientation": [
@@ -3810,7 +4447,7 @@
     },
     "Size": [
      0.12,
-     2.61,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3835,7 +4472,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.435,
+       2.7,
+       24.75
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        25.37
       ],
       "orientation": [
@@ -3859,7 +4545,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3884,7 +4570,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.435,
+       2.7,
+       25.37
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        27.1633
       ],
       "orientation": [
@@ -3908,7 +4643,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3933,7 +4668,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.355,
+       2.7,
+       27.1633
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        27.7833
       ],
       "orientation": [
@@ -3957,7 +4741,7 @@
     },
     "Size": [
      0.12,
-     2.61,
+     2.65,
      0.36
     ],
     "Color": [
@@ -3982,7 +4766,56 @@
      "CFrame": {
       "position": [
        24.86,
-       1.435,
+       2.7,
+       27.7833
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       1.375,
        28.4033
       ],
       "orientation": [
@@ -4006,7 +4839,7 @@
     },
     "Size": [
      0.12,
-     2.77,
+     2.65,
      0.36
     ],
     "Color": [
@@ -4019,6 +4852,55 @@
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.86,
+       2.7,
+       28.4033
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2546,
+     0.2546
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -4129,7 +5011,7 @@
      "CFrame": {
       "position": [
        -24.2246,
-       1.435,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4153,7 +5035,105 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
+     0.12
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -24.2246,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -23.6046,
+       1.375,
+       29.26
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4178,7 +5158,56 @@
      "CFrame": {
       "position": [
        -23.6046,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -22.9846,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4202,7 +5231,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4227,7 +5256,56 @@
      "CFrame": {
       "position": [
        -22.9846,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -22.3646,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4251,7 +5329,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4276,7 +5354,56 @@
      "CFrame": {
       "position": [
        -22.3646,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -21.7446,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4300,7 +5427,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4325,7 +5452,56 @@
      "CFrame": {
       "position": [
        -21.7446,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -20.3938,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4349,7 +5525,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4374,7 +5550,56 @@
      "CFrame": {
       "position": [
        -20.3938,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -19.7738,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4398,7 +5623,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4423,7 +5648,56 @@
      "CFrame": {
       "position": [
        -19.7738,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -19.1538,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4447,7 +5721,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4472,7 +5746,56 @@
      "CFrame": {
       "position": [
        -19.1538,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -18.5338,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4496,7 +5819,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4521,7 +5844,56 @@
      "CFrame": {
       "position": [
        -18.5338,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -17.9138,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4545,7 +5917,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4570,7 +5942,56 @@
      "CFrame": {
       "position": [
        -17.9138,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -16.5631,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4594,7 +6015,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4619,7 +6040,56 @@
      "CFrame": {
       "position": [
        -16.5631,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.9431,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4643,7 +6113,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4668,7 +6138,56 @@
      "CFrame": {
       "position": [
        -15.9431,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.3231,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4692,7 +6211,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4717,7 +6236,56 @@
      "CFrame": {
       "position": [
        -15.3231,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.7031,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4741,7 +6309,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4766,7 +6334,56 @@
      "CFrame": {
       "position": [
        -14.7031,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.0831,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4790,7 +6407,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4815,7 +6432,56 @@
      "CFrame": {
       "position": [
        -14.0831,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.7323,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4839,7 +6505,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4864,7 +6530,56 @@
      "CFrame": {
       "position": [
        -12.7323,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.1123,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4888,7 +6603,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4913,7 +6628,56 @@
      "CFrame": {
       "position": [
        -12.1123,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.4923,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4937,7 +6701,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -4962,7 +6726,56 @@
      "CFrame": {
       "position": [
        -11.4923,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.8723,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -4986,7 +6799,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5011,7 +6824,56 @@
      "CFrame": {
       "position": [
        -10.8723,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.2523,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5035,7 +6897,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5060,7 +6922,56 @@
      "CFrame": {
       "position": [
        -10.2523,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.9015,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5084,7 +6995,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5109,7 +7020,56 @@
      "CFrame": {
       "position": [
        -8.9015,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.2815,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5133,7 +7093,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5158,7 +7118,56 @@
      "CFrame": {
       "position": [
        -8.2815,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -7.6615,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5182,7 +7191,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5207,7 +7216,56 @@
      "CFrame": {
       "position": [
        -7.6615,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -7.0415,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5231,7 +7289,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5256,7 +7314,56 @@
      "CFrame": {
       "position": [
        -7.0415,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.4215,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5280,7 +7387,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5305,7 +7412,56 @@
      "CFrame": {
       "position": [
        -6.4215,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.0708,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5329,7 +7485,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5354,7 +7510,56 @@
      "CFrame": {
       "position": [
        -5.0708,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -4.4508,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5378,7 +7583,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5403,7 +7608,56 @@
      "CFrame": {
       "position": [
        -4.4508,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.8308,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5427,7 +7681,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5452,7 +7706,56 @@
      "CFrame": {
       "position": [
        -3.8308,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.2108,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5476,7 +7779,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5501,7 +7804,56 @@
      "CFrame": {
       "position": [
        -3.2108,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.5908,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5525,7 +7877,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5550,7 +7902,56 @@
      "CFrame": {
       "position": [
        -2.5908,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.24,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5574,7 +7975,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5599,7 +8000,56 @@
      "CFrame": {
       "position": [
        -1.24,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.62,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5623,7 +8073,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5648,7 +8098,56 @@
      "CFrame": {
       "position": [
        -0.62,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5672,7 +8171,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5697,7 +8196,56 @@
      "CFrame": {
       "position": [
        0.0,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.62,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5721,7 +8269,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5746,7 +8294,56 @@
      "CFrame": {
       "position": [
        0.62,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.24,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5770,7 +8367,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5795,7 +8392,56 @@
      "CFrame": {
       "position": [
        1.24,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.5908,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5819,7 +8465,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5844,7 +8490,56 @@
      "CFrame": {
       "position": [
        2.5908,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.2108,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5868,7 +8563,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5893,7 +8588,56 @@
      "CFrame": {
       "position": [
        3.2108,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.8308,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5917,7 +8661,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5942,7 +8686,56 @@
      "CFrame": {
       "position": [
        3.8308,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       4.4508,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -5966,7 +8759,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -5991,7 +8784,56 @@
      "CFrame": {
       "position": [
        4.4508,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.0708,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6015,7 +8857,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6040,7 +8882,56 @@
      "CFrame": {
       "position": [
        5.0708,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.4215,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6064,7 +8955,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6089,7 +8980,56 @@
      "CFrame": {
       "position": [
        6.4215,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       7.0415,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6113,7 +9053,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6138,7 +9078,56 @@
      "CFrame": {
       "position": [
        7.0415,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       7.6615,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6162,7 +9151,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6187,7 +9176,56 @@
      "CFrame": {
       "position": [
        7.6615,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       8.2815,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6211,7 +9249,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6236,7 +9274,56 @@
      "CFrame": {
       "position": [
        8.2815,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       8.9015,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6260,7 +9347,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6285,7 +9372,56 @@
      "CFrame": {
       "position": [
        8.9015,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.2523,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6309,7 +9445,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6334,7 +9470,56 @@
      "CFrame": {
       "position": [
        10.2523,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.8723,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6358,7 +9543,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6383,7 +9568,56 @@
      "CFrame": {
       "position": [
        10.8723,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.4923,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6407,7 +9641,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6432,7 +9666,56 @@
      "CFrame": {
       "position": [
        11.4923,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.1123,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6456,7 +9739,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6481,7 +9764,56 @@
      "CFrame": {
       "position": [
        12.1123,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.7323,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6505,7 +9837,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6530,7 +9862,56 @@
      "CFrame": {
       "position": [
        12.7323,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.0831,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6554,7 +9935,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6579,7 +9960,56 @@
      "CFrame": {
       "position": [
        14.0831,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.7031,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6603,7 +10033,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6628,7 +10058,56 @@
      "CFrame": {
       "position": [
        14.7031,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.3231,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6652,7 +10131,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6677,7 +10156,56 @@
      "CFrame": {
       "position": [
        15.3231,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.9431,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6701,7 +10229,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6726,7 +10254,56 @@
      "CFrame": {
       "position": [
        15.9431,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       16.5631,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6750,7 +10327,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6775,7 +10352,56 @@
      "CFrame": {
       "position": [
        16.5631,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       17.9138,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6799,7 +10425,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6824,7 +10450,56 @@
      "CFrame": {
       "position": [
        17.9138,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       18.5338,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6848,7 +10523,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6873,7 +10548,56 @@
      "CFrame": {
       "position": [
        18.5338,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       19.1538,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6897,7 +10621,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6922,7 +10646,56 @@
      "CFrame": {
       "position": [
        19.1538,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       19.7738,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6946,7 +10719,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -6971,7 +10744,56 @@
      "CFrame": {
       "position": [
        19.7738,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       20.3938,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -6995,7 +10817,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -7020,7 +10842,56 @@
      "CFrame": {
       "position": [
        20.3938,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       21.7446,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -7044,7 +10915,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -7069,7 +10940,56 @@
      "CFrame": {
       "position": [
        21.7446,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       22.3646,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -7093,7 +11013,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -7118,7 +11038,56 @@
      "CFrame": {
       "position": [
        22.3646,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       22.9846,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -7142,7 +11111,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -7167,7 +11136,56 @@
      "CFrame": {
       "position": [
        22.9846,
-       1.435,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       23.6046,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -7191,7 +11209,7 @@
     },
     "Size": [
      0.36,
-     2.77,
+     2.65,
      0.12
     ],
     "Color": [
@@ -7216,7 +11234,56 @@
      "CFrame": {
       "position": [
        23.6046,
-       1.355,
+       2.7,
+       29.26
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2546,
+     0.2546,
+     0.1
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_YardFence_48x37",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       24.2246,
+       1.375,
        29.26
       ],
       "orientation": [
@@ -7240,7 +11307,7 @@
     },
     "Size": [
      0.36,
-     2.61,
+     2.65,
      0.12
     ],
     "Color": [
@@ -7265,18 +11332,18 @@
      "CFrame": {
       "position": [
        24.2246,
-       1.435,
+       2.7,
        29.26
       ],
       "orientation": [
        [
-        1.0,
-        0.0,
+        0.7071,
+        -0.7071,
         0.0
        ],
        [
-        0.0,
-        1.0,
+        0.7071,
+        0.7071,
         0.0
        ],
        [
@@ -7288,9 +11355,9 @@
      }
     },
     "Size": [
-     0.36,
-     2.77,
-     0.12
+     0.2546,
+     0.2546,
+     0.1
     ],
     "Color": [
      1.0,
@@ -7301,7 +11368,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }

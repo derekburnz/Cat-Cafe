@@ -5676,8 +5676,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "MysteryMarket", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
-		-- #3535: the Speed Shoes are on the shelf (their switch on), so the featured card is there in their week too
-		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_speedShoes", true)
+		-- #3535: the Speed Shoes are on the shelf (no switch since #4654 batch 7), so the featured card is there in their week too
 		UI.update({ goldenFish = 350, mystery = {}, mysterySeen = false, mysteryOpen = true } :: any)
 		local seen = 0
 		local counting = UI.events.mysterySeen:Connect(function()
@@ -5697,7 +5696,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				assert(piece.TextFits, "uigate: the Speed Shoes' name does not fit its card (#3535)")
 			end
 		end
-		assert(shoes, "uigate: the Speed Shoes are not on Juniper's shelf with their switch on (#3535)")
+		assert(shoes, "uigate: the Speed Shoes are not on Juniper's shelf (#3535)")
 		UI.update({ mysterySeen = true } :: any)
 	end },
 	-- #2574: the featured item owned and buys not open yet ("Soon")
@@ -5707,13 +5706,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ goldenFish = 1200, mystery = { backpack = true, long_net = true }, mysterySeen = true, mysteryOpen = false } :: any)
 		UI.mystery.open()
 	end },
-	-- #3699: the owned Backpack's button reads "Edit" (#4049, was "Colours") with the switch bagColours on, and opens the picker in
+	-- #3699: the owned Backpack's button reads "Edit" (#4049, was "Colours"), and opens the picker in
 	-- Juniper's window: Mint for the bag and Gold for the trim tapped, Save sends SetBagColours once
 	{ "BagColourPicker", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
-		local RS = game:GetService("ReplicatedStorage")
-		RS:SetAttribute("LiveFlag_bagColours", true)
 		UI.update({ goldenFish = 1200, mystery = { backpack = true }, mysterySeen = true, mysteryOpen = true, bagColours = false } :: any)
 		UI.mystery.open()
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -5772,16 +5769,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		listening:Disconnect()
 		assert(#sent == 1 and sent[1] == "mint/honey", "uigate: Save should send the two picks once (#3699), got " .. table.concat(sent, ","))
 		UI.update({ bagColours = { main = "mint", trim = "honey" } } :: any)
-		RS:SetAttribute("LiveFlag_bagColours", nil)
 	end },
-	-- #4049: the owned Speed Shoes' button reads "Edit" with the switch bagColours on, and opens the picker in
+	-- #4049: the owned Speed Shoes' button reads "Edit", and opens the picker in
 	-- Juniper's window: Mint for the bag and Gold for the trim tapped, Save sends SetBagColours once
 	{ "ShoeColourPicker", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
-		local RS = game:GetService("ReplicatedStorage")
-		RS:SetAttribute("LiveFlag_bagColours", true)
-		RS:SetAttribute("LiveFlag_speedShoes", true) -- the shelf shows the shoes only with their switch on
 		UI.update({ goldenFish = 1200, mystery = { speed_shoes = true }, mysterySeen = true, mysteryOpen = true, shoeColours = false } :: any)
 		UI.mystery.open()
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -5841,8 +5834,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		listening:Disconnect()
 		assert(#sent == 1 and sent[1] == "navy/honey/shoes", "uigate: Save should send the two picks once (#3699), got " .. table.concat(sent, ","))
 		UI.update({ shoeColours = { main = "navy", trim = "honey" } } :: any)
-		RS:SetAttribute("LiveFlag_bagColours", nil)
-		RS:SetAttribute("LiveFlag_speedShoes", nil)
 	end },
 	-- #2614: a Super gift waits on your plot: the HUD's gold line under the clock column; opening it shows the
 	-- "Super gift!" card with the top area's crate and its 15 golden fish

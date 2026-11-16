@@ -67,6 +67,33 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE6",
 	},
+	-- #2718 refresh, 2026-11-16 13:30 UTC (about 20 PRs since 07:00): live with no switch. Loading screen with Skip
+	-- #4781 #4786, the strip's RANK UP button #4769 #4774, the tutorial's walk to the cannon #4779, fewer early badge
+	-- pop-ups #4778
+	{
+		id = "loading_skip",
+		date = "2026-11-16",
+		icon = "faster",
+		text = "Loading screen with Skip",
+	},
+	{
+		id = "rank_up_button",
+		date = "2026-11-16",
+		icon = "look",
+		text = "Rank up button when ready",
+	},
+	{
+		id = "tutorial_walk",
+		date = "2026-11-16",
+		icon = "fix",
+		text = "Walk to the cannon yourself",
+	},
+	{
+		id = "badges_calm",
+		date = "2026-11-16",
+		icon = "fix",
+		text = "Fewer badge pop-ups early",
+	},
 	-- #2718 refresh, 2026-11-16 07:00 UTC (about 70 PRs since the 03:30 UTC rows): changes that are live with no switch
 	-- to wait for. Fuse all #4639, Auto Roll #4714, Tier 4's kinds #4719, the lighter join #4635 #4730 #4735. Four rows
 	-- only, so the 03:30 rows stay on the visible list (Review-QA).

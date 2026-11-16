@@ -56,6 +56,34 @@ return function()
 			expect(TicketBooth.prize("fish25")).to.be.ok()
 		end)
 
+		it(
+			"sells Design-Agent's #4596 shelf: no potions, 10 tokens, spins, caviar and the best golden crate",
+			function()
+				for _, gone in { "traitToken", "bigGoldRush", "bigLucky", "swiftPaws" } do
+					expect(TicketBooth.prize(gone)).to.equal(nil)
+				end
+				for _, prize in TicketBooth.PRIZES do
+					expect(prize.prize == nil or prize.prize.potions == nil).to.equal(true)
+				end
+				local tokens = TicketBooth.prize("tokens10") :: TicketBooth.Prize
+				expect(tokens.tokens).to.equal(10)
+				expect(tokens.price).to.equal(6000)
+				expect(tokens.limit).to.deepEqual({ per = "week", n = 1 })
+				local spins = TicketBooth.prize("spins5") :: TicketBooth.Prize
+				expect((spins.prize :: any).spins).to.equal(5)
+				expect(spins.price).to.equal(1000)
+				expect(spins.limit).to.deepEqual({ per = "day", n = 3 })
+				local caviar = TicketBooth.prize("caviar") :: TicketBooth.Prize
+				expect((caviar.prize :: any).lures.caviar).to.equal(1)
+				expect(caviar.price).to.equal(1200)
+				expect(caviar.limit).to.deepEqual({ per = "day", n = 3 })
+				local best = TicketBooth.prize("bestGolden") :: TicketBooth.Prize
+				expect((best.prize :: any).crates.highest_golden).to.equal(1)
+				expect(best.price).to.equal(1800)
+				expect(best.limit).to.deepEqual({ per = "day", n = 1 })
+			end
+		)
+
 		it("keeps the day limit, then opens again the next day", function()
 			local save = TicketBooth.fresh()
 			save.have = 10000
@@ -73,10 +101,9 @@ return function()
 		it("keeps the week limit until Monday 00:00 UTC", function()
 			local save = TicketBooth.fresh()
 			save.have = 10000
-			local token = TicketBooth.prize("traitToken") :: TicketBooth.Prize
-			for _ = 1, 3 do
-				TicketBooth.spend(save, token, MONDAY + 86400)
-			end
+			save.have = 20000 -- the week's bundle and one more
+			local token = TicketBooth.prize("tokens10") :: TicketBooth.Prize
+			TicketBooth.spend(save, token, MONDAY + 86400)
 			expect(TicketBooth.blocker(save, token, MONDAY + 6 * 86400 + 86399)).to.equal(
 				"That's all for this week"
 			)

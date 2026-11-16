@@ -662,17 +662,55 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	-- the cards the funnel counts: 0 (to the alley), 1 (catch the cat), 3 (a table) and 4 (the bowl and its food);
 	-- card 2 shows only when the first cat found no free role
-	if s.tutorialStep <= 1 or s.tutorialStep == 3 or s.tutorialStep == 4 then
+	-- #4518: bowl first, the bowl part before the first catch (the first food in, its cat on the way or waiting)
+	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
+	local bowlNow = s.tutorialStep < 2
+		and TutorialOrder.bowlFirst()
+		and TutorialOrder.bowlPending(
+			s.tutorialStep,
+			(s.stats :: any).luresUsed or 0,
+			s.bait ~= nil
+		)
+	if (s.tutorialStep <= 1 and not bowlNow) or s.tutorialStep == 3 or s.tutorialStep == 4 then
 		reportStep(string.format("tut_%d_shown", s.tutorialStep))
 	end
 	-- #2636 (onboarding_v6): the first instruction after the first check-in (card 2, 3 or 4) is on screen
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
 	end
+	-- #4674: the cannon hint waits while the bowl part runs (UI's cannonHint reads this), pal line or not
+	UI.cannon.bowlPending = bowlNow
 	if s.tutorialStep < 2 and palJoinLine(s) then
 		return
 	end
-	if s.tutorialStep < 2 then
+	-- #4674 (Derek 2026-11-16: "Just stop tutorial steps until rankup possible then have them rank up into park cannon
+	-- teleport then tutorial done"): bowl first, after the first check-in at Tier 1 the strip is quiet (no job, table,
+	-- second cat, bowl or rescue lines) until the Rank Up is possible, then it names the goal card's Rank Up
+	local bowlRest = TutorialOrder.bowlFirst() and s.tutorialStep >= 2 and (s.tier or 1) == 1
+	if bowlNow then
+		local bait: any = s.bait
+		-- #4674: the bowl part's three lines stand in for tut_0_shown and tut_1_shown (TutorialOrder.BOWL_STEPS)
+		local key = if bait ~= nil and bait.cat ~= nil
+			then "arrived"
+			elseif bait ~= nil then "waiting"
+			else "food"
+		if not stepsReported["bowl:" .. key] then
+			stepsReported["bowl:" .. key] = true
+			Net.fire("TelemetryReport", TutorialOrder.REPORT, key)
+		end
+		if bait ~= nil and bait.cat ~= nil then
+			showTutorial(s, "Your bowl cat is here! Tame it", UIController.ownBaitBowl(), "Bowl")
+		elseif bait ~= nil then
+			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+		else
+			showTutorial(
+				s,
+				deviceLine("food", "Put Kibble in your bowl on the back step"),
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
+		end
+	elseif s.tutorialStep < 2 then
 		showTutorial(
 			s,
 			string.format(
@@ -683,6 +721,24 @@ local function refreshTutorial(s: Types.PlayerState)
 			tutorialStrayPoint(),
 			"Alley"
 		)
+	elseif bowlRest then
+		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+		local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+		if nextTier ~= nil and RankUpNeeds.of(nextTier, s :: any).ready == true then
+			local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+			local last = UserInputService:GetLastInputType().Name
+			local device = if last:sub(1, 7) == "Gamepad"
+				then "gamepad"
+				elseif
+					last == "Touch"
+					or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+				then "touch"
+				else "keyboard"
+			showTutorial(s, RankFirst.line(device))
+		else
+			UI.tutorial.hide()
+		end
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(
@@ -1818,8 +1874,12 @@ local function wireIntents()
 			end
 		end)
 	end
-	UI.events.rollTrait:Connect(function(uid: string)
-		Net.fire("RollTrait", uid)
+	UI.events.rollTrait:Connect(function(uid: string, stopAt: string?)
+		if stopAt ~= nil then
+			Net.fire("RollTrait", uid, stopAt) -- #4712: one Auto Roll step
+		else
+			Net.fire("RollTrait", uid)
+		end
 	end)
 	UI.events.chooseTrait:Connect(function(takeNew: boolean)
 		Net.fire("ChooseTrait", takeNew == true)
@@ -2764,24 +2824,11 @@ local function wireServerEvents()
 		end
 	end)
 	-- F92 (playing-together.md section 5): a player arrived at a pal's front door. Moments.PalArrived on every client
-	-- for the wave; the joiner's own HUD gets `UI.palArrived(palUserId, palArea)` once the UI has it (the marker and
-	-- the glowing travel button), else a toast when the pal is out in an area.
-	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
+	-- for the wave. #4702 (Derek 2026-11-16): no friend location bubble or "is in the" toast any more, and the server
+	-- no longer sends a joiner to the pal's door, so this only answers a server still on an older build.
+	Net.on("PalArrived", function(joinerId: number, palId: number, _palArea: string?)
 		Moments.PalArrived:Fire(joinerId, palId)
 		UIController.palJoined(joinerId, palId)
-		if joinerId ~= player.UserId then
-			return
-		end
-		local hook: unknown = (UI :: any).palArrived
-		if type(hook) == "function" then
-			(hook :: (number, string?) -> ())(palId, palArea)
-			return
-		end
-		local pal = Players:GetPlayerByUserId(palId)
-		local area = if palArea ~= nil then Catalog.getArea(palArea) else nil
-		if pal ~= nil and area ~= nil then
-			UI.toast(string.format("%s is in the %s", pal.DisplayName, area.name), "info")
-		end
 	end)
 	-- F92 Team Rescue: a helped rescue freed its cat. Moments.TeamRescue for the pop and the chime on both screens;
 	-- the UI's `UI.teamRescue(rescuerUserId, helperUserId, coins)` once it has one, else a toast with the helper's tip.
@@ -3254,19 +3301,6 @@ local function wireServerEvents()
 			show(view)
 		end
 	end)
-	-- #1955: Auto Equip moved cats; UI.autoEquip merges swaps within 2 s into one toast. Wired only once the server
-	-- declares the remote, so this never waits on one that is not there.
-	local serverEvents: { string } = (require(
-		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes")
-	) :: any).ServerToClient
-	if table.find(serverEvents, "AutoEquipped") then
-		Net.on("AutoEquipped", function(swaps: any)
-			local auto = (UI :: any).autoEquip
-			if auto ~= nil then
-				auto.swapped(swaps)
-			end
-		end)
-	end
 	-- #1947: the like or favourite gift, already paid; UI.gift.show waits for the player to be idle before the card
 	Net.on("PlaytimeGift", function(kind: string, paid: { string }?)
 		local gift = (UI :: any).gift

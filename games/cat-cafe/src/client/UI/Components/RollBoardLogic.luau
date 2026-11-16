@@ -257,17 +257,28 @@ function RollBoardLogic.rowOf(rows: { any }, crateId: string): number?
 end
 
 -- The rows the pick's light passes, in order, with the seconds it rests on each. The rows run from the most common
--- (Classic, on top) to the rarest (the golden crates, at the foot), so the light starts on the top row and walks down
--- one row at a time to `landing`, the row the server chose, slowing evenly, and stops there. It never lights a row
--- under the landing row, so it never runs past a rarer crate on its way to a plainer one: no near miss. A pick of
--- the top row lights it straight away.
+-- (Classic, on top) to the rarest (the golden crates, at the foot). #4692 (Derek 2026-11-16: "make the yard sale
+-- animation go through it a couple times before landing like rummage bin does"): the light first runs down the whole
+-- list `laps` times (YARD_LAPS) at an even FAST tick, as the Rummage Bin's roll does (Effects/BinRoll), then walks
+-- down from the top row to `landing`, the row the server chose, slowing evenly, and stops there. The slow last run
+-- never lights a row under the landing row, so it never lingers on a rarer crate on its way to a plainer one: no
+-- near miss (#3903). laps 0 is the old single walk.
+RollBoardLogic.YARD_LAPS = 2
+RollBoardLogic.FAST = 0.07 -- seconds a row stays lit during the laps
+
 function RollBoardLogic.rollSteps(
 	count: number,
-	landing: number
+	landing: number,
+	laps: number?
 ): { { index: number, rest: number } }
 	local steps: { { index: number, rest: number } } = {}
 	if count <= 0 then
 		return steps
+	end
+	for _ = 1, math.max(0, math.floor(laps or RollBoardLogic.YARD_LAPS)) do
+		for index = 1, count do
+			table.insert(steps, { index = index, rest = RollBoardLogic.FAST })
+		end
 	end
 	local target = math.clamp(landing, 1, count)
 	for step = 1, target do

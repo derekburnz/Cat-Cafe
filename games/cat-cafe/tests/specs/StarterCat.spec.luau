@@ -30,6 +30,20 @@ return function()
 			expect(StarterCat.gate(GROUP)).to.equal("group")
 		end)
 
+		it(
+			"sets a 'not a member' answer aside only for a while after Join the group was pressed (#4679)",
+			function()
+				expect(Config.GroupJoinTrustSeconds).to.equal(600)
+				expect(StarterCat.trustsJoin(nil)).to.equal(false)
+				expect(StarterCat.trustsJoin(0)).to.equal(true)
+				expect(StarterCat.trustsJoin(Config.GroupJoinTrustSeconds)).to.equal(true)
+				expect(StarterCat.trustsJoin(Config.GroupJoinTrustSeconds + 1)).to.equal(false)
+				expect(StarterCat.trustsJoin(-1)).to.equal(false)
+				-- the second look stays inside the card's 5 s wait for an answer
+				expect(Config.GroupJoinRetries * Config.GroupJoinRetrySeconds < 5).to.equal(true)
+			end
+		)
+
 		it("waits for the first goals at tutorial step StarterCatTutorialStep", function()
 			expect(Config.StarterCatTutorialStep).to.equal(5)
 			local early = profileAt(Config.StarterCatTutorialStep - 1)

@@ -870,6 +870,17 @@ return function()
 				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
 			end
 		)
+		it(
+			"keeps every camp station's walk-up ring off its camp's landing pad and paw (#4628)",
+			function()
+				-- the ring touches the station's front and reaches front + 2 * ring toward the pad (set x 0)
+				for _, spot in { Layout.ticketBooth, Layout.dragonKeep, Layout.fusionObservatory } do
+					expect(spot.turn).to.equal(90) -- the front faces set -X
+					expect(spot.x - spot.front - 2 * spot.ring >= W.LandingPadRadius).to.equal(true)
+					expect(spot.ring >= 6).to.equal(true) -- WalkUp.FRONT_FIT_LEAST: big enough to walk into
+				end
+			end
+		)
 	end)
 
 	-- #2240 (Derek 11-07: "change rescue spots not always the same"): each area's pool of trap spots, which RescuePick

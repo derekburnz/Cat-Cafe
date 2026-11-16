@@ -279,7 +279,7 @@ return function()
 					firstHourStep = 10,
 					firstHourV3Step = 12,
 					cleanStep = 27,
-					cleanV8Step = 49,
+					cleanV8Step = 43,
 					playtimeStep = 16,
 				})
 				raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
@@ -2069,7 +2069,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 				end
@@ -2094,7 +2094,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2138,7 +2138,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2183,7 +2183,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2283,7 +2283,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2334,10 +2334,10 @@ return function()
 					expect(ProfileSchema.migrate(raw, NOW).telemetry.playtimeStep).to.equal(16)
 					-- past the first catch, logged or held: out of the clean funnel
 					raw.telemetry.onboardingStep = 13
-					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanV8Step).to.equal(49)
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanV8Step).to.equal(43)
 					raw.telemetry.onboardingStep = 9
 					raw.telemetry.achieved = { ["13"] = true }
-					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanV8Step).to.equal(49)
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanV8Step).to.equal(43)
 					-- their own fields win once saved, clamped; a damaged one falls back to the rule above
 					raw.telemetry.cleanV8Step = 7
 					raw.telemetry.playtimeStep = 4
@@ -2347,12 +2347,12 @@ return function()
 					raw.telemetry.cleanV8Step = 99
 					raw.telemetry.playtimeStep = -3
 					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanV8Step).to.equal(49)
+					expect(telemetry.cleanV8Step).to.equal(43)
 					expect(telemetry.playtimeStep).to.equal(0)
 					raw.telemetry.cleanV8Step = "x"
 					raw.telemetry.playtimeStep = "x"
 					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanV8Step).to.equal(49)
+					expect(telemetry.cleanV8Step).to.equal(43)
 					expect(telemetry.playtimeStep).to.equal(16)
 				end
 			)

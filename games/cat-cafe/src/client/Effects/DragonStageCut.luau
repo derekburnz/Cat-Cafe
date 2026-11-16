@@ -66,6 +66,9 @@ local function playNext()
 		dragon = if standing ~= nil and standing:IsA("Model") then standing :: Model else nil,
 	}, function()
 		busy = false
+		-- his new look at once, not up to a second after the scene (KeepDragon's own check)
+		local KeepDragon = require(script.Parent.KeepDragon) :: any
+		KeepDragon.refresh()
 		task.defer(playNext)
 	end)
 end

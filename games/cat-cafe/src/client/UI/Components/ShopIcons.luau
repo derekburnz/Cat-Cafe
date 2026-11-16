@@ -156,6 +156,7 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Menu = "rbxassetid://135021601977821",
 	Icon_Hud_MyCafe = "rbxassetid://72852868500556",
 	Icon_Hud_Cannon = "rbxassetid://72423459131220",
+	Icon_Hud_Harvest = "rbxassetid://99530037996427", -- Model-Agent #4460: the Harvest Hollow tile's pumpkin (CatCafe_Icon_Harvest_Pumpkin)
 	Icon_Hud_Areas = "rbxassetid://140584233944874",
 	Icon_Hud_Potions = "rbxassetid://130302894956532",
 	Icon_Hud_Bait = "rbxassetid://102824386265413",

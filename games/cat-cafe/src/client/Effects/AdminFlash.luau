@@ -11,7 +11,7 @@
 --      "no need for the money showing on the events not related to money"). Derek 2026-11-14 22:54: "the ui is still on the
 --      screen too much in the events and the intro can [be] over the top ... but the money amount everywhere on
 --      screen is too much": the splash stays loud, and after it this strip is all that is left on the screen;
---   4. its last minute: the strip turns red and swells slowly (once a second, far under the flashing limit);
+--   4. its last minute: the strip turns red and says LEFT!, steady (#4603: no swell, Derek found it annoying);
 --   5. as it ends: a card with what the player earned.
 -- Effects/AdminAir rains the event's motes round the player the whole time (AdminFlashLogic.rainOf).
 --
@@ -31,6 +31,7 @@ local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
@@ -201,6 +202,13 @@ local function scaleOf(gui: ScreenGui): number
 	return math.clamp(math.min(size.X, size.Y) / p.designHeight, p.scaleMin, p.scaleMax)
 end
 
+-- a phone or tablet with no keyboard or mouse (the HUD's own test, UI/Scale.isTouch)
+local function touchOnly(): boolean
+	return UserInputService.TouchEnabled
+		and not UserInputService.KeyboardEnabled
+		and not UserInputService.MouseEnabled
+end
+
 local function build(): Parts?
 	local existing = parts
 	if existing ~= nil and existing.splash.Parent ~= nil and existing.low.Parent ~= nil then
@@ -261,8 +269,10 @@ local function build(): Parts?
 
 	local strip = Instance.new("Frame")
 	strip.Name = "Strip"
-	strip.AnchorPoint = Vector2.new(0.5, 0)
-	strip.Position = UDim2.fromScale(0.5, p.stripY)
+	-- #4616: clear of the money and the X2 Cash button on a phone or tablet (AdminFlashLogic.stripSpot)
+	local anchorY, atY, liftY = AdminFlashLogic.stripSpot(touchOnly(), s, p.stripY, p.stripLift)
+	strip.AnchorPoint = Vector2.new(0.5, anchorY)
+	strip.Position = UDim2.new(0.5, 0, atY, liftY)
 	strip.Size = UDim2.fromOffset(p.stripWidth * s, p.stripHeight * s)
 	strip.BackgroundColor3 = WHITE
 	strip.BorderSizePixel = 0
@@ -523,9 +533,8 @@ local function frame()
 		made.left.Text = AdminEventLogic.clock(step.left)
 			.. (if last then " LEFT!" else " left")
 			.. (if countsMoney and earned >= 1 then "   " .. moneyText(earnedShown) else "")
-		made.stripScale.Scale = if last and not still
-			then AdminFlashLogic.pulse(step.left, p.pulseHz, p.pulse)
-			else 1
+		-- #4603 (Derek 2026-11-15: "no need to make this flash its annoying"): steady, the red colour is the cue
+		made.stripScale.Scale = 1
 	end
 
 	made.over.Visible = clock < overUntil and not middle and not calm

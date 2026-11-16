@@ -547,6 +547,7 @@ return function()
 				SpeedShoesCarryBonus = true, -- #3535: checked in SpeedShoes.spec
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				TicketBoothTier = true, -- #4061: checked in TicketBooth.spec (the Water Park taken as Tier 9)
+				SecretNextMythicTimes = true, -- #4618: checked in SecretCats.spec (a Secret earns 10x the next area's Mythic)
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
@@ -659,6 +660,11 @@ return function()
 				ChefPackPassId = true,
 				SpacePackPassId = true,
 				AutoBowlPassId = true, -- #4266: the Auto Bowl pass id, its Store card hidden while 0
+				FusionCopies = true, -- #4104: checked in Fusion.spec
+				FusionGoldSeconds = true,
+				FusionRainbowSeconds = true,
+				FusionTier = true,
+				TradeFishPassHoldSeconds = true, -- #4521: the Golden Pond fish hold, checked in Trade.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

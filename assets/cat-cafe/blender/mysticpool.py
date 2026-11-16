@@ -3,7 +3,8 @@ Sorrel, an old sorrel-coated wizard cat with a silver beard, a starry midnight b
 violet pointed hat, stands behind a round pool ringed with twelve chunky stones, his staff with its glowing orb in
 his right paw. The pool's glowing liquid (`_Liquid_Glow`) is its own Model so Effects/MysticPool can recolour it grey,
 green, blue, gold or mythic purple as a roll lands. A violet and white checked pad inside a low stone kerb under it
-all, and a MYSTIC POOL A-frame sign at the front right (the players' left).
+all, and a MYSTIC POOL A-frame sign at the front right (the players' left). Since #4531 a big midnight blue board on
+two posts stands over the arch: MYSTIC POOL, REROLL CAT TRAITS.
 
 Dressing (2026-11-11, toward the Fish Market bar): a moon arch behind the pool (two banded stone pillars, a stepped
 lintel, a gold crescent and two hanging lanterns), a footing course and moss tufts on the stone ring, glowing star
@@ -25,7 +26,7 @@ staff's part, StaffTip (the orb, where Effects/MysticPool's sparkle starts).
 
 Pivot at the base centre on the camp's ground, front -Z, no turn of its own: the same spot as the Picnic station
 (Layout.campExtras), so Gameplay swaps the asset name when the `traits` flag goes on. Footprint about 10 x 9 studs,
-8 tall at the crescent.
+8 tall at the crescent, 11 at the top of the board.
 """
 
 import math
@@ -49,6 +50,7 @@ CHECK = ("pastel_lilac", "offwhite")
 STONE = ("paving_light", "paving_tan", "concrete")
 BORDER, BORDER_Y = 0.3, 0.2                              # the pad's stone kerb: width, top
 ARCH_X, ARCH_Z, ARCH_H = (-1.3, 3.1), 4.05, 5.4          # the moon arch behind the pool: pillar x, z, pillar top
+BANNER_W = 7.9                                           # #4531: the big board over the arch
 RUNE_STONES = (6, 8, 10)                                 # front-facing stones that carry a glowing rune
 
 # Sorrel: a reddish-brown (sorrel) coat, white muzzle and socks, amber eyes. No collectable cat wears this coat. His
@@ -223,6 +225,33 @@ def _arch(b, lamps):
     return mx, my
 
 
+def _banner(b, moon_top):
+    """#4531: the big board over the moon arch, so the pool reads from across the square: MYSTIC POOL in white and
+    REROLL CAT TRAITS in gold on midnight blue, in a gold frame with a star at each end, on two tall posts beside the
+    arch's pillars. Its bottom edge clears the crescent."""
+    cx = (ARCH_X[0] + ARCH_X[1]) / 2
+    W, H, zf = BANNER_W, 2.7, ARCH_Z - 0.14                      # zf: the front face; inside the old footprint
+    y0 = moon_top + 0.3
+    y1 = y0 + H
+    for s in (-1, 1):                                             # posts on stone footings
+        x = cx + s * (W / 2 - 0.35)
+        top = y0 - 0.12                                           # the posts stop under the frame
+        b.box((x, PAD_Y + (top - PAD_Y) / 2, zf + 0.11), (0.4, top - PAD_Y, 0.4), "dark_wood")
+        b.box((x, PAD_Y + 0.2, zf + 0.11), (0.62, 0.4, 0.62), "paving_grout")
+    b.span((cx - W / 2, y0, zf), (cx + W / 2, y1, zf + 0.22), "galaxy_blue")
+    for (xa, xb, ya, yb) in ((cx - W / 2 - 0.12, cx + W / 2 + 0.12, y0 - 0.12, y0 + 0.03),
+                             (cx - W / 2 - 0.12, cx + W / 2 + 0.12, y1 - 0.03, y1 + 0.12),
+                             (cx - W / 2 - 0.12, cx - W / 2 + 0.03, y0 + 0.03, y1 - 0.03),
+                             (cx + W / 2 - 0.03, cx + W / 2 + 0.12, y0 + 0.03, y1 - 0.03)):
+        b.span((xa, ya, zf - 0.06), (xb, yb, zf + 0.28), "rarity_legend")
+    for word, y, px, sw in (("MYSTIC POOL", y0 + 1.5, 0.13, "offwhite"), ("REROLL CAT TRAITS", y0 + 0.4, 0.092, "rarity_legend")):
+        w = text_width(word, px)
+        b.text(word, (cx + w / 2, y, zf), px, 0.06, sw, right=(-1, 0, 0), up=(0, 1, 0))
+    for s in (-1, 1):                                             # a gold star by the top line's ends
+        b.box((cx + s * (W / 2 - 0.5), y0 + 1.5 + 2.5 * 0.13, zf - 0.03), (0.3, 0.3, 0.06), "rarity_legend",
+              rot=Matrix.Rotation(math.radians(45), 3, "Z"))
+
+
 def _books(b):
     """A stack of three spell books and a candle by Sorrel's feet."""
     x, z = -4.0, 0.9
@@ -315,7 +344,8 @@ def build_mystic_pool(mat):
     b, liquid, runes, lamps = RB(), RB(), RB(), RB()
     _pad(b)
     _pool(b, liquid, runes)
-    _arch(b, lamps)
+    _, moon_y = _arch(b, lamps)
+    _banner(b, moon_y + 0.8)
     _books(b)
     _crystals(b, (POOL_C[0] + 3.1, POOL_C[1] + 2.5), 4, 0.3)
     _crystals(b, (POOL_C[0] - 3.3, POOL_C[1] - 3.0), 3, 2.0, size=0.8)

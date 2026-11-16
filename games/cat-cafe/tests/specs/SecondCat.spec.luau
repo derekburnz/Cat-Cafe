@@ -60,6 +60,32 @@ return function()
 		return n
 	end
 
+	-- #4518: bowl first, the bowl cat counts for nothing and the goal is two catches by hand
+	describe("bowl first (#4518)", function()
+		it("counts only cats caught by hand, two to finish", function()
+			local stats: any = { catsCaught = 1, baitsTamed = 1 }
+			expect(SecondCat.progress(stats, true)).to.equal(0)
+			expect(SecondCat.done(stats, true)).to.equal(false)
+			stats.catsCaught = 2
+			expect(SecondCat.progress(stats, true)).to.equal(1)
+			expect(SecondCat.done(stats, true)).to.equal(false)
+			stats.catsCaught = 3
+			expect(SecondCat.progress(stats, true)).to.equal(2)
+			expect(SecondCat.done(stats, true)).to.equal(true)
+			-- today's order keeps the bowl cat as one
+			stats.catsCaught = 2
+			expect(SecondCat.progress(stats, false)).to.equal(2)
+			expect(SecondCat.done(stats, false)).to.equal(true)
+		end)
+		it(
+			"reads the switch when not told: on (today's order) with no copy in ReplicatedStorage",
+			function()
+				local stats: any = { catsCaught = 2, baitsTamed = 1 }
+				expect(SecondCat.done(stats)).to.equal(true)
+			end
+		)
+	end)
+
 	describe("SecondCat.waiting", function()
 		it("starts at the first customer served and ends at the second cat", function()
 			expect(SecondCat.waiting(save(1, false))).to.equal(false)
@@ -171,6 +197,38 @@ return function()
 
 		it("is nil once the second cat is in", function()
 			expect(SecondCat.view(save(2, true))).to.equal(nil)
+		end)
+
+		it("says the early kind bonus while earlyKindBonus is on (#4624)", function()
+			local profile = save(1, true)
+			local base = Catalog.rarities.Common.firstCatchReward
+			expect((SecondCat.view(profile, false) :: any).bonus).to.equal(base)
+			if Economy.tier(profile) == 1 and ProfileSchema.collectionCount(profile) >= 1 then
+				expect((SecondCat.view(profile, true) :: any).bonus).to.equal(3 * base)
+			end
+		end)
+	end)
+
+	describe("SecondCat.newKindReward (#4624)", function()
+		local common = 50
+
+		it("pays 3x a Common's for kinds 2 to 5 in Tier 1, with the switch on", function()
+			expect(Catalog.rarities.Common.firstCatchReward).to.equal(common)
+			for before = 1, 4 do
+				expect(SecondCat.newKindReward(common, 1, before, true)).to.equal(150)
+			end
+		end)
+
+		it("changes nothing with the switch off, from Tier 2, or past the fifth kind", function()
+			expect(SecondCat.newKindReward(common, 1, 2, false)).to.equal(common)
+			expect(SecondCat.newKindReward(common, 2, 2, true)).to.equal(common)
+			expect(SecondCat.newKindReward(common, 1, 5, true)).to.equal(common)
+			expect(SecondCat.newKindReward(common, 1, 0, true)).to.equal(common)
+		end)
+
+		it("keeps a rarer kind's bigger reward", function()
+			local rare = Catalog.rarities.Rare.firstCatchReward
+			expect(SecondCat.newKindReward(rare, 1, 2, true)).to.equal(math.max(rare, 150))
 		end)
 	end)
 

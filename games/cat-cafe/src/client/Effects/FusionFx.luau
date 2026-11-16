@@ -36,6 +36,8 @@ local ScreenFx = require(script.Parent.ScreenFx)
 local FusionFx = {}
 
 local TAG = "CampExtra" -- shared/CampExtras.TAG
+-- #4551 places the dome as its own model, tagged FusionObservatory (not a camp extra); that tag is looked at first
+local DOME_TAG = "FusionObservatory"
 local GUI_NAME = "FusionFx"
 
 -- Audio listens here: `fn(beat, coat)` with beat "start" as the tiles leave, "meet" as they become one and "collect"
@@ -73,6 +75,21 @@ function FusionFx.swirlAt(i: number, t: number): (number, number, number)
 	local k = math.clamp((t - (math.max(i, 1) - 1) * p.stagger) / p.seconds, 0, 1)
 	local eased = Logic.easeInOut(k)
 	return 1 - eased, p.turns * 2 * math.pi * eased, 1 + (p.land - 1) * eased
+end
+
+-- Pure: where the tiles meet in a centre at `corner` of `size` pixels, and how wide the meeting's ring and sparkles
+-- are sized from (#4563). A square-ish centre (a picture): its middle and its width. A wide one (the window's dome
+-- card, its picture at the left end): the square at its left end, so the five land on the dome's picture and the ring
+-- is sized from the card's height, not swelling over the whole screen from its width. Never under `acrossMin`, never
+-- over `acrossMax`.
+function FusionFx.landing(corner: Vector2, size: Vector2): (Vector2, number)
+	local p = Presets.fusion
+	local short = math.min(size.X, size.Y)
+	local across = math.clamp(short, p.acrossMin, p.acrossMax)
+	if size.X > size.Y * p.wide then
+		return corner + Vector2.new(short / 2, size.Y / 2), across
+	end
+	return corner + size / 2, across
 end
 
 -- Pure: the whole swirl's seconds for `count` tiles.
@@ -165,8 +182,8 @@ function FusionFx.swirl(tiles: { GuiObject }, centre: GuiObject, coat: string, o
 		done()
 		return
 	end
-	local middle = ScreenFx.centre(gui, centre)
-	local across = math.max(centre.AbsoluteSize.X, centre.AbsoluteSize.Y, Presets.fusion.acrossMin)
+	local middle, across =
+		FusionFx.landing(ScreenFx.toGui(gui, centre.AbsolutePosition), centre.AbsoluteSize)
 	if Context.reducedMotion() then
 		meet(gui, middle, across, coat, true)
 		done()
@@ -289,7 +306,8 @@ function FusionFx.burst(target: GuiObject, coat: string)
 		return
 	end
 	local middle = ScreenFx.centre(gui, target)
-	local across = math.max(size.X, size.Y, Presets.fusion.acrossMin)
+	local across =
+		math.clamp(math.max(size.X, size.Y), Presets.fusion.acrossMin, Presets.fusion.acrossMax)
 	for ring = 1, k.rings do
 		task.delay((ring - 1) * s.ringGap, function()
 			if gui.Parent ~= nil then
@@ -319,8 +337,14 @@ local dome: Model? = nil
 local glows: { Glow } = {}
 local paws: { Part } = {}
 local lit: string? = nil -- the coat the slit shows now
+local anchor: Attachment? = nil -- the dome's `GlowAnchor`, found once with its glows
 
 local function findDome(): Model?
+	for _, instance in CollectionService:GetTagged(DOME_TAG) do
+		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
+			return instance :: Model
+		end
+	end
 	local suffix = Presets.fusion.dome.suffix
 	for _, instance in CollectionService:GetTagged(TAG) do
 		if
@@ -353,6 +377,8 @@ end
 
 local function readGlows(model: Model)
 	table.clear(glows)
+	local found = model:FindFirstChild(Presets.fusion.dome.anchor, true)
+	anchor = if found ~= nil and found:IsA("Attachment") then found :: Attachment else nil
 	local suffix = Presets.fusion.dome.glow
 	for _, descendant in model:GetDescendants() do
 		-- a part named ..._Glow, or any part of a child Model named so (Model-Agent's `_Slit_Glow`, PR #4114)
@@ -389,6 +415,7 @@ local function stepDome(now: number)
 		if model ~= nil then
 			dropPaws()
 			table.clear(glows)
+			anchor = nil
 			lit = nil
 		end
 		dome = nil
@@ -426,10 +453,9 @@ local function stepDome(now: number)
 	-- the ring's middle: the dome's `GlowAnchor` (PR #4114), `anchorRadius` out; else worked out from its box
 	local radius: number
 	local ringAt: Vector3
-	local anchor = model:FindFirstChild(p.anchor, true)
-	if anchor ~= nil and anchor:IsA("Attachment") then
+	if anchor ~= nil and anchor.Parent ~= nil then
 		radius = p.anchorRadius
-		ringAt = (anchor :: Attachment).WorldPosition
+		ringAt = anchor.WorldPosition
 	else
 		local box, size = model:GetBoundingBox()
 		radius = math.max(size.X, size.Z) / 2 * p.pawRadius
@@ -544,11 +570,67 @@ local function studioTest(coat: string)
 	end)
 end
 
+-- Pure: what a ProfileSync `fusion` view says for the dome: the running fusion's coat ("gold" or "rainbow", nil for a
+-- free dome or a shut Observatory), whether it is ready, and how many of each coat were made so far.
+function FusionFx.read(view: unknown): (string?, boolean, number, number)
+	if type(view) ~= "table" then
+		return nil, false, 0, 0
+	end
+	local v = view :: { [string]: any }
+	local running = v.running
+	local coat = if type(running) == "table" then running.coat else nil
+	local made = if type(v.made) == "table" then v.made else {}
+	local gold = if type(made.gold) == "number" then made.gold else 0
+	local rainbow = if type(made.rainbow) == "number" then made.rainbow else 0
+	return if coat == "gold" or coat == "rainbow" then coat else nil, v.ready == true, gold, rainbow
+end
+
+-- Pure: the coat just collected, or nil: a fusion of `before` was in the dome and is gone now, and that coat's made
+-- count went up (a Collect, not the switch going off).
+function FusionFx.collectedCoat(
+	before: string?,
+	now: string?,
+	madeBefore: { [string]: number },
+	madeNow: { [string]: number }
+): string?
+	if before == nil or now ~= nil then
+		return nil
+	end
+	if (madeNow[before] or 0) > (madeBefore[before] or 0) then
+		return before
+	end
+	return nil
+end
+
+-- #4563: the dome follows your own fusion from ProfileSync (nothing called set or collected before, so the slit never
+-- lit and the paw lights never circled): set on every sync, the burst at the dome when a Collect lands.
+local function follow()
+	local Net = require(script.Parent.Parent.Net) :: any
+	local lastCoat: string? = nil
+	local lastMade: { [string]: number }? = nil
+	Net.on("ProfileSync", function(state: unknown)
+		if type(state) ~= "table" then
+			return
+		end
+		local coat, ready, gold, rainbow = FusionFx.read((state :: { [string]: any }).fusion)
+		local made = { gold = gold, rainbow = rainbow }
+		local done = if lastMade ~= nil
+			then FusionFx.collectedCoat(lastCoat, coat, lastMade, made)
+			else nil
+		FusionFx.set(coat, ready)
+		if done ~= nil then
+			FusionFx.collected(done :: string)
+		end
+		lastCoat, lastMade = coat, made
+	end)
+end
+
 function FusionFx.start()
 	if started then
 		return
 	end
 	started = true
+	follow()
 	if RunService:IsStudio() then
 		Workspace:GetAttributeChangedSignal("FusionFxTest"):Connect(function()
 			local coat = Workspace:GetAttribute("FusionFxTest")

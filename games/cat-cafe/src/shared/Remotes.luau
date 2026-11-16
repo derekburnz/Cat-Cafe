@@ -108,6 +108,14 @@ Remotes.ClientToServer = {
 	"PromptDeal", -- (productId: string)  #3996 (shared/DailyDeal): opens Roblox's purchase prompt for Today's Deal from
 	-- the server, only for today's deal, not yet bought today, from Tier 2 and while the dailyDeal switch is on; refused
 	-- with a toast otherwise. 1 a second
+	"StartFusion", -- (uids: { string }, keepTraitUid: string?)  #4104 (shared/Fusion): exactly FusionCopies distinct
+	-- owned, free copies of one cat in one coat (Fusion.startBlocker) go into the Fusion Observatory's dome, which must be
+	-- free; `keepTraitUid` one of them with a trait, or nil for the rarest. From FusionTier, only while the fusion
+	-- switch is on. 1 a second; answered with a toast and a ProfileSync (PlayerState.fusion)
+	"CollectFusion", -- ()  #4104: the finished fusion's cat into the save. 1 a second
+	"FuseAll", -- ()  #4589: every set of five free copies (Fusion.allSets, the server picks, nothing is sent) is fused
+	-- and collected at once, up to Fusion.ALL_MAX; a finished fusion in the dome comes out first. Same switch and tier as
+	-- StartFusion. 1 every 2 seconds; answered with FusionSummary, a toast and a ProfileSync
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
 	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;
@@ -268,6 +276,8 @@ Remotes.ClientToServer = {
 -- Server -> client.
 Remotes.ServerToClient = {
 	"ProfileSync", -- (state: Types.PlayerState)  full state; the client merges
+	"FusionSummary", -- (made: { { catId: string, coat: string, level: number, name: string?, newCoat: boolean } })
+	-- #4589: what one Fuse all made, in order, for the one summary reveal
 	-- F102 trading (TradeService)
 	"TradeAsked", -- (requestId: string, fromUserId: number, fromName: string, expiresAt: number)  someone asks the
 	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())
@@ -428,8 +438,6 @@ Remotes.ServerToClient = {
 	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish, spins, secondsLeft, crates: number)  #3420, #3535: the
 	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
 	-- first); the client shows the banner with UpdateGift.banner's words
-	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
-	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
 	-- server's best, on join once the arcade is read and after every game
 	"ArcadeBlock", -- (run: number, block: number, circles: { Types.CatchCircle }, windows: Types.CatchWindows,

@@ -30,6 +30,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
 local FishStore = require(ReplicatedStorage.Shared.FishStore)
+local Fusion = require(ReplicatedStorage.Shared.Fusion)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -96,6 +97,9 @@ end)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
+-- #4518: a move the walk-through asks for outside a step change (bowl first: to the cannon once the bowl cat is
+-- claimed); TutorialMoveService does it
+CafeService.tutorialMove = Signal.new() :: Signal.Signal<Player, string>
 
 -- Whether `player` owns pass `passId`, for the pass sign styles (#1625).
 local function ownsPassOf(player: Player): (number) -> boolean
@@ -301,6 +305,12 @@ local function dealView(player: Player, profile: Profile, now: number): Types.Da
 	)
 end
 
+-- #4061: the Looks items a save has: the Cafe Pass's, plus the Ticket Booth wearables it bought (TicketBooth.lookItems
+-- adds them to a copy, so profile.pass.items never holds them and CafePass.sanitize keeps working as it is).
+local function lookItems(profile: Profile): { [string]: boolean }
+	return TicketBooth.lookItems(profile.tickets, profile.pass.items)
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
 	-- holds for the session
@@ -352,6 +362,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 				and DragonKeep.open(Economy.tier(profile))
 			then DragonKeep.view(profile.dragon)
 			else nil, -- #4062
+		fusion = if LiveFlagService.on(Fusion.FLAG) and Fusion.open(Economy.tier(profile))
+			then Fusion.view(profile.fusion, now, Fusion.hasElderLore(profile))
+			else nil, -- #4104
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
@@ -374,8 +387,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
-		secondCat = SecondCat.view(profile), -- #3022
-		stuckGoal = StuckGoal.waiting(profile), -- #2912
+		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
+		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
 		introShort = Telemetry.introShort(profile), -- #4001: the short intro test's "short" arm
@@ -406,23 +419,23 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 				"theme",
 				profile.looks.theme,
 				ownsPassOf(player),
-				profile.pass.items
+				lookItems(profile)
 			),
 			uniform = Looks.shown(
 				"uniform",
 				profile.looks.uniform,
 				ownsPassOf(player),
-				profile.pass.items
+				lookItems(profile)
 			),
-			themes = Looks.owned("theme", ownsPassOf(player), profile.pass.items),
-			uniforms = Looks.owned("uniform", ownsPassOf(player), profile.pass.items),
+			themes = Looks.owned("theme", ownsPassOf(player), lookItems(profile)),
+			uniforms = Looks.owned("uniform", ownsPassOf(player), lookItems(profile)),
 			accessory = Looks.shown(
 				"accessory",
 				profile.looks.accessory,
 				ownsPassOf(player),
-				profile.pass.items
+				lookItems(profile)
 			),
-			accessories = Looks.owned("accessory", ownsPassOf(player), profile.pass.items),
+			accessories = Looks.owned("accessory", ownsPassOf(player), lookItems(profile)),
 		},
 		luck = luck, -- F88
 		luckSources = luckSources,
@@ -491,7 +504,7 @@ local function shownLook(player: Player, kind: Looks.Kind): string?
 		then looks.uniform
 		elseif kind == "accessory" then looks.accessory
 		else looks.theme
-	return Looks.shown(kind, pick, ownsPassOf(player), profile.pass.items)
+	return Looks.shown(kind, pick, ownsPassOf(player), lookItems(profile))
 end
 
 -- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat stands on
@@ -1089,7 +1102,7 @@ end
 -- plate (`VipPlate`, VipPlate attribute true). Everyone sees all of it; none of it changes collision or money.
 local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Profile)
 	local owns = ownsPassOf(player)
-	local items = profile.pass.items
+	local items = lookItems(profile)
 	local themeId = Looks.shown("theme", profile.looks.theme, owns, items)
 	local theme = if themeId ~= nil then Looks.theme(themeId) else nil
 	local front = if theme ~= nil and AssetRegistry.has(theme.front) then theme.front else nil
@@ -1459,6 +1472,11 @@ end
 
 -- Mutations used by other services -----------------------------------------------------------------------
 
+-- #4104: also the Fusion Observatory's result (FusionService)
+function CafeService.newUid(): string
+	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
+end
+
 local function newUid(): string
 	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
 end
@@ -1570,9 +1588,17 @@ function CafeService.addCaughtCat(
 		profile.stats.rainbowCatches += 1
 	end
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
+	-- #4624: what this new kind pays (3x a Common's for kinds 2 to 5 in Tier 1 behind earlyKindBonus); the toasts say it
+	local newKindReward = 0
 	if isNew then
+		newKindReward = SecondCat.newKindReward(
+			Catalog.rarities[def.rarity].firstCatchReward,
+			Economy.tier(profile),
+			ProfileSchema.collectionCount(profile),
+			LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)
+		)
 		profile.collection[def.id] = now
-		local reward = Catalog.rarities[def.rarity].firstCatchReward
+		local reward = newKindReward
 		Economy.credit(profile, reward)
 		-- the starter cat is the first book entry, so two entries means this was the player's first new cat
 		local first = ProfileSchema.collectionCount(profile) <= 2
@@ -1591,6 +1617,8 @@ function CafeService.addCaughtCat(
 	if isNew then
 		fish += StationPerks.firstCatchFish(Economy.tier(profile)) -- #2687: the Fish Pond's Lucky Line from Tier 4
 	end
+	local dragonFx = Economy.dragonEffects(profile) -- #4447: the Dragon Keep's slotted cards
+	fish += DragonKeep.catchFish(dragonFx, def.rarity, isNew) -- Fish Scale
 	if fish > 0 then
 		GoldenFish.credit(profile, fish)
 		Telemetry.fishSource(
@@ -1604,7 +1632,8 @@ function CafeService.addCaughtCat(
 	-- #4061: the Ticket Booth's tickets, from TicketBoothTier, any area, a repeat cat as much as a new one
 	if LiveFlagService.on(TicketBooth.FLAG) and TicketBooth.open(Economy.tier(profile)) then
 		-- the catch pop's "+2" is the rise in PlayerState.ticketBooth.tickets at the next sync
-		TicketBooth.credit(profile.tickets, def.rarity, instance.variant, how, now)
+		local tickets = TicketBooth.credit(profile.tickets, def.rarity, instance.variant, how, now)
+		profile.tickets.have += DragonKeep.extraTickets(dragonFx, tickets) -- #4447: Ticket Dragon
 	end
 	-- F87 (easy-start.md section 2d): the first check-in, before it moves the tutorial on
 	local firstCheckIn = profile.tutorialStep < Config.TutorialGuaranteedStrayStep
@@ -1651,7 +1680,7 @@ function CafeService.addCaughtCat(
 					"Your first cat! %s is your %s (+$%s)",
 					def.name,
 					roleName(spotHere),
-					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward)
+					ShortNumber.format(newKindReward)
 				),
 				"good"
 			)
@@ -1661,7 +1690,7 @@ function CafeService.addCaughtCat(
 				string.format(
 					"New cat! %s joins the collection (+$%s, %s)",
 					def.name,
-					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward),
+					ShortNumber.format(newKindReward),
 					fishText(fish)
 				),
 				"good"
@@ -1874,7 +1903,7 @@ end
 -- cat still takes it, F87 section 2d). The cats EquipBest.held names stay where they are: a locked working cat, a cat
 -- placed or rested by hand in the last AutoEquipHoldSeconds and a cat on offer in a trade. At most one run every
 -- AutoEquipEverySeconds: a run asked for sooner waits for then and is merged with any others (that run refreshes the
--- plot and syncs itself; this call returns 0). A run that moves cats sends AutoEquipped for the toast.
+-- plot and syncs itself; this call returns 0). #4656: the AutoEquipped toast remote is gone (no toast since #2399).
 local function runAutoEquip(player: Player, profile: Profile): number
 	local hand = handAt[player] or {}
 	local held = EquipBest.held(profile, os.clock(), hand, function(uid: string): boolean
@@ -1885,40 +1914,20 @@ local function runAutoEquip(player: Player, profile: Profile): number
 		return 0
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
-	local rateBefore = currentRate(profile)
 	local before: { [string]: string? } = {}
 	for uid, instance in profile.cats do
 		before[uid] = instance.spotId
 	end
 	local changed = EquipBest.apply(profile, plan)
-	local swaps: { Types.AutoEquipSwap } = {}
 	for uid, instance in profile.cats do
 		-- only the cats that took a new spot, so a join or rank up doesn't log the whole cafe again
 		if instance.spotId ~= nil and instance.spotId ~= before[uid] then
 			Telemetry.catWorking(player, uid)
-			local def = Catalog.getCat(instance.catId)
-			local spot = Catalog.getSpot(instance.spotId :: string)
-			if spot ~= nil then
-				table.insert(swaps, {
-					catName = if instance.name ~= nil and instance.name ~= ""
-						then instance.name :: string
-						elseif def ~= nil then def.name
-						else instance.catId,
-					role = roleName(spot),
-				})
-			end
 		end
 	end
 	if plan.catsPlaced > 0 then
 		CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 		Telemetry.onboarding(player, profile, "first_role_assigned")
-	end
-	if #swaps > 0 then
-		if #swaps == 1 then
-			local gain = currentRate(profile) - rateBefore
-			swaps[1].perSecond = if gain >= 0.05 then math.floor(gain * 10 + 0.5) / 10 else nil
-		end
-		Net.fire(player, "AutoEquipped", swaps)
 	end
 	return changed
 end
@@ -2157,6 +2166,9 @@ local function onRankUp(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
 		return
+	end
+	if profile.tier == 1 then
+		Telemetry.cleanEvent(player, profile, Telemetry.CLEAN_EVENTS.rankUpPressed) -- #4504: pressed, met or not
 	end
 	local blocker = Economy.rankUpBlocker(profile)
 	if blocker ~= nil then
@@ -2484,7 +2496,7 @@ local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 		return
 	end
 	-- the whole check is Looks.pickFor (known kinds, owned looks only, specced in Looks.spec)
-	local ok, pick = Looks.pickFor(rawKind, rawId, ownsPassOf(player), profile.pass.items)
+	local ok, pick = Looks.pickFor(rawKind, rawId, ownsPassOf(player), lookItems(profile))
 	if not ok then
 		Net.toast(player, "You don't have that look yet.", "warn")
 		return

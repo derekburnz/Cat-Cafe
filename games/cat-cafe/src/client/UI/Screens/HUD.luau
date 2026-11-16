@@ -78,8 +78,6 @@ local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
-local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
-local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local RestChip = require(script.Parent.Parent.Components.RestChip)
 local Scale = require(script.Parent.Parent.Scale)
 local SecondCatGoal = require(script.Parent.Parent.Components.SecondCatGoal)
@@ -237,11 +235,7 @@ local CASH_TEXT = 22
 local CASH_PRICE_H = 14
 local CASH_PULSE = 1.08 -- the badge's scale at the top of each pulse
 local CASH_PULSE_SECONDS = 0.7 -- one way
--- Derek 2026-11-14 ("how the 2x money badge looks across devices"): a green button in the HUD's button family with the
--- price on it, which pulses CASH_PULSES times the first time it shows in a session and then holds still
-local CASH_PULSES = 3
-local CASH_PAD = 8 -- the button's side padding
-local CASH_CHIP_PAD = 6 -- the price chip's side padding
+local CASH_PAD = 8 -- the pill's side padding
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -665,6 +659,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	self._counters = counters
+	-- #4529: bigger on a tablet only (Scale.counterBoost), kept up to date as the screen turns or resizes
+	self._counterBoost = Create("UIScale", {
+		Name = "TabletBoost",
+		Scale = Scale.counterBoost(),
+		Parent = counters,
+	}) :: UIScale
 	-- #2393 (Derek2 11-08: "the 2x money pop up, money amount/breakdown menu, golden fish, and lucky and the breakdown
 	-- menu are all kind of where you want your left thumb to move around maybe make it on the top middle of the screen
 	-- ... and put the 2x money advertising on the right side above potions"): on touch the counters sit at the top
@@ -776,13 +776,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to
 	-- the right of both of those"): the row is the money, the golden fish, then the money badge.
 	-- #1606: the money pass badge right of the two counters (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
-	-- (a tap opens the boosts card, as the money does), or a green button for the next rung up with its price on it
-	-- ("2x Money", then "3x Money", then "4x Money", Derek 2026-11-14; was a rainbow "X2 Cash" pill with "Only R$5"
-	-- under it, #1759). Hidden until the Store knows, and once 4x is owned.
+	-- (a tap opens the boosts card, as the money does), or for the next rung up a rainbow "X2 Cash" pill (then X3, X4)
+	-- with "Only R$..." under it, pulsing (#1759; the green button of 2026-11-14 went back, #4617). Hidden until the
+	-- Store knows, and once 4x is owned.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
-	-- Derek 2026-11-14: for sale, the button is a green face (Theme.button.primary top to bottom, the Face gradient on a
-	-- white background, as Components/Button does, since a UIGradient multiplies the colour under it) with the words and
-	-- the price chip side by side on it; owned or quiet, it is bare words as before
 	local badge: TextButton = Create("TextButton", {
 		Name = "MoneyBadge",
 		AutoButtonColor = false,
@@ -797,27 +794,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = if TOUCH then root else counters,
 	}, {
 		Create("UISizeConstraint", { MinSize = Vector2.new(counterH, 0) }),
+		-- #4617 (Derek 2026-11-15: "swap back to the old 2x money button style as it got wayyyy more purchases"): the
+		-- rainbow "X2 Cash" pill with "Only R$..." under it, pulsing all the time (#1759), as before #4173
 		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = UDim.new(0, 4),
-		}),
-		Create("UICorner", { CornerRadius = UDim.new(0, 12) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }),
-		Create("UIGradient", {
-			Name = "Face",
-			Rotation = 90,
-			Color = ColorSequence.new(Theme.button.primary.top, Theme.button.primary.bottom),
-			Enabled = false,
-		}),
-		Create("UIStroke", {
-			Name = "Edge",
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color = Theme.colors.outline,
-			Thickness = 2.5,
-			Enabled = false,
 		}),
 	})
 	self._moneyPulse = Create("UIScale", { Parent = badge }) :: UIScale
@@ -839,30 +821,27 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			"UIPadding",
 			{ PaddingLeft = UDim.new(0, CASH_PAD), PaddingRight = UDim.new(0, CASH_PAD) }
 		),
+		-- #1759: the rainbow under the "X2 Cash" words while a money pass is for sale
+		Create("UIGradient", { Name = "Rainbow", Color = Theme.rainbow, Enabled = false }),
 	})
 	Outline.text(pill, 2.5)
 	self._moneyPill = pill
-	-- the price chip on the button, right of the words (Derek 2026-11-14: the price on the button, no "Only")
+	-- #1759: "Only R$..." under the pill ("Only" in green, the price in white, as Derek2's reference)
 	local price: TextLabel = Create("TextLabel", {
 		Name = "Price",
-		BackgroundColor3 = Theme.colors.ink,
-		BackgroundTransparency = 0,
-		Size = UDim2.fromOffset(0, CASH_H - 6),
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, CASH_PRICE_H),
 		AutomaticSize = Enum.AutomaticSize.X,
 		FontFace = Theme.fonts.display,
-		TextSize = CASH_PRICE_H + 4,
+		TextSize = CASH_PRICE_H,
 		TextColor3 = Theme.colors.white,
+		RichText = true,
 		Text = "",
 		LayoutOrder = 2,
 		Visible = false,
 		Parent = badge,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, 8) }),
-		Create(
-			"UIPadding",
-			{ PaddingLeft = UDim.new(0, CASH_CHIP_PAD), PaddingRight = UDim.new(0, CASH_CHIP_PAD) }
-		),
 	})
+	Outline.text(price, 2)
 	self._moneyPrice = price
 	self._moneyBadge = badge
 	self._moneyBadgeOwned = false
@@ -1696,6 +1675,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self._scaleConnection = Scale.changed:Connect(function()
+		self._counterBoost.Scale = Scale.counterBoost() -- #4529
 		self:_liftRight()
 	end)
 	self:_liftRight()
@@ -2181,6 +2161,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = "Harvest",
 			label = "Harvest",
 			icon = HarvestLogic.PUMPKIN,
+			image = ShopIcons.hud("Harvest"), -- #4460: the pumpkin picture; the 🎃 shows if it fails to load
 			style = "gold",
 		},
 	}
@@ -2222,16 +2203,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self:_paintHarvest()
 		end)
 	)
-	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
-	self._rareBubbles =
-		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
-	self._rareTier = 0
-	table.insert(
-		self._connections,
-		ReplicatedStorage:GetAttributeChangedSignal(RareBubbleLogic.ATTRIBUTE):Connect(function()
-			self:_paintRares()
-		end)
-	)
+	-- #4450 (Derek 2026-11-15): the Cannon button carries no Mythical or Secret count; only the picker's cards do (#4227)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -3096,21 +3068,6 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
--- #4227: the Cannon button's bubbles, every area the player's tier has open added up.
-function HUD._paintRares(self: any)
-	local catalog: Types.Catalog? = self._catalog
-	local open: { [string]: boolean } = {}
-	if catalog ~= nil then
-		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
-			if area.tier <= self._rareTier then
-				open[area.id] = true
-			end
-		end
-	end
-	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
-	self._rareBubbles:set(RareBubbleLogic.totals(rares, open))
-end
-
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #4249: the Mailbox tile's red count, the letters still to claim
@@ -3119,10 +3076,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._mailWaiting = waiting
 		self._mailDot.Visible = waiting > 0
 		self._mailCount.Text = if waiting > 9 then "9+" else tostring(waiting)
-	end
-	if (state.tier or 1) ~= self._rareTier then
-		self._rareTier = state.tier or 1
-		self:_paintRares()
 	end
 	if (state.tier or 1) ~= self._harvestTier then
 		self._harvestTier = state.tier or 1
@@ -3258,6 +3211,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
+	self._tierProgress = tierProgress -- #4625: the new kinds goal's coins line
 	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
 	local second =
 		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
@@ -5196,29 +5150,30 @@ function HUD.setMoneyBadge(
 	pill.Size = UDim2.fromOffset(0, if sell then CASH_H else MONEY_BADGE_H)
 	pill.TextSize = if sell then CASH_TEXT else MONEY_BADGE_TEXT
 	pill.TextColor3 = if sell then Theme.colors.white else Theme.colors.gold
-	pill.BackgroundTransparency = 1
-	-- Derek 2026-11-14: a green button while for sale (not in the quiet first 30 minutes), bare gold words once owned
+	-- #4617: a rainbow pill (white under the gradient) while for sale, as #1759; bare words in the quiet first 30 min
 	local button = sell and not badge.quiet
-	self._moneyBadge.BackgroundTransparency = if button then 0 else 1
-	local face = self._moneyBadge:FindFirstChild("Face") :: UIGradient?
-	if face then
-		face.Enabled = button
+	pill.BackgroundColor3 = Theme.colors.white
+	pill.BackgroundTransparency = if button then 0 else 1
+	local rainbow = pill:FindFirstChild("Rainbow") :: UIGradient?
+	if rainbow then
+		rainbow.Enabled = button
 	end
-	local edge = self._moneyBadge:FindFirstChild("Edge") :: UIStroke?
-	if edge then
-		edge.Enabled = button
+	-- the old words: "X2 Cash" (then X3, X4 for the next rung) over "Only R$..."
+	local rung = string.match(badge.text, "^(%d+)x Money$")
+	if button and rung then
+		pill.Text = "X" .. rung .. " Cash"
 	end
 	local price: TextLabel = self._moneyPrice
 	local line = if button then badge.price else nil
 	price.Visible = line ~= nil
 	if line ~= nil then
-		price.Text = line
+		price.Text = '<font color="#7CFC6A">Only</font> ' .. line
 	end
 	self:_pulseMoneyBadge(button)
 end
 
 -- #1759: the for-sale badge grows and shrinks a little; it holds still once owned or with Reduce Motion on.
--- Derek 2026-11-14: CASH_PULSES times the first time it shows in a session, then still.
+-- #4617: over and over while it is for sale, as before #4173.
 function HUD._pulseMoneyBadge(self: any, on: boolean)
 	local tween: Tween? = self._moneyPulseTween
 	if not on or GuiService.ReducedMotionEnabled then
@@ -5229,25 +5184,18 @@ function HUD._pulseMoneyBadge(self: any, on: boolean)
 		end
 		return
 	end
-	-- a pulse under way runs out; one already played this session is not played again
-	if tween ~= nil or self._moneyPulsed == true then
-		return
+	if tween ~= nil then
+		return -- already pulsing
 	end
+	-- #4617: back to the old pulse, over and over while it is for sale (#1759)
 	local info = TweenInfo.new(
 		CASH_PULSE_SECONDS,
 		Enum.EasingStyle.Sine,
 		Enum.EasingDirection.InOut,
-		CASH_PULSES - 1,
+		-1,
 		true
 	)
 	local made = TweenService:Create(self._moneyPulse, info, { Scale = CASH_PULSE })
-	self._moneyPulsed = true
-	made.Completed:Connect(function()
-		if self._moneyPulseTween == made then
-			self._moneyPulseTween = nil
-			self._moneyPulse.Scale = 1
-		end
-	end)
 	made:Play()
 	self._moneyPulseTween = made
 end
@@ -5865,7 +5813,14 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 			local title = NewKind.title(newKind, TOUCH)
 			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
 			local opens = GoalLines.opens(self._nextTierName, TOUCH)
-			return { title = title, lines = if opens then { opens } else {}, chip = title }
+			local lines: { string } = if opens then { opens } else {}
+			-- #4625: and the coins half of that tier as a short meter line, until the coins are there
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
 		end
 		return nil
 	end

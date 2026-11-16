@@ -12,7 +12,7 @@
 -- and its subtitle closer, so the content gets the rows back.
 --
 -- #3558, #4657: a dark window always wears the station menu family's dress (Components/MenuFamily):
--- the violet body, a row of party bulbs along the top of the title band, the badge sitting straight, and no ears.
+-- the cocoa body, a row of party bulbs along the top of the title band, the badge sitting straight, and no ears.
 --
 -- Roblox terms: `frame` is a see-through holder that does not clip, so the ears, badge and touch X can stick out of the
 -- window; the window itself is its child `Body`, which clips the content to the rounded corners. A child

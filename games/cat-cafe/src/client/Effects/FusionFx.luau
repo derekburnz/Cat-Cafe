@@ -22,6 +22,8 @@
 -- breathes. Everyone else sees only the glow, from the model's `FusionCoat` attribute if the server sets it. The
 -- lights hold still with Reduce Motion and are off in Low performance. Listening only: nothing here fires a remote
 -- or changes game state. Numbers in Presets.fusion.
+-- #4069: at night a few pale stars twinkle in the sky over the dome (a flat box emitter `stars.lift` studs over it),
+-- for everyone within `stars.within` studs. None by day or in Low performance. Checked every `stars.check` seconds.
 
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
@@ -339,6 +341,15 @@ local paws: { Part } = {}
 local lit: string? = nil -- the coat the slit shows now
 local anchor: Attachment? = nil -- the dome's `GlowAnchor`, found once with its glows
 
+local sky: Part? = nil -- the stars' unseen emitter box over the dome
+local skyEmitter: ParticleEmitter? = nil
+local skyFor: Model? = nil
+
+-- Whether the stars over the dome twinkle: at night, within `within` studs, never in Low performance.
+function FusionFx.starsOn(night: boolean, low: boolean, distance: number, within: number): boolean
+	return night and not low and distance <= within
+end
+
 local function findDome(): Model?
 	for _, instance in CollectionService:GetTagged(DOME_TAG) do
 		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
@@ -478,6 +489,50 @@ local function stepDome(now: number)
 		paw.Color = if coat == "rainbow"
 			then FusionFx.coatColour(coat, t + (i - 1) * Presets.fusion.huePeriod / #paws)
 			else colour
+	end
+end
+
+local function dropSky()
+	if sky ~= nil then
+		sky:Destroy()
+	end
+	sky, skyEmitter, skyFor = nil, nil, nil
+end
+
+-- Once every `stars.check` seconds: the night stars over the dome on or off.
+local function stepStars()
+	local model = dome
+	if model == nil or model.Parent == nil then
+		dropSky()
+		return
+	end
+	local p = Presets.fusion.stars
+	local at = model:GetPivot().Position
+	local on =
+		FusionFx.starsOn(Context.isNight(), Context.lowPerformance, Context.distance(at), p.within)
+	if not on then
+		if skyEmitter ~= nil then
+			skyEmitter.Enabled = false
+		end
+		return
+	end
+	if skyFor ~= model or sky == nil or skyEmitter == nil then
+		dropSky()
+		local _, size = model:GetBoundingBox()
+		local box = Context.effectPart(
+			"FusionStars",
+			Vector3.new(p.across, 1, p.across),
+			Color3.new(1, 1, 1)
+		)
+		box.Transparency = 1
+		box.CFrame = CFrame.new(at + Vector3.new(0, size.Y + p.lift, 0))
+		box.Parent = Context.folder()
+		sky, skyFor = box, model
+		skyEmitter = Particles.attach(p.emitter, box)
+	end
+	local emitter = skyEmitter
+	if emitter ~= nil and not emitter.Enabled then
+		Particles.switchOn(emitter, p.emitter)
 	end
 end
 
@@ -641,7 +696,13 @@ function FusionFx.start()
 	end
 	local look = 0
 	local wait = 0
+	local starWait = 0
 	RunService.Heartbeat:Connect(function(dt: number)
+		starWait -= dt
+		if starWait <= 0 then
+			starWait = Presets.fusion.stars.check
+			stepStars()
+		end
 		look -= dt
 		if dome == nil and look <= 0 then
 			look = Presets.fusion.dome.lookSeconds

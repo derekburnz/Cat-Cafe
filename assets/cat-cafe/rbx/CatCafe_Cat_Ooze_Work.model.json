@@ -86,7 +86,7 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Cat_Ooze_Work/0",
-    "GoldTone": 3
+    "GoldTone": 1
    },
    "children": [
     {
@@ -300,7 +300,7 @@
     "BottomSurface": "Smooth"
    },
    "attributes": {
-    "GoldTone": 1
+    "GoldTone": 3
    }
   },
   {
@@ -352,7 +352,7 @@
     "BottomSurface": "Smooth"
    },
    "attributes": {
-    "GoldTone": 1
+    "GoldTone": 3
    }
   },
   {

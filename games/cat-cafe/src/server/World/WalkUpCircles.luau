@@ -7,7 +7,7 @@
 --   front(model, color, range, into?, icon?)  a ring on the floor in front of the station (its -Z, which faces the
 --                                         cannon), with `icon` lying in its middle (#2449)
 --   toward(model, color, range, outward, radius, into?, icon?)  a ring on its `outward` side (the bait bowl, #2476)
---   frontFit(model, color, into?, icon?, radius?)  a front ring for a camp station (#3113): touching its front, slid
+--   frontFit(model, color, into?, icon?, radius?, floor?)  a front ring for a camp station (#3113): touching its front, slid
 --                                         or shrunk off whatever stands on its floor, never under FRONT_FIT_LEAST
 --   around(model, color, range, into?, cap?)  a ring all the way round it (the Cat Cannons), at most `cap` wide, slid
 --                                         off a wall on its floor (#2433)
@@ -396,9 +396,16 @@ function WalkUpCircles.frontFit(
 	color: Color3,
 	into: Instance?,
 	icon: Icon?,
-	radius: number?
+	radius: number?,
+	floor: number? -- #4620: the floor the station stands on, when its model reaches below it
 )
 	local front, _, bottom = footprint(model)
+	-- #4620 (Derek 11-15: "snowymountain observatory circle is under snow so cant be seen"): the Fusion Observatory's
+	-- half-buried snow mounds reach half a stud under the camp floor, so a ring laid over the model's lowest point
+	-- was under the ground. A ring is never laid below the floor its station stands on.
+	if floor ~= nil then
+		bottom = math.max(bottom, floor)
+	end
 	local wide = radius or WalkUp.FRONT_RADIUS
 	local at = (model:GetPivot() * CFrame.new(0, 0, -(math.max(0, front) + wide))).Position
 	local reach = wide + WalkUp.FIT_CLEAR + WalkUp.FIT_SHIFT_MAX

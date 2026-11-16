@@ -1193,6 +1193,11 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 - **Why:** the label path re-ran the whole check every time main moved during a run. On a busy main it never caught up: #4387 went green four times, about 40 runner minutes a lap, and stayed open. Main's ruleset is not strict, so GitHub's own auto-merge already merges a green head without that re-check.
 - **What:** `.github/scripts/automerge.sh` now merges when the run was green and GitHub reports the PR as mergeable (no conflict), even if main moved. A conflict still drops the label with a comment; an unknown merge state still gets one more run. The skill `merge-and-publish` says the same.
 
+## 2026-11-15 Each area's Secret earns 10 times the next tier's Mythic (#4221, Gameplay-Engineer)
+- **Why:** Derek 2026-11-15 21:57 UTC: "for the 10 secret cats update make them behave like 10x money of the mythic cat from the next tier area so secret tier 9 is 10x the tier 10 mythic".
+- **What:** a Secret's own rate is `Config.SecretNextMythicTimes` (10) times the Mythical of the area one tier past its home. Secret Tier 9 (Water Park) earns 10 x a Castle Mythical (14,762,250 a second before level, charm and coat). The Castle's own Secret has no next area, so it uses the ladder's step (each area pays 3 times the one before): 10 x 3 x a Castle Mythical (44,286,750 a second).
+- **Kept:** the old floor still applies (four Mythicals at the owner's best open area, CatStats.areaMultiplier keeps the larger), so no owned Secret earns less than before. Trade value, sell value and golden fish for a Secret are unchanged.
+
 ## 2026-11-15 No golden fish caps in trades (#4623, Gameplay-Engineer)
 - **Why:** Derek, 2026-11-15 23:21 to 23:23 UTC: "I don't care about the alt account farming", "no fish limit a trade I dont care", "no 250 fish a day either".
 - **What:** `TradeFishPerDay` is 0 (no daily cap on fish received; `Trade.fishRoom` is math.huge and the trade view sends no room) and `TradeMaxFish` is 1,000,000, only the remote's sanity bound. The 24 h hold after buying the Golden Pond pass stays. There is no fee: the receiver gets exactly what was offered. The fish picker's line reads "No limit".

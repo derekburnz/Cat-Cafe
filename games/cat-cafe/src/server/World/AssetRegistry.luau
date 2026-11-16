@@ -67,12 +67,53 @@ function AssetRegistry.stowServerOnly(): number
 	return moved
 end
 
+-- #4601: the cats' _Gold models (384 of them, about 40,000 instances, a third of what a client downloads as it
+-- joins) are looked up by nobody while the goldTone switch is on: a gold cat is then its base model toned
+-- (shared/GoldTone). Moves them to ServerStorage.Assets while the switch is on and back to ReplicatedStorage.Assets
+-- when it is off, so the switch stays a true way back. Returns how many were moved.
+function AssetRegistry.stowGoldTwins(): number
+	local assets = AssetRegistry.folder()
+	local store = vault
+	if store == nil then
+		return 0
+	end
+	local from, to = store, assets
+	if GoldTone.open() then
+		from, to = assets, store
+	end
+	local moved = 0
+	for _, child in from:GetChildren() do
+		if GoldTone.isTwin(child.Name) then
+			child.Parent = to
+			moved += 1
+		end
+	end
+	return moved
+end
+
+local goldFollow: RBXScriptConnection? = nil
+
+-- Runs stowGoldTwins now and each time the goldTone switch flips (LiveFlagService copies it to a ReplicatedStorage
+-- attribute). After stowServerOnly, which makes the server's folder. Returns how many were moved now.
+function AssetRegistry.followGoldTone(): number
+	if goldFollow == nil then
+		goldFollow = ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. GoldTone.FLAG)
+			:Connect(function()
+				AssetRegistry.stowGoldTwins()
+			end)
+	end
+	return AssetRegistry.stowGoldTwins()
+end
+
 -- Fills in a placeholder for every asset name that has no real model yet. Returns how many were created.
 function AssetRegistry.ensurePlaceholders(): number
 	local assets = AssetRegistry.folder()
 	local created = 0
 	for _, name in Placeholders.names() do
-		if find(name) == nil then
+		-- #4656: a door set whose art is a _Front and a _Back model needs no plain stand-in (CafeService and the
+		-- client's ItemIcon ask for the sided models first)
+		local sided = find(name .. "_Front") ~= nil and find(name .. "_Back") ~= nil
+		if find(name) == nil and not sided then
 			local model = Placeholders.build(name)
 			if model ~= nil then
 				model.Parent = assets

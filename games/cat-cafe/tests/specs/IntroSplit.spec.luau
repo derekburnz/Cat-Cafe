@@ -13,6 +13,13 @@ return function()
 			expect(LiveFlags.defaults()[IntroSplit.FLAG]).to.equal(false)
 		end)
 
+		it("has a noIntro switch that starts off (#4929)", function()
+			expect(IntroSplit.NO_INTRO).to.equal("noIntro")
+			expect(table.find(LiveFlags.KEYS, IntroSplit.NO_INTRO) ~= nil).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT[IntroSplit.NO_INTRO]).to.equal(true)
+			expect(LiveFlags.defaults()[IntroSplit.NO_INTRO]).to.equal(false)
+		end)
+
 		it("splits accounts in two by their number, the same every time", function()
 			expect(IntroSplit.group(2)).to.equal(IntroSplit.ON)
 			expect(IntroSplit.group(3)).to.equal(IntroSplit.OFF)

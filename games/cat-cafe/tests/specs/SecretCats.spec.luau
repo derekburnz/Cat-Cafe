@@ -1,6 +1,6 @@
 --!strict
 -- #3470: Secret cats, the rarity above Mythical. A rolled Mythical turns Secret Catalog.secretPerMythical of the time
--- while the `secretCats` switch is on (Catching.secret), so no odds table lists it; it is on no Index page and in no
+-- (Catching.secret; its `secretCats` switch is retired since #4654 batch 5), so no odds table lists it; it is on no Index page and in no
 -- count, earns at its owner's best open area, and every rule keyed by rarity knows it.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")

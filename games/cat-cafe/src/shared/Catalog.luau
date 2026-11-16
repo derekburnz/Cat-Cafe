@@ -130,7 +130,7 @@ Catalog.catRarityOrder =
 	{ "Common", "Rare", "Epic", "Legendary", "Mythical", "Secret" } :: { Types.Rarity }
 Catalog.SECRET = "Secret" :: Types.Rarity
 -- #3470: the share of rolled Mythicals that turn Secret (wild strays, bait and rescues), so a source's Secret chance
--- is its Mythical chance over 100 and no other rarity moves. Only while the `secretCats` switch is on.
+-- is its Mythical chance over 100 and no other rarity moves. (Its `secretCats` switch is retired since #4654 batch 5.)
 Catalog.secretPerMythical = 0.01
 
 -- Data-model v0.13.7 (Derek 2026-10-28 01:50: "just make the base money generation more from further areas"): a

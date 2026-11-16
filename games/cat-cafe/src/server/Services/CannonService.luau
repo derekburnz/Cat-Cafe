@@ -12,7 +12,8 @@
 -- respawnSpot, Derek 2026-10-28 01:17), never a carrier. Every cannon's moon cover (its ..._MoonCover model) is down
 -- over the barrel while the areas are closed and lifted by day (section 3a: "At dusk a moon cover drops").
 -- #4702 (Derek 2026-11-16): a first spawn after joining through a friend no longer moves to the friend's front door
--- (F92's palArrival is gone), so an AFK rest rejoin onto a friend's server lands at home like any other.
+-- (F92's palArrival move is gone), so an AFK rest rejoin onto a friend's server lands at home like any other; the
+-- PalArrived wave and the #3995 friend-join notes still go out (palJoinedNote), with no area for a location bubble.
 -- #3072 (Derek2 2026-11-10: "you spawn with camera inside cannon when rejoining put yourself infront of your cafe"):
 -- any other first spawn of a returning player moves to the street outside their own front door (homeArrival).
 
@@ -35,6 +36,7 @@ local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local NightService = require(script.Parent.NightService)
+local PalService = require(script.Parent.PalService)
 local PlotService = require(script.Parent.PlotService)
 local Telemetry = require(script.Parent.Telemetry)
 local TravelService = require(script.Parent.TravelService)
@@ -343,6 +345,17 @@ local function homeArrival(player: Player, character: Model)
 	player:SetAttribute(Cannon.HOME_ATTRIBUTE, (landing :: CFrame).Position)
 end
 
+-- #4702: a player who joined through a friend's invite or by following them stays where everyone else spawns, but
+-- every client still gets PalArrived(joinerUserId, palUserId, nil) for the wave and the #3995 joined notes; no area,
+-- so no friend location bubble.
+local function palJoinedNote(player: Player)
+	local pal = PalService.joinedVia(player)
+	if pal == nil or pal.Parent ~= Players or player.Parent ~= Players then
+		return
+	end
+	Net.fireAll("PalArrived", player.UserId, pal.UserId, nil)
+end
+
 -- Where a respawn lands: on its camp's pad after a death in a wild area by day (section 4), on a free spot, else
 -- inside its own cafe. A first spawn of the session goes to the player's own front door for a returning player
 -- (homeArrival, #3072; also after joining through a friend, #4702), and stays at the hometown spawn, facing the
@@ -367,6 +380,7 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 	end
 	if not respawn then
 		homeArrival(player, character) -- #3072
+		palJoinedNote(player)
 		return
 	end
 	task.wait(0.1) -- after Roblox has placed the character at the town spawn

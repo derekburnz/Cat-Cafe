@@ -105,7 +105,8 @@ local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the o
 -- reached the screen's bottom edge, so the line of what the player has moves beside Collect, over the token line, and
 -- the Roll row and the spaces between rows are a little shorter
 local SHORT_WORDS_H = 28
-local PENDING_SECONDS = 4
+-- #4898: 3, was 4: a press the server never answered wakes the buttons sooner
+local PENDING_SECONDS = 3
 local RETRY_SECONDS = 1.5 -- #3875: a tap on a grey choice after this sends it again
 -- #4477 (Derek 2026-11-15: "when using lots of rerolls mystic pool gets stuck on ..."): the server takes RollTrait,
 -- ChooseTrait and CollectTraitTokens at most once a second each (server/Services/Net) and drops a faster one without
@@ -1469,14 +1470,15 @@ function MysticPool._autoPress(self: any)
 		return
 	end
 	local uid = self._uid
-	if uid == nil or self._pending or MysticPoolLogic.autoRolls(self._view) <= 0 then
+	if uid == nil or self._pending or MysticPoolLogic.autoRolls(self._view, self._fish) <= 0 then
 		return
 	end
 	self._auto = {
 		rolls = 0,
 		spent = 0,
+		fish = 0,
 		running = true,
-		most = MysticPoolLogic.autoMost(self._view, remembered.autoLimit),
+		most = MysticPoolLogic.autoMost(self._view, remembered.autoLimit, self._fish),
 	}
 	self._autoUid = uid
 	self._autoStop = false
@@ -1510,7 +1512,7 @@ function MysticPool._autoStep(self: any)
 		self:_paintAuto()
 		return
 	end
-	if MysticPoolLogic.autoRolls(view) <= 0 then
+	if MysticPoolLogic.autoRolls(view, self._fish) <= 0 then
 		self:_autoEnd("out")
 		self:_paintAuto()
 		return
@@ -1518,6 +1520,7 @@ function MysticPool._autoStep(self: any)
 	local last = if view ~= nil then view.autoRoll else nil
 	self._autoBefore = {
 		tokens = if view ~= nil then tonumber(view.tokens) or 0 else 0,
+		fish = self._fish or 0, -- #4898
 		n = if type(last) == "table" then tonumber(last.n) or 0 else 0,
 	}
 	self._autoWaiting = true
@@ -1548,6 +1551,7 @@ function MysticPool._autoAnswer(self: any)
 		0,
 		self._autoBefore.tokens - (if view ~= nil then tonumber(view.tokens) or 0 else 0)
 	)
+	run.fish = (run.fish or 0) + math.max(0, (self._autoBefore.fish or 0) - (self._fish or 0)) -- #4898
 	run.last = last.id
 	if MysticPoolLogic.autoHit(last.id, remembered.autoTarget) then
 		self:_autoEnd("hit")
@@ -1596,7 +1600,7 @@ function MysticPool._paintAuto(self: any)
 		then (if self._autoStop then "Stopping..." else "Stop")
 		else MysticPoolLogic.autoStart(
 			self._view,
-			MysticPoolLogic.autoMost(self._view, remembered.autoLimit)
+			MysticPoolLogic.autoMost(self._view, remembered.autoLimit, self._fish)
 		)
 	if self._autoGoText ~= goText then
 		self._autoGoText = goText
@@ -1606,7 +1610,7 @@ function MysticPool._paintAuto(self: any)
 	self._autoGo:setEnabled(
 		if running
 			then not self._autoStop
-			else self:_cat() ~= nil and MysticPoolLogic.autoRolls(self._view) > 0
+			else self:_cat() ~= nil and MysticPoolLogic.autoRolls(self._view, self._fish) > 0
 	)
 end
 
@@ -2219,8 +2223,10 @@ function MysticPool._paint(self: any)
 		self._roll:setText(rollText)
 	end
 	self._roll:setEnabled(roll.enabled and cat ~= nil and not resting)
-	-- #4712: Auto needs a cat and a party, free or token roll (never golden fish)
-	self._autoButton:setEnabled(cat ~= nil and not resting and MysticPoolLogic.autoRolls(view) > 0)
+	-- #4712: Auto needs a cat and a roll it can pay for (#4898: golden fish too, so it turns on with no tokens)
+	self._autoButton:setEnabled(
+		cat ~= nil and not resting and MysticPoolLogic.autoRolls(view, self._fish) > 0
+	)
 	if self._autoSheet.Visible then
 		self:_paintAuto()
 	end

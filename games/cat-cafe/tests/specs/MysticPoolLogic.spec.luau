@@ -452,13 +452,23 @@ return function()
 			end
 		end)
 		it(
-			"counts party, free and token rolls, never golden fish, and none while a choice waits",
+			"counts party, free and token rolls, then golden fish (#4898), and none while a choice waits",
 			function()
 				expect(MysticPoolLogic.autoRolls(nil)).to.equal(0)
 				expect(MysticPoolLogic.autoRolls({ tokens = 3, freeLeft = 2, party = 1 })).to.equal(
 					6
 				)
 				expect(MysticPoolLogic.autoRolls({ tokens = 0, freeLeft = 0 })).to.equal(0)
+				-- #4898 (Derek 2026-11-16): golden fish too, so Auto turns on with no tokens
+				expect(
+					MysticPoolLogic.autoRolls(
+						{ tokens = 0, freeLeft = 0 },
+						Traits.COST_FISH * 3 + 5
+					)
+				).to.equal(3)
+				expect(MysticPoolLogic.autoRolls({ tokens = 2, freeLeft = 0 }, Traits.COST_FISH)).to.equal(
+					3
+				)
 				expect(MysticPoolLogic.autoRolls({ tokens = 3, pending = { uid = "a", id = "b" } })).to.equal(
 					0
 				)
@@ -485,7 +495,7 @@ return function()
 		it("says what a roll uses before the start and the run's numbers after", function()
 			local before = MysticPoolLogic.autoLine(nil, { tokens = 4, freeLeft = 0 })
 			expect(string.find(before, "4 Trait Tokens", 1, true) ~= nil).to.equal(true)
-			expect(string.find(before, "Golden fish are never used", 1, true) ~= nil).to.equal(true)
+			expect(string.find(before, "golden fish", 1, true) ~= nil).to.equal(true)
 			-- a Trait Party has no cap (Derek 2026-11-16): never its count
 			local party =
 				MysticPoolLogic.autoLine(nil, { tokens = 2, freeLeft = 3, party = 100000 })
@@ -505,7 +515,10 @@ return function()
 				{ rolls = 1, spent = 1, running = false, ended = "out" },
 				nil
 			)
-			expect(out).to.equal("Out of Trait Tokens after 1 roll · 1 Trait Token used")
+			expect(out).to.equal("Nothing left to roll with after 1 roll · 1 Trait Token used")
+			local fished =
+				MysticPoolLogic.autoLine({ rolls = 2, spent = 1, fish = 20, running = true }, nil)
+			expect(fished).to.equal("2 rolls · 1 Trait Token used, 20 golden fish")
 		end)
 		it(
 			"caps a run at the picked limit and the rolls the player can pay for (Review-QA on #4714)",

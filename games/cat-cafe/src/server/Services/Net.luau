@@ -24,8 +24,11 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	MouseDashStart = RateLimiter.new(1, 1), -- #3296
 	MouseDashTap = RateLimiter.new(12, 1),
 	MouseDashQuit = RateLimiter.new(1, 1),
-	RollTrait = RateLimiter.new(1, 1), -- #3196
-	ChooseTrait = RateLimiter.new(1, 1),
+	-- #3196; #4898 (Derek 2026-11-16: rerolls "when going fast gets stuck" on "..."): still 1 a second on average,
+	-- but a bucket of 3, so two presses the client sent 1.1 s apart that arrive closer (network jitter) are both taken
+	-- instead of one dropped without an answer
+	RollTrait = RateLimiter.new(3, 3),
+	ChooseTrait = RateLimiter.new(3, 3),
 	CollectTraitTokens = RateLimiter.new(1, 1),
 	RescueHelp = RateLimiter.new(1, 1), -- F92 (playing-together.md section 6): 1 a second
 	DropCat = RateLimiter.new(1, 1),

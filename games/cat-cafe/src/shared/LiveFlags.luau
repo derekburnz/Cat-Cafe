@@ -170,6 +170,8 @@ LiveFlags.KEYS = {
 	"catchFirst", -- #4518: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
 	"earlyKindBonus", -- #4624: kinds 2 to 5 pay 3x a Common's new-kind money in Tier 1 (shared/SecondCat); off until the Nov 16 read
 	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
+	"toys", -- #4061: the Ticket Booth's two held toys (shared/Toys); on only after a restart and once the hold and use
+	-- buttons have shipped (their prize ids are new saved ids)
 	"journeys", -- #4544: Roblox Journey events (shared/Journeys); on once the configs are published in Creator Hub
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 }
@@ -221,6 +223,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	earlyKindBonus = true,
 	returnHookEarly = true,
 	journeys = true,
+	toys = true,
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

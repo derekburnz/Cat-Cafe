@@ -11,7 +11,8 @@
 -- attribute Toys.ATTRIBUTE (a respawn starts with none); UseToy() uses it, at most once every Toys.COOLDOWN seconds and
 -- never in a catch, a rescue or a flight or with a cat in the arms, and tells the players within Toys.RANGE with
 -- ToyUsed. Fun only: a use changes nothing on the server and touches no other player. The client clones the model and
--- plays the effect.
+-- plays the effect. All of it waits behind the toys switch (Toys.FLAG) as well: off, no toy card shows, a toy buy is
+-- refused and HoldToy and UseToy do nothing.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -48,8 +49,8 @@ local function onBuy(player: Player, rawId: unknown)
 		return
 	end
 	local prize = TicketBooth.prize(id)
-	if prize == nil then
-		return
+	if prize == nil or (prize.toy ~= nil and not LiveFlagService.on(Toys.FLAG)) then
+		return -- unknown, or a toy while the toys switch is off (its card is not shown)
 	end
 	if prize.weekly ~= nil and prize.weekly.kind == "decor" then
 		local item = prize.weekly.item
@@ -143,6 +144,7 @@ local function onHold(player: Player, rawId: unknown)
 		toy == nil
 		or profile == nil
 		or not LiveFlagService.on(TicketBooth.FLAG)
+		or not LiveFlagService.on(Toys.FLAG)
 		or not Toys.owns(profile.tickets, toy)
 	then
 		character:SetAttribute(Toys.ATTRIBUTE, nil)
@@ -163,6 +165,7 @@ local function onUse(player: Player)
 	if
 		toy == nil
 		or not LiveFlagService.on(TicketBooth.FLAG)
+		or not LiveFlagService.on(Toys.FLAG)
 		or not Toys.owns(profile.tickets, toy)
 	then
 		character:SetAttribute(Toys.ATTRIBUTE, nil) -- the switch went off, or nothing owned is in hand

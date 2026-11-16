@@ -184,12 +184,13 @@ return function()
 							or key == "earlyKindBonus" -- #4624
 							or key == "returnHookEarly" -- #4626
 							or key == "journeys" -- #4544
+							or key == "toys" -- #4061
 							or key == "giftCard" -- #4527
 							or key == "storeGuard" -- #4472
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(47) -- #4654: 56 less the 11 shipped switches retired in batches 1 to 3, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544)
+				expect(count).to.equal(48) -- #4654: 56 less the 11 shipped switches retired in batches 1 to 3, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544) and toys (#4061)
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)

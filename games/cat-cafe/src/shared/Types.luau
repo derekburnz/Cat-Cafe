@@ -447,6 +447,10 @@ export type LureDef = {
 	description: string,
 	odds: LureOdds, -- percentages summing to 100, shown before purchase
 	asset: string, -- food model shown in the bowl while the lure is active
+	-- #4900: a Secret tier food's share of its rolled Mythicals that turn Secret (Catalog.secretPerMythical else),
+	-- shown on its odds line as its own Secret %
+	secretShare: number?,
+	needsTier: number?, -- #4900: the night dealer sells it only from this tier (the Day Cart's row has its own)
 }
 
 -- A Cafe Crate (F53, golden-fish.md section 4): ten cosmetics of one pool, opened at the Golden Fish Market. The
@@ -1630,7 +1634,7 @@ export type PlayerState = {
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
-	firstBait: boolean?, -- #1895: no bait set yet on this account, so the next waits at most FirstBaitWaitSeconds
+	firstBait: boolean?, -- #1895: no bait set yet on this account, so the next waits at most FirstBaitReadySeconds
 	-- #1893: the Grand Opening roadmap's milestones done and whether it is over; the strip shows from tutorialStep 5
 	-- while finished is not true (a save already at Tier 3 when it shipped is finished)
 	grandOpening: GrandOpeningState?,
@@ -1650,7 +1654,7 @@ export type PlayerState = {
 	traits: TraitsView?,
 	-- #4195: the Admin Wheel that is up now (AdminWheel.view): its event's id and end, and whether this account has
 	-- spun it; nil with no wheel up
-	adminWheel: { eventId: string, spun: boolean, endsAt: number }?,
+	adminWheel: { eventId: string, spun: boolean, endsAt: number, spins: number, left: number }?, -- #4876 spins, left
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

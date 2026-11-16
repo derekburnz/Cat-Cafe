@@ -61,7 +61,6 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
-local QuietStartService = require(script.Parent.QuietStartService)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
@@ -2208,12 +2207,7 @@ local function onRankUp(player: Player)
 		),
 		"good"
 	)
-	-- #4005: not on a new player's screen in their quiet start
-	QuietStartService.fireAll(
-		player,
-		"Announce",
-		string.format("%s's cafe is now a %s!", player.DisplayName, def.name)
-	)
+	-- #4872 (Derek, 2026-11-16): rank ups are told only to the player (the toast above), never to the whole server
 	giveLawnGifts(player, profile) -- F91: a Garden Bench at Tier 2, an Umbrella Table at Tier 3
 	CafeService.autoEquip(player, profile) -- #1534: the new slots take the best resting cats
 	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))

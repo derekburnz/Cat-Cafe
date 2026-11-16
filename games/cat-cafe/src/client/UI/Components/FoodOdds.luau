@@ -50,17 +50,38 @@ end
 
 FoodOdds.percent = percent
 
-function FoodOdds.line(odds: Types.LureOdds?): string
+-- #4900: the shares to show, rarity by rarity. A Secret tier food (LureDef.secretShare) turns that part of its
+-- Mythicals Secret, so Mythical shows the rest and Secret its own share after it, as the server rolls (Catching.secret).
+type Share = { rarity: string, share: number }
+
+local function shares(odds: Types.LureOdds, secretShare: number?): { Share }
+	local out: { Share } = {}
+	for _, rarity in RARITIES do
+		local name: string = rarity
+		local share = (odds :: any)[name]
+		if type(share) == "number" then
+			if name == "Mythical" and secretShare ~= nil and secretShare > 0 then
+				local mythical: Share = { rarity = name, share = share * (1 - secretShare) }
+				local secret: Share = { rarity = "Secret", share = share * secretShare }
+				table.insert(out, mythical)
+				table.insert(out, secret)
+			else
+				local row: Share = { rarity = name, share = share }
+				table.insert(out, row)
+			end
+		end
+	end
+	return out
+end
+
+function FoodOdds.line(odds: Types.LureOdds?, secretShare: number?): string
 	if not odds then
 		return "Odds: not set"
 	end
 	assert(odds, "odds not set")
 	local parts: { string } = {}
-	for _, rarity in RARITIES do
-		local share = (odds :: any)[rarity]
-		if type(share) == "number" then
-			table.insert(parts, ("%s %s"):format(percent(share), rarity))
-		end
+	for _, row in shares(odds, secretShare) do
+		table.insert(parts, ("%s %s"):format(percent(row.share), row.rarity))
 	end
 	return "Odds: " .. table.concat(parts, " · ")
 end
@@ -68,18 +89,19 @@ end
 -- The card's odds row for a RichText label: "Common 70%   Rare 25%   ..." with each part in its rarity's colour.
 -- `hexOf` gives that colour as hex (the screens pass Theme.rarityInk), since this module loads without Theme.
 -- A no-break space joins each name to its share, so a wrapped row never leaves "Rare" and "25%" apart (N229).
-function FoodOdds.rich(odds: Types.LureOdds?, hexOf: (rarity: string) -> string): string
+function FoodOdds.rich(
+	odds: Types.LureOdds?,
+	hexOf: (rarity: string) -> string,
+	secretShare: number?
+): string
 	if not odds then
 		return "Odds: not set"
 	end
 	assert(odds, "odds not set")
 	local parts: { string } = {}
-	for _, rarity in RARITIES do
-		local share = (odds :: any)[rarity]
-		if type(share) == "number" then
-			local part = rarity .. NBSP .. percent(share)
-			table.insert(parts, ('<font color="#%s">%s</font>'):format(hexOf(rarity), part))
-		end
+	for _, row in shares(odds, secretShare) do
+		local part = row.rarity .. NBSP .. percent(row.share)
+		table.insert(parts, ('<font color="#%s">%s</font>'):format(hexOf(row.rarity), part))
 	end
 	return table.concat(parts, "   ")
 end

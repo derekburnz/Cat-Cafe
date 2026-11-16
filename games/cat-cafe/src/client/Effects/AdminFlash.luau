@@ -453,7 +453,9 @@ local function frame()
 	if shownId ~= nil and (not running or (current ~= nil and current.id ~= shownId)) then
 		endEvent(made)
 	end
-	if running and current ~= nil and shownId == nil then
+	-- #4830 (Sync's Studio read: a returning save never saw the running event, as its splash time passed under the
+	-- UI's hold at load): the event counts as seen only once the middle is free, so the splash plays then
+	if running and current ~= nil and shownId == nil and not quiet() then
 		shownId, seenAt, shownTitle = current.id, now, current.title
 		earned, earnedShown = 0, 0
 		countsMoney = AdminFlashLogic.countsMoney(current)
@@ -465,10 +467,11 @@ local function frame()
 	setLook(if running then AdminFlashLogic.lookOf(current) else nil)
 
 	local hidden = TradeUnlock.blocked() or TradeUnlock.playing()
-	made.splash.Enabled = not hidden
-	made.low.Enabled = not hidden
-
+	-- #4953 (Derek, #4877: no admin event UI in the walk-through or the first 5 minutes): while the UI holds the
+	-- screen quiet, the low strip hides too, and comes back as the hold ends (the splash does not replay)
 	local calm = quiet()
+	made.splash.Enabled = not hidden
+	made.low.Enabled = not hidden and not calm
 	local step = AdminFlashLogic.step(current, now, seenAt, p, calm)
 	local spec = p.looks[AdminFlashLogic.lookOf(current) or ""]
 		or p.looks[AdminFlashLogic.DEFAULT_LOOK]
@@ -519,7 +522,9 @@ local function frame()
 		local last = step.last
 		if last and not wasLast then
 			wasLast = true
-			beat("last")
+			if not calm then
+				beat("last") -- no last-minute sound for a strip the hold keeps hidden
+			end
 		end
 		made.stripFill.Color = if last
 			then ColorSequence.new(p.lastTop, p.lastBottom)

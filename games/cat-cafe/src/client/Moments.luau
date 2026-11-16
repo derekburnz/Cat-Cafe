@@ -147,6 +147,10 @@ local Moments = {
 	-- #2946: (bowl position, seconds) the first bait's cat starts eating in its cutscene (Effects/FirstBaitCut), for
 	-- the purr at the bowl (Sound, #2951).
 	FirstBaitEat = Signal.new() :: Signal.Signal<Vector3, number?>,
+	-- First minute (Effects/FirstMinuteFx, once a session each): (rarity) the first bowl cat's bait card popped in,
+	-- for its rarity jingle (Sound); the walk-through's first net catch, for a cheer (Sound).
+	FirstBowlCard = Signal.new() :: Signal.Signal<string?>,
+	FirstCatchCheer = Signal.new() :: Signal.Signal<()>,
 	-- #3062 Circle Streak's ArcadeStart, ArcadeMilestone and ArcadeEnd went with the game (#4722); UIController's
 	-- arcadeMoment skips a name with no signal.
 	-- #3296 Mouse Dash (the second Cat Arcade game), fired by UIController's Mouse Dash window for the sounds

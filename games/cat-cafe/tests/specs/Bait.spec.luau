@@ -142,7 +142,9 @@ return function()
 			"the account's first bait waits at most 2 minutes, later ones as usual (#1895)",
 			function()
 				expect(Config.FirstBaitWaitSeconds).to.equal(5) -- #3161: was 1 (#2946), 45 (#2774), 120 before
-				expect(Bait.firstWait(600, 0)).to.equal(5)
+				expect(Config.FirstBaitReadySeconds).to.equal(3) -- #4920: the Tame card as the shorter cut ends
+				expect(Bait.firstWait(600, 0)).to.equal(3)
+				expect(Bait.isFirst(1000, 1000 + Bait.firstWait(600, 0), 1)).to.equal(true)
 				expect(Bait.firstWait(0.5, 0)).to.equal(0.5) -- a speed-up only ever shortens it
 				expect(Bait.firstWait(600, 1)).to.equal(600)
 				expect(Bait.firstWait(480, 7)).to.equal(480)
@@ -179,11 +181,17 @@ return function()
 			end
 		)
 
-		it("leaves the cutscene (about 3.6 s) inside the first bait's timer (#3161)", function()
-			-- camera over 0.5 + the walk 1.6 + the eat 1.0 + camera back 0.5, from when the cat stands at the bowl
-			local out = Bait.catOutAt(0, Config.FirstBaitWaitSeconds, 1)
-			expect(Config.FirstBaitWaitSeconds - out >= 3.6).to.equal(true)
-		end)
+		it(
+			"puts the first bait's cat out early enough for the cut to show it walk in (#3161, #4920)",
+			function()
+				-- #4931 shortened the cut to about 2.7 s from the food (touch) and 3.0 s (PC); the claim card waits for
+				-- the cut's end on the client, so the cat only has to be out a second after the food and before ready
+				local ready = Bait.firstWait(600, 0)
+				local out = Bait.catOutAt(0, ready, 1)
+				expect(out).to.equal(1)
+				expect(ready - out >= 2).to.equal(true)
+			end
+		)
 
 		it(
 			"tells a player away from the bowl that the first cat came, not one standing at it (#3161)",
@@ -199,10 +207,10 @@ return function()
 			expect(Bait.wowDue(false)).to.equal(true) -- the first bait (#2793: was the second), or the next for an
 			-- account that set baits before without one
 			expect(Bait.wowDue(true)).to.equal(false) -- had it
-			expect(Bait.WOW_EPIC_CHANCE).to.be.near(0.15, 1e-12)
-			expect(Bait.wowRarity("Common", 0.5)).to.equal("Rare")
-			expect(Bait.wowRarity("Common", 0.149)).to.equal("Epic")
-			expect(Bait.wowRarity("Common", 0.15)).to.equal("Rare")
+			expect(Bait.WOW_EPIC_CHANCE).to.be.near(0.35, 1e-12) -- #4920: was 0.15
+			expect(Bait.wowRarity("Common", 0.6)).to.equal("Rare")
+			expect(Bait.wowRarity("Common", 0.349)).to.equal("Epic")
+			expect(Bait.wowRarity("Common", 0.35)).to.equal("Rare")
 			for _, rarity in { "Rare", "Epic", "Legendary", "Mythical" } do
 				expect(Bait.wowRarity(rarity :: any, 0)).to.equal(rarity)
 			end

@@ -765,12 +765,12 @@ return function()
 								{
 									lureId = food,
 									placedAt = now,
-									-- #4188: the account's first food comes within FirstBaitWaitSeconds (Bait.firstWait)
+									-- #4188: the account's first food comes within FirstBaitReadySeconds (Bait.firstWait)
 									readyAt = now + (if profile.stats.baitsTamed == 0
 											and run.firstBaitAt == nil
 										then math.min(
 											baitWait(not day),
-											Config.FirstBaitWaitSeconds
+											Config.FirstBaitReadySeconds
 										)
 										else baitWait(not day)),
 									night = if day then nil else true,

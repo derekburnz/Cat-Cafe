@@ -419,6 +419,13 @@ local function areasShut(): boolean
 	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
 end
 
+-- #4916 (Sync's Studio run of #4917: the night Common waited 22 studs away with no strip, marker or trail): for the
+-- walk-through's Alleyway steps the areas are open to a night pass holder (the server's NightPass attribute)
+local function areasShutForMe(): boolean
+	local me = Players.LocalPlayer
+	return areasShut() and not (me ~= nil and me:GetAttribute("NightPass") == true)
+end
+
 -- #2912 (shared/StuckGoal): the stuck cat pointer after the first bait cat. `shownAt` is when it first showed this
 -- session, `rescuing` while this player's rescue bar is up, `on` what the goal card was last told.
 local stuckGoal = {
@@ -722,13 +729,23 @@ local function refreshTutorial(s: Types.PlayerState)
 			Net.fire("TelemetryReport", TutorialOrder.REPORT, key)
 		end
 		if bait ~= nil and bait.cat ~= nil then
-			showTutorial(s, "Your bowl cat is here! Tame it", UIController.ownBaitBowl(), "Bowl")
+			showTutorial(
+				s,
+				deviceLine("arrived", "Click Tame to keep your cat. It earns you money!"),
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
 		elseif bait ~= nil then
-			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+			showTutorial(
+				s,
+				deviceLine("waiting", "A cat smells your food. It's on its way!"),
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
 		else
 			showTutorial(
 				s,
-				deviceLine("food", "Put Kibble in your bowl on the back step"),
+				deviceLine("food", "Press F, then Use on Kibble to call a cat"),
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)
@@ -762,7 +779,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			showTutorial(s, RankFirst.line(device))
 		elseif
 			not SecondCat.done(s.stats, true)
-			and not areasShut()
+			and not areasShutForMe()
 			and (UI.cannon :: any).area == "alley"
 		then
 			-- #4808 (Derek 2026-11-16: "for tutorial the steps towards cat and pointing to the net on phone is
@@ -772,8 +789,12 @@ local function refreshTutorial(s: Types.PlayerState)
 			-- Alleyway (camp included): before the flight the cannon hint and its lit button lead (Sync on #4816).
 			-- Straight to UI.tutorial.show: the hint's step 2 line would ask for a job here.
 			local stray = nearestAlleyStray()
+			-- #4926: what to do and why, by the cats still to catch (the tamed bowl cat counts as one)
+			local left = SecondCat.CATS - SecondCat.progress(s.stats, true)
 			UI.tutorial.show(
-				deviceLine("catch", "Follow the trail and catch the cat! Click by it"),
+				if left >= 2
+					then deviceLine("alleyCatch2", "Catch 2 cats to rank up! Click by one")
+					else deviceLine("alleyCatch", "Catch 1 more cat to rank up! Click by one"),
 				stray or tutorialStrayPoint(),
 				"Cat"
 			)
@@ -790,13 +811,18 @@ local function refreshTutorial(s: Types.PlayerState)
 			end
 		elseif
 			not SecondCat.done(s.stats, true)
-			and not areasShut()
+			and not areasShutForMe()
 			and tutorialWatch.alley == true
 			and (UI.cannon :: any).area == nil
 		then
 			-- #4808 follow-up (Sync's PC run): back in town before the Alleyway catch, the strip and marker lead to
 			-- the Town Square cannon again (the first flight's own hint is over once launched)
-			UI.tutorial.show("Hop in the cannon to fly to the Alleyway!", townCannon(), "Cannon")
+			local CannonLogic = require(script.Parent.Parent.UI.Components.CannonLogic) :: any
+			UI.tutorial.show(
+				CannonLogic.FIRST_FLIGHT .. "wild cats wait in the Alleyway!",
+				townCannon(),
+				"Cannon"
+			)
 		else
 			UI.tutorial.hide()
 		end
@@ -848,11 +874,16 @@ local function refreshTutorial(s: Types.PlayerState)
 		elseif s.bait ~= nil then
 			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
 			-- "waiting", then "arrived")
-			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+			showTutorial(
+				s,
+				deviceLine("waiting", "A cat smells your food. It's on its way!"),
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
 		else
 			showTutorial(
 				s,
-				deviceLine("food", "Put Kibble in your bowl on the back step"),
+				deviceLine("food", "Press F, then Use on Kibble to call a cat"),
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)
@@ -1335,7 +1366,8 @@ end
 
 -- #4821 (shared/QuietStart.firstCatHolds): under bowl first, the pop-ups wait until the first bowl cat is claimed and
 -- FIRST_CAT_AFTER seconds more. `before` is the last sync's answer; `claimedAt` the clock when it turned false here.
-local firstCat = { before = false, claimedAt = nil :: number?, held = false }
+-- `tutorial` (QuietStart.tutorialHolds, Derek 2026-11-16 15:22 UTC): the softer hold through the rest of the tutorial.
+local firstCat = { before = false, claimedAt = nil :: number?, held = false, tutorial = false }
 local function firstCatHold(s: Types.PlayerState)
 	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
 	local QuietStart = require(Shared:WaitForChild("QuietStart")) :: any
@@ -1359,6 +1391,12 @@ local function firstCatHold(s: Types.PlayerState)
 	if held ~= firstCat.held then
 		firstCat.held = held
 		UI.setFirstCatHold(held)
+	end
+	local tutorial = QuietStart.tutorialHolds(TutorialOrder.bowlFirst(), s.tutorialStep, s.tier)
+		== true
+	if tutorial ~= firstCat.tutorial then
+		firstCat.tutorial = tutorial
+		UI.setTutorialHold(tutorial)
 	end
 end
 
@@ -1812,6 +1850,9 @@ local function wireIntents()
 	local dropCat = (UI.events :: any).dropCat
 	if dropCat ~= nil then
 		dropCat:Connect(function()
+			if firstCat.tutorial then
+				return -- #4832 (Derek 2026-11-16): no dropping in the tutorial, the G key and the d-pad included
+			end
 			local character = player.Character
 			local root = if character ~= nil
 				then character:FindFirstChild("HumanoidRootPart")
@@ -2536,8 +2577,10 @@ local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
 	end
-	if firstCat.held then
-		return false -- #4821: no asks (notifications, favorite, like, invite, the event's) before the first cat
+	if firstCat.held or firstCat.tutorial then
+		-- #4821: no asks (notifications, favorite, like, invite, the event's Notify Me) before the first cat, and
+		-- (Derek 2026-11-16 15:22 UTC) none until the walk-through is done
+		return false
 	end
 	if AfkController.rejoinQuiet() then
 		return false -- #3602: away since before an automatic rejoin; asks wait for the first input
@@ -3351,6 +3394,9 @@ local function wireServerEvents()
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
 				return
 			end
+			if firstCat.tutorial then
+				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through; the gift still comes
+			end
 			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
 	)
@@ -3605,6 +3651,8 @@ function UIController.start()
 	-- event's banner and splash at 4 s on a fresh save); that sync clears it for anyone past the bowl part
 	firstCat.held = true
 	UI.setFirstCatHold(true)
+	firstCat.tutorial = true
+	UI.setTutorialHold(true)
 	if state ~= nil then
 		firstCatHold(state)
 	end

@@ -451,6 +451,9 @@ export type CustomEvent =
 	-- from the world ready on this session's client (the "loaded" step; the join when that never came); the device,
 	-- the cat's rarity
 	| "first_cat_owned"
+	-- #4945: once a session, a phone or tablet that tripped the lighter effects budget (client Effects, Logic.slowStep);
+	-- value the seconds from the join; the device, the slow windows' average fps, "low" or "std" (Low performance)
+	| "fx_lite"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -551,6 +554,7 @@ local REPORTS = {
 	LoadingTest.SEEN_REPORT, -- #4314: the whole seconds the loading screen was up (0 to LoadingTest.SEEN_MAX), once
 	PerfWatch.READY, -- #4783: seconds from the client's first script line to the world ready (client_load), once
 	PerfWatch.FPS, -- #4783: the average fps up to a mark (PerfWatch.encode), once a mark a session (client_fps)
+	"fx_lite", -- #4945: the lighter effects budget tripped, seconds x 100 + fps (Effects Logic.liteReport), once
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -706,6 +710,7 @@ type Session = {
 	loadLogged: boolean, -- #4783: client_load logged this session
 	loadPending: { seconds: number, bucket: string }?, -- #4783: client_load's, held until the device report comes
 	fpsLogged: { [number]: boolean }, -- #4783: client_fps marks logged this session
+	liteLogged: boolean, -- #4945: fx_lite logged this session
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -949,6 +954,12 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 		return
 	end
 	if introSkip ~= nil and introSkip(player) then
+		introChecked[player] = false
+		return
+	end
+	-- #4929 (Derek's first minute goal, Sync's stopwatch: 22 s of loading and intro before the first press): with the
+	-- noIntro switch on, no intro plays by itself; the bowl step comes at once and the intro stays on the Tutorial tile
+	if LiveFlagService.on(IntroSplit.NO_INTRO) then
 		introChecked[player] = false
 		return
 	end
@@ -2574,6 +2585,26 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				low .. ":q" .. tostring(quality),
 			})
 		end
+	elseif name == "fx_lite" then
+		-- #4945: once a session; seconds 0 to 3600 and fps 0 to 60, else dropped
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue < 360100
+			and not session.liteLogged
+		then
+			local value = math.floor(rawValue :: number)
+			local seconds, fps = value // 100, value % 100
+			if fps <= 60 then
+				session.liteLogged = true
+				Telemetry.custom(player, "fx_lite", seconds, {
+					session.device or "unknown",
+					tostring(fps),
+					if profile.settings.lowPerformance then "low" else "std",
+				})
+			end
+		end
 	elseif name == "health_fps" then
 		if
 			type(rawValue) == "number"
@@ -2947,6 +2978,7 @@ local function onLoaded(player: Player, profile: Profile)
 		loadingSeen = false,
 		loadLogged = false,
 		fpsLogged = {},
+		liteLogged = false,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any

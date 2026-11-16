@@ -55,7 +55,8 @@ return function()
 		)
 
 		it("fits Design-Agent's timing and always gives the camera back", function()
-			expect(near(c.swingIn + c.walk + c.eat + c.swingOut, 3.6)).to.equal(true)
+			-- #4920: 2.2 s of cut, plus the cat out 0.3 s after the food, is the 2.5 s the Tame card waits for
+			expect(near(c.swingIn + c.walk + c.eat + c.swingOut, 2.2)).to.equal(true)
 			-- the longest run: the cat comes at the last moment, then walks, eats and swings back, inside the cap
 			expect(c.waitCat + c.walkMax + c.eat + c.swingOut <= c.cap).to.equal(true)
 			expect(c.skipAfter >= 0.3).to.equal(true) -- the bait press itself can't skip it

@@ -8,11 +8,12 @@ return function()
 
 	describe("First minutes (#2774)", function()
 		it(
-			"brings the account's first bait in 5 seconds (#3161; 1 and 45 before) and leaves later ones alone",
+			"brings the account's first bait in 3 seconds (#4920; 5, 1 and 45 before) and leaves later ones alone",
 			function()
-				expect(Config.FirstBaitWaitSeconds).to.equal(5) -- #3161: was 1 (#2946), 45
-				expect(Bait.firstWait(600, 0)).to.equal(5)
-				expect(Bait.firstWait(300, 0)).to.equal(5)
+				expect(Config.FirstBaitWaitSeconds).to.equal(5) -- #3161: was 1 (#2946), 45; Bowl Frenzy's floor
+				expect(Config.FirstBaitReadySeconds).to.equal(3) -- #4920
+				expect(Bait.firstWait(600, 0)).to.equal(3)
+				expect(Bait.firstWait(300, 0)).to.equal(3)
 				expect(Bait.firstWait(600, 1)).to.equal(600)
 			end
 		)

@@ -414,7 +414,11 @@ local function pawsBonus(player: Player): number
 	local traits = if profile ~= nil then M.Economy.traitBonus(profile, "speed") else 0
 	-- #4447: the Dragon Keep's wing cards and set, inside DragonKeep.WALK_CAP
 	local dragon = if profile ~= nil then M.DragonKeep.of(profile).walk else 0
-	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG)) + traits + dragon
+	-- #4878: Speed Rush, +10 for everyone while it runs (walking and carrying; never the catch rush)
+	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG))
+		+ traits
+		+ dragon
+		+ EventService.speedRushWalk()
 end
 
 -- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned, the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
@@ -425,8 +429,7 @@ local function carrySpeed(player: Player): number
 		M.Config.CarryWalkSpeed + paws,
 		M.Config.NormalWalkSpeed + paws,
 		M.DataService.get(player),
-		true, -- #4654 batch 7: the `speedShoes` switch is retired
-		EventService.speedRush() -- #4197: Speed Rush lends everyone the shoes
+		true -- #4654 batch 7: the `speedShoes` switch is retired
 	)
 end
 
@@ -981,9 +984,10 @@ local function spawnAt(
 	return stray
 end
 
--- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84).
-local function tutorialPoints(): { number }
-	local area = world.areas[TUTORIAL_AREA]
+-- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84). #4920: another
+-- area's with `areaId` (the Park's, for the walk-through's Park trip at night).
+local function tutorialPoints(areaId: string?): { number }
+	local area = world.areas[areaId or TUTORIAL_AREA]
 	local list: { number } = {}
 	if area ~= nil then
 		for i, point in area.spawnPoints do
@@ -1035,7 +1039,22 @@ local function tutorialTick()
 			-- a new one within a tick of the last being caught. Not reserved and no easy catch: the Beginner
 			-- attribute would give them the tutorial's "Try again!" and swing help on the client.
 			-- #3659: and so does a Tier 1 player who has not caught a cat by hand yet, in any session
-			if night and NightPass.nightCatOf(profile, nightCatch) then
+			if
+				night
+				and M.Economy.tier(profile) == NightPass.WALK_TIER
+				and NightPass.walkOf(profile)
+			then
+				-- #4920 (Sync's night run 2026-11-16): the walk-through's Park trip at night (#4916's pass flies it
+				-- there) finds one Common at a Park `near` point, a kind the save lacks, as Tier 1 does in the Alleyway
+				nightHolders[player.UserId] = true
+				local points = tutorialPoints(NightPass.PARK_AREA)
+				local point = if #points > 0 then points[(plot.index - 1) % #points + 1] else nil
+				local taken = occupiedPoints[NightPass.PARK_AREA] or {}
+				if point ~= nil and taken[point] == nil then
+					spawnAt(NightPass.PARK_AREA, point, "Common", nil, profile.collection).nightFor =
+						player.UserId
+				end
+			elseif night and NightPass.nightCatOf(profile, nightCatch) then
 				nightHolders[player.UserId] = true
 				local point = near[plot.index]
 				if point ~= nil and occupied[point] == nil then
@@ -1853,7 +1872,7 @@ end
 
 -- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear), at spawn, after the buy and whenever they came off
 -- (keepBackpack's check); every player sees them. Without them, none.
--- #4197: while Speed Rush runs everyone wears a pair, put on and taken off at its start and end (CatService.start).
+-- #4878: Speed Rush no longer lends a pair (it adds walk speed, pawsBonus); a pair it lent before comes off at its end.
 local function keepShoes(player: Player)
 	local character = player.Character
 	if character == nil or character.Parent == nil then
@@ -1863,7 +1882,7 @@ local function keepShoes(player: Player)
 	if humanoid == nil or humanoid.Health <= 0 then
 		return
 	end
-	local want = SpeedShoes.owns(M.DataService.get(player)) or EventService.speedRush()
+	local want = SpeedShoes.owns(M.DataService.get(player))
 	local old = character:FindFirstChild(SpeedShoes.WORN)
 	if old ~= nil and want and SpeedShoes.onFeet(old, character) then
 		return
@@ -2663,7 +2682,7 @@ function startCatch(
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial
-		then Circles.tutorialTrust()
+		then Circles.tutorialTrust(#circles) -- #4845: a held first catch runs 3 rings and lands on the last
 		else Circles.trustFor(stray.def.rarity, M.Moods.trustBonus(stray.curiousAt, now))
 	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
@@ -3722,7 +3741,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		keepShoes(player) -- #4050
 	end)
 
-	-- #4197: Speed Rush starts or ends: everyone's shoes and carry speed follow at once
+	-- #4197/#4878: Speed Rush starts or ends: everyone's walk speed follows at once
 	local rushing = EventService.speedRush()
 	EventService.adminChanged:Connect(function()
 		local now = EventService.speedRush()

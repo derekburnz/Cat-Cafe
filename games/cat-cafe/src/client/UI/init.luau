@@ -4612,6 +4612,9 @@ end
 -- limit for one function's locals; the module was at 196). Its tables are made out here, so every use of them
 -- type checks.
 UI.catch = {}
+-- #4973: a tutorial Miss keeps the HUD aside until its circle comes back (finishCatch); `starts` counts the circles
+-- shown, `token` the results, and GRACE is the wait past TutorialRetrySeconds before it gives up on a new circle
+UI.catch.retry = { token = 0, starts = 0, GRACE = 1.0 }
 -- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
@@ -4825,6 +4828,7 @@ do
 		if catch then
 			catch:hide() -- activePrompt and activeInfo stay so the card can come back
 		end
+		UI.catch.retry.starts += 1 -- #4973: a tutorial Miss's held HUD stays down for this circle
 		if hud then
 			hud:setCatching(true)
 		end
@@ -4888,14 +4892,45 @@ do
 		-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD
 		-- comes back the moment the result arrives. It waited for the result word before (0.4 s, and 0.6 s more for
 		-- the net wrap on a catch); the word still flashes over it.
-		if hud then
-			hud:setCatching(false)
+		-- #4973 (Derek 2026-11-16: "during the tutorial catching the tutorial steps (even tho all ui is supposed to be
+		-- hidden) will flash through"): a Miss on this player's own tutorial stray (outcome.hint) brings its circle back
+		-- by itself after TutorialRetrySeconds (CatService.tutorialMiss), so the HUD, its strip and the catch card stay
+		-- aside through that gap. Should no circle come (walked off, no press reached the server) they come back after
+		-- RETRY_GRACE more.
+		local retry = UI.catch.retry
+		retry.token += 1
+		local held = not outcome.success and outcome.hint ~= nil
+		local token, starts = retry.token, retry.starts
+		local function back()
+			if hud then
+				hud:setCatching(false)
+			end
+		end
+		local function card()
+			local info = activeInfo
+			local prompt = catch
+			if not outcome.success and activePrompt ~= nil and info ~= nil and prompt ~= nil then
+				prompt:show(info)
+			end
+		end
+		if held then
+			task.delay(Config.TutorialRetrySeconds + retry.GRACE, function()
+				local cards: any = UI -- UI.rescue is built further down
+				if
+					retry.token == token
+					and retry.starts == starts
+					and not cards.rescue.isActive()
+				then
+					back()
+					card()
+				end
+			end)
+		else
+			back()
 		end
 		screen:showResult(outcome, function()
-			local info = activeInfo
-			local card = catch
-			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
-				card:show(info)
+			if not held then
+				card()
 			end
 		end)
 	end

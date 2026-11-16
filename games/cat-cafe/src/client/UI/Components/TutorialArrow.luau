@@ -48,6 +48,11 @@ TutorialArrow.EDGES_NAME = "CatCafeTutorialSpotEdges"
 local spotFor: GuiObject? = nil
 local spotSince = 0
 local lead = false
+-- #4920 (Sync's stopwatch runs 2026-11-16: after RANK UP the arrow flashed on the Tutorial tile's X and the goal card
+-- for 0.2 to 0.4 s): a `low` target takes the arrow only once no tutorial target has led for LOW_SETTLE seconds, so
+-- the gap between one step's button and the next (a window opening) never shows it
+TutorialArrow.LOW_SETTLE = 0.8
+local leadAt = -math.huge -- os.clock() when a tutorial (not `low`) target last had the arrow
 local loop: RBXScriptConnection? = nil
 -- the other buttons the arrow should keep off, measured again every OTHERS_SECONDS (a walk of the whole ScreenGui)
 local OTHERS_SECONDS = 0.5
@@ -375,6 +380,12 @@ local function update()
 		end
 	end
 	if chosen == nil or gui == nil or not TutorialArrowLogic.showing(now - chosen.since) then
+		hide()
+		return
+	end
+	if not chosen.low then
+		leadAt = now
+	elseif now - leadAt < TutorialArrow.LOW_SETTLE then
 		hide()
 		return
 	end

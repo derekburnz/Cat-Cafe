@@ -35,6 +35,18 @@ return function()
 			end
 		)
 
+		it("has a Floor slab under the whole set and every stray spot", function()
+			local size = HarvestWorld.FLOOR_SIZE
+			expect(size.X >= 150 and size.Z >= 120 and size.Y > 0).to.equal(true)
+			for _, spot in HarvestWorld.spawns do
+				expect(math.abs(spot.X - HarvestWorld.CENTER.X) <= size.X / 2).to.equal(true)
+				expect(math.abs(spot.Z - HarvestWorld.CENTER.Z) <= size.Z / 2).to.equal(true)
+			end
+			local landing = HarvestWorld.landingPoint()
+			expect(math.abs(landing.X - HarvestWorld.CENTER.X) <= size.X / 2).to.equal(true)
+			expect(math.abs(landing.Z - HarvestWorld.CENTER.Z) <= size.Z / 2).to.equal(true)
+		end)
+
 		it("lands a trip on the player spawn inside the fence, south of the patch", function()
 			local landing = HarvestWorld.landingPoint()
 			expect(math.abs(landing.X - HarvestWorld.CENTER.X) <= 75).to.equal(true)

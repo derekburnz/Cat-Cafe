@@ -39,6 +39,9 @@ HarvestWorld.ARRIVAL_TAG = "HarvestArrival"
 
 -- The set's centre on its floor: south-west of the Alley, clear of every area (the Water Park mirrors it at +2400).
 HarvestWorld.CENTER = Vector3.new(-2400, 0, -2400)
+-- Sync's Studio run (players fell through): the set is ground paint only, like the Snowy and Castle sets, so the area
+-- gets its own invisible Floor slab, the set's 150 x 120 (Model-Agent), its top at CENTER.Y
+HarvestWorld.FLOOR_SIZE = Vector3.new(150, 4, 120)
 -- The arch in the Town Square's north-west quarter, facing the cannon (Model-Agent's world scan on #4397): 2 studs or
 -- more clear all round, with a 12 wide path from the opening to the cannon between the Arcade Cabinet's ring and the
 -- Spin Wheel's. (-46, 30) had the Arcade Cabinet 6.5 studs in front of the opening.
@@ -232,6 +235,15 @@ function HarvestWorld.buildArea(parent: Instance): (Folder, any)
 	local folder = Instance.new("Folder")
 	folder.Name = "HarvestHollow"
 	local set = place(HarvestWorld.SET, CFrame.new(HarvestWorld.CENTER), folder)
+	local floor = invisible(
+		"Floor",
+		HarvestWorld.FLOOR_SIZE,
+		CFrame.new(HarvestWorld.CENTER - Vector3.new(0, HarvestWorld.FLOOR_SIZE.Y / 2, 0)),
+		folder
+	)
+	floor.CanCollide = true
+	floor.CanQuery = true -- raycasts for footing and the loading screen's ground check find it
+	floor.CanTouch = false
 	local stall = place(HarvestWorld.STALL, CFrame.new(world(POINTS.stall)), folder)
 	if stall ~= nil then
 		prompt("HarvestStallPrompt", "Shop", "Harvest Stall", stall)

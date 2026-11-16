@@ -72,9 +72,6 @@
 -- - `bagColours` (#3699): the Backpack's owner picks its two colours at the Featured Shop (shared/BagColours); off,
 --   SetBagColours is refused, the card has no Colours button and every bag wears the built colours. It starts OFF
 --   (OFF_BY_DEFAULT) and goes on only after a restart, so every server keeps the saved picks.
--- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
---   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
---   it is opened again.
 -- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
 --   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
 --   publish that added the row is running, since an older server's save check drops an item id it does not know.
@@ -133,7 +130,6 @@ LiveFlags.KEYS = {
 	"rankUpSpotlight",
 	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
 	"bagColours",
-	"menuFamily",
 	"speedShoes",
 	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
 	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
@@ -161,6 +157,7 @@ LiveFlags.KEYS = {
 	"deviceFixes", -- the Wed 2026-11-18 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
+	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
 	"moneyCard", -- #4437: the HUD Money button's first tap opens the boost card (UI/Screens/MoneyCard); false prompts at once
 	"autoFirstBait", -- #4452: the starter Kibble goes in bowl 1 by itself at the tutorial's bowl step (shared/SecondCatHelp)
 	"tier2TopUp", -- #4453: the first tamed bait cat's welcome tops coins up to Tier 2's cost once (shared/SecondCatHelp)
@@ -172,6 +169,8 @@ LiveFlags.KEYS = {
 	"catchFirst", -- #4518: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
 	"earlyKindBonus", -- #4624: kinds 2 to 5 pay 3x a Common's new-kind money in Tier 1 (shared/SecondCat); off until the Nov 16 read
 	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
+	"journeys", -- #4544: Roblox Journey events (shared/Journeys); on once the configs are published in Creator Hub
+	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -194,7 +193,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkGateTrail = true,
 	rankUpSpotlight = true,
 	bagColours = true,
-	menuFamily = true,
 	speedShoes = true,
 	storeRework = true,
 	quietAway = true,
@@ -220,6 +218,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	fusion = true,
 	earlyKindBonus = true,
 	returnHookEarly = true,
+	journeys = true,
+	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

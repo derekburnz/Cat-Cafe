@@ -27,8 +27,6 @@ Remotes.ClientToServer = {
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
 	"UnequipAll", -- ()  rests every working cat in the cat room (shared/EquipBest.restAll)
-	"SellCat", -- (uid: string)  2026-11-13: cats are not sold; the server only answers with a toast
-	"SellExtraCommons", -- ()  2026-11-13: the same, for #1573's old Sell extras
 	"LockCat", -- (uid: string, locked: boolean)  F62: owns uid; a locked cat cannot be sold or traded
 	"LockDecor", -- (pieceId: string, locked: boolean)  #1574: an owned Legendary and up decor or lawn piece; a locked
 	-- piece cannot be traded, and one on offer cannot be locked; 4 a second
@@ -139,8 +137,6 @@ Remotes.ClientToServer = {
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
 	"UsePotionAll", -- ()  #3326: the Bag's "Use all potions": every kind in the bag, as many as fit under
 	-- PotionMaxMinutes each (Potions.useAll); one toast and one ProfileSync, or a toast when nothing fits; 1 per 2 s
-	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
-	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, from
 	-- anywhere (#3216, his banner opens the card); on accept the cat he asks for is still owned, resting, unlocked and not the
 	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")

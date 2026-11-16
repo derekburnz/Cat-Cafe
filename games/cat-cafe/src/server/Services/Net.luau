@@ -100,7 +100,6 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
 	UsePotion = RateLimiter.new(2, 1), -- data-model section 15: 2 a second
 	UsePotionAll = RateLimiter.new(1, 2), -- #3326: 1 per 2 s; one call drinks the whole bag
-	OpenMysteryGift = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	AnswerCollector = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second
 	RerollQuest = RateLimiter.new(1, 1), -- 1 a second
@@ -138,7 +137,6 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	-- 1 per 2 s the second section's Buy all (or a second press after a partial one) was dropped in silence, so its
 	-- button sat on "Buying..." with nothing bought
 	BuyCornerShopAll = RateLimiter.new(3, 2),
-	SellExtraCommons = RateLimiter.new(1, 2), -- #1573: 1 per 2 s; sells many at once and sends a full sync
 	FeedCat = RateLimiter.new(4, 1), -- #1181: 4 a second
 	PetCat = RateLimiter.new(2, 1), -- #3651: 2 a second; PetService also holds one pet each PetCooldownSeconds
 	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync

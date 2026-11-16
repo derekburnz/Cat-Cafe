@@ -1394,15 +1394,6 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "GoldColor": {
-         "Color3": [
-          1.0,
-          1.0,
-          1.0
-         ]
-        }
        }
       },
       {
@@ -1668,15 +1659,6 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "GoldColor": {
-         "Color3": [
-          1.0,
-          1.0,
-          1.0
-         ]
-        }
        }
       },
       {

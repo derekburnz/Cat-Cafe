@@ -42,6 +42,7 @@ local REMOTES: { [string]: boolean } = {
 	-- #4104: the Fusion Observatory window
 	StartFusion = true,
 	CollectFusion = true,
+	FuseAll = true, -- #4589
 }
 
 local tracked: { [ProximityPrompt]: boolean } = {}
@@ -111,6 +112,13 @@ function LateStationsController.start()
 		local result = hook("result")
 		if result ~= nil then
 			result(stationId, ok, detail)
+		end
+	end)
+	-- #4589: what one Fuse all made, for the Observatory's summary card
+	Net.on("FusionSummary", function(made: any)
+		local summary = hook("fusionSummary")
+		if summary ~= nil then
+			summary(made)
 		end
 	end)
 	for _, instance in CollectionService:GetTagged(LateStations.TAG) do

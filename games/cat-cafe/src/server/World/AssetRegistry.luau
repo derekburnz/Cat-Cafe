@@ -110,7 +110,10 @@ function AssetRegistry.ensurePlaceholders(): number
 	local assets = AssetRegistry.folder()
 	local created = 0
 	for _, name in Placeholders.names() do
-		if find(name) == nil then
+		-- #4656: a door set whose art is a _Front and a _Back model needs no plain stand-in (CafeService and the
+		-- client's ItemIcon ask for the sided models first)
+		local sided = find(name .. "_Front") ~= nil and find(name .. "_Back") ~= nil
+		if find(name) == nil and not sided then
 			local model = Placeholders.build(name)
 			if model ~= nil then
 				model.Parent = assets

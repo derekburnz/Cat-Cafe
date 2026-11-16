@@ -3085,7 +3085,20 @@ function HUD.render(self: any, state: Types.PlayerState)
 	local step = state.tutorialStep or TUTORIAL_DONE
 	local before: number? = self._stepBefore
 	self._stepBefore = step
-	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
+	-- #4674 (Sync's Studio walk 2026-11-16: a lone "Hide tips with ×" after the bowl cat): bowl first, the walk-through
+	-- goes on at Tier 1 with a quiet strip, so the pulse waits for the rank up to Tier 2 (the Park)
+	local bowlWalk = (require(
+		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
+	) :: any).bowlFirst() and (state.tier or 1) < 2
+	local justDone = before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE
+	if justDone and bowlWalk then
+		self._hideAfterRank = true
+		justDone = false
+	elseif self._hideAfterRank == true and not bowlWalk then
+		self._hideAfterRank = false
+		justDone = step >= TUTORIAL_DONE
+	end
+	if justDone then
 		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
 		-- go first; pulseHide then waits for the HUD to be back on screen
 		task.delay(HIDE_AFTER, function()
@@ -3211,6 +3224,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
+	self._tierProgress = tierProgress -- #4625: the new kinds goal's coins line
 	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
 	local second =
 		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
@@ -3343,7 +3357,7 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 				elseif key == "feedback" then (if self:_mailOn()
 					then self._mailTile
 					elseif self:_afkOn() then self._afkTile
-					else self._feedbackTile)
+					else self._menuTile) -- #4698: Feedback lives in the Menu list
 				elseif key == "invite" then self._menuTile
 				elseif key == "potions" then (if TOUCH
 					then self._pills.Bag
@@ -4784,9 +4798,11 @@ function HUD._afkOn(self: any): boolean
 	return afk ~= nil and afk.shown() == true
 end
 
--- #4249, #4346: Feedback sits in the Menu list (not its own tile) while the Mailbox or the AFK tile shows
+-- #4249, #4346: Feedback sat in the Menu list while the Mailbox or the AFK tile showed. #4698 (Derek 2026-11-16:
+-- "move the feedback button into the settings menu drop down"): it's always in the list once Feedback is open, and
+-- the top row no longer has a Feedback tile.
 function HUD._feedbackInMenu(self: any): boolean
-	return self:_mailOn() or self:_afkOn()
+	return self:_open("feedback") or self:_mailOn() or self:_afkOn()
 end
 
 -- #4346: UI.afk from Controllers/AfkController (shown, on, toggle, changed): the AFK tile shows and follows it.
@@ -5812,7 +5828,14 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 			local title = NewKind.title(newKind, TOUCH)
 			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
 			local opens = GoalLines.opens(self._nextTierName, TOUCH)
-			return { title = title, lines = if opens then { opens } else {}, chip = title }
+			local lines: { string } = if opens then { opens } else {}
+			-- #4625: and the coins half of that tier as a short meter line, until the coins are there
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
 		end
 		return nil
 	end

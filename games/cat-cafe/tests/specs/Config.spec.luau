@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 250, -- #4097: was 850 (#1796: was 50)
+		StartCoins = 1000, -- #4674: was 250 (#4097: was 850; #1796: was 50)
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
@@ -566,6 +566,9 @@ return function()
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
+				GroupJoinTrustSeconds = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetries = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetrySeconds = true, -- #4679: checked in StarterCat.spec
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				StrayFloorBase = true, -- #1159: top-ups, checked in StrayTopUp.spec
 				StrayFloorPerPlayer = true,

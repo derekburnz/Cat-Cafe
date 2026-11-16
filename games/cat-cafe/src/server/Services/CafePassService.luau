@@ -49,6 +49,7 @@ local function tagItems(player: Player, profile: Types.PlayerProfile): { [string
 		items[GrandOpening.TAG] = true -- #1893: the Grand Opening's tag
 	end
 	ChatTags.addAchievementTitles(items, profile.achievements) -- #3694: the big achievements' titles
+	ChatTags.addIndexTitles(items, profile.indexRewards) -- #4709: the Index milestones' titles
 	if TicketBooth.regular(profile.tickets) then
 		items[TicketBooth.REGULAR_TAG] = true -- #4061: the Ticket Booth's Park Regular
 	end

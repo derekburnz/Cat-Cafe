@@ -4,7 +4,7 @@
 -- (shared/Codes), looked up in Catalog.codes and paid once per player through Payout, the code id saved in codesRedeemed before anything is paid. The answer is
 -- CodeResult(ok, message, prize?). After CodeWrongLimit codes that do not exist within CodeWrongWindowSeconds the
 -- box locks for CodeLockSeconds, so nobody can guess codes. A requiresGroup code asks IsInGroupAsync(Config.GroupId) in a
--- pcall, kept GroupCheckSeconds per player. The typed text is never shown to anyone or saved, so it needs no filter.
+-- pcall, kept GroupCheckSeconds per player. Below Codes.MIN_TIER (Tier 2) every code is refused with Codes.TIER. The typed text is never shown to anyone or saved, so it needs no filter.
 -- Nothing about codes is sold. #2119: the live switch `codes` (shared/LiveFlags) set false pauses every code.
 
 local Players = game:GetService("Players")
@@ -14,6 +14,7 @@ local CafeService = require(script.Parent.CafeService)
 local Codes = require(ReplicatedStorage.Shared.Codes)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local Economy = require(ReplicatedStorage.Shared.Economy)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
@@ -65,6 +66,12 @@ local function onRedeemCode(player: Player, raw: unknown)
 	end
 	if not LiveFlagService.on("codes") then
 		answer(player, false, Codes.PAUSED) -- #2119: the live switch is off; nothing counts as a wrong try
+		return
+	end
+	-- Derek 2026-11-15: codes need Tier 2 (Codes.MIN_TIER); not a wrong try either
+	local tierNo = Codes.tierRefusal(Economy.tier(profile))
+	if tierNo ~= nil then
+		answer(player, false, tierNo)
 		return
 	end
 	local guard = guardFor(player)

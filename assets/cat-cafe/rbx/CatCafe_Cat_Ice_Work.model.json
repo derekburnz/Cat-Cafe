@@ -87,13 +87,7 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Cat_Ice_Work/0",
-    "GoldColor": {
-     "Color3": [
-      0.8667,
-      0.949,
-      1.0
-     ]
-    },
+    "GoldTone": 2,
     "GoldSolid": true
    },
    "children": [
@@ -308,13 +302,7 @@
     "BottomSurface": "Smooth"
    },
    "attributes": {
-    "GoldColor": {
-     "Color3": [
-      0.8667,
-      0.949,
-      1.0
-     ]
-    }
+    "GoldTone": 3
    }
   },
   {
@@ -366,7 +354,7 @@
     "BottomSurface": "Smooth"
    },
    "attributes": {
-    "GoldTone": 2
+    "GoldTone": 3
    }
   },
   {

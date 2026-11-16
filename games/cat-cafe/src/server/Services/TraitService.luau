@@ -6,6 +6,10 @@
 --   RollTrait(uid): the cat owned, no re-roll waiting, and a roll paid for (Traits.pay: a free starter roll, else a
 --     Trait Token, else Traits.COST_FISH golden fish, checked and spent in one step before the roll). A cat with no trait takes
 --     the roll at once; a cat with one keeps it and the roll waits in the save (`pending`) for ChooseTrait.
+--   #4712 Auto Roll: RollTrait(uid, stopAt) with a rarity id from Uncommon up: paid by a party roll, a free starter roll
+--     or a Trait Token only, never golden fish. A re-roll below `stopAt` is dropped at once (the cat keeps its trait,
+--     nothing waits); one at `stopAt` or better waits for ChooseTrait as usual. The client sends one roll at a time
+--     (the 1 a second limit stays) and reads each roll from PlayerState.traits.autoRoll.
 --   ChooseTrait(takeNew): the waiting re-roll goes on its cat (true) or is dropped (false), so a cat never gets worse.
 --   CollectTraitTokens(): the station's free tokens (one each 12 h, holding 2) go to the bank.
 -- #4197 (Trait Party, an admin event): while it runs a roll costs nothing (paid "party"), up to
@@ -40,6 +44,23 @@ type Profile = Types.PlayerProfile
 local TraitService = {}
 
 local rng = Random.new()
+
+-- #4712: each player's last Auto Roll this session (the trait it gave and a count that moves on every one), for
+-- PlayerState.traits.autoRoll (CafeService.autoRolled). Not saved.
+local autoRolls: { [Player]: { id: string, n: number } } = {}
+
+-- #4712: the Auto Roll target from the wire: a rarity id ranked above Common, else nil
+local function stopRank(raw: unknown): number?
+	if type(raw) ~= "string" or #raw > 16 then
+		return nil
+	end
+	for _, rarity in Traits.RARITIES do
+		if rarity.id == raw and rarity.rank >= 2 then
+			return rarity.rank
+		end
+	end
+	return nil
+end
 
 -- Whether `profile`'s player can use the station now (CafeService.traitsView reads the same).
 function TraitService.open(profile: Profile): boolean
@@ -104,11 +125,19 @@ local function announce(player: Player, rolled: Traits.Trait)
 	end
 end
 
-local function onRoll(player: Player, rawUid: unknown)
+local function onRoll(player: Player, rawUid: unknown, rawStopAt: unknown)
 	local uid = Guard.id(rawUid)
 	local profile = DataService.get(player)
 	if uid == nil or profile == nil then
 		return
+	end
+	-- #4712: an Auto Roll step; anything else sent there (a wrong id, Common) is refused, never read as a plain roll
+	local stopAt: number? = nil
+	if rawStopAt ~= nil then
+		stopAt = stopRank(rawStopAt)
+		if stopAt == nil then
+			return
+		end
 	end
 	if not TraitService.open(profile) then
 		refuse(player, "The Mystic Pool is closed for now")
@@ -133,10 +162,19 @@ local function onRoll(player: Player, rawUid: unknown)
 	local party = EventService.takePartyRoll(player)
 	local paid: string?, fish = "party", 0
 	if not party then
-		paid, fish = Traits.pay(save, profile.goldenFish)
+		-- #4712: Auto Roll never spends golden fish
+		paid, fish = Traits.pay(save, if stopAt ~= nil then 0 else profile.goldenFish)
 	end
 	if paid == nil then
-		refuse(player, string.format("You need a Trait Token or %d golden fish", Traits.COST_FISH))
+		refuse(
+			player,
+			if stopAt ~= nil
+				then "Auto Roll stopped: no Trait Tokens left"
+				else string.format(
+					"You need a Trait Token or %d golden fish",
+					Traits.COST_FISH
+				)
+		)
 		return
 	end
 	local how: string = tostring(paid)
@@ -154,6 +192,21 @@ local function onRoll(player: Player, rawUid: unknown)
 	end, LiveFlagService.on(Traits.SECRET_FLAG))
 	profile.stats.traitRolls += 1 -- #3694 section 3: every roll, a first or a re-roll
 	local reroll = cat.trait ~= nil
+	if stopAt ~= nil then
+		local last = autoRolls[player]
+		autoRolls[player] = { id = rolled.id, n = (if last ~= nil then last.n else 0) + 1 }
+	end
+	if reroll and stopAt ~= nil and Traits.rank(rolled) < stopAt then
+		-- #4712: below the Auto Roll target: dropped, the cat keeps its trait
+		Telemetry.custom(
+			player,
+			"trait_roll",
+			Traits.rank(rolled),
+			{ rolled.id, how, "reroll_auto" }
+		)
+		CafeService.sync(player)
+		return
+	end
 	if reroll then
 		save.pending = { uid = uid, id = rolled.id, paid = how :: string }
 	else
@@ -229,6 +282,12 @@ end
 
 function TraitService.start()
 	Net.on("RollTrait", onRoll)
+	CafeService.autoRolled = function(player: Player): { id: string, n: number }?
+		return autoRolls[player]
+	end
+	Players.PlayerRemoving:Connect(function(player)
+		autoRolls[player] = nil
+	end)
 	Net.on("ChooseTrait", onChoose)
 	Net.on("CollectTraitTokens", onCollect)
 	-- #4197: a Trait Party starts or ends: every Mystic Pool's Roll button follows (PlayerState.traits.party)

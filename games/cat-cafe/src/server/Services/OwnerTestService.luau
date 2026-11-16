@@ -234,7 +234,7 @@ function OwnerTestService.shoutCommand(userId: number, text: string): string?
 end
 
 local lastCommand: { userId: number, text: string, at: number }? = nil
-local REPEAT_WINDOW = 1 -- seconds; Chatted and the legacy ChatService can both deliver one line
+local REPEAT_WINDOW = 1 -- seconds; a TextChatCommand and Chatted can both deliver one line
 
 local function answer(player: Player?, userId: number, text: string)
 	local now = os.clock()
@@ -255,46 +255,9 @@ local function answer(player: Player?, userId: number, text: string)
 	end
 end
 
--- #2754: with the legacy chat, Player.Chatted did not fire in the dev copy (Laptop-Tester 2026-11-09), so the line is
--- also caught by the legacy ChatService's command processor, which runs for every message before it is sent. It
--- swallows only an `/event` line; every other line returns false and goes out as normal. The owner and test place
--- checks stay in eventCommand. The ChatService module only exists once the legacy chat has loaded, so this waits for
--- it in its own thread and gives up quietly if it never comes.
-local function legacyChatCommand()
-	local runner = game:GetService("ServerScriptService"):WaitForChild("ChatServiceRunner", 30)
-	local module = if runner ~= nil then runner:WaitForChild("ChatService", 30) else nil
-	if module == nil or not module:IsA("ModuleScript") then
-		warn("[OwnerTest] no legacy ChatService found; /event listens on Player.Chatted only")
-		return
-	end
-	local ok, chatService = pcall(require, module)
-	if not ok or type(chatService) ~= "table" then
-		warn(
-			"[OwnerTest] the legacy ChatService did not load; /event listens on Player.Chatted only"
-		)
-		return
-	end
-	local service = chatService :: any
-	service:RegisterProcessCommandsFunction(
-		"OwnerTestEvent",
-		function(speakerName: string, message: string)
-			if not OwnerTest.isCommand(message) then
-				return false
-			end
-			local speaker = service:GetSpeaker(speakerName)
-			local player: Player? = if speaker ~= nil then speaker:GetPlayer() else nil
-			if player == nil then
-				return false
-			end
-			answer(player, player.UserId, message)
-			return true -- the command never shows in chat
-		end
-	)
-end
-
--- With TextChatService chat, a TextChatCommand: the message never reaches the channel. With the legacy chat (the dev
--- copy's setting, Laptop-Tester 2026-11-08) TextChatCommands never fire, so the legacy ChatService and Player.Chatted
--- read it instead (whichever comes first answers; the other is a repeat).
+-- With TextChatService chat, a TextChatCommand: the message never reaches the channel. With the legacy chat (a place
+-- file built without default.project.json's ChatVersion) TextChatCommands never fire, so Player.Chatted reads it
+-- instead. #4656: the legacy ChatService command hook (#2754) is gone.
 local COMMANDS: { [string]: string } = {
 	OwnerTestEventCommand = "/event",
 	OwnerTestShoutCommand = "/shout",
@@ -315,7 +278,6 @@ local function eventCommand()
 		end
 		return
 	end
-	task.spawn(legacyChatCommand)
 	local function listen(player: Player)
 		player.Chatted:Connect(function(message: string)
 			if OwnerTest.isCommand(message) then

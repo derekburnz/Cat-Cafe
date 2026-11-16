@@ -23,6 +23,10 @@ Codes.GROUP = "Join our group to use this code!"
 Codes.LOCKED = "Too many tries, wait a minute"
 Codes.PAUSED = "Codes are paused right now, try again later" -- #2119: the live switch `codes` is off
 Codes.FAR = "Walk up to the Codes Cat" -- #1747: no longer sent; codes redeem from anywhere
+-- Derek 2026-11-15 23:21 UTC ("lock codes behind tier 2 also"): codes need Tier 2, so a fresh spare account can't farm
+-- them. Checked before the code is looked up, so it never counts as a wrong try.
+Codes.MIN_TIER = 2
+Codes.TIER = "Reach Tier 2 to use codes"
 
 -- Wrong codes inside the window and when the lock ends, in one clock (the server's os.clock()).
 export type WrongGuard = { wrong: { number }, lockedUntil: number }
@@ -56,6 +60,11 @@ end
 
 function Codes.get(code: string): Types.CodeDef?
 	return Catalog.codes[code]
+end
+
+-- Why a player at `tier` can't use codes yet, or nil when they can (MIN_TIER).
+function Codes.tierRefusal(tier: number): string?
+	return if tier < Codes.MIN_TIER then Codes.TIER else nil
 end
 
 -- True when the code is not active, has ended, or needs the group before the game belongs to one.

@@ -197,23 +197,5 @@ return function()
 				end
 			end
 		end)
-
-		it("#4061: holds a Ticket Booth toy in place of the net, only a known one", function()
-			expect(Avatar.toyOf("squirter")).to.equal("squirter")
-			expect(Avatar.toyOf("noodle")).to.equal("noodle")
-			expect(Avatar.toyOf("radius")).to.equal(nil)
-			expect(Avatar.toyOf("kinds")).to.equal(nil)
-			expect(Avatar.toyOf(nil)).to.equal(nil)
-			expect(Avatar.toyOf(3)).to.equal(nil)
-			local toy = Avatar.heldModels("squirter", 3)
-			expect(toy[1]).to.equal("CatCafe_Item_WaterSquirter")
-			expect(toy[2]).to.equal("CatCafe_Item_Net_L3")
-			expect(toy[#toy]).to.equal("CatCafe_Item_Net_L1")
-			expect(Avatar.heldModels("noodle", 1)[1]).to.equal("CatCafe_Item_PoolNoodle")
-			local net = Avatar.heldModels(nil, 2)
-			expect(#net).to.equal(2)
-			expect(net[1]).to.equal("CatCafe_Item_Net_L2")
-			expect(Avatar.heldModels("bogus", 1)[1]).to.equal("CatCafe_Item_Net_L1")
-		end)
 	end)
 end

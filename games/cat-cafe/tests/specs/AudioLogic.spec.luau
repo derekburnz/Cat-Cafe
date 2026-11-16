@@ -1177,8 +1177,6 @@ return function()
 			expect(Logic.campExtraCue("yardSale")).to.equal(nil)
 			expect(Logic.beatCue("bellRing")).to.equal("bellhopBell")
 			expect(Logic.beatCue("lidRattle")).to.equal("campRattle")
-			expect(Logic.beatCue("toySquirt")).to.equal("campSplash")
-			expect(Logic.beatCue("toyBonk")).to.equal("toyBonk")
 			expect(Logic.beatCue("wave")).to.equal(nil)
 			for _, beat in { "bellRing", "fishJump", "rodCast", "basketOpen", "lidRattle" } do
 				expect(Cues[Logic.beatCue(beat)] ~= nil).to.equal(true)

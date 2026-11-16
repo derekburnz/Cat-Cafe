@@ -11008,6 +11008,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		clock:SetAttribute("NextLuckyDay", 4)
 		clock:SetAttribute("LuckyDay", false)
 		UI.clock.bind(clock)
+		table.clear(UI.popPace.banners) -- #4953: a warning earlier scenes showed would hold this one for 5 minutes
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!", { lucky = true, golden = true, rainbow = true })
 		-- #1572: the warning names every kind tomorrow brings
 		local found = false

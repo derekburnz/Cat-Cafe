@@ -22,7 +22,10 @@
 -- tackles in the session. The bar's own key cap is bigger too.
 -- #3342 (Derek2 11-11: "tackling immunity for the first 5 minutes"): while this player's join shield runs (the
 -- Player's TackleShieldUntil attribute, set by ShoveService; 15 minutes since #3475), a small "🛡️ Safe 14:32" chip sits beside the bar's
--- right end (#3744; it sat over the bar, under the bag's Drop pill) or just over the round button, counting down. Pressing Tackle ends the shield on the server, and the chip goes with it.
+-- right end (#3744; it sat over the bar, under the bag's Drop pill) or just over the round button, counting down.
+-- #4499 (Derek2 2026-11-15: shielded players "shouldn't be able to tackle back also and it helps with net vs tackle
+-- button confusion"): while the shield runs there is no Tackle at all, no bar, no round button, no key cap and no
+-- cue. Only the chip shows, where the bar or the button would be, so the player knows they are safe and for how long.
 --
 --   setEnabled(on)          inside a catching area this player has unlocked, and tackles are switched on
 --   result(ok, outcome?)    the server refused (false) or took (true) the tackle; a hit outcome holds the bar
@@ -192,7 +195,8 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	-- #3342: the join shield's chip. #3744 (Studio 11-12: with a cat in the bag the red "Drop cat" pill stands right
 	-- over the bar, and the chip over the bar covered its words): beside the bar's right end, level with it, where
 	-- nothing else sits, whether or not a Drop is up
-	self._shield = self:_buildShield(bar, UDim2.new(1, 10, 0.5, 0), Vector2.new(0, 0.5))
+	-- #4499: the bar is hidden while the shield runs, so the chip is its sibling now and stands in the bar's place
+	self._shield = self:_buildShield(root, bar.Position, Vector2.new(0.5, 1))
 
 	do
 		local key: TextLabel = Create("TextLabel", {
@@ -403,11 +407,11 @@ function TackleBar._buildShield(
 	return chip
 end
 
--- #3342: shows the chip with the time left while the join shield runs, hides it after.
-function TackleBar._drawShield(self: any)
+-- #3342: shows the chip with the time left while the join shield runs, hides it after. True while it runs (#4499).
+function TackleBar._drawShield(self: any): boolean
 	local shield: TextLabel? = self._shield
 	if shield == nil then
-		return
+		return false
 	end
 	local me = Players.LocalPlayer
 	local text = TackleLogic.shieldText(
@@ -418,6 +422,7 @@ function TackleBar._drawShield(self: any)
 	if text ~= nil then
 		shield.Text = text
 	end
+	return text ~= nil
 end
 
 -- Whether a lunge, a miss slide, a hit's hold or someone else's tackle has this player down right now.
@@ -461,11 +466,21 @@ function TackleBar._tick(self: any)
 		self:_placeCue(false)
 		return
 	end
-	self:_placeCue(look == "ready")
-	self:_drawShield() -- #3342
+	local shielded = self:_drawShield() -- #3342
+	self._bar.Visible = not shielded -- #4499: no Tackle while the shield runs, only the chip
 	if not self._touch then
 		self._bar.Position = UDim2.new(0.5, 0, 1, self._callbacks.lift())
+		local chip: TextLabel? = self._shield
+		if chip ~= nil then
+			chip.Position = self._bar.Position
+		end
 	end
+	if shielded then
+		self._state = nil
+		self:_placeCue(false)
+		return
+	end
+	self:_placeCue(look == "ready")
 	local was: TackleLogic.Look? = self._state
 	self._state = look
 	if look == "ready" and was ~= nil and was ~= "ready" then

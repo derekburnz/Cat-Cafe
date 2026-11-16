@@ -1188,3 +1188,12 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-13 A small bubble by the Feedback button asks for map theme ideas (#3883, Design-Agent)
 - **Why:** Derek: "Have the feedback have a little pop up above it not too annoying but make it noticable that says suggest new map themes to have you name be featured if picked".
 - **What:** a gold edged bubble under the Feedback tile reads "Suggest a new map theme! If we pick yours, your name gets featured." It shows once a join, 90 s after the tutorial is done, bobs gently, and goes by itself after 20 s. A tap opens Feedback on its Idea chip; the X closes it for the rest of the join. Credits for picked themes follow the idea credits list.
+
+## 2026-11-15 The automerge label merges a green PR even when main moved during its run (#4241, Sync-Agent)
+- **Why:** the label path re-ran the whole check every time main moved during a run. On a busy main it never caught up: #4387 went green four times, about 40 runner minutes a lap, and stayed open. Main's ruleset is not strict, so GitHub's own auto-merge already merges a green head without that re-check.
+- **What:** `.github/scripts/automerge.sh` now merges when the run was green and GitHub reports the PR as mergeable (no conflict), even if main moved. A conflict still drops the label with a comment; an unknown merge state still gets one more run. The skill `merge-and-publish` says the same.
+
+## 2026-11-15 Each area's Secret earns 10 times the next tier's Mythic (#4221, Gameplay-Engineer)
+- **Why:** Derek 2026-11-15 21:57 UTC: "for the 10 secret cats update make them behave like 10x money of the mythic cat from the next tier area so secret tier 9 is 10x the tier 10 mythic".
+- **What:** a Secret's own rate is `Config.SecretNextMythicTimes` (10) times the Mythical of the area one tier past its home. Secret Tier 9 (Water Park) earns 10 x a Castle Mythical (14,762,250 a second before level, charm and coat). The Castle's own Secret has no next area, so it uses the ladder's step (each area pays 3 times the one before): 10 x 3 x a Castle Mythical (44,286,750 a second).
+- **Kept:** the old floor still applies (four Mythicals at the owner's best open area, CatStats.areaMultiplier keeps the larger), so no owned Secret earns less than before. Trade value, sell value and golden fish for a Secret are unchanged.

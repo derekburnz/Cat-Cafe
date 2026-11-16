@@ -16,6 +16,7 @@ local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
 local FishStore = require(script.Parent.FishStore)
 local FreshCatch = require(script.Parent.FreshCatch)
+local Fusion = require(script.Parent.Fusion)
 local GrandOpening = require(script.Parent.GrandOpening)
 local IntroSplit = require(script.Parent.IntroSplit)
 local Invites = require(script.Parent.Invites)
@@ -150,6 +151,8 @@ local ProfileSchema = {}
 -- #3694 section 3 (no new version): stats.binWins, yardPicks, traitRolls, dashRuns, goldenCratesOpened and
 -- restSeconds, for the newer features' achievements. An older server drops them, which only loses those counts.
 -- #3618 (no new version): stats.cannonFlights, for the Liftoff badge; an older server dropping it only loses the count.
+-- #4453 (no new version): stats.tier2TopUp, the Tier 2 top up paid; it pays only as the first bait cat is tamed
+-- (stats.baitsTamed 1), so an older server dropping it cannot make it pay twice.
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
 -- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
 -- one past 10 or 30 minutes already is paid on its next join.
@@ -177,7 +180,10 @@ local ProfileSchema = {}
 -- and the cats moved in): an older server would drop them and the player would lose a pass paid for with fish,
 -- tickets or Cinder. It ships with a publish that restarts the servers; the `fishStore`, `ticketBooth` and
 -- `dragonKeep` switches open them after it.
-ProfileSchema.VERSION = 49
+-- Version 50 (#4104, shared/Fusion) adds fusion, the Fusion Observatory's dome: an older server would drop a fusion
+-- under way, and with it the five cats that went in. It ships with the Snowy Mountain update's restart; the `fusion`
+-- switch opens the dome after it. A save from before it has an empty dome.
+ProfileSchema.VERSION = 50
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -234,6 +240,8 @@ local function newStats(): Types.Stats
 		mysteryGifts = 0,
 		collectorTrades = 0,
 		rareCatches = 0,
+		pondPassAt = 0, -- #2745: the Golden Pond pass bought with Robux, for the fish trade hold (no version)
+		pondSeen = 0, -- #2745: the pass seen owned once, so an off-game buy starts the hold too
 		goldCatches = 0,
 		rainbowCatches = 0, -- F99
 		tipPilesCollected = 0,
@@ -257,6 +265,7 @@ local function newStats(): Types.Stats
 		goldenCratesOpened = 0,
 		restSeconds = 0,
 		cannonFlights = 0, -- #3618
+		tier2TopUp = 0, -- #4453
 	}
 end
 
@@ -329,6 +338,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		fishBought = {}, -- #4055
 		tickets = TicketBooth.fresh(), -- #4061
 		dragon = DragonKeep.fresh(), -- #4062
+		fusion = Fusion.fresh(), -- #4104
 		firstVisits = {},
 		codesRedeemed = {},
 		introSeen = false,
@@ -352,6 +362,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 			firstHourV3Step = 0,
 			cleanStep = 0,
+			cleanV8Step = 0, -- #4504
 			playtimeStep = 0,
 		},
 		tipsSeen = {},
@@ -840,6 +851,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 		firstHourV3Step = 0,
 		cleanStep = 0,
+		cleanV8Step = 0,
 		playtimeStep = 0,
 	}
 	if type(value) ~= "table" then
@@ -896,7 +908,12 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	-- logged any first_hour step is out of playtime_v1: both count only players who start on them.
 	local cleanStep = value.cleanStep
 	telemetry.cleanStep = if type(cleanStep) == "number"
-		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.CLEAN_COUNT)
+		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.V7_CLEAN_COUNT)
+		else Onboarding.v7Start(telemetry)
+	-- #4504: onboarding_v8 (cleanV8Step, logged while the walk-through runs bowl first) the same way
+	local cleanV8Step = value.cleanV8Step
+	telemetry.cleanV8Step = if type(cleanV8Step) == "number"
+		then math.clamp(asInt(cleanV8Step, 0), 0, Onboarding.CLEAN_COUNT)
 		else Onboarding.cleanStart(telemetry)
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"
@@ -1040,6 +1057,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.tickets = TicketBooth.sanitize(raw.tickets)
 	-- #4062 (version 49): the Dragon Keep; an older save has no dragon
 	profile.dragon = DragonKeep.sanitize(raw.dragon)
+	-- #4104 (version 50): the Fusion Observatory; an older save has an empty dome
+	profile.fusion = Fusion.sanitize(raw.fusion, sanitizeName)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
 	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)

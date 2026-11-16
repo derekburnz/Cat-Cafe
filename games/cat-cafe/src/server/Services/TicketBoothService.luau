@@ -3,14 +3,21 @@
 -- the ticketBooth switch is off, below TicketBoothTier, for an unknown prize, at its day, week or once limit, or with
 -- too few tickets. Payout pays the fish, crate or potions; a Trait Token goes into the Mystic Pool's tokens. From
 -- anywhere for now (the Water Park and its booth are not placed yet), 1 a second (Net's limiter). The tickets
--- themselves come from CafeService's catch path.
+-- themselves come from CafeService's catch path. The Booth Plush Cat prize is given as a gift cat (once), and the
+-- buy that takes the save past TicketBooth.REGULAR_SPENT shows the Park Regular title at once. The weekly Water Park
+-- shelf's cards (TicketBooth.weekShelf) are bought the same way: a decor piece goes into decorOwned, a wearable is owned
+-- by its used once-limit.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 
+local CafePassService = require(script.Parent.CafePassService)
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -36,6 +43,17 @@ local function onBuy(player: Player, rawId: unknown)
 	if prize == nil then
 		return
 	end
+	if prize.weekly ~= nil and prize.weekly.kind == "decor" then
+		local item = prize.weekly.item
+		if Catalog.getDecor(item) == nil then
+			return -- a shelf piece the Catalog does not name: never spend tickets on it
+		end
+		if profile.decorOwned[item] == true then
+			Net.toast(player, "You have this already", "warn") -- owned another way (a trade): keep the tickets
+			CafeService.sync(player)
+			return
+		end
+	end
 	local now = os.time()
 	local save = profile.tickets
 	local reason = TicketBooth.blocker(save, prize, now)
@@ -46,18 +64,43 @@ local function onBuy(player: Player, rawId: unknown)
 	then
 		reason = "Your token bank is full" -- Review-QA on #4088: never spend tickets on tokens that do not fit
 	end
+	local spins = if prize.prize ~= nil then prize.prize.spins else nil
+	if reason == nil and spins ~= nil and profile.spin.banked + spins > Config.SpinBankCap then
+		reason = "Your spins are full, spin a few first" -- #4596: the same for banked spins (Config.SpinBankCap)
+	end
 	if reason ~= nil then
 		Net.toast(player, reason, "warn")
 		CafeService.sync(player)
 		return
 	end
+	local def = if prize.cat ~= nil then Catalog.getCat(prize.cat) else nil
+	if prize.cat ~= nil and def == nil then
+		return -- a prize cat the Catalog does not name: never spend tickets on it
+	end
 	local before = save.have
+	local wasRegular = TicketBooth.regular(save)
 	TicketBooth.spend(save, prize, now)
 	if prize.tokens ~= nil then
 		Traits.give(profile.traits, prize.tokens)
 	end
 	if prize.prize ~= nil then
 		Payout.pay(player, profile, prize.prize, "ticket_booth")
+	end
+	if def ~= nil then
+		CafeService.addGiftCat(player, profile, def, CatStats.DEFAULT_CHARM) -- the Booth Plush Cat
+	end
+	local weekly = prize.weekly
+	if weekly ~= nil and weekly.kind == "decor" then
+		-- a weekly shelf piece: owned for good, and with Auto Equip on it takes a spot when it earns more (#2068)
+		profile.decorOwned[weekly.item] = true
+		if CafeService.autoEquipNewDecor(player, profile, weekly.item) then
+			CafeService.refreshPlot(player)
+		end
+	end
+	-- a weekly wearable needs nothing more: its once-limit, now used, is what owns it (TicketBooth.lookItems)
+	if not wasRegular and TicketBooth.regular(save) then
+		CafePassService.refreshTag(player, profile) -- #4061: Park Regular joins the tag choices now
+		Net.toast(player, "New chat title: Park Regular", "good")
 	end
 	Telemetry.custom(
 		player,

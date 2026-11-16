@@ -105,10 +105,13 @@ import woodsf85  # noqa: E402
 import sewerf85  # noqa: E402
 import woodsset  # noqa: E402
 import yardfence  # noqa: E402
+import plotsizes  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
 import pitysign  # noqa: E402
 import updateposter  # noqa: E402
+import decorstand  # noqa: E402
+import mysterysign  # noqa: E402
 import ringicons  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
@@ -142,8 +145,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
            arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, dragon,
-           updateposter,
-           waterparkshelf, wallperch]
+           updateposter, decorstand, mysterysign,
+           waterparkshelf, wallperch, plotsizes]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -189,7 +192,6 @@ PIVOT_NOTES = {
     "CatCafe_Decor_NeonSign": "wall: back-bottom center",
     "CatCafe_Decor_MenuBoard": "wall: back-bottom center",
     "CatCafe_Decor_MuralPrint": "wall: back-bottom center",
-    "CatCafe_Decor_MuralPrint_Gold": "wall: back-bottom center",
     "CatCafe_Decor_HangingLamp": "ceiling hook (geometry hangs below the pivot)",
     "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
     "CatCafe_Decor_StringLights": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
@@ -264,6 +266,10 @@ PIVOT_NOTES = {
                    "pitysign.SPOT, facing the player spawn",
     updateposter.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                        "updateposter.SPOT, facing the player spawn",
+    decorstand.NAME: "the base centre on the square's floor (world y 0.1), front -Z; decorstand.SPOT, beside the "
+                     "Golden Fish Market, facing the player spawn",
+    mysterysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
+                      "mysterysign.SPOT, beside the Mystery Market wagon, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
                       "(Layout.campExtras.park, Park set space)",
     campstations.YARD: "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot "
@@ -460,6 +466,14 @@ STUDIO_NOTES = {
                        "sign's mirror, facing the spawn). Streams Atomic. The UI's SurfaceGui (Adornee = the part "
                        "named Screen, 8.0 x 4.5, night blue) draws the next update's picture, name, countdown and "
                        "the Notify Me tap on its Front (-Z) face.",
+    decorstand.NAME: "#4516: the decor stand beside the Golden Fish Market (suggested spot decorstand.SPOT): a "
+                     "two-step table with a Cafe Crate, the Mushroom Lamp and the Lantern Stump under a DECOR CRATES "
+                     "board, a gold arrow on top pointing at the market (+X). The pieces are the game's own models, "
+                     "scaled; none collide.",
+    mysterysign.NAME: "#4508: the Mystery Market's signboard beside Juniper's wagon (suggested spot "
+                      "mysterysign.SPOT): NEW ITEMS, the Backpack on a peg and the Speed Shoes on a shelf with "
+                      "their names, and a gold arrow on top pointing at the wagon (+X). The item parts (_Decor) "
+                      "never collide. A picture of the shelf, not a live list: rebuild when the shelf changes.",
     pitysign.NAME: "#1572 (luck-and-rare-moments.md section 1h): the rare cat sign in the Town Square (suggested "
                    "spot pitysign.SPOT, across the street from the Day Cart, facing the spawn). Streams Atomic. The "
                    "UI's SurfaceGui (Adornee = the part named Screen, 5.6 x 2.8, night blue) draws the Legendary and "
@@ -661,6 +675,13 @@ STUDIO_NOTES[yardfence.NAME] = (
     "picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing "
     "roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is "
     "the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.")
+for _n, _b in plotsizes.BASE_OF.items():        # #4543: the cafe at its bigger room sizes
+    _w, _d = _n.rsplit("_", 1)[1].split("x")
+    PIVOT_NOTES[_n] = (f"as {_b}, on its own {_w} x {_d} room's floor centre: place it {plotsizes.set_back(_n):g} studs "
+                       "behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are")
+    STUDIO_NOTES[_n] = (f"#4543 the cafe grows with rank ups: {_b} laid out for the {_w} x {_d} room (Tier "
+                        + {"48": "3 and 4", "52": "5 and 6", "56": "7 and 8", "60": "9 and 10"}[_w]
+                        + f"), in place of {_b} on a cafe of that size. " + STUDIO_NOTES.get(_b, ""))
 for _n in alleyblockers.ASSETS:
     if "_Row" in _n:                             # the one-lane Alleyway's whole rows (Derek 11-02)
         PIVOT_NOTES[_n] = "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0"
@@ -928,11 +949,14 @@ def main():
             extra = {**extra, **crate_decor.MOVING[name]}
         if name.startswith("CatCafe_Plot_Cafe_"):  # the roof's trims ride the roof (it fades while you are inside)
             extra = {"nest": {"_Roof_Trim": "_Roof", "_LampPost_Bulb": "_Garden", "_Flowers": "_Garden"}}
-            extra["attachments"] = [(name, "SignHook", Matrix.Translation(Vector(common.RB.p(*plot.SIGN_HOOK))))]   # #1140
+            extra["attachments"] = [(name, "SignHook", Matrix.Translation(Vector(common.RB.p(
+                *plotsizes.plot_of(name).SIGN_HOOK))))]   # #1140; #4543: a sized shell's own hook
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
             extra = {"attachments": [items.grip_attachment()]}
+        if name in (items.SQUIRTER, items.NOODLE):  # #4061 the booth's toys: Grip, and the squirter's Muzzle
+            extra = {"attachments": items.toy_attachments(name)}
         if name.startswith(("CatCafe_Door_", "CatCafe_CatFlap_")):   # F80: glass, sign and panels ride their leaf
             extra = {"nest": doorsets.NEST}
             if name.endswith("_Back"):
@@ -1079,6 +1103,10 @@ def main():
         if name == pitysign.NAME:
             entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [pitysign.SW, pitysign.SH]}
             entry["placement_suggested_roblox"] = [round(v, 2) for v in pitysign.SPOT]
+        if name == decorstand.NAME:
+            entry["placement_suggested_roblox"] = [round(v, 2) for v in decorstand.SPOT]
+        if name == mysterysign.NAME:
+            entry["placement_suggested_roblox"] = [round(v, 2) for v in mysterysign.SPOT]
         if name == updateposter.NAME:
             entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [updateposter.SW, updateposter.SH]}
             entry["placement_suggested_roblox"] = [round(v, 2) for v in updateposter.SPOT]
@@ -1097,9 +1125,10 @@ def main():
         if name.endswith(("_Gate", "_GateF85")) and name in areas.ASSETS:
             entry["sign_board_roblox"] = areas.SIGN_INFO
         if name.startswith("CatCafe_Plot_Cafe_"):
-            entry["chimney_top_roblox"] = list(plot.CHIMNEY_TOP)
-            entry["sign_board_roblox"] = plot.SIGN_INFO
-            entry["sign_hook_roblox"] = list(plot.SIGN_HOOK)          # #1140: the door sign hangs here
+            _pm = plotsizes.plot_of(name)                             # #4543: a sized shell's own numbers
+            entry["chimney_top_roblox"] = list(_pm.CHIMNEY_TOP)
+            entry["sign_board_roblox"] = _pm.SIGN_INFO
+            entry["sign_hook_roblox"] = list(_pm.SIGN_HOOK)           # #1140: the door sign hangs here
         if name in boards.AREA_OF:
             host, (px, py, pz, turn) = boards.PLACEMENT[boards.AREA_OF[name]]
             entry["area"] = boards.AREA_OF[name]

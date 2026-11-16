@@ -98,7 +98,8 @@ local function swing()
 	if now < nextSwingAt or not canSwing() then
 		return
 	end
-	nextSwingAt = now + Config.NetSwingCooldown
+	local cooldown = player:GetAttribute("NetCooldown") -- #4447: the Dragon Keep's Ember Net (DragonKeepService)
+	nextSwingAt = now + (if type(cooldown) == "number" then cooldown else Config.NetSwingCooldown)
 	Moments.NetSmackPress:Fire()
 	Net.fire("SwingNet")
 end

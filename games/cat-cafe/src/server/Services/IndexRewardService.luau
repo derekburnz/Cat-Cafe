@@ -10,8 +10,10 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CafePassService = require(script.Parent.CafePassService)
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local ClaimAll = require(ReplicatedStorage.Shared.ClaimAll)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -38,6 +40,23 @@ local function pageName(areaId: string): string
 	local pool = string.sub(areaId, #IndexRewards.DECOR_PREFIX + 1)
 	local crate = Catalog.getCrate(pool .. "_crate")
 	return if crate ~= nil then crate.name else areaId
+end
+
+-- #4709: a claimed Index milestone's title joins the Bag's Titles tab at once (and shows in chat when nothing else is
+-- picked), like the big achievements' titles.
+local function giveTitle(
+	player: Player,
+	profile: Types.PlayerProfile,
+	areaId: string,
+	milestoneId: string
+): boolean
+	local page = ChatTags.INDEX_TITLES[areaId]
+	if page == nil or page[milestoneId] == nil then
+		return false
+	end
+	CafePassService.refreshTag(player, profile)
+	CafePassService.send(player, profile)
+	return true
 end
 
 -- Marks the milestone claimed, then pays it; returns what it paid. The caller has checked IndexRewards.blocker.
@@ -72,6 +91,7 @@ local function onClaimIndexReward(player: Player, rawArea: unknown, rawMilestone
 		return
 	end
 	local paid = claim(player, profile, areaId, milestoneId)
+	giveTitle(player, profile, areaId, milestoneId)
 	Net.toast(
 		player,
 		string.format("%s Index reward: %s", pageName(areaId), table.concat(paid, ", ")),
@@ -96,6 +116,11 @@ function IndexRewardService.claimAll(player: Player)
 	for _, item in ready do
 		for _, line in claim(player, profile, item.areaId, item.milestoneId) do
 			table.insert(paid, line)
+		end
+	end
+	for _, item in ready do
+		if giveTitle(player, profile, item.areaId, item.milestoneId) then
+			break -- one refresh covers every title claimed here
 		end
 	end
 	local title = if #ready == 1

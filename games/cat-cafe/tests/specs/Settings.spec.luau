@@ -23,6 +23,7 @@ return function()
 					tradeRequests = "everyone",
 					roadmapOpen = false,
 					sessionRecap = true,
+					perfAsked = false,
 					autoEquip = true, -- #1955: on for a new account
 					catIncome = true, -- #2551: the rate tags show, as they always did
 					goalFolded = false, -- #2714
@@ -117,6 +118,7 @@ return function()
 				tradeRequests = "everyone",
 				roadmapOpen = false,
 				sessionRecap = true,
+				perfAsked = false,
 				autoEquip = false, -- #1955: a save from before Auto Equip starts with it off
 				catIncome = true, -- #2551: a save from before Cat income has the tags on
 				goalFolded = false, -- #2714

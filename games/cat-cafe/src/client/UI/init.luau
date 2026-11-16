@@ -553,6 +553,25 @@ function applyTutorial()
 	if hud then
 		hud:holdTutorial(introPending)
 		hud:setTutorial(text)
+		-- #4777 (Derek 2026-11-16: "have them click the cannon button with dim screen and arrow"): bowl first's cannon
+		-- line after the first bowl cat, with no cannon in reach, lights the HUD's Cannon button (dim, ring, arrow)
+		-- in reach: within REACH studs of the Town Square cannon (cannonPart), where its walk-up opens the picker
+		local inReach = false
+		local character = game:GetService("Players").LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if cannonPart ~= nil and root ~= nil and root:IsA("BasePart") then
+			inReach = (root.Position - cannonPart.Position).Magnitude <= 30
+		end
+		local order: any =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder"))
+		local first = hint ~= nil
+			and not rankLine
+			and not introPending
+			and CannonLogic.isFirstFlight(hint)
+			and order.bowlFirst()
+			and not inReach
+		local board: any = hud
+		board:pointCannon(first == true)
 	end
 	if introScreen ~= nil and introScreen:playing() then
 		return -- the marker and trail come back when the intro ends
@@ -4085,9 +4104,9 @@ function UI.cannon.flyToPark()
 	local near = if nearest ~= nil then nearest() else nil
 	if near ~= nil then
 		UI.cannon.open(near)
-	elseif hud then
-		fly.travel = hud:pressTravel("cannon")
 	end
+	-- #4776 (Derek 2026-11-16: "make them walk to the cannon after rank up and do it themselves"): away from a cannon
+	-- there is no trip any more; the paw trail and the strip walk them there, and the Park's ring waits for the picker
 end
 
 -- Ends "Fly to the Park": the rank-up button is Rank up again and the picker's ring goes.
@@ -4144,6 +4163,11 @@ function UI.cannon.open(cannonId: string?)
 		return
 	end
 	screen:setCannon(cannonId or CannonLogic.TOWN)
+	-- #4777 (Review-QA on #4779): the Cannon button's dim goes as the picker opens, so it never sits over the window
+	if hud then
+		local board: any = hud
+		board:pointCannon(false)
+	end
 	-- #4674: in the bowl first walk-through the Alleyway card's Launch is ringed until it is pressed
 	local WalkRingLogic = require(script.Components.WalkRingLogic)
 	local TutorialOrder =

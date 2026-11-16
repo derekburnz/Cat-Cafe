@@ -9223,6 +9223,49 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tier = tier, secondCatDone = if done == nil then true else done } :: any)
 		UI.close("Cannon")
 	end },
+	-- #4777 (Derek 2026-11-16: "instead of teleporting player to the cannon after food bowl have them click the cannon
+	-- button with dim screen and arrow"): bowl first, the first flight's line with no cannon in reach lights the HUD's
+	-- Cannon button (ring, arrow, dim); the line gone, so is the light
+	{ "CannonButtonPoint", function()
+		local RS = game:GetService("ReplicatedStorage")
+		RS:SetAttribute("LiveFlag_catchFirst", false)
+		UI.parkTrail.reach(true)
+		UI.cannon.setWild(nil)
+		UI.cannon.setEnabled(true)
+		UI.update({ tier = 1, tutorialStep = 9 } :: any)
+		UI.tutorial.hide()
+		UIShim.advance(0.3)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local strip = ""
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+				strip = piece.Text
+			end
+		end
+		assert(string.find(strip, "Hop in the cannon to fly to the", 1, true) ~= nil, "uigate: bowl first's strip reads " .. strip .. " (#4777)")
+		local lit: GuiObject? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "TutorialGlow" and piece.Parent and piece.Parent:IsA("GuiObject") then
+				local frame = (piece.Parent :: GuiObject):FindFirstAncestorWhichIsA("Frame")
+				if frame and string.lower(frame.Name) == "cannon" then
+					lit = piece.Parent :: GuiObject
+				end
+			end
+		end
+		assert(lit ~= nil, "uigate: the HUD's Cannon button has no ring beside the first flight's line (#4777)")
+		assert(tutorialSpotlight() ~= nil, "uigate: no dim round the Cannon button (#4777)")
+		-- the walk-up opens the picker: the dim goes, so it never sits over the window (Review-QA on #4779)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button stays lit over the open picker (#4777)")
+		UI.close("Cannon")
+		UI.cannon.setEnabled(false)
+		UIShim.advance(0.3)
+		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button stays lit with the line gone (#4777)")
+		RS:SetAttribute("LiveFlag_catchFirst", nil)
+		UI.cannon.setEnabled(true)
+		UI.parkTrail.reach(false)
+	end },
 	{ "CannonAfterBowl", function()
 		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)

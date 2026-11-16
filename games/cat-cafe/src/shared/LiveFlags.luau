@@ -32,10 +32,6 @@
 --   older server keeps a saved level only up to 2.
 -- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
 --   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
--- - `mouseDash` (#3296): the Cat Arcade's second game, Mouse Dash (shared/MouseDash). It starts OFF (OFF_BY_DEFAULT)
---   until QA passes: off refuses a start; a game already running finishes and pays. On, it is the game the
---   cabinet and the Menu row open (Derek 2026-11-11: "Swap this in for the current arcade game and vault the other
---   one").
 -- - `cartTier6` (#3462): the Day Cart's Tier 6 shelf, its own two baits and three potions (shared/CornerShop's top
 --   shelf). It starts OFF (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the
 --   items is running, since an older server's save check drops a food or potion id it does not know.
@@ -113,7 +109,6 @@ LiveFlags.KEYS = {
 	"goldenDrops",
 	"swiftPaws5",
 	"swiftPaws10", -- #4705
-	"mouseDash",
 	"cartTier6",
 	"luckyCharm",
 	"rareCatsTab",
@@ -174,7 +169,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	goldenDrops = true,
 	swiftPaws5 = true,
 	swiftPaws10 = true, -- #4705
-	mouseDash = true,
 	cartTier6 = true,
 	luckyCharm = true,
 	rareCatsTab = true,

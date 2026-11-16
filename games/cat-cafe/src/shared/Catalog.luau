@@ -3224,7 +3224,6 @@ Catalog.achievements = {
 		measure = "dashRuns",
 		needs = 10,
 		size = "M",
-		flag = "mouseDash",
 	},
 	{
 		id = "a_secret1",

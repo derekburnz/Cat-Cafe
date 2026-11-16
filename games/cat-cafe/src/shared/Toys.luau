@@ -23,6 +23,11 @@ export type Toy = {
 	aimed: boolean, -- ToyUsed carries a target point
 }
 
+-- The live switch (shared/LiveFlags, OFF by default). The two prize ids are new saved ids, and TicketBooth.normalize
+-- on a server older than the publish that added them drops their used limit (the tickets gone, the toy not owned), so
+-- it goes on only after a restart, and once the hold and use buttons have shipped. Off: no toy card, no buy, and
+-- HoldToy and UseToy do nothing.
+Toys.FLAG = "toys"
 Toys.ATTRIBUTE = "HeldToy"
 Toys.COOLDOWN = 1.5 -- seconds between uses
 Toys.RANGE = 80 -- studs: the players told about a use

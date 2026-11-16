@@ -3,7 +3,7 @@
 -- Pure: no Roblox globals, so tests can require it.
 
 -- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
--- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
+-- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical (no switch since #4654 batch 5).
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
 export type Area =
 	"alley"

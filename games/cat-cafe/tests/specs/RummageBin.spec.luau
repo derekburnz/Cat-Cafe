@@ -362,7 +362,7 @@ return function()
 			expect(LiveFlags.parse({ alleyBin = false }).alleyBin).to.equal(false)
 		end)
 	end)
-	describe("the prize rolled before the bar (#3608, the binRoll switch)", function()
+	describe("the prize rolled before the bar (#3608)", function()
 		local rows = RummageBin.rollRows()
 
 		it(
@@ -492,9 +492,9 @@ return function()
 			end
 		end)
 
-		it("is behind its own switch, off by default", function()
-			expect(LiveFlags.parse({}).binRoll).to.equal(false)
-			expect(LiveFlags.parse({ binRoll = true }).binRoll).to.equal(true)
+		it("has no switch any more (#4654 batch 4)", function()
+			expect(table.find(LiveFlags.KEYS, "binRoll")).to.equal(nil)
+			expect(LiveFlags.OFF_BY_DEFAULT.binRoll).to.equal(nil)
 		end)
 
 		it("words a rolled win from the rolled table", function()

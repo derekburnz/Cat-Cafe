@@ -429,10 +429,10 @@ function TicketBooth.spend(save: Types.TicketSave, prize: Prize, now: number)
 end
 
 -- Prizes that can be bought now (the booth's "!").
-function TicketBooth.readyCount(save: Types.TicketSave, now: number): number
+function TicketBooth.readyCount(save: Types.TicketSave, now: number, toys: boolean?): number
 	local n = 0
 	for _, prize in TicketBooth.PRIZES do
-		if TicketBooth.blocker(save, prize, now) == nil then
+		if (prize.toy == nil or toys == true) and TicketBooth.blocker(save, prize, now) == nil then
 			n += 1
 		end
 	end
@@ -445,7 +445,12 @@ function TicketBooth.readyCount(save: Types.TicketSave, now: number): number
 end
 
 -- For the booth window (PlayerState.ticketBooth).
-function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoothView
+-- `toys` is the toys switch (shared/Toys.FLAG): without it the two toy cards are left out and never count as ready.
+function TicketBooth.view(
+	save: Types.TicketSave,
+	now: number,
+	toys: boolean?
+): Types.TicketBoothView
 	local function row(prize: Prize): Types.TicketPrizeRow
 		local w = prize.weekly
 		return {
@@ -463,7 +468,9 @@ function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoot
 	end
 	local rows: { Types.TicketPrizeRow } = {}
 	for _, prize in TicketBooth.PRIZES do
-		table.insert(rows, row(prize))
+		if prize.toy == nil or toys == true then
+			table.insert(rows, row(prize))
+		end
 	end
 	local week: { Types.TicketPrizeRow } = {}
 	for _, prize in TicketBooth.weekShelf(now) do
@@ -479,7 +486,7 @@ function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoot
 		weekEndsAt = TicketBooth.weekEndsAt(now),
 		prizes = rows,
 		week = week,
-		ready = TicketBooth.readyCount(save, now),
+		ready = TicketBooth.readyCount(save, now, toys),
 	}
 end
 

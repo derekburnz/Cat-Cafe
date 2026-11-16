@@ -20,7 +20,7 @@ return function()
 					local p = prize :: TicketBooth.Prize
 					expect(p.toy).to.equal(toy.id)
 					expect(p.price).to.equal(2000)
-					expect(p.limit.per).to.equal("once")
+					expect((p.limit :: any).per).to.equal("once")
 					expect(p.weekly).to.equal(nil)
 					expect(Toys.get(toy.id)).to.equal(toy)
 				end
@@ -63,7 +63,7 @@ return function()
 			local save = TicketBooth.fresh()
 			save.have = 2000
 			local function row(): any
-				for _, r in TicketBooth.view(save, MONDAY).prizes do
+				for _, r in TicketBooth.view(save, MONDAY, true).prizes do
 					if r.id == "toySquirter" then
 						return r
 					end
@@ -75,6 +75,28 @@ return function()
 			expect(row().owned).to.equal(false)
 			TicketBooth.spend(save, TicketBooth.prize("toySquirter") :: TicketBooth.Prize, MONDAY)
 			expect(row().owned).to.equal(true)
+		end)
+	end)
+
+	describe("the toys switch", function()
+		it("is off by default", function()
+			local LiveFlags = require(Shared.LiveFlags)
+			expect(Toys.FLAG).to.equal("toys")
+			expect(LiveFlags.OFF_BY_DEFAULT[Toys.FLAG]).to.equal(true)
+			expect(LiveFlags.parse({})[Toys.FLAG]).to.equal(false)
+		end)
+
+		it("off, leaves both toy cards out of the booth view and its ready count", function()
+			local save = TicketBooth.fresh()
+			save.have = 100000
+			local off = TicketBooth.view(save, MONDAY)
+			local on = TicketBooth.view(save, MONDAY, true)
+			for _, r in off.prizes do
+				expect(r.kind).never.to.equal("toy")
+			end
+			expect(#on.prizes - #off.prizes).to.equal(2)
+			expect(on.ready - off.ready).to.equal(2)
+			expect(TicketBooth.view(save, MONDAY, false).ready).to.equal(off.ready)
 		end)
 	end)
 

@@ -97,7 +97,7 @@ Quests.setFlagReader(LiveFlagService.on)
 -- #3995: a player who joins through a friend this session gets no intro by itself, and the save stays out of the intro
 -- test (the ? Tutorial tile still plays it on a tap)
 Telemetry.setIntroSkip(function(player: Player): boolean
-	return LiveFlagService.on(PalJoin.FLAG) and PalService.joinedVia(player) ~= nil
+	return PalService.joinedVia(player) ~= nil
 end)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
@@ -365,7 +365,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
 		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG)
 				and TicketBooth.open(Economy.tier(profile))
-			then TicketBooth.view(profile.tickets, now)
+			then TicketBooth.view(profile.tickets, now, LiveFlagService.on("toys"))
 			else nil, -- #4061
 		dragon = if LiveFlagService.on(DragonKeep.FLAG)
 				and DragonKeep.open(Economy.tier(profile))
@@ -2553,12 +2553,9 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	CafeService.sync(player)
 end
 
--- #3995 (friend-join-3995.md): the door of the friend a player joined through, with the palJoin switch on, for the
--- cafe next door; nil otherwise (the first free plot, as before).
+-- #3995 (friend-join-3995.md): the door of the friend a player joined through, for the cafe next door; nil
+-- otherwise (the first free plot, as before). #4654 batch 8: the `palJoin` switch is retired.
 local function palDoor(player: Player): Vector3?
-	if not LiveFlagService.on(PalJoin.FLAG) then
-		return nil
-	end
 	local pal = PalService.joinedVia(player)
 	local palPlot = if pal ~= nil then PlotService.get(pal) else nil
 	return if palPlot ~= nil then palPlot.door.Position else nil
@@ -2566,9 +2563,6 @@ end
 
 -- #3995: pal_join once, and the PalNextDoor attribute for the joiner's "Your cafe is next door." line.
 local function palJoined(player: Player, profile: Profile, plot: WorldBuilder.Plot?)
-	if not LiveFlagService.on(PalJoin.FLAG) then
-		return
-	end
 	local pal, how = PalService.joinedHow(player)
 	if pal == nil or how == nil then
 		return

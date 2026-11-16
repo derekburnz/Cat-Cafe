@@ -20,7 +20,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextChatService = game:GetService("TextChatService")
 
 local GlobalCatch = require(ReplicatedStorage.Shared.GlobalCatch)
-local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Net = require(script.Parent.Parent.Net)
 local RareCatsTab = require(ReplicatedStorage.Shared.RareCatsTab)
 
@@ -30,20 +29,13 @@ local CHANNEL_WAIT = 10 -- seconds a line waits for RBXGeneral just after join
 
 local general: TextChannel? = nil
 
--- #3053 (shared/RareCatsTab): the "Rare Cats" tab. While the `rareCatsTab` switch is on and the server has made the
--- channel, the chat's channel tabs are on and every Mythical or better line also goes in that channel, at most one
+-- #3053 (shared/RareCatsTab): the "Rare Cats" tab. Once the server has made the channel (#4654 batch 4: its
+-- `rareCatsTab` switch is retired), the chat's channel tabs are on and every Mythical or better line also goes in that channel, at most one
 -- every RareCatsTab.GAP_SECONDS. Off, this touches nothing: the tab bar is only ever turned off again if this
 -- script turned it on.
 local TAB_CHECK_SECONDS = 1
 local tabQueue = RareCatsTab.queue()
 local tabsTurnedOn = false
-
-local function tabOn(): boolean
-	return LiveFlags.shown(
-		RareCatsTab.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RareCatsTab.FLAG)
-	)
-end
 
 local function tabChannel(): TextChannel?
 	local channels = TextChatService:FindFirstChild("TextChannels")
@@ -57,7 +49,7 @@ end
 -- #3673: whether this player has the tab: the switch on, the channel there and this player a reader of it (a player
 -- with chat off, or one the server could not add, has no tab and keeps every line in the normal chat).
 local function hasTab(): boolean
-	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService or not tabOn() then
+	if TextChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then
 		return false
 	end
 	local current = tabChannel()
@@ -75,7 +67,7 @@ end
 
 -- One tick of the tab: the tab bar follows the switch and the channel, and one waiting line is written.
 local function tabStep()
-	local current = if tabOn() then tabChannel() else nil
+	local current = tabChannel()
 	local tabs =
 		TextChatService:FindFirstChildOfClass("ChannelTabsConfiguration") :: ChannelTabsConfiguration?
 	if tabs ~= nil then

@@ -3014,19 +3014,11 @@ function UI.bait.busy(): boolean
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
--- popups when out looking for and catching cats"): with the quietAway switch on, the bowl cards wait while the
+-- popups when out looking for and catching cats"): the bowl cards wait while the
 -- player's net is out (the server's NetHidden is clear only in a catching area's wild part, outside its camp), and
 -- come one at a time once they are back in town, a cafe or a camp. The bowl chip still shows its "!" meanwhile.
+-- #4654 batch 6: the `quietAway` switch is retired (on live since 2026-11-13).
 function UI.bait.away(): boolean
-	local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
-	if
-		not LiveFlags.shown(
-			"quietAway",
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "quietAway")
-		)
-	then
-		return false
-	end
 	local character = Players.LocalPlayer.Character
 	-- NetHidden is off in an area's wild part outside its camp, and on while carrying (CatService.markCamps), so a
 	-- carry counts as away too: the run back to camp stays quiet (review of #4040)
@@ -4763,21 +4755,11 @@ do
 		end
 		rescueOnCircle = false
 		-- #3050: the Rummage Bin's bar is the same bar with its own name and closing words
-		-- #3611: with the prize rolled first (`binRoll`), the bar names what is being rummaged for
+		-- #3611: with the prize rolled first, the bar names what is being rummaged for
 		local function binBarName(): string
-			local LiveFlags =
-				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 			local waiting =
 				RummageBin.rollRow(Players.LocalPlayer:GetAttribute(RummageBin.PRIZE_ATTRIBUTE))
-			if
-				waiting == nil
-				or not LiveFlags.shown(
-					RummageBin.ROLL_FLAG,
-					ReplicatedStorage:GetAttribute(
-						LiveFlags.ATTRIBUTE_PREFIX .. RummageBin.ROLL_FLAG
-					)
-				)
-			then
+			if waiting == nil then
 				return RummageBin.NAME
 			end
 			-- #3683: the prize alone ("Rummage for: Golden Alley Crate" was cut on the bar); the board over the bin
@@ -6016,12 +5998,8 @@ do
 		-- walk through. Never marked seen, so the server sends it again later.
 		local shared = ReplicatedStorage:WaitForChild("Shared")
 		local QuietStart = require(shared:WaitForChild("QuietStart")) :: any
-		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
 		local quiet = QuietStart.live()
-		local spotlight = LiveFlags.shown(
-			"rankUpSpotlight",
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankUpSpotlight")
-		)
+		local spotlight = true -- #4654 batch 6: the `rankUpSpotlight` switch is retired
 		local now: any = UI.getState()
 		if QuietStart.holdsTip(id, if now ~= nil then now.tier else nil, quiet, spotlight) then
 			return
@@ -7738,16 +7716,9 @@ do
 				local distance = cartDistance()
 				return distance ~= nil and distance > FAR_STUDS
 			end,
-			-- #3699: the Backpack's colour picker, behind the switch bagColours
+			-- #3699: the Backpack's colour picker (#4654 batch 7: its `bagColours` switch is retired)
 			colours = function(): boolean
-				local LiveFlags = require(
-					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
-				) :: any
-				local key = "bagColours"
-				return LiveFlags.shown(
-					key,
-					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
-				)
+				return true
 			end,
 			saveColours = function(main: string, trim: string, kind: string?)
 				UI.events.setBagColours:Fire(main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes
@@ -11199,12 +11170,9 @@ do
 					lines = party.lines,
 				}) == true
 				-- #3535: Friday's party is followed by the Secret cats card (queued behind the party card)
-				local LiveFlags = require(
-					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
-				) :: any
 				local secrets = EventLogic.secretsBanner(
 					view,
-					LiveFlags.shown("secretCats", get(LiveFlags.ATTRIBUTE_PREFIX .. "secretCats")),
+					true, -- #4654 batch 5: the `secretCats` switch is retired
 					#EventBanner.shapeModels() -- #4221: the first three only, as the shapes under it
 				)
 				if secrets ~= nil then

@@ -1094,10 +1094,6 @@ local function baitWindow()
 	return window
 end
 -- #4266: the Auto Bowl switch on, the pass made (a made-up id) and on sale at R$19; Scenes.close puts all back
--- #4266: the menu family look is on (the Auto Bowl card is part of its bowl column)
-local function familyLook(): boolean
-	return UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily").on()
-end
 local function autoBowlOn()
 	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 	Scenes._autoBowl = true
@@ -4194,10 +4190,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 		end
-		-- #3462: the Day Cart's own foods are off the list while its Tier 6 shelf is shut (the cartTier6 switch)
+		-- #3462: the Day Cart's own foods are on the list (#4654 batch 4: the cartTier6 switch that hid them is retired)
 		for _, id in { "honey_cream", "comet_treat" } do
 			local row = window:FindFirstChild(id, true)
-			assert(row and row:IsA("GuiObject") and not row.Visible, "uigate: " .. id .. " is listed with the cart's shelf shut (#3462)")
+			assert(row and row:IsA("GuiObject") and row.Visible, "uigate: " .. id .. " is not listed with the cart's shelf open (#3462)")
 		end
 	end },
 	-- Studio 2026-11-13 (#3976): in the family look, before the bowl is bought the Upgrades button sits at the status
@@ -5041,9 +5037,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #4266 (Derek 2026-11-14): the Auto Bowl pass in the empty space over Refill: the offer with Roblox's price over
 	-- the free New cat pop-ups switch, clear of the wait chip above and the buttons below
 	{ "BaitAutoOffer", function()
-		if not familyLook() then
-			return -- the card lives in the family look's status column (live since #3961); the old look has no room
-		end
 		autoBowlOn()
 		UI.bait.openPicker()
 		local window = baitWindow()
@@ -5069,9 +5062,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- #4266: with the pass, AUTO BOWL's three switches, all on; a tap turns one off and keeps it through a stale sync
 	{ "BaitAutoOwned", function()
-		if not familyLook() then
-			return -- the card lives in the family look's status column (live since #3961); the old look has no room
-		end
 		autoBowlOn()
 		UI.update({ autoBowl = { owned = true } } :: any)
 		UI.bait.openPicker()
@@ -5630,8 +5620,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "MysteryMarket", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
-		-- #3535: the Speed Shoes are on the shelf (their switch on), so the featured card is there in their week too
-		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_speedShoes", true)
+		-- #3535: the Speed Shoes are on the shelf (no switch since #4654 batch 7), so the featured card is there in their week too
 		UI.update({ goldenFish = 350, mystery = {}, mysterySeen = false, mysteryOpen = true } :: any)
 		local seen = 0
 		local counting = UI.events.mysterySeen:Connect(function()
@@ -5651,7 +5640,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				assert(piece.TextFits, "uigate: the Speed Shoes' name does not fit its card (#3535)")
 			end
 		end
-		assert(shoes, "uigate: the Speed Shoes are not on Juniper's shelf with their switch on (#3535)")
+		assert(shoes, "uigate: the Speed Shoes are not on Juniper's shelf (#3535)")
 		UI.update({ mysterySeen = true } :: any)
 	end },
 	-- #2574: the featured item owned and buys not open yet ("Soon")
@@ -5661,13 +5650,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ goldenFish = 1200, mystery = { backpack = true, long_net = true }, mysterySeen = true, mysteryOpen = false } :: any)
 		UI.mystery.open()
 	end },
-	-- #3699: the owned Backpack's button reads "Edit" (#4049, was "Colours") with the switch bagColours on, and opens the picker in
+	-- #3699: the owned Backpack's button reads "Edit" (#4049, was "Colours"), and opens the picker in
 	-- Juniper's window: Mint for the bag and Gold for the trim tapped, Save sends SetBagColours once
 	{ "BagColourPicker", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
-		local RS = game:GetService("ReplicatedStorage")
-		RS:SetAttribute("LiveFlag_bagColours", true)
 		UI.update({ goldenFish = 1200, mystery = { backpack = true }, mysterySeen = true, mysteryOpen = true, bagColours = false } :: any)
 		UI.mystery.open()
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -5726,16 +5713,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		listening:Disconnect()
 		assert(#sent == 1 and sent[1] == "mint/honey", "uigate: Save should send the two picks once (#3699), got " .. table.concat(sent, ","))
 		UI.update({ bagColours = { main = "mint", trim = "honey" } } :: any)
-		RS:SetAttribute("LiveFlag_bagColours", nil)
 	end },
-	-- #4049: the owned Speed Shoes' button reads "Edit" with the switch bagColours on, and opens the picker in
+	-- #4049: the owned Speed Shoes' button reads "Edit", and opens the picker in
 	-- Juniper's window: Mint for the bag and Gold for the trim tapped, Save sends SetBagColours once
 	{ "ShoeColourPicker", function()
 		local before: any = UI.getState()
 		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
-		local RS = game:GetService("ReplicatedStorage")
-		RS:SetAttribute("LiveFlag_bagColours", true)
-		RS:SetAttribute("LiveFlag_speedShoes", true) -- the shelf shows the shoes only with their switch on
 		UI.update({ goldenFish = 1200, mystery = { speed_shoes = true }, mysterySeen = true, mysteryOpen = true, shoeColours = false } :: any)
 		UI.mystery.open()
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -5795,8 +5778,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		listening:Disconnect()
 		assert(#sent == 1 and sent[1] == "navy/honey/shoes", "uigate: Save should send the two picks once (#3699), got " .. table.concat(sent, ","))
 		UI.update({ shoeColours = { main = "navy", trim = "honey" } } :: any)
-		RS:SetAttribute("LiveFlag_bagColours", nil)
-		RS:SetAttribute("LiveFlag_speedShoes", nil)
 	end },
 	-- #2614: a Super gift waits on your plot: the HUD's gold line under the clock column; opening it shows the
 	-- "Super gift!" card with the top area's crate and its 15 golden fish
@@ -9128,19 +9109,20 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tipsSeen = before } :: any)
 	end },
 	-- #2408 (Derek2: "because of so many pop ups on cafe tier up its hard to see the cutscene showing next place
-	-- unlocked"): the rank up's camera cut (a stand-in cut player here): the HUD steps aside, a toast sent meanwhile
-	-- waits, and both come back when the cut ends
+	-- unlocked"): a context tip's camera cut (a stand-in cut player here): the HUD steps aside, a toast sent meanwhile
+	-- waits, and both come back when the cut ends. #4654 batch 6: the rank up walk-through is always on, so the
+	-- rank up cut itself is held (QuietStart.holdsTip); the scene checks the same cut path on the golden fish tip
 	{ "RankUpCutQuiet", function()
 		local before: any = (UI.getState() :: any).tipsSeen or {}
 		local tipsSeen = table.clone(before)
 		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
 			tipsSeen[def.id] = true
 		end
-		tipsSeen.rank_up = nil
+		tipsSeen.golden_fish = nil
 		UI.update({ tipsSeen = tipsSeen } :: any)
 		local cut: { started: boolean, done: ((boolean) -> ())? } = { started = false, done = nil }
 		UI.tips.setCutPlayer(function(id: string, _caption: string, _seconds: number, done: (boolean) -> ()): boolean
-			if id ~= "rank_up" then
+			if id ~= "golden_fish" then
 				return false
 			end
 			cut.started = true
@@ -9148,7 +9130,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			return true
 		end)
 		UIShim.advance(tipGap() + 1, 1) -- past TipGapSeconds after an earlier scene's tip, in 1 s frames (#4241)
-		UI.tips.show("rank_up")
+		UI.tips.show("golden_fish")
 		UIShim.advance(1)
 		assert(cut.started, "uigate: the rank up cut never played (#2408)")
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
@@ -10182,7 +10164,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
 		local RS = game:GetService("ReplicatedStorage")
 		RS:SetAttribute("LiveFlag_menuFamily", false)
-		assert(MenuFamily.on() == true and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
+		assert(MenuFamily.on == nil and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
 		RS:SetAttribute("LiveFlag_menuFamily", nil)
 		UI.open("Quests")
 	end },
@@ -11278,10 +11260,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		print(("[CornerShop] %d cards a row"):format(most))
-		-- the grids are the family look's (#3961); the old look's list has none, so the count is only for the family look
-		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		-- the grids are the family look's (#3961), the only look since #4657
 		assert(
-			not MenuFamily.on() or most >= 4,
+			most >= 4,
 			("uigate: the Day Cart grid has room for only %d cards a row (#4007)"):format(most)
 		)
 	end },

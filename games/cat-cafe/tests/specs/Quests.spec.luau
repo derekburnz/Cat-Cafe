@@ -335,22 +335,22 @@ return function()
 
 		it("hides one whose switch is off: not sent, not claimable, not in Claim all", function()
 			local p = fresh()
-			p.stats.restSeconds = 5000
+			p.stats.binWins = 60
 			Quests.setFlagReader(reader(false))
 			local ok, problem = pcall(function()
-				-- #4654 batch 3: the Mystic Pool ones have no switch now; the 1 hour rest one waits for afkCafe
-				local def = Catalog.getAchievement("a_rest1h") :: any
+				-- #4654: the Mystic Pool ones and the 1 hour rest one have no switch now; the Rummage Bin's stay behind alleyBin
+				local def = Catalog.getAchievement("a_bin10") :: any
 				expect(Quests.achievementShown(def)).to.equal(false)
-				expect(Quests.achievementsView(p).a_rest1h).to.equal(nil)
-				expect(Quests.achievementBlocker(p, "a_rest1h")).to.equal("Not open yet")
-				expect(table.find(ClaimAll.achievements(p), "a_rest1h")).to.equal(nil)
+				expect(Quests.achievementsView(p).a_bin10).to.equal(nil)
+				expect(Quests.achievementBlocker(p, "a_bin10")).to.equal("Not open yet")
+				expect(table.find(ClaimAll.achievements(p), "a_bin10")).to.equal(nil)
 				-- one with no switch is not touched
 				expect(Quests.achievementsView(p).a_first_catch ~= nil).to.equal(true)
 				local n = 0
 				for _ in Quests.achievementsView(p) do
 					n += 1
 				end
-				expect(n).to.equal(63) -- the 62 with no switch (Lucky Picker and the two Mystic Pool ones since #4654) and golden crates
+				expect(n).to.equal(67) -- all 69 but the Rummage Bin's two (Lucky Picker, the Mystic Pool, Secret, Mouse Chaser and rest ones have no switch since #4654)
 			end)
 			Quests.setFlagReader(default)
 			if not ok then
@@ -729,10 +729,9 @@ return function()
 				expect(row.claimed).to.equal(id == first.id)
 				expect(row.progress <= (Catalog.getAchievement(id) :: any).needs).to.equal(true)
 			end
-			-- every switch at its default: the Rummage Bin's two (alleyBin is on by default) and the golden crates
-			-- one join the 62 (Lucky Picker and the two Mystic Pool ones have no switch since #4654); the four whose
-			-- switch starts off stay out
-			expect(n).to.equal(65)
+			-- every switch at its default: the Rummage Bin's two (alleyBin is on by default) join the 67 with no switch
+			-- (Lucky Picker, the Mystic Pool, Secret, Mouse Chaser and rest ones since #4654), so all 69 show
+			expect(n).to.equal(69)
 		end)
 	end)
 

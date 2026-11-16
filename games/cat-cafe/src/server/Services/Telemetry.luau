@@ -30,7 +30,6 @@ local Workspace = game:GetService("Workspace")
 local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
-local Catching = require(ReplicatedStorage.Shared.Catching)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -45,6 +44,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
+local Journeys = require(ReplicatedStorage.Shared.Journeys)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
@@ -645,6 +645,12 @@ type Session = {
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
 	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
+	askJourney: string?, -- #4544: this session's EventAsk journey session id, made at the first answer
+	-- #4544: the cannon trip under way (the AreaVisit journey) and how many this session
+	trip: { id: string, area: string, arrived: boolean, caught: boolean }?,
+	trips: number?,
+	-- #4544: a first session's FirstTenMinutes journey: its id, the acts logged so far and whether it has ended
+	firstTen: { id: string, acts: { string }, ended: boolean }?,
 	recapShown: boolean, -- #1920: session_recap logged this session
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
 	goals: { ShownGoal }, -- #2916: next goals shown this session (recap) or at the join, until each is met
@@ -1084,6 +1090,12 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 	if session == nil then
 		return
 	end
+	-- #4544: the first catch in the area this trip landed in
+	local trip = session.trip
+	if trip ~= nil and trip.area == area and trip.arrived and not trip.caught then
+		trip.caught = true
+		Telemetry.journey(player, Journeys.AREA, Journeys.AreaNodes.caught, trip.id, { area })
+	end
 	local areas = session.areasCaught
 	if areas == nil then
 		return -- joined is not logged yet: logJoined reads the save's areas, and the cat joins them at check-in
@@ -1092,6 +1104,66 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 		areas[area] = true
 		logClean(player, profile)
 	end
+end
+
+-- #4544: the AreaVisit journey's first node. The cannon fired at `area` (CannonService checked it), or with `locked`
+-- the pick was refused because the area's Tier is above the player's. A new trip replaces the one before it.
+function Telemetry.tripPicked(player: Player, profile: Profile, area: string, locked: boolean)
+	local session = sessions[player]
+	if session == nil or (session.trips or 0) >= Journeys.TRIPS_MAX then
+		return
+	end
+	session.trips = (session.trips or 0) + 1
+	local id = HttpService:GenerateGUID(false)
+	session.trip = if locked then nil else { id = id, area = area, arrived = false, caught = false }
+	if not locked then
+		Telemetry.firstAct(player, "cannon")
+	end
+	local node = if locked then Journeys.AreaNodes.locked else Journeys.AreaNodes.picked
+	Telemetry.journey(player, Journeys.AREA, node, id, { area, tierText(profile) })
+end
+
+-- #4544: the trip to `area` landed.
+function Telemetry.tripArrived(player: Player, area: string)
+	local session = sessions[player]
+	local trip = if session ~= nil then session.trip else nil
+	if trip ~= nil and trip.area == area and not trip.arrived then
+		trip.arrived = true
+		Telemetry.journey(player, Journeys.AREA, Journeys.AreaNodes.arrived, trip.id, { area })
+	end
+end
+
+-- #4544: one act of a new player's first ten minutes (`act` one of Journeys.ACTS): the first three different acts
+-- of a first session are logged in order as the FirstTenMinutes journey. Nothing for anyone else.
+function Telemetry.firstAct(player: Player, act: string)
+	local session = sessions[player]
+	local first = if session ~= nil then session.firstTen else nil
+	if
+		session == nil
+		or first == nil
+		or first.ended
+		or table.find(first.acts, act) ~= nil
+		or os.time() - session.joinedAt > Journeys.FIRST_SECONDS
+	then
+		return
+	end
+	local node = Journeys.actNode(#first.acts + 1, act)
+	if node ~= nil then
+		table.insert(first.acts, act)
+		Telemetry.journey(player, Journeys.FIRST, node, first.id)
+	end
+end
+
+-- #4544: how the first ten minutes ended (`how` a Journeys.FirstEnds key), once.
+local function firstEnd(player: Player, how: string)
+	local session = sessions[player]
+	local first = if session ~= nil then session.firstTen else nil
+	if first == nil or first.ended then
+		return
+	end
+	first.ended = true
+	local node = (Journeys.FirstEnds :: { [string]: string })[how]
+	Telemetry.journey(player, Journeys.FIRST, node, first.id, { tostring(#first.acts) })
 end
 
 function Telemetry.onboarding(
@@ -1354,6 +1426,31 @@ local function funnelStep(
 	end)
 end
 
+-- #4544: one node of a Roblox Journey (shared/Journeys holds the names; they must match the published config). Behind
+-- the `journeys` switch. `sessionId` ties one attempt's nodes together (a Store visit, a trade, a play session).
+function Telemetry.journey(
+	player: Player,
+	journey: string,
+	node: string,
+	sessionId: string,
+	values: { string }?
+)
+	if not LiveFlagService.on(Journeys.FLAG) then
+		return
+	end
+	local fields = values or {}
+	remember(player, "journey", journey .. " " .. node, 1, fields)
+	send(player, "journey " .. journey, function()
+		(AnalyticsService :: any):LogJourneyEvent(
+			player,
+			journey,
+			node,
+			sessionId,
+			customFields(fields)
+		)
+	end)
+end
+
 -- #3378: stray_call. The client reports each call of its own waiting stray (TelemetryReport "stray_call"); a catch
 -- that starts within STRAY_CALL_SECONDS answers it "yes", otherwise it is logged "no" when the time is up.
 local STRAY_CALL_SECONDS = 10
@@ -1408,6 +1505,7 @@ function Telemetry.catchEngaged(
 ): CatchFunnel
 	local current = funnel or Telemetry.swingHit(player, rarity, method, area)
 	funnelStep(player, "catch_attempt", current.id, 2, "engaged", current.values)
+	Telemetry.firstAct(player, "catch") -- #4544
 	return current
 end
 
@@ -1466,14 +1564,10 @@ end
 
 -- #3876: the rarity_v1 funnel (shared/RarityFunnel), one run per player with the user id as its session: every step
 -- up to the best rarity in the save's Index not yet logged this session. A new session logs its steps again, which
--- the report counts once a player (FunnelUserTotalCount); no save field is needed. Only with the `secretCats` switch.
+-- the report counts once a player (FunnelUserTotalCount); no save field is needed. (#4654 batch 5: its `secretCats` switch is retired.)
 local function logRarity(player: Player, profile: Profile)
 	local session = sessions[player]
-	if
-		session == nil
-		or session.rarityStep == nil
-		or not LiveFlagService.on(Catching.SECRET_FLAG)
-	then
+	if session == nil or session.rarityStep == nil then
 		return
 	end
 	local logged = session.rarityStep :: number
@@ -1813,6 +1907,9 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 	local seconds = profile.stats.playtimeSeconds
 		+ (if session ~= nil then math.max(0, os.time() - session.joinedAt) else 0)
 	Telemetry.custom(player, "rank_up", math.floor(seconds / 60), { tostring(tier) })
+	if session ~= nil and os.time() - session.joinedAt <= Journeys.FIRST_SECONDS then
+		firstEnd(player, "rank") -- #4544
+	end
 	if tier == 2 then
 		-- RankUp is pressed on the Rank Up card with the needs met: tier_2 implies both steps before it (F87)
 		Telemetry.onboarding(player, profile, "tier_2")
@@ -1863,6 +1960,11 @@ local function storeStep(player: Player, name: string, values: { string })
 	end
 	visit.step = step
 	funnelStep(player, StoreFunnel.NAME, visit.id, step, name, values)
+	-- #4544: the same step as a StoreVisit journey node
+	local node, fields = Journeys.storeNode(name, values)
+	if node ~= nil then
+		Telemetry.journey(player, Journeys.STORE, node, visit.id, fields)
+	end
 end
 
 -- #2914: the store_v1 prompt_closed step, for the sku this visit's buy button pressed only (a bait or Cafe Pass
@@ -2266,6 +2368,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if kind ~= nil and not session.nudges["rsvp:" .. kind] then
 			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "event_rsvp", 1, { kind })
+			-- #4544: the same answer as an EventAsk journey node, one journey session a play session
+			local node = Journeys.askNode(kind)
+			if node ~= nil then
+				session.askJourney = session.askJourney or HttpService:GenerateGUID(false)
+				Telemetry.journey(player, Journeys.EVENT, node, session.askJourney :: string)
+			end
 		end
 	elseif name == "boot_ui" or name == "boot_sync" then
 		-- #4307: where the wait before the intro goes (FirstFive.bootBucket)
@@ -2480,6 +2588,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.storeVisits += 1
 			session.store = { id = HttpService:GenerateGUID(false), step = 0, sku = nil }
 			storeStep(player, "opened", { from, tierText(profile), session.source })
+			Telemetry.firstAct(player, "store") -- #4544
 			Telemetry.custom(
 				player,
 				"store_opened",
@@ -2630,6 +2739,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local raw = if type(rawValue) == "string" then rawValue else nil
 		local screen = if raw ~= nil then SCREENS[raw] else nil
 		local more = if raw ~= nil then MORE_SCREENS[raw] else nil
+		-- #4544: a window opened as an act of the first ten minutes (the Store, the trade and the cannon's Areas window
+		-- count where they are used; the Bait window is the bowl)
+		local window = screen or more
+		if window == "bait" then
+			Telemetry.firstAct(player, "bowl")
+		elseif window ~= nil and window ~= "store" and window ~= "trade" and window ~= "areas" then
+			Telemetry.firstAct(player, "menu")
+		end
 		if screen == nil and more ~= nil and not session.uiOpened[more] then
 			session.uiOpened[more] = true
 			Telemetry.custom(player, "ui_opened", 1, { more }) -- #1888: not a window for first_window_opened
@@ -2758,6 +2875,15 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	if firstSession then
+		-- #4544: the FirstTenMinutes journey, a first session only
+		session.firstTen = { id = HttpService:GenerateGUID(false), acts = {}, ended = false }
+		task.delay(Journeys.FIRST_SECONDS, function()
+			if sessions[player] == session then
+				firstEnd(player, "still")
+			end
+		end)
+	end
 	-- #4314: a new save joins the loading screen test when the Experiment gives it an arm; the client reads the
 	-- attribute (UI.intro.waiting). The read can wait up to IntroModeService.WAIT_SECONDS, so it runs apart.
 	if LoadingTest.joins(profile.stats.sessions, profile.introSeen) then
@@ -3098,6 +3224,10 @@ local function onRelease(player: Player, profile: Profile)
 				if buy ~= nil then Economy.nextUpgradeCost(profile, buy) else nil
 			),
 		})
+	end
+	-- #4544: a first session that ends inside its first ten minutes
+	if os.time() - session.joinedAt < Journeys.FIRST_SECONDS then
+		firstEnd(player, "left")
 	end
 	sessions[player] = nil
 	lastWhere[player] = nil

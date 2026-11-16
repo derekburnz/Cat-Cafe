@@ -1142,8 +1142,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		})
 	end
 	-- #4346 (Derek 2026-11-14: "add an afk button on the top right maybe on top of where the feedback button was
-	-- before"): the AFK tile, left of the Feedback place, while UI.afk says it shows (the afkButton and afkCafe
-	-- switches; HUD.bindAfk). A tap asks the server for AFK mode on or off: home, 2x rest at once, and the rejoin
+	-- before"): the AFK tile, left of the Feedback place, while UI.afk says it shows (the afkButton
+	-- switch; HUD.bindAfk). A tap asks the server for AFK mode on or off: home, 2x rest at once, and the rejoin
 	-- before Roblox's idle kick keeps it. Purple with "AFK" while off, gold with "AFK ON" while on. With it
 	-- showing, Feedback moves into the Menu list (_feedbackInMenu), so the row keeps its width.
 	self._afk = nil :: any -- UI.afk (Controllers/AfkController), once bound

@@ -57,7 +57,7 @@ function SecondCatHelp.topUpFor(
 	if nextTier == nil then
 		return 0
 	end
-	if Economy.rankUpCatCount(profile.collection) < nextTier.distinctCats then
+	if Economy.rankUpCats(profile.collection, profile.cats, nextTier) < nextTier.distinctCats then
 		return 0
 	end
 	local rarity: Types.Rarity? = nextTier.needsRarity

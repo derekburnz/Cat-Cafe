@@ -225,8 +225,10 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 		table.insert(
 			requirements,
 			requirement(
-				("%d different cats"):format(nextTier.distinctCats),
-				"Different cats",
+				(if nextTier.anyCats == true then "%d cats" else "%d different cats"):format(
+					nextTier.distinctCats
+				),
+				if nextTier.anyCats == true then "Cats" else "Different cats", -- #4809
 				needs.catsHave,
 				needs.catsNeed
 			)

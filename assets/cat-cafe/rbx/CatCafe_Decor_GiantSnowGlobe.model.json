@@ -3909,7 +3909,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_GiantSnowGlobe_Spin"
   }

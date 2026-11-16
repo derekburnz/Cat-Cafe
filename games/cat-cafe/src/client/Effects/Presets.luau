@@ -1497,6 +1497,20 @@ Presets.emitters = {
 		rotSpeed = { -180, 180 },
 	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
+	-- The night stars over the Observatory (#4069, Effects/FusionFx): still, pale points that grow in and fade
+	-- out, a few at a time over a wide box, so the sky over the telescope twinkles. Under 3 a second.
+	observatoryStars = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Color3.fromRGB(200, 220, 255) },
+		size = { 0.9, 0 },
+		transparency = { 0.15, 0.85 },
+		lifetime = { 1.6, 3 },
+		speed = { 0, 0 },
+		spread = 0,
+		rate = 2.5,
+		lightEmission = 1,
+		rotSpeed = { -20, 20 },
+	},
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.sparkle, Presets.palette.offwhite },
@@ -4284,6 +4298,15 @@ Presets.fusion = {
 		rate = 1 / 60, -- every frame near the dome: at 20 a second the paw lights stepped round in jerks (#4563)
 		lookSeconds = 3,
 	},
+	-- #4069: the night stars over the Observatory (emitter `observatoryStars`), a flat box `across` studs wide,
+	-- `lift` studs over the dome's top
+	stars = {
+		emitter = "observatoryStars",
+		across = 40,
+		lift = 10,
+		within = 110,
+		check = 1,
+	},
 }
 
 -- The arcade cabinet's idle glow (#3062; Effects/ArcadeGlow): its `screen` part drifts through `colours`, one every
@@ -4466,7 +4489,7 @@ Presets.tradeFly = {
 -- random point of its cycle; Reduce Motion and Low performance hold them all still as modelled.
 Presets.decorMotion = {
 	angle = { default = 10, least = 0, most = 45 },
-	seconds = { default = 2, least = 0.3, most = 30 },
+	seconds = { default = 2, least = 0.3, most = 120 }, -- up to 120 for a slow lookout turn (#4069 telescope, Seconds 90)
 	rise = { default = 0.08, least = 0, most = 1 },
 	pick = 1, -- seconds between choosing which parts move
 }

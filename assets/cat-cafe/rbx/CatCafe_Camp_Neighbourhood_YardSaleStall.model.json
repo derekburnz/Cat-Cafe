@@ -10097,7 +10097,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing"
   }

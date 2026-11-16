@@ -34,7 +34,11 @@ function ReturnGoals.done(goal: Goal, profile: Types.PlayerProfile): boolean
 	end
 	local need = goal.need or 0
 	if goal.kind == "cats" then
-		return Economy.rankUpCatCount(profile.collection) >= need
+		local tierDef = if goal.tier ~= nil then Catalog.getTier(goal.tier) else nil
+		local have = if tierDef ~= nil
+			then Economy.rankUpCats(profile.collection, profile.cats, tierDef)
+			else Economy.rankUpCatCount(profile.collection)
+		return have >= need
 	elseif goal.kind == "rarity" and goal.rarity ~= nil then
 		return Economy.rankUpCatsAtLeast(profile.collection, goal.rarity :: Types.Rarity) >= need
 	elseif goal.kind == "coins" then
@@ -48,7 +52,7 @@ function ReturnGoals.pick(profile: Types.PlayerProfile, now: number): { Goal }
 	local nextTier = Catalog.getTier(Economy.tier(profile) + 1)
 	-- #3997: a tier behind its live switch (shared/LateTiers) is not a goal until its area opens
 	if nextTier ~= nil and LateTiers.tierOpen(nextTier.tier) then
-		local cats = Economy.rankUpCatCount(profile.collection)
+		local cats = Economy.rankUpCats(profile.collection, profile.cats, nextTier)
 		if cats < nextTier.distinctCats then
 			table.insert(goals, {
 				kind = "cats",

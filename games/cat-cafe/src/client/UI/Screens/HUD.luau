@@ -2611,6 +2611,10 @@ function HUD.pressTravel(self: any, destination: string): boolean
 		return false
 	end
 	self._callbacks.travel(destination)
+	if destination == "cannon" then
+		self._cannonPressed = true -- #4807: the tutorial's dim and arrow on this button go at once
+		self:pointCannon(false)
+	end
 	self._travelUntil = os.clock() + TRAVEL_COOLDOWN
 	self:_renderTravel()
 	task.delay(TRAVEL_COOLDOWN, function()
@@ -4034,12 +4038,15 @@ end
 -- #4777 (Derek 2026-11-16: "instead of teleporting player to the cannon after food bowl have them click the cannon
 -- button with dim screen and arrow"): the tutorial's spotlight on the Cannon travel button (the dim, the gold ring and
 -- the big arrow), while `on`; a controller's selection goes to it once, so A presses it.
+-- #4807 (Derek 2026-11-16 13:37 UTC: "when clicking cannon should move onto walking it not continue with the dim
+-- background and pointing at cannon it stays there after clicking it already"): once the lit button is pressed the
+-- spotlight goes for the session; the strip line and the marker on the cannon lead the walk in.
 function HUD.pointCannon(self: any, on: boolean)
 	local button = self._travelButtons.cannon
 	if button == nil then
 		return
 	end
-	local lit = on and button.instance.Visible
+	local lit = on and button.instance.Visible and self._cannonPressed ~= true
 	TutorialGlow.set(button.face, lit)
 	if lit and not self._cannonPadOnce then
 		self._cannonPadOnce = true

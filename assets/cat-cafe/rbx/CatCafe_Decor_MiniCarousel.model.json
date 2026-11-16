@@ -5249,7 +5249,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_MiniCarousel_Spin"
   }

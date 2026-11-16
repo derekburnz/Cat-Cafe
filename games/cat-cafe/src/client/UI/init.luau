@@ -3614,6 +3614,13 @@ function UI.net.setInReach(model: Model?)
 	end
 end
 
+-- #4808: the tutorial's ring and arrow (no dim) on the touch Net button while it shows, during a catch step
+function UI.net.point(on: boolean)
+	if netButton then
+		netButton:point(on)
+	end
+end
+
 -- One short line on how to swing on this device, for the tutorial strip and hints: "Tap NET next to a cat",
 -- "Press R2 next to a cat" or "Click next to a cat".
 function UI.net.hint(): string

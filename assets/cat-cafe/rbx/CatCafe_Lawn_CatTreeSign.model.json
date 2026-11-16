@@ -8518,7 +8518,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_CatTreeSign_Star_Spin"
   },
@@ -8683,7 +8684,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_CatTreeSign_Toy_Swing"
   }

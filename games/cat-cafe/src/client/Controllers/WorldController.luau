@@ -198,8 +198,13 @@ local NIGHT_BLOOM_SCALE = 0.6
 
 type DayLook = { material: Enum.Material, color: Color3, transparency: number, light: Light }
 
-local dayLooks: { [BasePart]: DayLook } = setmetatable({}, { __mode = "k" }) :: any
-local modelLights: { [Instance]: Light } = setmetatable({}, { __mode = "k" }) :: any
+-- #4788 (streaming): strong tables, pruned by pruneGone once a second, so an entry goes only when its part or light
+-- has left Workspace (streamed out or removed), never because a weak key was collected while the part was still here.
+local dayLooks: { [BasePart]: DayLook } = {}
+local modelLights: { [Instance]: Light } = {}
+-- Every Light this controller made or took over. The near-lights picker walks this set, so no light it ever turned
+-- on can be missed by a later pick.
+local madeLights: { [Light]: boolean } = {}
 local isNight = false
 local lowPerformance = false -- the Low performance setting: no night Light objects, shadows or post effects
 -- #4311 (shared/NightLights): the night Light objects near enough to be on, picked every NightLights.STEP seconds;
@@ -218,7 +223,12 @@ local function lightOn(light: Light): boolean
 		return false
 	end
 	local near = nearLights
-	return near == nil or near[light] == true
+	if near == nil then
+		-- with the switch on, nothing lights until the first pick (pickNearLights runs right after setNight), so a
+		-- night start never flashes every light in the world on for a moment
+		return not nearOnly()
+	end
+	return near[light] == true
 end
 
 local function glowsAtNight(part: BasePart): boolean
@@ -243,11 +253,13 @@ end
 local function lightFor(part: BasePart): Light
 	local existing = part:FindFirstChildWhichIsA("Light")
 	if existing ~= nil then
+		madeLights[existing :: Light] = true
 		return existing :: Light
 	end
 	local model = part:FindFirstAncestorWhichIsA("Model")
 	local shared = if model ~= nil then modelLights[model] else nil
-	if shared ~= nil then
+	-- a shared light whose part streamed out went with it; this part makes the model a new one
+	if shared ~= nil and shared:IsDescendantOf(Workspace) then
 		return shared
 	end
 	local light: Light
@@ -268,10 +280,31 @@ local function lightFor(part: BasePart): Light
 	end
 	light.Enabled = false
 	light.Parent = part
+	madeLights[light] = true
 	if model ~= nil then
 		modelLights[model] = light
 	end
 	return light
+end
+
+-- Drops the parts, models and lights that have left Workspace (streamed out or removed). Assigning nil to the key
+-- being visited is allowed during the loop.
+local function pruneGone()
+	for part in dayLooks do
+		if not part:IsDescendantOf(Workspace) then
+			dayLooks[part] = nil
+		end
+	end
+	for model, light in modelLights do
+		if not model:IsDescendantOf(Workspace) or not light:IsDescendantOf(Workspace) then
+			modelLights[model] = nil
+		end
+	end
+	for light in madeLights do
+		if not light:IsDescendantOf(Workspace) then
+			madeLights[light] = nil
+		end
+	end
 end
 
 local function setGlow(part: BasePart, look: DayLook)
@@ -291,13 +324,16 @@ local function setGlow(part: BasePart, look: DayLook)
 end
 
 -- #4311: picks the night lights nearest the camera and turns the rest off. A light shared by a model's parts
--- (lightFor) counts once.
+-- (lightFor) counts once. #4788: it walks madeLights, every light this controller ever made, so a light stays under
+-- its control even after its part streamed out and back in.
 local function pickNearLights()
+	pruneGone()
 	if not isNight or lowPerformance or not nearOnly() then
-		if nearLights ~= nil then
-			nearLights = nil
-			for part, look in dayLooks do
-				setGlow(part, look)
+		nearLights = nil
+		local want = isNight and not lowPerformance -- night with the switch off: every light, as before #4311
+		for light in madeLights do
+			if light.Enabled ~= want then
+				light.Enabled = want
 			end
 		end
 		return
@@ -308,14 +344,13 @@ local function pickNearLights()
 	end
 	local lights: { Light } = {}
 	local points: { Vector3 } = {}
-	local seen: { [Light]: boolean } = {}
-	for _, look in dayLooks do
-		local light = look.light
+	for light in madeLights do
 		local parent = light.Parent
-		if not seen[light] and parent ~= nil and parent:IsA("BasePart") then
-			seen[light] = true
+		if parent ~= nil and parent:IsA("BasePart") then
 			table.insert(lights, light)
 			table.insert(points, (parent :: BasePart).Position)
+		elseif light.Enabled then
+			light.Enabled = false
 		end
 	end
 	local picked =
@@ -382,6 +417,8 @@ local function setNight(night: boolean)
 	for part, look in dayLooks do
 		setGlow(part, look)
 	end
+	-- the near lights come on now, not at the next once-a-second pick
+	pickNearLights()
 end
 
 local applied: DayLight.Look? = nil -- the look last put on Lighting
@@ -496,12 +533,11 @@ local function followClock()
 		end
 	end)
 	while true do
-		-- a phase change's SKY_JUMP_SECONDS ease (a jump of the clock) keeps the fast step, so it never shows as steps
-		task.wait(
-			if (lowPerformance or Effects.tier() == "low") and blendFrom == nil
-				then SKY_STEP_LOW_SECONDS
-				else SKY_STEP_SECONDS
-		)
+		-- a phase change's SKY_JUMP_SECONDS ease (a jump of the clock) keeps the fast step, so it never shows as steps;
+		-- so does the night on a phone or tablet: it is short (NightLengthSeconds) and its sky falls fast, so a 0.5 s
+		-- step moved the moon about 5 degrees (Sync's Studio read on #4785). Low performance keeps its slow night.
+		local slow = lowPerformance or (Effects.tier() == "low" and not isNight)
+		task.wait(if slow and blendFrom == nil then SKY_STEP_LOW_SECONDS else SKY_STEP_SECONDS)
 		stepSky(clock)
 	end
 end

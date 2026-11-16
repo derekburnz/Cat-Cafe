@@ -133,6 +133,7 @@ local function sprayFish(run: Run, at: number)
 		* CFrame.Angles(0, angle, 0)
 	fish:SetAttribute("AdminFish", true)
 	fish:SetAttribute("From", centre)
+	fish:SetAttribute("DroppedAt", Workspace:GetServerTimeNow()) -- #4788: a fish that streams in late skips its arc (Effects)
 	fish.Touched:Connect(function(hit: BasePart)
 		local player = playerOf(hit)
 		if player ~= nil then

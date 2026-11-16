@@ -12779,7 +12779,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_GoldenYarnKitten_Yarn_Spin"
   }

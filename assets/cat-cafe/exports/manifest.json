@@ -316145,7 +316145,7 @@
         "CatCafe_Plot_ForRent_Sign",
         "CatCafe_Plot_ForRent_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 39.7,
@@ -316171,7 +316171,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.glb"
@@ -316183,10 +316183,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -369257,18 +369257,19 @@
       "objects": [
         "CatCafe_Camp_Snowy_FusionObservatory",
         "CatCafe_Camp_Snowy_FusionObservatory_Slit_Glow",
-        "CatCafe_Camp_Snowy_FusionObservatory_Bulb"
+        "CatCafe_Camp_Snowy_FusionObservatory_Bulb",
+        "CatCafe_Camp_Snowy_FusionObservatory_Slit_Spin"
       ],
       "triangles": 2192,
       "budget": 6000,
       "size_studs": {
         "x": 15.33,
         "y": 13.02,
-        "z": 11.09
+        "z": 15.79
       },
       "size_roblox": [
         15.33,
-        11.09,
+        15.79,
         13.02
       ],
       "bounds_min": [
@@ -369279,10 +369280,24 @@
       "bounds_max": [
         9.12,
         6.52,
-        10.39
+        15.09
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Snowy_FusionObservatory_Slit_Spin": [
+          0.0,
+          0.0,
+          4.7
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Snowy_FusionObservatory_Slit_Spin": [
+          0.0,
+          4.7,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy_FusionObservatory.model.json",
       "rbx_parts": 140,
       "files": [
@@ -369944,7 +369959,7 @@
         "CatCafe_Plot_ForRent_48x37_Sign",
         "CatCafe_Plot_ForRent_48x37_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 43.7,
@@ -369970,7 +369985,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_48x37.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_48x37.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_48x37.glb"
@@ -369982,10 +369997,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=17.20 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -370774,7 +370789,7 @@
         "CatCafe_Plot_ForRent_52x40_Sign",
         "CatCafe_Plot_ForRent_52x40_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 47.7,
@@ -370800,7 +370815,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_52x40.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_52x40.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_52x40.glb"
@@ -370812,10 +370827,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=18.70 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -371604,7 +371619,7 @@
         "CatCafe_Plot_ForRent_56x43_Sign",
         "CatCafe_Plot_ForRent_56x43_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 51.7,
@@ -371630,7 +371645,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_56x43.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_56x43.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_56x43.glb"
@@ -371642,10 +371657,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=20.20 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -372434,7 +372449,7 @@
         "CatCafe_Plot_ForRent_60x46_Sign",
         "CatCafe_Plot_ForRent_60x46_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 55.7,
@@ -372460,7 +372475,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_60x46.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_60x46.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_60x46.glb"
@@ -372472,10 +372487,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=21.70 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"

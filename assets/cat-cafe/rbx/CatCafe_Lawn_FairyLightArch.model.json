@@ -7824,7 +7824,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_FairyLightArch_Lantern_Swing"
   }

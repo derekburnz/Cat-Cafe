@@ -125,7 +125,15 @@ MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
                "_Harvest_Arch": {"ModelStreamingMode": "Atomic"},     # #4251: their Screens with them
                "_Harvest_Board": {"ModelStreamingMode": "Atomic"},
                "_UpdatePoster": {"ModelStreamingMode": "Atomic"},   # #4362: its Screen with it
-               "_ArcadeCabinet": {"ModelStreamingMode": "Atomic"}}   # #3062: its Screen with it
+               "_ArcadeCabinet": {"ModelStreamingMode": "Atomic"},   # #3062: its Screen with it
+               # #4788: a tier gate comes whole, so the client never finds the gate without its Bars (which it makes
+               # solid below the tier) or its SignBoard (which the UI draws the lock and tier on)
+               "_Gate": {"ModelStreamingMode": "Atomic"},
+               "_GateF85": {"ModelStreamingMode": "Atomic"}}
+# #4788 (instance streaming): a child Model that Effects/Motion moves about its pivot (`_Swing`, `_Spin`, `_Bob`)
+# streams in whole. Motion turns the Model with PivotTo, which moves only the parts a device has at that moment, so a
+# part arriving later would sit where the server left it, apart from the rest of its cloth, sails or sign.
+MOVING_CHILDREN = ("_Swing", "_Spin", "_Bob")
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.
 NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head",
@@ -390,6 +398,8 @@ def _group(asset, label, parts, pivot_pos, pivot_rot, uid, part_name=None):
              "properties": {"WorldPivotData": {"OptionalCFrame": _cf(pivot_pos, pivot_rot)["CFrame"]}}}
     if label is not None:
         model["name"] = label
+        if label.endswith(MOVING_CHILDREN):           # #4788: a moving piece streams in whole, see MOVING_CHILDREN
+            model["properties"]["ModelStreamingMode"] = "Atomic"
     tags = _tags(label or asset)
     if tags:
         model["properties"]["Tags"] = tags

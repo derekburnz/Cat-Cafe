@@ -700,6 +700,7 @@ type Session = {
 	loadingArm: string?, -- #4314: this new save's loading screen test arm (shared/LoadingTest), nil outside it
 	loadingSeen: boolean, -- #4314: ab_loading_seen logged this session
 	loadLogged: boolean, -- #4783: client_load logged this session
+	loadPending: { seconds: number, bucket: string }?, -- #4783: client_load's, held until the device report comes
 	fpsLogged: { [number]: boolean }, -- #4783: client_fps marks logged this session
 }
 
@@ -711,6 +712,7 @@ type ShownGoal = { goal: Types.ReturnGoalView, mode: string, at: number }
 type StoreVisit = { id: string, step: number, sku: string?, landing: string? }
 
 local sessions: { [Player]: Session } = {}
+local addedClock: { [Player]: number } = {} -- #4783: os.clock() as each player joined the server (client_load)
 local studio = RunService:IsStudio()
 local log: { LogEntry } = {}
 
@@ -2313,6 +2315,21 @@ end
 -- What the client reports (TelemetryReport), analytics only: every name and value is allowlisted or range checked,
 -- the remote is limited to 40 a minute (Net), and nothing here pays, unlocks or saves anything but telemetry. A
 -- funnel step a client sends is reached by itself (Onboarding.CLIENT_STEPS) and logs once per player.
+-- #4783: logs a held client_load once the device is known (the client sends both around its first ProfileSync, in
+-- either order).
+local function logLoad(player: Player, session: Session, profile: Profile)
+	local pending = session.loadPending
+	if pending == nil or session.device == nil then
+		return
+	end
+	session.loadPending = nil
+	Telemetry.custom(player, "client_load", pending.seconds, {
+		session.device :: string,
+		pending.bucket,
+		if profile.stats.sessions <= 1 then "first" else "back",
+	})
+end
+
 local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 	local name = Guard.oneOf(rawName, REPORTS)
 	local session = sessions[player]
@@ -2325,6 +2342,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local device = Guard.oneOf(rawValue, DEVICES)
 		if device ~= nil and session.device == nil then
 			session.device = device
+			logLoad(player, session, profile) -- #4783: a client_load held for the device
 			Telemetry.onboarding(player, profile, "loaded", { device })
 		end
 	elseif name == "intro_choice" then
@@ -2498,8 +2516,9 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			)
 		end
 	elseif name == PerfWatch.READY then
-		-- #4783: once a session, every player; the value is the server's own clock since the join, the client's part
-		-- only buckets (a client cannot stretch the logged time past the real one)
+		-- #4783: once a session, every player; the value is the server's own clock since the player joined the server
+		-- (addedClock: the session itself starts only once the save has loaded), the client's part only buckets (a
+		-- client cannot stretch the logged time past the real one). Held for the device when it has not come yet.
 		if
 			type(rawValue) == "number"
 			and rawValue == rawValue
@@ -2508,12 +2527,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and not session.loadLogged
 		then
 			session.loadLogged = true
-			local total = math.max(0, os.clock() - session.joinedClock)
-			Telemetry.custom(player, "client_load", math.floor(total * 10) / 10, {
-				session.device or "unknown",
-				PerfWatch.loadBucket(rawValue :: number),
-				if profile.stats.sessions <= 1 then "first" else "back",
-			})
+			local since = addedClock[player] or session.joinedClock
+			session.loadPending = {
+				seconds = math.floor(math.max(0, os.clock() - since) * 10) / 10,
+				bucket = PerfWatch.loadBucket(rawValue :: number),
+			}
+			logLoad(player, session, profile)
 		end
 	elseif name == PerfWatch.FPS then
 		-- #4783: once a mark a session, and not before the mark's minute (less half a minute for the two clocks)
@@ -3230,7 +3249,10 @@ local function onRelease(player: Player, profile: Profile)
 			"quit_have",
 			played,
 			StepGaps.quitFields(
-				Economy.rankUpCatCount(profile.collection),
+				-- #4809: the cats toward Tier 2 as its need counts them (any kind, duplicates included)
+				if tier2 ~= nil
+					then Economy.rankUpCats(profile.collection, profile.cats, tier2)
+					else Economy.rankUpCatCount(profile.collection),
 				profile.coins,
 				if tier2 ~= nil then tier2.cost else 0,
 				Economy.rankUpBlocker(profile) == nil
@@ -3414,11 +3436,15 @@ function Telemetry.start()
 			whereOf(player)
 		end)
 	end
-	Players.PlayerAdded:Connect(watchCharacter)
+	Players.PlayerAdded:Connect(function(player: Player)
+		addedClock[player] = os.clock() -- #4783: client_load counts from here
+		watchCharacter(player)
+	end)
 	for _, player in Players:GetPlayers() do
 		watchCharacter(player)
 	end
 	Players.PlayerRemoving:Connect(function(player: Player)
+		addedClock[player] = nil
 		task.delay(120, function() -- long after the save's release, which reads it
 			lastWhere[player] = nil
 		end)

@@ -4661,7 +4661,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_FerrisWheelLamp_Spin"
   }

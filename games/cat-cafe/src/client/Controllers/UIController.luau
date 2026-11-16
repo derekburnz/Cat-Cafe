@@ -536,6 +536,17 @@ local function newKindGoal(s: Types.PlayerState): boolean
 	if s.tutorialStep < 5 or not UI.newKind.on() then
 		return false
 	end
+	-- #4809: Tier 2 takes any 3 cats, so once the owned cats meet it the card hands over to the rank up, not
+	-- "Catch new kinds of cat 2/3" while the Rank Up is ready
+	local nextTier = Catalog.getTier((s.tier or 1) + 1)
+	if
+		nextTier ~= nil
+		and nextTier.anyCats == true
+		and NewKindEconomy.rankUpCats(s.collection or {}, s.cats :: any, nextTier)
+			>= nextTier.distinctCats
+	then
+		return false
+	end
 	local opening = s.grandOpening
 	local current = if opening ~= nil then GrandOpening.current(opening) else nil
 	local step = if current ~= nil then GrandOpening.STEPS[current] else nil
@@ -630,6 +641,11 @@ local function palJoinLine(s: Types.PlayerState): boolean
 	return true
 end
 
+-- #4808: the touch Net button's tutorial ring and arrow while a catch line is on the strip
+local function pointNet(on: boolean)
+	UI.net.point(on)
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -637,6 +653,7 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	newKind.target = nil -- #3529: set again below only while its trail is what shows
 	newKind.where = "none"
+	pointNet(false) -- #4808: set again below only while a catch line shows
 	if s.carrying ~= nil then
 		tutorialCarry.was = true
 		UI.tutorial.hide()
@@ -721,6 +738,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			tutorialStrayPoint(),
 			"Alley"
 		)
+		pointNet(true)
 	elseif bowlRest then
 		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
 		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
@@ -736,6 +754,34 @@ local function refreshTutorial(s: Types.PlayerState)
 				then "touch"
 				else "keyboard"
 			showTutorial(s, RankFirst.line(device))
+		elseif
+			not SecondCat.done(s.stats, true)
+			and not areasShut()
+			and (UI.cannon :: any).area == "alley"
+		then
+			-- #4808 (Derek 2026-11-16: "for tutorial the steps towards cat and pointing to the net on phone is
+			-- missing"): until the Alleyway catch is in, the strip names the catch on this device, the trail and
+			-- marker lead to the nearest stray this player may catch (the tutorial spot until one streams in) and,
+			-- on a touch screen, the Net button gets the tutorial's ring and arrow while it shows. Only in the
+			-- Alleyway (camp included): before the flight the cannon hint and its lit button lead (Sync on #4816).
+			-- Straight to UI.tutorial.show: the hint's step 2 line would ask for a job here.
+			local stray = nearestAlleyStray()
+			UI.tutorial.show(
+				deviceLine("catch", "Follow the trail and catch the cat! Click by it"),
+				stray or tutorialStrayPoint(),
+				"Cat"
+			)
+			pointNet(true)
+			if stray ~= nil then
+				tutorialWatch.connection = stray.AncestryChanged:Connect(function()
+					if not stray:IsDescendantOf(Workspace) then
+						local current = state
+						if current ~= nil then
+							refreshTutorial(current)
+						end
+					end
+				end)
+			end
 		else
 			UI.tutorial.hide()
 		end
@@ -3555,6 +3601,22 @@ function UIController.start()
 			if on ~= stuckGoal.on then
 				stuckGoal.on = on
 				UI.update({ stuckGoal = on })
+			end
+		end
+	end)
+	-- #4808: bowl first's catch line shows only in the Alleyway, so the strip is looked at again as the player
+	-- comes into or leaves an area (UI.cannon.area, WorldController's zone)
+	task.spawn(function()
+		local lastArea: string? = nil
+		while true do
+			task.wait(0.5)
+			local area: string? = (UI.cannon :: any).area
+			if area ~= lastArea then
+				lastArea = area
+				local current = state
+				if current ~= nil and current.tutorialStep >= 2 and (current.tier or 1) == 1 then
+					refreshTutorial(current)
+				end
 			end
 		end
 	end)

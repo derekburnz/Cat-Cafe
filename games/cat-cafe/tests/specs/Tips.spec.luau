@@ -362,6 +362,7 @@ return function()
 			local profile = fresh()
 			profile.tutorialStep = 5
 			profile.telemetry.firstDay = TODAY
+			profile.stats.playtimeSeconds = Tips.ASK_PLAY_SECONDS -- #4854
 			return profile
 		end
 
@@ -463,6 +464,30 @@ return function()
 				-- the second showing puts it away
 				profile.tipsSeen[Tips.NOTIFY_ASK] = true
 				expect(Tips.dueAsk(profile, NOW + 99 * 86400, TODAY)).to.equal(nil)
+			end
+		)
+
+		it(
+			"holds the favorite, like and invite asks for the first 5 minutes of play (#4854)",
+			function()
+				expect(Tips.ASK_PLAY_SECONDS).to.equal(5 * 60)
+				local profile = settled()
+				profile.tier = 2
+				profile.collection[legendaryId()] = NOW
+				profile.stats.playtimeSeconds = 0
+				expect(Tips.dueAsk(profile, NOW, TODAY + 3, Tips.ASK_PLAY_SECONDS - 1)).to.equal(
+					nil
+				)
+				expect(Tips.dueAsk(profile, NOW, TODAY + 3)).to.equal(nil) -- reads the saved play
+				expect(Tips.dueAsk(profile, NOW, TODAY + 3, Tips.ASK_PLAY_SECONDS)).to.equal(
+					Tips.FAVORITE_ASK
+				)
+				profile.tipsSeen[Tips.FAVORITE_ASK] = true
+				profile.tipsSeen[Tips.LIKE_ASK] = true
+				expect(Tips.dueAsk(profile, NOW, TODAY + 3, 120)).to.equal(nil)
+				expect(Tips.dueAsk(profile, NOW, TODAY + 3, Tips.ASK_PLAY_SECONDS)).to.equal(
+					Tips.INVITE_ASK
+				)
 			end
 		)
 

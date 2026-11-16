@@ -61,8 +61,6 @@ end
 
 SecondCatGoal.BOWL_STEP = 4 -- tutorialStep 4: the Bait bowl and its first cat (TutorialHints)
 SecondCatGoal.BOWL_TITLE = "2nd cat: your Bait bowl 🐾"
--- #4518: bowl first, the goal is two Alleyway catches by hand, so the card counts catches, not "a 2nd cat"
-SecondCatGoal.CATCHES_TITLE = "Catch 2 cats 🐾"
 
 -- `state` is a PlayerState; `narrow` the phone and tablet's narrow goal card; `nextTier` the next tier's name for
 -- the preview's second line (nil at the top tier, which drops it); `areasOpen` false from dusk to sunrise (#3238).
@@ -87,12 +85,11 @@ function SecondCatGoal.view(
 	-- #4097: a new save opens with a table, so after the first job the tutorial goes straight to the Bait bowl (step
 	-- 4) and its first cat is the second one; the card asked to catch one while the strip asked for the bowl. While
 	-- the bowl step is on, the card names the bowl too, so both ask for the same thing.
+	-- #4674 (Derek 2026-11-16: "food bowl into cannon into 1 alley cat"): bowl first, the bowl cat is the first of
+	-- the two, so the card reads "Catch a 2nd cat 1/2" as in today's order; the Bait bowl title is for catch first only
 	local first = if bowlFirst == nil then TutorialOrder.bowlFirst() else bowlFirst
-	local title = if first
-		then SecondCatGoal.CATCHES_TITLE .. " " .. count
-		elseif state.tutorialStep == SecondCatGoal.BOWL_STEP then SecondCatGoal.BOWL_TITLE
-			.. " "
-			.. count
+	local title = if not first and state.tutorialStep == SecondCatGoal.BOWL_STEP
+		then SecondCatGoal.BOWL_TITLE .. " " .. count
 		else "Catch a 2nd cat 🐾 " .. count
 	if areasOpen == false then
 		return {

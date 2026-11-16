@@ -479,6 +479,10 @@ local function cannonHint(): string?
 		-- #4480: with the walk to the Park off, the Tier 2 rank up ends the tutorial, the wrap-up line with it
 		wrapUp = UI.cannon.wrapUp.on
 			and ((state.tier or 1) < CannonLogic.HINT_TIER or (UI :: any).parkTrail.walkOn()),
+		bowlPending = UI.cannon.bowlPending == true, -- #4674 (UIController's refreshTutorial)
+		bowlFirst = (require(
+			ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
+		) :: any).bowlFirst(),
 	})
 end
 
@@ -1946,6 +1950,20 @@ function UI.update(partial: Types.PartialState)
 	if tier ~= nil then
 		local before = hintTier
 		hintTier = tier
+		-- #4674 (Sync's bowl first walk, 2026-11-16): the rank up to Tier 2 moves a bowl first player into the Park, so
+		-- the Rank Up card closes instead of showing Tier 3's "Not yet" over the arrival
+		if before ~= nil and tier > before and modal ~= nil and modal:current() == "RankUp" then
+			local TutorialOrder = require(
+				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
+			) :: any
+			if
+				TutorialOrder.bowlFirst()
+				and before < CannonLogic.HINT_TIER
+				and tier >= CannonLogic.HINT_TIER
+			then
+				modal:close()
+			end
+		end
 		-- #4480: no "The Park is open!" hint or "Fly to the Park" button while the walk to the Park is off; the rank
 		-- up's own unlock animation is the tutorial's end
 		if
@@ -3904,6 +3922,7 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 -- #2915: "Fly to the Park" on the rank-up card (flyToPark). `ring` is the area whose picker card is ringed, `travel`
 -- that the trip to the cannon is under way (UI.travel.result opens the picker when it lands), `token` the newest press.
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
+UI.cannon.bowlPending = false -- #4674: bowl first, the bowl part still to do (UIController)
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
 UI.cannon.area = nil :: string?
 

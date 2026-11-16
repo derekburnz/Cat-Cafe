@@ -383,9 +383,9 @@ return function()
 			-- catchFirst on: today's order
 			expect(TutorialHints.ask(view({ stats = stats }, false))).to.equal("catch")
 		end)
-		it("counts only cats caught by hand", function()
+		it("counts the bowl cat as one, as today's order (#4674)", function()
 			local tamed = { catsCaught = 2, baitsTamed = 1, luresUsed = 1 }
-			expect(view({ stats = tamed }, true).cats).to.equal(1)
+			expect(view({ stats = tamed }, true).cats).to.equal(2)
 			expect(view({ stats = tamed }, false).cats).to.equal(2)
 		end)
 	end)

@@ -161,9 +161,7 @@ function TutorialHints.view(
 		local hand = math.max(0, stats.catsCaught - tamed)
 		local counted = hand + (if tamed >= 1 then 1 else 0)
 		cats = if hand >= 1 then counted else math.min(counted, 1)
-		if first then
-			cats = hand -- #4518: bowl first, two catches by hand (shared/SecondCat.progress)
-		end
+		-- #4674: bowl first counts the same way (the bowl cat and one Alleyway catch, shared/SecondCat.progress)
 	elseif type(state.secondCatDone) == "boolean" then
 		-- #4097: the UI's own state carries no stats, only SecondCat.done as UIController worked it out
 		cats = if state.secondCatDone then SECOND_DONE else 1

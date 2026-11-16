@@ -19,10 +19,10 @@ return function()
 	end
 
 	describe("SecondCatGoal.view", function()
-		it("counts two catches under bowl first (#4518)", function()
+		it("asks for a 2nd cat under bowl first, the bowl cat the first (#4518, #4674)", function()
 			local view: any =
 				SecondCatGoal.view(full({ tutorialStep = 5 }), true, "Cozy Cafe", true, true)
-			expect(view.title).to.equal("Catch 2 cats 🐾 1/2")
+			expect(view.title).to.equal("Catch a 2nd cat 🐾 1/2")
 			local before: any =
 				SecondCatGoal.view(full({ tutorialStep = 4 }), true, "Cozy Cafe", true, false)
 			expect(before.title).to.equal("2nd cat: your Bait bowl 🐾 1/2")

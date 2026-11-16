@@ -681,6 +681,12 @@ local function refreshTutorial(s: Types.PlayerState)
 	if s.tutorialStep < 2 and palJoinLine(s) then
 		return
 	end
+	-- #4674: the cannon hint waits while the bowl part runs (UI's cannonHint reads this)
+	UI.cannon.bowlPending = bowlNow
+	-- #4674 (Derek 2026-11-16: "Just stop tutorial steps until rankup possible then have them rank up into park cannon
+	-- teleport then tutorial done"): bowl first, after the first check-in at Tier 1 the strip is quiet (no job, table,
+	-- second cat, bowl or rescue lines) until the Rank Up is possible, then it names the goal card's Rank Up
+	local bowlRest = TutorialOrder.bowlFirst() and s.tutorialStep >= 2 and (s.tier or 1) == 1
 	if bowlNow then
 		local bait: any = s.bait
 		if bait ~= nil and bait.cat ~= nil then
@@ -706,6 +712,24 @@ local function refreshTutorial(s: Types.PlayerState)
 			tutorialStrayPoint(),
 			"Alley"
 		)
+	elseif bowlRest then
+		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+		local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+		if nextTier ~= nil and RankUpNeeds.of(nextTier, s :: any).ready == true then
+			local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+			local last = UserInputService:GetLastInputType().Name
+			local device = if last:sub(1, 7) == "Gamepad"
+				then "gamepad"
+				elseif
+					last == "Touch"
+					or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+				then "touch"
+				else "keyboard"
+			showTutorial(s, RankFirst.line(device))
+		else
+			UI.tutorial.hide()
+		end
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(

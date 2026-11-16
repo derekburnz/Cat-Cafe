@@ -3912,6 +3912,8 @@ Presets.adminDrops = {
 		colour = Presets.palette.golden,
 		splash = "coinGlint",
 		splashCount = 6,
+		fresh = 2, -- seconds after the server's DroppedAt that a fish still arcs in; later it streamed in and just shows
+		remember = 120, -- seconds a fish's spot is remembered, so one streaming back in does not arc again
 	},
 	crate = {
 		seconds = 3,

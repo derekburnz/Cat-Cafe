@@ -17,7 +17,6 @@ local Types = require(script.Parent.Types)
 local SpeedShoes = {}
 
 SpeedShoes.ID = "speed_shoes"
-SpeedShoes.FLAG = "speedShoes" -- the LiveFlags key
 
 function SpeedShoes.owns(profile: Types.PlayerProfile?): boolean
 	return profile ~= nil and profile.mystery[SpeedShoes.ID] == true

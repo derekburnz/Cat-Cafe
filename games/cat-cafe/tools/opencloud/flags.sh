@@ -24,8 +24,6 @@
 #                 server is running
 #   traits        true opens the Cat Trainer's cat traits (#3196); only with or after the restart publish that ships
 #                 the trait save fields
-#   swiftPaws5    true opens Swift Paws levels 3 to 5 in the Fish Market (#3317); only once no server older than
-#                 the publish that added them is running (an older one keeps a saved level only up to 2)
 #   swiftPaws10   true opens Swift Paws levels 6 to 10 (#4705); only once no server older than the publish that
 #                 added them is running (an older one keeps a saved level only up to 5)
 #   mouseDash     true makes Mouse Dash the Cat Arcade's game (#3296); only after QA passes
@@ -47,8 +45,6 @@
 #                 (#3554); false or no entry shows nothing
 #   rankUpSpotlight true dims the screen and points a Tier 1 player through the first rank up once it is possible,
 #                 in the safe area only (#3555); false or no entry shows nothing
-#   bagColours    true lets the Backpack's owner pick its two colours at the Featured Shop (#3699); false or no
-#                 entry refuses the picks and every bag wears its built colours. Turn on only after a restart
 #   traitBundles  true offers the Trait Token bundles (20 and 50, Robux) on the Mystic Pool card once the free rolls
 #                 are used (#3864); only after the products exist and QA
 #   storeRework   true shows the reworked Store (#3572): Cats above Passes, cheapest first, two columns of cards
@@ -59,8 +55,6 @@
 #                 only, safe at any time
 #   menuFamily    true gives every dark window the station menu family's look (#3558); client only, a window
 #                 open at the change keeps its look until it is opened again
-#   speedShoes    true puts the Speed Shoes on the Mystery Market shelf and counts their carry speed (#3535);
-#                 only once every server runs a build that has them (an older one drops the owned pair)
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
@@ -167,7 +161,6 @@ show_key() {
 	loadingScreen) if [ "$raw" = true ]; then meaning="loading screen ON before the opening scenes in every server"; else meaning="no loading screen (its default)"; fi ;;
 	goldenDrops) if [ "$raw" = true ]; then meaning="Golden lawn drops ON from freed cats in every server"; else meaning="Golden lawn drops off (its default)"; fi ;;
 	traits) if [ "$raw" = true ]; then meaning="Cat Trainer traits ON in every server"; else meaning="Cat Trainer traits off (its default)"; fi ;;
-	swiftPaws5) if [ "$raw" = true ]; then meaning="Swift Paws levels 3 to 5 ON in every server"; else meaning="Swift Paws stops at level 2 (its default)"; fi ;;
 	swiftPaws10) if [ "$raw" = true ]; then meaning="Swift Paws levels 6 to 10 ON in every server"; else meaning="Swift Paws stops at level 5 (its default)"; fi ;;
 	mouseDash) if [ "$raw" = true ]; then meaning="Mouse Dash ON in every server (the Cat Arcade's game)"; else meaning="Mouse Dash off (its default)"; fi ;;
 	cartTier6) if [ "$raw" = true ]; then meaning="Day Cart Tier 6 shelf ON in every server (its own baits and potions)"; else meaning="Day Cart Tier 6 shelf off (its default)"; fi ;;
@@ -182,9 +175,7 @@ show_key() {
 	afkCafe) if [ "$raw" = true ]; then meaning="Resting in your cafe pays 2x cat pay, ON in every server"; else meaning="Cafe rest 2x off (its default)"; fi ;;
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;
-	bagColours) if [ "$raw" = true ]; then meaning="Backpack colour picks at the Featured Shop ON"; else meaning="Backpack colour picks off (its default)"; fi ;;
 	menuFamily) if [ "$raw" = true ]; then meaning="Station menu family look ON in every server"; else meaning="Station menu family look off (its default)"; fi ;;
-	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
 	traitBundles) if [ "$raw" = true ]; then meaning="Trait Token bundles offered at the Mystic Pool"; else meaning="Trait Token bundles off (its default)"; fi ;;
 	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
 	quietAway) if [ "$raw" = true ]; then meaning="Food bowl cards wait while out catching ON"; else meaning="Food bowl cards show anywhere (its default)"; fi ;;

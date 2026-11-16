@@ -29,9 +29,6 @@
 --   an older server's save check drops a lawn id it does not know.
 -- - `traits` (#3196): the Mystic Pool's cat traits (shared/Traits). It starts OFF (OFF_BY_DEFAULT): switch it on only with
 --   the restart publish that ships the trait save fields, so no older server can drop a cat's trait.
--- - `swiftPaws5` (#3317): Swift Paws levels 3 to 5 in the Golden Fish Market (shared/SwiftPaws). It starts OFF
---   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added them is running, since an
---   older server keeps a saved level only up to 2.
 -- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
 --   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
 -- - `mouseDash` (#3296): the Cat Arcade's second game, Mouse Dash (shared/MouseDash). It starts OFF (OFF_BY_DEFAULT)
@@ -74,15 +71,9 @@
 -- - `rankUpSpotlight` (#3555): the first rank up's walk-through, the tutorial's dim and pointer on the goal card and
 --   then on the rank up button, once the server says the rank up is possible and the player is in the safe area
 --   (shared/RankSpot). It starts OFF (OFF_BY_DEFAULT).
--- - `bagColours` (#3699): the Backpack's owner picks its two colours at the Featured Shop (shared/BagColours); off,
---   SetBagColours is refused, the card has no Colours button and every bag wears the built colours. It starts OFF
---   (OFF_BY_DEFAULT) and goes on only after a restart, so every server keeps the saved picks.
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
--- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
---   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
---   publish that added the row is running, since an older server's save check drops an item id it does not know.
 -- - `traitBundles` (#3864): the Trait Token bundles (20 and 50, developer products) on the Mystic Pool card once the
 --   free rolls are used. It starts OFF (OFF_BY_DEFAULT); off, no offer shows (a receipt still pays, since Roblox
 --   took the Robux).
@@ -126,7 +117,6 @@ LiveFlags.KEYS = {
 	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 	"goldenDrops",
 	"traits",
-	"swiftPaws5",
 	"swiftPaws10", -- #4705
 	"mouseDash",
 	"circleStreak",
@@ -142,9 +132,7 @@ LiveFlags.KEYS = {
 	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
 	"rankUpSpotlight",
 	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
-	"bagColours",
 	"menuFamily",
-	"speedShoes",
 	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
 	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
 	"traitBundles", -- #3864: the Trait Token bundles at the Mystic Pool
@@ -194,7 +182,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	loadingScreen = true,
 	goldenDrops = true,
 	traits = true,
-	swiftPaws5 = true,
 	swiftPaws10 = true, -- #4705
 	mouseDash = true,
 	cartTier6 = true,
@@ -207,9 +194,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	introSplit = true,
 	parkGateTrail = true,
 	rankUpSpotlight = true,
-	bagColours = true,
 	menuFamily = true,
-	speedShoes = true,
 	traitBundles = true,
 	storeRework = true,
 	quietAway = true,

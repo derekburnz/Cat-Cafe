@@ -64,6 +64,29 @@ FishStore.LIST = {
 -- #4610: the only passes that are never sold for fish (with the Starter Bundle, a product, never on this list).
 FishStore.ROBUX_ONLY_PASSES = { "MoneyPassIds" } :: { string }
 
+-- #4610 part 2: the Store's developer products that can be bought with golden fish. A fish buy gives exactly what
+-- the receipt gives, through the same server function (ProductService.give for the Thank You Badge,
+-- CafePassService.buyPaid for the Cafe Pass), so the two can never drift apart. `once` is how often it can be had:
+-- "account" (profile.onceBought) or "season" (the running season's paid track). The Starter Bundle stays Robux only.
+export type Product = {
+	key: string, -- the Store card's key, and what BuyWithFish sends
+	name: string,
+	productId: string, -- the Catalog.products id (Config.ProductIds key)
+	robux: number, -- the full Robux price, the fish price's base
+	once: "account" | "season",
+}
+FishStore.PRODUCTS = {
+	{
+		key = "thankYou",
+		name = "Thank You Badge",
+		productId = "thank_you_badge",
+		robux = 25,
+		once = "account",
+	},
+	{ key = "cafePass", name = "Cafe Pass", productId = "cafe_pass", robux = 299, once = "season" },
+} :: { Product }
+FishStore.ROBUX_ONLY_PRODUCTS = { "starter_bundle" } :: { string }
+
 local byKey: { [string]: Item } = {}
 for _, item in FishStore.LIST do
 	byKey[item.key] = item
@@ -73,9 +96,61 @@ function FishStore.item(key: string): Item?
 	return byKey[key]
 end
 
--- The fish price: PER_ROBUX fish a Robux, to the nearest 50 (R$99 -> 4,950).
-function FishStore.price(item: Item): number
+local productByKey: { [string]: Product } = {}
+for _, product in FishStore.PRODUCTS do
+	productByKey[product.key] = product
+end
+
+function FishStore.product(key: string): Product?
+	return productByKey[key]
+end
+
+-- The fish price: PER_ROBUX fish a Robux, to the nearest 50 (R$99 -> 4,950). A pass or a product.
+function FishStore.price(item: { robux: number }): number
 	return math.floor(item.robux * FishStore.PER_ROBUX / 50 + 0.5) * 50
+end
+
+-- Whether a product's Robux product is made (Config.ProductIds), as its Store card reads it.
+function FishStore.productMade(product: Product): boolean
+	local id = Config.ProductIds[product.productId]
+	return type(id) == "number" and id ~= 0
+end
+
+-- Whether this save has `product` already: the badge once an account, the Cafe Pass this save's season (the save
+-- rolls onto the running season before a buy, CafePassService.buyPaid).
+function FishStore.productHad(profile: Types.PlayerProfile, product: Product): boolean
+	if product.once == "account" then
+		return profile.onceBought[product.productId] == true
+	end
+	return profile.pass.paidSeason ~= 0 and profile.pass.paidSeason == profile.pass.season
+end
+
+-- Why `product` cannot be bought with fish now, or nil when it can. `season` is the running Cafe Pass season (0
+-- while none runs) and `saleOpen` whether its paid track is offered now (CafePass.saleOpen); only the Cafe Pass reads
+-- them.
+function FishStore.productBlocker(
+	profile: Types.PlayerProfile,
+	product: Product,
+	season: number,
+	saleOpen: boolean
+): string?
+	if not FishStore.productMade(product) then
+		return "Coming soon"
+	end
+	if product.once == "season" then
+		if season == 0 or not saleOpen then
+			return "The Cafe Pass opens again next season"
+		end
+		if profile.pass.paidSeason == season then
+			return "You own this already"
+		end
+	elseif FishStore.productHad(profile, product) then
+		return "You own this already"
+	end
+	if profile.goldenFish < FishStore.price(product) then
+		return "Not enough golden fish yet"
+	end
+	return nil
 end
 
 -- The Robux pass's id, 0 while it is not made (then it cannot be bought with fish either). For a list field
@@ -133,7 +208,8 @@ function FishStore.sanitize(raw: any): { [string]: boolean }
 	return out
 end
 
--- For the Store (PlayerState.fishStore): each item's key, fish price and whether this save bought it with fish.
+-- For the Store (PlayerState.fishStore): each item's key, fish price and whether this save bought it with fish
+-- (#4610: then each product's, bought meaning this save has it, by Robux or fish).
 export type ViewRow = { key: string, fish: number, bought: boolean, made: boolean }
 function FishStore.view(profile: Types.PlayerProfile): { ViewRow }
 	local rows: { ViewRow } = {}
@@ -143,6 +219,14 @@ function FishStore.view(profile: Types.PlayerProfile): { ViewRow }
 			fish = FishStore.price(item),
 			bought = profile.fishBought[item.key] == true,
 			made = FishStore.passId(item) ~= 0,
+		})
+	end
+	for _, product in FishStore.PRODUCTS do
+		table.insert(rows, {
+			key = product.key,
+			fish = FishStore.price(product),
+			bought = FishStore.productHad(profile, product),
+			made = FishStore.productMade(product),
 		})
 	end
 	return rows

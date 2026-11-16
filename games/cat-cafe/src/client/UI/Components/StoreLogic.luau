@@ -1555,6 +1555,9 @@ StoreLogic.FISH_KEYS = {
 	autoBowl = "autoBowl",
 	royalCat = "royalCat",
 	kingPack = "kingPack",
+	-- #4610 part 2: the products (shared/FishStore.PRODUCTS); the Starter Bundle stays Robux only
+	thankYou = "thankYou",
+	cafePass = "cafePass",
 } :: { [string]: string }
 
 -- PlayerState.fishStore's rows (FishStore.view)
@@ -1597,6 +1600,9 @@ function StoreLogic.fishButton(
 ): FishButton
 	if row.owned or (fishRow ~= nil and fishRow.bought) then
 		return { text = "Yours", style = "ghost", enabled = false, action = "none" }
+	end
+	if row.closed == true then
+		return { text = "Next season", style = "ghost", enabled = false, action = "none" } -- #2129, as in Robux
 	end
 	if fishRow == nil then
 		return { text = "Robux only", style = "ghost", enabled = true, action = "robux" }

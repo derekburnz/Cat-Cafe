@@ -31,7 +31,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local DragonKeep = require(Shared:WaitForChild("DragonKeep")) :: any
-local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 local Traits = require(Shared:WaitForChild("Traits")) :: any
 
 local MysticPoolLogic = {}
@@ -43,19 +42,10 @@ MysticPoolLogic.KEEP_OLD = "Keep old"
 MysticPoolLogic.TAKE_NEW = "Take new"
 MysticPoolLogic.EQUAL_LINE = "Each trait inside a rarity is equally likely."
 
--- #3908: whether the Secret rarity is in the rolls (the server's `secretTrait` switch, copied to ReplicatedStorage).
--- It can flip while a server runs (secretChanged), so the menu redraws its odds then.
+-- #3908: whether the Secret rarity is in the rolls: always, since #4654 batch 3 retired the `secretTrait` switch
+-- (kept as a function for its callers).
 function MysticPoolLogic.secret(): boolean
-	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG) == true
-end
-
--- #4314 follow-up (Derek 2026-11-14: "make sure the odds show secret trait odds in the trait menu also on update"):
--- the switch reaches running servers within a minute with no restart (LiveFlagService), so the menu redraws its odds
--- when the copied attribute changes. `fn` runs on each change; the caller disconnects the connection.
-function MysticPoolLogic.secretChanged(fn: () -> ()): RBXScriptConnection
-	return ReplicatedStorage
-		:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG)
-		:Connect(fn)
+	return true
 end
 
 -- The Dragon Keep's trait luck (PlayerState.cardLuck.trait) every odds list here reads, as the server rolls with it

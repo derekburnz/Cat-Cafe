@@ -188,7 +188,8 @@ end
 -- toasts (#2720), and one row dropped their last words, "your cafe is saved". A line with one of these phrases
 -- (plain, any case) wraps whatever its kind. shared/RestartNotice.text ends every warning with the first.
 -- #3212: and an owner command's reply ("Owner test mode: Cafe Party started on all servers for 10 minutes").
-ToastRules.WRAP = { "your cafe is saved", "owner test mode:" }
+-- #4626: the minute 6 "come back tomorrow" line (ReturnHookLine.PREFIX, the wrapped gift) names a prize, so it wraps
+ToastRules.WRAP = { "your cafe is saved", "owner test mode:", "\u{1F381}" }
 
 function ToastRules.oneLine(kind: string?, text: string?): boolean
 	if text ~= nil then

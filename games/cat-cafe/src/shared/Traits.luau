@@ -33,10 +33,8 @@ local Types = require(script.Parent.Types)
 
 local Traits = {}
 
-Traits.FLAG = "traits"
--- #3908: the Secret rarity in the rolls and on every odds list. Off (LiveFlags.OFF_BY_DEFAULT): Mythic 5% and no
--- Secret, as before. Switch it at a restart, so every card a player has open shows the odds the server rolls.
-Traits.SECRET_FLAG = "secretTrait"
+-- #4654 batch 3: the `traits`, `secretTrait` and `traitBundles` switches are retired (all on live since Nov 12 to 14):
+-- the pool always stands, the Secret rarity is always in the rolls and odds, and the bundles show where policy allows.
 Traits.NAME = "Mystic Pool"
 Traits.KEEPER = "Sage Sorrel"
 -- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it"): the pool stands in the Town Square
@@ -44,7 +42,7 @@ Traits.KEEPER = "Sage Sorrel"
 -- camp's Picnic Basket's spot and that extra's Tier 2 unlock.
 Traits.OPEN_TIER = 1
 -- The station in the world (WorldBuilder builds it at Layout.mysticPool; MysticPoolStationService shows it while
--- the switch is on): its model, its CollectionService tag and its prompt's name.
+-- the art is there): its model, its CollectionService tag and its prompt's name.
 Traits.STATION_MODEL = "CatCafe_Camp_Park_MysticPool"
 Traits.TAG = "MysticPool"
 -- #3942: a Mythic or better roll marks the station (TraitService.announce) so every client near it sees the pillar
@@ -62,7 +60,6 @@ Traits.TOKEN_HOLD = 2
 Traits.TOKEN_MAX = 999 -- a save's tokens are clamped here (no source comes near it)
 -- #3864: the token bundles on the card once the free rolls are used, by Catalog.products id; `robux` is the price (#4377: halved 2026-11-15, R$49 and R$99)
 -- set in tools/opencloud/products.json (Roblox's own prompt shows the live price before anything is paid)
-Traits.BUNDLE_FLAG = "traitBundles"
 Traits.BUNDLES = table.freeze({
 	table.freeze({ product = "trait_tokens_20", tokens = 20, robux = 49 }),
 	table.freeze({ product = "trait_tokens_50", tokens = 50, robux = 99 }),

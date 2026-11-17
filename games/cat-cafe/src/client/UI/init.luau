@@ -2073,6 +2073,15 @@ function UI.bindAfk()
 	end
 end
 
+-- #4543: a rank up grew the cafe's room at `tier` (Controllers/CafeGrewController); the Rank Up card says so on that
+-- tier, with no pop-up of its own
+function UI.cafeGrew(tier: number)
+	local card = rankUpScreen
+	if card ~= nil then
+		card:setGrew(tier)
+	end
+end
+
 -- Merge a partial state and re-render. Pass whole maps (catsOwned, upgradeLevels...) when they change.
 function UI.update(partial: Types.PartialState)
 	for key, value in partial :: { [string]: any } do

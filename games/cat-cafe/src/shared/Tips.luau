@@ -15,6 +15,7 @@
 local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
 local RankSpot = require(script.Parent.RankSpot)
+local StationCut = require(script.Parent.StationCut)
 local StationReveal = require(script.Parent.StationReveal)
 local Types = require(script.Parent.Types)
 
@@ -116,6 +117,7 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.POOL_VISIT -- #4858
 		or id == RankSpot.SEEN -- #3555: the first rank up's walk-through, put away
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
+		or StationCut.isKey(id) -- #5112: a rank up's station cut, played once
 end
 
 -- #3430: whether the Mystic Pool's cutscene is due at a walk-up: the pool is open to this player (`traits` is the
@@ -290,6 +292,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					or key == Tips.MYSTIC_INTRO
 					or key == RankSpot.SEEN -- #3555
 					or StationReveal.isKey(key)
+					or StationCut.isKey(key) -- #5112
 				)
 			then
 				seen[key] = true

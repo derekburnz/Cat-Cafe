@@ -41,6 +41,7 @@ local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatC
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local SpaPoolController = require(script.Parent.Controllers.SpaPoolController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
+local StationCutController = require(script.Parent.Controllers.StationCutController)
 local StationLockController = require(script.Parent.Controllers.StationLockController)
 local StyleController = require(script.Parent.Controllers.StyleController)
 local TradeController = require(script.Parent.Controllers.TradeController)
@@ -113,6 +114,7 @@ CodesController.start()
 PetController.start() -- #3651: the Pet prompt on your own working cats, after the UI whose pill it uses
 AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
 StationLockController.start() -- #4539: Mystery Market, Cat Arcade and Mystic Pool hidden below their tiers
+StationCutController.start() -- #5112: a rank up's cut to the station it unlocks, behind stationCut
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat
 RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines

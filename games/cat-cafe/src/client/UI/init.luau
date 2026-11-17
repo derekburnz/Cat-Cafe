@@ -558,6 +558,12 @@ function applyTutorial()
 	if hint ~= nil and not rankLine then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
+	-- #5050: carrying one of the first cats, the way to the camp basket comes first (UI.carryMarker.apply)
+	local carrying: any = UI -- UI.carryMarker is built further down
+	local lead: BasePart? = if carrying.carryMarker ~= nil then carrying.carryMarker.lead else nil
+	if lead ~= nil and lead.Parent ~= nil then
+		text, target, label = carrying.carryMarker.STRIP, lead, "Camp"
+	end
 	-- #3893 (Review-QA's Studio run, 2026-11-14): after the Park's "is open" hint has had its time, the walk to the Park
 	-- keeps a line on the strip, at home, in the square and in the Alley, until the Park is reached
 	-- (Review-QA's re-test: the generic "Hop in the cannon to catch more cats!" took the line over after the "is open"
@@ -3902,7 +3908,13 @@ end
 -- #2864 (Derek2: a Backpack cat alone showed no way home): the carry marker follows a cat in the hands first, else one
 -- packed in the Backpack (UI.setBagCarry), which leaves state.carrying and the HUD's carry banner alone, so the "Drop
 -- bag cat" pill stays.
-UI.carryMarker = { hand = nil :: Types.CarryInfo?, bag = nil :: Types.CarryInfo? }
+UI.carryMarker = {
+	hand = nil :: Types.CarryInfo?,
+	bag = nil :: Types.CarryInfo?,
+	-- #5050: the camp basket the strip and the tutorial's flashing marker lead to while one of the first cats is carried
+	lead = nil :: BasePart?,
+	STRIP = "Carry it to camp 🐾",
+}
 
 function UI.carryMarker.apply()
 	local marker = carryMarker
@@ -3910,9 +3922,13 @@ function UI.carryMarker.apply()
 		return
 	end
 	local shown: Types.CarryInfo? = UI.carryMarker.hand or UI.carryMarker.bag
-	if shown and shown.camp then
+	-- #5050: one of the first cats to the camp has the tutorial's own marker there (applyTutorial, UI.carryMarker.lead)
+	local leads = shown ~= nil
+		and shown.camp ~= nil
+		and ((state.tutorialStep or 0) < 2 or (state :: any).secondCatDone == false)
+	if not leads and shown and shown.camp then
 		marker:show(shown.camp :: BasePart, "Bring it here", Theme.rarityColor(shown.rarity))
-	elseif shown and shown.door then
+	elseif not leads and shown and shown.door then
 		marker:show(shown.door :: BasePart, "Check in here", Theme.rarityColor(shown.rarity))
 	else
 		marker:hide()
@@ -3929,6 +3945,13 @@ function UI.carryMarker.apply()
 	if cards.parkTrail.carry ~= camp then
 		cards.parkTrail.carry = camp
 		cards.parkTrail.apply(tutorialTarget)
+	end
+	-- #5050 (Sync's timed run: 200 s lost on the walk back with the strip and the step arrow off): the strip reads
+	-- "Carry it to camp 🐾" and the tutorial's flashing marker, with its arrow at the screen's edge, sits on the basket
+	-- (Design-Agent's pick). The paw prints stay (UI.parkTrail.apply).
+	if UI.carryMarker.lead ~= camp then
+		UI.carryMarker.lead = camp
+		applyTutorial()
 	end
 end
 
@@ -4196,7 +4219,12 @@ function UI.parkTrail.apply(tutorialTarget: any)
 	end
 	-- #4699: the first cat carried to the camp: paw prints to its basket (no tutorial target shows while carrying)
 	local carry: BasePart? = UI.parkTrail.carry
-	if tutorialTarget == nil and carry ~= nil and carry.Parent ~= nil then
+	-- #5050: the carry's own tutorial target (the basket) keeps the paw prints
+	if
+		(tutorialTarget == nil or tutorialTarget == carry)
+		and carry ~= nil
+		and carry.Parent ~= nil
+	then
 		trail:mark("Paws", true)
 		trail:show(carry)
 		return
@@ -4685,6 +4713,14 @@ function UI.setZone(zone: string?)
 	if autoRank ~= nil then
 		autoRank.landed(before, zone)
 	end
+	-- #5050: the area title's once-a-trip rule follows the player in and out (required here: the main chunk is at
+	-- Luau's 200 local limit)
+	local trips: any = UI;
+	(require(script.Components.AreaTrip) :: any).zone(
+		trips._areaTrip,
+		if zone ~= nil and zone ~= "Cafe" then zone:lower() else nil,
+		os.clock()
+	)
 	showDusk() -- walking into an area during the dusk warning
 	if netButton then
 		netButton:setInArea(not Wayfinding.isSafe(zone))
@@ -4693,6 +4729,9 @@ function UI.setZone(zone: string?)
 		locationMarkers:setZone(zone) -- #1620: the My Cafe marker only in the cafe area
 	end
 end
+
+-- #5050: the area title shows once a trip and never over a catch (Components/AreaTrip)
+UI._areaTrip = (require(script.Components.AreaTrip) :: any).new()
 
 -- Area title card (F39 P1): the area's name in big letters for two seconds. Call it when the player walks into
 -- an area (the same zone check that picks the ambience); a successful trip shows it already, and the same area
@@ -4715,7 +4754,21 @@ function UI.showAreaTitle(areaId: string)
 			-- the name only: no spawn rates (Derek 2026-10-28: "No need to show area rates everytime you walk
 			-- into it or at all")
 			local tint = if color then color:Lerp(Theme.colors.white, 0.35) else nil
+			-- #5050 (Sync's timed run): the Alleyway's came again 2 minutes in, over the catch rings
+			local AreaTrip = require(script.Components.AreaTrip) :: any
+			local trips: any = UI
+			local now = os.clock()
+			local catching = hud ~= nil and (hud :: any)._catching == true
+			if not AreaTrip.due(trips._areaTrip, area.id, catching, now) then
+				return
+			end
 			card:show(area.id, area.name, nil, tint)
+			AreaTrip.shown(
+				trips._areaTrip,
+				area.id,
+				currentZone ~= nil and (currentZone :: string):lower() == area.id,
+				now
+			)
 			return
 		end
 	end

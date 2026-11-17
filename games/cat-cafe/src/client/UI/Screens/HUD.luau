@@ -3587,6 +3587,7 @@ function HUD.setTutorial(self: any, text: string?)
 		end
 	else
 		self._tutorial.Visible = false
+		self._tutorial.Text = "" -- #5050: a hidden strip keeps no old line (Sync read "Click by one" while carrying)
 		self._focusHidden[self._tutorial] = nil
 	end
 	self:_renderStripBuy()

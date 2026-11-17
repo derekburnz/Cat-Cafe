@@ -101,7 +101,11 @@ return function()
 				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(
 					"6693355219203523122"
 				)
-				expect((EventRsvp.next(Config.UpdateEvents, 1796500800 + 600))).to.equal(nil)
+				-- #5098: Cherry Blossom Grove moved to Sat Mar 27 2027
+				expect((EventRsvp.next(Config.UpdateEvents, 1796500800 + 600))).to.equal(
+					"6693355219203523122"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1806177600 + 600))).to.equal(nil)
 			end
 		)
 

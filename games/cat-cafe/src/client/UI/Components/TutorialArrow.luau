@@ -58,6 +58,9 @@ local leadAt = -math.huge -- os.clock() when a tutorial (not `low`) target last 
 local loop: RBXScriptConnection? = nil
 -- the other buttons the arrow should keep off, measured again every OTHERS_SECONDS (a walk of the whole ScreenGui)
 local OTHERS_SECONDS = 0.5
+-- #5009: cards the player opens themselves (the Luck card). A `low` arrow (the goal card's rank up nudge) hides
+-- while one shows, so it never sits on what the player asked to read, and comes back when the card closes.
+local covers: { GuiObject } = {}
 local others: { TutorialArrowLogic.Rect } = {}
 local othersFor: GuiObject? = nil
 local othersAt = -math.huge
@@ -390,6 +393,16 @@ local function update()
 	elseif now - leadAt < TutorialArrow.LOW_SETTLE then
 		hide()
 		return
+	else
+		for index = #covers, 1, -1 do
+			local card = covers[index]
+			if card.Parent == nil then
+				table.remove(covers, index)
+			elseif visible(card) then
+				hide() -- #5009
+				return
+			end
+		end
 	end
 	local current = arrow or TutorialArrow.make()
 	arrow = current
@@ -471,6 +484,13 @@ function TutorialArrow.add(target: GuiObject, low: boolean?, plain: boolean?)
 		{ target = target, since = os.clock(), low = low == true, plain = plain == true }
 	)
 	watch()
+end
+
+-- #5009: `card` is one the player opens (the Luck card): no `low` arrow shows while it does.
+function TutorialArrow.yieldTo(card: GuiObject)
+	if not table.find(covers, card) then
+		table.insert(covers, card)
+	end
 end
 
 function TutorialArrow.remove(target: GuiObject)

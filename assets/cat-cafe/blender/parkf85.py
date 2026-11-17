@@ -35,7 +35,9 @@ import math
 
 from mathutils import Matrix
 
+import areakit
 import neighbourhood as nb
+import parkset
 from areakit import PI, Set, flowers, turned
 from common import Builder
 from parkset import (BARRIER_H, GRAVEL, KERB, LINK_W, PATH_W, ROUNDABOUT_TOP, TALL_RAIL, WALL_D, _path, _ring_path, _run, _spot,
@@ -222,7 +224,7 @@ def _stream(s, mat):
     for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):      # an iron rail on each kerb
         kt = 0.7 + 0.006 * i
         for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.4)):    # clear of the culvert
-            n = max(1, round((a1 - a0 - 0.6) / 0.6))                # park railings: bars 0.6 apart
+            n = max(1, round((a1 - a0 - 0.6) / 1.2))                # bars 1.2 apart (0.6 until #4857: 2 parts a bar)
             for k in range(n + 1):
                 px = a0 + 0.3 + (a1 - a0 - 0.6) * k / n
                 b.box_base(bl(px, zc, kt), (0.16, 0.16, TALL_RAIL - kt), "fur_black", bevel=False)
@@ -230,10 +232,10 @@ def _stream(s, mat):
             for (h, t) in RAIL_BARS:
                 b.box(bl((a0 + a1) / 2, zc, h), (a1 - a0 - 0.4, 0.12, t), "fur_black", bevel=False)
     xe = E + 0.4                                                          # the rail round the end
-    for k in range(12):
-        b.box_base(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, 0.7), (0.16, 0.16, TALL_RAIL - 0.7), "fur_black",
+    for k in range(7):
+        b.box_base(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 6, 0.7), (0.16, 0.16, TALL_RAIL - 0.7), "fur_black",
                    bevel=False)
-        b.sphere(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, TALL_RAIL + 0.12), 0.14, "gold_mid", segments=8, rings=5)
+        b.sphere(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 6, TALL_RAIL + 0.12), 0.14, "gold_mid", segments=8, rings=5)
     for (h, t) in RAIL_BARS:
         b.box(bl(xe, STREAM_Z, h), (0.12, z1 - z0 + 0.8, t), "fur_black", bevel=False)
     s.put([b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat),
@@ -419,6 +421,17 @@ def beehives(mat):
 
 # ------------------------------------------------------------------------------------------------- the set --
 def build_set(mat):
+    # The Park lands as one piece, so every part counts toward the landing stall (#4857): flowers go in
+    # without stems and the hedge railings carry half the bars. Other sets that share these builders keep theirs.
+    was = (areakit.STEMS, parkset.RAIL_GAP)
+    areakit.STEMS, parkset.RAIL_GAP = False, 2.0
+    try:
+        return _build_set(mat)
+    finally:
+        areakit.STEMS, parkset.RAIL_GAP = was
+
+
+def _build_set(mat):
     s = Set(NAME)
     _walls(s, mat)
     _low_hedge(s, mat, HEDGE_A, ISLE_A)

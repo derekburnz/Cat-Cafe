@@ -166,7 +166,8 @@ if Settings.kinds[SettingsList.AUTO_EQUIP_KEY] then
 end
 
 -- #4991 (Derek 2026-11-16): the VIP tag over your head, off by default. Settings shows the row to a VIP owner alone
--- (showVipTag, from the server's VipOwner attribute on the player).
+-- (showVipTag, from the server's VipOwner attribute on the player). #5010: it is the Screen tab's first row, so a
+-- player who just bought VIP finds the switch the Store names without scrolling.
 SettingsList.VIP_TAG_KEY = "vipTag"
 if Settings.kinds[SettingsList.VIP_TAG_KEY] then
 	local row: Row = {
@@ -176,7 +177,7 @@ if Settings.kinds[SettingsList.VIP_TAG_KEY] then
 		name = "VIP tag",
 		detail = "The gold VIP tag over your head",
 	}
-	table.insert(SettingsList.SECTIONS[2].rows, row)
+	table.insert(SettingsList.SECTIONS[2].rows, 1, row)
 end
 
 -- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",

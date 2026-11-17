@@ -108,6 +108,12 @@ return function()
 			expect(SettingsList.isKey(SettingsList.SHOP_ALERTS_KEY)).to.equal(false)
 		end)
 
+		it("puts the VIP tag switch first on the Screen tab (#5010)", function()
+			if Settings.kinds[SettingsList.VIP_TAG_KEY] then
+				expect(SettingsList.SECTIONS[2].rows[1].key).to.equal(SettingsList.VIP_TAG_KEY)
+			end
+		end)
+
 		it("starts on, and keeps the × all session while the server does not send it", function()
 			local key = SettingsList.TUTORIAL_KEY
 			expect(SettingsList.shown(nil, {}, key, 0)).to.equal(true)

@@ -147,6 +147,11 @@ function VipTagService.start()
 		watch(player)
 	end
 	Players.PlayerAdded:Connect(watch)
+	-- #4991 (Review-QA): the save can load after the spawn's retries (a rejoin waiting on the session lock), and the
+	-- owner's vipTag switch is read from it
+	DataService.onLoaded:Connect(function(player: Player)
+		task.defer(VipTagService.refresh, player)
+	end)
 	-- the join lookup answers after the character can already be in, and a purchase in game: both fire `changed`
 	PassService.changed:Connect(function(player: Player)
 		task.defer(VipTagService.refresh, player)

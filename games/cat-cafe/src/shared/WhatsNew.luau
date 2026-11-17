@@ -45,6 +45,45 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE6",
 	},
+	-- #2718 refresh (Motion-FX-Agent, 2026-11-17 14:55 UTC): live since the 09:20 UTC rows, 31 merges (most docs or
+	-- behind off switches). Park townsfolk #5088; Water Park rides #5066; join pass lookups #5070; first bait cut #5075;
+	-- ask cards under an admin splash #5091; small phone HUD words #5087
+	{
+		id = "park_smoother_phones",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Smoother Park on phones",
+	},
+	{
+		id = "water_rides_phones",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Smoother Water Park rides",
+	},
+	{
+		id = "quicker_join",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Quicker joining",
+	},
+	{
+		id = "first_bait_cut_fixed",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "First bait cutscene fixed",
+	},
+	{
+		id = "popups_wait_events",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "Pop-ups wait for events",
+	},
+	{
+		id = "hud_words_small_phones",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "HUD words fit small phones",
+	},
 	-- #2718 (Motion-FX-Agent, 2026-11-17 14:05 UTC): storeRework (#3572) and fxAfterLoad (#5068) on at 14:01 UTC
 	{
 		id = "store_rework",

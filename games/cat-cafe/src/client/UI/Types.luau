@@ -432,6 +432,8 @@ export type PartialState = {
 	rankUpShort: (number | false)?,
 	-- #5031: the goal card's title when the rank up is ready (RankUpRightAway.READY_TITLE), false otherwise
 	rankUpTitle: (string | false)?,
+	-- #5038 (switch tier3Path): the goal card's one next thing toward Tier 3 (PlayerState.tier3Goal), false otherwise
+	tier3Goal: ({ wide: string, narrow: string } | false)?,
 	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
 	traits: (SharedTypes.TraitsView | false)?,
 }

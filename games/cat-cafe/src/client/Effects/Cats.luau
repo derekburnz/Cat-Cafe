@@ -728,6 +728,9 @@ local function stretch(
 	Logic.stretch(o, alpha, entry.rig.kind, entry.stretchWeight)
 end
 
+-- #4601: the server time this frame's step read, which lateWrites draws the walk at too (see Pose.read)
+local frameServerNow = 0
+
 -- #4601 strayWalkSlow: on a frame the animHz throttle skips, a cat whose server write just landed or that is still
 -- easing is read and drawn again with its last offsets. Otherwise the server's new frames would show for the frames
 -- in between (a step forward), and the ease would only move at animHz (Sync's Alley runs: still on a third of frames).
@@ -740,7 +743,7 @@ local function easeBetween(ease: number): boolean
 		local rig = entry.rig
 		local drawn = entry.drawn
 		if drawn ~= nil and Pose.pending(rig) then
-			if not Pose.read(rig, ease) then
+			if not Pose.read(rig, ease, frameServerNow) then
 				drop(model, entry)
 				continue
 			end
@@ -770,7 +773,7 @@ local function lateWrites()
 		local rig = entry.rig
 		local drawn = entry.drawn
 		if drawn ~= nil and Pose.rewritten(rig) then
-			if not Pose.read(rig, Presets.motion.stepEase.seconds) then
+			if not Pose.read(rig, Presets.motion.stepEase.seconds, frameServerNow) then
 				drop(model, entry)
 				continue
 			end
@@ -782,6 +785,7 @@ local function lateWrites()
 end
 
 local function step(dt: number)
+	frameServerNow = Workspace:GetServerTimeNow()
 	elapsed += dt
 	if elapsed < 1 / Context.budget.animHz then
 		if
@@ -812,7 +816,7 @@ local function step(dt: number)
 		else nil
 	for model, entry in active do
 		local rig = entry.rig
-		if not Pose.read(rig, ease) then
+		if not Pose.read(rig, ease, frameServerNow) then
 			drop(model, entry)
 			continue
 		end

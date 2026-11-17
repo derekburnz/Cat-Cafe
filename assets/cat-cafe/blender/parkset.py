@@ -138,7 +138,7 @@ def _seg_brick(b, L, shade):
     _ivy(b, -L / 2, L / 2, 9.0, shade)
 
 
-RAIL_GAP = 1.0     # studs between a railing's bars; parkf85 builds with 2.0 (#4857: each bar is 2 parts)
+RAIL_GAP = 1.0     # studs between a hedge railing's bars; parkf85 builds with 2.0 (#4857: each bar is 2 parts)
 LIGHT = False      # parkf85 builds with True (#4857): no pillar plinth and neck, no lamp tip, no stone coursing
 
 
@@ -179,7 +179,7 @@ def _seg_low(b, L, shade, flowers_b):
     """Town side: a plinth, a railing 4.6 high and flower boxes, so the town shows through."""
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
     b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
-    n = max(2, round(L / RAIL_GAP))
+    n = max(2, round(L / 1.0))        # stays 1.0 in a light build too: these bars are the boundary
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.15, 0.15, 3.25), "fur_black", bevel=False)
@@ -201,7 +201,7 @@ def _seg_tall(b, L, shade, flowers_b):
     feeling its the start of the game no need to be harsh no invisible barriers either")."""
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
     b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
-    n = max(2, round(L / RAIL_GAP))
+    n = max(2, round(L / 1.0))        # stays 1.0 in a light build too: these bars are the boundary
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.16, 0.16, TALL_RAIL - 1.35), "fur_black", bevel=False)

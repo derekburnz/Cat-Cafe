@@ -44826,7 +44826,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -28.875,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_057_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -27.95,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_057_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -27.025,
          2.975,
          -153.7
         ],
@@ -44924,7 +45022,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -25.175,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_057_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -24.25,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_057_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -23.325,
          2.975,
          -153.7
         ],
@@ -45022,7 +45218,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -21.475,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_057_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -20.55,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_057_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -19.625,
          2.975,
          -153.7
         ],
@@ -46299,7 +46593,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -42.375,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_059_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -41.45,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_059_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -40.525,
          2.975,
          -153.7
         ],
@@ -46397,7 +46789,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -38.675,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_059_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -37.75,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_059_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -36.825,
          2.975,
          -153.7
         ],
@@ -46495,7 +46985,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -34.975,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_059_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -34.05,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_059_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -33.125,
          2.975,
          -153.7
         ],
@@ -47772,7 +48360,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -55.875,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_061_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -54.95,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_061_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.025,
          2.975,
          -153.7
         ],
@@ -47870,7 +48556,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -52.175,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_061_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -51.25,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_061_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -50.325,
          2.975,
          -153.7
         ],
@@ -47968,7 +48752,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -48.475,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_061_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -47.55,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_061_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -46.625,
          2.975,
          -153.7
         ],
@@ -50130,7 +51012,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         19.625,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_065_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          20.55,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_065_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         21.475,
          2.975,
          -153.7
         ],
@@ -50228,7 +51208,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         23.325,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_065_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          24.25,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_065_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         25.175,
          2.975,
          -153.7
         ],
@@ -50326,7 +51404,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         27.025,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_065_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          27.95,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_065_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         28.875,
          2.975,
          -153.7
         ],
@@ -51603,7 +52779,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         33.125,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_067_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          34.05,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_067_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         34.975,
          2.975,
          -153.7
         ],
@@ -51701,7 +52975,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         36.825,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_067_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          37.75,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_067_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         38.675,
          2.975,
          -153.7
         ],
@@ -51799,7 +53171,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         40.525,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_067_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          41.45,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_067_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         42.375,
          2.975,
          -153.7
         ],
@@ -53076,7 +54546,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         46.625,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_069_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          47.55,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_069_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         48.475,
          2.975,
          -153.7
         ],
@@ -53174,7 +54742,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         50.325,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_069_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          51.25,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_069_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.175,
          2.975,
          -153.7
         ],
@@ -53272,7 +54938,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         54.025,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_069_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          54.95,
+         2.975,
+         -153.7
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       3.25,
+       0.15
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_069_WallLow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         55.875,
          2.975,
          -153.7
         ],
@@ -59275,6 +61039,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -31.1625,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -31.1625,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -32.125,
          2.975,
          -48.4
@@ -59325,6 +61188,105 @@
        "CFrame": {
         "position": [
          -32.125,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -33.0875,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -33.0875,
          4.72,
          -48.4
         ],
@@ -59473,6 +61435,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -35.0125,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -35.0125,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -35.975,
          2.975,
          -48.4
@@ -59523,6 +61584,105 @@
        "CFrame": {
         "position": [
          -35.975,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -36.9375,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_076_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -36.9375,
          4.72,
          -48.4
         ],
@@ -60606,6 +62766,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -21.0625,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -21.0625,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -22.025,
          2.975,
          -48.4
@@ -60656,6 +62915,105 @@
        "CFrame": {
         "position": [
          -22.025,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -22.9875,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -22.9875,
          4.72,
          -48.4
         ],
@@ -60804,6 +63162,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -24.9125,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -24.9125,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -25.875,
          2.975,
          -48.4
@@ -60854,6 +63311,105 @@
        "CFrame": {
         "position": [
          -25.875,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -26.8375,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_078_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -26.8375,
          4.72,
          -48.4
         ],
@@ -63065,6 +65621,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         26.8375,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         26.8375,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          25.875,
          2.975,
          -48.4
@@ -63115,6 +65770,105 @@
        "CFrame": {
         "position": [
          25.875,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         24.9125,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         24.9125,
          4.72,
          -48.4
         ],
@@ -63263,6 +66017,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         22.9875,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         22.9875,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          22.025,
          2.975,
          -48.4
@@ -63313,6 +66166,105 @@
        "CFrame": {
         "position": [
          22.025,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         21.0625,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_081_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         21.0625,
          4.72,
          -48.4
         ],
@@ -64396,6 +67348,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         36.9375,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         36.9375,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          35.975,
          2.975,
          -48.4
@@ -64446,6 +67497,105 @@
        "CFrame": {
         "position": [
          35.975,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         35.0125,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         35.0125,
          4.72,
          -48.4
         ],
@@ -64594,6 +67744,105 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         33.0875,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         33.0875,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          32.125,
          2.975,
          -48.4
@@ -64644,6 +67893,105 @@
        "CFrame": {
         "position": [
          32.125,
+         4.72,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.28,
+       0.28,
+       0.28
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         31.1625,
+         2.975,
+         -48.4
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       3.25,
+       0.16
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Park_SetF85_083_WallTall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         31.1625,
          4.72,
          -48.4
         ],

@@ -875,6 +875,7 @@ fieldEvents=(
 	"health_check|Platform,CustomField1|CustomEventCountUser|Health check (#3101): players by device and ping"
 	"health_check|Platform,CustomField2|CustomEventCountUser|Health check: players by device and memory"
 	"health_check|Platform|CustomEventAvgValue|Health check: average fps by device"
+	"health_check|Platform,CustomField3|CustomEventAvgValue|Health check: average fps by device and where the player stood (cafe, town, area id; field 3 was the device before Nov 17)"
 	"quick_return|CustomField1,CustomField2|CustomEventCountUser|Quick returns by furthest step and minutes away"
 	"quick_return|CustomField3|CustomEventCountUser|Quick returns by session number"
 	"quit_cafe|CustomField1|CustomEventCountUser|Leavers by cats working"

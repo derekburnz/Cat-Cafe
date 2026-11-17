@@ -6231,6 +6231,10 @@ do
 			)
 			return
 		end
+		-- #5152: the early like card waits here for the same calm moment as the tip cards
+		if TIP.likeCard and UI.tips.likeCard() then
+			return
+		end
 		local card = tipCard
 		local nudge = TIP.nudge
 		if
@@ -6529,6 +6533,12 @@ do
 		if tipKnown(id) or tipQueue:has(id) then
 			return
 		end
+		-- #5152 (likeAskEarly): the like ask is its own card ("Having fun?") at the next calm moment, not a tip line
+		if id == Tips.LIKE_ASK and UI.tips.likeEarlyOn() then
+			TIP.likeCard = true
+			pumpTips()
+			return
+		end
 		-- #4005: the extras wait for Tier 2, the tackle try for the quiet start, and the rank up cut goes beside the
 		-- walk through. Never marked seen, so the server sends it again later.
 		local shared = ReplicatedStorage:WaitForChild("Shared")
@@ -6612,6 +6622,64 @@ do
 		card:show(text, TipQueue.icon(id), TipQueue.ASK_SECONDS, function()
 			tipBusy = false
 		end)
+		return true
+	end
+
+	-- #5152 (Derek 2026-11-17: 400+ favourites, 47 likes): the likeAskEarly switch, read live from its attribute
+	function UI.tips.likeEarlyOn(): boolean
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local key: string = Tips.LIKE_EARLY_FLAG
+		return LiveFlags.shown(
+			key,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+		) == true
+	end
+
+	-- #5152: the early like card's ask (uigate scene LikeAskEarly shows it as is)
+	function UI.tips.likeAsk(): any
+		local LikePicture = require(script.Components.LikePicture) :: any
+		return {
+			title = "Having fun?",
+			line = "Tap 👍 on the game page. It helps other players find us!",
+			choices = { { id = "ok", label = "OK", style = "primary" } },
+			drawingH = LikePicture.PICTURE_H,
+			drawing = function(holder: Frame): () -> ()
+				local picture = LikePicture.new(holder)
+				picture:play()
+				return function()
+					picture:destroy()
+				end
+			end,
+			answer = function(_id: string?) end,
+			ended = function(how: string)
+				if how == "closed" then
+					UI.tips.likeRecap = true
+				end
+			end,
+		}
+	end
+
+	-- #5152: the early like ask on the slide-in card: "Having fun?", the game page drawing with its 👍, OK and the X.
+	-- It waits out the walk-through, the 5 minute pop-up pace and the tip calm checks; true once it shows (TipSeen
+	-- goes then). Closed with the X, the session recap card carries one "Liked it?" line (UI.tips.likeRecap). No reward.
+	function UI.tips.likeCard(): boolean
+		if
+			tipBusy
+			or not initialized
+			or UI.firstCat.tutorial
+			or not UI.popPace.free()
+			or not TipQueue.free(tipMoment())
+		then
+			return false
+		end
+		local shown = UI.asks.card(UI.tips.likeAsk())
+		if not shown then
+			return false
+		end
+		TIP.likeCard = false
+		UI.popPace.used()
+		answerTip(Tips.LIKE_ASK, false)
 		return true
 	end
 
@@ -11459,7 +11527,24 @@ local function recapTry(): boolean
 	UI.recap.shown = true
 	UI.recap.waiting = nil
 	UI.popPace.used()
-	card:show(recapLines(view), function(secondsUp: number)
+	local lines = recapLines(view)
+	-- #5152: the early like card was closed with its X this session: one line, once an account (the server keeps it)
+	local tipsUi: any = UI.tips
+	if tipsUi.likeRecap == true then
+		tipsUi.likeRecap = false
+		local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+		local seen: { [string]: boolean }? = state.tipsSeen
+		if seen == nil or seen[Tips.LIKE_RECAP] ~= true then
+			local line = "Liked it? Tap 👍 on the game page"
+			if #lines >= 4 then
+				lines[#lines] = line -- the card holds four lines; the like line takes the last one's place
+			else
+				table.insert(lines, line)
+			end
+			UI.events.tipSeen:Fire(Tips.LIKE_RECAP, false)
+		end
+	end
+	card:show(lines, function(secondsUp: number)
 		UI.events.sessionRecapClose:Fire(secondsUp)
 	end, recapGoals(view))
 	UI.events.sessionRecap:Fire()

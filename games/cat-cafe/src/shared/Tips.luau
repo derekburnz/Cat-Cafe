@@ -69,6 +69,11 @@ Tips.OFFLINE_SECONDS = 600
 Tips.LESSON = "tackle_lesson"
 
 Tips.LIKE_ASK = "like_ask"
+-- #5152 (Derek 2026-11-17: 400+ favourites, 47 likes): the like ask's one follow up, a line on the exit recap card
+-- after the early like card was closed with its X. Kept like the asks, never cleared; never a card of its own.
+Tips.LIKE_RECAP = "like_recap"
+Tips.LIKE_EARLY_FLAG = "likeAskEarly" -- shared/LiveFlags
+Tips.LIKE_EARLY_SECONDS = 10 * 60 -- the early like ask waits for this much play on the account
 Tips.FAVORITE_ASK = "favorite_ask" -- F96
 Tips.NOTIFY_ASK = "notify_ask" -- F96
 Tips.INVITE_ASK = "invite_ask" -- F92: the one invite nudge, after the first rank up
@@ -118,6 +123,7 @@ function Tips.seenId(id: string): boolean
 		or id == RankSpot.SEEN -- #3555: the first rank up's walk-through, put away
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
 		or StationCut.isKey(id) -- #5112: a rank up's station cut, played once
+		or id == Tips.LIKE_RECAP -- #5152
 end
 
 -- #3430: whether the Mystic Pool's cutscene is due at a walk-up: the pool is open to this player (`traits` is the
@@ -270,6 +276,31 @@ function Tips.dueAsk(
 	return nil
 end
 
+-- #5152 (likeAskEarly): the early like ask's moment for a catch of `def`, or nil. Only on the account's first UTC
+-- day (`day`, os.time() // 86400), after LIKE_EARLY_SECONDS of play, while the like ask has not shown: "park_catch"
+-- for a catch in the Park after the first rank up, else "rare_catch" for a Rare or better anywhere. The caller
+-- checks the switch and sends it at most once a session; the client still waits for a calm moment.
+function Tips.likeEarly(
+	profile: Types.PlayerProfile,
+	day: number,
+	playSeconds: number?,
+	def: Types.CatDef
+): string?
+	if profile.tipsSeen[Tips.LIKE_ASK] == true or day ~= profile.telemetry.firstDay then
+		return nil
+	end
+	if (playSeconds or profile.stats.playtimeSeconds or 0) < Tips.LIKE_EARLY_SECONDS then
+		return nil
+	end
+	if def.area == "park" and Economy.tier(profile) >= 2 then
+		return "park_catch"
+	end
+	if (Catalog.rarityRank[def.rarity] or 0) >= Catalog.rarityRank.Rare then
+		return "rare_catch"
+	end
+	return nil
+end
+
 -- A saved tipsSeen: only known tips and the asks, each true. `veteran` (a save from before version 20 that is
 -- past the first loop) has seen every tip, so an old account is not walked through what it already knows.
 function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
@@ -293,6 +324,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					or key == RankSpot.SEEN -- #3555
 					or StationReveal.isKey(key)
 					or StationCut.isKey(key) -- #5112
+					or key == Tips.LIKE_RECAP -- #5152
 				)
 			then
 				seen[key] = true
@@ -326,6 +358,9 @@ function Tips.cleared(seen: { [string]: boolean }): { [string]: boolean }
 	end
 	if seen[Tips.MYSTIC_INTRO] == true then
 		kept[Tips.MYSTIC_INTRO] = true -- #3430: once per account, ever
+	end
+	if seen[Tips.LIKE_RECAP] == true then
+		kept[Tips.LIKE_RECAP] = true -- #5152: the like ask's follow up, once per account
 	end
 	return kept
 end

@@ -66,6 +66,7 @@ local M = {
 	PlotService = require(script.Parent.PlotService),
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	OpenSpot = require(script.Parent.Parent.World.OpenSpot), -- #5038: where a waiting Park stray may sit
 	Potions = require(ReplicatedStorage.Shared.Potions),
 	RallyService = require(script.Parent.RallyService),
 	RareMomentService = require(script.Parent.RareMomentService),
@@ -1343,6 +1344,24 @@ do
 		return profile, M.Tier3Path.need(profile)
 	end
 
+	-- Sync's PC run of #5049: a waiting stray wedged against the Park gate's low wall and a pillar could not be netted
+	-- on foot (the player stopped 7 studs off, up on the wall). A stray only waits where nothing solid stands within
+	-- OPEN_STUDS of it above the floor: a wall, pillar, fence or prop that could keep the player away.
+	local OPEN_STUDS = 6
+	local function openSpot(stray: Stray): boolean
+		local area = world.areas[stray.area]
+		if area == nil then
+			return false
+		end
+		local exclude: { Instance } = { stray.model }
+		for _, player in Players:GetPlayers() do
+			if player.Character ~= nil then
+				table.insert(exclude, player.Character :: Model)
+			end
+		end
+		return M.OpenSpot.clear(stray.body.Position, area.floorY, OPEN_STUDS, exclude)
+	end
+
 	local function pickPark(
 		player: Player,
 		profile: Types.PlayerProfile,
@@ -1356,6 +1375,7 @@ do
 			if
 				canWait(stray, now, M.Tier3Path.AREA)
 				and M.Tier3Path.fits(profile, stray.def, stray.variant, need)
+				and openSpot(stray)
 			then
 				local at = stray.body.Position
 				local distance = (Vector3.new(at.X, pad.Y, at.Z) - pad).Magnitude

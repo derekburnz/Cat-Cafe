@@ -1852,7 +1852,7 @@ function UI.init(config: Types.InitConfig)
 	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server
 	-- credits them anyway at the next save), so the card never comes back
 	replayTidy = UI.events.introReplay:Connect(function()
-		UI.close()
+		UI.close(true)
 		if popups and popups:dropOffline() then
 			UI.events.claimOffline:Fire()
 		end
@@ -2473,9 +2473,10 @@ function UI.open(name: Types.ScreenName)
 	end
 end
 
-function UI.close()
+-- force: a hide-everything close (intro replay, UI hidden) that goes past a held window (firstRankLock)
+function UI.close(force: boolean?)
 	if modal then
-		modal:close()
+		modal:close(nil, force)
 	end
 end
 
@@ -2521,7 +2522,7 @@ function UI.setVisible(isVisible: boolean)
 		locationMarkers:setVisible(isVisible)
 	end
 	if not isVisible then
-		UI.close()
+		UI.close(true)
 		if catch then
 			catch:hide()
 		end

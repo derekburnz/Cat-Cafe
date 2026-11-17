@@ -677,6 +677,7 @@ type Session = {
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
 	parkSeconds: number, -- #5034: seconds stood in the Park this session with no Park cat yet (park_left)
 	parkClosest: number?, -- #5034: the closest a free Park stray came meanwhile, in studs
+	parkOwned: boolean?, -- #5034: the save has a Park cat (worked out once, then latched by first_park_catch)
 	catchReach: { [string]: boolean }, -- #3556: catch_reach logged this session, by kind
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
 	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
@@ -2988,6 +2989,7 @@ local function onLoaded(player: Player, profile: Profile)
 		parkTrail = {},
 		parkSeconds = 0,
 		parkClosest = nil,
+		parkOwned = nil,
 		catchReach = {},
 		rankSpot = {},
 		rankWindow = nil,
@@ -3229,6 +3231,29 @@ function Telemetry.firstBaitArrived(player: Player, seconds: number)
 	end
 end
 
+-- Whether the save has a Park cat: the first_park_catch marker, or (for a save from before CatService wrote it,
+-- Nov 15) a cat from the Park in the collection, as logJoined counts them. Latched on the session once true.
+local function ownsParkCat(session: Session, profile: Profile): boolean
+	if session.parkOwned == true or Onboarding.reached(profile.telemetry, "first_park_catch") then
+		session.parkOwned = true
+		return true
+	end
+	local known = session.parkOwned
+	if known ~= nil then
+		return known
+	end
+	local owned = false
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil and (def.area == "park" or def.incomeArea == "park") then
+			owned = true
+			break
+		end
+	end
+	session.parkOwned = owned
+	return owned
+end
+
 -- Runs after the other services' leave work (Telemetry starts last), so a carried cat saved on leave or a rich tip
 -- paid on leave has logged its own Source first.
 local function onRelease(player: Player, profile: Profile)
@@ -3313,9 +3338,7 @@ local function onRelease(player: Player, profile: Profile)
 		)
 	end
 	-- #5034: a leaver who stood in the Park this session with no Park cat yet
-	if
-		session.parkSeconds > 0 and not Onboarding.reached(profile.telemetry, "first_park_catch")
-	then
+	if session.parkSeconds > 0 and not ownsParkCat(session, profile) then
 		Telemetry.custom(
 			player,
 			"park_left", -- ParkLeft.EVENT
@@ -3508,10 +3531,8 @@ end
 -- free Park stray (tag Stray, Area "park", LockedBy 0) to parkClosest.
 local function watchPark(player: Player, session: Session, profile: Profile)
 	if
-		not ParkLeft.counts(
-			Economy.tier(profile),
-			Onboarding.reached(profile.telemetry, "first_park_catch")
-		) or whereNow(player) ~= ParkLeft.AREA
+		not ParkLeft.counts(Economy.tier(profile), ownsParkCat(session, profile))
+		or whereNow(player) ~= ParkLeft.AREA
 	then
 		return
 	end

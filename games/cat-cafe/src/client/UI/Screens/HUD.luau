@@ -2794,6 +2794,8 @@ function HUD.setCatching(self: any, active: boolean)
 			self._luck:hide()
 		end
 	end
+	-- #5054 (Review-QA): from the catch's first frame, so a goal preview or a fold before the next render keeps it aside
+	self._goal._held = active or not self:_open("goal")
 	self:_layoutBottom()
 	self:_renderTutorialTile()
 	self:_applyFocus()
@@ -3313,6 +3315,13 @@ function HUD.render(self: any, state: Types.PlayerState)
 		readyTitle = RankUpRightAway.READY_NARROW
 	end
 	self._goal:setReadyTitle(if type(readyTitle) == "string" then readyTitle else nil)
+	-- #5050 (Sync's timed run: TierGoal.Visible went true and back to false 334 times in 410 s): the card is only drawn
+	-- shown while it is unlocked and no catch has the HUD aside; mid-catch it is kept for the catch's end (_applyFocus)
+	local goalOpen = self:_open("goal")
+	self._goal._held = not goalOpen or self._catching == true
+	if goalOpen and self._catching == true then
+		self._focusHidden[self._goal.frame] = true
+	end
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
@@ -3320,7 +3329,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self:_secondGoal()
 			or (if park ~= nil then { title = park, lines = {}, chip = park } else nil)
 	)
-	if not self:_open("goal") then
+	if not goalOpen then
 		self._goal.frame.Visible = false
 	end
 	if started then
@@ -4553,6 +4562,7 @@ function HUD._renderFreeSpin(self: any)
 	local spin = if state then state.spin else nil
 	if state == nil or spin == nil or (state.tutorialStep or TUTORIAL_DONE) < TUTORIAL_DONE then
 		self._spinLine.Visible = false
+		self._focusHidden[self._spinLine] = nil
 		return
 	end
 	local now = Workspace:GetServerTimeNow()
@@ -4564,7 +4574,12 @@ function HUD._renderFreeSpin(self: any)
 	-- #2397 (Derek2 11-08: "for mobile remove the free spin at town square"): never on touch; the wheel's own "!"
 	-- still shows in the world
 	local shown = due and not TOUCH
-	if shown and not self._spinLine.Visible then
+	if self._catching == true then
+		-- #5050 (Sync's timed run: FreeSpin.Visible flipped every 0.2 s through a catch): mid-catch the line stays
+		-- aside and the catch's end puts it back (_applyFocus)
+		self._focusHidden[self._spinLine] = if shown then true else nil
+		shown = false
+	elseif shown and not self._spinLine.Visible then
 		Tween.popIn(self._spinLine, 0.8)
 	end
 	self._spinLine.Visible = shown

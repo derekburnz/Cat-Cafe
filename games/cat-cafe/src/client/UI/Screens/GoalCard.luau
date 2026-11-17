@@ -142,6 +142,7 @@ function GoalCard.new(
 ): GoalCard
 	local self = setmetatable({}, GoalCard) :: any
 	self._folded = false
+	self._held = false
 	self._onFold = onFold
 	self._last =
 		nil :: { progress: RankUp.Progress?, tierText: string, nudge: string?, goal: Goal? }?
@@ -436,7 +437,9 @@ function GoalCard.render(
 	nudge: string?,
 	goal: Goal?
 )
-	self.frame.Visible = true
+	-- #5050: `_held` (the HUD's: locked, or a catch has the HUD aside) keeps it hidden, so a render never flips it on
+	-- and back off in one frame
+	self.frame.Visible = self._held ~= true
 	self._last = { progress = progress, tierText = tierText, nudge = nudge, goal = goal }
 	if self._folded then
 		self:_renderFolded(progress, nudge, goal)

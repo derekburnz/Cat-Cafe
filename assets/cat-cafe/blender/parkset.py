@@ -139,7 +139,8 @@ def _seg_brick(b, L, shade):
 
 
 RAIL_GAP = 1.0     # studs between a hedge railing's bars; parkf85 builds with 2.0 (#4857: each bar is 2 parts)
-LIGHT = False      # parkf85 builds with True (#4857): no pillar plinth and neck, no lamp tip, no stone coursing
+LIGHT = False      # parkf85 builds with True (#4857): no pillar plinth and neck, no lamp tip, no stone coursing,
+                   # fewer bench slats, spring rider coils, bandstand trims and rose bed kerb pieces, no urn rim
 
 
 def _seg_rail(b, L, shade):
@@ -413,13 +414,16 @@ def bandstand(mat):
     ang = [2 * PI * (k + 0.5) / 8 for k in range(8)]
     for a in ang:
         x, y = R * math.cos(a), R * math.sin(a)
-        b.cyl_base((x, y, stage), 0.45, 0.4, "gold_mid", segments=8, bevel=False)
+        if not LIGHT:
+            b.cyl_base((x, y, stage), 0.45, 0.4, "gold_mid", segments=8, bevel=False)
         b.cyl_base((x, y, stage), 0.28, post_h - 0.05, "offwhite", segments=8)
-        b.cyl_base((x, y, stage + post_h - 0.35), 0.42, 0.35, "gold_mid", segments=8, bevel=False)
+        if not LIGHT:
+            b.cyl_base((x, y, stage + post_h - 0.35), 0.42, 0.35, "gold_mid", segments=8, bevel=False)
     top = stage + post_h
     b.ring((0, 0, top + 0.3), 6.9, 0.9, 0.6, "mint", segments=16, bevel=False)                # frieze
-    b.ring((0, 0, top - 0.05), 6.95, 0.6, 0.1, "gold_mid", segments=16, bevel=False)
-    for k in range(16):
+    if not LIGHT:
+        b.ring((0, 0, top - 0.05), 6.95, 0.6, 0.1, "gold_mid", segments=16, bevel=False)
+    for k in range(0, 16, 2 if LIGHT else 1):
         a = 2 * PI * k / 16
         bulbs.ico((7.0 * math.cos(a), 7.0 * math.sin(a), top + 0.3), 0.16, "lamp_warm", subdivisions=1)
     for k in range(8):                                                                        # railings
@@ -508,7 +512,7 @@ def lamp(mat):
 
 
 def bench(mat):
-    return [build_bench(N + "Bench", seat="caramel_wood", frame="dumpster_green").finalize(N + "Bench", mat)]
+    return [build_bench(N + "Bench", seat="caramel_wood", frame="dumpster_green", light=LIGHT).finalize(N + "Bench", mat)]
 
 
 def bin_(mat):
@@ -524,7 +528,8 @@ def urn(mat):
     b.box_base((0, 0, 0), (1.2, 1.2, 0.9), "concrete")
     b.cyl_base((0, 0, 0.9), 0.3, 0.3, "concrete", segments=10)
     b.cyl_base((0, 0, 1.2), 0.45, 0.8, "concrete", segments=10, radius2=0.75)
-    b.ring((0, 0, 2.05), 0.8, 0.12, 0.12, "concrete_dark", segments=10, bevel=False)
+    if not LIGHT:                                                                   # the rim: a ring is 10 parts
+        b.ring((0, 0, 2.05), 0.8, 0.12, 0.12, "concrete_dark", segments=10, bevel=False)
     b.ico((0, 0, 2.15), 0.65, "leaf_dark", subdivisions=1, scale=(1, 1, 0.6))
     flowers(fl, 0, 0, 2.2, n=4, r=0.35, seed=2)
     return [b.finalize(N + "Urn", mat), fl.finalize(N + "Urn_Flowers", mat)]
@@ -664,7 +669,7 @@ def spring_rider(mat, body="pastel_butter"):
     b = Builder()
     b.cyl_base((0, 0, 0), 0.7, 0.15, "metal", segments=10, bevel=False)
     b.cyl_base((0, 0, 0.15), 0.25, 1.05, "metal", segments=8, bevel=False)
-    for k in range(4):
+    for k in ((0.5, 2.5) if LIGHT else range(4)):                                    # the coils: each is 10 parts
         b.ring((0, 0, 0.3 + 0.25 * k), 0.38, 0.13, 0.1, "fur_black", segments=10, bevel=False)
     b.ico((0, 0, 1.55), 0.6, body, subdivisions=1, scale=(1.4, 0.75, 0.75))                    # a duck to ride
     b.ico((-0.9, 0, 2.15), 0.38, body, subdivisions=1)
@@ -675,7 +680,7 @@ def spring_rider(mat, body="pastel_butter"):
 
 def rose_bed(mat, seed=0):
     b, fl = Builder(), Builder()
-    b.ring((0, 0, 0.28), 2.0, 0.35, 0.55, "concrete", segments=14, bevel=False)
+    b.ring((0, 0, 0.28), 2.0, 0.35, 0.55, "concrete", segments=10 if LIGHT else 14, bevel=False)
     b.cyl_base((0, 0, 0), 1.7, 0.57, "choco", segments=14, bevel=False)
     for k in range(6):
         a = 2 * PI * (k + 0.3 * seed) / 6

@@ -1305,7 +1305,7 @@ function CatCollection._showDetail(self: any)
 		self._navDone = GamepadNav.card("indexDetail", self._cover, function(): boolean?
 			self:_closeDetail()
 			return true
-		end, self._detailClose.instance)
+		end, self._detailClose.face)
 	end
 end
 

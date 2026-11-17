@@ -5324,6 +5324,17 @@ Presets.rarityMark = {
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
+	-- #5034 Park phone leak (phones 37% never catch a cat in the Park, mostly from not finding one): with the switch
+	-- `flag` on and no `area` cat in the player's Index yet, the gems of that area's strays (their `Area`) show out to
+	-- `maxDistance` studs, `pixels` wide at the least, and draw over hedges and walls (AlwaysOnTop) past `onTopBeyond`
+	-- studs, so a stray across the Park reads on a phone. Everywhere else, and once a Park cat is caught, as before.
+	finder = {
+		flag = "parkFinder",
+		area = "park",
+		maxDistance = 160,
+		pixels = 40,
+		onTopBeyond = 30,
+	},
 	-- #2258 (Derek2 2026-11-07: "show new tag if it's a cat you don't own yet for people index hunting"): a NEW pill
 	-- over the gem of a cat not in your Index yet, in leaf green (no rarity uses it), `width` by `height` of the
 	-- gem's square, its foot `overlap` down over the gem's top corner (it pokes a little over the billboard's top)
@@ -5901,13 +5912,16 @@ Presets.firstBaitCut = {
 	pitch = 30,
 	happy = 10,
 	happyUp = 2,
-	waitCat = 2.0, -- room for a laggy phone while the server still puts the cat out at food + 1 s
+	-- #5074: the server puts the cat out at catOutAt (placedAt + 1 on whole os.time seconds, checked by a 1 s loop),
+	-- so it lands 1 to 2 s after the food, plus streaming on a phone. 2.0 left too little and the cut ended "none"
+	-- with no cat. A cat on time plays the same 2.2 s cut; only a late one gets the extra second.
+	waitCat = 3.0,
 	skipAfter = 0.3,
 	skipOut = 0.25,
 	skipSize = 18,
 	skipFade = 0.4,
 	displayOrder = 10,
-	cap = 4.5,
+	cap = 5.5, -- #5074: waitCat + walkMax + eat + swingOut (5.0) and a little room
 	maxDistance = 120,
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 }
@@ -6864,6 +6878,20 @@ Presets.palDay = {
 	palDelay = 0.45,
 	most = 12,
 	colour = Presets.palette.nosePink,
+	-- #4913 (Design-Agent, Wed Nov 18): while today's gift can still be earned (the server's `due` attribute on this
+	-- player and the palDay switch on), a small still pink heart over the nearest `most` pals within `range` studs, so
+	-- a player sees who to play beside. One BillboardGui each, `size` studs plus `pixels`, `up` studs over the head;
+	-- checked every `every` seconds. Gone once the gift is paid, the switch is off or the pal walks away.
+	heart = {
+		due = "PalDayDue",
+		most = 4,
+		range = 120,
+		every = 0.5,
+		size = 1.1,
+		pixels = 16,
+		up = 2.2,
+		glyph = "\u{2665}",
+	},
 }
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each

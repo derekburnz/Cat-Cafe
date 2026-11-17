@@ -1913,7 +1913,8 @@ function Logic.rarityMarkShows(
 	rarity: unknown,
 	lockedBy: unknown,
 	distance: number,
-	shown: boolean
+	shown: boolean,
+	range: number?
 ): boolean
 	local r = Presets.rarityMark
 	if type(rarity) ~= "string" or r.shows[rarity] ~= true then
@@ -1921,7 +1922,13 @@ function Logic.rarityMarkShows(
 	end
 	local locked = type(lockedBy) == "number" and lockedBy ~= 0
 	local near = if shown then r.hideWithin else r.hideWithin + r.showAfter
-	return not locked and distance > near and distance <= r.maxDistance
+	return not locked and distance > near and distance <= (range or r.maxDistance)
+end
+
+-- #5034: whether a stray's gem gets the Park finder's longer reach (Presets.rarityMark.finder): the switch is on, the
+-- stray's `Area` is the finder's area and the player has no cat from it yet. Pure.
+function Logic.rarityFinder(on: boolean, area: unknown, caughtThere: boolean): boolean
+	return on and not caughtThere and area == Presets.rarityMark.finder.area
 end
 
 -- This player's Index from ProfileSync (#2258): `collection` (every cat caught at least once), `gold` and `rainbow`

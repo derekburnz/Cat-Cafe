@@ -14810,6 +14810,29 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		assert(ask:FindFirstChild("Title", true).TextFits, "uigate: the Starter card's title does not fit (#4174)")
 	end },
+	-- #3951: the come back tomorrow card: the golden crate, the reason in a two line title that fits, one OK button,
+	-- the X, no draining bar, and it reports shown. Left on screen so the gate's pictures show it on every device.
+	{ "TomorrowCardShown", function()
+		local said = {}
+		local connection = UI.events.tomorrowCard:Connect(function(outcome)
+			table.insert(said, outcome)
+		end)
+		UIShim.advance(2.5)
+		UI.tomorrowCard.show()
+		UIShim.advance(0.6)
+		connection:Disconnect()
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask:FindFirstChild("Title", true)
+		assert(title.Text == "Golden crate tomorrow!", "uigate: the tomorrow card reads " .. title.Text .. " (#3951)")
+		assert(title.TextFits, "uigate: the tomorrow card's title does not fit (#3951)")
+		local ok = ask:FindFirstChild("Choice_ok", true)
+		assert(ok, "uigate: the tomorrow card has no OK button (#3951)")
+		local label = ok:FindFirstChildWhichIsA("TextLabel", true)
+		assert(label == nil or label.TextFits, "uigate: the tomorrow card's OK does not fit (#3951)")
+		local track = ask:FindFirstChild("Track", true) :: GuiObject
+		assert(track and not track.Visible, "uigate: the tomorrow card shows a draining bar (#3951)")
+		assert(said[1] == "shown", "uigate: the tomorrow card did not report shown (#3951)")
+	end },
 	-- #4437: the HUD Money button's boost card: the pass picture, the cafe's money a minute now and with 2x (from
 	-- prizeRate), Buy with the price, the X; every line fits, no timer, and the X reports closed
 	{ "MoneyCard", function()

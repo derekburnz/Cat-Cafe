@@ -109,5 +109,31 @@ return function()
 			expect(Logic.rarityMarkShows("Rare", 0, 40, true)).to.equal(true)
 			expect(Logic.rarityMarkShows("rare", 0, 40, true)).to.equal(false)
 		end)
+
+		it(
+			"#5034: the Park finder reaches further only for Park strays before the first Park cat",
+			function()
+				local r = Presets.rarityMark
+				local f = r.finder
+				expect(f.maxDistance > r.maxDistance).to.equal(true)
+				expect(f.pixels >= r.pixels).to.equal(true)
+				expect(Logic.rarityFinder(true, f.area, false)).to.equal(true)
+				expect(Logic.rarityFinder(false, f.area, false)).to.equal(false) -- switch off
+				expect(Logic.rarityFinder(true, f.area, true)).to.equal(false) -- a Park cat is caught
+				expect(Logic.rarityFinder(true, "woods", false)).to.equal(false)
+				expect(Logic.rarityFinder(true, nil, false)).to.equal(false) -- Area not replicated yet
+				local beyond = r.maxDistance + 10
+				expect(Logic.rarityMarkShows("Common", 0, beyond, false)).to.equal(false)
+				expect(Logic.rarityMarkShows("Common", 0, beyond, false, f.maxDistance)).to.equal(
+					true
+				)
+				expect(Logic.rarityMarkShows("Common", 0, f.maxDistance + 1, true, f.maxDistance)).to.equal(
+					false
+				)
+				expect(Logic.rarityMarkShows("Common", 5, beyond, false, f.maxDistance)).to.equal(
+					false
+				) -- still locked
+			end
+		)
 	end)
 end

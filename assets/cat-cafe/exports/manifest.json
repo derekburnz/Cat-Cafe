@@ -310882,8 +310882,6 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PlantPot.model.json",
-      "rbx_parts": 19,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.glb"
@@ -310936,8 +310934,6 @@
       ],
       "pivot": "wall: back-bottom center",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MenuBoard.model.json",
-      "rbx_parts": 14,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.glb"
@@ -310990,8 +310986,6 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_Cup.model.json",
-      "rbx_parts": 7,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_Cup.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_Cup.glb"
@@ -313225,8 +313219,6 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_TipPile.model.json",
-      "rbx_parts": 19,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_TipPile.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_TipPile.glb"
@@ -319396,8 +319388,6 @@
       "pivot": "base centre: the coin stands on its rim, the cat face toward -Z; spin it about Y",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F52: the golden fish coin, a world pickup or prize; gold parts are Metal. Its HUD picture is exports/icons/CatCafe_Icon_GoldenFish.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_FishCoin.model.json",
-      "rbx_parts": 101,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_FishCoin.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_FishCoin.glb"
@@ -334870,8 +334860,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Tip.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Tip.model.json",
-      "rbx_parts": 10,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Tip.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Tip.glb"
@@ -334923,8 +334911,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Lucky.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Lucky.model.json",
-      "rbx_parts": 14,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Lucky.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Lucky.glb"
@@ -334976,8 +334962,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Swift.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Swift.model.json",
-      "rbx_parts": 23,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Swift.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Swift.glb"
@@ -335029,8 +335013,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Steady.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Steady.model.json",
-      "rbx_parts": 13,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Steady.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_Steady.glb"
@@ -335082,8 +335064,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_BigTip.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_BigTip.model.json",
-      "rbx_parts": 25,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigTip.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigTip.glb"
@@ -335137,8 +335117,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_GoldRush.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_GoldRush.model.json",
-      "rbx_parts": 20,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_GoldRush.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_GoldRush.glb"
@@ -335190,8 +335168,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_QuickBait.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_QuickBait.model.json",
-      "rbx_parts": 16,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_QuickBait.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_QuickBait.glb"
@@ -335243,8 +335219,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_BigLucky.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_BigLucky.model.json",
-      "rbx_parts": 15,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigLucky.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigLucky.glb"
@@ -335296,8 +335270,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_BigGoldRush.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_BigGoldRush.model.json",
-      "rbx_parts": 41,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigGoldRush.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigGoldRush.glb"
@@ -335349,8 +335321,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_MegaTip.png (icons.py).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_MegaTip.model.json",
-      "rbx_parts": 40,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_MegaTip.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_MegaTip.glb"
@@ -348863,8 +348833,6 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignKingCrest.model.json",
-      "rbx_parts": 32,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_SignKingCrest.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_SignKingCrest.glb"
@@ -351122,8 +351090,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cafe theme piece (store-pass-looks.md): a prop on each table top or chair seat (Garland: over the counter); pivot base centre (Garland: the middle of its hooks), front -Z. No collision.",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_GardenGarland.model.json",
-      "rbx_parts": 35,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_GardenGarland.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_GardenGarland.glb"
@@ -351180,8 +351146,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cafe theme piece (store-pass-looks.md): a prop on each table top or chair seat (Garland: over the counter); pivot base centre (Garland: the middle of its hooks), front -Z. No collision.",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_GardenTablePot.model.json",
-      "rbx_parts": 9,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_GardenTablePot.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_GardenTablePot.glb"
@@ -351235,8 +351199,6 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cafe theme piece (store-pass-looks.md): a prop on each table top or chair seat (Garland: over the counter); pivot base centre (Garland: the middle of its hooks), front -Z. No collision.",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_GrandCushion.model.json",
-      "rbx_parts": 7,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_GrandCushion.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_GrandCushion.glb"
@@ -352510,8 +352472,6 @@
       "pivot": "the middle of its bounding box's bottom; the net faces -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#2565 (mystery-market.md section 4): the Long Net's picture for Juniper's window and the pedestal: a net with a long telescoping handle and a gold arrow out to the hoop. A picture only; the player's own net (CatCafe_Item_Net_L*) is unchanged.",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_LongNet.model.json",
-      "rbx_parts": 84,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_LongNet.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_LongNet.glb"

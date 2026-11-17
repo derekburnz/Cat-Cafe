@@ -288,6 +288,7 @@ UI.events = {
 	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
 	returnHookEarly = Signal.new(), -- (kind)   #4626: the minute 6 "come back tomorrow" line showed: forward as TelemetryReport("return_hook_early", kind)
+	tomorrowCard = Signal.new(), -- (outcome)   #3951: the come back tomorrow card: forward as TelemetryReport("tomorrow_card", outcome)
 	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
 	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
@@ -11364,6 +11365,11 @@ function UI.returnHook.try(): boolean
 	if hook.shown then
 		return true
 	end
+	-- #3951: on a new account's first day the come back tomorrow card comes first, and takes the line's place
+	if UI.tomorrowCard.try() then
+		hook.shown = true
+		return true
+	end
 	local ReturnHookLine = require(script.Components.ReturnHookLine)
 	local RoadmapLogic = require(script.Components.RoadmapLogic) :: any
 	local tier = state.tier or 1
@@ -11378,20 +11384,7 @@ function UI.returnHook.try(): boolean
 	if words == nil then
 		return false -- nothing to name yet (today's Daily Treat stamp is still unclaimed), or the switch is off
 	end
-	local busy = (modal ~= nil and modal:current() ~= nil)
-		or (baitCard ~= nil and baitCard:isShowing())
-		or (tipCard ~= nil and tipCard:isShowing())
-		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
-		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
-		or not visible
-		or (hud ~= nil and hud:isCatching())
-		or state.carrying ~= nil
-		or UI.cutscene.held()
-		or UI.firstCat.held -- #4821
-		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC
-		or UI.rollBusy.held()
-		or not UI.popPace.free() -- #4946
-	if busy then
+	if UI.returnHook.busy() or UI.firstCat.held or UI.firstCat.tutorial then
 		return false
 	end
 	hook.shown = true
@@ -11399,6 +11392,112 @@ function UI.returnHook.try(): boolean
 	UI.toast(words, "info", ReturnHookLine.SHOW_SECONDS)
 	UI.events.returnHookEarly:Fire(ReturnHookLine.kind((state :: any).tomorrowHook))
 	return true
+end
+
+-- Whether anything is over the screen for the minute 6 line and the come back tomorrow card: a window or card, a
+-- catch, something carried, a cutscene or roll, the UI hidden, or the 5 minute pop-up pace used (#4946). The first
+-- cat and walk-through holds (#4821, Derek 2026-11-16 15:22 UTC) are checked by each caller.
+function UI.returnHook.busy(): boolean
+	return (modal ~= nil and modal:current() ~= nil)
+		or (baitCard ~= nil and baitCard:isShowing())
+		or (tipCard ~= nil and tipCard:isShowing())
+		or (askCard ~= nil and askCard:isShowing())
+		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
+		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
+		or not visible
+		or (hud ~= nil and hud:isCatching())
+		or state.carrying ~= nil
+		or UI.cutscene.held()
+		or UI.rollBusy.held()
+		or not UI.popPace.free()
+end
+
+-- #3951 (Components/TomorrowCard): the come back tomorrow card, once a session on a new account's first UTC day,
+-- behind the tomorrowCard switch. UI.returnHook.try asks it first, once a second, so it rides the line's watcher.
+UI.tomorrowCard = { shown = false }
+
+-- true when the card showed now
+function UI.tomorrowCard.try(): boolean
+	local card = askCard
+	if UI.tomorrowCard.shown or card == nil then
+		return false
+	end
+	-- #4483 (Derek 2026-11-15): a player who X'd the Tutorial tile gets no pop-ups like this
+	if not tutorialButtonOn then
+		return false
+	end
+	local TomorrowCard = require(script.Components.TomorrowCard)
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local on = LiveFlags.shown(
+		TomorrowCard.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. TomorrowCard.FLAG)
+	)
+	if not on then
+		return false
+	end
+	local ReturnHookLine = require(script.Components.ReturnHookLine)
+	local QuietStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+	local due = TomorrowCard.due({
+		on = on,
+		shown = UI.tomorrowCard.shown,
+		kind = ReturnHookLine.kind((state :: any).tomorrowHook),
+		firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE),
+		now = Workspace:GetServerTimeNow(),
+		played = os.clock() - UI.returnHook.startedAt,
+		held = UI.firstCat.held or UI.firstCat.tutorial,
+		busy = UI.returnHook.busy(),
+	})
+	if not due then
+		return false
+	end
+	UI.tomorrowCard.open(card)
+	return true
+end
+
+-- The card on `card` now, whatever the clock, the day and the switch say (UI.tomorrowCard.show: QA in Studio and the
+-- UI gate).
+function UI.tomorrowCard.open(card: AskCard.AskCard)
+	local TomorrowCard = require(script.Components.TomorrowCard)
+	UI.tomorrowCard.shown = true
+	local ended = false
+	local function finish(how: string)
+		if ended then
+			return
+		end
+		ended = true
+		UI.events.tomorrowCard:Fire(how)
+	end
+	card:show({
+		title = TomorrowCard.TITLE, -- a phone's narrower card wraps it onto two lines at full size (#4552)
+		picture = TomorrowCard.PICTURE,
+		line = TomorrowCard.LINE,
+		choices = {
+			{ id = "ok", label = TomorrowCard.BUTTON, style = "primary" },
+		},
+		-- no seconds: it stays until OK or the X, with no timer bar
+		answer = function(choice: string?)
+			if choice == "ok" then
+				finish("ok")
+			end
+		end,
+		ended = function(how: string)
+			if how == "closed" or how == "ignored" then
+				finish("closed")
+			elseif how ~= "answered" then
+				finish("hidden")
+			end
+		end,
+	})
+	UI.asks.shown() -- the 5 minute pop-up pace, and the next slide-in ask waits its gap
+	UI.events.tomorrowCard:Fire("shown")
+end
+
+function UI.tomorrowCard.show()
+	if askCard ~= nil then
+		UI.tomorrowCard.open(askCard)
+	end
 end
 
 -- Looks once a second until the line showed; a rebuilt UI (token) starts its own watcher and ends the old one.

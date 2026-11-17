@@ -17,6 +17,7 @@
 -- in Presets.rarityMark.
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -24,6 +25,8 @@ local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Presets)
+
+local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 
 local Rarity = {}
 
@@ -37,10 +40,12 @@ type Mark = {
 	tweens: { Tween },
 	height: number, -- studs over the body part
 	shown: boolean,
+	finder: boolean, -- #5034: drawn with the Park finder's size and over walls now
 }
 
 local marks: { [Model]: Mark } = {}
 local index: Logic.IndexSeen? = nil -- this player's Index, from ProfileSync
+local caughtThere = false -- #5034: a cat from the Park finder's area is in this player's Index
 local started = false
 
 local function bodyOf(model: Model): BasePart?
@@ -237,7 +242,8 @@ local function makeMark(model: Model, rarity: string): Mark?
 	gui.Adornee = body
 	gui.Size = UDim2.new(r.size, r.pixels, r.size, r.pixels)
 	gui.LightInfluence = 0
-	gui.MaxDistance = r.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
+	-- the check hides it first; this only stops a stale one drawing
+	gui.MaxDistance = math.max(r.maxDistance, r.finder.maxDistance) * 1.2
 	gui.Enabled = false
 	gui.ClipsDescendants = false -- the NEW pill stands a little over the top
 	local built, glint, halo = Rarity.buildGem(gui, rarity)
@@ -257,6 +263,7 @@ local function makeMark(model: Model, rarity: string): Mark?
 		tweens = {},
 		height = top - body.Position.Y + r.above,
 		shown = false,
+		finder = false,
 	}
 end
 
@@ -327,28 +334,47 @@ local function remove(model: Instance)
 	mark.gui:Destroy()
 end
 
+-- #5034: the Park finder's size and over-the-walls look on a gem, or the usual one.
+local function setFinder(mark: Mark, on: boolean, distance: number)
+	local r = Presets.rarityMark
+	local f = r.finder
+	if mark.finder ~= on then
+		mark.finder = on
+		local pixels = if on then math.max(r.pixels, f.pixels) else r.pixels
+		mark.gui.Size = UDim2.new(r.size, pixels, r.size, pixels)
+	end
+	mark.gui.AlwaysOnTop = on and distance > f.onTopBeyond
+end
+
 local function check()
 	local focus = Context.focus()
 	if focus == nil then
 		return
 	end
 	local r = Presets.rarityMark
+	local finderOn = ReplicatedStorage:GetAttribute("LiveFlag_" .. r.finder.flag) == true
 	local candidates: { Logic.Candidate<Model> } = {}
 	local commons: { Logic.Candidate<Model> } = {} -- behind the rest for the `most` slots, so a Rare still shows
+	local far: { [Model]: number } = {} -- #5034: the strays the Park finder reaches, by distance
 	for _, instance in CollectionService:GetTagged("Stray") do
 		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
 			local model = instance :: Model
 			local mark = marks[model]
 			local distance = (model:GetPivot().Position - focus).Magnitude
 			local rarity = model:GetAttribute("Rarity")
+			local finder = Logic.rarityFinder(finderOn, model:GetAttribute("Area"), caughtThere)
 			if
 				Logic.rarityMarkShows(
 					rarity,
 					model:GetAttribute("LockedBy"),
 					distance,
-					mark ~= nil and mark.shown
+					mark ~= nil and mark.shown,
+					if finder then r.finder.maxDistance else nil
 				)
 			then
+				if finder then
+					far[model] = distance
+				end
 				table.insert(
 					if rarity == "Common" then commons else candidates,
 					{ key = model, distance = distance }
@@ -357,7 +383,8 @@ local function check()
 		end
 	end
 	local wanted: { [Model]: boolean } = {}
-	for _, model in Logic.nearestFirst(candidates, commons, r.maxDistance, r.most) do
+	local reach = math.max(r.maxDistance, r.finder.maxDistance) -- each stray's own reach was checked above
+	for _, model in Logic.nearestFirst(candidates, commons, reach, r.most) do
 		wanted[model] = true
 	end
 	for model, mark in marks do
@@ -376,6 +403,8 @@ local function check()
 		if mark ~= nil then
 			marks[model] = mark
 			mark.tag.Visible = Rarity.isNew(model)
+			local distance = far[model]
+			setFinder(mark, distance ~= nil, distance or 0)
 			show(mark)
 		end
 	end
@@ -401,6 +430,16 @@ function Rarity.start()
 			gold = page(s.goldCollection, was.gold),
 			rainbow = page(s.rainbowCollection, was.rainbow),
 		}
+		local collection = (index :: Logic.IndexSeen).collection
+		if collection ~= nil and not caughtThere then
+			for catId in collection do
+				local def = Catalog.getCat(catId)
+				if def ~= nil and def.area == Presets.rarityMark.finder.area then
+					caughtThere = true
+					break
+				end
+			end
+		end
 	end)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(remove) -- caught or gone: at once
 	task.spawn(function()

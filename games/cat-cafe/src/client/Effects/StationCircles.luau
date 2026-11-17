@@ -13,6 +13,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local Context = require(script.Parent.Context)
 local WalkUp = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("WalkUp"))
 
 local StationCircles = {}
@@ -132,7 +133,7 @@ function StationCircles.start()
 	for _, instance in Workspace:GetDescendants() do
 		track(instance)
 	end
-	Workspace.DescendantAdded:Connect(track)
+	Context.onWorkspaceAdded(track)
 	task.spawn(function()
 		while true do
 			task.wait(SWEEP)

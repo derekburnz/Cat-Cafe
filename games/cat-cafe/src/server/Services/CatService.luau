@@ -66,6 +66,7 @@ local M = {
 	PlotService = require(script.Parent.PlotService),
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	OpenSpot = require(script.Parent.Parent.World.OpenSpot), -- #5038: where a waiting Park stray may sit
 	Potions = require(ReplicatedStorage.Shared.Potions),
 	RallyService = require(script.Parent.RallyService),
 	RareMomentService = require(script.Parent.RareMomentService),
@@ -1347,33 +1348,18 @@ do
 	-- on foot (the player stopped 7 studs off, up on the wall). A stray only waits where nothing solid stands within
 	-- OPEN_STUDS of it above the floor: a wall, pillar, fence or prop that could keep the player away.
 	local OPEN_STUDS = 6
-	local openParams = OverlapParams.new()
-	openParams.FilterType = Enum.RaycastFilterType.Exclude
-	openParams.RespectCanCollide = true
 	local function openSpot(stray: Stray): boolean
 		local area = world.areas[stray.area]
 		if area == nil then
 			return false
 		end
-		local at = stray.body.Position
 		local exclude: { Instance } = { stray.model }
 		for _, player in Players:GetPlayers() do
 			if player.Character ~= nil then
-				table.insert(exclude, player.Character)
+				table.insert(exclude, player.Character :: Model)
 			end
 		end
-		openParams.FilterDescendantsInstances = exclude
-		for _, part in Workspace:GetPartBoundsInRadius(at, OPEN_STUDS, openParams) do
-			-- the floor and flat ground stay under the knees; a stray (another cat) is not in the way
-			local top = part.Position.Y + part.Size.Y / 2
-			if top > area.floorY + 1.5 then
-				local model = part:FindFirstAncestorWhichIsA("Model")
-				if model == nil or model:GetAttribute("CatId") == nil then
-					return false
-				end
-			end
-		end
-		return true
+		return M.OpenSpot.clear(stray.body.Position, area.floorY, OPEN_STUDS, exclude)
 	end
 
 	local function pickPark(

@@ -22,6 +22,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -305,7 +306,7 @@ local function cafeLanding(player: Player): CFrame?
 	if plot == nil then
 		return nil
 	end
-	local spot = Layout.plot.respawnSpot
+	local spot = CafeRoom.point(Layout.plot.respawnSpot, plot.room.width, plot.room.depth) -- #4543
 	return plot.cframe * CFrame.new(spot.x, spot.y, spot.z) * CFrame.Angles(0, math.pi, 0)
 end
 

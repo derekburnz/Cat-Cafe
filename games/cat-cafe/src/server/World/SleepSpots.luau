@@ -8,6 +8,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local Layout = require(script.Parent.Layout)
 local WorldBuilder = require(script.Parent.WorldBuilder)
 
@@ -155,8 +156,14 @@ function SleepSpots.list(plot: WorldBuilder.Plot): { Spot }
 		local model = plot.dressing:FindFirstChild(bed.id)
 		local spot = if model ~= nil then spotOn(bed.id, points(model), "Sleep", floorY) else nil
 		if spot == nil and type(beds) == "number" and index <= beds then
+			-- #4543: where setDressing stands the bed in the room as it is now
+			local p = CafeRoom.point(
+				{ x = bed.x, y = bed.y, z = bed.z, rotY = bed.rotY },
+				plot.room.width,
+				plot.room.depth
+			)
 			local at = plot.cframe
-				* CFrame.new(bed.x, bed.y, bed.z)
+				* CFrame.new(p.x, p.y, p.z)
 				* CFrame.Angles(0, math.rad(bed.rotY), 0)
 			spot = { id = bed.id, at = at, foot = onFloor(at, floorY), hops = {} }
 		end

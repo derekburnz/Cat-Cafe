@@ -15,6 +15,7 @@ local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -491,6 +492,20 @@ end
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	plot.model:SetAttribute("Tier", tier)
+	-- #4543 (cafeGrows): the room the tier has earned. When it grows, everything standing on the old anchors comes
+	-- down here and the rest of refreshPlot builds it again in the new room (the cats as on a fresh join).
+	local width, depth = CafeRoom.size(tier, LiveFlagService.on(CafeRoom.FLAG))
+	if WorldBuilder.setRoom(plot, width, depth) then
+		for _, holder in
+			{ plot.cats, plot.decor, plot.tables, plot.bait, plot.bait2 } :: { Instance }
+		do
+			holder:ClearAllChildren()
+		end
+		local espresso = plot.model:FindFirstChild("Espresso")
+		if espresso ~= nil then
+			espresso:Destroy()
+		end
+	end
 	WorldBuilder.setDressing(plot, tier, Economy.extraSlots(profile)) -- #2047: a bed for each extra slot's cat
 	-- No floating "opens at Tier N" text over locked slots (Derek 2026-10-27: placeholder text is ugly); the
 	-- Upgrades screen's Roles section lists which slots each tier opens.
@@ -1097,7 +1112,17 @@ end
 
 -- One look model on the plot, named `name` and placed at the plot pivot: `assetName` (nil or not in the Assets folder
 -- takes it away). Left alone while the same asset already stands.
-local function showLookModel(plot: WorldBuilder.Plot, name: string, assetName: string?)
+local function showLookModel(
+	plot: WorldBuilder.Plot,
+	name: string,
+	assetName: string?,
+	sized: boolean?
+)
+	local at = plot.cframe
+	if sized and assetName ~= nil then
+		-- #4543: a theme front is laid out from the room's windows, so a grown room takes its sized art
+		assetName, at = WorldBuilder.roomAsset(plot, assetName :: string)
+	end
 	local wanted = if assetName ~= nil and AssetRegistry.has(assetName) then assetName else nil
 	local existing = plot.model:FindFirstChild(name)
 	if existing ~= nil and existing:GetAttribute("Asset") == wanted then
@@ -1112,7 +1137,7 @@ local function showLookModel(plot: WorldBuilder.Plot, name: string, assetName: s
 	local model = AssetRegistry.clone(wanted)
 	model.Name = name
 	model:SetAttribute("Asset", wanted)
-	model:PivotTo(plot.cframe)
+	model:PivotTo(at)
 	model.Parent = plot.model
 end
 
@@ -1131,11 +1156,18 @@ local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Pr
 		theme = nil -- the theme's art is not in yet: the default look
 	end
 	plot.model:SetAttribute(Looks.THEME_ATTRIBUTE, if theme ~= nil then theme.id else nil)
-	showLookModel(plot, "Theme", front)
+	showLookModel(plot, "Theme", front, true)
 	WorldBuilder.setAwningHidden(plot, theme ~= nil)
 	local signStyled = plot.model:GetAttribute(SignStyles.SIGN_STYLE_ATTRIBUTE) ~= nil
 	showLookModel(plot, "ThemeSign", if theme ~= nil and not signStyled then theme.sign else nil)
-	local insideNames: { string } = if theme ~= nil then theme.inside else {}
+	local insideNames: { string } = {}
+	local insideAt: { CFrame } = {}
+	local themeInside: { string } = if theme ~= nil then theme.inside else {}
+	for _, assetName in themeInside do
+		local sizedName, at = WorldBuilder.roomAsset(plot, assetName) -- #4543
+		table.insert(insideNames, sizedName)
+		table.insert(insideAt, at)
+	end
 	local insideKey = table.concat(insideNames, ",")
 	local inside = plot.model:FindFirstChild("ThemeInside")
 	if inside ~= nil and inside:GetAttribute("Assets") ~= insideKey then
@@ -1146,10 +1178,12 @@ local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Pr
 		local folder = Instance.new("Model")
 		folder.Name = "ThemeInside"
 		folder:SetAttribute("Assets", insideKey)
-		for _, assetName in insideNames do
+		for n, assetName in insideNames do
 			if AssetRegistry.has(assetName) then
 				local piece = AssetRegistry.clone(assetName)
-				piece:PivotTo(plot.cframe)
+				-- Effects/Themes finds the chandelier by its base name, sized copy or not (#4543)
+				piece:SetAttribute("Asset", themeInside[n])
+				piece:PivotTo(insideAt[n])
 				piece.Parent = folder
 			end
 		end

@@ -106,12 +106,16 @@ function TillTipsButton._check(self: any)
 	local plot: Model? = self._plot
 	local position = rootPosition()
 	local pivot = if plot then plot:GetPivot() else nil
+	local width: number?, depth: number? = nil, nil
+	if plot then
+		width, depth = TillTips.room(plot) -- #4543: a grown room
+	end
 	local show = self._amount > 0
 		and pivot ~= nil
 		and position ~= nil
-		and TillTips.onPlot((pivot :: CFrame):PointToObjectSpace(position :: Vector3))
+		and TillTips.onPlot((pivot :: CFrame):PointToObjectSpace(position :: Vector3), width, depth)
 	if show and pivot then
-		self._anchor.WorldPosition = pivot:PointToWorldSpace(TillTips.TILL)
+		self._anchor.WorldPosition = pivot:PointToWorldSpace(TillTips.till(depth or 34))
 		if os.clock() >= self._pendingUntil then
 			self._button:setText("Collect " .. Format.money(self._amount))
 			self._button:setEnabled(true)

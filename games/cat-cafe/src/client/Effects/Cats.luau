@@ -731,7 +731,11 @@ end
 -- #4601 strayWalkSlow: on a frame the animHz throttle skips, a cat whose server write just landed or that is still
 -- easing is read and drawn again with its last offsets. Otherwise the server's new frames would show for the frames
 -- in between (a step forward), and the ease would only move at animHz (Sync's Alley runs: still on a third of frames).
-local function easeBetween(ease: number)
+-- True when a cat jumped (a server move past jumpStuds, a hop) on this frame: it is left undrawn, and the caller runs
+-- the full step at once so the hop is drawn from its first frame (Sync's run on #5146: hop ends popped 0.7 to 1 stud
+-- in frame pairs, a raw landing on a skipped frame and the hop's travel the frame after).
+local function easeBetween(ease: number): boolean
+	local jumped = false
 	for model, entry in active do
 		local rig = entry.rig
 		local drawn = entry.drawn
@@ -740,9 +744,14 @@ local function easeBetween(ease: number)
 				drop(model, entry)
 				continue
 			end
+			if rig.jumped then
+				jumped = true
+				continue
+			end
 			Pose.draw(rig, drawn, entry.drawnAlpha)
 		end
 	end
+	return jumped
 end
 
 local function step(dt: number)
@@ -753,9 +762,12 @@ local function step(dt: number)
 				LiveFlags.ATTRIBUTE_PREFIX .. Presets.motion.stepEase.flag
 			) == true
 		then
-			easeBetween(Presets.motion.stepEase.seconds)
+			if not easeBetween(Presets.motion.stepEase.seconds) then
+				return
+			end
+		else
+			return
 		end
-		return
 	end
 	local stepDt = elapsed
 	elapsed = 0

@@ -27,7 +27,7 @@ TomorrowCard.KIND = "gift" -- the only early pick it names
 TomorrowCard.SETTLE_SECONDS = 30 -- seconds into a session first, so a same-day rejoin is not met by it at once
 TomorrowCard.DAY_SECONDS = 86400
 TomorrowCard.TITLE = "Golden crate tomorrow!" -- short: on a phone it sits right of the picture
-TomorrowCard.LINE = "Come back tomorrow and it is yours the moment you join." -- desktop and tablet only (a phone leaves the line out)
+TomorrowCard.LINE = "Come back tomorrow and it is yours." -- desktop and tablet only (a phone leaves the line out)
 TomorrowCard.BUTTON = "OK!"
 TomorrowCard.PICTURE = "rbxassetid://115785859034580" -- ShopIcons Crate_Classic_Gold (never the banned wooden crate)
 

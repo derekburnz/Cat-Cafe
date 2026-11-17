@@ -12,6 +12,7 @@
 -- cannon with the Park card ringed (UI.cannon.flyToPark), until a flight or until the next rank up is ready.
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CafeGrewLogic = require(script.Parent.Parent.Components.CafeGrewLogic) -- #4543
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -63,6 +64,7 @@ export type RankUp = {
 	-- #2915: just ranked up to Tier 2, the button reads `text` ("Fly to the Park") and calls callbacks.fly until the
 	-- next rank up is ready; nil puts it back
 	setFly: (self: RankUp, text: string?) -> (),
+	setGrew: (self: RankUp, tier: number?) -> (),
 	button: (self: RankUp) -> GuiObject, -- #3555: the Rank up button, for the first rank up's walk-through
 	destroy: (self: RankUp) -> (),
 }
@@ -426,6 +428,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		end,
 	})
 	self._fly = nil :: string?
+	self._grewTier = nil :: number? -- #4543: the tier whose rank up grew the cafe (setGrew)
 	self._flying = false
 	self._state = nil :: Types.PlayerState?
 
@@ -689,7 +692,15 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		return
 	end
 	self._nextTitle.Text = ("Next: Tier %d  ·  %s"):format(nextTier.tier, nextTier.name)
-	self._needsLabel.Text = "To rank up you need"
+	-- #4543: one gold line, no pop-up, while the card is on the tier whose rank up grew the cafe
+	local grew = CafeGrewLogic.shows(self._grewTier, progress.tier)
+	self._needsLabel.RichText = grew
+	self._needsLabel.Text = if grew
+		then ('<font color="#%s">%s</font>  To rank up you need'):format(
+			PAL.gold:ToHex(),
+			CafeGrewLogic.LINE
+		)
+		else "To rank up you need"
 	self._opensLabel.Visible = true
 	local teaser = PerkCardLogic.teaser(progress.tier, PerkCardLogic.poolStands())
 	self._teaser.Text = teaser or ""
@@ -772,6 +783,18 @@ function RankUp._fillOpens(self: any, lines: { string })
 			Parent = words,
 		})
 		table.insert(self._opensCards, card)
+	end
+end
+
+-- #4543: `tier` is the tier a rank up just grew the cafe at (nil: none); the card shows "Your cafe grew!" on it
+function RankUp.setGrew(self: any, tier: number?)
+	if self._grewTier == tier then
+		return
+	end
+	self._grewTier = tier
+	local state: Types.PlayerState? = self._state
+	if state ~= nil then
+		self:render(state)
 	end
 end
 

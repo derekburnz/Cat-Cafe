@@ -34,6 +34,7 @@ local EventBanner = require(script.Parent.Effects.EventBanner)
 local FlightClock = require(script.Parent.Effects.FlightClock)
 local FusionFx = require(script.Parent.Effects.FusionFx)
 local HarvestFx = require(script.Parent.Effects.HarvestFx)
+local LoadGate = require(script.Parent.Effects.LoadGate)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
@@ -2403,6 +2404,14 @@ end
 
 -- #3651: petting a cat: a soft heart chime and a short purr, both in 3D at the cat.
 local function followPetCat()
+	-- #4913: the Pal Day gift's heart chime over this player, the same chime as a petted cat's hearts (required here:
+	-- this file is at Luau's 200 top-level locals)
+	local PalDayFx = require(script.Parent.Effects.PalDayFx) :: any
+	PalDayFx.onBeat(function(beat: string, at: Vector3)
+		if beat == "gift" then
+			Audio.play("mouseHeart", at)
+		end
+	end)
 	PetCat.onBeat(function(beat, at)
 		local cue, loop, seconds = Logic.petCatCue(beat)
 		if cue ~= nil then
@@ -2565,7 +2574,9 @@ function Audio.start()
 	end
 	started = true
 	build()
-	task.spawn(preload)
+	-- #5068 (fxAfterLoad): the cue downloads wait until the loading screen has gone, so a phone's line carries the
+	-- world first; switch off, they start at once as before
+	task.spawn(LoadGate.whenLoaded, preload)
 	task.spawn(function()
 		while true do
 			task.wait(REAP_EVERY)

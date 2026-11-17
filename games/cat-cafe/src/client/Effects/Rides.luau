@@ -13,8 +13,8 @@
 -- The turning pieces do not collide on this client (they could not carry a player, and would shove one): players
 -- stand on the ride's still deck.
 --
--- Budgets: the nearest `most` rides within `radius` studs turn, one on a device with no decor motion (phones on the
--- lite budget), at the budget's update rate and never faster than `hz`. Reduce Motion and Low performance leave
+-- Budgets: the nearest budget.rides within `radius` studs turn (#5065: one on a phone, three on a PC or console), at
+-- budget.rideHz turns a second and never faster than `hz`. Reduce Motion and Low performance leave
 -- every ride still. A ride that stops stays where it is, so nothing snaps back in view. Numbers in Presets.rides.
 
 local RunService = game:GetService("RunService")
@@ -165,8 +165,7 @@ local function most(): number
 	if Context.reducedMotion() or Context.lowPerformance then
 		return 0
 	end
-	local p = Presets.rides
-	return if Context.budget.decorMotion > 0 then p.most else p.mostLite
+	return Context.budget.rides -- #5065: one on a phone, three on a PC or console
 end
 
 -- Every `pick` seconds: the nearest few within `radius` turn; the rest stay where they are.
@@ -210,7 +209,7 @@ end
 
 local function step()
 	local now = os.clock()
-	local hz = math.min(Context.budget.animHz, Presets.rides.hz)
+	local hz = math.min(Context.budget.rideHz, Presets.rides.hz)
 	local dt = now - lastStep
 	if dt < 1 / hz then
 		return

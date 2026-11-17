@@ -22,6 +22,11 @@ sets add nothing on the inside walls (the Tier 3 set's window OPEN sign came out
 stand on their sill on purpose, so they are allowed in their window.
 
     python wall_fit.py            # prints the table, exits 1 on any clash
+    python wall_fit.py --sizes    # the same at every bigger room too (#4543)
+
+#4543 (the cafe grows with rank ups): at a bigger room the dressing comes from plotsizes' copy of plot.py for that
+size, and each Layout point is moved as the game moves it (shared/CafeRoom.point, mirrored in room_point below) and
+then put in the sized model's frame, which stands (D - 34) / 2 behind the plot's pivot.
 """
 import json
 import math
@@ -72,10 +77,36 @@ def _point(body, env):
     return p
 
 
+BASE_W, BASE_D = 44.0, 34.0
+SIDE_BAND, BACK_BAND, FRONT_BAND, FRONT_WINDOW_X = 2.5, 7.0, 4.0, 10.5      # shared/CafeRoom.luau
+
+
+def room_point(p, width, depth):
+    """shared/CafeRoom.point, then into the sized model's frame (its floor's middle): a 44 x 34 plot point in a room
+    of width x depth."""
+    x, z = p["x"], p["z"]
+    if (width, depth) != (BASE_W, BASE_D) and z >= -BASE_D / 2:
+        out = (width - BASE_W) / 2
+        side = abs(x) >= BASE_W / 2 - SIDE_BAND
+        if side or (z <= -BASE_D / 2 + FRONT_BAND and abs(x) >= FRONT_WINDOW_X):
+            x += -out if x < 0 else out
+        if z >= BASE_D / 2 - BACK_BAND:
+            z += depth - BASE_D
+        elif side:
+            z = (z + BASE_D / 2) * depth / BASE_D - BASE_D / 2
+    return dict(p, x=x, z=z - (depth - BASE_D) / 2)
+
+
 def layout_points():
-    """(anchors {id: point}, spots [point]) in plot space, read from Layout.luau."""
+    """(anchors {id: point}, spots [point]) in the room model's space, read from Layout.luau."""
+    anchors, spots = _layout_points()
+    w, d = 2 * plot.HWI, 2 * plot.HDI
+    return {k: room_point(p, w, d) for k, p in anchors.items()}, [room_point(p, w, d) for p in spots]
+
+
+def _layout_points():
     src = open(LAYOUT, encoding="utf-8").read()
-    env = {"halfW": plot.HWI, "halfD": plot.HDI}
+    env = {"halfW": BASE_W / 2, "halfD": BASE_D / 2}
     index = {}
     block = src[src.index("local INDEX_SPOTS"):]
     block = block[:block.index("\n}")]
@@ -251,6 +282,21 @@ def check():
 
 
 def main():
+    global plot
+    if "--sizes" in sys.argv:
+        import plotsizes
+        base, failed = plot, False
+        for size in [None] + list(plotsizes.SIZES):
+            plot = plotsizes.PLOTS[size] if size else base
+            print("== room %g x %g" % (2 * plot.HWI, 2 * plot.HDI))
+            problems, missing = check()
+            for q in dict.fromkeys(problems):
+                print("%-5s %-5s %s  over  %s" % q)
+            if missing:
+                print("NOT BUILT (left out):", ", ".join(missing))
+            print("wall fit:", "PASS" if not problems else f"FAIL ({len(set(problems))} clashes)")
+            failed = failed or bool(problems)
+        sys.exit(1 if failed else 0)
     problems, missing = check()
     seen = set()
     for p in problems:

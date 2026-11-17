@@ -5,7 +5,8 @@ Design-Agent's ladder (issue #4543): Tier 1 and 2 keep the 44 x 34 room, then 48
 dressing out from one room size (its IW, ID), and yardfence.py lays the yard's picket fence out from plot's lines, so
 this module loads a second copy of both for each bigger size and offers their assets under the base name plus
 "_<W>x<D>": CatCafe_Plot_Cafe_Mint_48x37, CatCafe_Plot_Interior_48x37, CatCafe_Plot_Tier3_48x37,
-CatCafe_Plot_YardFence_48x37. The game loads <base>_<W>x<D> from Config.CafeRoomByTier and falls back to the base.
+CatCafe_Plot_YardFence_48x37. The Store themes' fronts and the Grand chandelier (themes.py) follow the windows and the
+beams, so they get the same copies: CatCafe_Plot_ThemeGarden_48x37, ThemeGrand_48x37, ThemeGrandChandelier_48x37. The game loads <base>_<W>x<D> from Config.CafeRoomByTier and falls back to the base.
 
 Pivot: each sized model is centred on its own room's floor, front -Z, exactly as the base. The room keeps its front
 wall when it grows (Design-Agent), so the game places a sized model (D - 34) / 2 studs behind the plot's pivot (+Z).
@@ -17,6 +18,7 @@ import sys
 
 import common
 import plot
+import themes
 import yardfence
 
 BASE = (44, 34)
@@ -74,9 +76,12 @@ for _w, _d in SIZES:
     _sfx = suffix(_w, _d)
     _plot = _load(plot, f"plot{_sfx}", env=f"{_w},{_d}")
     _fence = _load(yardfence, f"yardfence{_sfx}", swap={"plot": _plot})
+    _themes = _load(themes, f"themes{_sfx}", swap={"plot": _plot})
     PLOTS[(_w, _d)] = _plot
-    for _m in (_plot, _fence):
+    for _m in (_plot, _fence, _themes):
         for _base, (_fn, _budget) in _m.ASSETS.items():
+            if _m is _themes and "_Plot_" not in _base:      # the themes' props (garland, pot, cushion) have no room
+                continue
             ASSETS[_base + _sfx] = (_renamed(_fn, _base, _base + _sfx), _budget)
             BASE_OF[_base + _sfx] = _base
 

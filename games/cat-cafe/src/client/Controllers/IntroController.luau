@@ -46,6 +46,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local HeldCat = require(Shared:WaitForChild("HeldCat"))
 local Intro = require(Shared:WaitForChild("Intro"))
 local UserInputService = game:GetService("UserInputService")
+local LoadGate = require(script.Parent.Parent.Effects.LoadGate)
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Parent.Effects.Presets)
@@ -2221,6 +2222,7 @@ local function unpark()
 	parked = false
 	unbindPark()
 	UI.intro.waiting(false) -- #3105
+	LoadGate.done() -- #5068: the loading screen has gone, so held Effects and Audio start-up can run
 	local camera = Workspace.CurrentCamera
 	if camera == nil then
 		return
@@ -2318,6 +2320,7 @@ function IntroController.play(replay: boolean)
 	if race > 0 then
 		task.wait(race)
 	end
+	LoadGate.done() -- #5068: the intro takes over from the loading screen here
 	starting = false
 	state = UIController.state
 	if run ~= nil or state == nil or state.plotIndex == 0 then

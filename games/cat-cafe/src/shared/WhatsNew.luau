@@ -45,6 +45,13 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE6",
 	},
+	-- #2718 (Motion-FX-Agent, 2026-11-17 12:40 UTC): rankUpRightAway on since 12:22 UTC (#5031, #5039, #5044)
+	{
+		id = "rank_up_right_away",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Rank Up opens when ready",
+	},
 	-- #2718 refresh (Motion-FX-Agent, 2026-11-17 09:20 UTC): the changes live since the 01:20 UTC rows (#5016), about 37
 	-- merges. Tier ladder #5056; lighter area sets and landing hitch #5011 #5019 #5023 #5024 #5033 #5036 #5037 #5042
 	-- #5043 #5052 #5046 #5048 #5028 #5030; carry marker and bait wait #5051; Park cannon marker #5057; small phone

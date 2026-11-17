@@ -15,6 +15,11 @@ local Mover = {}
 -- client eases between the writes (Effects/Pose). The client's own walks (customers) are not touched.
 Mover.SLOW_FLAG = "strayWalkSlow"
 Mover.SLOW_STEP = 0.1
+-- #4601: model attributes that describe a slowed server walk (see walkTo)
+Mover.WALK_FROM = "WalkFrom"
+Mover.WALK_TO = "WalkTo"
+Mover.WALK_SPEED = "WalkSpeed"
+Mover.WALK_AT = "WalkAt"
 
 local function slow(): boolean
 	return RunService:IsServer()
@@ -58,6 +63,19 @@ function Mover.walkTo(
 	local placed: CFrame? = nil -- where the last plain step put the model, bob and all
 	local slowed = draw == nil and slow()
 	local sinceWrite = math.huge -- seconds since the last write, under strayWalkSlow
+	if slowed then
+		-- The walk itself, so a client can draw it exactly between the 10 Hz writes (Effects/Pose): it is a straight
+		-- line from WalkFrom to WalkTo at WalkSpeed studs a second from server time WalkAt. WalkAt goes when it ends.
+		model:SetAttribute(Mover.WALK_FROM, ground)
+		model:SetAttribute(Mover.WALK_TO, target)
+		model:SetAttribute(Mover.WALK_SPEED, speed)
+		model:SetAttribute(Mover.WALK_AT, workspace:GetServerTimeNow())
+	end
+	local function ended()
+		if slowed and model.Parent ~= nil then
+			model:SetAttribute(Mover.WALK_AT, nil)
+		end
+	end
 	while alive() and model.Parent ~= nil do
 		local dt = RunService.Heartbeat:Wait()
 		elapsed += dt
@@ -72,6 +90,7 @@ function Mover.walkTo(
 			if draw == nil or not draw(model, arrived, 0, 0) then
 				model:PivotTo(arrived)
 			end
+			ended()
 			return true
 		end
 		local moved = math.min(speed * dt, distance)
@@ -108,6 +127,7 @@ function Mover.walkTo(
 	then
 		model:PivotTo(last - last.Position + ground)
 	end
+	ended()
 	return false
 end
 

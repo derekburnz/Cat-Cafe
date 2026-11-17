@@ -30,6 +30,7 @@ local Theme = require(script.Parent.Parent.Theme)
 export type Hooks = {
 	blocked: () -> boolean, -- true while no bubble may show
 	claimed: () -> boolean?, -- ProfileSync's starterCatClaimed, nil before the first sync
+	locked: ((tag: string) -> boolean)?, -- the station with this tag is shut below its tier (shared/StationTiers)
 }
 
 export type CatBubbles = {
@@ -315,7 +316,9 @@ function CatBubbles.new(parent: Instance, hooks: Hooks): CatBubbles
 				end
 				local point = entry.point
 				if
-					point ~= nil and CatBubblesLogic.allowed(entry.line.when, claimed, entry.here)
+					point ~= nil
+					and CatBubblesLogic.allowed(entry.line.when, claimed, entry.here)
+					and not (hooks.locked ~= nil and hooks.locked(entry.line.tag)) -- a station shut below its tier
 				then
 					local dx = point.X - from.X
 					local dz = point.Z - from.Z

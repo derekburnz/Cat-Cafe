@@ -6360,7 +6360,13 @@ do
 		if not tipKnown("stuck_cat") and taggedNear("StuckCat", from, TIP.STUCK_RANGE) then
 			UI.tips.show("stuck_cat")
 		end
-		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
+		if
+			not tipKnown("codes_cat")
+			and (state.tier or 1) >= ((require(
+				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+			) :: any).tierOf(TIP.CODES_TAG) or 1)
+			and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE)
+		then -- (none while the stand is shut below its tier, shared/StationTiers)
 			UI.tips.show("codes_cat")
 		end
 		-- #2302: after the tackling lesson, the first time a tackle could land on someone carrying a cat
@@ -11191,6 +11197,21 @@ do
 			claimed = function(): boolean?
 				local claimed = (state :: any).starterCatClaimed
 				return if type(claimed) == "boolean" then claimed else nil
+			end,
+			locked = function(
+				tag: string
+			): boolean -- shared/StationTiers, as StationLockController hides them
+				local StationTiers = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+				) :: any
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local on = LiveFlags.shown(
+					StationTiers.FLAG,
+					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationTiers.FLAG)
+				)
+				return StationTiers.locked(tag, (state :: any).tier, on)
 			end,
 		})
 	end

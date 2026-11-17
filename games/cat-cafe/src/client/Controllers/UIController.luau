@@ -784,6 +784,10 @@ local function refreshTutorial(s: Types.PlayerState)
 				then "touch"
 				else "keyboard"
 			showTutorial(s, RankFirst.line(device))
+			if not stepsReported["bowl:rankCue"] then -- onboarding_v9's rank_up_cue_seen
+				stepsReported["bowl:rankCue"] = true
+				Net.fire("TelemetryReport", TutorialOrder.REPORT, "rankCue")
+			end
 		elseif
 			not SecondCat.done(s.stats, true)
 			and not areasShutForMe()

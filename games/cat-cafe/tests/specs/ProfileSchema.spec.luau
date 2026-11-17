@@ -258,6 +258,7 @@ return function()
 					firstHourV3Step = 0,
 					cleanStep = 0,
 					cleanV8Step = 0,
+					cleanV9Step = 0,
 					playtimeStep = 0,
 				})
 				expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
@@ -283,6 +284,7 @@ return function()
 					firstHourV3Step = 12,
 					cleanStep = 27,
 					cleanV8Step = 43,
+					cleanV9Step = 56,
 					playtimeStep = 16,
 				})
 				raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
@@ -296,6 +298,7 @@ return function()
 					firstHourV3Step = 0,
 					cleanStep = 0,
 					cleanV8Step = 0,
+					cleanV9Step = 0,
 					playtimeStep = 0,
 				})
 				raw.telemetry = "junk"
@@ -309,6 +312,7 @@ return function()
 					firstHourV3Step = 0,
 					cleanStep = 0,
 					cleanV8Step = 0,
+					cleanV9Step = 0,
 					playtimeStep = 0,
 				})
 			end
@@ -2075,6 +2079,7 @@ return function()
 						firstHourV3Step = 12,
 						cleanStep = 27,
 						cleanV8Step = 43,
+						cleanV9Step = 56,
 						playtimeStep = 16,
 					})
 				end
@@ -2100,6 +2105,7 @@ return function()
 						firstHourV3Step = 12,
 						cleanStep = 27,
 						cleanV8Step = 43,
+						cleanV9Step = 56,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2118,6 +2124,7 @@ return function()
 						firstHourV3Step = 0,
 						cleanStep = 0,
 						cleanV8Step = 0,
+						cleanV9Step = 0,
 						playtimeStep = 0,
 					})
 				end
@@ -2144,6 +2151,7 @@ return function()
 						firstHourV3Step = 12,
 						cleanStep = 27,
 						cleanV8Step = 43,
+						cleanV9Step = 56,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2163,6 +2171,7 @@ return function()
 						firstHourV3Step = 0,
 						cleanStep = 0,
 						cleanV8Step = 0,
+						cleanV9Step = 0,
 						playtimeStep = 0,
 					})
 				end
@@ -2189,6 +2198,7 @@ return function()
 						firstHourV3Step = 12,
 						cleanStep = 27,
 						cleanV8Step = 43,
+						cleanV9Step = 56,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2208,6 +2218,7 @@ return function()
 						firstHourV3Step = 0,
 						cleanStep = 0,
 						cleanV8Step = 0,
+						cleanV9Step = 0,
 						playtimeStep = 0,
 					})
 				end
@@ -2235,6 +2246,7 @@ return function()
 						firstHourV3Step = 12,
 						cleanStep = 0,
 						cleanV8Step = 0,
+						cleanV9Step = 0,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2289,6 +2301,7 @@ return function()
 						firstHourV3Step = 12,
 						cleanStep = 27,
 						cleanV8Step = 43,
+						cleanV9Step = 56,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2309,6 +2322,7 @@ return function()
 						firstHourV3Step = 12,
 						cleanStep = 0,
 						cleanV8Step = 0,
+						cleanV9Step = 0,
 						playtimeStep = 16,
 					})
 					raw.telemetry.firstHourStep = 0

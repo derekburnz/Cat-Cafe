@@ -5,6 +5,7 @@
 -- Everything with a name in features.md is a named Part or a clone from AssetRegistry so art swaps in by name.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
@@ -528,6 +529,16 @@ function WorldBuilder.setDressing(plot: Plot, tier: number, extra: number?)
 	end
 end
 
+-- #4543: a piece laid out for the room (a theme's front and inside pieces) at the room standing now: its sized art
+-- (`<asset>_WxD`, centred on the room) when the room has grown and the art is in, else `asset` at the plot pivot.
+function WorldBuilder.roomAsset(plot: Plot, asset: string): (string, CFrame)
+	local suffix = CafeRoom.suffix(plot.room.width, plot.room.depth)
+	if suffix ~= "" and AssetRegistry.has(asset .. suffix) then
+		return asset .. suffix, plot.cframe * CFrame.new(0, 0, CafeRoom.centre(plot.room.depth))
+	end
+	return asset, plot.cframe
+end
+
 -- #1624 (themes.py): a cafe theme brings its own awning, so the shell's `_Awning` child Models hide while one shows.
 -- Hiding keeps each part's own transparency in an attribute and puts it back after; nothing on an awning collides.
 local AWNING_TRANSPARENCY = "ThemeTransparency"
@@ -645,6 +656,33 @@ function WorldBuilder.setRoom(plot: Plot, width: number, depth: number): boolean
 		local existing = plot.dressing:FindFirstChild(bed.id)
 		if existing ~= nil then
 			existing:Destroy()
+		end
+	end
+
+	-- anyone standing where the new walls, yard or fence now stand (the old yard and lawn beside and behind the room)
+	-- steps in to the landing spot by the back door (Review-QA on #5063); a player already inside stays put
+	local oldWidth, oldDepth = plot.room.width, plot.room.depth
+	local front = -W.PlotDepth / 2
+	local landing = CafeRoom.point(Layout.plot.respawnSpot, width, depth)
+	local landingAt = plot.cframe
+		* CFrame.new(landing.x, landing.y, landing.z)
+		* CFrame.Angles(0, math.pi, 0)
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if character == nil or root == nil or not root:IsA("BasePart") then
+			continue
+		end
+		local at = plot.cframe:PointToObjectSpace((root :: BasePart).Position)
+		local newBox = math.abs(at.X) <= math.max(width, oldWidth) / 2 + 1
+			and at.Z >= front
+			and at.Z <= front + math.max(depth, oldDepth) + W.YardDepth + 1
+			and at.Y > -4
+			and at.Y < 30
+		local oldInside = math.abs(at.X) <= math.min(width, oldWidth) / 2 - 1
+			and at.Z <= front + math.min(depth, oldDepth) - 1
+		if newBox and not oldInside then
+			character:PivotTo(landingAt)
 		end
 	end
 

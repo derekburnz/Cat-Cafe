@@ -173,7 +173,9 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkRingEarly = true, -- #5034: on at least a UTC day apart from rankUpRightAway (Design)
 	parkTrailBack = true, -- #5045: on after Sync's look at a Park rest
 	tier3Path = true, -- #5038: on after Review-QA and Sync's Studio pass, a UTC day apart from the other funnel switches
-	cafeGrows = true, -- #4543: on after Model's wall fit, Review-QA and Sync's Studio look at all five rooms
+	-- #4543: on after Model's wall fit, Review-QA and Sync's Studio look at all five rooms. Turning it off again
+	-- shrinks every grown room at its next cafe refresh, and the cats, decor, tables and bait are built again in it.
+	cafeGrows = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

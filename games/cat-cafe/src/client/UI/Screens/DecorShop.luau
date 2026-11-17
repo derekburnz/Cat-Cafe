@@ -910,6 +910,8 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 				from = "From the " .. ((def :: any).pack or "Cafe Pass")
 			elseif source == "event" then
 				from = "From a Cafe Event"
+			elseif source == "harvest" then
+				from = "From Harvest Hollow" -- #4251
 			end
 			card.action:setText(from)
 			card.action:setStyle("ghost")

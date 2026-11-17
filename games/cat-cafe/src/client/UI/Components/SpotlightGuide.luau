@@ -52,6 +52,9 @@ function SpotlightGuide.show(
 		previous()
 	end
 	local gui = target:FindFirstAncestorOfClass("ScreenGui")
+	-- Sync's run of #5108: TutorialGlow.set keeps a glow already there, and the HUD's ring (no dim) on the goal card came
+	-- first, so this dim never showed. Its own glow replaces any; the HUD puts its ring back on its next render.
+	TutorialGlow.set(target, false)
 	TutorialGlow.set(target, true, ringOutside, noDim) -- outside: for a card whose words reach its edge
 	local caption: TextLabel? = nil
 	if gui ~= nil and words ~= "" then

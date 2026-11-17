@@ -35,6 +35,7 @@ local Fusion = require(ReplicatedStorage.Shared.Fusion)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local HarvestSave = require(ReplicatedStorage.Shared.HarvestSave)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Invites = require(ReplicatedStorage.Shared.Invites)
 local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
@@ -312,8 +313,12 @@ end
 
 -- #4061: the Looks items a save has: the Cafe Pass's, plus the Ticket Booth wearables it bought (TicketBooth.lookItems
 -- adds them to a copy, so profile.pass.items never holds them and CafePass.sanitize keeps working as it is).
+-- #4251 part 7: and the Harvest Stall hats bought (HarvestSave.lookItems, also a copy).
 local function lookItems(profile: Profile): { [string]: boolean }
-	return TicketBooth.lookItems(profile.tickets, profile.pass.items)
+	return TicketBooth.lookItems(
+		profile.tickets,
+		HarvestSave.lookItems(profile.harvest, profile.pass.items)
+	)
 end
 
 -- The Dragon Keep's crate, trait and spin luck for the odds lists, the same numbers the rolls use (DragonKeep.of).
@@ -473,6 +478,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		lawnOwned = profile.lawnOwned, -- F91: the Front lawn tab
 		lawn = profile.lawn,
 		lawnStyles = profile.lawnStyles,
+		harvest = HarvestSave.forClient(profile.harvest), -- #4251: the Harvest Stall's pumpkins and items
 		serverTime = now,
 	}
 end

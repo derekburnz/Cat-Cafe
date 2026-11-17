@@ -40,6 +40,12 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 -- Modules whose exported types CatService does not name sit in one table, so the main chunk stays under
 -- Luau's limit of 200 local registers (the Open Cloud engine smoke test failed on it, 2026-11-15).
 local M = {
+	-- #4251: an area that is not one of the ten (Harvest Hollow) says itself who may catch there (CatService.addArea),
+	-- and the hooks told of every stray caught by net, with the area it was caught in (CatService.onCaught)
+	areaGates = {} :: { [string]: (Types.PlayerProfile) -> boolean },
+	caughtHooks = {} :: { (Player, Types.CatDef, string) -> () },
+	-- #4251: checks in a cat caught or picked up in an added area with no camp (set below finishCheckIn)
+	homeFromCampless = nil :: ((Player, string) -> ())?,
 	AssetRegistry = require(script.Parent.Parent.World.AssetRegistry),
 	Badges = require(ReplicatedStorage.Shared.Badges),
 	BagColours = require(ReplicatedStorage.Shared.BagColours),
@@ -286,6 +292,10 @@ local function openFor(profile: Types.PlayerProfile?): boolean
 end
 
 local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
+	local gate = M.areaGates[areaId]
+	if gate ~= nil then
+		return gate(profile)
+	end
 	local area = M.Catalog.getArea(areaId)
 	if area == nil then
 		return false
@@ -964,7 +974,9 @@ local function spawnAt(
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 (never a beginner's stray; #4654 batch 5: the `secretCats`
 	-- switch is retired). It takes the Mythical's point, and everyone hears the area and never the spot.
 	-- (review note on #3486: the two draws are made only for a Mythical)
-	local secret = if beginner == nil and rarity == "Mythical"
+	local secret = if beginner == nil
+			and rarity == "Mythical"
+			and M.Catalog.getArea(areaId) ~= nil -- #4251: never in Harvest Hollow
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),
@@ -1290,7 +1302,7 @@ do
 			Second.step(player, profile, SecondCat.FOLLOWED)
 			if
 				M.Onboarding.cleanWants(
-					profile.telemetry.cleanV8Step or 0,
+					profile.telemetry.cleanV9Step or 0,
 					M.Onboarding.CLEAN_EVENTS.nearStray
 				)
 			then
@@ -2654,6 +2666,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local pity = stray.pity
 		local area = stray.area
 		local waitedFor = stray.beginner -- #3181: someone else's tutorial stray
+		local recaught = stray.recaught -- #4251: a let go cat that walked home pays no Harvest pumpkins twice
 		-- #1181 (corner-shop-v2.md section 3): 1 in CatchSnackChance a stray's net catch drops a Small Snack, never a
 		-- Dropped or re-caught cat's, so shoving and catching one cat again cannot farm them
 		local dropsSnack = stray.drop == nil
@@ -2678,7 +2691,18 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		if area == "park" then
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
-		Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps
+		if M.Catalog.getArea(area) ~= nil then
+			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
+		end
+		if not recaught then
+			for _, hook in M.caughtHooks do
+				task.spawn(hook, player, def, area)
+			end
+		end
+		local home = M.homeFromCampless
+		if home ~= nil then
+			home(player, area)
+		end
 		return
 	end
 
@@ -2992,7 +3016,12 @@ local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray
 	local def, charm, variant, homePos = stray.def, stray.charm, stray.variant, stray.homePos
 	local knocks, pity = stray.knocks, stray.pity
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
+	local area = stray.area
 	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks, nil, pity)
+	local home = M.homeFromCampless
+	if home ~= nil then
+		home(player, area)
+	end
 	return nil
 end
 
@@ -3303,6 +3332,26 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 	if not ok then
 		error(err, 0)
 	end
+end
+
+-- #4251 (Sync's Harvest Studio run, 2026-11-17): Harvest Hollow has no camp and stands far from every cafe door, and
+-- fast travel waits until the arms are empty (busyReason), so a cat caught there could never be taken home. A cat
+-- caught or picked up in an added area with no camp goes home a moment later instead, once the catch has shown in
+-- the arms: checked in as at a door, if it is still the cat in the arms (or the Backpack) by then.
+M.homeFromCampless = function(player: Player, areaId: string)
+	local area = world.areas[areaId]
+	if area == nil or area.camp ~= nil or M.areaGates[areaId] == nil then
+		return -- only an added area (CatService.addArea), never one of the ten
+	end
+	local carry = carrying[player] or packed[player]
+	if carry == nil then
+		return
+	end
+	task.delay(1, function()
+		if carrying[player] == carry or packed[player] == carry then
+			finishCheckIn(player, true)
+		end
+	end)
 end
 
 -- Dusk (data-model section 9, v0.9): a Dropped stray goes to its last carrier while they are in the server, checked
@@ -4431,6 +4480,35 @@ end
 
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
+end
+
+-- #4251: an area that is not one of the ten (Harvest Hollow, World/HarvestWorld), added once it is built: its
+-- AreaInfo (spawn points, floor, bounds, roam) and who may catch there. Its strays come only from spawnIn; no
+-- wave, top-up, bait, rescue or pity knows it.
+function CatService.addArea(info: WorldBuilder.AreaInfo, gate: (Types.PlayerProfile) -> boolean)
+	world.areas[info.id] = info
+	M.areaGates[info.id] = gate
+end
+
+-- #4251: one stray of `rarity` (a cat of that rarity whose `area` is `areaId`) at a free spawn point of an added
+-- area, spread from the others there. False when the area is unknown or every point is taken.
+function CatService.spawnIn(areaId: string, rarity: Types.Rarity): boolean
+	if world.areas[areaId] == nil or M.areaGates[areaId] == nil then
+		return false
+	end
+	local point = freeSpawnPoint(areaId, rarity)
+	if point == nil then
+		return false
+	end
+	spawnAt(areaId, point, rarity)
+	return true
+end
+
+-- #4251: `hook(player, def, areaId)` runs (in its own thread) after every successful net catch, as the cat goes
+-- into the catcher's arms; not for a cat let go that walked home first (`recaught`), so Harvest pumpkins and the pie
+-- count each cat once (Sync's Harvest run, 2026-11-17: a drop then a late re-catch paid +1 twice).
+function CatService.onCaught(hook: (Player, Types.CatDef, string) -> ())
+	table.insert(M.caughtHooks, hook)
 end
 
 -- #1572 (luck-and-rare-moments.md 1h): spawns slot `slot`'s pity cat `catId` (`kind`) at a free hiding spot of the

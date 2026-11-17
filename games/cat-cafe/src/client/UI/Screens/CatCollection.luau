@@ -1041,7 +1041,11 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 	local rainbow = tab == "Rainbow"
 	local kind: IndexBook.Tab = kindOf(tab)
 	local track: IndexRewards.Track = trackOf(tab)
-	local sections = IndexBook.sections(catalog, state, kind)
+	-- #5025: after Harvest Hollow closes its page says it comes back next autumn
+	local HarvestHollow =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("HarvestHollow")) :: any
+	local harvestClosed = game:GetService("Workspace"):GetServerTimeNow() >= HarvestHollow.CLOSES_AT
+	local sections = IndexBook.sections(catalog, state, kind, harvestClosed)
 	local found = IndexBook.found(state, kind)
 
 	local shown: { [string]: boolean } = {}
@@ -1064,7 +1068,8 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 		)
 		section.title.Text = area.name
 		if area.exclusive then
-			section.hint.Text = IndexBook.EXCLUSIVE_NOTE -- F96: it counts toward nothing and has no rewards
+			-- F96: it counts toward nothing and has no rewards; #5025: Harvest Hollow's page says so its own way
+			section.hint.Text = area.note or IndexBook.EXCLUSIVE_NOTE
 		end
 	end
 	-- #3470: the Secret page only for a player who has found one, with nothing to claim and no total

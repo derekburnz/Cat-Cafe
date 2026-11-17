@@ -784,6 +784,10 @@ local function refreshTutorial(s: Types.PlayerState)
 				then "touch"
 				else "keyboard"
 			showTutorial(s, RankFirst.line(device))
+			if not stepsReported["bowl:rankCue"] then -- onboarding_v9's rank_up_cue_seen
+				stepsReported["bowl:rankCue"] = true
+				Net.fire("TelemetryReport", TutorialOrder.REPORT, "rankCue")
+			end
 		elseif
 			not SecondCat.done(s.stats, true)
 			and not areasShutForMe()
@@ -1530,6 +1534,7 @@ local function applyState(s: Types.PlayerState)
 		-- #4061: the Ticket Booth window; false (not nil, which UI.update would skip) while off or below its tier
 		ticketBooth = s.ticketBooth or false,
 		dragon = s.dragon or false, -- #4062: the Dragon Keep window, false while off or below its tier
+		harvest = s.harvest, -- #4251: pumpkins and the Stall's bought items (Sync's Studio run: the Stall read 0 without it)
 		fusion = (s :: any).fusion or false, -- #4104 (typed by Gameplay-Engineer's server side): the Fusion Observatory window, false while off or below its tier
 		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
 		crateLuck = s.crateLuck,
@@ -1768,6 +1773,18 @@ local function wireIntents()
 	if looseEvents.buyMystery ~= nil then
 		looseEvents.buyMystery:Connect(function(itemId: string, shownPrice: number)
 			Net.fire("BuyMystery", itemId, shownPrice)
+		end)
+	end
+	-- #4251: Buy on the Harvest Stall; the server checks the area, the price in pumpkins and the distance
+	if looseEvents.buyHarvest ~= nil then
+		looseEvents.buyHarvest:Connect(function(id: string)
+			Net.fire("BuyHarvest", id)
+		end)
+	end
+	-- #4251: a note on the Thankful Board; the server checks the note, the area and one pin every 10 s
+	if looseEvents.pinHarvestNote ~= nil then
+		looseEvents.pinHarvestNote:Connect(function(note: number)
+			Net.fire("PinHarvestNote", note)
 		end)
 	end
 	if looseEvents.mysterySeen ~= nil then

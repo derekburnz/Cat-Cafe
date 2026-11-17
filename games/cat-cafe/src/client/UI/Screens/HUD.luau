@@ -3623,7 +3623,7 @@ function HUD._renderStripBuy(self: any)
 	-- only pointer; on the safe side the walk-through's dim lights the same card (required here: 200 local limit)
 	local rankFirst = require(Shared:WaitForChild("RankFirst")) :: any
 	local rank = self._tutorial.Visible and rankFirst.isLine(self._tutorial.Text)
-	TutorialGlow.set(self._goal.frame, rank and self._openScreen == nil, nil, true)
+	TutorialGlow.set(self._goal.frame, rank and self._openScreen == nil, true, true)
 	if shown and offer ~= nil then
 		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
 		if not button.instance.Visible then

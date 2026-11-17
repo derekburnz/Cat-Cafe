@@ -437,28 +437,20 @@ local stuckGoal = {
 	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
 }
 
--- #4383 (shared/RankFirst, switch rankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
+-- #4383 (shared/RankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
 -- the rank up first; the stuck cat goal waits until then (and comes back should the coins be spent).
 local function rankFirstNow(s: Types.PlayerState): boolean
 	if (s.tier or 1) ~= 1 or s.tutorialStep < 5 then
 		return false
 	end
 	local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
-	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
-	local on: boolean = LiveFlags.shown(
-		RankFirst.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.FLAG)
-	)
-	if not on then
-		return false
-	end
 	local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
 	local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
 	local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
 	if nextTier == nil then
 		return false
 	end
-	return RankFirst.holds(on, s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
+	return RankFirst.holds(s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
 end
 
 local function stuckGoalActive(s: Types.PlayerState): boolean

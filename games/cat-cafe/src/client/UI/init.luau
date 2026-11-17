@@ -2674,22 +2674,13 @@ end
 -- #4227 (Derek 2026-11-14, from a player's suggestion): spawn lines wait in a line (Components/SpawnQueue) and show
 -- one at a time for SpawnQueue.SHOW seconds, merged when several of a rarity are out in one area, "+N" saying how
 -- many wait. Through a cutscene, Mouse Dash or the Mystic Pool they wait instead of dropping. The sting plays as
--- each one shows (UI.onAnnounceShown, set by UIController). The `spawnQueue` switch off: spawn lines go as before.
+-- each one shows (UI.onAnnounceShown, set by UIController). The `spawnQueue` switch is retired (#4654).
 UI.spawns = {
 	queue = nil :: any,
 	until_ = 0,
 	pumping = false,
 } :: any
 UI.onAnnounceShown = nil :: ((string, string?) -> ())?
-function UI.spawns.on(): boolean
-	local SpawnQueue = require(script.Components.SpawnQueue) :: any
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	return LiveFlags.shown(
-		SpawnQueue.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SpawnQueue.FLAG)
-	)
-end
 function UI.spawns.pump()
 	local SpawnQueue = require(script.Components.SpawnQueue) :: any
 	local ToastRules = require(script.Components.ToastRules)
@@ -2733,7 +2724,7 @@ function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
 	local SpawnQueue = require(script.Components.SpawnQueue) :: any
-	if SpawnQueue.isSpawn(text) and UI.spawns.on() then
+	if SpawnQueue.isSpawn(text) then
 		local spawns = UI.spawns
 		spawns.queue = spawns.queue or SpawnQueue.new()
 		SpawnQueue.push(spawns.queue, text, rarity, now)

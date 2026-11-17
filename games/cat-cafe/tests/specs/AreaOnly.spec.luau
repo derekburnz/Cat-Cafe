@@ -19,6 +19,11 @@ return function()
 			expect(AreaOnly.STEP > 0).to.equal(true)
 		end)
 
+		it("keeps a cafe for its owner alone with it on, and for everyone with it off", function()
+			expect(AreaOnly.cafeMode(true)).to.equal(Enum.ModelStreamingMode.PersistentPerPlayer)
+			expect(AreaOnly.cafeMode(false)).to.equal(Enum.ModelStreamingMode.Persistent)
+		end)
+
 		it("streams every camp cannon and never the Town Square's", function()
 			expect(AreaOnly.cannonStreams("alley")).to.equal(true)
 			expect(AreaOnly.cannonStreams("castle")).to.equal(true)

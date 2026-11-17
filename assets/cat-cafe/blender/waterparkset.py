@@ -369,10 +369,18 @@ def _walls(s, mat):
 
 
 # ------------------------------------------------------------------------------------------- small pieces --
+# The light build (#5026: fewer instances for a phone to load on landing). Off by default, so the camp and the nook
+# that borrow from this file keep the old look; build_set turns it on for the set only. A squashed ball exports as a
+# Part and a SpecialMesh and a ring as one part a segment, so: a plushie's body and a balloon are plain balls, a swim
+# ring stack's lower three rings are solid discs (the ring on top hides their holes, as the Sewer's tyre stack), a
+# planter palm's trunk is two lengths and its pot straight.
+LIGHT = False
+
+
 def _plush(b, at, r, col, belly=MILK):
     """A round prize plushie: body, head, two ears and a pale belly."""
     x, y, z = at
-    b.ico((x, y, z + r), r, col, subdivisions=1, scale=(1.0, 0.9, 1.0))
+    b.ico((x, y, z + r), r, col, subdivisions=1, scale=(1, 1, 1) if LIGHT else (1.0, 0.9, 1.0))
     b.ico((x, y - 0.1 * r, z + 2.25 * r), 0.72 * r, col, subdivisions=1)
     for sx in (-1, 1):
         b.ico((x + sx * 0.5 * r, y, z + 2.9 * r), 0.26 * r, col, subdivisions=1)
@@ -413,11 +421,12 @@ def trash_can(mat, k=0):
 def planter_palm(mat, h=8.0):
     """A palm in a big round pot (no grass: the pot stands on the tiles)."""
     b = Builder()
-    b.cyl_base((0, 0, 0), 1.3, 1.6, "terracotta", segments=10, radius2=1.6)
+    b.cyl_base((0, 0, 0), 1.45 if LIGHT else 1.3, 1.6, "terracotta", segments=10, radius2=1.6)
     b.cyl_base((0, 0, 1.6), 1.7, 0.25, MILK, segments=10, bevel=False)
-    for j in range(4):
-        b.cyl_base((0.12 * j, 0, 1.8 + j * (h - 1.8) / 4), 0.42 - 0.04 * j, (h - 1.8) / 4 + 0.05, (WOOD, "fur_brown")[j % 2],
-                   segments=8, bevel=False)
+    n = 2 if LIGHT else 4
+    for j in range(n):
+        b.cyl_base((0.12 * j * 4 / n, 0, 1.8 + j * (h - 1.8) / n), 0.42 - 0.04 * j * 4 / n, (h - 1.8) / n + 0.05,
+                   (WOOD, "fur_brown")[j % 2], segments=8, bevel=False)
     for k in range(7):
         a = 2 * PI * k / 7
         R = Matrix.Rotation(a, 3, "Z") @ Matrix.Rotation(0.5, 3, "Y")
@@ -437,7 +446,7 @@ def balloon_bunch(mat, k=0):
         a = 2 * PI * i / 6 + k
         r = 0.95 if i else 0.0
         d.ico((r * math.cos(a), r * math.sin(a), 5.9 + 0.9 * (i % 3) + (1.4 if not i else 0)), 0.85,
-              BALLOONS[(i + k) % 6], subdivisions=1, scale=(1.0, 1.0, 1.2))
+              BALLOONS[(i + k) % 6], subdivisions=1, scale=(1, 1, 1) if LIGHT else (1.0, 1.0, 1.2))
     return [b.finalize(N + "BalloonBunch", mat), hinge(d.finalize(N + "BalloonBunch_Swing", mat), (0, 0, 0.7))]
 
 
@@ -1002,6 +1011,9 @@ def kids_pool(mat, k=0):
 def ring_stack(mat, k=0):
     b = Builder()
     for j in range(4):
+        if LIGHT and j < 3:
+            b.cyl((0.1 * (-1) ** j, 0, 0.3 + 0.55 * j), 1.5, 0.5, BALLOONS[(j + k) % 6], segments=10, bevel=False)
+            continue
         b.ring((0.1 * (-1) ** j, 0, 0.3 + 0.55 * j), 1.5, 0.65, 0.5, BALLOONS[(j + k) % 6], segments=10, bevel=False)
     return [b.finalize(N + "RingStack", mat)]
 
@@ -1141,6 +1153,17 @@ def check_layout():
 
 # ------------------------------------------------------------------------------------------------ the set --
 def build_set(mat):
+    """The set, in the light build (LIGHT): the old look stays the default for every other builder."""
+    global LIGHT
+    old = LIGHT
+    LIGHT = True
+    try:
+        return _build_set(mat)
+    finally:
+        LIGHT = old
+
+
+def _build_set(mat):
     check_layout()
     s = Set(NAME)
     keep = []

@@ -402,6 +402,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		giftSteps = {},
 		eventRewards = {},
 		eventLast = "",
+		palDay = { day = 0 }, -- #4913, no version
 	}
 end
 
@@ -1218,6 +1219,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		EquipBest.apply(profile, EquipBest.plan(profile))
 	end
 
+	-- #4913: no version bump; an older server would drop it, so the palDay switch goes on only after a restart
+	local palDay = if type(raw.palDay) == "table" then raw.palDay else {}
+	profile.palDay = { day = math.max(0, asInt(palDay.day, 0)) }
 	profile.version = ProfileSchema.VERSION
 	return profile
 end

@@ -125,6 +125,7 @@ LiveFlags.KEYS = {
 	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
 	"journeys", -- #4544: Roblox Journey events (shared/Journeys); on once the configs are published in Creator Hub
 	"backdropsNear", -- #4857: far areas' backdrop rings leave this client's Workspace (shared/BackdropNear); off by default
+	"palDay", -- #4913: the Pal Day gift, 30 golden fish and a spin for 5 minutes beside a pal, once a day (shared/Pals)
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -164,6 +165,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	earlyKindBonus = true,
 	returnHookEarly = true,
 	journeys = true,
+	palDay = true, -- #4913: on after Growth's days-with-friends baseline and a restart (the save field has no bump)
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

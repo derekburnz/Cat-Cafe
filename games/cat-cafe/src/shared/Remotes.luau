@@ -313,6 +313,7 @@ Remotes.ServerToClient = {
 	-- for the joiner's "Sam is in the Park" marker
 	"LeaderboardSync", -- (data: Types.LeaderboardSync)  F98 (leaderboards.md section 5): every list's top 50 with names
 	-- and crowns and this player's own line, on join, after each refresh and after the player's own write
+	"PalDayPaid", -- (fish: number, spins: number)  #4913: today's Pal Day gift was paid, for the loot card
 	"PalsChanged", -- (userIds: { number })  F92 (playing-together.md 1): this player's pals on the server, every time
 	-- one comes or goes, for the HUD chip's headshots and "+10% with pals"; none sent while a player has never had one
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a rescueSpotId; retry keeps the

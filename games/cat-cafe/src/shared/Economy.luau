@@ -785,11 +785,17 @@ end
 
 -- Different cats ever caught: entries in the collection (a gold cat is not a second entry). An exclusive cat (F95,
 -- F96) is not one. For quests, achievements and telemetry; rank up reads rankUpCatCount (#1141).
+-- #4251 (harvest-hollow-spec 3b): a Harvest Hollow cat counts toward no Index total, track or reward, so not toward
+-- rank up's different cats, its rarity need or the collection badges either: a limited event must not skip a tier.
+local function harvestCat(def: Types.CatDef?): boolean
+	return def ~= nil and def.area == "harvest"
+end
+
 function Economy.distinctCats(profile: Types.PlayerProfile): number
 	local n = 0
 	for catId in profile.collection do
 		local def = Catalog.getCat(catId)
-		if def == nil or def.exclusive ~= true then
+		if def == nil or (def.exclusive ~= true and not harvestCat(def)) then
 			n += 1
 		end
 	end
@@ -802,7 +808,12 @@ function Economy.distinctCatsAtLeast(profile: Types.PlayerProfile, rarity: Types
 	local n = 0
 	for catId in profile.collection do
 		local def = Catalog.getCat(catId)
-		if def ~= nil and def.exclusive ~= true and Catching.rarityAtLeast(def.rarity, rarity) then
+		if
+			def ~= nil
+			and def.exclusive ~= true
+			and not harvestCat(def)
+			and Catching.rarityAtLeast(def.rarity, rarity)
+		then
 			n += 1
 		end
 	end
@@ -817,6 +828,9 @@ end
 -- rank up card, the upgrade shop button, the goal card and the gate signs) both read these, so they agree.
 function Economy.countsForRankUp(catId: string): boolean
 	local def = Catalog.getCat(catId)
+	if harvestCat(def) then
+		return false -- #4251
+	end
 	return def == nil or def.exclusive ~= true or def.source == "free"
 end
 

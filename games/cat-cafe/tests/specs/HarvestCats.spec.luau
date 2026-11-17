@@ -59,5 +59,23 @@ return function()
 			expect(IndexRewards.progress(found, IndexRewards.ALL)).to.equal(0)
 			expect(IndexRewards.progress(found, "harvest")).to.equal(0)
 		end)
+
+		it("count toward no rank up need or collection badge (Review-QA on #4439)", function()
+			local Economy = require(Shared.Economy)
+			local ProfileSchema = require(Shared.ProfileSchema)
+			local profile = ProfileSchema.template(1000) :: any
+			local before = Economy.distinctCats(profile)
+			local epicBefore = Economy.distinctCatsAtLeast(profile, "Epic")
+			local rankBefore = Economy.rankUpCatCount(profile.collection)
+			local rankEpicBefore = Economy.rankUpCatsAtLeast(profile.collection, "Epic")
+			for _, def in Catalog.harvestCats do
+				profile.collection[def.id] = profile.collection[def.id] or true
+				expect(Economy.countsForRankUp(def.id)).to.equal(false)
+			end
+			expect(Economy.distinctCats(profile)).to.equal(before)
+			expect(Economy.distinctCatsAtLeast(profile, "Epic")).to.equal(epicBefore)
+			expect(Economy.rankUpCatCount(profile.collection)).to.equal(rankBefore)
+			expect(Economy.rankUpCatsAtLeast(profile.collection, "Epic")).to.equal(rankEpicBefore)
+		end)
 	end)
 end

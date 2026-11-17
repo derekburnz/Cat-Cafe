@@ -1142,7 +1142,7 @@ return function()
 		local function idsOf(rarity: string): { string }
 			local ids = {}
 			for _, def in Catalog.cats do
-				if def.rarity == rarity then
+				if def.rarity == rarity and def.area ~= "harvest" then -- #4251: harvest cats count for no rank up
 					table.insert(ids, def.id)
 				end
 			end

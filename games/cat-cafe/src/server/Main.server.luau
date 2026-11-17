@@ -113,6 +113,8 @@ local placeholders = AssetRegistry.ensurePlaceholders()
 local stowed = AssetRegistry.stowServerOnly()
 -- #4601: and the cats' _Gold models while the goldTone switch is on (it follows the switch)
 stowed += AssetRegistry.followGoldTone()
+-- #4763: the tables caps follow the tablesSpread switch (shared/TablesSpread)
+require(ReplicatedStorage.Shared.TablesSpread).follow()
 local world = WorldBuilder.build()
 
 Net.start()

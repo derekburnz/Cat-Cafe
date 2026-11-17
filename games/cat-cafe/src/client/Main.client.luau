@@ -62,6 +62,8 @@ do
 		end
 	)
 end
+-- #4763: the tables caps follow the tablesSpread switch, like the server's (shared/TablesSpread)
+require(ReplicatedStorage.Shared.TablesSpread).follow()
 Audio.start()
 Audio.bindMoments(Moments :: any)
 UIController.start()

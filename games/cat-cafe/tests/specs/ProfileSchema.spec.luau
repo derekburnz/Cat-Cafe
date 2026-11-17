@@ -109,10 +109,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 50 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 51 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(50) -- #4136 fusion; #4251 Harvest's 51 rides a later restart
-			expect(profile.version).to.equal(50)
+			expect(ProfileSchema.VERSION).to.equal(51) -- #4251: Harvest Hollow's pumpkins (#4136 fusion takes 50)
+			expect(profile.version).to.equal(51)
 			expect(next(profile.fishBought)).to.equal(nil)
 			-- #2565 (version 44): no Mystery Market item yet
 			expect(next(profile.mystery)).never.to.be.ok()
@@ -372,8 +372,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 51 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 52 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 51 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 50 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 49 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 48 })).to.equal(false)

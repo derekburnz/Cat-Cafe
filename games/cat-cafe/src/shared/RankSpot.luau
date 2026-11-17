@@ -26,6 +26,22 @@ RankSpot.WORDS = table.freeze({
 	button = "You can rank up!",
 	confirm = "Press to rank up",
 })
+-- Sync's run of #5108: a phone read "Press" beside the strip's "Tap YOUR GOAL", so the window's caption takes the
+-- device's word, as RankFirst.LINES does
+RankSpot.CONFIRM_WORDS = table.freeze({
+	touch = "Tap to rank up",
+	keyboard = "Click to rank up",
+	gamepad = "Select to rank up",
+})
+
+-- The caption for `phase` on `device` ("touch", "keyboard" or "gamepad"; anything else reads as keyboard).
+function RankSpot.words(phase: string, device: string?): string?
+	if phase == "confirm" then
+		local words: { [string]: string } = RankSpot.CONFIRM_WORDS :: any
+		return words[device or "keyboard"] or words.keyboard
+	end
+	return (RankSpot.WORDS :: any)[phase]
+end
 
 -- `blocker` is Economy.rankUpBlocker's answer (nil: the server would take the rank up) and `area` the catching area
 -- the player stands in (nil: the cafes and the Town Square, the safe side of every gate).

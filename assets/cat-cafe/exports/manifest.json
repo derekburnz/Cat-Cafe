@@ -367095,7 +367095,7 @@
         "CatCafe_Castle_Set_274_BannerPole_Swing",
         "CatCafe_Castle_Set_275_Bench"
       ],
-      "triangles": 64900,
+      "triangles": 64036,
       "budget": 150000,
       "size_studs": {
         "x": 152.2,
@@ -368626,7 +368626,7 @@
       },
       "studio": "Tier 10, the Medieval Castle (next-areas plan section 3, #4067). Place it at the area's centre on its floor, camp side -Z, like the Snowy set. Packed earth right out to the walls, cobbles, the field's sand and the keep's flags over it. Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The moat is a kerb 0.7 high (a step, not a wall) round shallow _Water; the drawbridge and the postern's plank bridge are 0.9 up with a ramp at each end. The curtain wall and the keep's walls collide; the tilt fence is a low rail to hop. Torch flames are _Glow, windows _Pane, the drawbridge's chains _Decor. The rescue spots (points_roblox trap_haystack, trap_barrel, trap_banner_pole, trap_awning, trap_helmet) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_Set.model.json",
-      "rbx_parts": 4977,
+      "rbx_parts": 4373,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Castle_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Castle_Set.glb"
@@ -368638,10 +368638,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "64900/150000 tris",
+          "budget": "64036/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "29219 faces on swatch centers",
+          "uv": "28787 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=0.00 y=0.85",

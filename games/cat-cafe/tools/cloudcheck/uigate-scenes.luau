@@ -5306,6 +5306,17 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		player:SetAttribute("VipOwner", true)
 		UI.update({ money = ((UI.getState() :: any).money or 0) + 1 } :: any)
 		assert((row :: GuiObject).Visible, "uigate: no VIP tag row on the Screen tab for a VIP owner (#4991)")
+		-- #5010: it is the Screen tab's first row, so a phone shows it without a scroll
+		local top = math.huge
+		for _, child in (list :: Instance):GetChildren() do
+			if child:IsA("GuiObject") and child.Visible and child ~= row and child.Name ~= "Tabs" then
+				top = math.min(top, child.AbsolutePosition.Y)
+			end
+		end
+		assert(
+			(row :: GuiObject).AbsolutePosition.Y <= top,
+			"uigate: the VIP tag row is not the Screen tab's first row (#5010)"
+		)
 		player:SetAttribute("VipOwner", nil)
 	end },
 	{ "SettingsHelpTab", function()

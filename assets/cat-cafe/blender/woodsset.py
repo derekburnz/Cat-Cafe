@@ -268,10 +268,7 @@ def log_bridge(mat, w=6.0):
 # ---------------------------------------------------------- tree line, ridge ---
 def _pine_into(b, x, y, h, base=0.0):
     """A pine (as woods.pine) built into another piece, so a tree line or wall and its pines are one piece."""
-    b.cyl_base((x, y, base), 0.7, h * 0.35, "fur_brown", segments=8, radius2=0.5)
-    for i, (z, r) in enumerate(((0.22, 4.2), (0.42, 3.4), (0.6, 2.6), (0.76, 1.7))):
-        b.cyl_base((x, y, base + h * z), r, h * 0.3 if i < 3 else h * 0.26, "leaf_dark", segments=8, radius2=0.25,
-                   bevel=False)
+    wd.pine_into(b, x, y, h, base)
 
 
 def _tree_line(s, mat, z, gap, half=IN, runs=None):
@@ -375,7 +372,10 @@ def _seg_palisade(b, L, k):
         x = -L / 2 + (i + 0.5) * L / n
         h = 9.8 + 0.45 * ((i * 5) % 3)
         b.cyl_base((x, 1.0, 0), 0.58, h, ("fur_brown", "fur_hazel")[i % 2], segments=8)
-        b.cyl_base((x, 1.0, h), 0.58, 1.0, "treat_tan", segments=8, radius2=0.08)
+        if wd.LIGHT:                                # a flat cut top, one part (a cone tip is three bands)
+            b.cyl_base((x, 1.0, h), 0.4, 0.5, "treat_tan", segments=8)
+        else:
+            b.cyl_base((x, 1.0, h), 0.58, 1.0, "treat_tan", segments=8, radius2=0.08)
     for z in (2.6, 7.6):                                                                         # binding rails
         b.box((0, 0.3, z), (L - 0.2, 0.35, 0.4), "dark_wood", bevel=False)
     for i in range(3):
@@ -385,7 +385,7 @@ def _seg_palisade(b, L, k):
 
 def _seg_drystone(b, L, k):
     b.box_base((0, 0.9, 0), (L, 1.8, 4.6), "concrete")                                          # the wall
-    n = max(2, round(L / 1.6))
+    n = max(2, round(L / (3.2 if wd.LIGHT else 1.6)))
     for i in range(n):                                                                           # cap stones
         x = -L / 2 + (i + 0.5) * L / n
         b.box_base((x, 0.9, 4.6), (L / n - 0.08, 2.0, 0.45 + 0.006 * (i % 2)),
@@ -414,14 +414,14 @@ def wall_segment(mat, kind, L, k=0):
 def old_tree(mat, h=16.0):
     """An old tree standing in the wall line between two runs, its crown above them."""
     b = Builder()
-    b.cyl_base((0, WALL_D / 2, 0), 1.5, h, "fur_brown", segments=10, radius2=1.1)
-    for d in (200, 250, 290, 340):                                                     # roots spreading forward
+    b.cyl_base((0, WALL_D / 2, 0), 1.5, h, "fur_brown", segments=10, radius2=1.35 if wd.LIGHT else 1.1)
+    for d in ((225, 315) if wd.LIGHT else (200, 250, 290, 340)):                                                     # roots spreading forward
         a = math.radians(d)
         b.ico((1.5 * math.cos(a), WALL_D / 2 + 1.5 * math.sin(a), 0.5), 0.9, "fur_brown", subdivisions=1,
               scale=(1.4, 0.8, 0.7), rot=(a, "Z"))
     for (x, y, z, r, sw) in ((0, -1.4, h + 1.5, 4.8, "leaf_dark"), (-2.6, -0.6, h - 0.6, 3.4, "leaf_green"),
                              (2.8, -0.4, h - 0.2, 3.2, "leaf_dark")):           # leaning in, clear of the town
-        b.ico((x, y, z), r, sw, subdivisions=1, scale=(1.0, 0.9, 0.85))
+        b.ico((x, y, z), r, sw, subdivisions=1, scale=(1, 1, 1) if wd.LIGHT else (1.0, 0.9, 0.85))
     return [b.finalize(N + "OldTree", mat)]
 
 

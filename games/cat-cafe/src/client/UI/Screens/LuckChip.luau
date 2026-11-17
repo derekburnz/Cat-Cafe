@@ -295,6 +295,8 @@ function LuckChip.new(
 			Size = UDim2.fromOffset(0, PILL_H),
 			TextSize = Theme.sizes.textTiny + 1, -- three fit the 330 px card at Luck's top (+200%)
 			TextXAlignment = Enum.TextXAlignment.Center,
+			-- #4998: a pill sizes to its words, and truncating while that size settles cut "Epic +50%" to "Epic..."
+			TextTruncate = Enum.TextTruncate.None,
 			LayoutOrder = index,
 			Parent = self._boost,
 		})
@@ -320,7 +322,7 @@ function LuckChip.new(
 		Parent = list,
 	})
 	self._pityLoop = nil :: RBXScriptConnection?
-	self._pityLines = nil :: number?
+	self._sized = nil :: RBXScriptConnection? -- #4998: places the open card again as its height settles or changes
 	self._hint = label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -460,6 +462,13 @@ function LuckChip.toggle(self: any)
 	Tween.popIn(self.card, 0.9)
 	Sound.play("uiClick")
 	self:_stopPity()
+	-- #4998 (Review-QA): the card's automatic height settles a frame after its words are set, and grows when a pity
+	-- status line comes; _place only moves it, so this never loops
+	self._sized = self.card:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		if self.card.Visible then
+			self:_place()
+		end
+	end)
 	local pityClock = 0
 	self._pityLoop = RunService.Heartbeat:Connect(function(dt: number)
 		pityClock += dt
@@ -526,16 +535,7 @@ end
 
 function LuckChip._paintPity(self: any)
 	local t = Workspace:GetServerTimeNow() - Config.ClockEpoch
-	local lines = PityLogic.lines(PityLogic.view(t, PityLogic.current()))
-	self._pity.Text = table.concat(lines, "\n")
-	-- a status line coming or going changes the open card's height, so it is placed again (Review-QA)
-	if self._pityLines ~= #lines then
-		local placed = self._pityLines ~= nil and self.card.Visible
-		self._pityLines = #lines
-		if placed then
-			self:_place()
-		end
-	end
+	self._pity.Text = table.concat(PityLogic.lines(PityLogic.view(t, PityLogic.current())), "\n")
 end
 
 function LuckChip._stopPity(self: any)
@@ -543,6 +543,11 @@ function LuckChip._stopPity(self: any)
 	if loop then
 		loop:Disconnect()
 		self._pityLoop = nil
+	end
+	local sized: RBXScriptConnection? = self._sized
+	if sized then
+		sized:Disconnect()
+		self._sized = nil
 	end
 end
 

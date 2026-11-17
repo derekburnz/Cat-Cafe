@@ -3801,6 +3801,7 @@ function HUD.toastAvoid(self: any): { Types.Box }
 		box({ self._clock, self._banner, self._dayCard })
 	end
 	box({ self._goal.frame })
+	box({ self._luck.card }) -- #4998: the open Luck card (the "2x money in ..." rest bubble drew over its left half)
 	box({ self._corner }) -- the Potions tile, bottom right (left of the bottom row on touch, #2529)
 	-- a line's words: each label's text, from its right edge when right-aligned
 	for _, line in { self._spinLine } :: { GuiObject } do

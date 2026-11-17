@@ -578,7 +578,7 @@ function WorldBuilder.setRoom(plot: Plot, width: number, depth: number): boolean
 		table.insert(backPieces, closed)
 	end
 	for _, piece in backPieces do
-		if plot.roomBase[piece] == nil then
+		if not plot.roomBase[piece] then
 			plot.roomBase[piece] = plot.cframe:ToObjectSpace((piece :: any):GetPivot())
 		end
 	end

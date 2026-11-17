@@ -47,7 +47,8 @@ end
 local function anyCoat(collection: { [string]: number }): boolean
 	for catId in collection do
 		local def = Catalog.getCat(catId)
-		if def == nil or def.exclusive ~= true then
+		-- #4251: a harvest coat gives no coat badge (Design spec 3b: harvest cats count toward no reward)
+		if def == nil or (def.exclusive ~= true and def.area ~= "harvest") then
 			return true
 		end
 	end

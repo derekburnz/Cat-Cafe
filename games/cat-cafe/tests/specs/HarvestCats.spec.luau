@@ -77,5 +77,19 @@ return function()
 			expect(Economy.rankUpCatCount(profile.collection)).to.equal(rankBefore)
 			expect(Economy.rankUpCatsAtLeast(profile.collection, "Epic")).to.equal(rankEpicBefore)
 		end)
+
+		it("clear no rare quest and give no coat badge (Design spec 3b)", function()
+			local Badges = require(Shared.Badges)
+			local ProfileSchema = require(Shared.ProfileSchema)
+			local Quests = require(Shared.Quests)
+			local profile = ProfileSchema.template(1000) :: any
+			local mythicals = Quests.measure(profile, "mythicalCats")
+			for _, def in Catalog.harvestCats do
+				profile.collection[def.id] = true
+				profile.goldCollection[def.id] = 1
+			end
+			expect(Quests.measure(profile, "mythicalCats")).to.equal(mythicals)
+			expect(table.find(Badges.earned(profile), "goldenCoat")).to.equal(nil)
+		end)
 	end)
 end

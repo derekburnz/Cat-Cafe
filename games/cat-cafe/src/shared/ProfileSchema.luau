@@ -186,10 +186,11 @@ local ProfileSchema = {}
 -- Version 50 (#4104, shared/Fusion) adds fusion, the Fusion Observatory's dome: an older server would drop a fusion
 -- under way, and with it the five cats that went in. It ships with the Snowy Mountain update's restart; the `fusion`
 -- switch opens the dome after it. A save from before it has an empty dome.
--- Version 51 adds harvest (#4251, shared/HarvestSave: Harvest Hollow's pumpkins and Stall items): an older server
--- would drop them and the player would lose pumpkins and items. It ships with a publish that restarts the servers,
--- well before the area opens on 2026-11-25.
-ProfileSchema.VERSION = 51 -- 50 is the Fusion Observatory's (#4104)
+-- harvest (#4251, shared/HarvestSave: Harvest Hollow's pumpkins and Stall items) rides version 50 for now (Derek
+-- 2026-11-17: "merge all harvest prs today ... behind a switch"; Review-QA's pick A): it is sanitized on every load and
+-- stays empty until the area opens on 2026-11-25, so an older server that drops it loses nothing. Version 51 (an older
+-- server would drop pumpkins and items) goes in its own small PR with a restart before the area opens.
+ProfileSchema.VERSION = 50 -- the Fusion Observatory's (#4104); 51 comes with Harvest's restart
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 

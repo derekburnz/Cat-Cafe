@@ -29,6 +29,7 @@ local UIController = require(script.Parent.UIController)
 local StationCutController = {}
 
 local POLL = 0.1
+local AREA_TITLE = "CatCafeAreaTitle" -- UI Screens/AreaTitle
 local FREE_MOST = 60 -- seconds to wait for the player to be free before giving the toast instead
 local SETTLE = 0.6 -- seconds the player must stay free first: a tame's reveal card comes a moment after the bowl card
 local BAIT_CARD = "CatCafeBaitCard" -- UI/Screens/BaitCard's ScreenGui
@@ -60,6 +61,13 @@ local function free(): boolean
 	local bowlCard = if playerGui ~= nil then playerGui:FindFirstChild(BAIT_CARD) else nil
 	if bowlCard ~= nil and bowlCard:IsA("ScreenGui") and (bowlCard :: ScreenGui).Enabled then
 		return false -- a bowl card is up: it is dealt with first
+	end
+	-- a banner across the top ("Grand Opening!" from the roadmap's last step, a day banner): it plays out first.
+	-- Read only; UI's AreaTitle shows its Card frame for the banner and hides it once faded.
+	local banner = if playerGui ~= nil then playerGui:FindFirstChild(AREA_TITLE) else nil
+	local bannerCard = if banner ~= nil then banner:FindFirstChild("Card", true) else nil
+	if bannerCard ~= nil and bannerCard:IsA("GuiObject") and (bannerCard :: GuiObject).Visible then
+		return false
 	end
 	local perks = ui().perks
 	local perkCard = if perks ~= nil then perks.card else nil

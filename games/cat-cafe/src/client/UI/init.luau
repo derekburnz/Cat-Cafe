@@ -585,6 +585,11 @@ function applyTutorial()
 		-- ParkTrailLogic.REST_AFTER seconds, and waits while a window is up), so it names them only while a trail
 		-- target is set
 		text = if park.goal ~= nil and park.target ~= nil then park.STRIP else park.STRIP_PLAIN
+		-- #4836 (Sync's pointer audit, 2026-11-17: the walk to the Alley camp's cannon had paw prints and the strip
+		-- only): the cannon the paws lead to gets the gold marker too, while they show
+		if target == nil and park.target ~= nil and park.target.Parent ~= nil then
+			target, label = park.target, "Cannon"
+		end
 	end
 	-- #4836: the Tutorial tile's × waits to pulse until the Park is reached, so its arrow never shows beside the walk's
 	if hud then
@@ -657,6 +662,7 @@ function applyTutorial()
 		end
 	end
 	UI.parkTrail.tutorial = target ~= nil
+	UI.parkTrail.led = target ~= nil and target == UI.parkTrail.target -- #4836
 	UI.parkTrail.apply(target)
 end
 
@@ -4174,6 +4180,7 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
+	led = false, -- #4836: the tutorial marker stands on the walk's own target (the nearest cannon)
 	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
 	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
 	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same while no paw trail shows
@@ -4223,7 +4230,8 @@ function UI.parkTrail.apply(tutorialTarget: any)
 	if park ~= nil and park.Parent == nil then
 		park = nil -- the stray was caught or went away; the controller picks the next one
 	end
-	trail:mark("Paws", tutorialTarget == nil and park ~= nil)
+	-- #4836: the marker on the walk's own cannon keeps its paw prints
+	trail:mark("Paws", (tutorialTarget == nil or tutorialTarget == park) and park ~= nil)
 	local to = if tutorialTarget ~= nil then tutorialTarget else park
 	if to ~= nil then
 		trail:show(to)
@@ -4243,7 +4251,9 @@ function UI.parkTrail.set(target: BasePart?, goal: string?)
 	elseif shows and hud ~= nil then
 		applyTutorial()
 	end
-	if changed and not UI.parkTrail.tutorial then
+	if changed and UI.parkTrail.led then
+		applyTutorial() -- #4836: the marker moves with the walk to the next nearest cannon, or rests with the paws
+	elseif changed and not UI.parkTrail.tutorial then
 		UI.parkTrail.apply(nil)
 	end
 end

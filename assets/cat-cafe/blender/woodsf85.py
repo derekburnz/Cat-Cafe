@@ -333,6 +333,16 @@ def trail_arch(mat, text="GREAT OAK", w=16.0):
 
 # --------------------------------------------------------------------------------------------------- set --
 def build_set(mat):
+    """The set, in the light build (woods.LIGHT): the old look stays the default for every other builder."""
+    old = wd.LIGHT
+    wd.LIGHT = True
+    try:
+        return _build_set(mat)
+    finally:
+        wd.LIGHT = old
+
+
+def _build_set(mat):
     s = Set(NAME)
     keep = []                                  # (x, z, r): no filler tree within r
 

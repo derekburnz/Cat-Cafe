@@ -2356,6 +2356,10 @@ local function followAreas()
 	HarvestFx.onPick(function(at)
 		Audio.play(Logic.HARVEST_PICK_CUE, at)
 	end)
+	-- #5031: Tier 2's last need met (switch rankUpRightAway), one soft chime with the goal card's glow
+	require(script.Parent.Effects.RankUpPulse).onGoalReady(function()
+		Audio.play("rankUpReadyChime")
+	end)
 	-- #4251: a note pinned on the Thankful Board near you
 	HarvestFx.onPin(function(at)
 		Audio.play(Logic.HARVEST_PIN_CUE, at)

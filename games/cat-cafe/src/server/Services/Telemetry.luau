@@ -380,6 +380,10 @@ export type CustomEvent =
 	-- #5031: a Tier 1 Rank Up window ended, value 1, at most RankUpRightAway.WINDOWS_MAX a session; how it opened
 	-- (auto or button), how it ended (pressed, closed or left), device
 	| "rank_up_window"
+	-- #5038 (shared/Tier3Path): a stray started waiting by the Park landing for a Tier 2 player, value 1; kind or rare
+	| "tier3_path"
+	-- #5038: the Tier 3 welcome gift paid, value the coins; Tier 3's cost
+	| "tier3_topup"
 	-- #2915: the first Park landing's hint, value 1, each kind once a session; toast or ring (PARK_HINTS)
 	| "park_first_hint"
 	-- #3554: the walk to a first Park catch, value 1, each once a session; the tier (PARK_TRAIL)

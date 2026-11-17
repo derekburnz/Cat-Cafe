@@ -123,6 +123,8 @@ LiveFlags.KEYS = {
 	"fxOneAdded", -- #5000: Effects' Workspace.DescendantAdded handlers share one connection (Effects/Context); off by default
 	"rankUpRightAway", -- #5031: Rank Up opens again until pressed, goal card ready and short lines, a stray waits (shared/RankUpRightAway); off by default
 	"parkRingEarly", -- #5034: the nearest Park stray is ringed early after a landing (Motion-FX, PR #5035); off by default
+	"parkTrailBack", -- #5045: the Park trail comes back 30 s into a rest even while walking (Motion-FX, PR #5047); off by default
+	"tier3Path", -- #5038: at Tier 2 a new kind waits by the Park landing, one next goal, a Tier 3 welcome gift (shared/Tier3Path); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -166,6 +168,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	fxOneAdded = true, -- #5000: on once Sync's Studio read shows the shared connection is no slower
 	rankUpRightAway = true, -- #5031: on after Review-QA and Sync's Studio pass
 	parkRingEarly = true, -- #5034: on at least a UTC day apart from rankUpRightAway (Design)
+	parkTrailBack = true, -- #5045: on after Sync's look at a Park rest
+	tier3Path = true, -- #5038: on after Review-QA and Sync's Studio pass, a UTC day apart from the other funnel switches
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

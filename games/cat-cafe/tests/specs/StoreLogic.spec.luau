@@ -1147,6 +1147,18 @@ return function()
 			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
 		end)
 
+		it("says golden fish in the header line on the switch's Fish side", function()
+			expect(StoreLogic.subtitle("featured", true)).to.equal("Prices are in golden fish.")
+			expect(StoreLogic.subtitle("passes", true)).to.equal(
+				"Passes are yours to keep. Prices are in golden fish."
+			)
+			expect(StoreLogic.subtitle("passes", false)).to.equal(StoreLogic.subtitle("passes"))
+			expect(StoreLogic.subtitle("codes", true)).to.equal(StoreLogic.SUBTITLE_DEFAULT)
+			for _, tab in StoreLogic.TABS do
+				expect(StoreLogic.subtitle(tab.id, true):find("Robux")).to.equal(nil)
+			end
+		end)
+
 		it("gives each tab its header line, Codes the window's own", function()
 			expect(StoreLogic.subtitle("passes")).to.equal(
 				"Passes are yours to keep. Prices are in Robux."
@@ -1155,6 +1167,9 @@ return function()
 				"Potions are used from your Bag. Prices are in Robux."
 			)
 			expect(StoreLogic.subtitle("featured")).to.equal("Prices are in Robux.")
+			expect(StoreLogic.subtitle("cats")).to.equal(
+				"Cat helpers are yours to keep. Prices are in Robux."
+			)
 			expect(StoreLogic.subtitle("codes")).to.equal(StoreLogic.SUBTITLE_DEFAULT)
 			for _, tab in StoreLogic.TABS do
 				expect(#StoreLogic.subtitle(tab.id) > 0).to.equal(true)

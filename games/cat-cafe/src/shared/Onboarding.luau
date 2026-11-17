@@ -667,12 +667,15 @@ local CLEAN_RULES: { CleanRule } = {
 	{ name = "bowl_cat_here", event = EV.bowlArrived }, -- the bowl cat arrived
 	{ name = "bowl_cat_tamed", ledger = "first_bait_resolved" }, -- tamed (or let go)
 	{ name = "in_cannon", event = EV.cannonOpen },
-	{ name = "alley_picked", ledger = "first_cannon" }, -- the first launch, to the Alleyway
+	-- #5034 follow-up (Sync and Growth, Nov 17): steps 9 to 14 are the moments and the hand catch themselves, not the
+	-- ledger's first_cannon to first_checkin, which the bowl cat's tame and role already pass (IMPLIES runs back from
+	-- first_role_assigned), so every bowl first save read as through the Alleyway about 6 s after the tame
+	{ name = "alley_picked", event = EV.launch }, -- the first launch, to the Alleyway
 	{ name = "alley_arrived", event = Onboarding.arrivedEvent("alley") }, -- landed in the Alleyway
-	{ name = "near_stray", ledger = "near_stray" },
-	{ name = "catch_started", ledger = "catch_started" }, -- the net swung
-	{ name = "first_catch", ledger = "first_catch" },
-	{ name = "first_checkin", ledger = "first_checkin" }, -- saved at camp
+	{ name = "near_stray", event = EV.nearStray }, -- came near the stray that waits for them
+	{ name = "catch_started", event = EV.catchStart }, -- the net swung
+	{ name = "first_catch", event = EV.netCatch },
+	{ name = "first_checkin", handCats = 1 }, -- a cat caught by hand saved at camp (the bowl cat does not count)
 	{ name = "rank_up_ready_shown", event = EV.rankUpShown },
 	{ name = "rank_up_pressed", event = EV.rankUpPressed },
 	{ name = "tier_2", tier = 2 },

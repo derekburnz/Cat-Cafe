@@ -10204,25 +10204,35 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(strip ~= nil and strip.Visible, "uigate: the rank up line is not on the strip")
-		assert(buy ~= nil and buy.Visible, "uigate: no RANK UP button beside the rank up line")
-		local text: TextLabel? = nil
-		for _, piece in (buy :: GuiObject):GetDescendants() do
-			if piece:IsA("TextLabel") and piece.Text == RankFirst.BUTTON then
-				text = piece
+		-- Derek 2026-11-17 ("no need for extra rankup button above the bottom middle tutorial step"): no button over
+		-- the strip; the ring goes on the goal card (YOUR GOAL), with no dim off the walk-through
+		assert(buy == nil or not buy.Visible, "uigate: a RANK UP button still shows over the strip")
+		local goal: GuiObject? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == "🏆 YOUR GOAL" and piece.Visible then
+				goal = piece
 			end
 		end
-		assert(text ~= nil, "uigate: the strip's button does not say " .. RankFirst.BUTTON)
-		assert((text :: TextLabel).TextFits ~= false, "uigate: RANK UP does not fit its button")
-		assert((buy :: GuiObject):FindFirstChild("TutorialGlow") ~= nil, "uigate: the RANK UP button has no ring (Derek 2026-11-16)")
-		assert(tutorialSpotlight() == nil, "uigate: the RANK UP button dims the screen (the dim is the safe side's walk-through)")
-		local b, st = (buy :: GuiObject), (strip :: GuiObject)
-		local screen = hud.AbsoluteSize
-		assert(b.AbsolutePosition.X >= 0 and b.AbsolutePosition.X + b.AbsoluteSize.X <= screen.X and b.AbsolutePosition.Y >= 0, "uigate: the RANK UP button runs off screen")
-		assert(b.AbsolutePosition.Y + b.AbsoluteSize.Y <= st.AbsolutePosition.Y + 1, "uigate: the RANK UP button overlaps the strip")
+		assert(goal ~= nil, "uigate: no goal card beside the rank up line")
+		local ringed = false
+		local at: Instance? = goal
+		while at ~= nil and at ~= hud do
+			if at:FindFirstChild("TutorialGlow") ~= nil then
+				ringed = true
+			end
+			at = at.Parent
+		end
+		assert(ringed, "uigate: the goal card has no ring beside the rank up line")
+		assert(tutorialSpotlight() == nil, "uigate: the rank up line dims the screen (the dim is the safe side's walk-through)")
+		local st = strip :: GuiObject
+		assert(st.AbsolutePosition.X >= 0 and st.AbsolutePosition.X + st.AbsoluteSize.X <= hud.AbsoluteSize.X, "uigate: the rank up line runs off screen")
 		UI.tutorial.hide()
 		task.wait(0.1)
-		assert(not b.Visible, "uigate: the RANK UP button stays after the line goes")
-		assert(b:FindFirstChild("TutorialGlow") == nil, "uigate: the RANK UP ring stays on the strip's button after the line goes")
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "TutorialGlow" and goal ~= nil and (goal :: Instance):IsDescendantOf(piece.Parent :: Instance) then
+				error("uigate: the goal card keeps its ring after the rank up line goes")
+			end
+		end
 	end },
 	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
 	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
@@ -13861,11 +13871,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local card = page:FindFirstChild("Pack_packWinter") :: GuiObject
 			local buy = card:FindFirstChild("Buy", true) :: GuiObject
 			local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
-			assert(string.find(label.Text, "4,950", 1, true), "uigate: the Winter Pack reads " .. label.Text .. " in fish mode (#4055)")
+			assert(string.find(label.Text, "2,500", 1, true), "uigate: the Winter Pack reads " .. label.Text .. " in fish mode (#4055)")
 			local bar = buy:FindFirstChild("FishBar") :: Frame
 			assert(bar and bar.Visible, "uigate: no bar of fish saved over the Winter Pack's button (#4055)")
 			local fill = bar:FindFirstChild("Fill") :: Frame
-			assert(math.abs(fill.Size.X.Scale - 2310 / 4950) < 0.01, "uigate: the fish bar is at " .. fill.Size.X.Scale .. " (#4055)")
+			assert(math.abs(fill.Size.X.Scale - 2310 / 2500) < 0.01, "uigate: the fish bar is at " .. fill.Size.X.Scale .. " (#4055)")
 			local effect = card:FindFirstChild("Effect") :: GuiObject
 			assert(bar.AbsolutePosition.Y >= buy.AbsolutePosition.Y and bar.AbsolutePosition.Y + bar.AbsoluteSize.Y <= buy.AbsolutePosition.Y + buy.AbsoluteSize.Y, "uigate: the fish bar is not inside the Winter Pack's button (#4055)")
 			-- the money ladder is Robux only, and a tap on it goes back to Robux prices
@@ -13885,7 +13895,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(#sent == 0 and string.find(label.Text, "Buy?", 1, true), "uigate: the first tap did not ask, it reads " .. label.Text .. " (#4055)")
 			assert(label.TextFits, "uigate: " .. label.Text .. " does not fit its button (#4055)")
 			press("Store", "Pack_packWinter.Buy")
-			assert(#sent == 1 and sent[1].key == "winterPack" and sent[1].fish == 4950, "uigate: the second tap sent no BuyWithFish winterPack 4950 (#4055)")
+			assert(#sent == 1 and sent[1].key == "winterPack" and sent[1].fish == 2500, "uigate: the second tap sent no BuyWithFish winterPack 2500 (#4055)")
 			UI.update({ fishStore = view({ winterPack = true }), goldenFish = 4050 } :: any)
 			local owned = card:FindFirstChild("Owned", true) :: GuiObject
 			assert(owned and owned.Visible and not buy.Visible, "uigate: the Winter Pack bought with fish does not show as yours (#4055)")

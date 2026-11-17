@@ -19,6 +19,7 @@ StationTiers.BY_TAG = table.freeze({
 	MysticPool = 4, -- shared/Traits.TAG
 	-- Design-Agent 2026-11-17: codes already need Tier 2, and the stand cluttered Tier 1's Town Square
 	CodesCat = 2, -- shared/Codes.TAG
+	BellhopStand = 2, -- shared/StarterCat.TAG: Derek 2026-11-17, the free cat never stands in for the Alleyway catch
 } :: { [string]: number })
 
 -- The tier a tag's station opens at, or nil for a station that is always open.
@@ -50,6 +51,7 @@ StationTiers.NAMES = table.freeze({
 	ArcadeCabinet = "The Cat Arcade",
 	MysticPool = "The Mystic Pool",
 	CodesCat = "The Codes Cat",
+	BellhopStand = "The Bellhop Cat",
 } :: { [string]: string })
 
 function StationTiers.refusal(tag: string): string

@@ -8503,20 +8503,28 @@ do
 		camp.spin = spinBang
 		-- #2501 (Derek2: "put an exclamation mark above the free group cat station to help entice people to go join
 		-- group to take the cat"): the stand's "!" until the cat is taken; only once the sync says it isn't
-		local starterBang = MarketBang.new(into, {
-			tag = "BellhopStand", -- shared/StarterCat.TAG
-			name = "CatCafeStarterBang",
-			line = function(claimed: any): string?
-				-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
-				-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
-				if claimed ~= false or UI.firstCat.tutorial then
-					return nil
-				end
-				return if (SharedConfig.GroupId or 0) ~= 0
-					then "🐱 Free cat: join the group!"
-					else "🐱 A free cat waits here!"
-			end,
-		})
+		local starterBang =
+			MarketBang.new(into, {
+				tag = "BellhopStand", -- shared/StarterCat.TAG
+				name = "CatCafeStarterBang",
+				line = function(claimed: any): string?
+					-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
+					-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
+					if claimed ~= false or UI.firstCat.tutorial then
+						return nil
+					end
+					if
+						(require(
+							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")
+						) :: any).locked(state.tier)
+					then
+						return nil -- shut below Tier 2
+					end
+					return if (SharedConfig.GroupId or 0) ~= 0
+						then "🐱 Free cat: join the group!"
+						else "🐱 A free cat waits here!"
+				end,
+			})
 		starterBang:update((state :: any).starterCatClaimed)
 		camp.starter = starterBang
 		UI.firstCat.onHold = function() -- #4854: the bubble comes back as the hold ends, with no state update
@@ -11196,6 +11204,16 @@ do
 			end,
 			claimed = function(): boolean?
 				local claimed = (state :: any).starterCatClaimed
+				-- the stand is shut below Tier 2 (shared/StarterCat.locked): no line over it there
+				if
+					(
+						require(
+							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")
+						) :: any
+					).locked(state.tier)
+				then
+					return nil
+				end
 				return if type(claimed) == "boolean" then claimed else nil
 			end,
 			locked = function(

@@ -2673,10 +2673,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and Economy.tier(profile) < 2
 		then
 			session.healthLogged = true
+			-- Design's phone FPS read (2026-11-17): field 3 is where the player stands (cafe, town, an area id or
+			-- none). The device was field 3 before; Roblox's own Platform dimension gives it. whereOf sits further
+			-- down this file, so it is reached through the module table (no new top-level local).
+			local zoneOf: ((Player) -> string)? = (Telemetry :: any)._whereOf
 			Telemetry.custom(player, "health_check", math.floor(rawValue :: number), {
 				FirstFive.pingBucket(player:GetNetworkPing() * 1000),
 				session.healthMem or "unknown",
-				session.device or "unknown",
+				if zoneOf ~= nil then zoneOf(player) else "none",
 			})
 		end
 	elseif name == "screen_short" then
@@ -3238,6 +3242,7 @@ local function whereOf(player: Player): string
 	end
 	return lastWhere[player] or "none"
 end
+(Telemetry :: any)._whereOf = whereOf -- health_check's zone field (onReport sits above this)
 
 -- #2774: the account's first bait cat came `seconds` after the food went in; where the player was (cafe, an area id or
 -- none), to see whether the cannon trip has them away when it lands.

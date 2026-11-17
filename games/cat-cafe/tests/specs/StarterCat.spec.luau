@@ -21,6 +21,7 @@ return function()
 	local function profileAt(step: number): Types.PlayerProfile
 		local profile = ProfileSchema.template(1000)
 		profile.tutorialStep = step
+		profile.tier = 2 -- the stand opens at Tier 2 (StarterCat.locked)
 		return profile
 	end
 
@@ -65,6 +66,19 @@ return function()
 		end)
 	end)
 
+	describe("the Tier 2 stand", function()
+		it("is shut below Tier 2 and says so after the claimed check", function()
+			local profile = profileAt(5)
+			profile.tier = 1
+			expect(StarterCat.locked(1)).to.equal(true)
+			expect(StarterCat.locked(2)).to.equal(false)
+			expect(StarterCat.blocker(profile, true, true, GROUP)).to.equal(StarterCat.NEEDS_TIER)
+			expect(StarterCat.blocker(profile, true, nil, 0)).to.equal(StarterCat.NEEDS_TIER)
+			profile.starterCatClaimed = true
+			expect(StarterCat.blocker(profile, true, true, GROUP)).to.equal(StarterCat.CLAIMED)
+		end)
+	end)
+
 	describe("the refusals", function()
 		it(
 			"says it is already home before anything else, so a claimed account never asks Roblox",
@@ -97,6 +111,7 @@ return function()
 			for _, line in
 				{
 					StarterCat.CLAIMED,
+					StarterCat.NEEDS_TIER,
 					StarterCat.TOO_FAR,
 					StarterCat.NEEDS_GOALS,
 					StarterCat.NEEDS_GROUP,

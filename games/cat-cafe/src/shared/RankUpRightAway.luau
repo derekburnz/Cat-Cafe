@@ -7,7 +7,8 @@
 --     "left" when the player leaves with it open.
 --   Switch `rankUpRightAway` (LiveFlags.OFF_BY_DEFAULT):
 --     ready: the window opens by itself until it is pressed. Closed, it opens again the next time the player lands
---       in Town or their cafe, at most REOPENS times (againDue), and the goal card reads READY_TITLE;
+--       in Town or their cafe, at most REOPENS times (againDue), and the goal card reads READY_TITLE (READY_NARROW
+--       on a phone) beside its "Rank up!" sticker;
 --     not ready (the bowl cat was let go, so Tier 2's cats are short): the goal card reads shortTitle(n) and a stray
 --       waits near the Alleyway camp's landing, like SecondCat's, until Tier 2's cat need is met (catsShort).
 --   catsShort(profile) -> number        Tier 2's cats still to get, at Tier 1 after the first check-in, else 0
@@ -25,7 +26,10 @@ local RankUpRightAway = {}
 RankUpRightAway.FLAG = "rankUpRightAway"
 RankUpRightAway.REOPENS = 2 -- a closed window opens again at most this many times a session
 RankUpRightAway.TIER = 1 -- the tier it helps (to Tier 2)
-RankUpRightAway.READY_TITLE = "Rank up now! Your cafe is ready"
+-- Design's "Rank up now! Your cafe is ready" did not fit beside the card's "Rank up!" sticker on any screen (uigate
+-- GoalCardReadyTitle), so the sticker says the rank up and the title says why
+RankUpRightAway.READY_TITLE = "Your cafe is ready!"
+RankUpRightAway.READY_NARROW = "Cafe ready!" -- a phone's card (73 px for the title)
 -- TelemetryReport names: the window opened (value a HOWS entry) and how it ended (value an OUTCOMES entry)
 RankUpRightAway.OPEN_REPORT = "rank_up_open"
 RankUpRightAway.END_REPORT = "rank_up_end"

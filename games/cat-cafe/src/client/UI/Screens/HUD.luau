@@ -3301,8 +3301,17 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._second = second
 	-- #3554: after it, on the way to a first Park catch, "Visit the Park 🐾" then "Catch a Park cat 🐾"
 	local park: string? = self._parkGoal
-	-- #5031 (switch rankUpRightAway, Tier 1): "Rank up now! Your cafe is ready" in place of the tier's name when ready
+	-- #5031 (switch rankUpRightAway, Tier 1): "Your cafe is ready!" in place of the tier's name when ready, the
+	-- shorter "Cafe ready!" on a phone's narrow card (shared/RankUpRightAway)
 	local readyTitle: unknown = (state :: any).rankUpTitle -- (the UI state's field, set by UIController)
+	if type(readyTitle) == "string" and TOUCH then
+		local RankUpRightAway = require(
+			game:GetService("ReplicatedStorage")
+				:WaitForChild("Shared")
+				:WaitForChild("RankUpRightAway")
+		) :: any
+		readyTitle = RankUpRightAway.READY_NARROW
+	end
 	self._goal:setReadyTitle(if type(readyTitle) == "string" then readyTitle else nil)
 	self._goal:render(
 		tierProgress,

@@ -139,6 +139,7 @@ def _seg_brick(b, L, shade):
 
 
 RAIL_GAP = 1.0     # studs between a hedge railing's bars; parkf85 builds with 2.0 (#4857: each bar is 2 parts)
+LIGHT = False      # parkf85 builds with True (#4857): no pillar plinth and neck, no lamp tip, no stone coursing
 
 
 def _seg_rail(b, L, shade):
@@ -156,7 +157,7 @@ def _seg_rail(b, L, shade):
 
 def _seg_stone(b, L, shade):
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 10.0), "concrete")
-    for z in (2.0, 4.0, 6.0, 8.0):                                                             # coursing
+    for z in (() if LIGHT else (2.0, 4.0, 6.0, 8.0)):                                          # coursing
         b.box((0, -0.03, z), (L, 0.06, 0.12), "concrete_dark", bevel=False)
     b.box_base((0, WALL_D / 2, 10.0), (L + 0.1, WALL_D + 0.3, 0.4), "concrete_dark", bevel=False)
     # a bricked-up old gate under a stone arch
@@ -178,7 +179,7 @@ def _seg_low(b, L, shade, flowers_b):
     """Town side: a plinth, a railing 4.6 high and flower boxes, so the town shows through."""
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
     b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
-    n = max(2, round(L / 1.0))
+    n = max(2, round(L / 1.0))        # stays 1.0 in a light build too: these bars are the boundary
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.15, 0.15, 3.25), "fur_black", bevel=False)
@@ -200,7 +201,7 @@ def _seg_tall(b, L, shade, flowers_b):
     feeling its the start of the game no need to be harsh no invisible barriers either")."""
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
     b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
-    n = max(2, round(L / 1.0))
+    n = max(2, round(L / 1.0))        # stays 1.0 in a light build too: these bars are the boundary
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.16, 0.16, TALL_RAIL - 1.35), "fur_black", bevel=False)
@@ -239,11 +240,13 @@ def pillar(mat, top="ball", h=10.6, w=1.8):
     b, bulb = Builder(), Builder()
     d = WALL_D + 0.2
     b.box_base((0, WALL_D / 2, 0), (w, d, h), "concrete")
-    b.box_base((0, WALL_D / 2, 0), (w + 0.2, d + 0.2, 0.8), "concrete_dark", bevel=False)
+    if not LIGHT:
+        b.box_base((0, WALL_D / 2, 0), (w + 0.2, d + 0.2, 0.8), "concrete_dark", bevel=False)
     b.box_base((0, WALL_D / 2, h), (w + 0.3, d + 0.3, 0.35), "concrete_dark", bevel=False)
     if top == "ball":
-        b.cyl_base((0, WALL_D / 2, h + 0.35), 0.45, 0.35, "concrete", segments=10)
-        b.sphere((0, WALL_D / 2, h + 1.3), 0.65, "concrete", segments=10, rings=6)
+        if not LIGHT:
+            b.cyl_base((0, WALL_D / 2, h + 0.35), 0.45, 0.35, "concrete", segments=10)
+        b.sphere((0, WALL_D / 2, h + (0.95 if LIGHT else 1.3)), 0.65, "concrete", segments=10, rings=6)
         return [b.finalize(N + "Pillar", mat)]
     b.box_base((0, WALL_D / 2, h + 0.35), (0.9, 0.9, 0.15), "fur_black", bevel=False)
     for sx in (-1, 1):
@@ -499,7 +502,8 @@ def lamp(mat):
     bulb.box_base((0, 0, 8.1), (0.85, 0.85, 1.05), "lamp_warm", bevel=False)
     b.box_base((0, 0, 9.15), (1.15, 1.15, 0.12), "dumpster_green", bevel=False)
     b.pyramid((0, 0, 9.27), 1.0, 0.55, "dumpster_green")
-    b.sphere((0, 0, 9.9), 0.14, "gold_mid", segments=6, rings=4)
+    if not LIGHT:
+        b.sphere((0, 0, 9.9), 0.14, "gold_mid", segments=6, rings=4)
     return [b.finalize(N + "Lamp", mat), bulb.finalize(N + "Lamp_Bulb", mat)]
 
 

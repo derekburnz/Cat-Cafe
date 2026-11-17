@@ -18,11 +18,13 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Bellhop = require(script.Parent.Bellhop)
 local Context = require(script.Parent.Context)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Pose = require(script.Parent.Pose)
@@ -65,6 +67,7 @@ type Entry = {
 	propBounce: number, -- degrees its head prop bounces as it walks (motion.propBounce), 0 for none
 	making: number, -- how far into the working bob it is (F90), 0 to 1, easing with its Making attribute
 	makingAt: number, -- os.clock() its current making started, for the bob's loop
+	drawn: Logic.Offsets?, -- #4601: the offsets last drawn, for redrawing an easing walk between steps
 }
 
 local ROLES: { [string]: Logic.Style } = {
@@ -556,6 +559,7 @@ local function bind(model: Model): Entry?
 		bellhop = Bellhop.is(model),
 		propBounce = propBounceOf(model),
 		making = 0,
+		drawn = nil,
 		makingAt = 0,
 	}
 	active[model] = entry
@@ -722,9 +726,33 @@ local function stretch(
 	Logic.stretch(o, alpha, entry.rig.kind, entry.stretchWeight)
 end
 
+-- #4601 strayWalkSlow: on a frame the animHz throttle skips, a cat whose server write just landed or that is still
+-- easing is read and drawn again with its last offsets. Otherwise the server's new frames would show for the frames
+-- in between (a step forward), and the ease would only move at animHz (Sync's Alley runs: still on a third of frames).
+local function easeBetween(ease: number)
+	for model, entry in active do
+		local rig = entry.rig
+		local drawn = entry.drawn
+		if drawn ~= nil and Pose.pending(rig) then
+			if not Pose.read(rig, ease) then
+				drop(model, entry)
+				continue
+			end
+			Pose.draw(rig, drawn, -1)
+		end
+	end
+end
+
 local function step(dt: number)
 	elapsed += dt
 	if elapsed < 1 / Context.budget.animHz then
+		if
+			ReplicatedStorage:GetAttribute(
+				LiveFlags.ATTRIBUTE_PREFIX .. Presets.motion.stepEase.flag
+			) == true
+		then
+			easeBetween(Presets.motion.stepEase.seconds)
+		end
 		return
 	end
 	local stepDt = elapsed
@@ -735,9 +763,15 @@ local function step(dt: number)
 	local hiss = motion.hiss
 	local gait = motion.gait
 	local pant = motion.pant
+	-- #4601: with strayWalkSlow on the server steps a walk 10 times a second, and each step is eased in
+	local ease = if ReplicatedStorage:GetAttribute(
+			LiveFlags.ATTRIBUTE_PREFIX .. motion.stepEase.flag
+		) == true
+		then motion.stepEase.seconds
+		else nil
 	for model, entry in active do
 		local rig = entry.rig
-		if not Pose.read(rig) then
+		if not Pose.read(rig, ease) then
 			drop(model, entry)
 			continue
 		end
@@ -850,6 +884,7 @@ local function step(dt: number)
 			Logic.eatPose(o, os.clock() - eatingAt)
 		end
 		Pose.draw(rig, o, alpha)
+		entry.drawn = if ease ~= nil and alpha < 0 then o else nil
 		local yarn, wand = entry.yarn, entry.wand
 		if yarn ~= nil and wand ~= nil then
 			local floor = Pose.floor(entry.rig)

@@ -1190,7 +1190,9 @@ function UI.init(config: Types.InitConfig)
 		fly = function()
 			UI.cannon.flyToPark() -- #2915
 		end,
-		close = closeModal,
+		close = function()
+			modalInstance:close("x") -- Growth's #5031 read: rank_up_window tells the X from other closes
+		end,
 		perks = function()
 			-- #2687: "Your perks" over the window
 			if UI.perks.card then
@@ -1702,6 +1704,10 @@ function UI.init(config: Types.InitConfig)
 			end
 		end)
 	end)
+	-- How the last window closed (Modal.lastVia): "x", "back" or "other" (#5031)
+	UI.closeVia = function(): string
+		return modalInstance:lastVia()
+	end
 	modalInstance.changed:Connect(function(name: string?)
 		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
@@ -1986,7 +1992,7 @@ function UI.init(config: Types.InitConfig)
 						if nav.on() then
 							modalInstance:back()
 						else
-							modalInstance:close()
+							modalInstance:close("back")
 						end
 						return
 					end
@@ -6376,7 +6382,13 @@ do
 		if not tipKnown("stuck_cat") and taggedNear("StuckCat", from, TIP.STUCK_RANGE) then
 			UI.tips.show("stuck_cat")
 		end
-		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
+		if
+			not tipKnown("codes_cat")
+			and (state.tier or 1) >= ((require(
+				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+			) :: any).tierOf(TIP.CODES_TAG) or 1)
+			and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE)
+		then -- (none while the stand is shut below its tier, shared/StationTiers)
 			UI.tips.show("codes_cat")
 		end
 		-- #2302: after the tackling lesson, the first time a tackle could land on someone carrying a cat
@@ -8513,20 +8525,28 @@ do
 		camp.spin = spinBang
 		-- #2501 (Derek2: "put an exclamation mark above the free group cat station to help entice people to go join
 		-- group to take the cat"): the stand's "!" until the cat is taken; only once the sync says it isn't
-		local starterBang = MarketBang.new(into, {
-			tag = "BellhopStand", -- shared/StarterCat.TAG
-			name = "CatCafeStarterBang",
-			line = function(claimed: any): string?
-				-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
-				-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
-				if claimed ~= false or UI.firstCat.tutorial then
-					return nil
-				end
-				return if (SharedConfig.GroupId or 0) ~= 0
-					then "🐱 Free cat: join the group!"
-					else "🐱 A free cat waits here!"
-			end,
-		})
+		local starterBang =
+			MarketBang.new(into, {
+				tag = "BellhopStand", -- shared/StarterCat.TAG
+				name = "CatCafeStarterBang",
+				line = function(claimed: any): string?
+					-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
+					-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
+					if claimed ~= false or UI.firstCat.tutorial then
+						return nil
+					end
+					if
+						(require(
+							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")
+						) :: any).locked(state.tier)
+					then
+						return nil -- shut below Tier 2
+					end
+					return if (SharedConfig.GroupId or 0) ~= 0
+						then "🐱 Free cat: join the group!"
+						else "🐱 A free cat waits here!"
+				end,
+			})
 		starterBang:update((state :: any).starterCatClaimed)
 		camp.starter = starterBang
 		UI.firstCat.onHold = function() -- #4854: the bubble comes back as the hold ends, with no state update
@@ -10795,7 +10815,7 @@ do
 			local list = if up or next(unseen) ~= nil then rows() else nil
 			screen:setNew(if list then StoreLogic.newTabs(unseen, list) else {})
 			if up and list then
-				-- #3572: the Potions tab's bag strip (rework only)
+				-- #3572: the Potions tab's bag strip
 				screen:setBag(StoreLogic.bag(view()))
 				-- #4055: the Robux / Fish switch, while the fishStore switch is on
 				screen:setFish((state :: any).fishStore, state.goldenFish or 0)
@@ -10909,7 +10929,7 @@ do
 			onOpen = function()
 				shop.reported = {} -- #1888: a new Store visit, a new funnel session
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
-				-- #3572: the Potions tab's bag strip (rework only)
+				-- #3572: the Potions tab's bag strip
 				screen:setBag(StoreLogic.bag(view()))
 				screen:setFish((state :: any).fishStore, state.goldenFish or 0) -- #4055
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
@@ -11276,7 +11296,32 @@ do
 			end,
 			claimed = function(): boolean?
 				local claimed = (state :: any).starterCatClaimed
+				-- the stand is shut below Tier 2 (shared/StarterCat.locked): no line over it there
+				if
+					(
+						require(
+							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")
+						) :: any
+					).locked(state.tier)
+				then
+					return nil
+				end
 				return if type(claimed) == "boolean" then claimed else nil
+			end,
+			locked = function(
+				tag: string
+			): boolean -- shared/StationTiers, as StationLockController hides them
+				local StationTiers = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+				) :: any
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local on = LiveFlags.shown(
+					StationTiers.FLAG,
+					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationTiers.FLAG)
+				)
+				return StationTiers.locked(tag, (state :: any).tier, on)
 			end,
 		})
 	end
@@ -11514,6 +11559,16 @@ function UI.tomorrowCard.try(): boolean
 		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. TomorrowCard.FLAG)
 	)
 	if not on then
+		return false
+	end
+	-- Derek 2026-11-17 15:24 UTC: the tomorrowCard 50/50 (shared/ReturnAB): the off group never sees the card
+	if
+		not (require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ReturnAB")) :: any).allows(
+			"tomorrowCard",
+			Players.LocalPlayer.UserId,
+			Players.LocalPlayer:GetAttribute("QuietFirstDay") -- shared/QuietStart.DAY_ATTRIBUTE
+		)
+	then
 		return false
 	end
 	local ReturnHookLine = require(script.Components.ReturnHookLine)

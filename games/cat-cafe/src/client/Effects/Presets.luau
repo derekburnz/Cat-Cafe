@@ -1958,6 +1958,12 @@ Presets.purchase = {
 
 -- Cat motion. Angles in degrees, distances in studs, times in seconds.
 Presets.motion = {
+	-- #4601 strayWalkSlow (Model-Agent's server step of a stray walk at 10 Hz): Cats eases each server step in over
+	-- this long instead of snapping to it (Pose.read's `ease`); read straight off the switch, off by default.
+	-- While the server's walk is set on the model (WalkFrom, WalkTo, WalkSpeed, WalkAt, Model-Agent's #5139) the cat is
+	-- drawn exactly where that walk has it now, and only a write's small miss, or the walk starting and ending, is eased
+	-- (Sync's Alley runs: an ease that trailed the writes, and then a guess at the speed, both wobbled)
+	stepEase = { flag = "strayWalkSlow", seconds = 0.1 },
 	breathe = { studs = 0.03, seconds = 2.6 },
 	-- The shape of one breath while asleep or resting (Logic.breath): the belly fills over `inhale` of the cycle,
 	-- lets out over `exhale`, and rests for the rest. The nap, loaf and doze give the length and the rise.
@@ -6467,6 +6473,89 @@ Presets.stationReveal = {
 	ringSeconds = 1,
 }
 
+-- #5112 Effects/StationUnlockCut (Design-Agent's station-unlock-cutscene.md): the cut to a big station a rank up
+-- unlocks. Times in seconds from the start: a `fade` to black and back, the station appears at `appearAt` (scales up
+-- from `fromScale` over `grow`, drawn at `scaleHz`), the label at `labelAt` (in over `labelIn`), the fade back at
+-- `endAt`. The camera stands `far` then `near` times the station's size out (clamped to `nearest`..`farthest` studs),
+-- `rise` of that up, `yaw` degrees off the model's front (`faceSign` -1 if a model faces its back), looking `lookUp`
+-- of its height up. `smallScreen` px tall or less shrinks the label by `smallScale`.
+Presets.stationCut = {
+	stations = {
+		-- #5112 15:40 UTC: the Town Square's StationTiers stations, a short pan (no stream)
+		[3] = {
+			tag = "ArcadeCabinet",
+			name = "The Cat Arcade",
+			line = "Play Mouse Dash for daily prizes",
+			locked = true, -- StationTiers: hidden below its tier, shown in full after the cut
+		},
+		[4] = {
+			tag = "MysticPool",
+			name = "The Mystic Pool",
+			line = "Give each cat a trait that helps it",
+			locked = true,
+		},
+		[8] = {
+			tag = "FusionObservatory",
+			name = "Fusion Observatory",
+			line = "Fuse 5 of one cat into a better coat",
+		},
+		[9] = {
+			tag = "TicketBooth",
+			name = "Ticket Booth",
+			line = "Catches give tickets for prizes",
+		},
+		[10] = {
+			tag = "DragonKeep",
+			name = "Dragon Keep",
+			line = "Grow Cinder the dragon for bonus cards",
+		},
+	} :: { [number]: { tag: string, name: string, line: string, locked: boolean? } },
+	fade = 0.2,
+	appearAt = 0.4,
+	grow = 0.6,
+	fromScale = 0.85,
+	scaleHz = 20,
+	labelAt = 1.2,
+	labelIn = 0.25,
+	endAt = 4.0,
+	skipAfter = 0.3,
+	far = 1.9,
+	near = 1.45,
+	nearest = 18,
+	farthest = 70,
+	rise = 0.35,
+	yaw = 35,
+	-- Sync's run: the camp stations' area gates stood in the way, so these turns from the front are tried in order and
+	-- the first with the camera's whole distance clear wins
+	views = { 35, -35, 0, 70, -70, 110, -110, 180 },
+	clearance = 2, -- studs the camera keeps short of what is in the way when no view is clear
+	closest = 8, -- never nearer than this
+	faceSign = 1,
+	lookUp = 0.1,
+	displayOrder = 11, -- over ContextCut's 10
+	titleSize = 64,
+	nameSize = 34,
+	lineSize = 22,
+	titleY = 0.2,
+	nameY = 0.31,
+	lineY = 0.38,
+	smallScreen = 420,
+	smallScale = 0.7,
+	-- StationReveal's burst, made bigger
+	burst = {
+		lift = 1,
+		sparkles = 40,
+		confetti = 60,
+		beamWidth = 4.5,
+		beamHeight = 32,
+		beamSeconds = 2.2,
+		rings = 2,
+		ringPad = 3,
+		ringGap = 0.3,
+		ringSeconds = 1.2,
+	},
+}
+
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle
 -- of head turns, ear flicks and a swaying tail, and a greet (head turned to you, a paw lifted and waved) as you come
 -- near. Off with Reduce Motion.
@@ -6928,6 +7017,8 @@ Presets.pawTrail = {
 	faintest = 0.4, -- the comet's tail fades a print no further than this (GuideTrail's tail is 0.75)
 	rim = { colour = Color3.fromRGB(92, 58, 34), pixels = 2, transparency = 0.45 }, -- cocoa, for pale floors
 	turn = 0,
+	pool = 48, -- Design 2026-11-17: prints built ahead from the first trail (GuideTrail's MAX_DOTS), kept for reuse
+	buildsPerFrame = 4, -- at most this many new prints in one frame, for a dot or ahead
 	toes = {
 		{ 0.2, 0.36, 0.2, 0.26 },
 		{ 0.39, 0.2, 0.2, 0.28 },

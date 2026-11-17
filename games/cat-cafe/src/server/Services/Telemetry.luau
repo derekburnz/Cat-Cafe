@@ -353,6 +353,7 @@ export type CustomEvent =
 	-- #4913: today's Pal Day gift paid, value 1 (how the first pal was linked: friend, invite, follow or private; tier).
 	-- Roblox's own Platform dimension splits it by device
 	| "pal_day_claimed"
+	| "ab_return" -- Derek 2026-11-17: the return-day 50/50s (shared/ReturnAB), once a session: test, on/off, device
 	-- #3995 (friend-join-3995.md): a join through a friend with the palJoin switch on, value 1 (how: invite or follow;
 	-- new or returning; cafe next door yes or no)
 	| "pal_join"
@@ -787,14 +788,20 @@ local function catsDistinct(profile: Profile): string
 end
 
 -- #5031: the Tier 1 Rank Up window open now ended (shared/RankUpRightAway): one rank_up_window, at most WINDOWS_MAX
-local function rankWindowEnd(player: Player, session: Session, outcome: string)
+local function rankWindowEnd(player: Player, session: Session, outcome: string, via: string?)
 	local how = session.rankWindow
 	session.rankWindow = nil
 	if how == nil or session.rankWindows >= RankUpRightAway.WINDOWS_MAX then
 		return
 	end
 	session.rankWindows += 1
-	Telemetry.custom(player, "rank_up_window", 1, { how, outcome, session.device or "unknown" })
+	-- a close names how it happened in field 2 ("closed_x", RankUpRightAway.CLOSE_VIAS): Roblox keeps 3 custom fields
+	local ended = if outcome == "closed"
+			and via ~= nil
+			and via ~= ""
+		then "closed_" .. via
+		else outcome
+	Telemetry.custom(player, "rank_up_window", 1, { how, ended, session.device or "unknown" })
 end
 
 local function tierText(profile: Profile): string
@@ -1118,9 +1125,9 @@ local function logClean(player: Player, profile: Profile, event: string?)
 		return
 	end
 	local state = profile.telemetry
-	local logged = state.cleanV8Step or 0
+	local logged = state.cleanV9Step or 0
 	if logged == 0 and Onboarding.reached(state, "first_catch") then
-		state.cleanV8Step = Onboarding.CLEAN_COUNT -- #4504: began on v7 before the switch: out of v8
+		state.cleanV9Step = Onboarding.CLEAN_COUNT -- #4504: began before the funnel: out of it
 		return
 	end
 	if logged >= Onboarding.CLEAN_COUNT then
@@ -1140,9 +1147,13 @@ local function logClean(player: Player, profile: Profile, event: string?)
 		handCats = if type(caught) == "number"
 			then caught - (if type(tamed) == "number" then tamed else 0)
 			else 0,
+		tamed = if type(tamed) == "number" then tamed else 0, -- onboarding_v9
+		ownedCats = ProfileSchema.catCount(profile),
+		-- (only asked between Tier 2 and Tier 3, the one ready step after the walk-through)
+		nextReady = Economy.tier(profile) == 2 and Economy.rankUpBlocker(profile) == nil,
 	}
 	for _, step in Onboarding.cleanDue(state, logged, facts, event) do
-		state.cleanV8Step = step
+		state.cleanV9Step = step
 		sendClean(player, profile, Onboarding.CLEAN_FUNNEL, step, Onboarding.CLEAN_STEPS[step])
 	end
 end
@@ -1435,6 +1446,14 @@ function Telemetry.custom(player: Player, name: CustomEvent, value: number, valu
 	send(player, "custom " .. name, function()
 		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))
 	end)
+	-- onboarding_v9: some of its moments are these events (Onboarding.cleanFromCustom)
+	local moment = Onboarding.cleanFromCustom(name, fields)
+	if moment ~= nil then
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			logClean(player, profile, moment)
+		end
+	end
 end
 
 -- Logs the net swings counted since the last roll up, one net_swing event per result, net level and device.
@@ -2357,6 +2376,20 @@ local function logJoined(player: Player)
 	saveAreas(profile, areasCaught)
 	session.areasCaught = areasCaught
 	Telemetry.onboarding(player, profile, "joined", { session.source })
+	do -- Derek 2026-11-17 15:24 UTC: the return-day 50/50s, once a session for an account in a test
+		local ReturnAB = require(ReplicatedStorage.Shared.ReturnAB) :: any
+		for _, test in ReturnAB.NAMES do
+			local group = ReturnAB.group(test, player.UserId, profile.telemetry.firstDay)
+			if group ~= nil then
+				Telemetry.custom(
+					player,
+					"ab_return",
+					1,
+					{ test, group, Telemetry.device(player) or "unknown" }
+				)
+			end
+		end
+	end
 	logFirstHour(player, profile)
 	session.rarityStep = 0 -- #3876
 	logRarity(player, profile)
@@ -2722,9 +2755,9 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.rankWindow = how
 		end
 	elseif name == "rank_up_end" then
-		local outcome = Guard.oneOf(rawValue, { "pressed", "closed" })
+		local outcome, via = RankUpRightAway.parseEnd(rawValue)
 		if outcome ~= nil and session.rankWindow ~= nil then
-			rankWindowEnd(player, session, outcome)
+			rankWindowEnd(player, session, outcome, via)
 		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then

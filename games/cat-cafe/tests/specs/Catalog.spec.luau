@@ -876,6 +876,35 @@ return function()
 				expect(Catalog.tierForLevel(case[1], case[2])).to.equal(case[3])
 			end
 		end)
+
+		it("setTablesSpread moves the tables caps one a tier and back (#4763)", function()
+			local tables = Catalog.getUpgrade("tables")
+			assert(tables)
+			local function caps(): { number }
+				return {
+					(Catalog.tiers[2].caps :: any).tables,
+					(Catalog.tiers[3].caps :: any).tables,
+					(Catalog.tiers[4].caps :: any).tables,
+				}
+			end
+			expect(Catalog.setTablesSpread(true)).to.equal(true)
+			expect(caps()).to.deepEqual({ 3, 4, 5 })
+			expect(tables.requiresTierAtLevel :: any).to.deepEqual({
+				[3] = 2,
+				[4] = 3,
+				[5] = 4,
+				[6] = 5,
+			})
+			expect(Catalog.setTablesSpread(true)).to.equal(false)
+			expect(Catalog.setTablesSpread(false)).to.equal(true)
+			expect(caps()).to.deepEqual({ 4, 6, 6 })
+			expect(tables.requiresTierAtLevel :: any).to.deepEqual({
+				[3] = 2,
+				[4] = 2,
+				[5] = 3,
+				[6] = 3,
+			})
+		end)
 	end)
 
 	describe("upgrades (section 6)", function()

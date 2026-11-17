@@ -10,6 +10,15 @@
 -- GuideTrail is untouched. The folder leaving the Workspace takes the prints with it. On this client only; listening
 -- only. Numbers in Presets.pawTrail.
 --
+-- Design 2026-11-17 (the top Effects cost in the Alleyway, with one 14 ms frame when a trail first showed):
+-- each print is a part, a SurfaceGui and ten frames, so building a whole trail's worth in one frame was the spike.
+-- Prints are now built ahead up to `pool` (GuideTrail's most dots), kept switched off when a dot goes away and handed
+-- to the next dot instead of destroyed, and no more than `buildsPerFrame` are built in a frame. A print is only moved
+-- when its dot or the dot it faces moved.
+-- #4601 (Review-QA: 48 prints, about 600 instances, on every client from start, even for players who never see a
+-- trail): the building ahead starts with the first trail, `buildsPerFrame` a frame, and a dot whose print is not
+-- built yet is hidden like the rest, so its print shows up a frame or two later instead of a gold dot first.
+--
 -- Roblox terms: a SurfaceGui is 2D UI drawn on one face of a part, here an invisible flat part lying on the ground.
 -- A CanvasGroup is a frame whose children fade together with one number.
 
@@ -20,12 +29,25 @@ local Presets = require(script.Parent.Presets)
 
 local PawTrail = {}
 
-type Paw = { part: Part, group: CanvasGroup, pad: { Frame }, shown: number, colour: Color3 }
+type Paw = {
+	part: Part,
+	gui: SurfaceGui,
+	group: CanvasGroup,
+	pad: { Frame },
+	shown: number,
+	colour: Color3,
+	here: Vector3?, -- the dot's position and the point it faced when the print was last placed
+	toward: Vector3?,
+}
 
 local started = false
 local folders: { [Instance]: boolean } = {}
 local prints: { [BasePart]: Paw } = {}
 local home: Folder? = nil
+local spare: { Paw } = {} -- built and switched off, for the next dot
+local built = 0 -- prints built this frame
+local warm = 0 -- prints built so far, ahead or for a dot
+local trailSeen = false -- a trail has shown on this client: build the pool ahead from then on
 
 -- Which side of the line the paw at `index` (from 1) falls on: 1 right, -1 left, in turn.
 function PawTrail.side(index: number): number
@@ -112,14 +134,48 @@ local function make(): Paw
 		table.insert(pad, blob(group, toe[1], toe[2], toe[3], toe[4]))
 	end
 	part.Parent = folder
-	return { part = part, group = group, pad = pad, shown = -1, colour = Color3.new() }
+	return {
+		part = part,
+		gui = gui,
+		group = group,
+		pad = pad,
+		shown = -1,
+		colour = Color3.new(),
+		here = nil,
+		toward = nil,
+	}
+end
+
+-- A switched off print for a new dot: a spare one, else a new one while this frame has builds left, else nil.
+local function take(): Paw?
+	while #spare > 0 do
+		local paw = table.remove(spare) :: Paw
+		if paw.part.Parent ~= nil then
+			paw.here, paw.toward = nil, nil
+			return paw
+		end
+		paw.part:Destroy() -- its folder was taken away
+	end
+	if built >= Presets.pawTrail.buildsPerFrame then
+		return nil
+	end
+	built += 1
+	warm += 1
+	local paw = make()
+	paw.gui.Enabled = false
+	return paw
 end
 
 local function drop(dot: BasePart)
 	local paw = prints[dot]
 	if paw ~= nil then
-		paw.part:Destroy()
 		prints[dot] = nil
+		if #spare < Presets.pawTrail.pool and paw.part.Parent ~= nil then
+			paw.gui.Enabled = false
+			table.insert(spare, paw)
+		else
+			paw.part:Destroy()
+		end
 	end
 	dot.LocalTransparencyModifier = 0
 end
@@ -142,19 +198,33 @@ local function draw(folder: Instance)
 	end
 	local last: Vector3? = nil
 	for index, dot in dots do
-		local paw = prints[dot]
-		if paw == nil then
-			paw = make()
-			prints[dot] = paw
-		end
 		local here = dot.Position
+		local found: Paw? = prints[dot]
+		if found == nil then
+			found = take()
+			if found == nil then
+				last = here
+				dot.LocalTransparencyModifier = 1 -- its print comes in a frame or two
+				continue
+			end
+		end
+		local paw = found :: Paw
+		prints[dot] = paw
 		local nextDot: BasePart? = dots[index + 1]
 		local toward = if nextDot ~= nil
 			then nextDot.Position
 			elseif last ~= nil then here + (here - last)
 			else here
-		local at, forward = PawTrail.place(index, here, toward, p.offset)
-		paw.part.CFrame = if forward ~= nil then CFrame.lookAt(at, at + forward) else CFrame.new(at)
+		if paw.here ~= here or paw.toward ~= toward then
+			paw.here, paw.toward = here, toward
+			local at, forward = PawTrail.place(index, here, toward, p.offset)
+			paw.part.CFrame = if forward ~= nil
+				then CFrame.lookAt(at, at + forward)
+				else CFrame.new(at)
+		end
+		if not paw.gui.Enabled then
+			paw.gui.Enabled = true
+		end
 		last = here
 		dot.LocalTransparencyModifier = 1
 		local shown = PawTrail.faded(dot.Transparency, p.faintest)
@@ -180,6 +250,7 @@ end
 local function consider(child: Instance)
 	if child:IsA("Folder") and child.Name == Presets.trailSparkle.folder then
 		folders[child] = true
+		trailSeen = true
 	end
 end
 
@@ -193,6 +264,7 @@ function PawTrail.start()
 	end
 	Workspace.ChildAdded:Connect(consider)
 	RunService.Heartbeat:Connect(function()
+		built = 0
 		for folder in folders do
 			if folder.Parent == nil then
 				clear(folder)
@@ -200,6 +272,15 @@ function PawTrail.start()
 			else
 				draw(folder)
 			end
+		end
+		-- once a trail has shown, the rest of the pool is built ahead with what is left of this frame's builds
+		local p = Presets.pawTrail
+		while trailSeen and warm < p.pool and built < p.buildsPerFrame do
+			built += 1
+			warm += 1
+			local paw = make()
+			paw.gui.Enabled = false
+			table.insert(spare, paw)
 		end
 	end)
 end

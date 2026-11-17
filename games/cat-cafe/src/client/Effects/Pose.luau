@@ -72,6 +72,15 @@ export type Rig = {
 	bellyRise: { [Group]: number }, -- of the rise each piece rides, 0 at the bottom of the body to 1 at the top
 	swell: number, -- the swell last drawn, as a share of bellyHeight; 0 at rest
 	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
+	-- #4601 strayWalkSlow (Model-Agent: the server steps a stray's walk at 10 Hz): where the server last put each
+	-- part, and the whole cat's lag behind it being eased away (Pose.read's `ease`)
+	server: { CFrame },
+	easeFrom: CFrame, -- where the body was drawn when the server's new frames came, in the new body's own space
+	easeAt: number,
+	easing: boolean,
+	-- whether the server's walk (Mover's WalkFrom, WalkTo, WalkSpeed and WalkAt attributes) was being drawn last read
+	walking: boolean,
+	walkAt: number?, -- that walk's WalkAt, so a new walk (a fleeing cat turning) eases in too
 	frames: { CFrame },
 	scale: number, -- the cat's size against the manifest's (its Scale attribute times the model's scale)
 }
@@ -307,6 +316,12 @@ local function newRig(model: Model, body: BasePart): Rig
 		moves = {},
 		frames = {},
 		scale = 1,
+		server = {},
+		easeFrom = CFrame.identity,
+		easeAt = 0,
+		easing = false,
+		walking = false,
+		walkAt = nil,
 	}
 end
 
@@ -501,6 +516,7 @@ function Pose.bind(model: Model): Rig?
 			table.insert(rig.groups, group)
 			table.insert(rig.base, part.CFrame)
 			table.insert(rig.written, part.CFrame)
+			table.insert(rig.server, part.CFrame)
 			if part == body then
 				rig.bodyIndex = #rig.parts
 			end
@@ -763,9 +779,67 @@ local function track(rig: Rig, moved: Vector3, now: number)
 	rig.stride += ground / Logic.strideLength(rig.speed)
 end
 
+-- #4601 (Model-Agent's #5139): while the server walks a stray under strayWalkSlow it sets WalkFrom, WalkTo, WalkSpeed
+-- and WalkAt (server time) on the model: a straight line on the ground at a set speed. The ground shift that takes
+-- the server's last write (its pivot) to where that walk has the cat now, or nil when no walk is set.
+local function walkShift(rig: Rig): (CFrame?, number?)
+	local model = rig.model
+	local at = model:GetAttribute("WalkAt")
+	if type(at) ~= "number" then
+		return nil, nil
+	end
+	local from, to, speed =
+		model:GetAttribute("WalkFrom"),
+		model:GetAttribute("WalkTo"),
+		model:GetAttribute("WalkSpeed")
+	if typeof(from) ~= "Vector3" or typeof(to) ~= "Vector3" or type(speed) ~= "number" then
+		return nil, nil
+	end
+	local way = Vector3.new(
+		(to :: Vector3).X - (from :: Vector3).X,
+		0,
+		(to :: Vector3).Z - (from :: Vector3).Z
+	)
+	local length = way.Magnitude
+	local pivot: CFrame
+	local primary = model.PrimaryPart
+	if primary ~= nil and primary == rig.body and rig.bodyIndex > 0 then
+		pivot = rig.server[rig.bodyIndex] * primary.PivotOffset
+	else
+		pivot = model.WorldPivot
+	end
+	local now = Logic.walkAlong(
+		from :: Vector3,
+		way,
+		length,
+		speed :: number,
+		Workspace:GetServerTimeNow() - at
+	)
+	return CFrame.new(now.X - pivot.Position.X, 0, now.Z - pivot.Position.Z), at
+end
+
+-- #4601: whether the server moved the cat since it was last drawn, or an ease is still running (Cats redraws such a
+-- cat on the frames its animHz throttle skips).
+function Pose.pending(rig: Rig): boolean
+	if rig.usesMotors or rig.bodyIndex == 0 then
+		return false
+	end
+	if rig.easing or rig.walking then
+		return true
+	end
+	if rig.bodyIndex > #rig.parts then
+		return false
+	end
+	local body = rig.parts[rig.bodyIndex]
+	return body.Parent ~= nil and body.CFrame ~= rig.written[rig.bodyIndex]
+end
+
 -- Reads where the server has the cat this frame: re-reads any part the server moved and updates the speed and
 -- stride. False once the cat has gone or lost a part (Cats then drops the rig and binds the cat afresh).
-function Pose.read(rig: Rig): boolean
+-- `ease` (seconds, #4601 strayWalkSlow): a server step is not snapped to but eased into over that long, the whole cat
+-- sliding from where it was drawn onto the server's new frames, so a walk the server steps 10 times a second still
+-- looks smooth. A step longer than motion.hiss.jumpStuds (a teleport) still snaps. Nil or 0 reads as before.
+function Pose.read(rig: Rig, ease: number?): boolean
 	if rig.model.Parent == nil or rig.body.Parent == nil then
 		return false
 	end
@@ -778,6 +852,9 @@ function Pose.read(rig: Rig): boolean
 	end
 	local base = rig.base
 	local written = rig.written
+	local server = rig.server
+	local before = base[rig.bodyIndex]
+	local moved = false
 	for i, part in rig.parts do
 		if part.Parent == nil then
 			return false -- a part streamed out or was removed
@@ -785,6 +862,45 @@ function Pose.read(rig: Rig): boolean
 		local frame = part.CFrame
 		if frame ~= written[i] then
 			base[i] = frame
+			server[i] = frame
+			moved = true
+		end
+	end
+	local seconds = ease or 0
+	-- where the server's walk has the cat now, as a ground shift on top of its last write (none when not walking)
+	local shift: CFrame?, walkAt: number? = nil, nil
+	if seconds > 0 then
+		shift, walkAt = walkShift(rig)
+	end
+	local walking = shift ~= nil
+	local shifted = if shift ~= nil then shift else IDENTITY
+	if seconds > 0 and (moved or walking ~= rig.walking or walkAt ~= rig.walkAt) then
+		local landed = shifted * server[rig.bodyIndex]
+		if (landed.Position - before.Position).Magnitude <= Presets.motion.hiss.jumpStuds then
+			rig.easeFrom = landed:ToObjectSpace(before)
+			rig.easeAt = now
+			rig.easing = true
+		else
+			rig.easing = false
+		end
+	elseif moved then
+		rig.easing = false
+	end
+	rig.walking = walking
+	rig.walkAt = walkAt
+	if rig.easing or walking then
+		local lag = shifted
+		if rig.easing then
+			local k = Logic.easeShare(now - rig.easeAt, seconds)
+			if k >= 1 then
+				rig.easing = false
+			end
+			-- the lag is eased in the body's own space, so a turn swings about the cat and not the world's origin
+			local body = shifted * server[rig.bodyIndex]
+			lag = body * IDENTITY:Lerp(rig.easeFrom, 1 - k) * body:Inverse() * shifted
+		end
+		for i, frame in server do
+			base[i] = lag * frame
 		end
 	end
 	local position = base[rig.bodyIndex].Position

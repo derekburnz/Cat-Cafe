@@ -2128,6 +2128,40 @@ for _, def in Catalog.upgrades do
 	end
 end
 
+-- #3867/#4763 (Derek 2026-11-13: "spread the upgrades out so not all tables can be unlocked at tier 3"): one more
+-- table a tier, Tables 3, 4 and 5 at Tiers 2, 3 and 4 (4, 6 and 6 above). Behind the `tablesSpread` switch
+-- (shared/TablesSpread calls this on both sides when it flips). Caps gate buying only: a level owned above one is
+-- kept.
+Catalog.TABLES_SPREAD = table.freeze({ [2] = 3, [3] = 4, [4] = 5 })
+Catalog.TABLES_PLAIN = table.freeze({ [2] = 4, [3] = 6, [4] = 6 })
+
+-- Sets the tables caps of Tiers 2 to 4 to the spread (true) or the plain ladder (false), and the tables upgrade's
+-- requiresTierAtLevel from them. Returns whether anything changed.
+function Catalog.setTablesSpread(on: boolean): boolean
+	local caps: { [number]: number } = if on then Catalog.TABLES_SPREAD else Catalog.TABLES_PLAIN
+	local changed = false
+	for tier, cap in caps do
+		local def = Catalog.tiers[tier]
+		if def ~= nil and (def.caps :: any).tables ~= cap then
+			(def.caps :: any).tables = cap
+			changed = true
+		end
+	end
+	for _, def in Catalog.upgrades do
+		if def.id == "tables" then
+			local perLevel: { [number]: number } = {}
+			for level = 1, def.maxLevel do
+				local tier = Catalog.tierForLevel(def.id, level)
+				if tier ~= nil and tier > 1 then
+					perLevel[level] = tier
+				end
+			end
+			def.requiresTierAtLevel = perLevel
+		end
+	end
+	return changed
+end
+
 Catalog.upgradesById = {} :: { [string]: Types.UpgradeDef }
 for _, def in Catalog.upgrades do
 	Catalog.upgradesById[def.id] = def

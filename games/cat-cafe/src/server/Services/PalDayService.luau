@@ -19,6 +19,7 @@ local PalService = require(script.Parent.PalService)
 local Pals = require(ReplicatedStorage.Shared.Pals)
 local Payout = require(script.Parent.Payout)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
+local ReturnAB = require(ReplicatedStorage.Shared.ReturnAB)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
 
@@ -30,6 +31,11 @@ local DUE_ATTRIBUTE = "PalDayDue"
 local function check(player: Player, now: number)
 	local profile = DataService.get(player)
 	if profile == nil then
+		return
+	end
+	-- Derek 2026-11-17 15:24 UTC: the palDay 50/50 (shared/ReturnAB): the off group never gets the gift or its due mark
+	if not ReturnAB.allows("palDay", player.UserId, profile.telemetry.firstDay) then
+		player:SetAttribute(DUE_ATTRIBUTE, nil)
 		return
 	end
 	local due =

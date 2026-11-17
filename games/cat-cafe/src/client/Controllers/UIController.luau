@@ -784,6 +784,10 @@ local function refreshTutorial(s: Types.PlayerState)
 				then "touch"
 				else "keyboard"
 			showTutorial(s, RankFirst.line(device))
+			if not stepsReported["bowl:rankCue"] then -- onboarding_v9's rank_up_cue_seen
+				stepsReported["bowl:rankCue"] = true
+				Net.fire("TelemetryReport", TutorialOrder.REPORT, "rankCue")
+			end
 		elseif
 			not SecondCat.done(s.stats, true)
 			and not areasShutForMe()
@@ -2371,10 +2375,12 @@ local function wireIntents()
 		local autoRank: any = UI.autoRank
 		if rankWindow.open and name ~= "RankUp" then
 			rankWindow.open = false
+			-- Growth's read (2026-11-17): a close says how, its X, B, another window opening over it, or other
+			local via = if name ~= nil then "switch" else (UI :: any).closeVia()
 			Net.fire(
 				"TelemetryReport",
 				"rank_up_end",
-				if rankWindow.pressed then "pressed" else "closed"
+				if rankWindow.pressed then "pressed" else "closed_" .. via
 			)
 			if rankWindow.pressed then
 				autoRank.pressed[rankWindow.tier] = true

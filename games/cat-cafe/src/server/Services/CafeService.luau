@@ -2265,6 +2265,19 @@ local function onRankUp(player: Player)
 		local extra = NetSwing.extraForProfile(profile)
 		player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
 	end
+	do -- #5112: a rank up that cuts to the station it unlocks streams that spot in now (Controllers/StationCutController)
+		local StationCut = require(ReplicatedStorage.Shared.StationCut)
+		local StreamAround = require(script.Parent.Parent.Util.StreamAround)
+		local tag = StationCut.due(def.tier, profile.tipsSeen, LiveFlagService.on(StationCut.FLAG))
+		if tag ~= nil then
+			for _, tagged in CollectionService:GetTagged(tag) do
+				if tagged:IsA("Model") and tagged:IsDescendantOf(Workspace) then
+					StreamAround.start(player, (tagged :: Model):GetPivot().Position)
+					break
+				end
+			end
+		end
+	end
 	local fish = GoldenFish.forRankUp(def.tier) -- F52
 	GoldenFish.credit(profile, fish)
 	Telemetry.fishSource(player, profile, fish, "Gameplay", "rank_up")

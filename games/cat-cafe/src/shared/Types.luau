@@ -1375,6 +1375,8 @@ export type TelemetryState = {
 	-- step for a player this code has seen. Optional with a default, so no save version: a server without it drops it,
 	-- and the save then comes back out of v8 once it is past its first catch (ProfileSchema)
 	cleanV8Step: number?,
+	-- Derek 2026-11-17 15:18 UTC: onboarding_v9 (Onboarding.CLEAN_STEPS) the same way; v8 is no longer logged
+	cleanV9Step: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)

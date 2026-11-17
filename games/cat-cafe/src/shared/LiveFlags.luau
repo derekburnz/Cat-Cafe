@@ -40,9 +40,6 @@
 -- - `parkGateTrail` (#3554): after Tier 2 the goal card reads "Visit the Park" and a trail of paw prints leads to the
 --   nearest Cat Cannon, then to the first Park stray (UI/Components/ParkTrailLogic). It starts OFF (OFF_BY_DEFAULT);
 --   off, nothing shows.
--- - `storeRework` (#3572): the Store as in Model-Agent's OK'd mock: Cats above Passes on the rail, each tab cheapest
---   first, two columns of cards with the picture at the left and the price button under the words
---   (client/UI/Screens/Store). It starts OFF (OFF_BY_DEFAULT); read by the client alone, once when the Store is built.
 -- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
 --   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
 --   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
@@ -80,7 +77,6 @@ LiveFlags.KEYS = {
 	"luckyCharm",
 	"introSplit",
 	"parkGateTrail",
-	"storeRework", -- #3572: the reworked Store layout
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
@@ -132,6 +128,9 @@ LiveFlags.KEYS = {
 	"fxAfterLoad", -- #5068: client Effects and Audio start-up waits until the loading screen ends (Effects/LoadGate); off by default
 	"tomorrowCard", -- #3951: the come back tomorrow card on a new account's first day (UI/Components/TomorrowCard); off by default
 	"cannonCue", -- the HUD Cannon button glows while Tier 2 is short of cats in the hometown (Effects/CannonCue, #5097); off by default
+	"stationCut", -- #5112: a rank up to Tier 3, 4, 8, 9 or 10 cuts the camera to the station it unlocks, once (shared/StationCut); off by default
+	"tablesSpread", -- #3867/#4763: one more table a tier, 3, 4 and 5 at Tiers 2 to 4 (shared/TablesSpread); off by default
+	"strayWalkSlow", -- #4601: a server stray walk writes its model at 10 Hz, not 60, and the client eases between (shared/Mover); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -147,7 +146,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	backdropsNear = true, -- #4857
 	firstFlightQuick = true, -- #4920: on once the effects scale by CannonFlightScale
 	parkGateTrail = true,
-	storeRework = true,
 	fishStore = true,
 	ticketBooth = true,
 	dragonKeep = true,
@@ -185,13 +183,16 @@ LiveFlags.OFF_BY_DEFAULT = {
 	fxAfterLoad = true, -- #5068: on after Review-QA and a phone read of client_load with it on
 	tomorrowCard = true, -- #3951: on after the Nov 16 and 17 day 1 read of the minute 6 line, a UTC day apart from the funnel switches
 	cannonCue = true, -- #5097: on with Derek's Nov 17 15:00 UTC "all tutorial switches on now"
+	stationCut = true, -- #5112: on after Review-QA and Sync's phone and PC rank up runs
+	tablesSpread = true, -- #4763: on about 06:00 UTC Thu Nov 19, a UTC day apart from the funnel switches; Growth reads it
+	strayWalkSlow = true, -- #4601: on once Effects/Pose eases between the writes and a Studio walk looks the same
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to
 -- #4607, #4613: a fresh server copies the defaults out at once and the store's switches only after its first read, a
 -- few seconds later. It sets this ReplicatedStorage attribute true once that first read has been tried (or at once
 -- where nothing is read), and the client waits for it before it builds anything that takes a switch once (the menu
--- family look, the Store's rework), so nobody who joins a new server keeps an old look.
+-- family look), so nobody who joins a new server keeps an old look.
 LiveFlags.READY_ATTRIBUTE = "LiveFlagsReady"
 LiveFlags.CLIENT_WAIT_SECONDS = 8 -- #4613: Main.client's wait, before any UI module latches a switch
 LiveFlags.READY_WAIT = 6 -- #4607: UIController's own wait, which ends at once after Main.client's

@@ -897,18 +897,18 @@ function Pose.read(rig: Rig, ease: number?, serverNow: number?): boolean
 	if seconds > 0 then
 		local clock = serverNow or Workspace:GetServerTimeNow()
 		local spot = rig.walkSpot
-		if spot ~= nil then
-			local was = Logic.walkAlong(
-				rig.lineFrom,
-				rig.lineWay,
-				rig.lineLength,
-				rig.lineSpeed,
-				clock - rig.lineAt
-			)
-			from = CFrame.new(was.X - spot.X, 0, was.Z - spot.Z) * before
-		end
+		local lineFrom, lineWay, lineLength, lineSpeed, lineAt =
+			rig.lineFrom, rig.lineWay, rig.lineLength, rig.lineSpeed, rig.lineAt
 		rig.walkSpot = nil
 		shift, walkAt = walkShift(rig, clock)
+		if spot ~= nil then
+			-- A walk that just ended (WalkAt cleared) is where its line has the cat at the live server time, not a
+			-- frame back: the frame's clock is a frame behind (#5151), which left the cat short of WalkTo for a frame
+			-- and then eased in (Sync's run: 0.25 studs short, a frame held).
+			local at = if shift == nil then Workspace:GetServerTimeNow() else clock
+			local was = Logic.walkAlong(lineFrom, lineWay, lineLength, lineSpeed, at - lineAt)
+			from = CFrame.new(was.X - spot.X, 0, was.Z - spot.Z) * before
+		end
 	end
 	local walking = shift ~= nil
 	local shifted = if shift ~= nil then shift else IDENTITY

@@ -30,6 +30,7 @@ local StationCutController = {}
 
 local POLL = 0.1
 local FREE_MOST = 60 -- seconds to wait for the player to be free before giving the toast instead
+local SETTLE = 0.6 -- seconds the player must stay free first: a tame's reveal card comes a moment after the bowl card
 local BAIT_CARD = "CatCafeBaitCard" -- UI/Screens/BaitCard's ScreenGui
 
 local started = false
@@ -64,6 +65,11 @@ local function free(): boolean
 	local perkCard = if perks ~= nil then perks.card else nil
 	if perkCard ~= nil and perkCard:isShowing() then
 		return false
+	end
+	local bigPull = ui().bigPull
+	local bigShowing: any = if bigPull ~= nil then bigPull.showing else nil
+	if type(bigShowing) == "function" and (bigShowing :: () -> boolean)() then
+		return false -- a rare cat's reveal card (a tamed Gold Epic) plays first
 	end
 	local tips = ui().tips
 	return not ui().cutscene.on
@@ -130,9 +136,16 @@ local function ranked(tier: number)
 		end
 		return model ~= nil
 	end
+	local freeSince: number? = nil
 	local function freeNow(): boolean
 		arrived() -- notes where the server's stream brought it in, meanwhile
-		return free()
+		if not free() then
+			freeSince = nil
+			return false
+		end
+		local since = freeSince or os.clock()
+		freeSince = since
+		return os.clock() - since >= SETTLE
 	end
 	task.spawn(function()
 		if not waitFor(FREE_MOST, freeNow) then

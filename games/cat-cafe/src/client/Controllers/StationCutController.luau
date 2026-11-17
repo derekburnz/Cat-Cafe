@@ -34,6 +34,8 @@ local FREE_MOST = 60 -- seconds to wait for the player to be free before giving 
 -- seconds after the rank up before looking: the server's RoadmapStep (the "Grand Opening!" banner at tier 3) lands
 -- about 1 s after it (Sync's phone run on #5128)
 local LATE = 2
+local KEEP_EVERY = 1.5 -- seconds between asks to keep the station streamed in while its cut plays
+local KEEP_MOST = 20
 local SETTLE = 0.6 -- seconds the player must stay free first: a tame's reveal card comes a moment after the bowl card
 local BAIT_CARD = "CatCafeBaitCard" -- UI/Screens/BaitCard's ScreenGui
 
@@ -177,13 +179,36 @@ local function ranked(tier: number)
 			fallback(tier)
 			return
 		end
+		-- the server's stream around holds a far station only about 5 s, less than the waits above plus the cut (Sync's
+		-- run on #5128: the Dragon Keep streamed out 2.4 s into its cut, which then ended). Keep asking for it around
+		-- where it stands until the cut is over.
+		local over = false
+		local keepAt = seenAt
+		if keepAt ~= nil then
+			task.spawn(function()
+				local stopAt = os.clock() + KEEP_MOST -- in case the cut never says it is done
+				while not over and os.clock() < stopAt do
+					task.spawn(function()
+						pcall(function()
+							Players.LocalPlayer:RequestStreamAroundAsync(
+								keepAt :: Vector3,
+								StationCut.WAIT
+							)
+						end)
+					end)
+					task.wait(KEEP_EVERY)
+				end
+			end)
+		end
 		stage(true)
 		local playing = StationUnlockCut.play(tier, function(outcome: string)
+			over = true
 			stage(false)
 			Net.fire("TipSeen", StationCut.key(tier), outcome == "skipped")
 			return
 		end)
 		if not playing then
+			over = true
 			stage(false)
 			fallback(tier)
 		end

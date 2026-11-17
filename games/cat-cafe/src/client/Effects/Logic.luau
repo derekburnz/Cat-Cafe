@@ -4609,26 +4609,26 @@ end
 
 -- How far along an ease of `seconds` is after `since` seconds: 0 at the start, 1 done (#4601, Pose.read's server
 -- step ease).
--- #4601: how many seconds of a walk's speed to draw a cat on past the server's last write, `since` that write. It
--- grows with the time up to `ahead`, then falls back to 0 by `stale` (the writes stopped: the cat arrived). Pure.
-function Logic.reckonShare(since: number, ahead: number, stale: number): number
-	if since <= 0 then
-		return 0
-	end
-	if since <= ahead then
-		return since
-	end
-	if since >= stale or stale <= ahead then
-		return 0
-	end
-	return ahead * (stale - since) / (stale - ahead)
-end
-
 function Logic.easeShare(since: number, seconds: number): number
 	if seconds <= 0 then
 		return 1
 	end
 	return math.clamp(since / seconds, 0, 1)
+end
+
+-- #4601: where on the ground a straight walk from `from` along `way` (flat, `length` studs long) is `since` seconds
+-- after it set off at `speed` studs a second; it stops at the end. Pure.
+function Logic.walkAlong(
+	from: Vector3,
+	way: Vector3,
+	length: number,
+	speed: number,
+	since: number
+): Vector3
+	if length < 1e-3 then
+		return from
+	end
+	return from + way.Unit * math.clamp(speed * since, 0, length)
 end
 
 return Logic

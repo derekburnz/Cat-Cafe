@@ -27,8 +27,6 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
--- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
---   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
 -- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
 --   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
 --   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
@@ -79,7 +77,6 @@ LiveFlags.KEYS = {
 	"alleyBin",
 	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 	"goldenDrops",
-	"swiftPaws10", -- #4705
 	"luckyCharm",
 	"introSplit",
 	"parkGateTrail",
@@ -134,7 +131,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightCatch = true,
 	loadingScreen = true,
 	goldenDrops = true,
-	swiftPaws10 = true, -- #4705
 	luckyCharm = true,
 	introSplit = true,
 	noIntro = true, -- #4929

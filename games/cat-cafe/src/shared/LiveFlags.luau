@@ -130,6 +130,7 @@ LiveFlags.KEYS = {
 	"fxAfterLoad", -- #5068: client Effects and Audio start-up waits until the loading screen ends (Effects/LoadGate); off by default
 	"tomorrowCard", -- #3951: the come back tomorrow card on a new account's first day (UI/Components/TomorrowCard); off by default
 	"cannonCue", -- the HUD Cannon button glows while Tier 2 is short of cats in the hometown (Effects/CannonCue, #5097); off by default
+	"stationCut", -- #5112: a rank up to Tier 3, 4, 8, 9 or 10 cuts the camera to the station it unlocks, once (shared/StationCut); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -182,6 +183,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	fxAfterLoad = true, -- #5068: on after Review-QA and a phone read of client_load with it on
 	tomorrowCard = true, -- #3951: on after the Nov 16 and 17 day 1 read of the minute 6 line, a UTC day apart from the funnel switches
 	cannonCue = true, -- #5097: on with Derek's Nov 17 15:00 UTC "all tutorial switches on now"
+	stationCut = true, -- #5112: on after Review-QA and Sync's phone and PC rank up runs
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

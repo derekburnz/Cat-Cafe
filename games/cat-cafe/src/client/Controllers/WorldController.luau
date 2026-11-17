@@ -779,6 +779,22 @@ function WorldController.start()
 		gates.ChildRemoved:Connect(function(gate: Instance)
 			gateOpen[gate] = nil
 		end)
+		-- #5166 (Derek 2026-11-17: "i teleport to alley and medieval but there's like an invisible wall at the
+		-- entrance"): with streaming on, a gate model stays while its parts stream out far away, and its Bars stream
+		-- back in as the server built them (solid). The gate's open state was cached, so nothing opened them again: an
+		-- open gate became a wall. A part streaming back into a gate makes the loop below set the gate afresh.
+		gates.DescendantAdded:Connect(function(added: Instance)
+			if not added:IsA("BasePart") then
+				return
+			end
+			local gate: Instance? = added
+			while gate ~= nil and gate.Parent ~= gates do
+				gate = gate.Parent
+			end
+			if gate ~= nil then
+				gateOpen[gate] = nil
+			end
+		end)
 	end)
 	local lastCheckIn = 0
 	local sawAlley = false

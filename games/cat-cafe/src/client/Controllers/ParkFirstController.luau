@@ -32,6 +32,7 @@ local TICK_SECONDS = 1
 local toasted = false -- this session, so a slow sync never shows it twice
 local rung = false
 local ring: StepTarget.StepTarget? = nil
+local ringToken = 0 -- #5034: each ring's own number, so an older ring's wait never hides a newer one
 
 -- #5034: read straight, so the switch stays off until the store says true (a key LiveFlags does not list yet would
 -- read as on through LiveFlags.shown)
@@ -137,12 +138,23 @@ local function nudge(): boolean
 	shown:show(target)
 	Net.fire("TelemetryReport", ParkFirstLogic.TELEMETRY, "ring")
 	local endsAt = os.clock() + ParkFirstLogic.ringSeconds(early())
+	ringToken += 1
+	local mine = ringToken
 	task.spawn(function()
-		-- StepTarget hides by itself when the cat's part leaves (caught or gone)
-		while os.clock() < endsAt and target.Parent ~= nil and not caughtPark() do
+		-- StepTarget hides by itself when the cat's part leaves (caught or gone); #5034: and the ring ends with the
+		-- Park visit, so no arrow points back at the Park from town
+		while
+			os.clock() < endsAt
+			and target.Parent ~= nil
+			and not caughtPark()
+			and UI.cannon.area == ParkFirstLogic.AREA
+			and ringToken == mine
+		do
 			task.wait(0.5)
 		end
-		shown:hide()
+		if ringToken == mine then
+			shown:hide()
+		end
 	end)
 	return true
 end

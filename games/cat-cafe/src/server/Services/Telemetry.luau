@@ -189,6 +189,8 @@ export type CustomEvent =
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
 	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
 	| "ticket_buy" -- #4061: value tickets before; prize id, tier
+	| "harvest_buy" -- #4251: value pumpkins before; Stall item id, tier
+	| "harvest_pie_reward" -- #4251 part 6: value spins banked (0 at the bank cap); tier
 	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
 	| "dragon_stage" -- #4062: value the stage reached; tier
 	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
@@ -1949,8 +1951,8 @@ end
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
 	logRarity(player, profile) -- #3876
-	if def.area == "spare" or def.area == "secret" then
-		return -- #3470: a Secret cat is on no area's Index page
+	if def.area == "spare" or def.area == "secret" or def.area == "harvest" then
+		return -- #3470: a Secret cat is on no area's Index page (#4251: nor a harvest cat)
 	end
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then

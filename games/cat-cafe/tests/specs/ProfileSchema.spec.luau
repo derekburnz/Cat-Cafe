@@ -111,7 +111,7 @@ return function()
 	describe("template (section 14)", function()
 		it("is version 50 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(50) -- #4104: the Fusion Observatory
+			expect(ProfileSchema.VERSION).to.equal(50) -- #4136 fusion; #4251 Harvest's 51 rides a later restart
 			expect(profile.version).to.equal(50)
 			expect(next(profile.fishBought)).to.equal(nil)
 			-- #2565 (version 44): no Mystery Market item yet

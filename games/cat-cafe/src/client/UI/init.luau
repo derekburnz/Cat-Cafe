@@ -175,6 +175,7 @@ UI.events = {
 	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn
 	buyLawn = Signal.new(), -- (id, spotId?)  a piece or style; a piece onto spotId, else the first free spot
 	buyHarvest = Signal.new(), -- (id)  a Harvest Stall item, paid in pumpkins (#4251)
+	pinHarvestNote = Signal.new(), -- (note)  a Thankful Board note, 1 to 6 (#4251)
 	-- #1751 (back with #1758): the Lawn cards' Use and Remove
 	setLawnSpot = Signal.new(), -- (spotId, pieceId)  forward as SetLawnSpot; pieceId "" takes the spot's piece in
 	setLawnStyle = Signal.new(), -- (kind, id)  forward as SetLawnStyle; id "" for Grey Slabs or no fence
@@ -1902,6 +1903,11 @@ function UI.init(config: Types.InitConfig)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
 	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
 	require(script.Screens.PitySign).new(parent) -- #1572: the pity cat sign's countdowns (no local, as above)
+	-- #4251: the Thankful Board's Feast Pie and notes in Harvest Hollow (no local, as above)
+	require(script.Screens.ThankfulBoard).new(parent, function(): boolean?
+		local harvest = (UI.getState() :: any).harvest
+		return if type(harvest) == "table" then harvest.helped == true else nil
+	end)
 	require(script.Screens.UpdatePoster).new(parent) -- #4362: the next update's poster stand (no local, as above)
 	require(script.Screens.HarvestSign).new(
 		parent,
@@ -2885,6 +2891,16 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
 			return
+		end
+		-- #5025 (harvest-hollow-spec 3b, Derek): a harvest cat's card says it is kept and what it earns like, on the
+		-- cards that show anyway (a new kind, Legendary or better, a coat), so a repeat Common adds no card
+		if (def :: any).area == "harvest" and info.line == nil then
+			local HarvestLogic = require(script.Components.HarvestLogic) :: any
+			local catalog: any = currentCatalog
+			info.line = HarvestLogic.keepLine(
+				def.rarity,
+				HarvestLogic.newestArea(catalog and catalog.areas, state.tier)
+			)
 		end
 		-- #4266 (Derek 2026-11-14: "an option to toggle off new cat pop ups"): with the Bowl window's New cat pop-ups
 		-- switch off (settings.bowlNewCatCard), a cat tamed at the bowl is a toast in place of the big card
@@ -10431,25 +10447,30 @@ end
 -- Tier 2, pumpkins, standing at the stall). Until the server side ships nothing carries the tag, so nothing opens.
 do
 	local HarvestStall = require(script.Screens.HarvestStall)
+	local ThankfulNotes = require(script.Screens.ThankfulNotes)
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local STALL_TAG = "HarvestStall"
 	local PROMPT_NAME = "HarvestStallPrompt"
 	local FAR_STUDS: number = (SharedConfig.HarvestStallRange or 14) + 4
+	local BOARD_TAG = "HarvestBoard"
+	local BOARD_PROMPT = "HarvestBoardPrompt"
 	local harvest = {
 		window = nil :: HarvestStall.HarvestStall?,
+		notes = nil :: ThankfulNotes.ThankfulNotes?, -- #4251: the Thankful Board's note picker
 		connections = {} :: { RBXScriptConnection },
 		prompts = {} :: { [ProximityPrompt]: boolean },
 	}
 
-	local function stallDistance(): number?
+	-- how far the player stands from the nearest model tagged `tag` (the stall unless named), or nil
+	local function stallDistance(tag: string?): number?
 		local character = Players.LocalPlayer.Character
 		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 		if root == nil or not root:IsA("BasePart") then
 			return nil
 		end
 		local best: number? = nil
-		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+		for _, stall in CollectionService:GetTagged(tag or STALL_TAG) do
 			if stall:IsA("Model") and stall:IsDescendantOf(Workspace) then
 				local distance = (
 					(stall :: Model):GetPivot().Position - (root :: BasePart).Position
@@ -10472,17 +10493,29 @@ do
 		modalView:open("HarvestStall")
 	end
 
-	local function track(stall: Instance)
+	-- #4251: the board's prompt opens the note picker
+	local function openNotes()
+		local notes = harvest.notes
+		local modalView = modal
+		if notes == nil or modalView == nil then
+			return
+		end
+		modalView:open("ThankfulNotes")
+	end
+
+	-- a stall's (or with `promptName`, the board's) prompt, waited for if it streams in later
+	local function track(stall: Instance, promptName: string?, onOpen: (() -> ())?)
 		if not stall:IsDescendantOf(Workspace) then
 			return
 		end
-		local found = stall:FindFirstChild(PROMPT_NAME, true)
+		local name = promptName or PROMPT_NAME
+		local found = stall:FindFirstChild(name, true)
 		if found == nil or not found:IsA("ProximityPrompt") then
 			local waiting: RBXScriptConnection
 			waiting = stall.DescendantAdded:Connect(function(child: Instance)
-				if child.Name == PROMPT_NAME and child:IsA("ProximityPrompt") then
+				if child.Name == name and child:IsA("ProximityPrompt") then
 					waiting:Disconnect()
-					track(stall)
+					track(stall, promptName, onOpen)
 				end
 			end)
 			table.insert(harvest.connections, waiting)
@@ -10493,7 +10526,13 @@ do
 			return
 		end
 		harvest.prompts[prompt] = true
-		table.insert(harvest.connections, prompt.Triggered:Connect(open))
+		local run: () -> () = onOpen or open
+		table.insert(
+			harvest.connections,
+			prompt.Triggered:Connect(function()
+				run()
+			end)
+		)
 		table.insert(
 			harvest.connections,
 			prompt.AncestryChanged:Connect(function()
@@ -10540,8 +10579,50 @@ do
 		end
 		table.insert(
 			harvest.connections,
-			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(track)
+			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(function(stall: Instance)
+				track(stall)
+			end)
 		)
+		-- #4251: the Thankful Board's note picker, from the board's own prompt
+		local notes = ThankfulNotes.new({
+			pin = function(note: number)
+				UI.events.pinHarvestNote:Fire(note)
+				UI.toast("Your note is on the Thankful Board!", "good")
+			end,
+			close = function()
+				if modalView:current() == "ThankfulNotes" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = stallDistance(BOARD_TAG)
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		harvest.notes = notes
+		modalView:register("ThankfulNotes", {
+			frame = notes.frame,
+			onOpen = function()
+				notes:opened()
+			end,
+			onClose = function()
+				notes:closed()
+			end,
+		})
+		for _, board in CollectionService:GetTagged(BOARD_TAG) do
+			track(board, BOARD_PROMPT, openNotes)
+		end
+		table.insert(
+			harvest.connections,
+			CollectionService:GetInstanceAddedSignal(BOARD_TAG):Connect(function(board: Instance)
+				track(board, BOARD_PROMPT, openNotes)
+			end)
+		)
+	end
+
+	-- #4251: the note picker, as the board's prompt opens it; the UI gate's scenes call this too
+	function UI.harvest.openNotes()
+		openNotes()
 	end
 
 	-- The window on one tab ("outfit" by default), as the stall's prompt opens it; the UI gate's scenes call this too.
@@ -10571,6 +10652,11 @@ do
 			window:destroy()
 		end
 		harvest.window = nil
+		local notes = harvest.notes
+		if notes then
+			notes:destroy()
+		end
+		harvest.notes = nil
 	end
 end
 

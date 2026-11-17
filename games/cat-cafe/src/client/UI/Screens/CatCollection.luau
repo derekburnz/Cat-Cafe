@@ -1032,7 +1032,11 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 	local rainbow = tab == "Rainbow"
 	local kind: IndexBook.Tab = kindOf(tab)
 	local track: IndexRewards.Track = trackOf(tab)
-	local sections = IndexBook.sections(catalog, state, kind)
+	-- #5025: after Harvest Hollow closes its page says it comes back next autumn
+	local HarvestHollow =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("HarvestHollow")) :: any
+	local harvestClosed = game:GetService("Workspace"):GetServerTimeNow() >= HarvestHollow.CLOSES_AT
+	local sections = IndexBook.sections(catalog, state, kind, harvestClosed)
 	local found = IndexBook.found(state, kind)
 
 	local shown: { [string]: boolean } = {}

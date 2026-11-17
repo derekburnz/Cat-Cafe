@@ -9,7 +9,8 @@
 -- cats, with no Exclusive page either (an exclusive cat is never caught, so never rainbow).
 --   found(state, tab)                    which cats count as found on the tab: met or owned, or found in gold or
 --                                        in rainbow
---   sections(catalog, state, tab)        the areas to scroll through, each with its cats and counts
+--   sections(catalog, state, tab, harvestClosed?)   the areas to scroll through, each with its cats and counts;
+--                                        harvestClosed (#5025) gives the Harvest page its "back next autumn" note
 --   count(section)                       the line beside an area's name: "7 / 10", "Complete!" or "Tier 3"
 --   reward(views, track)                 the area's reward button: "ready" with how many, "next", "done" or "none"
 --   secret(catalog, state, tab)          the Secret page (#3470): nil until a Secret cat is found, then only those
@@ -56,6 +57,8 @@ IndexBook.SECRET_NAME = "Secret"
 IndexBook.HARVEST = "harvest"
 IndexBook.HARVEST_NAME = "Harvest Hollow"
 IndexBook.HARVEST_NOTE = "Yours to keep · not counted in the Index"
+-- #5025 (harvest-hollow-spec 3b): once the area has closed (HarvestHollow.CLOSES_AT, Sun Dec 6), the page says it returns
+IndexBook.HARVEST_CLOSED_NOTE = "Yours to keep · back next autumn"
 IndexBook.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 local SPARE = IndexRewards.SPARE_AREA
@@ -92,7 +95,12 @@ function IndexBook.found(state: Types.PlayerState, tab: Tab): { [string]: boolea
 	return out
 end
 
-function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, tab: Tab): { Section }
+function IndexBook.sections(
+	catalog: Types.Catalog,
+	state: Types.PlayerState,
+	tab: Tab,
+	harvestClosed: boolean?
+): { Section }
 	local found = IndexBook.found(state, tab)
 	local list: { Section } = {}
 	local byId: { [string]: Section } = {}
@@ -135,7 +143,9 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		tier = 0,
 		locked = false,
 		exclusive = true,
-		note = IndexBook.HARVEST_NOTE,
+		note = if harvestClosed == true
+			then IndexBook.HARVEST_CLOSED_NOTE
+			else IndexBook.HARVEST_NOTE,
 		have = 0,
 		total = 0,
 		cats = {},

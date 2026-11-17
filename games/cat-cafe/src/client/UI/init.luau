@@ -11447,6 +11447,16 @@ function UI.tomorrowCard.try(): boolean
 	if not on then
 		return false
 	end
+	-- Derek 2026-11-17 15:24 UTC: the tomorrowCard 50/50 (shared/ReturnAB): the off group never sees the card
+	if
+		not (require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ReturnAB")) :: any).allows(
+			"tomorrowCard",
+			Players.LocalPlayer.UserId,
+			Players.LocalPlayer:GetAttribute("QuietFirstDay") -- shared/QuietStart.DAY_ATTRIBUTE
+		)
+	then
+		return false
+	end
 	local ReturnHookLine = require(script.Components.ReturnHookLine)
 	local QuietStart =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any

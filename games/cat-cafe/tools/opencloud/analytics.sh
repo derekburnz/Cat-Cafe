@@ -770,6 +770,7 @@ fieldEvents=(
 	"pal_time|CustomField2|CustomEventCountUser|Players with pal time, by tier when they left (#3995)"
 	"pal_day_claimed|Platform|CustomEventCountUser|Players who got a Pal Day gift, by device (#4913)"
 	"pal_day_claimed|CustomField1|CustomEventCountUser|Players who got a Pal Day gift, by how the pal link started (#4913)"
+	"ab_return|CustomField1,CustomField2|CustomEventCountUser|Players in each return-day 50/50, by test and on/off group (ReturnAB, Derek Nov 17)"
 	"pal_join|CustomField1,CustomField2|CustomEventCountUser|Friend joins: invite or follow, new or returning (#3995, #4141)"
 	"pal_join|CustomField1,CustomField3|CustomEventCountUser|Friend joins: invite or follow, landed next door or not (#3995, #4141)"
 	"pal_join|Platform,CustomField2|CustomEventCountUser|Friend joins by device, new or returning (#3995, #4141)"

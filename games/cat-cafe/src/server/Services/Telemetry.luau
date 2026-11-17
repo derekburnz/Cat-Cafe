@@ -351,6 +351,7 @@ export type CustomEvent =
 	-- #4913: today's Pal Day gift paid, value 1 (how the first pal was linked: friend, invite, follow or private; tier).
 	-- Roblox's own Platform dimension splits it by device
 	| "pal_day_claimed"
+	| "ab_return" -- Derek 2026-11-17: the return-day 50/50s (shared/ReturnAB), once a session: test, on/off, device
 	-- #3995 (friend-join-3995.md): a join through a friend with the palJoin switch on, value 1 (how: invite or follow;
 	-- new or returning; cafe next door yes or no)
 	| "pal_join"
@@ -2355,6 +2356,20 @@ local function logJoined(player: Player)
 	saveAreas(profile, areasCaught)
 	session.areasCaught = areasCaught
 	Telemetry.onboarding(player, profile, "joined", { session.source })
+	do -- Derek 2026-11-17 15:24 UTC: the return-day 50/50s, once a session for an account in a test
+		local ReturnAB = require(ReplicatedStorage.Shared.ReturnAB) :: any
+		for _, test in ReturnAB.NAMES do
+			local group = ReturnAB.group(test, player.UserId, profile.telemetry.firstDay)
+			if group ~= nil then
+				Telemetry.custom(
+					player,
+					"ab_return",
+					1,
+					{ test, group, Telemetry.device(player) or "unknown" }
+				)
+			end
+		end
+	end
 	logFirstHour(player, profile)
 	session.rarityStep = 0 -- #3876
 	logRarity(player, profile)

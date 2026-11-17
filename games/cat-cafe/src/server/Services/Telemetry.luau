@@ -56,6 +56,7 @@ local NewKind = require(ReplicatedStorage.Shared.NewKind)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
+local ParkLeft = require(ReplicatedStorage.Shared.ParkLeft)
 local PassService = require(script.Parent.PassService)
 local PerfSuggest = require(ReplicatedStorage.Shared.PerfSuggest)
 local PerfWatch = require(ReplicatedStorage.Shared.PerfWatch)
@@ -277,6 +278,9 @@ export type CustomEvent =
 	| "quit_cafe"
 	-- #3098 P1b: beside quit_state, value the session's seconds; the scene (FirstFive.SCENES), device, seconds bucket
 	| "quit_scene"
+	-- #5034 (shared/ParkLeft): a player with no Park cat yet who stood in the Park this session left, value the seconds
+	-- in the Park; device, the closest a free Park stray came (bucket), seconds bucket
+	| "park_left"
 	-- #3098 P1b: the session's first intro shot, value the seconds since the join; device, "intro", bucket
 	| "first_scene"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
@@ -671,6 +675,8 @@ type Session = {
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
+	parkSeconds: number, -- #5034: seconds stood in the Park this session with no Park cat yet (park_left)
+	parkClosest: number?, -- #5034: the closest a free Park stray came meanwhile, in studs
 	catchReach: { [string]: boolean }, -- #3556: catch_reach logged this session, by kind
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
 	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
@@ -2980,6 +2986,8 @@ local function onLoaded(player: Player, profile: Profile)
 		tutorialClosed = false,
 		parkHints = {},
 		parkTrail = {},
+		parkSeconds = 0,
+		parkClosest = nil,
 		catchReach = {},
 		rankSpot = {},
 		rankWindow = nil,
@@ -3304,6 +3312,17 @@ local function onRelease(player: Player, profile: Profile)
 			)
 		)
 	end
+	-- #5034: a leaver who stood in the Park this session with no Park cat yet
+	if
+		session.parkSeconds > 0 and not Onboarding.reached(profile.telemetry, "first_park_catch")
+	then
+		Telemetry.custom(
+			player,
+			"park_left", -- ParkLeft.EVENT
+			session.parkSeconds,
+			ParkLeft.fields(session.device or "unknown", session.parkClosest, session.parkSeconds)
+		)
+	end
 	-- #4189: past Tier 1, what a leaver still lacked for the next tier: kinds short, coins, the first need missing
 	local nextDef = Catalog.getTier(Economy.tier(profile) + 1)
 	if Economy.tier(profile) >= 2 and nextDef ~= nil then
@@ -3485,6 +3504,40 @@ end
 -- the ground from where it was first seen this session; first_customer_served (#1273) once a cafe with a cat in a role
 -- has earned its first tips; rank_up_ready once a Tier 1 cafe meets Tier 2's needs (Economy.rankUpBlocker), which
 -- coins earned in the background can do between syncs.
+-- #5034: each WATCH_SECONDS, a player without a Park cat who stands in the Park adds to parkSeconds, and the nearest
+-- free Park stray (tag Stray, Area "park", LockedBy 0) to parkClosest.
+local function watchPark(player: Player, session: Session, profile: Profile)
+	if
+		not ParkLeft.counts(
+			Economy.tier(profile),
+			Onboarding.reached(profile.telemetry, "first_park_catch")
+		) or whereNow(player) ~= ParkLeft.AREA
+	then
+		return
+	end
+	session.parkSeconds += WATCH_SECONDS
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return
+	end
+	local at = (root :: BasePart).Position
+	local best = session.parkClosest or ParkLeft.STRAY_RANGE
+	for _, stray in CollectionService:GetTagged("Stray") do
+		if
+			stray:IsA("Model")
+			and stray:GetAttribute("Area") == ParkLeft.AREA
+			and stray:GetAttribute("LockedBy") == 0
+		then
+			local distance = ((stray :: Model):GetPivot().Position - at).Magnitude
+			if distance < best then
+				best = distance
+				session.parkClosest = distance
+			end
+		end
+	end
+end
+
 local function watchOnboarding(player: Player, session: Session)
 	local profile = DataService.get(player)
 	if profile == nil then
@@ -3495,6 +3548,7 @@ local function watchOnboarding(player: Player, session: Session)
 		logRarity(player, profile) -- #3876: a cat from a trade or a switch turned on mid session
 	end
 	watchFirstFive(player, session, profile)
+	watchPark(player, session, profile)
 	if not Onboarding.reached(profile.telemetry, "first_move") then
 		local character = player.Character
 		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil

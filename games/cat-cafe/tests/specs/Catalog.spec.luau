@@ -718,7 +718,7 @@ return function()
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
 			-- #3204: Tables 4, Espresso 3 and Net 1 at Tier 2 (were 5, 4 and 2); Net 2 at Tier 3 and Net 3 at Tier 5
-			{ "Cozy Cafe", 1500, 3, nil, nil, 4, 1.25, "park", { 3, 3, 1 } }, -- #4188 (7,500 and 4 for #4098)
+			{ "Cozy Cafe", 1500, 3, nil, nil, 4, 1.25, "park", { 4, 3, 1 } }, -- #4188 (7,500 and 4 for #4098)
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
 			-- #2895 (Derek2: "lower the 3-6 tier costs", then 50/30/10% off for Tiers 5/6/7): 600,000, 24M, 700M, 8B and 60B before
@@ -726,8 +726,8 @@ return function()
 			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
 			-- #4189 (Derek 2026-11-14: into the next areas sooner): 520,000, 16.8M, 390M, 5.6B and 54B, and 10, 22, 26, 38
 			-- and 47 kinds before; the 4x Money 2 hour floor is dropped
-			{ "Busy Cafe", 50000, 6, "Rare", 2, 6, 1.50, "neighbourhood", { 4, 4, 2 } }, -- #4844: 2 Rares (one Epic before)
-			{ "Famous Cafe", 1000000, 10, "Legendary", 1, 8, 1.75, "woods", { 5, 5, 2 } },
+			{ "Busy Cafe", 50000, 6, "Rare", 2, 6, 1.50, "neighbourhood", { 6, 4, 2 } }, -- #4844: 2 Rares (one Epic before)
+			{ "Famous Cafe", 1000000, 10, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 2 } },
 			{ "Grand Cafe", 12000000, 13, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
 			{ "Sunstone Cafe", 150000000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
@@ -847,9 +847,9 @@ return function()
 				{ "tables", 1, 1 },
 				{ "tables", 2, 1 },
 				{ "tables", 3, 2 },
-				{ "tables", 4, 3 }, -- #3867: one more table a tier (Tier 2 for Tables 4 before)
-				{ "tables", 5, 4 }, -- #3867 (Tier 3 from #3204, Tier 2 from #1896 before)
-				{ "tables", 6, 5 }, -- #3867 (Tier 3 before)
+				{ "tables", 4, 2 },
+				{ "tables", 5, 3 }, -- #3204 (Tier 2 from #1896 until then)
+				{ "tables", 6, 3 },
 				{ "tables", 7, nil },
 				{ "espresso", 2, 1 },
 				{ "espresso", 3, 2 },
@@ -867,6 +867,35 @@ return function()
 			for _, case in ipairs(cases) do
 				expect(Catalog.tierForLevel(case[1], case[2])).to.equal(case[3])
 			end
+		end)
+
+		it("setTablesSpread moves the tables caps one a tier and back (#4763)", function()
+			local tables = Catalog.getUpgrade("tables")
+			assert(tables)
+			local function caps(): { number }
+				return {
+					(Catalog.tiers[2].caps :: any).tables,
+					(Catalog.tiers[3].caps :: any).tables,
+					(Catalog.tiers[4].caps :: any).tables,
+				}
+			end
+			expect(Catalog.setTablesSpread(true)).to.equal(true)
+			expect(caps()).to.deepEqual({ 3, 4, 5 })
+			expect(tables.requiresTierAtLevel :: any).to.deepEqual({
+				[3] = 2,
+				[4] = 3,
+				[5] = 4,
+				[6] = 5,
+			})
+			expect(Catalog.setTablesSpread(true)).to.equal(false)
+			expect(Catalog.setTablesSpread(false)).to.equal(true)
+			expect(caps()).to.deepEqual({ 4, 6, 6 })
+			expect(tables.requiresTierAtLevel :: any).to.deepEqual({
+				[3] = 2,
+				[4] = 2,
+				[5] = 3,
+				[6] = 3,
+			})
 		end)
 	end)
 
@@ -886,7 +915,7 @@ return function()
 					maxLevel = 6,
 					costs = { 150, 600, 3000, 10000, 170000, 600000 }, -- F95 (economy-ladder.md section 4); #1896
 					startLevel = 0,
-					atLevel = { [3] = 2, [4] = 3, [5] = 4, [6] = 5 }, -- #3867: one a tier (#3204: 2, 2, 3, 3 before)
+					atLevel = { [3] = 2, [4] = 2, [5] = 3, [6] = 3 }, -- #3204: Tables 5 at Tier 3 (Tier 2 from #1896)
 				},
 				espresso = {
 					name = "Espresso machine",

@@ -123,7 +123,6 @@ function HarvestFx.onArea(listener: (inside: boolean) -> ())
 	end
 end
 
--- Tells `listener` where a pumpkin was picked near you (Audio's cue).
 -- Whether a board's HarvestNotes change is a new pin: a string that differs from the last one seen. The first sight
 -- (nil before, a board streaming in) is not news, and neither is the same list again.
 function HarvestFx.newPin(was: string?, now: unknown): boolean
@@ -144,6 +143,7 @@ function HarvestFx.onPin(listener: PinListener)
 	table.insert(pinListeners, listener)
 end
 
+-- Tells `listener` where a pumpkin was picked near you (Audio's cue).
 function HarvestFx.onPick(listener: Listener)
 	table.insert(listeners, listener)
 end

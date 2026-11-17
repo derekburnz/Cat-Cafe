@@ -1063,6 +1063,15 @@ local Cues: { [string]: Cue } = {
 		volume = 0.45,
 		minGap = 1,
 	},
+	-- #5031 (Effects/RankUpPulse.onGoalReady, switch rankUpRightAway): Tier 2's last need is met. The
+	-- tutorial step chime, a little higher and softer, once a session. No upload.
+	rankUpReadyChime = {
+		ids = { "rbxassetid://125474672370745" },
+		group = "Ui",
+		volume = 0.38,
+		pitch = { 1.12, 1.12 },
+		minGap = 2,
+	},
 	uiToast = { ids = { "rbxassetid://101668755145423" }, group = "Ui", volume = 0.5, minGap = 0.2 },
 	uiHint = { ids = { "rbxassetid://84709734267357" }, group = "Ui", volume = 0.5, minGap = 0.5 },
 	uiTab = { ids = { "rbxassetid://132990737294484" }, group = "Ui", volume = 0.4, minGap = 0.05 },

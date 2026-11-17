@@ -7,6 +7,10 @@
 --   3. After NUDGE_AFTER seconds in the Park with no Park cat yet, the nearest free stray within RANGE studs gets the
 --      tutorial's flashing ring (Components/StepTarget) for RING_SECONDS, or until it is caught; once a session.
 -- Controllers/ParkFirstController runs 2 and 3.
+-- #5034 (onboarding_v8 step 18 to 19: 29% of players who land in the Park never catch there, phones 37%, and a phone
+-- takes about 7 minutes from landing to its first Park catch): switch `parkRingEarly` (off unless the store says
+-- true). The ring comes EARLY_NUDGE_AFTER seconds into a visit instead of NUDGE_AFTER, stays EARLY_RING_SECONDS, and
+-- comes back on every Park visit (not once a session) until the first Park cat.
 
 local ParkFirstLogic = {}
 
@@ -20,6 +24,9 @@ ParkFirstLogic.TOAST_AFTER_LANDING = 1 -- the area's name card has the first mom
 ParkFirstLogic.NUDGE_AFTER = 90
 ParkFirstLogic.RANGE = 60
 ParkFirstLogic.RING_SECONDS = 30
+ParkFirstLogic.EARLY_FLAG = "parkRingEarly"
+ParkFirstLogic.EARLY_NUDGE_AFTER = 12 -- the landing's name card and the toast have had their moment
+ParkFirstLogic.EARLY_RING_SECONDS = 90
 ParkFirstLogic.PICKER_RING_SECONDS = 120 -- the picker's ring waits this long for the player to open it
 
 -- Whether any cat in the collection comes from the Park (Gameplay: there is no first-Park-catch flag in the sync).
@@ -52,8 +59,20 @@ function ParkFirstLogic.toastDue(
 end
 
 -- The nudge ring: NUDGE_AFTER seconds in the Park on this visit, no Park cat, not rung this session.
-function ParkFirstLogic.nudgeDue(inParkFor: number, caught: boolean, rung: boolean): boolean
-	return not rung and not caught and inParkFor >= ParkFirstLogic.NUDGE_AFTER
+-- `early` (#5034) brings it EARLY_NUDGE_AFTER seconds in instead.
+function ParkFirstLogic.nudgeDue(
+	inParkFor: number,
+	caught: boolean,
+	rung: boolean,
+	early: boolean?
+): boolean
+	local after = if early then ParkFirstLogic.EARLY_NUDGE_AFTER else ParkFirstLogic.NUDGE_AFTER
+	return not rung and not caught and inParkFor >= after
+end
+
+-- How long the ring stays: EARLY_RING_SECONDS under the switch, RING_SECONDS without.
+function ParkFirstLogic.ringSeconds(early: boolean?): number
+	return if early then ParkFirstLogic.EARLY_RING_SECONDS else ParkFirstLogic.RING_SECONDS
 end
 
 export type Stray = {

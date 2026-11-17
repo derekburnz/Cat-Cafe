@@ -28,7 +28,7 @@ import math
 from mathutils import Matrix, Vector
 
 from alleyway import label
-from common import RB, text_width
+from common import RB, _glyph_rects, text_width
 from plot import BACK, BACK_DOOR
 
 NAME = "CatCafe_Plot_BackDoor"
@@ -138,12 +138,11 @@ def _sign(b, glow, z=0.06, y0=3.1, bh=1.1, cu=2.6, both=False, face=0.0):
         label(b, big, mx(tx), yb, zf, px, 0.03, SIGN_INK, facing)
         if facing > 0:                                            # the back keeps to CLOSED and the moon
             label(glow, small, mx(tx), ys, zf, spx, 0.03, SIGN_GLOW, facing)
-        for r, row in enumerate(MOON):
-            for c, ch in enumerate(row):
-                if ch == "#":
-                    x = mx(left + 0.15 + (c + 0.5) * mp)
-                    glow.span((x - mp / 2, mtop - (r + 1) * mp, min(zf, zf + s * 0.03)),
-                              (x + mp / 2, mtop - r * mp, max(zf, zf + s * 0.03)), SIGN_GLOW)
+        # #4788: the moon in whole rectangles (5 parts, not one a pixel: every cafe's back door is on every device)
+        for r, c, e, h in _glyph_rects([row.replace("#", "1") for row in MOON]):
+            xa, xb = sorted((mx(left + 0.15 + c * mp), mx(left + 0.15 + e * mp)))
+            glow.span((xa, mtop - h * mp, min(zf, zf + s * 0.03)),
+                      (xb, mtop - r * mp, max(zf, zf + s * 0.03)), SIGN_GLOW)
 
 
 def build_back_door(mat):

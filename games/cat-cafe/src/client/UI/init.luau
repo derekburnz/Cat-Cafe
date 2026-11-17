@@ -5922,19 +5922,8 @@ function UI.roadmap.step(n: number)
 		return
 	end
 	local RoadmapLogic = require(script.Components.RoadmapLogic)
-	-- #4384: no prize toast during the tutorial while checkInCalm is on
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	if
-		n < #RoadmapLogic.STEPS
-		and RoadmapLogic.calm(
-			LiveFlags.shown(
-				RoadmapLogic.CALM_FLAG,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
-			),
-			state.tutorialStep
-		)
-	then
+	-- #4384: no prize toast during the tutorial
+	if n < #RoadmapLogic.STEPS and RoadmapLogic.calm(state.tutorialStep) then
 		return
 	end
 	if toasts then

@@ -2981,7 +2981,7 @@ local function wireServerEvents()
 			(show :: (unknown, number?, string?) -> ())(
 				{ items = items },
 				nil,
-				"Pal Day! 5 minutes with a pal. Again tomorrow."
+				"Pal Day gift! Again tomorrow."
 			)
 		end
 	end)

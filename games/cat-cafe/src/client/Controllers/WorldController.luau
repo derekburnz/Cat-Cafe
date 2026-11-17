@@ -18,7 +18,6 @@ local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
 local DayLight = require(Shared:WaitForChild("DayLight"))
 local Effects = require(script.Parent.Parent.Effects)
-local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local NightLights = require(Shared:WaitForChild("NightLights"))
@@ -208,15 +207,8 @@ local madeLights: { [Light]: boolean } = {}
 local isNight = false
 local lowPerformance = false -- the Low performance setting: no night Light objects, shadows or post effects
 -- #4311 (shared/NightLights): the night Light objects near enough to be on, picked every NightLights.STEP seconds;
--- nil until the first pick, or with the nearLights switch off (every light then)
+-- nil until the first pick
 local nearLights: { [Light]: boolean }? = nil
-
-local function nearOnly(): boolean
-	return LiveFlags.shown(
-		NightLights.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NightLights.FLAG)
-	)
-end
 
 local function lightOn(light: Light): boolean
 	if not isNight or lowPerformance then
@@ -224,9 +216,9 @@ local function lightOn(light: Light): boolean
 	end
 	local near = nearLights
 	if near == nil then
-		-- with the switch on, nothing lights until the first pick (pickNearLights runs right after setNight), so a
-		-- night start never flashes every light in the world on for a moment
-		return not nearOnly()
+		-- nothing lights until the first pick (pickNearLights runs right after setNight), so a night start never
+		-- flashes every light in the world on for a moment
+		return false
 	end
 	return near[light] == true
 end
@@ -328,12 +320,11 @@ end
 -- its control even after its part streamed out and back in.
 local function pickNearLights()
 	pruneGone()
-	if not isNight or lowPerformance or not nearOnly() then
+	if not isNight or lowPerformance then
 		nearLights = nil
-		local want = isNight and not lowPerformance -- night with the switch off: every light, as before #4311
 		for light in madeLights do
-			if light.Enabled ~= want then
-				light.Enabled = want
+			if light.Enabled then
+				light.Enabled = false
 			end
 		end
 		return

@@ -27,8 +27,6 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
--- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
---   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
 -- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
 --   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
 --   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
@@ -79,12 +77,9 @@ LiveFlags.KEYS = {
 	"alleyBin",
 	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 	"goldenDrops",
-	"swiftPaws10", -- #4705
 	"luckyCharm",
 	"introSplit",
 	"parkGateTrail",
-	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
-	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
 	"storeRework", -- #3572: the reworked Store layout
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
@@ -101,7 +96,6 @@ LiveFlags.KEYS = {
 	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
 	"mailbox", -- #4249: the Mailbox tile and window (letters from Derek with a gift to claim), Feedback into the Menu list
 	"autoBowl", -- #4266: the Auto Bowl pass's offer card, switches and Store card (Screens/BaitBowl)
-	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
 	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
 	"deviceFixes", -- the Tue 2026-11-17 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
@@ -134,7 +128,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightCatch = true,
 	loadingScreen = true,
 	goldenDrops = true,
-	swiftPaws10 = true, -- #4705
 	luckyCharm = true,
 	introSplit = true,
 	noIntro = true, -- #4929

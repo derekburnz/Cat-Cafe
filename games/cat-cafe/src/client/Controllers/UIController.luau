@@ -437,28 +437,20 @@ local stuckGoal = {
 	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
 }
 
--- #4383 (shared/RankFirst, switch rankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
+-- #4383 (shared/RankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
 -- the rank up first; the stuck cat goal waits until then (and comes back should the coins be spent).
 local function rankFirstNow(s: Types.PlayerState): boolean
 	if (s.tier or 1) ~= 1 or s.tutorialStep < 5 then
 		return false
 	end
 	local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
-	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
-	local on: boolean = LiveFlags.shown(
-		RankFirst.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.FLAG)
-	)
-	if not on then
-		return false
-	end
 	local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
 	local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
 	local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
 	if nextTier == nil then
 		return false
 	end
-	return RankFirst.holds(on, s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
+	return RankFirst.holds(s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
 end
 
 local function stuckGoalActive(s: Types.PlayerState): boolean
@@ -1367,7 +1359,15 @@ end
 -- #4821 (shared/QuietStart.firstCatHolds): under bowl first, the pop-ups wait until the first bowl cat is claimed and
 -- FIRST_CAT_AFTER seconds more. `before` is the last sync's answer; `claimedAt` the clock when it turned false here.
 -- `tutorial` (QuietStart.tutorialHolds, Derek 2026-11-16 15:22 UTC): the softer hold through the rest of the tutorial.
-local firstCat = { before = false, claimedAt = nil :: number?, held = false, tutorial = false }
+-- `early` (#4946, QuietStart.earlyHolds): the account's first 5 minutes of play, which hold the pop-ups (not the Drop)
+local firstCat = {
+	before = false,
+	claimedAt = nil :: number?,
+	held = false,
+	tutorial = false,
+	early = false,
+	earlyTimer = false,
+}
 local function firstCatHold(s: Types.PlayerState)
 	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
 	local QuietStart = require(Shared:WaitForChild("QuietStart")) :: any
@@ -1394,9 +1394,25 @@ local function firstCatHold(s: Types.PlayerState)
 	end
 	local tutorial = QuietStart.tutorialHolds(TutorialOrder.bowlFirst(), s.tutorialStep, s.tier)
 		== true
-	if tutorial ~= firstCat.tutorial then
+	-- #4946: and the account's first 5 minutes, checked again as they end
+	local untilAt = player:GetAttribute(QuietStart.ATTRIBUTE)
+	local now = Workspace:GetServerTimeNow()
+	local early = QuietStart.earlyHolds(untilAt, now) == true
+	local endsAt: number? = QuietStart.earlyEndsAt(untilAt, now)
+	if endsAt ~= nil and not firstCat.earlyTimer then
+		firstCat.earlyTimer = true
+		task.delay(endsAt - now + 0.1, function()
+			firstCat.earlyTimer = false
+			local current = state
+			if current ~= nil then
+				firstCatHold(current)
+			end
+		end)
+	end
+	if tutorial ~= firstCat.tutorial or early ~= firstCat.early then
 		firstCat.tutorial = tutorial
-		UI.setTutorialHold(tutorial)
+		firstCat.early = early
+		UI.setTutorialHold(tutorial or early, tutorial)
 	end
 end
 
@@ -2577,7 +2593,8 @@ local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
 	end
-	if firstCat.held or firstCat.tutorial then
+	if firstCat.held or firstCat.tutorial or firstCat.early then
+		-- #4946: nor in the account's first 5 minutes
 		-- #4821: no asks (notifications, favorite, like, invite, the event's Notify Me) before the first cat, and
 		-- (Derek 2026-11-16 15:22 UTC) none until the walk-through is done
 		return false
@@ -2636,12 +2653,14 @@ local ASK_LINES: { [string]: string } = {
 local function showAsk(id: string)
 	task.spawn(function()
 		local waited = 0
-		while not quiet() do
+		-- #4946 (Sync's PC run: the favorite card came 20 s after a gift ask): and one pop-up every 5 minutes
+		while not quiet() or not UI.popPace.free() do
 			if waited >= ASK_WAIT_SECONDS then
 				return
 			end
 			waited += task.wait(1)
 		end
+		UI.popPace.used() -- #4946: the ask, its card or its toast, is this 5 minutes' pop-up
 		if id == Tips.NOTIFY_ASK then
 			local ok, can = pcall(function()
 				return ExperienceNotificationService:CanPromptOptInAsync()
@@ -3394,8 +3413,8 @@ local function wireServerEvents()
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
 				return
 			end
-			if firstCat.tutorial then
-				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through; the gift still comes
+			if firstCat.tutorial or firstCat.early then
+				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through (#4946: or the first 5 minutes)
 			end
 			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
@@ -3652,7 +3671,7 @@ function UIController.start()
 	firstCat.held = true
 	UI.setFirstCatHold(true)
 	firstCat.tutorial = true
-	UI.setTutorialHold(true)
+	UI.setTutorialHold(true, true)
 	if state ~= nil then
 		firstCatHold(state)
 	end

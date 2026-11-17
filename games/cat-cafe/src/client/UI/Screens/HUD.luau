@@ -379,7 +379,9 @@ local HIDE_CROSS = if Scale.isTouch() then 26 else 24
 local HIDE_PULSE_SECONDS = 6 -- #3638 (Derek: "just show the x for a bit"); 12 for a while (#3154)
 local HIDE_AFTER = 6 -- #3154: seconds after the tutorial's end before the × pulses
 local HIDE_HINT_H = 24
-local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
+-- #2411: how long the pulse waits for the HUD to be on screen and free (#4946: 300, as it also waits out the account's
+-- first 5 minutes; it was 120)
+local HIDE_WAIT_SECONDS = 300
 local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true) -- #3154: for the whole pulse
 local HIDE_GROW = 1.6 -- #3154: how big the × bounces (was 1.35)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
@@ -3024,6 +3026,9 @@ function HUD._hideFree(self: any): boolean
 	return self._tutorialTile.instance.Visible == true
 		and self.screenGui.Enabled == true
 		and self._catching ~= true
+		-- #4946 (Sync's Studio run: the arrow sat on the × 6 s after RANK UP while the goal said "Visit the Park"):
+		-- not while the UI's pop-up hold is on (the walk-through or the account's first 5 minutes)
+		and self._bannerHold.tutorial ~= true
 end
 
 function HUD.pulseHide(self: any)

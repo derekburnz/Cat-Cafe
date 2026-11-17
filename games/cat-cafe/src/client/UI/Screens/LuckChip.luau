@@ -26,6 +26,7 @@ local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialArrow = require(script.Parent.Parent.Components.TutorialArrow)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -345,6 +346,7 @@ function LuckChip.new(
 		Parent = card,
 	})
 	self.card = card
+	TutorialArrow.yieldTo(card) -- #5009: the goal card's rank up arrow hides while this card is open
 	self._closeButton = close
 	self._connections = {
 		chip.Activated:Connect(function()

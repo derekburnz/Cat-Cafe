@@ -387,7 +387,8 @@ local KEEP_TRADE: PackLine = { left = "Yours to keep. Can't be traded.", right =
 StoreLogic.INFO = {
 	vip = {
 		{ left = "Money", right = "+50%" },
-		{ left = "VIP tag over your head", right = "" },
+		-- #4991 (Derek 2026-11-16): the head tag is off until the owner turns on Settings' "VIP tag" row
+		{ left = "VIP tag over your head", right = "turn it on in Settings" },
 		{ left = "VIP tag in chat", right = "" },
 		{ left = "Gold VIP plate on your cafe sign", right = "" },
 		KEEP,

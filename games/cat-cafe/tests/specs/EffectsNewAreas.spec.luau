@@ -222,9 +222,8 @@ return function()
 			expect(budgets.low.rideHz <= 15).to.equal(true)
 			expect(budgets.lite.rides <= 1).to.equal(true)
 			expect(budgets.lowPerformance.rides).to.equal(0)
-			for _, budget in { budgets.high, budgets.console } do
-				expect(budget.rides <= 3 and budget.rideHz <= p.hz).to.equal(true)
-			end
+			expect(budgets.high.rides <= 3 and budgets.high.rideHz <= p.hz).to.equal(true)
+			expect(budgets.console.rides <= 3 and budgets.console.rideHz <= p.hz).to.equal(true)
 			-- a wheel on its edge, 43 across and 4 thick: the axle is its thin side, whichever way it faces
 			local right, look = Vector3.xAxis, Vector3.zAxis
 			expect(Logic.rideAxis("thin", Vector3.new(43, 43, 4), right, look)).to.equal(look)

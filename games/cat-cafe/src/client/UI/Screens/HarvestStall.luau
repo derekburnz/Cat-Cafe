@@ -178,7 +178,7 @@ function HarvestStall.new(callbacks: Callbacks): HarvestStall
 		name = "MoreBelow",
 		text = "▼ More below",
 		style = "secondary",
-		size = UDim2.fromOffset(130, 28),
+		size = UDim2.fromOffset(130, 36),
 		anchorPoint = Vector2.new(0.5, 1),
 		position = UDim2.new(0.5, 0, 1, -6),
 		textSize = Theme.sizes.textSmall,

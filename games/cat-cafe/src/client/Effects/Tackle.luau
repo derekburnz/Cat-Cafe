@@ -71,6 +71,17 @@ local localPress: number? = nil -- server time of this player's own press
 local timing: Avatar.Timing? = nil
 local started = false
 
+-- Design 2026-11-17 (Tackle's PreSimulation was about 0.11 ms with nobody near): the still net hold and the
+-- carry fold depend only on the rig, so each rig's frames are worked out once and kept (weak keys: a rig read again
+-- after a joint change is a new table and gets its own), and the per-frame scratch tables are cleared, not made anew.
+-- What is drawn is the same frame for frame. The step itself still runs every frame, because it also holds the
+-- local player's own net arm and carry.
+local stillHold: { [Avatar.Rig]: { [Avatar.Joint]: CFrame } } = setmetatable({}, { __mode = "k" }) :: any
+local stillCarry: { [Avatar.Rig]: { [Avatar.Joint]: CFrame } } = setmetatable({}, { __mode = "k" }) :: any
+local hits: { [number]: number } = {}
+local posed: { { character: Model, userId: number? } } = {}
+local moved: { [Avatar.Joint]: boolean } = {}
+
 -- A tagged model that is staged, not a player's own character (that one is posed and watched as the player's).
 local function stagedModel(tagged: Instance): Model?
 	local model = if tagged:IsA("Model") then tagged :: Model else nil
@@ -186,6 +197,9 @@ end
 -- Reads the rig of each character whose joints changed or that has none yet; one still loading is tried again in a
 -- second.
 local function rebind()
+	if next(stale) == nil then
+		return
+	end
 	local clock = os.clock()
 	for character, at in stale do
 		if clock < at then
@@ -223,7 +237,7 @@ type Layer = { frames: { [Avatar.Joint]: CFrame }, weight: number }
 -- Writes this frame's layers into the joints: each over what the Animator played, in order (the net hold or the
 -- carry, the pal wave, then the Tackle or the cannon flight). A joint this wrote last frame and no layer moves now goes back to the Animator.
 local function apply(entry: Entry, layers: { Layer })
-	local moved: { [Avatar.Joint]: boolean } = {}
+	table.clear(moved)
 	for _, layer in layers do
 		for motor in layer.frames do
 			moved[motor] = true
@@ -264,7 +278,7 @@ local function step(dt: number)
 	local radius = Context.budget.animRadius
 
 	-- Who landed a tackle on whom: the latest ShovedAt under each tackler's UserId.
-	local hits: { [number]: number } = {}
+	table.clear(hits)
 	for _, player in Players:GetPlayers() do
 		local character = player.Character
 		if character ~= nil then
@@ -276,7 +290,7 @@ local function step(dt: number)
 	end
 
 	-- every player's character, then every staged one (no player, so no UserId)
-	local posed: { { character: Model, userId: number? } } = {}
+	table.clear(posed)
 	for _, player in Players:GetPlayers() do
 		if player.Character ~= nil then
 			table.insert(posed, { character = player.Character, userId = player.UserId })
@@ -305,11 +319,29 @@ local function step(dt: number)
 		local holding = NetHold.weight(character, entry.rig, dt, near)
 		if holding > 0 then
 			local arm = NetHold.arm(character, now)
-			table.insert(layers, { frames = Avatar.holdNet(entry.rig, arm), weight = holding })
+			local frames = if arm ~= nil
+				then Avatar.holdNet(entry.rig, arm)
+				else stillHold[entry.rig]
+			if frames == nil then
+				frames = Avatar.holdNet(entry.rig, nil)
+				stillHold[entry.rig] = frames
+			end
+			table.insert(
+				layers,
+				{ frames = frames :: { [Avatar.Joint]: CFrame }, weight = holding }
+			)
 		end
 		local carrying = Carry.weight(character, entry.rig, dt, near)
 		if carrying > 0 then
-			table.insert(layers, { frames = Avatar.carryArms(entry.rig), weight = carrying })
+			local frames = stillCarry[entry.rig]
+			if frames == nil then
+				frames = Avatar.carryArms(entry.rig)
+				stillCarry[entry.rig] = frames
+			end
+			table.insert(
+				layers,
+				{ frames = frames :: { [Avatar.Joint]: CFrame }, weight = carrying }
+			)
 		end
 		if userId == nil then
 			-- staged: a copy keeps the tackle and flight attributes it was cloned with, which are not its own; the

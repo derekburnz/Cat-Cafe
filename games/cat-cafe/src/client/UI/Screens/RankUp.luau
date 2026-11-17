@@ -11,16 +11,23 @@
 -- #2915: just after the rank up to Tier 2 the button reads "Fly to the Park" (setFly) and takes the player to the
 -- cannon with the Park card ringed (UI.cannon.flyToPark), until a flight or until the next rank up is ready.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- firstRankLock: seconds after a RANK UP press that has not taken before the window lets go (RankUp.locked)
+local LOCK_GRACE = 5
+
 local Button = require(script.Parent.Parent.Components.Button)
 local CafeGrewLogic = require(script.Parent.Parent.Components.CafeGrewLogic) -- #4543
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #3997: no goal behind a live switch
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic) -- #2687: the next station's perk
 local RankUpNeeds = require(script.Parent.Parent.Components.RankUpNeeds) -- #1141: the server's own counts
+local RankUpRightAway =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RankUpRightAway"))
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
@@ -66,6 +73,7 @@ export type RankUp = {
 	setFly: (self: RankUp, text: string?) -> (),
 	setGrew: (self: RankUp, tier: number?) -> (),
 	button: (self: RankUp) -> GuiObject, -- #3555: the Rank up button, for the first rank up's walk-through
+	locked: (self: RankUp) -> boolean, -- firstRankLock: held open while the first rank up is ready
 	destroy: (self: RankUp) -> (),
 }
 
@@ -74,6 +82,17 @@ RankUp.__index = RankUp
 
 function RankUp.button(self: any): GuiObject
 	return self._button.instance
+end
+
+-- Derek 2026-11-17 (switch firstRankLock, shared/RankUpRightAway.locked): the first rank up's window stays open while
+-- the rank up is ready. If a press has not taken within LOCK_GRACE seconds (the server said no), it lets go, so a
+-- player is never stuck behind it.
+function RankUp.locked(self: any): boolean
+	local pressed: number? = self._pressedAt
+	if pressed ~= nil and os.clock() - pressed > LOCK_GRACE then
+		return false
+	end
+	return self._locked == true
 end
 
 local ROW_HEIGHT = 46
@@ -423,10 +442,19 @@ function RankUp.new(callbacks: Callbacks): RankUp
 			if self._flying and callbacks.fly ~= nil then
 				callbacks.fly()
 			else
+				self._pressedAt = os.clock() -- firstRankLock: the X comes back if the rank up does not go through
 				callbacks.rankUp()
+				task.delay(LOCK_GRACE + 0.1, function()
+					local state: Types.PlayerState? = self._state
+					if state ~= nil and self.frame.Parent ~= nil then
+						self:render(state)
+					end
+				end)
 			end
 		end,
 	})
+	self._pressedAt = nil :: number?
+	self._locked = false
 	self._fly = nil :: string?
 	self._grewTier = nil :: number? -- #4543: the tier whose rank up grew the cafe (setGrew)
 	self._flying = false
@@ -728,7 +756,26 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	-- #4847 (Derek 2026-11-16, his screenshot: the Tier 1 window, both requirements met, nothing pointing): the first
 	-- rank up's button gets the tutorial's ring and arrow whenever it is ready, wherever the window was opened (the
 	-- dimmed walk-through, RankSpot, lights it only on the safe side). No dim, so the window's X still works.
-	TutorialGlow.set(self._button.instance, progress.ready and progress.tier == 1, nil, true)
+	-- Derek 2026-11-17 (firstRankLock): while it is held open, the screen dims too and the X goes
+	local on = LiveFlags.shown(
+		RankUpRightAway.LOCK_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankUpRightAway.LOCK_FLAG)
+	)
+	self._locked = RankUpRightAway.locked(on, progress.tier, progress.ready)
+	if not self._locked then
+		self._pressedAt = nil
+	end
+	local held = self:locked()
+	local close = self._panel._close
+	if close ~= nil then
+		close.instance.Visible = not held
+	end
+	if held ~= self._heldShown then
+		-- TutorialGlow keeps a glow that is already there, so a change of dim takes it off first
+		self._heldShown = held
+		TutorialGlow.set(self._button.instance, false)
+	end
+	TutorialGlow.set(self._button.instance, progress.ready and progress.tier == 1, nil, not held)
 end
 
 -- #3961: one cream card per line of what the tier opens, its picture on the left

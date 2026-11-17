@@ -1203,6 +1203,14 @@ function UI.init(config: Types.InitConfig)
 			end
 		end,
 	})
+	-- Derek 2026-11-17 (firstRankLock): the first rank up's window stays open while the rank up is ready
+	modalInstance:hold("RankUp", function(): boolean
+		-- the newest tier too: a rank up that just went through lets go before the window draws again
+		return rankUpScreen ~= nil
+			and rankUpScreen:locked()
+			and state ~= nil
+			and (state :: any).tier == 1
+	end)
 	areasScreen = Areas.new({
 		travel = function(areaId: string)
 			-- the HUD owns the carrying check and the trip cooldown; close the panel once the trip is asked
@@ -2121,7 +2129,7 @@ function UI.update(partial: Types.PartialState)
 				and before < CannonLogic.HINT_TIER
 				and tier >= CannonLogic.HINT_TIER
 			then
-				modal:close()
+				modal:close(nil, true) -- forced: the rank up just went through, whatever firstRankLock last read
 			end
 		end
 		-- #4480: no "The Park is open!" hint or "Fly to the Park" button while the walk to the Park is off; the rank

@@ -90,6 +90,17 @@ return function()
 			expect(RankUpRightAway.READY_NARROW).to.equal("Cafe ready!")
 		end)
 
+		it(
+			"holds only the first rank up's window, only while it is ready and the switch is on",
+			function()
+				expect(RankUpRightAway.LOCK_FLAG).to.equal("firstRankLock")
+				expect(RankUpRightAway.locked(true, 1, true)).to.equal(true)
+				expect(RankUpRightAway.locked(false, 1, true)).to.equal(false)
+				expect(RankUpRightAway.locked(true, 1, false)).to.equal(false) -- not ready: the X stays
+				expect(RankUpRightAway.locked(true, 2, true)).to.equal(false) -- later rank ups close as ever
+			end
+		)
+
 		it("reads how a window ended, with how a close happened", function()
 			local function parse(raw: unknown): { any }
 				return { RankUpRightAway.parseEnd(raw) }

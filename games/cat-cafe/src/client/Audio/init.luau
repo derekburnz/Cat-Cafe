@@ -2356,6 +2356,10 @@ local function followAreas()
 	HarvestFx.onPick(function(at)
 		Audio.play(Logic.HARVEST_PICK_CUE, at)
 	end)
+	-- #4251: a note pinned on the Thankful Board near you
+	HarvestFx.onPin(function(at)
+		Audio.play(Logic.HARVEST_PIN_CUE, at)
+	end)
 	-- #4251: Harvest Hollow's own song while you are in it
 	HarvestFx.onArea(function(inside)
 		inHarvest = inside

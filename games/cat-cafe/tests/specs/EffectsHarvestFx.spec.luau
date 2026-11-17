@@ -77,6 +77,24 @@ return function()
 			expect(p.arriveGap >= 60).to.equal(true)
 		end)
 
+		it("puffs only for a new pin on the Thankful Board and knows when it is yours", function()
+			expect(HarvestFx.newPin(nil, "[]")).to.equal(false) -- the first sight sets the mark
+			expect(HarvestFx.newPin("[]", "[]")).to.equal(false)
+			expect(HarvestFx.newPin("[]", nil)).to.equal(false)
+			expect(HarvestFx.newPin("[]", 3)).to.equal(false)
+			expect(HarvestFx.newPin("[]", '[{"userId":7,"note":2}]')).to.equal(true)
+			expect(HarvestFx.lastPinner('[{"userId":7,"note":2},{"userId":9,"note":1}]')).to.equal(
+				9
+			)
+			expect(HarvestFx.lastPinner("[]")).never.to.be.ok()
+			expect(HarvestFx.lastPinner("not json")).never.to.be.ok()
+			expect(HarvestFx.lastPinner('[{"note":1}]')).never.to.be.ok()
+			local p = Presets.harvestFx
+			expect(p.notesAttribute).to.equal("HarvestNotes")
+			expect(p.pinCount <= 8).to.equal(true)
+			expect(p.pinSparkles <= Presets.budget.low.maxBurst).to.equal(true)
+		end)
+
 		it("keeps its numbers calm and its presets real", function()
 			local p = Presets.harvestFx
 			expect(Presets.emitters[p.air]).to.be.ok()

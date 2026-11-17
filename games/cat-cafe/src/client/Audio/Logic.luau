@@ -558,6 +558,7 @@ end
 -- #4197: what an admin event drops lands (Effects/AdminDrops.onLand)
 Logic.ADMIN_DROP_CUES = { fish = "adminFishLand", crate = "adminCrateLand" } :: { [string]: string }
 Logic.HARVEST_PICK_CUE = "harvestPick" -- #4251: a Harvest Hollow patch pumpkin is picked (Effects/HarvestFx)
+Logic.HARVEST_PIN_CUE = "harvestPin" -- #4251: a note pinned on the Thankful Board (Effects/HarvestFx)
 Logic.STORM_LAND_CUE = "stormLand" -- #4197: a Cat Storm's stray lands (Effects/StormFall)
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then

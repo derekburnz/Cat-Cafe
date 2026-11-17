@@ -274,7 +274,7 @@ end
 -- read, which the client waits for at start). None of the handlers yields.
 local ONE_ADDED_FLAG = "fxOneAdded"
 local addedHandlers: { (Instance) -> () }? = nil
-local addedWarned: { [number]: boolean } = {}
+local addedOnError: { (unknown) -> () } = {}
 
 function Context.onWorkspaceAdded(handler: (Instance) -> ())
 	if addedHandlers == nil then
@@ -291,19 +291,20 @@ function Context.onWorkspaceAdded(handler: (Instance) -> ())
 		addedHandlers = handlers
 		Workspace.DescendantAdded:Connect(function(instance: Instance)
 			for index, each in handlers do
-				xpcall(each, function(problem: unknown)
-					if not addedWarned[index] then
-						addedWarned[index] = true
-						warn(
-							"[Effects] a Workspace.DescendantAdded handler failed: "
-								.. tostring(problem)
-						)
-					end
-				end, instance)
+				xpcall(each, addedOnError[index], instance)
 			end
 		end)
 	end
-	table.insert(addedHandlers :: { (Instance) -> () }, handler)
+	local handlers = addedHandlers :: { (Instance) -> () }
+	table.insert(handlers, handler)
+	-- each handler's own error report, made once here so a streamed-in instance makes no new closure
+	local warned = false
+	table.insert(addedOnError, function(problem: unknown)
+		if not warned then
+			warned = true
+			warn("[Effects] a Workspace.DescendantAdded handler failed: " .. tostring(problem))
+		end
+	end)
 end
 
 return Context

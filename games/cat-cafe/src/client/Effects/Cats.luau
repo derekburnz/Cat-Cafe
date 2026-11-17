@@ -754,6 +754,33 @@ local function easeBetween(ease: number): boolean
 	return jumped
 end
 
+-- #4601 strayWalkSlow: a server write can land after step has drawn this frame (Sync's frame log on #5147: on 30 of
+-- 31 one-frame pops the server's 10 Hz write or its hop-end arrival came in after Effects drew, so the raw server
+-- spot showed for a frame, up to a stud ahead, and the cat went back the next). This runs last before the frame is
+-- shown and redraws, with its last offsets, only a cat whose body the server moved since it was drawn. A jump is
+-- left for the next step to draw as a hop.
+local function lateWrites()
+	if
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Presets.motion.stepEase.flag)
+		~= true
+	then
+		return
+	end
+	for model, entry in active do
+		local rig = entry.rig
+		local drawn = entry.drawn
+		if drawn ~= nil and Pose.rewritten(rig) then
+			if not Pose.read(rig, Presets.motion.stepEase.seconds) then
+				drop(model, entry)
+				continue
+			end
+			if not rig.jumped then
+				Pose.draw(rig, drawn, entry.drawnAlpha)
+			end
+		end
+	end
+end
+
 local function step(dt: number)
 	elapsed += dt
 	if elapsed < 1 / Context.budget.animHz then
@@ -1044,6 +1071,7 @@ function Cats.start()
 		end
 	end)
 	RunService.PreRender:Connect(step)
+	RunService:BindToRenderStep("CatsLateWrites", Enum.RenderPriority.Last.Value + 1, lateWrites)
 end
 
 return Cats

@@ -818,6 +818,15 @@ local function walkShift(rig: Rig): (CFrame?, number?)
 	return CFrame.new(now.X - pivot.Position.X, 0, now.Z - pivot.Position.Z), at
 end
 
+-- #4601: whether the server moved the cat's body since it was last drawn (a write that landed after this frame's draw).
+function Pose.rewritten(rig: Rig): boolean
+	if rig.usesMotors or rig.bodyIndex == 0 or rig.bodyIndex > #rig.parts then
+		return false
+	end
+	local body = rig.parts[rig.bodyIndex]
+	return body.Parent ~= nil and body.CFrame ~= rig.written[rig.bodyIndex]
+end
+
 -- #4601: whether the server moved the cat since it was last drawn, or an ease is still running (Cats redraws such a
 -- cat on the frames its animHz throttle skips).
 function Pose.pending(rig: Rig): boolean
@@ -827,11 +836,7 @@ function Pose.pending(rig: Rig): boolean
 	if rig.easing or rig.walking then
 		return true
 	end
-	if rig.bodyIndex > #rig.parts then
-		return false
-	end
-	local body = rig.parts[rig.bodyIndex]
-	return body.Parent ~= nil and body.CFrame ~= rig.written[rig.bodyIndex]
+	return Pose.rewritten(rig)
 end
 
 -- Reads where the server has the cat this frame: re-reads any part the server moved and updates the speed and

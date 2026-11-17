@@ -38,6 +38,7 @@ local CampGrowth = require(script.CampGrowth)
 local CampWater = require(script.CampWater)
 local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
+local CannonCue = require(script.CannonCue)
 local CannonGlide = require(script.CannonGlide)
 local Catch = require(script.Catch)
 local CatchReact = require(script.CatchReact)
@@ -217,6 +218,7 @@ function Effects.start()
 		Rides.start,
 		HoldPulse.start,
 		RankUpPulse.start, -- #4920: RANK UP glows when ready, the tutorial strip's count tick
+		CannonCue.start, -- the Cannon button's glow while Tier 2 is short of cats (switch cannonCue, off)
 		FirstMinuteFx.start, -- first minute: the first bowl cat card's sparkle and jingle, the first net catch's cheer
 		BaitCrumbs.start,
 		WaitingCat.start,

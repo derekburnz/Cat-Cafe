@@ -397,11 +397,10 @@ end
 -- Whether something else moved the pennant since this client last put it (its first part is enough to tell).
 local function movedOff(p: Pennant): boolean
 	local written = p.written
-	local first = p.parts[1]
-	if written == nil or first == nil then
+	if written == nil or #p.parts == 0 then
 		return false
 	end
-	local now = first.CFrame
+	local now = p.parts[1].CFrame
 	return (now.Position - written.Position).Magnitude > 0.01
 		or now.LookVector:Dot(written.LookVector) < 0.9999
 end

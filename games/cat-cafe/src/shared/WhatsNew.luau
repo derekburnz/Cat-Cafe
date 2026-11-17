@@ -45,6 +45,19 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE6",
 	},
+	-- #2718 (Motion-FX-Agent, 2026-11-17 14:05 UTC): storeRework (#3572) and fxAfterLoad (#5068) on at 14:01 UTC
+	{
+		id = "store_rework",
+		date = "2026-11-17",
+		icon = "look",
+		text = "Tidier Store, cheapest first",
+	},
+	{
+		id = "fx_after_load",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Faster start on phones",
+	},
 	-- #2718 (Motion-FX-Agent, 2026-11-17 12:40 UTC): rankUpRightAway on since 12:22 UTC (#5031, #5039, #5044)
 	{
 		id = "rank_up_right_away",

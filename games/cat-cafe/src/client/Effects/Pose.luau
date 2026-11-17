@@ -807,7 +807,7 @@ function Pose.read(rig: Rig, ease: number?): boolean
 		end
 	end
 	local seconds = ease or 0
-	if moved and seconds > 0 and before ~= nil then
+	if moved and seconds > 0 then
 		local landed = base[rig.bodyIndex]
 		if (landed.Position - before.Position).Magnitude <= Presets.motion.hiss.jumpStuds then
 			rig.easeFrom = landed:ToObjectSpace(before)

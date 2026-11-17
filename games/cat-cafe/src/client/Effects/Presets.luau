@@ -6468,20 +6468,28 @@ Presets.stationCut = {
 		[3] = {
 			tag = "ArcadeCabinet",
 			name = "The Cat Arcade",
-			line = "Play arcade games for prizes",
+			line = "Play Mouse Dash for daily prizes",
 		},
 		[4] = {
 			tag = "MysticPool",
 			name = "The Mystic Pool",
-			line = "Roll a special trait on your cats",
+			line = "Give each cat a trait that helps it",
 		},
 		[8] = {
 			tag = "FusionObservatory",
 			name = "Fusion Observatory",
-			line = "Fuse 5 gold Mythicals into a rainbow cat",
+			line = "Fuse 5 of one cat into a better coat",
 		},
-		[9] = { tag = "TicketBooth", name = "Ticket Booth", line = "Spend tickets on prizes" },
-		[10] = { tag = "DragonKeep", name = "Dragon Keep", line = "Raise your own dragon" },
+		[9] = {
+			tag = "TicketBooth",
+			name = "Ticket Booth",
+			line = "Catches give tickets for prizes",
+		},
+		[10] = {
+			tag = "DragonKeep",
+			name = "Dragon Keep",
+			line = "Grow Cinder the dragon for bonus cards",
+		},
 	} :: { [number]: { tag: string, name: string, line: string } },
 	fade = 0.2,
 	appearAt = 0.4,

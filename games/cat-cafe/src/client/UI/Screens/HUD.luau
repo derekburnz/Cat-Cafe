@@ -164,6 +164,7 @@ export type HUD = {
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
 	isCatching: (self: HUD) -> boolean,
+	luckCardChanged: Signal.Signal, -- #4998: the Luck card opened or closed, so the toasts make room or come back
 	setMenuFolded: (self: HUD, folded: boolean) -> (),
 	gamepadMenu: (self: HUD) -> GuiButton?, -- #2872
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
@@ -983,6 +984,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tutorialEnabled = true
 	self._catching = false
 	self.catchingChanged = Signal.new()
+	self.luckCardChanged = Signal.new() -- #4998: the Luck card opened or closed
 	local hide: TextButton = Create("TextButton", {
 		Name = "Hide",
 		Text = "",
@@ -2426,6 +2428,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 		function()
 			self:_hideBoosts()
+		end,
+		function()
+			self.luckCardChanged:Fire() -- #4998
 		end
 	)
 	-- F92: the pals' bonus is a row of the boosts card a tap on the money opens. Derek 2026-11-13 ("the friend bonus is

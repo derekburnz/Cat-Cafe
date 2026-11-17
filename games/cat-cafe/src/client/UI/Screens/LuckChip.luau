@@ -116,10 +116,12 @@ function LuckChip.new(
 	root: Frame,
 	cardPosition: UDim2,
 	onShown: (shown: boolean) -> (),
-	onOpen: () -> ()
+	onOpen: () -> (),
+	onCard: (() -> ())? -- #4998: the card has opened or closed (the HUD has the toasts make room)
 ): LuckChip
 	local self = setmetatable({}, LuckChip) :: any
 	self._onOpen = onOpen
+	self._onCard = onCard
 	self._root = root
 	self._cardPosition = cardPosition
 	self._catalog = nil :: Types.Catalog?
@@ -482,6 +484,9 @@ function LuckChip.toggle(self: any)
 		self:hide()
 		return true
 	end, self._closeButton)
+	if self._onCard ~= nil then
+		self._onCard()
+	end
 end
 
 -- Beside the chip, in the root's design px (the root is scaled, so screen px divide by Scale.get(), as
@@ -524,8 +529,12 @@ function LuckChip._place(self: any)
 end
 
 function LuckChip.hide(self: any)
+	local was = self.card.Visible
 	self.card.Visible = false
 	self:_stopPity()
+	if was and self._onCard ~= nil then
+		self._onCard()
+	end
 	local done: (() -> ())? = self._padDone
 	self._padDone = nil
 	if done ~= nil then

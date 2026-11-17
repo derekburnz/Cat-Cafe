@@ -121,6 +121,7 @@ LiveFlags.KEYS = {
 	"palDay", -- #4913: the Pal Day gift, 30 golden fish and a spin for 5 minutes beside a pal, once a day (shared/Pals)
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 	"fxOneAdded", -- #5000: Effects' Workspace.DescendantAdded handlers share one connection (Effects/Context); off by default
+	"areaOnly", -- #5026: the areas' night fences stream like the rest of their area (shared/AreaOnly); off by default
 	"rankUpRightAway", -- #5031: Rank Up opens again until pressed, goal card ready and short lines, a stray waits (shared/RankUpRightAway); off by default
 	"parkRingEarly", -- #5034: the nearest Park stray is ringed early after a landing (Motion-FX, PR #5035); off by default
 	"parkTrailBack", -- #5045: the Park trail comes back 30 s into a rest even while walking (Motion-FX, PR #5047); off by default
@@ -166,6 +167,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	palDay = true, -- #4913: on after Growth's days-with-friends baseline and a restart (the save field has no bump)
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
 	fxOneAdded = true, -- #5000: on once Sync's Studio read shows the shared connection is no slower
+	areaOnly = true, -- #5026: on once Sync's before and after census shows the win
 	rankUpRightAway = true, -- #5031: on after Review-QA and Sync's Studio pass
 	parkRingEarly = true, -- #5034: on at least a UTC day apart from rankUpRightAway (Design)
 	parkTrailBack = true, -- #5045: on after Sync's look at a Park rest

@@ -6864,6 +6864,20 @@ Presets.palDay = {
 	palDelay = 0.45,
 	most = 12,
 	colour = Presets.palette.nosePink,
+	-- #4913 (Design-Agent, Wed Nov 18): while today's gift can still be earned (the server's `due` attribute on this
+	-- player and the palDay switch on), a small still pink heart over the nearest `most` pals within `range` studs, so
+	-- a player sees who to play beside. One BillboardGui each, `size` studs plus `pixels`, `up` studs over the head;
+	-- checked every `every` seconds. Gone once the gift is paid, the switch is off or the pal walks away.
+	heart = {
+		due = "PalDayDue",
+		most = 4,
+		range = 120,
+		every = 0.5,
+		size = 1.1,
+		pixels = 16,
+		up = 2.2,
+		glyph = "\u{2665}",
+	},
 }
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each

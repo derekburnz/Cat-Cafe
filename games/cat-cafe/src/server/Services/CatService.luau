@@ -1386,12 +1386,12 @@ do
 				end
 			end
 		end
-		if pick == nil then
+		local rarity = M.Tier3Path.spawnRarity(profile, need)
+		if pick == nil or rarity == nil then
 			return nil
 		end
 		parkSpawned[player] = clock
-		local stray =
-			spawnAt(M.Tier3Path.AREA, pick, M.Tier3Path.spawnRarity(need), nil, profile.collection)
+		local stray = spawnAt(M.Tier3Path.AREA, pick, rarity, nil, profile.collection)
 		-- (a kind they lack, unless they own every one of that rarity: then it is just another stray)
 		return if M.Tier3Path.fits(profile, stray.def, stray.variant, need) then stray else nil
 	end

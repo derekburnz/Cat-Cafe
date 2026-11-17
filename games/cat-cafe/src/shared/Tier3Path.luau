@@ -15,11 +15,14 @@
 --   fits(profile, def, variant, need) -> boolean   whether a stray may be the one that waits for that need
 --   goalLine(profile, narrow?) -> string?      "Catch 2 more new kinds" ("Catch 2 new kinds" on a phone), "Catch 1
 --                                              more Rare", or nil
+--   spawnRarity(profile, need) -> Rarity?      the rarity of a stray to bring in, or nil when no Park kind fits
 --   topUpFor(profile, on) -> number            the welcome gift to pay now, else 0
+--   giftLine(gift) -> string                   the gift's toast
 
 local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Economy = require(script.Parent.Economy)
+local ShortNumber = require(script.Parent.ShortNumber)
 local Types = require(script.Parent.Types)
 
 local Tier3Path = {}
@@ -92,9 +95,32 @@ function Tier3Path.fits(
 	return need == "kinds" or Catching.rarityAtLeast(def.rarity, Tier3Path.RARITY)
 end
 
--- The rarity of the stray brought in when no fitting one is near: a Common for kinds, a Rare for the Rares.
-function Tier3Path.spawnRarity(need: Need): Types.Rarity
-	return if need == "rare" then Tier3Path.RARITY else "Common"
+-- Whether a plain Park kind of `rarity` that fits `need` is still to catch.
+local function lacks(profile: Types.PlayerProfile, rarity: Types.Rarity, need: Need): boolean
+	for _, def in Catalog.cats do
+		if def.rarity == rarity and Tier3Path.fits(profile, def, "base", need) then
+			return true
+		end
+	end
+	return false
+end
+
+-- The rarity of the stray brought in when no fitting one is near: a Common for kinds, a Rare for the Rares. Review-QA
+-- on #5049: with every Park Common owned the kinds ask a Rare (it counts as a new kind too), and with no fitting Park
+-- kind left, nil (no stray is brought in; a spawned one could never fit and only filled the near points).
+function Tier3Path.spawnRarity(profile: Types.PlayerProfile, need: Need): Types.Rarity?
+	if need == "kinds" and lacks(profile, "Common", need) then
+		return "Common"
+	end
+	if lacks(profile, Tier3Path.RARITY, need) then
+		return Tier3Path.RARITY
+	end
+	return nil
+end
+
+-- The welcome gift's toast, coins with commas: "Welcome gift: +$15,000 toward Tier 3".
+function Tier3Path.giftLine(gift: number): string
+	return "Welcome gift: +$" .. ShortNumber.commas(gift) .. " toward Tier 3"
 end
 
 function Tier3Path.goalLine(profile: Types.PlayerProfile, narrow: boolean?): string?

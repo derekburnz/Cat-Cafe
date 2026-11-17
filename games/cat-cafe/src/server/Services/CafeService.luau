@@ -1769,7 +1769,7 @@ function CafeService.tier3ReadyTopUp(player: Player, profile: Profile)
 		gift,
 		{ tostring((Catalog.getTier(3) :: Types.TierDef).cost) }
 	)
-	Net.toast(player, string.format("Welcome gift: +$%d toward Tier 3", gift), "good")
+	Net.toast(player, Tier3Path.giftLine(gift), "good")
 end
 
 -- #4674 (Derek 2026-11-16: "give more starter money ... if you the 2nd cat safe it should be ready for rankup and park

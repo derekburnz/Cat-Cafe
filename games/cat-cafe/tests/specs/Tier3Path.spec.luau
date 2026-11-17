@@ -97,8 +97,19 @@ return function()
 				if legendary ~= nil then
 					expect(Tier3Path.fits(profile, legendary, "base", "rare")).to.equal(false)
 				end
-				expect(Tier3Path.spawnRarity("kinds")).to.equal("Common")
-				expect(Tier3Path.spawnRarity("rare")).to.equal("Rare")
+				local fresh = save(2, 0, 0)
+				expect(Tier3Path.spawnRarity(fresh, "kinds")).to.equal("Common")
+				expect(Tier3Path.spawnRarity(fresh, "rare")).to.equal("Rare")
+				-- every Park Common owned: the kinds ask a Rare; every Park Rare owned too: nothing to bring in
+				for _, def in kinds("Common", "park") do
+					fresh.collection[def.id] = 1
+				end
+				expect(Tier3Path.spawnRarity(fresh, "kinds")).to.equal("Rare")
+				for _, def in kinds("Rare", "park") do
+					fresh.collection[def.id] = 1
+				end
+				expect(Tier3Path.spawnRarity(fresh, "kinds")).to.equal(nil)
+				expect(Tier3Path.spawnRarity(fresh, "rare")).to.equal(nil)
 			end
 		)
 
@@ -130,6 +141,7 @@ return function()
 				expect(Tier3Path.topUpFor(near, true)).to.equal(500)
 				local rich = save(tier3.distinctCats - 2, 2, tier3.cost + 1)
 				expect(Tier3Path.topUpFor(rich, true)).to.equal(0)
+				expect(Tier3Path.giftLine(15000)).to.equal("Welcome gift: +$15,000 toward Tier 3")
 				met.stats.tier3TopUp = 100
 				expect(Tier3Path.topUpFor(met, true)).to.equal(0)
 				expect(Tier3Path.topUpFor(save(2, 0, 0), true)).to.equal(0)

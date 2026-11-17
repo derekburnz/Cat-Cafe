@@ -85,6 +85,7 @@ local EXACT: { [string]: boolean } = {
 	CatCafe_Alley_StringLightsWide = true,
 	CatCafe_Alley_TrashBin = true,
 	CatCafe_Alley_TrashCan = true,
+	CatCafe_Castle_IndexBoard = true, -- #5026
 	CatCafe_Desert_IndexBoard = true,
 	CatCafe_Neighbourhood_IndexBoard = true,
 	CatCafe_Park_Bench = true,
@@ -110,6 +111,7 @@ local EXACT: { [string]: boolean } = {
 	CatCafe_Square_BuntingShort = true,
 	CatCafe_Square_BuntingSide = true,
 	CatCafe_Square_DecorStand = true,
+	CatCafe_Square_FishFountain = true, -- #5026: the admin fountain, AdminDropService clones it
 	CatCafe_Square_Fountain = true,
 	CatCafe_Square_Garden = true,
 	CatCafe_Square_GardenEnd = true,
@@ -130,8 +132,12 @@ local EXACT: { [string]: boolean } = {
 	CatCafe_Street_FishMarket = true,
 	CatCafe_Street_SpinWheel = true,
 	CatCafe_Street_ThanksBoard = true,
+	-- #5026: WorldBuilder places the arcade cabinet and the feedback post box; clients read the placed model by tag
+	CatCafe_Town_ArcadeCabinet = true,
 	CatCafe_Town_DayCart = true,
+	CatCafe_Town_FeedbackStand = true,
 	CatCafe_Town_LeaderboardRow = true,
+	CatCafe_WaterPark_IndexBoard = true, -- #5026
 	CatCafe_Woods_IndexBoard = true,
 }
 

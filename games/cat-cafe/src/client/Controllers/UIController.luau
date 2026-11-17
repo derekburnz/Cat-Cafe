@@ -2375,10 +2375,12 @@ local function wireIntents()
 		local autoRank: any = UI.autoRank
 		if rankWindow.open and name ~= "RankUp" then
 			rankWindow.open = false
+			-- Growth's read (2026-11-17): a close says how, its X, B, another window opening over it, or other
+			local via = if name ~= nil then "switch" else (UI :: any).closeVia()
 			Net.fire(
 				"TelemetryReport",
 				"rank_up_end",
-				if rankWindow.pressed then "pressed" else "closed"
+				if rankWindow.pressed then "pressed" else "closed_" .. via
 			)
 			if rankWindow.pressed then
 				autoRank.pressed[rankWindow.tier] = true

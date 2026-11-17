@@ -1190,7 +1190,9 @@ function UI.init(config: Types.InitConfig)
 		fly = function()
 			UI.cannon.flyToPark() -- #2915
 		end,
-		close = closeModal,
+		close = function()
+			modalInstance:close("x") -- Growth's #5031 read: rank_up_window tells the X from other closes
+		end,
 		perks = function()
 			-- #2687: "Your perks" over the window
 			if UI.perks.card then
@@ -1702,6 +1704,10 @@ function UI.init(config: Types.InitConfig)
 			end
 		end)
 	end)
+	-- How the last window closed (Modal.lastVia): "x", "back" or "other" (#5031)
+	UI.closeVia = function(): string
+		return modalInstance:lastVia()
+	end
 	modalInstance.changed:Connect(function(name: string?)
 		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
@@ -1986,7 +1992,7 @@ function UI.init(config: Types.InitConfig)
 						if nav.on() then
 							modalInstance:back()
 						else
-							modalInstance:close()
+							modalInstance:close("back")
 						end
 						return
 					end

@@ -1741,6 +1741,13 @@ function UI.init(config: Types.InitConfig)
 			pills:setQuiet(active)
 		end
 	end)
+	-- #4998: the open Luck card is one of the boxes below; the stack (and the rest banner pinned in it) moves aside
+	-- as it opens and comes back as it closes, a frame later so the card has its place
+	hudInstance.luckCardChanged:Connect(function()
+		task.defer(function()
+			toastsInstance:replace()
+		end)
+	end)
 	toastsInstance:avoid(
 		function() -- #2338: clear of the HUD's menu column and goal card on a phone
 			return hudInstance:toastAvoid()
@@ -2579,6 +2586,15 @@ task.defer(function()
 			return hold.held
 				or hold.tutorial
 				or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
+		end)
+	end
+	-- #4877: in the walk-through nothing of an admin event is on screen at all, the strip and the tint too
+	local hideWhen: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).hideWhen
+		else nil
+	if type(hideWhen) == "function" then
+		(hideWhen :: (() -> boolean) -> ())(function()
+			return UI.firstCat.tutorial
 		end)
 	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"
@@ -11659,7 +11675,8 @@ do
 				eventLines,
 				eventKind,
 				EventLogic.strip(view, seen, now),
-				AdminEventLogic.stripLine(adminView, now)
+				-- #4877: no admin timer on the chip or strip in the walk-through
+				AdminEventLogic.stripLine(if UI.firstCat.tutorial then nil else adminView, now)
 			)
 			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))

@@ -203,7 +203,7 @@ function BulbChase.start()
 	for _, descendant in Workspace:GetDescendants() do
 		consider(descendant)
 	end
-	Workspace.DescendantAdded:Connect(function(descendant: Instance)
+	Context.onWorkspaceAdded(function(descendant: Instance)
 		local parent = descendant.Parent
 		local known: Row? = if parent ~= nil then rows[parent] else nil
 		if known ~= nil and known.on and descendant:IsA("BasePart") then

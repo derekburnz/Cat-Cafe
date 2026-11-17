@@ -36,6 +36,7 @@ local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
 local AdminFlashLogic = require(script.Parent.AdminFlashLogic)
+local AdminHide = require(script.Parent.AdminHide)
 local Context = require(script.Parent.Context)
 local EventBanner = require(script.Parent.EventBanner)
 local Net = require(script.Parent.Parent.Net)
@@ -113,6 +114,17 @@ end
 -- still draws under every window.
 function AdminFlash.quietWhen(probe: () -> boolean)
 	quietProbe = probe
+end
+
+-- #4877 (Derek 2026-11-16: "no admin events ui or anything on screen for people in tutorial steps"): `probe()` says
+-- whether this player is in the walk-through (the UI's UI.firstCat.tutorial). While it is, nothing of an admin event
+-- shows: no splash, no strip, no tint, no drift (AdminHide, which AdminAir reads too). With none set, all shows.
+function AdminFlash.hideWhen(probe: () -> boolean)
+	AdminHide.set(probe)
+end
+
+function AdminFlash.hidden(): boolean
+	return AdminHide.on()
 end
 
 local function quiet(): boolean
@@ -464,9 +476,10 @@ local function frame()
 		local spec = p.looks[AdminFlashLogic.lookOf(current) or ""]
 		burst(made, if spec ~= nil then spec.top else p.gold)
 	end
-	setLook(if running then AdminFlashLogic.lookOf(current) else nil)
+	local away = AdminFlash.hidden() -- #4877: the walk-through
+	setLook(if running and not away then AdminFlashLogic.lookOf(current) else nil)
 
-	local hidden = TradeUnlock.blocked() or TradeUnlock.playing()
+	local hidden = TradeUnlock.blocked() or TradeUnlock.playing() or away
 	-- #4953 (Derek, #4877: no admin event UI in the walk-through or the first 5 minutes): while the UI holds the
 	-- screen quiet, the low strip hides too, and comes back as the hold ends (the splash does not replay)
 	local calm = quiet()

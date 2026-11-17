@@ -505,7 +505,7 @@ function Rally.start()
 	for _, descendant in Workspace:GetDescendants() do
 		considerPennant(descendant)
 	end
-	Workspace.DescendantAdded:Connect(considerPennant)
+	Context.onWorkspaceAdded(considerPennant)
 	RallyBoard.start()
 	task.spawn(function()
 		while true do

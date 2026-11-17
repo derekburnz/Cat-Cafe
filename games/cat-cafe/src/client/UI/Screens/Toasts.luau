@@ -78,6 +78,7 @@ export type Toasts = {
 	isBusy: (self: Toasts) -> boolean,
 	isHeld: (self: Toasts) -> boolean,
 	pin: (self: Toasts, piece: GuiObject) -> (), -- #3701: the rest banner, kept at the head of the stack
+	replace: (self: Toasts) -> (), -- #4998: place the stack again now (what it keeps clear of has moved)
 	lastShown: (self: Toasts) -> number?,
 	destroy: (self: Toasts) -> (),
 }
@@ -1014,6 +1015,12 @@ end
 
 -- #3701: a piece that is not a toast (the cafe rest banner) at the head of the stack, so it sits top centre, clear of
 -- the HUD, and the toasts line up under it. Its own Visible decides whether it takes room.
+-- #4998: the stack places itself only as a toast is pushed, so a pinned piece (the rest banner) stayed under a card
+-- that opened after it. Whoever moves one of the `avoid` boxes calls this.
+function Toasts.replace(self: any)
+	self:_place()
+end
+
 function Toasts.pin(self: any, piece: GuiObject)
 	piece.LayoutOrder = 0
 	piece.Parent = self._stack

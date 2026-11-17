@@ -14,3 +14,7 @@ One wordless picture per `LoadingNews` entry, 576x248 (twice the card's 288x124 
 | CatCafe_LoadingNews_harvest.png | (Harvest Hollow, Nov 25) | its poster art |
 
 Rebuild: `UI=<repo>/assets/cat-cafe CUTS=<project files>/Model-Agent/home-thumbs-2026-11-17 OUT=<dir> python3 src/ln.py`.
+
+Uploaded 2026-11-17 15:28 UTC (group owned): worlds 131886724226249, rift 87565789039061, outfits 118093955309484,
+secret 75023525829478, devices 126122434701900, harvest 115151755242705. The devices and harvest ids go on their
+LoadingNews entries when those cards are added.

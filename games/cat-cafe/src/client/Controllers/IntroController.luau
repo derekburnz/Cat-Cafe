@@ -817,6 +817,10 @@ local function findWheel(): Model?
 end
 
 local function hasCodesCat(): boolean
+	-- shut below its tier (shared/StationTiers, hidden by StationLockController): no shot of an empty spot
+	if (require(script.Parent.StationLockController) :: any).locked("CodesCat") then
+		return false
+	end
 	for _, station in CollectionService:GetTagged("CodesCat") do
 		if station:IsDescendantOf(Workspace) then
 			return true

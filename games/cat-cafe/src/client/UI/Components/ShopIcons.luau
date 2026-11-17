@@ -343,10 +343,11 @@ local IDS: { [string]: string } = {
 	Icon_Store_PackSpaceArt = "rbxassetid://130035950104996",
 	Icon_Store_Money2x = "rbxassetid://106785644491188",
 	-- #4246: Today's Deal pictures (Model-Agent, Nov 15): golden fish, Trait Tokens, golden crates, the Golden Haul
-	Icon_Deal_Fish = "rbxassetid://101203726051045",
-	Icon_Deal_Tokens = "rbxassetid://78569830646639",
-	Icon_Deal_Crates = "rbxassetid://91039633847739",
-	Icon_Deal_Haul = "rbxassetid://136852623730951",
+	-- #5120: re-uploaded group owned (Creampuff Games) on Nov 17; the Nov 15 copies were on Derek's own account, not the group's
+	Icon_Deal_Fish = "rbxassetid://77754066053264",
+	Icon_Deal_Tokens = "rbxassetid://120509351245250",
+	Icon_Deal_Crates = "rbxassetid://109305006896317",
+	Icon_Deal_Haul = "rbxassetid://127676563860297",
 	Icon_Store_Money3x = "rbxassetid://124737817716796",
 	Icon_Store_Money4x = "rbxassetid://103246165862005",
 	Icon_Store_LongNap = "rbxassetid://127782122363076",

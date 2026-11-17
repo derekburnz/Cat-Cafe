@@ -181,16 +181,21 @@ end
 -- The area income multiplier a cat earns with for an owner at `tier` (data-model 4b, v0.13.16 F86). Its own area's
 -- incomeMultiplier (a spare cat's `incomeArea`), or for a KeepUpRarities cat the larger of that and the multiplier
 -- of the area opened at the owner's tier minus KeepUpStepsBehind (never below the first area's). An exclusive
--- (shop-only) cat takes the newest area's at the owner's tier, the largest of the areas opened by then (F95). Nil
--- tier: its own.
+-- (shop-only) cat takes the newest area's at the owner's tier, the largest of the areas opened by then (F95), and so
+-- do a Secret and a harvest cat (#4251, on its `earnsLike` rarity's rate). Nil tier: its own.
+local function rarityRate(def: Types.CatDef): number
+	return Catalog.rarities[def.earnsLike or def.rarity].incomePerSecond
+end
+
 function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
-	local base = Catalog.rarities[def.rarity].incomePerSecond
+	local base = rarityRate(def)
 	local own = if base > 0 then def.incomePerSecond / base else 1
 	if tier == nil then
 		return own
 	end
 	local opened: number
-	local newest = def.exclusive == true or def.rarity == "Secret" -- #3470: a Secret earns at the owner's best area
+	-- #3470: a Secret earns at the owner's best area; #4251: so does a harvest cat
+	local newest = def.exclusive == true or def.rarity == "Secret" or def.area == "harvest"
 	if newest then
 		opened = math.floor(tier)
 	elseif Config.KeepUpRarities[def.rarity] == true then
@@ -215,7 +220,7 @@ end
 local function baseRate(def: Types.CatDef, tier: number?): number
 	local own = def.incomePerSecond
 	local multiplier = CatStats.areaMultiplier(def, tier)
-	local base = Catalog.rarities[def.rarity].incomePerSecond
+	local base = rarityRate(def)
 	if base <= 0 or multiplier * base <= own then
 		return own
 	end

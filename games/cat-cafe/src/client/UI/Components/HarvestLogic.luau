@@ -6,6 +6,9 @@
 --   owns(state, id)            bought at the Stall
 --   action(state, item)        the item's button: Owned, Opens at Tier 2, or the pumpkin price (grey when short)
 --   keepLine(rarity, area)     "Yours to keep · earns like a Woods Epic"
+--   newestArea(areas, tier)    #5025: the name of the area a kept harvest cat earns in (the best opened by `tier`,
+--                              as CatStats.areaMultiplier picks it), nil without one
+--   CARD_LINE                  #5025: the cat hover card's short line ("Harvest · yours to keep"), as its sub line is narrow
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -79,6 +82,27 @@ function HarvestLogic.keepLine(rarity: string, area: string?): string
 	local first = string.lower(string.sub(words, 1, 1))
 	local article = if string.find("aeiou", first, 1, true) then "an" else "a"
 	return ("Yours to keep · earns like %s %s"):format(article, words)
+end
+
+HarvestLogic.CARD_LINE = "Harvest · yours to keep"
+
+function HarvestLogic.newestArea(areas: unknown, tier: unknown): string?
+	if type(areas) ~= "table" or type(tier) ~= "number" then
+		return nil
+	end
+	local best: any = nil
+	for _, area in areas :: { any } do
+		if
+			type(area) == "table"
+			and type(area.tier) == "number"
+			and area.tier <= tier
+			and type(area.name) == "string"
+			and (best == nil or (area.incomeMultiplier or 0) > (best.incomeMultiplier or 0))
+		then
+			best = area
+		end
+	end
+	return if best ~= nil then best.name else nil
 end
 
 -- Spec section 1: the arch sign's small line under HARVEST HOLLOW. `now` is the server's time, `opensText` the

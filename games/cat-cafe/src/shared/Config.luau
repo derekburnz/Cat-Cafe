@@ -1073,6 +1073,7 @@ local Config = {
 	-- secret tier 9 is 10x the tier 10 mythic"): an area's Secret earns this many times the Mythical of the area one
 	-- tier past its home (Catalog's secret). Tier 10's next area is taken as three times the Castle, the ladder's step.
 	SecretNextMythicTimes = 10,
+	HarvestStallRange = 14, -- #4251: the Harvest Stall's prompt; BuyHarvest from within this + 4 studs
 	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
 	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds

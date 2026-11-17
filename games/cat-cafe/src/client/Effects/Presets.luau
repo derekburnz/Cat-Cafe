@@ -4041,6 +4041,17 @@ Presets.harvestFx = {
 	regrow = "catchSparkle",
 	regrowCount = 5,
 	regrowColour = Presets.palette.leaf,
+	-- a regrow spot (#4251 spec section 3): a soil mound with a green shoot where a picked pumpkin stood, and a thin
+	-- ring `sproutRing` studs across its half that fills toward RegrowAt; at most `sproutMost` spots, plain parts
+	regrowAttribute = "RegrowAt",
+	sproutMost = 12,
+	sproutRing = 1.6,
+	sproutRingColour = Color3.fromRGB(255, 240, 210),
+	sproutRingTransparency = 0.6,
+	sproutFillTransparency = 0.35,
+	sproutMound = Vector3.new(1.6, 0.5, 1.6),
+	sproutSoil = Color3.fromRGB(110, 78, 52),
+	sproutShoot = Vector3.new(0.25, 0.9, 0.25),
 	glint = "coinGlint",
 	glintCount = 2,
 	glintEvery = 5,
@@ -6469,11 +6480,13 @@ Presets.stationCut = {
 			tag = "ArcadeCabinet",
 			name = "The Cat Arcade",
 			line = "Play Mouse Dash for daily prizes",
+			locked = true, -- StationTiers: hidden below its tier, shown in full after the cut
 		},
 		[4] = {
 			tag = "MysticPool",
 			name = "The Mystic Pool",
 			line = "Give each cat a trait that helps it",
+			locked = true,
 		},
 		[8] = {
 			tag = "FusionObservatory",
@@ -6490,7 +6503,7 @@ Presets.stationCut = {
 			name = "Dragon Keep",
 			line = "Grow Cinder the dragon for bonus cards",
 		},
-	} :: { [number]: { tag: string, name: string, line: string } },
+	} :: { [number]: { tag: string, name: string, line: string, locked: boolean? } },
 	fade = 0.2,
 	appearAt = 0.4,
 	grow = 0.6,
@@ -6506,6 +6519,11 @@ Presets.stationCut = {
 	farthest = 70,
 	rise = 0.35,
 	yaw = 35,
+	-- Sync's run: the camp stations' area gates stood in the way, so these turns from the front are tried in order and
+	-- the first with the camera's whole distance clear wins
+	views = { 35, -35, 0, 70, -70, 110, -110, 180 },
+	clearance = 2, -- studs the camera keeps short of what is in the way when no view is clear
+	closest = 8, -- never nearer than this
 	faceSign = 1,
 	lookUp = 0.1,
 	displayOrder = 11, -- over ContextCut's 10
@@ -6993,6 +7011,8 @@ Presets.pawTrail = {
 	faintest = 0.4, -- the comet's tail fades a print no further than this (GuideTrail's tail is 0.75)
 	rim = { colour = Color3.fromRGB(92, 58, 34), pixels = 2, transparency = 0.45 }, -- cocoa, for pale floors
 	turn = 0,
+	pool = 48, -- Design 2026-11-17: prints built ahead, one a frame (GuideTrail's MAX_DOTS), and kept for reuse
+	buildsPerFrame = 4, -- past the pool, at most this many new prints in one frame
 	toes = {
 		{ 0.2, 0.36, 0.2, 0.26 },
 		{ 0.39, 0.2, 0.2, 0.28 },

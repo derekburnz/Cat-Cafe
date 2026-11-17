@@ -43,6 +43,7 @@ local FishStoreService = require(script.Parent.Services.FishStoreService)
 local FusionService = require(script.Parent.Services.FusionService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
+local HarvestService = require(script.Parent.Services.HarvestService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroModeService = require(script.Parent.Services.IntroModeService)
@@ -155,6 +156,7 @@ TraitService.start() -- #3196: the Mystic Pool, refused while the `traits` switc
 MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket's place while the switch is on
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 FishStoreService.start() -- #4055: Store passes for golden fish
+HarvestService.start() -- #4251: Harvest Hollow's Stall, Pumpkin Patch and arrival
 TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
 DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory

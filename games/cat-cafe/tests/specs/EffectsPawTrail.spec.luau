@@ -45,6 +45,9 @@ return function()
 			expect(p.size < 3.5).to.equal(true)
 			expect(p.offset * 2 < p.size).to.equal(true)
 			expect(#p.toes).to.equal(4)
+			-- prints are built ahead for a whole trail (GuideTrail's MAX_DOTS is 48) and a few a frame past that
+			expect(p.pool >= 48).to.equal(true)
+			expect(p.buildsPerFrame >= 1 and p.buildsPerFrame <= 8).to.equal(true)
 			expect(p.faintest < 0.75).to.equal(true) -- clearer than GuideTrail's dimmest dot
 			for _, toe in p.toes do
 				expect(toe[1] - toe[3] / 2 >= 0).to.equal(true)

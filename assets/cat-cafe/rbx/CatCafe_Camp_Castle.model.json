@@ -2457,9 +2457,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         293.0,
+         0.0,
          -0.3,
-         -11.0
+         0.0
         ],
         "orientation": [
          [
@@ -3558,9 +3558,9 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
+       -11.0,
        0.0,
-       0.0,
-       0.0
+       -293.0
       ],
       "orientation": [
        [

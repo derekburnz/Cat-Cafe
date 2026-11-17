@@ -53,6 +53,33 @@ return function()
 			expect(rest.active).to.equal(0)
 		end)
 
+		it(
+			"comes back after BACK_AFTER seconds while walking, only with the switch on (#5045)",
+			function()
+				local rest = ParkTrailLogic.rest()
+				ParkTrailLogic.step(rest, ParkTrailLogic.REST_AFTER, true)
+				expect(rest.resting).to.equal(true)
+				-- switch off: walking keeps it resting however long
+				expect(ParkTrailLogic.step(rest, ParkTrailLogic.BACK_AFTER * 4, true)).to.equal(
+					false
+				)
+				local on = ParkTrailLogic.rest()
+				ParkTrailLogic.step(on, ParkTrailLogic.REST_AFTER, true)
+				expect(ParkTrailLogic.step(on, ParkTrailLogic.BACK_AFTER - 1, true, true)).to.equal(
+					false
+				)
+				expect(ParkTrailLogic.step(on, 1, true, true)).to.equal(true)
+				expect(on.active).to.equal(0)
+				expect(on.off).to.equal(0)
+				-- and rests again after its full time
+				expect(ParkTrailLogic.step(on, ParkTrailLogic.REST_AFTER - 1, true, true)).to.equal(
+					true
+				)
+				expect(ParkTrailLogic.step(on, 1, true, true)).to.equal(false)
+				expect(on.off).to.equal(0)
+			end
+		)
+
 		it("gets its full time again at a restart", function()
 			local rest = ParkTrailLogic.rest()
 			ParkTrailLogic.step(rest, ParkTrailLogic.REST_AFTER, false)

@@ -162,9 +162,17 @@ local function tick(dt: number)
 		UI.parkTrail.set(nil, goal)
 		return
 	end
-	if not ParkTrailLogic.step(rest, dt, moving()) then
+	-- #5045: under parkTrailBack a rest ends after BACK_AFTER seconds even while the player keeps walking
+	local back = ReplicatedStorage:GetAttribute(
+		LiveFlags.ATTRIBUTE_PREFIX .. ParkTrailLogic.BACK_FLAG
+	) == true
+	local wasResting = rest.resting
+	if not ParkTrailLogic.step(rest, dt, moving(), back) then
 		UI.parkTrail.set(nil, goal)
 		return
+	end
+	if wasResting and back then
+		report(ParkTrailLogic.BACK)
 	end
 	local target = if phase == "catch"
 		then nearestStray(from.Position)

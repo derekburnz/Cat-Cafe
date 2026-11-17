@@ -137,10 +137,19 @@ def _flags(g, x0, x1, z0, z1, size, seed=0, gaps=7):
             g.box_base((x, y, 0), (sx - 0.25, sz - 0.25, 0.08 + 0.02 * ((i + j) % 2)), sw, bevel=False)
 
 
+# The light build (#5026: fewer instances for a phone to load on landing). Off by default, so the camp, the nook and
+# the growth pieces that borrow from this file keep the old look; build_set turns it on for the set only. A squashed
+# ball exports as a Part and a SpecialMesh, so a moss cushion with its tuft is 4 instances: light leaves the tuft
+# out. A rubble heap keeps one chip of three.
+LIGHT = False
+
+
 def _moss(d, x, y, z, w, dd, k=0):
     """A flat cushion of moss about w x dd sitting on a top face at height z (Builder space): grey-green with a lighter
     tuft on it, now and then a darker one."""
     d.sphere((x, y, z), 0.5, MOSS, segments=6, rings=3, scale=(w, dd, 0.36))
+    if LIGHT:
+        return
     d.sphere((x + 0.22 * w * (1 - 2 * (k % 2)), y - 0.15 * dd, z + 0.06), 0.5, (MOSS_LIGHT, MOSS_DARK)[k % 3 == 2],
              segments=6, rings=3, scale=(0.45 * w, 0.5 * dd, 0.3))
 
@@ -979,7 +988,8 @@ def rubble(mat, s_=1.0, k=0):
                                              (-1.0, 0.6, 1.0, 1.0, 0.6, 0.4), (0.3, 0.2, 0.9, 0.8, 0.5, 1.3))):
         b.box_base((x * s_, y * s_, (0.85 if j == 3 else 0.0) * s_), (w * s_, dd * s_, h * s_),
                    (STONE, STONE_LIGHT, STONE, STONE_DARK)[j], bevel=False, rot=(a, "Z"))
-    for j, (x, y, a) in enumerate(((-1.45, -0.3, 0.3), (1.5, 0.95, 1.1), (0.2, 0.95, 0.7))):     # chips, inside the heap's reach
+    chips = ((-1.45, -0.3, 0.3), (1.5, 0.95, 1.1), (0.2, 0.95, 0.7))[:1 if LIGHT else 3]
+    for j, (x, y, a) in enumerate(chips):                                         # chips, inside the heap's reach
         b.box_base((x * s_, y * s_, 0), (0.42 * s_, 0.36 * s_, 0.24 * s_ + 0.01 * j), STONE_LIGHT, bevel=False,
                    rot=(a, "Z"))
     _moss(d, 0.3 * s_, 0.2 * s_, 1.35 * s_, 0.9 * s_, 0.8 * s_, k)
@@ -1059,6 +1069,17 @@ def fallen_lintel(mat, L=16.0):
 
 # --------------------------------------------------------------------------------------------------- set --
 def build_set(mat):
+    """The set, in the light build (LIGHT): the old look stays the default for every other builder."""
+    global LIGHT
+    old = LIGHT
+    LIGHT = True
+    try:
+        return _build_set(mat)
+    finally:
+        LIGHT = old
+
+
+def _build_set(mat):
     s = Set(NAME)
     keep = []
 

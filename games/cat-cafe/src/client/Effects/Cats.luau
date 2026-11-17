@@ -18,11 +18,13 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Bellhop = require(script.Parent.Bellhop)
 local Context = require(script.Parent.Context)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Pose = require(script.Parent.Pose)
@@ -735,9 +737,15 @@ local function step(dt: number)
 	local hiss = motion.hiss
 	local gait = motion.gait
 	local pant = motion.pant
+	-- #4601: with strayWalkSlow on the server steps a walk 10 times a second, and each step is eased in
+	local ease = if ReplicatedStorage:GetAttribute(
+			LiveFlags.ATTRIBUTE_PREFIX .. motion.stepEase.flag
+		) == true
+		then motion.stepEase.seconds
+		else nil
 	for model, entry in active do
 		local rig = entry.rig
-		if not Pose.read(rig) then
+		if not Pose.read(rig, ease) then
 			drop(model, entry)
 			continue
 		end

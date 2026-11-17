@@ -133,6 +133,7 @@ return function()
 			expect(profile.stats.trades).to.equal(0)
 			expect(profile.stats.tradesToday :: any).to.deepEqual({ day = 0, count = 0 })
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
+			expect(profile.palDay :: any).to.deepEqual({ day = 0 }) -- #4913, no version
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
 			expect(next(profile.buffs)).never.to.be.ok()

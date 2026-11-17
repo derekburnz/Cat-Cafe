@@ -2982,6 +2982,28 @@ local function wireServerEvents()
 			(hook :: ({ number }) -> ())(userIds)
 		end
 	end)
+	-- #4913: today's Pal Day gift was paid (PalDayService, palDay switch): the loot card lists it, never blocking
+	Net.on("PalDayPaid", function(fish: number, spins: number)
+		local loot: unknown = (UI :: any).loot
+		local show: unknown = if type(loot) == "table" then (loot :: any).show else nil
+		if type(show) ~= "function" then
+			return
+		end
+		local items = {}
+		if type(fish) == "number" and fish > 0 then
+			table.insert(items, { kind = "fish", count = math.floor(fish) })
+		end
+		if type(spins) == "number" and spins > 0 then
+			table.insert(items, { kind = "spin", count = math.floor(spins) })
+		end
+		if #items > 0 then
+			(show :: (unknown, number?, string?) -> ())(
+				{ items = items },
+				nil,
+				"Pal Day gift! Again tomorrow."
+			)
+		end
+	end)
 	-- F92 (playing-together.md section 5): a player arrived at a pal's front door. Moments.PalArrived on every client
 	-- for the wave. #4702 (Derek 2026-11-16): no friend location bubble or "is in the" toast any more, and the server
 	-- no longer sends a joiner to the pal's door, so this only answers a server still on an older build.

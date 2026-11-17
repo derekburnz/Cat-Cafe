@@ -342,6 +342,9 @@ export type CustomEvent =
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"
+	-- #4913: today's Pal Day gift paid, value 1 (how the first pal was linked: friend, invite, follow or private; tier).
+	-- Roblox's own Platform dimension splits it by device
+	| "pal_day_claimed"
 	-- #3995 (friend-join-3995.md): a join through a friend with the palJoin switch on, value 1 (how: invite or follow;
 	-- new or returning; cafe next door yes or no)
 	| "pal_join"

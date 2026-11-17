@@ -5324,6 +5324,17 @@ Presets.rarityMark = {
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
+	-- #5034 Park phone leak (phones 37% never catch a cat in the Park, mostly from not finding one): with the switch
+	-- `flag` on and no `area` cat in the player's Index yet, the gems of that area's strays (their `Area`) show out to
+	-- `maxDistance` studs, `pixels` wide at the least, and draw over hedges and walls (AlwaysOnTop) past `onTopBeyond`
+	-- studs, so a stray across the Park reads on a phone. Everywhere else, and once a Park cat is caught, as before.
+	finder = {
+		flag = "parkFinder",
+		area = "park",
+		maxDistance = 160,
+		pixels = 40,
+		onTopBeyond = 30,
+	},
 	-- #2258 (Derek2 2026-11-07: "show new tag if it's a cat you don't own yet for people index hunting"): a NEW pill
 	-- over the gem of a cat not in your Index yet, in leaf green (no rarity uses it), `width` by `height` of the
 	-- gem's square, its foot `overlap` down over the gem's top corner (it pokes a little over the billboard's top)

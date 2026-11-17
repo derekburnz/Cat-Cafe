@@ -3916,11 +3916,9 @@ function UI.carryMarker.apply()
 	local leads = shown ~= nil
 		and shown.camp ~= nil
 		and ((state.tutorialStep or 0) < 2 or (state :: any).secondCatDone == false)
-	if leads then
-		marker:hide()
-	elseif shown and shown.camp then
+	if not leads and shown and shown.camp then
 		marker:show(shown.camp :: BasePart, "Bring it here", Theme.rarityColor(shown.rarity))
-	elseif shown and shown.door then
+	elseif not leads and shown and shown.door then
 		marker:show(shown.door :: BasePart, "Check in here", Theme.rarityColor(shown.rarity))
 	else
 		marker:hide()

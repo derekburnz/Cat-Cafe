@@ -61,6 +61,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
+local RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
@@ -401,6 +402,10 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			else nil,
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
+		-- #5031: Tier 2's cats still short after the first check-in, behind rankUpRightAway (the goal card's line)
+		rankUpShort = if LiveFlagService.on(RankUpRightAway.FLAG)
+			then RankUpRightAway.catsShort(profile)
+			else nil,
 		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666

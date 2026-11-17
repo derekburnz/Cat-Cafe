@@ -62,6 +62,7 @@ local PerfWatch = require(ReplicatedStorage.Shared.PerfWatch)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway)
 local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
@@ -376,10 +377,14 @@ export type CustomEvent =
 	| "first_window"
 	-- #1273: the Tutorial tile's red X, value 1, once a session; tutorialStep
 	| "tutorial_closed"
+	-- #5031: a Tier 1 Rank Up window ended, value 1, at most RankUpRightAway.WINDOWS_MAX a session; how it opened
+	-- (auto or button), how it ended (pressed, closed or left), device
+	| "rank_up_window"
 	-- #2915: the first Park landing's hint, value 1, each kind once a session; toast or ring (PARK_HINTS)
 	| "park_first_hint"
 	-- #3554: the walk to a first Park catch, value 1, each once a session; the tier (PARK_TRAIL)
 	| "park_gate_trail_shown"
+	| "park_trail_back" -- #5045: the walk to the Park came back after a rest (parkTrailBack)
 	| "park_entered_first"
 	| "park_first_catch"
 	-- #3556: once a session each, value 1: first time near a free stray, and the first in-reach glow; the device,
@@ -522,6 +527,8 @@ local REPORTS = {
 	"step",
 	"screen",
 	"tutorial_closed",
+	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
+	"rank_up_end", -- #5031: how that window ended, "pressed" or "closed" (rank_up_window)
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
 	"new_kind_trail", -- #3529: the five cats trail showed or was followed (shared/NewKind.REPORTS)
 	"bowl_step", -- #4674: a bowl first strip line shown, a shared/TutorialOrder.BOWL_STEPS key
@@ -586,6 +593,7 @@ local CATCH_REACH: { [string]: CustomEvent } = {
 -- #3554: the client's park_trail report to the event it logs (UI/Components/ParkTrailLogic)
 local PARK_TRAIL: { [string]: CustomEvent } = {
 	shown = "park_gate_trail_shown",
+	back = "park_trail_back", -- #5045
 	entered = "park_entered_first",
 	caught = "park_first_catch",
 }
@@ -661,6 +669,8 @@ type Session = {
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
 	catchReach: { [string]: boolean }, -- #3556: catch_reach logged this session, by kind
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
+	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
+	rankWindows: number, -- #5031: rank_up_window events logged this session
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -755,6 +765,17 @@ local function catsDistinct(profile: Profile): string
 		{ 4, 11, 19, 29 },
 		{ "1-4", "5-11", "12-19", "20-29", "30+" }
 	)
+end
+
+-- #5031: the Tier 1 Rank Up window open now ended (shared/RankUpRightAway): one rank_up_window, at most WINDOWS_MAX
+local function rankWindowEnd(player: Player, session: Session, outcome: string)
+	local how = session.rankWindow
+	session.rankWindow = nil
+	if how == nil or session.rankWindows >= RankUpRightAway.WINDOWS_MAX then
+		return
+	end
+	session.rankWindows += 1
+	Telemetry.custom(player, "rank_up_window", 1, { how, outcome, session.device or "unknown" })
 end
 
 local function tierText(profile: Profile): string
@@ -2650,6 +2671,21 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
 			end
 		end
+	elseif name == "rank_up_open" then
+		-- #5031: step 15 logs the moment the window opens, so one closed inside the screen report's 5 s counts too
+		local how = Guard.oneOf(rawValue, RankUpRightAway.HOWS)
+		if how ~= nil and Economy.tier(profile) == RankUpRightAway.TIER then
+			logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown)
+			if session.rankWindow ~= nil then
+				rankWindowEnd(player, session, "closed") -- (an end report lost on the way)
+			end
+			session.rankWindow = how
+		end
+	elseif name == "rank_up_end" then
+		local outcome = Guard.oneOf(rawValue, { "pressed", "closed" })
+		if outcome ~= nil and session.rankWindow ~= nil then
+			rankWindowEnd(player, session, outcome)
+		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then
 			session.tutorialClosed = true
@@ -2662,7 +2698,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			Telemetry.custom(player, "park_first_hint", 1, { kind })
 		end
 	elseif name == "park_trail" then
-		local kind = Guard.oneOf(rawValue, { "shown", "entered", "caught" })
+		local kind = Guard.oneOf(rawValue, { "shown", "entered", "caught", "back" })
 		local event = if kind ~= nil then PARK_TRAIL[kind] else nil
 		if kind ~= nil and event ~= nil and not session.parkTrail[kind] and profile.tier >= 2 then
 			session.parkTrail[kind] = true
@@ -2942,6 +2978,8 @@ local function onLoaded(player: Player, profile: Profile)
 		parkTrail = {},
 		catchReach = {},
 		rankSpot = {},
+		rankWindow = nil,
+		rankWindows = 0,
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",
@@ -3239,6 +3277,9 @@ local function onRelease(player: Player, profile: Profile)
 					else ""
 			),
 	})
+	if session.rankWindow ~= nil then
+		rankWindowEnd(player, session, "left") -- #5031: left with the Rank Up window open
+	end
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),
 		tierText(profile),

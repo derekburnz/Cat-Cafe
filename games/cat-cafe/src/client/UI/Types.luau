@@ -427,6 +427,11 @@ export type PartialState = {
 	newKindGoal: (number | false)?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
+	-- #5031 (switch rankUpRightAway): Tier 2's cats still short after the first check-in, for the goal card's "Catch 1
+	-- more cat to rank up"; false otherwise (UI.update skips a nil)
+	rankUpShort: (number | false)?,
+	-- #5031: the goal card's title when the rank up is ready (RankUpRightAway.READY_TITLE), false otherwise
+	rankUpTitle: (string | false)?,
 	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
 	traits: (SharedTypes.TraitsView | false)?,
 }

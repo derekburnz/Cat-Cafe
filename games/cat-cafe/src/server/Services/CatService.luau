@@ -64,6 +64,7 @@ local M = {
 	Payout = require(script.Parent.Payout),
 	Pity = require(ReplicatedStorage.Shared.Pity),
 	PlotService = require(script.Parent.PlotService),
+	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Potions = require(ReplicatedStorage.Shared.Potions),
 	RallyService = require(script.Parent.RallyService),
 	RareMomentService = require(script.Parent.RareMomentService),
@@ -1278,6 +1279,9 @@ do
 			waitFor(picked, player.UserId, pad)
 			waiting = picked
 		end
+		if not SecondCat.waiting(profile) then
+			return -- #5031: waiting for a Tier 2 cat (M.RankUpRightAway), not the second cat: no second cat steps
+		end
 		Second.step(player, profile, SecondCat.SHOWN)
 		local root = rootPosition(player)
 		if root ~= nil and SecondCat.followed(root, waiting.body.Position) then
@@ -1293,13 +1297,21 @@ do
 		end
 	end
 
-	-- Whether the rule runs for the player now: their save waits for its second cat, the areas are open and their hands
-	-- and Backpack are empty.
+	-- Whether the player's save waits for its second cat, or (#5031, switch rankUpRightAway) for the cat Tier 2 still
+	-- needs after the first check-in (the bowl cat was let go)
+	local function waitsForCat(profile: Types.PlayerProfile): boolean
+		return SecondCat.waiting(profile)
+			or M.RankUpRightAway.strayWaits(profile, M.LiveFlagService.on(M.RankUpRightAway.FLAG))
+	end
+	Second.waitsForCat = waitsForCat
+
+	-- Whether the rule runs for the player now: their save waits for a cat (waitsForCat), the areas are open and their
+	-- hands and Backpack are empty.
 	local function secondCatDue(player: Player): Types.PlayerProfile?
 		local profile = M.DataService.get(player)
 		if
 			profile == nil
-			or not SecondCat.waiting(profile)
+			or not waitsForCat(profile)
 			or carrying[player] ~= nil
 			or packed[player] ~= nil
 			or not M.ClockService.areasOpen()
@@ -2314,7 +2326,7 @@ local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
 end
 
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
-	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
+	if stray.waitsFor == player.UserId and Second.waitsForCat(profile) then
 		return true
 	end
 	-- #3662 (Derek 2026-11-12: "the first cat catch where it used to stop the circle and wait for you to click/guide

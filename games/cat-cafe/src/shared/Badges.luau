@@ -78,23 +78,6 @@ for _, def in Catalog.cats do
 	end
 end
 
--- #3618: any upgrade bought past where a new cafe starts (the first table is open from the start, #3660).
-local function boughtUpgrade(profile: Profile): boolean
-	for upgradeId, level in profile.upgradeLevels do
-		local def = Catalog.getUpgrade(upgradeId)
-		local start = if def ~= nil then def.startLevel else 0
-		if upgradeId == "tables" then
-			start = math.max(start, Config.StartTables)
-		elseif upgradeId == "lure_bowl" then
-			start = math.max(start, Config.StartBowls) -- #4097: the Bait bowl is open from the start too
-		end
-		if level > start then
-			return true
-		end
-	end
-	return false
-end
-
 local function pageComplete(profile: Profile): boolean
 	for areaId, size in pageSize do
 		if size > 0 and IndexRewards.progress(profile.collection, areaId) >= size then
@@ -220,7 +203,7 @@ local LIST: { Badge } = {
 	},
 	{
 		key = "secretFind", -- #5160
-		name = "Secret Find",
+		name = "Secret Finder",
 		description = "Find a Secret cat.",
 		earned = owns("Secret"),
 	},

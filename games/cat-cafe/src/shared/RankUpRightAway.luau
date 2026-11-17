@@ -14,7 +14,7 @@
 --   catsShort(profile) -> number        Tier 2's cats still to get, at Tier 1 after the first check-in, else 0
 --   strayWaits(profile, on) -> boolean  whether a stray waits for the player for that
 --   againDue(o) -> boolean              whether a closed Rank Up window opens again now
---   shortTitle(n) -> string             "Catch 1 more cat to rank up"
+--   shortTitle(n, narrow?) -> string    "Catch 1 more cat to rank up"; "Catch 1 more cat" on a phone's card
 
 local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
@@ -57,11 +57,11 @@ function RankUpRightAway.strayWaits(profile: Types.PlayerProfile, on: boolean): 
 	return on and RankUpRightAway.catsShort(profile) > 0
 end
 
-function RankUpRightAway.shortTitle(n: number): string
-	if n <= 1 then
-		return "Catch 1 more cat to rank up"
-	end
-	return string.format("Catch %d more cats to rank up", n)
+-- (Sync's 667 x 317 phone: the long line clipped on the goal card, so a phone's card drops "to rank up"; the
+-- "Opens Cozy Cafe" line under it says what the cat is for)
+function RankUpRightAway.shortTitle(n: number, narrow: boolean?): string
+	local cats = if n <= 1 then "Catch 1 more cat" else string.format("Catch %d more cats", n)
+	return if narrow then cats else cats .. " to rank up"
 end
 
 export type Again = {

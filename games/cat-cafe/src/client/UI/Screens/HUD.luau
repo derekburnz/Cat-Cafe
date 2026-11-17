@@ -5982,7 +5982,7 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 					:WaitForChild("Shared")
 					:WaitForChild("RankUpRightAway")
 			) :: any
-			local title: string = RankUpRightAway.shortTitle(short)
+			local title: string = RankUpRightAway.shortTitle(short, TOUCH) -- a phone's card: "Catch 1 more cat"
 			local opens = GoalLines.opens(self._nextTierName, TOUCH)
 			local lines: { string } = if opens then { opens } else {}
 			local progress: RankUp.Progress? = self._tierProgress

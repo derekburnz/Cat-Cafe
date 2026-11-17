@@ -39,6 +39,16 @@ type Turn = {
 
 local boards: { [Model]: boolean } = {} -- two-board signs, by sign
 local turns: { [Model]: Turn } = {} -- two-sided signs, by sign
+
+-- #5003 (Sync's Park flight read: DoorSign was 3 to 4.4 ms of each 4,000-instance streaming burst): the answer for
+-- each parent, kept until a sign is taken, so the parts of one model walk up once between them. Weak keys, so a
+-- parent that streams out is let go.
+local signOfParent: { [Instance]: Model | false } = setmetatable({}, { __mode = "k" }) :: any
+
+local function signTaken()
+	table.clear(signOfParent)
+end
+
 local night = false
 local started = false
 local stepping: RBXScriptConnection? = nil
@@ -147,6 +157,7 @@ local function addTurn(sign: Model)
 	end
 	local turn: Turn = { base = base, parts = parts, angle = 0, from = 0, to = 0, startedAt = nil }
 	turns[sign] = turn
+	signTaken()
 	turn.angle, turn.to = target(), target()
 	place(turn, turn.angle)
 end
@@ -158,15 +169,28 @@ local function signOf(instance: Instance): Model?
 	if next(turns) == nil and next(boards) == nil then
 		return nil
 	end
-	local at: Instance? = instance.Parent
+	local parent = instance.Parent
+	if parent == nil then
+		return nil
+	end
+	local known = signOfParent[parent]
+	if known == false then
+		return nil
+	elseif known ~= nil then
+		return known :: Model
+	end
+	local found: Model? = nil
+	local at: Instance? = parent
 	while at ~= nil and at ~= (Workspace :: Instance) do
 		local model = at :: Model
 		if turns[model] ~= nil or boards[model] ~= nil then
-			return model
+			found = model
+			break
 		end
 		at = at.Parent
 	end
-	return nil
+	signOfParent[parent] = if found ~= nil then found else false
+	return found
 end
 
 local function consider(instance: Instance)
@@ -180,6 +204,7 @@ local function consider(instance: Instance)
 					addTurn(model)
 				else
 					boards[model] = true
+					signTaken()
 					hideOther(model)
 				end
 			end

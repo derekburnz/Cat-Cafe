@@ -157,7 +157,10 @@ function StarterCatController.start()
 		while true do
 			local distance = nearestStand()
 			local range = Config.StarterCatRangeStuds
-			local want = distance ~= nil and distance <= (if open then range + 1 else range)
+			local state = UIController.state
+			local want = distance ~= nil
+				and distance <= (if open then range + 1 else range)
+				and not StarterCat.locked(if state ~= nil then state.tier else nil) -- shut below Tier 2
 			local card = cardUI()
 			if card ~= nil then
 				if want ~= open then

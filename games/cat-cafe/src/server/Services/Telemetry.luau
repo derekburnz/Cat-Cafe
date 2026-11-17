@@ -795,13 +795,13 @@ local function rankWindowEnd(player: Player, session: Session, outcome: string, 
 		return
 	end
 	session.rankWindows += 1
-	-- the 4th field: how a close happened (RankUpRightAway.CLOSE_VIAS), "" for a press, a leave or an older client
-	Telemetry.custom(
-		player,
-		"rank_up_window",
-		1,
-		{ how, outcome, session.device or "unknown", via or "" }
-	)
+	-- a close names how it happened in field 2 ("closed_x", RankUpRightAway.CLOSE_VIAS): Roblox keeps 3 custom fields
+	local ended = if outcome == "closed"
+			and via ~= nil
+			and via ~= ""
+		then "closed_" .. via
+		else outcome
+	Telemetry.custom(player, "rank_up_window", 1, { how, ended, session.device or "unknown" })
 end
 
 local function tierText(profile: Profile): string

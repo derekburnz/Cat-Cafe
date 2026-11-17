@@ -161,6 +161,7 @@ FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags
+require(script.Parent.Services.AreaOnlyService).start() -- #5026: far areas' night fences stream (areaOnly switch)
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes

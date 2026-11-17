@@ -120,6 +120,7 @@ LiveFlags.KEYS = {
 	"backdropsNear", -- #4857: far areas' backdrop rings leave this client's Workspace (shared/BackdropNear); off by default
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 	"fxOneAdded", -- #5000: Effects' Workspace.DescendantAdded handlers share one connection (Effects/Context); off by default
+	"areaOnly", -- #5026: the areas' night fences stream like the rest of their area (shared/AreaOnly); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -159,6 +160,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	journeys = true,
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
 	fxOneAdded = true, -- #5000: on once Sync's Studio read shows the shared connection is no slower
+	areaOnly = true, -- #5026: on once Sync's before and after census shows the win
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

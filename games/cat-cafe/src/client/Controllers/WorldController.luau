@@ -766,6 +766,17 @@ function WorldController.start()
 	local gateOpen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local fenceShown: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local gateLocked: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- seen below its tier
+	-- #5026: a fence or gate that streams out and back in (areaOnly) is looked at afresh, whether or not the engine
+	-- hands back the same instance
+	CollectionService:GetInstanceRemovedSignal("NightFence"):Connect(function(fence: Instance)
+		fenceShown[fence] = nil
+	end)
+	task.spawn(function()
+		local gates = Workspace:WaitForChild("World"):WaitForChild("Gates")
+		gates.ChildRemoved:Connect(function(gate: Instance)
+			gateOpen[gate] = nil
+		end)
+	end)
 	local lastCheckIn = 0
 	local sawAlley = false
 	local lastZone: string? = nil

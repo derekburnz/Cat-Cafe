@@ -104,10 +104,10 @@ local Config = {
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
 	Badges = {
-		welcome = 3335628834714920,
-		firstCatch = 965821038770402,
+		-- #5160 (Derek 2026-11-17): retired and disabled on Roblox, no longer in Badges.LIST: welcome 3335628834714920,
+		-- firstCatch 965821038770402, grandOpening 1259873901887390, firstHome 3818992250915779, firstUpgrade
+		-- 708647132528539, firstFlight 771736196964132
 		cozyCafe = 3159884753679593,
-		grandOpening = 1259873901887390,
 		purrfect = 1317002089922327,
 		baitCat = 2110748625065463,
 		rareFind = 3754290961752885,
@@ -127,12 +127,15 @@ local Config = {
 		-- #4282: partyGuest (4328065554528969, "Cafe Party Guest") removed by Derek 2026-11-14; disabled on Roblox
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
-		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
-		firstUpgrade = 708647132528539, -- Fixing Up
-		firstFlight = 771736196964132, -- Liftoff
 		cornerCafe = 4089080696855068, -- Corner Cafe
 		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
 		wonderCafe = 383838983462242, -- Wonder Cafe (made 2026-11-14, free)
+		-- #5160: 0 until badges.yml makes them (free only) from Model-Agent's icons
+		summitCafe = 0,
+		funfairCafe = 0,
+		royalCafe = 0,
+		secretFind = 0,
+		catMaster = 0,
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).

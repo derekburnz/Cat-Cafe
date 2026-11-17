@@ -6598,6 +6598,15 @@ Presets.rankUpPulse = {
 	},
 }
 
+-- Effects/CannonCue (Design-Agent 2026-11-17, the phone drop between the bowl cat's tame and Tier 2's rank up): one
+-- gold glow (rankUpPulse's look) on the HUD's Cannon button every `every` seconds while Tier 2 is short of cats and
+-- the player is in the hometown, until the button is pressed. Behind `flag`, off.
+Presets.cannonCue = {
+	flag = "cannonCue",
+	every = 4,
+	calmEvery = 8, -- with Reduce Motion
+}
+
 -- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)
 -- from `from` to `to` times its size while it waits for the press, for at most `most` seconds.
 Presets.holdPulse = {

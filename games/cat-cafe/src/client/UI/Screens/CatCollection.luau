@@ -34,6 +34,7 @@ local DecorIndex = require(script.Parent.DecorIndex)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local IndexBook = require(script.Parent.Parent.Components.IndexBook)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
@@ -250,6 +251,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._loadToken = 0 -- the latest portrait queue's, so an older one stops
 	self._tab = "Index" :: Tab
 	self._selected = nil :: string? -- the cat on the detail card
+	self._navDone = nil :: (() -> ())? -- #5102: the detail card's gamepad hand-back while it shows
 	self._detailId = nil :: string? -- the cat whose model the detail card holds
 	self._detailGold = false
 	self._detailBands = nil :: UIGradient? -- the rainbow edge, made the first time a rainbow cat shows (F99)
@@ -468,6 +470,7 @@ function CatCollection._buildDetail(self: any, parent: Instance)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 40,
 		Visible = false,
+		Selectable = false, -- #5102: the D-pad stays on the card's X, not the dim cover round it
 		Parent = parent,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 	self._cover = cover
@@ -572,6 +575,12 @@ end
 function CatCollection._closeDetail(self: any)
 	self._selected = nil
 	self._cover.Visible = false
+	-- #5102: the card hands the selection back to the tile it opened from
+	local navDone: (() -> ())? = self._navDone
+	self._navDone = nil
+	if navDone ~= nil then
+		navDone()
+	end
 end
 
 -- The tabs' looks; the page behind them is dark on every tab (#1028).
@@ -1294,6 +1303,14 @@ function CatCollection._showDetail(self: any)
 	if not self._cover.Visible then
 		self._cover.Visible = true
 		Tween.popIn(self._cover:FindFirstChild("Card") :: GuiObject, 0.9)
+	end
+	-- #5102 (Sync's controller pass): on a gamepad the card takes the selection on its X, and B closes only the
+	-- card (the Index stays open on the tile)
+	if self._navDone == nil then
+		self._navDone = GamepadNav.card("indexDetail", self._cover, function(): boolean?
+			self:_closeDetail()
+			return true
+		end, self._detailClose.face)
 	end
 end
 

@@ -420,6 +420,10 @@ export type CustomEvent =
 	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
 	-- "first" for the account's first spend here or "repeat"
 	| "robux_purchase"
+	-- #4438: robux_purchase's twin under a second name, the same value and fields. robux_purchase has never shown a
+	-- row in Roblox Analytics (Nov 13 to 16, against group log sales), while store_cancelled and pal_join from the
+	-- same send path did, so the name itself is the suspect
+	| "paid_item"
 	-- #1888: Roblox's purchase prompt closed without buying, value 1; the sku, tier
 	| "store_cancelled"
 	-- #1888: every fifth Cafe Pass level, value the level; the season, the paid track ("paid" or "free"), tier
@@ -2119,6 +2123,12 @@ function Telemetry.robuxPurchase(
 		math.max(0, math.floor(robux)),
 		{ sku, dayText(profile), if first then "first" else "repeat" }
 	)
+	Telemetry.custom(
+		player,
+		"paid_item",
+		math.max(0, math.floor(robux)),
+		{ sku, dayText(profile), if first then "first" else "repeat" }
+	)
 	promptClosed(player, sku, "bought") -- a receipt can come before the prompt says it closed
 	storeStep(player, "completed", { sku, tostring(math.floor(robux)) })
 	purchaseSource(player, sku)
@@ -2665,10 +2675,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and Economy.tier(profile) < 2
 		then
 			session.healthLogged = true
+			-- Design's phone FPS read (2026-11-17): field 3 is where the player stands (cafe, town, an area id or
+			-- none). The device was field 3 before; Roblox's own Platform dimension gives it. whereOf sits further
+			-- down this file, so it is reached through the module table (no new top-level local).
+			local zoneOf: ((Player) -> string)? = (Telemetry :: any)._whereOf
 			Telemetry.custom(player, "health_check", math.floor(rawValue :: number), {
 				FirstFive.pingBucket(player:GetNetworkPing() * 1000),
 				session.healthMem or "unknown",
-				session.device or "unknown",
+				if zoneOf ~= nil then zoneOf(player) else "none",
 			})
 		end
 	elseif name == "screen_short" then
@@ -3230,6 +3244,7 @@ local function whereOf(player: Player): string
 	end
 	return lastWhere[player] or "none"
 end
+(Telemetry :: any)._whereOf = whereOf -- health_check's zone field (onReport sits above this)
 
 -- #2774: the account's first bait cat came `seconds` after the food went in; where the player was (cafe, an area id or
 -- none), to see whether the cannon trip has them away when it lands.

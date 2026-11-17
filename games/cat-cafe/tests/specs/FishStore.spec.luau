@@ -57,23 +57,23 @@ return function()
 			expect((FishStore.item("vip") :: FishStore.Item).flag).to.equal(nil)
 		end)
 
-		it("prices 50 fish a Robux to the nearest 50", function()
+		it("prices 25 fish a Robux to the nearest 50 (Derek 2026-11-17: half)", function()
 			local prices: { [string]: number } = {}
 			for _, item in FishStore.LIST do
 				prices[item.key] = FishStore.price(item)
 			end
-			expect(prices.stylishPack).to.equal(4950)
-			expect(prices.signStyles).to.equal(3950)
-			expect(prices.accessories).to.equal(7450)
-			expect(prices.cafeStyle).to.equal(12450)
-			expect(prices.grand).to.equal(39950)
+			expect(prices.stylishPack).to.equal(2500)
+			expect(prices.signStyles).to.equal(2000)
+			expect(prices.accessories).to.equal(3750)
+			expect(prices.cafeStyle).to.equal(6250)
+			expect(prices.grand).to.equal(20000)
 			-- #4610: from the full price, never the half price sale
-			expect(prices.vip).to.equal(1250)
-			expect(prices.autoBowl).to.equal(950)
-			expect(prices.extraSlot).to.equal(7450)
-			expect(prices.longNap).to.equal(9950)
-			expect(prices.royalCat).to.equal(29950)
-			expect(prices.kingPack).to.equal(49950)
+			expect(prices.vip).to.equal(650)
+			expect(prices.autoBowl).to.equal(500)
+			expect(prices.extraSlot).to.equal(3750)
+			expect(prices.longNap).to.equal(5000)
+			expect(prices.royalCat).to.equal(15000)
+			expect(prices.kingPack).to.equal(25000)
 		end)
 	end)
 
@@ -90,21 +90,21 @@ return function()
 				expect(FishStore.item(product.key)).to.equal(nil) -- never both a pass and a product
 			end
 			expect(FishStore.price(FishStore.product("thankYou") :: FishStore.Product)).to.equal(
-				1250
+				650
 			)
 			expect(FishStore.price(FishStore.product("cafePass") :: FishStore.Product)).to.equal(
-				14950
+				7500
 			)
 		end)
 
 		it("sells the badge once an account", function()
 			local profile = ProfileSchema.template(1700000000)
 			local badge = FishStore.product("thankYou") :: FishStore.Product
-			profile.goldenFish = 1249
+			profile.goldenFish = 649
 			expect(FishStore.productBlocker(profile, badge, 1, true)).to.equal(
 				"Not enough golden fish yet"
 			)
-			profile.goldenFish = 1250
+			profile.goldenFish = 650
 			expect(FishStore.productBlocker(profile, badge, 0, false)).to.equal(nil) -- no season needed
 			profile.onceBought.thank_you_badge = true
 			expect(FishStore.productBlocker(profile, badge, 1, true)).to.equal(
@@ -135,7 +135,7 @@ return function()
 				byKey[row.key] = row
 			end
 			expect(byKey.thankYou.bought).to.equal(true)
-			expect(byKey.thankYou.fish).to.equal(1250)
+			expect(byKey.thankYou.fish).to.equal(650)
 			expect(byKey.cafePass.bought).to.equal(false)
 			expect(byKey.starterBundle).to.equal(nil)
 		end)

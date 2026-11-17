@@ -31,6 +31,9 @@ local StationCutController = {}
 local POLL = 0.1
 local AREA_TITLE = "CatCafeAreaTitle" -- UI Screens/AreaTitle
 local FREE_MOST = 60 -- seconds to wait for the player to be free before giving the toast instead
+-- seconds after the rank up before looking: the server's RoadmapStep (the "Grand Opening!" banner at tier 3) lands
+-- about 1 s after it (Sync's phone run on #5128)
+local LATE = 2
 local SETTLE = 0.6 -- seconds the player must stay free first: a tame's reveal card comes a moment after the bowl card
 local BAIT_CARD = "CatCafeBaitCard" -- UI/Screens/BaitCard's ScreenGui
 
@@ -156,6 +159,7 @@ local function ranked(tier: number)
 		return os.clock() - since >= SETTLE
 	end
 	task.spawn(function()
+		task.wait(LATE)
 		if not waitFor(FREE_MOST, freeNow) then
 			fallback(tier)
 			return

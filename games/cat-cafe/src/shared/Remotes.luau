@@ -44,7 +44,8 @@ Remotes.ClientToServer = {
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
 	"Travel", -- (destination: string)  "home" (a cloud hop from a wild area) or "cannon" (the front of the nearest
-	-- Cat Cannon, F84); not while carrying, mid catch or rescue, or in a flight
+	-- Cat Cannon, F84); not while carrying, mid catch or rescue, or in a flight. #4251: "harvest" into Harvest Hollow while
+	-- it is open, from Tier 2 and with the harvestHollow switch on (the HUD's Harvest button; the arch does the same)
 	"LaunchCannon", -- (cannonId: string, destination: string)  F84 (hometown-cannon.md section 7): `town` or a camp's
 	-- area id within CannonRangeStuds; `town` or another area with a camp, the area opened by the caller's tier, open
 	-- and not in the dusk warning; not carrying, no lock, not flying or tackled down, off CannonCooldownSeconds;
@@ -93,6 +94,11 @@ Remotes.ClientToServer = {
 	"BuyWithFish", -- (key: string, shownPrice: number)  #4055 (shared/FishStore): a Store pass of FishStore.LIST not
 	-- owned, made, for FishStore.price golden fish; a price above shownPrice is refused. From anywhere, 1 a second, only
 	-- while the fishStore switch is on; answered with a toast and a ProfileSync (PlayerState.fishStore)
+	"BuyHarvest", -- (id: string)  #4251 (shared/HarvestSave): a Harvest Stall item of HarvestHollow.STALL not bought, for
+	-- its price in pumpkins, within HarvestStallRange + 4 of a HarvestStall, while the area is open and from Tier 2. 1 a
+	-- second; answered with a toast and a ProfileSync (PlayerState.harvest)
+	"PinHarvestNote", -- (note: number)  #4251: one of HarvestSave.NOTES (1 to 6) on the Thankful Board, from inside
+	-- Harvest Hollow while it is open, one pin every 10 s; the board's HarvestNotes attribute answers. 1 a second
 	"BuyTicketPrize", -- (prizeId: string)  #4061 (shared/TicketBooth): a prize of TicketBooth.PRIZES under its limit, for
 	-- its price in tickets, from TicketBoothTier and only while the ticketBooth switch is on. 1 a second; answered with a
 	-- toast and a ProfileSync (PlayerState.ticketBooth)

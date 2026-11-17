@@ -27,6 +27,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local HarvestLogic = require(script.Parent.Parent.Components.HarvestLogic)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -729,6 +730,11 @@ function CatCard._fill(self: any)
 		custom = if type(shown) == "string" then shown else nil
 	end
 	local title, under = CatCardLogic.names(custom, catalogName)
+	-- #5025 (harvest-hollow-spec 3b): an unnamed harvest cat's sub line says it is kept (the card is too narrow for
+	-- what it earns like; the found card and the Index page say that)
+	if under == nil and def ~= nil and (def :: any).area == "harvest" then
+		under = HarvestLogic.CARD_LINE
+	end
 	self._name.Text = title
 	self._sub.Text = under or ""
 

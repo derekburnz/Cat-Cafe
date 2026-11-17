@@ -27,6 +27,7 @@ TutorialOrder.BOWL_STEPS = {
 	food = "tut_bowl_food",
 	waiting = "tut_bowl_waiting",
 	arrived = "tut_bowl_arrived",
+	rankCue = "tut_rank_cue", -- onboarding_v9: the strip and ring point at YOUR GOAL (#5108)
 } :: { [string]: string }
 
 -- Whether the walk-through runs bowl first: the switch stored false. Read from ReplicatedStorage's copy, so it is the

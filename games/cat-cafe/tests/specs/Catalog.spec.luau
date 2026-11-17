@@ -419,9 +419,9 @@ return function()
 		}
 
 		it(
-			"has exactly 126 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin, the Booth Plush Cat and the 10 Secret cats",
+			"has exactly 134 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin, the Booth Plush Cat, the 10 Secret cats and the 8 harvest cats",
 			function()
-				expect(#Catalog.cats).to.equal(126)
+				expect(#Catalog.cats).to.equal(134)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -435,6 +435,7 @@ return function()
 							or def.id == "maple_muffin" -- #1626: the Cafe Pass season cat
 							or def.id == "booth_plush" -- #4061: the Ticket Booth's prize cat
 							or def.rarity == "Secret" -- #3470 and #4221: the ten Secret cats
+							or def.area == "harvest" -- #4251: Harvest Hollow's eight
 					).to.equal(true)
 				end
 				for id in pairs(slice) do
@@ -523,7 +524,12 @@ return function()
 				end
 				for _, def in ipairs(Catalog.cats) do
 					-- F96: the Bellhop Cat lives in no area; #3470: nor does a Secret cat
-					if def.area == "spare" or def.area == "exclusive" or def.area == "secret" then
+					if
+						def.area == "spare"
+						or def.area == "exclusive"
+						or def.area == "secret"
+						or def.area == "harvest" -- #4251: Harvest Hollow is not one of the ten
+					then
 						continue
 					end
 					local area = counts[def.area]
@@ -555,6 +561,8 @@ return function()
 						expect(def.area).to.equal("exclusive") -- F96: never spawns, earns at the newest area
 					elseif def.rarity == "Secret" then
 						expect(def.area).to.equal("secret") -- #3470: turns up in any area
+					elseif def.earnsLike ~= nil then
+						expect(def.area).to.equal("harvest") -- #4251: the limited area (HarvestCats.spec)
 					else
 						expect(
 							areaSet[if def.area == "spare"

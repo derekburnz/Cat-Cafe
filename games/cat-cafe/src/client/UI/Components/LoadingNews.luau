@@ -19,6 +19,7 @@ export type Entry = {
 	back: string, -- the picture's backing colour (hex)
 	tiles: { Tile }?,
 	secret: boolean?,
+	image: string?, -- #5114: a real picture of the update (rbxassetid), shown over the tiles once it has loaded
 }
 
 LoadingNews.SECONDS = 3.2 -- per card
@@ -32,6 +33,7 @@ LoadingNews.ENTRIES = {
 		at = 1794772800, -- Sunday 2026-11-15 20:00 UTC
 		flags = { "tier8", "tier9", "tier10" }, -- LateTiers.TOGETHER: all three open at once
 		back = "BFE6FF",
+		image = "rbxassetid://131886724226249", -- #5114 (assets/cat-cafe/ui/loading-news)
 		tiles = {
 			{ emoji = "❄️", word = "Snowy", color = "EAF6FF" },
 			{ emoji = "🌊", word = "Water Park", color = "7FD3F2" },
@@ -43,6 +45,7 @@ LoadingNews.ENTRIES = {
 		title = "Rift Run",
 		line = "Roll a Mythic or Secret trait and the rift opens!", -- out since 2026-11-15 01:00 UTC (#4654: no switch)
 		back = "3B2E63",
+		image = "rbxassetid://87565789039061", -- #5114 (assets/cat-cafe/ui/loading-news)
 		tiles = { { emoji = "🌀", word = "Rift Run", color = "8E6BE8" } },
 	},
 	{
@@ -50,6 +53,7 @@ LoadingNews.ENTRIES = {
 		title = "Outfit Packs",
 		line = "Winter, Stylish, Chef and Space looks in the Store",
 		back = "FFD9E6",
+		image = "rbxassetid://118093955309484", -- #5114 (assets/cat-cafe/ui/loading-news)
 		tiles = {
 			{ emoji = "🧣", word = "Winter", color = "EAF6FF" },
 			{ emoji = "🍳", word = "Chef", color = "FFF4D6" },
@@ -63,6 +67,7 @@ LoadingNews.ENTRIES = {
 		at = 1794799800, -- Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET)
 		flags = { "secretAreas" },
 		back = "3A2F4A",
+		image = "rbxassetid://75023525829478", -- #5114 (assets/cat-cafe/ui/loading-news)
 		secret = true,
 	},
 } :: { Entry }

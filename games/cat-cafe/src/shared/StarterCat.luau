@@ -3,7 +3,11 @@
 -- refused, in the stand card's words. Shared so the card can say what the server will answer. The server's
 -- StarterCatService measures the range and asks the group; this module only judges the answers.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Config = require(script.Parent.Config)
+local LiveFlags = require(script.Parent.LiveFlags)
+local StationTiers = require(script.Parent.StationTiers)
 local Types = require(script.Parent.Types)
 
 local StarterCat = {}
@@ -17,6 +21,7 @@ StarterCat.TOO_FAR = "Walk up to my stand to take me home"
 StarterCat.NEEDS_GOALS = "Finish your first goals to take me home"
 StarterCat.NEEDS_GROUP = "Join our group to take me home"
 StarterCat.TRY_AGAIN = "Try again in a moment"
+StarterCat.NEEDS_TIER = "Rank up to Tier 2 to take me home"
 -- When Roblox's join prompt fails (#999, growth's note): most often the account is at its group limit. Copy only,
 -- never a paid step (Premium raises the limit, and we never say so), never pushy.
 StarterCat.GROUP_FULL = "Your group list may be full. Leave a group to join ours."
@@ -26,6 +31,18 @@ StarterCat.GROUP_FULL = "Your group list may be full. Leave a group to join ours
 -- the session, so a fresh join can read as "no" until they rejoin.
 function StarterCat.trustsJoin(promptedAgo: number?): boolean
 	return promptedAgo ~= nil and promptedAgo >= 0 and promptedAgo <= Config.GroupJoinTrustSeconds
+end
+
+-- Derek 2026-11-17 15:14 UTC ("free starting cat, into food bowl into alleyway cannon, 1 catch into rankup"; Sync's
+-- fresh-save run: the Bellhop Cat taken at 69 s was Tier 2's third cat, so the Rank Up came before the Alleyway):
+-- the stand opens at Tier 2 (StationTiers.BY_TAG), hidden below it like the Mystery Market. Read from the switch's
+-- ReplicatedStorage copy, so the server and the client answer the same.
+function StarterCat.locked(tier: unknown): boolean
+	local on = LiveFlags.shown(
+		StationTiers.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationTiers.FLAG)
+	)
+	return StationTiers.locked(StarterCat.TAG, tier, on)
 end
 
 -- What a claim is checked against: the first goals ("task") while the game has no group, the group after.
@@ -48,6 +65,9 @@ function StarterCat.blocker(
 ): string?
 	if profile.starterCatClaimed then
 		return StarterCat.CLAIMED
+	end
+	if StarterCat.locked(profile.tier) then
+		return StarterCat.NEEDS_TIER
 	end
 	if not near then
 		return StarterCat.TOO_FAR

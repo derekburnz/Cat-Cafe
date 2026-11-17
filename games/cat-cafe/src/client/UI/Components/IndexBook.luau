@@ -9,7 +9,8 @@
 -- cats, with no Exclusive page either (an exclusive cat is never caught, so never rainbow).
 --   found(state, tab)                    which cats count as found on the tab: met or owned, or found in gold or
 --                                        in rainbow
---   sections(catalog, state, tab)        the areas to scroll through, each with its cats and counts
+--   sections(catalog, state, tab, harvestClosed?)   the areas to scroll through, each with its cats and counts;
+--                                        harvestClosed (#5025) gives the Harvest page its "back next autumn" note
 --   count(section)                       the line beside an area's name: "7 / 10", "Complete!" or "Tier 3"
 --   reward(views, track)                 the area's reward button: "ready" with how many, "next", "done" or "none"
 --   secret(catalog, state, tab)          the Secret page (#3470): nil until a Secret cat is found, then only those
@@ -29,6 +30,7 @@ export type Section = {
 	tier: number,
 	locked: boolean, -- the player's tier has not opened the area and nothing in it is found yet
 	exclusive: boolean, -- the Exclusive page (EXCLUSIVE), not an area: it counts toward nothing
+	note: string?, -- #5025: the page's own line in place of EXCLUSIVE_NOTE (Harvest Hollow's)
 	have: number,
 	total: number,
 	cats: { Types.CatDef }, -- rarest last, catalog order within a rarity
@@ -50,6 +52,13 @@ IndexBook.EXCLUSIVE_NOTE = "Not counted in the Index"
 -- #3470: the Secret page, shown only to a player who has found a Secret cat, and only with the ones found
 IndexBook.SECRET = IndexRewards.SECRET_AREA
 IndexBook.SECRET_NAME = "Secret"
+-- #5025 (harvest-hollow-spec 3b): the harvest cats' own page after the areas, on every tab (they have gold and rainbow
+-- coats), counting toward nothing like the Exclusive page, with the keep line as its note
+IndexBook.HARVEST = "harvest"
+IndexBook.HARVEST_NAME = "Harvest Hollow"
+IndexBook.HARVEST_NOTE = "Yours to keep · not counted in the Index"
+-- #5025 (harvest-hollow-spec 3b): once the area has closed (HarvestHollow.CLOSES_AT, Sun Dec 6), the page says it returns
+IndexBook.HARVEST_CLOSED_NOTE = "Yours to keep · back next autumn"
 IndexBook.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 local SPARE = IndexRewards.SPARE_AREA
@@ -86,7 +95,12 @@ function IndexBook.found(state: Types.PlayerState, tab: Tab): { [string]: boolea
 	return out
 end
 
-function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, tab: Tab): { Section }
+function IndexBook.sections(
+	catalog: Types.Catalog,
+	state: Types.PlayerState,
+	tab: Tab,
+	harvestClosed: boolean?
+): { Section }
 	local found = IndexBook.found(state, tab)
 	local list: { Section } = {}
 	local byId: { [string]: Section } = {}
@@ -123,12 +137,27 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		total = 0,
 		cats = {},
 	}
+	local harvest: Section = {
+		id = IndexBook.HARVEST,
+		name = IndexBook.HARVEST_NAME,
+		tier = 0,
+		locked = false,
+		exclusive = true,
+		note = if harvestClosed == true
+			then IndexBook.HARVEST_CLOSED_NOTE
+			else IndexBook.HARVEST_NOTE,
+		have = 0,
+		total = 0,
+		cats = {},
+	}
 	for index, def in catalog.cats do
 		order[def.id] = index
 		local areaId: string = def.area or IndexBook.FALLBACK_AREA
 		local section: Section
 		if areaId == SPARE or areaId == SECRET then
 			continue -- #3470: a Secret cat leaves no trace in the book
+		elseif areaId == IndexBook.HARVEST then
+			section = harvest
 		elseif def.exclusive == true or areaId == IndexBook.EXCLUSIVE then
 			if tab ~= "normal" then
 				continue -- never gold or rainbow
@@ -145,6 +174,9 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		if found[def.id] then
 			section.have += 1
 		end
+	end
+	if harvest.total > 0 then
+		table.insert(list, harvest) -- #5025: after every area, before the Exclusive page
 	end
 	if exclusive.total > 0 then
 		table.insert(list, exclusive) -- after every area

@@ -6,6 +6,10 @@
 --   a pick      a patch pumpkin (tag HarvestPumpkin) whose `Ready` attribute goes false was picked by someone: an
 --               orange pop and a ring where it stood, and a beat for whoever listens (HarvestFx.onPick; Audio).
 --   a regrow    `Ready` back to true: a small green sprout of sparkles, so you see a pumpkin is back.
+--   a regrow spot  while a patch pumpkin is picked (`Ready` false), a small soil mound with a green sprout where it
+--               stood, and a thin ring round it that fills toward its `RegrowAt` (os.time), so an empty spot reads as
+--               growing back and not broken (Design, spec section 3; regrow is 300 s, 150 s busy). Plain parts, no
+--               particles, at most `sproutMost` spots within `within` studs, redrawn every `every` seconds.
 --   the glint   every `glintEvery` seconds the nearest ready pumpkins give a small gold glint, the "pick me" cue.
 --               None with Reduce Motion or in Low performance.
 --   the song    HarvestFx.onArea tells Audio when you walk in or out (the area has no World.Zones box).
@@ -21,6 +25,9 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local HarvestSave = require(ReplicatedStorage.Shared.HarvestSave)
 
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
@@ -45,6 +52,8 @@ local notesSeen: { [Instance]: string } = {} -- each board's HarvestNotes as las
 local boardLinks: { [Instance]: RBXScriptConnection } = {} -- each board's one HarvestNotes listener
 type PinListener = (at: Vector3, mine: boolean) -> ()
 local pinListeners: { PinListener } = {}
+type Sprout = { model: Model, fill: Part, shoot: Part, total: number }
+local sprouts: { [Instance]: Sprout } = {} -- each shown regrow spot
 
 -- What a pumpkin's `Ready` change means: "pick" when it was ready and is not now, "regrow" the other way, nil for
 -- the first sight of it (a pumpkin streaming in is not news) and for no change.
@@ -148,6 +157,29 @@ function HarvestFx.onPick(listener: Listener)
 	table.insert(listeners, listener)
 end
 
+-- How long a picked spot takes to regrow, from what is left when it is first seen: the busy time if that fits in
+-- it, else the lone time. A spot first seen part way through a lone regrow can be taken as busy; it only starts
+-- its ring further back.
+function HarvestFx.regrowTotal(remaining: number, busy: number, lone: number): number
+	return if remaining <= busy then busy else lone
+end
+
+-- How far a regrow has come, 0 just picked to 1 ready.
+function HarvestFx.regrowShare(remaining: number, total: number): number
+	if total <= 0 then
+		return 1
+	end
+	return math.clamp(1 - remaining / total, 0, 1)
+end
+
+local function dropSprout(spot: Instance)
+	local shown: Sprout? = sprouts[spot]
+	if shown ~= nil then
+		shown.model:Destroy()
+		sprouts[spot] = nil
+	end
+end
+
 local function isReady(spot: Instance): boolean
 	return spot:GetAttribute(Presets.harvestFx.readyAttribute) == true
 end
@@ -177,6 +209,7 @@ end
 -- a first sight again and never has two listeners (one pick, one pop).
 local function forget(spot: Instance)
 	ready[spot] = nil
+	dropSprout(spot)
 	local link: RBXScriptConnection? = links[spot]
 	if link ~= nil then
 		link:Disconnect()
@@ -298,6 +331,100 @@ local function stepAir()
 	if running ~= nil then
 		Particles.switchOn(running, p.air)
 		running.Rate *= share
+	end
+end
+
+-- The ground under a pumpkin: a model's pivot is at its base (asset-pipeline), a lone part's middle is half its
+-- height up.
+local function groundOf(spot: Instance, at: Vector3): Vector3
+	if spot:IsA("BasePart") then
+		return at - Vector3.new(0, (spot :: BasePart).Size.Y / 2, 0)
+	end
+	return at
+end
+
+local function makeSprout(ground: Vector3, total: number): Sprout
+	local p = Presets.harvestFx
+	local model = Instance.new("Model")
+	model.Name = "EffectsHarvestSprout"
+	local flat = CFrame.new(ground) * CFrame.Angles(0, 0, math.rad(90)) -- a cylinder's axis is X: stand it up
+	local ring = Context.effectPart(
+		"Ring",
+		Vector3.new(0.05, p.sproutRing * 2, p.sproutRing * 2),
+		p.sproutRingColour
+	)
+	ring.Shape = Enum.PartType.Cylinder
+	ring.Transparency = p.sproutRingTransparency
+	ring.CFrame = flat * CFrame.new(0.03, 0, 0)
+	ring.Parent = model
+	local fill = Context.effectPart("Fill", Vector3.new(0.06, 0.1, 0.1), p.regrowColour)
+	fill.Shape = Enum.PartType.Cylinder
+	fill.Transparency = p.sproutFillTransparency
+	fill.CFrame = flat * CFrame.new(0.06, 0, 0)
+	fill.Parent = model
+	local mound = Context.effectPart("Mound", p.sproutMound, p.sproutSoil)
+	local dome = Instance.new("SpecialMesh") -- a Ball part is always round; a sphere mesh fills the flat box
+	dome.MeshType = Enum.MeshType.Sphere
+	dome.Parent = mound
+	mound.CFrame = CFrame.new(ground)
+	mound.Parent = model
+	local shoot = Context.effectPart("Shoot", p.sproutShoot, p.regrowColour)
+	shoot.Parent = model
+	model.Parent = Context.folder()
+	return { model = model, fill = fill, shoot = shoot, total = total }
+end
+
+-- The regrow spots: the nearest `sproutMost` picked pumpkins within `within`, each with its mound, shoot and ring.
+local function stepSprouts()
+	local p = Presets.harvestFx
+	local now = Workspace:GetServerTimeNow()
+	local spots: { Instance } = {}
+	local distances: { number } = {}
+	for spot, isUp in ready do
+		local at = if not isUp then Context.positionOf(spot) else nil
+		if at ~= nil and type(spot:GetAttribute(p.regrowAttribute)) == "number" then
+			table.insert(spots, spot)
+			table.insert(distances, Context.distance(at))
+		end
+	end
+	local wanted: { [Instance]: boolean } = {}
+	for _, index in HarvestFx.glinters(distances, p.within, p.sproutMost) do
+		wanted[spots[index]] = true
+	end
+	for spot in sprouts do
+		if not wanted[spot] then
+			dropSprout(spot)
+		end
+	end
+	for spot in wanted do
+		local at = Context.positionOf(spot)
+		if at == nil then
+			continue
+		end
+		local remaining = math.max(0, (spot:GetAttribute(p.regrowAttribute) :: number) - now)
+		local shown: Sprout? = sprouts[spot]
+		local sprout: Sprout
+		if shown ~= nil then
+			sprout = shown
+		else
+			sprout = makeSprout(
+				groundOf(spot, at),
+				HarvestFx.regrowTotal(
+					remaining,
+					HarvestSave.BUSY_REGROW_SECONDS,
+					HarvestSave.REGROW_SECONDS
+				)
+			)
+			sprouts[spot] = sprout
+		end
+		local share = HarvestFx.regrowShare(remaining, sprout.total)
+		local ground = groundOf(spot, at)
+		local across = math.max(0.1, p.sproutRing * 2 * share)
+		sprout.fill.Size = Vector3.new(0.06, across, across)
+		local tall = p.sproutShoot.Y * (0.4 + 0.6 * share)
+		sprout.shoot.Size = Vector3.new(p.sproutShoot.X, tall, p.sproutShoot.Z)
+		sprout.shoot.CFrame =
+			CFrame.new(ground + Vector3.new(0, p.sproutMound.Y / 2 + tall / 2 - 0.1, 0))
 	end
 end
 
@@ -425,6 +552,7 @@ function HarvestFx.start()
 	task.spawn(function()
 		while true do
 			stepAir()
+			stepSprouts()
 			sinceGlint += p.every
 			if sinceGlint >= p.glintEvery then
 				sinceGlint = 0

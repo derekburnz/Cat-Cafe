@@ -19,7 +19,8 @@ export type Area =
 -- A cat's area: one of the ten (#3997, #4070, #4184: the Snowy Mountain, the Water Park and the Medieval Castle are not open yet), the spare pool of cats an area-themed
 -- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
-export type CatArea = Area | "spare" | "exclusive" | "secret"
+-- #4251: "harvest" for a Harvest Hollow cat (the limited area, not one of the ten): kept, it earns like `earnsLike`.
+export type CatArea = Area | "spare" | "exclusive" | "secret" | "harvest"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
 export type CatSource = "free" | "shop" | "pass" | "booth" -- booth #4061: the Ticket Booth's prize cat
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
@@ -153,6 +154,9 @@ export type CatDef = {
 	secretArea: Area?,
 	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
 	secretNew: boolean?,
+	-- #4251: a harvest cat earns like a cat of this rarity from the owner's newest area (two rarities lower, never
+	-- below Common; harvest-hollow-spec 3b)
+	earnsLike: Rarity?,
 }
 
 export type UpgradeDef = {
@@ -169,7 +173,7 @@ export type UpgradeDef = {
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
 -- #2486: "event", a Cafe Event's free reward piece (Catalog.passDecor holds it too, live-events.md section 2e)
-export type DecorSource = "shop" | "crate" | "pass" | "event" | "booth" -- booth #4061: the Ticket Booth's weekly shelf; -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
+export type DecorSource = "shop" | "crate" | "pass" | "event" | "booth" | "harvest" -- booth #4061: the Ticket Booth's weekly shelf; harvest #4251: Harvest Hollow's Stall and Feast Pie; -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
@@ -1371,6 +1375,8 @@ export type TelemetryState = {
 	-- step for a player this code has seen. Optional with a default, so no save version: a server without it drops it,
 	-- and the save then comes back out of v8 once it is past its first catch (ProfileSchema)
 	cleanV8Step: number?,
+	-- Derek 2026-11-17 15:18 UTC: onboarding_v9 (Onboarding.CLEAN_STEPS) the same way; v8 is no longer logged
+	cleanV9Step: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)
@@ -1505,6 +1511,15 @@ export type PlayerProfile = {
 	tickets: TicketSave, -- #4061 (save version 49): the Ticket Booth
 	dragon: DragonSave, -- #4062 (save version 49): the Dragon Keep
 	fusion: FusionSave, -- #4104 (save version 50): the Fusion Observatory
+	-- #4251 (save version 51, shared/HarvestSave): Harvest Hollow's pumpkins, Stall items bought, the arch's last +40
+	-- day and whether the player caught a harvest cat (the Feast Pie's helpers)
+	harvest: {
+		pumpkins: number,
+		bought: { [string]: boolean },
+		visitDay: number,
+		helped: boolean,
+		pieReward: boolean, -- #4251 part 6: got the full Feast Pie's reward
+	},
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
@@ -1734,6 +1749,7 @@ export type PlayerState = {
 		bought: { [string]: boolean }?,
 		pie: { count: number, goal: number }?,
 		helped: boolean?,
+		pieReward: boolean?, -- #4251 part 6: owns the Feast Pie decor from the full pie
 	}?,
 	serverTime: number,
 }

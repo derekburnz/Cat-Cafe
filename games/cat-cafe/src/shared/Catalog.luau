@@ -212,6 +212,26 @@ local function secret(def: Types.CatDef, home: Types.Area, new: boolean?): Types
 	return def
 end
 
+-- #4251 Harvest Hollow (harvest-hollow-spec 3b): a harvest cat is kept and earns like the cat two rarities lower in
+-- the owner's newest area, never below Common (CatStats.areaMultiplier). `area = "harvest"`: it spawns only in Harvest
+-- Hollow and counts toward no Index page, total, track or reward (like the Secrets).
+local HARVEST_EARNS_LIKE: { [string]: Types.Rarity } = {
+	Common = "Common",
+	Rare = "Common",
+	Epic = "Common",
+	Legendary = "Rare",
+	Mythical = "Epic",
+}
+Catalog.HARVEST_EARNS_LIKE = table.freeze(HARVEST_EARNS_LIKE)
+
+local function harvest(def: Types.CatDef): Types.CatDef
+	local like: Types.Rarity = HARVEST_EARNS_LIKE[def.rarity] or "Common"
+	def.area = "harvest"
+	def.earnsLike = like
+	def.incomePerSecond = Catalog.rarities[like].incomePerSecond
+	return def
+end
+
 -- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical), then the ten of
 -- the spare pool (3d). Each lives in exactly one area. Colors are the placeholder body's {r, g, b}. Rares and up in the Alleyway and the Park are
 -- themed cats with a signature prop (v0.5.2, Derek 2026-10-27); their ids keep the old breed names so saves and
@@ -1583,6 +1603,104 @@ Catalog.cats = {
 		"castle",
 		true
 	),
+	-- #4251 Harvest Hollow's eight cats (harvest-hollow-spec 3b; Model-Agent's CatCafe_Cat_HayBale and the rest, with
+	-- gold and rainbow coats). The `alley` only feeds the helper: `harvest` takes the area away.
+	harvest(
+		cat(
+			"hay_bale",
+			"Hay Bale",
+			"Common",
+			"alley",
+			"greeter",
+			"stripes",
+			{ 214, 186, 120 },
+			"Naps in the hay and wakes up for the pie."
+		)
+	),
+	harvest(
+		cat(
+			"acorn_cap",
+			"Acorn Cap",
+			"Common",
+			"alley",
+			"waiter",
+			"patches",
+			{ 150, 98, 52 },
+			"Wears an acorn cap it found under the oak."
+		)
+	),
+	harvest(
+		cat(
+			"apple_pie",
+			"Apple Pie",
+			"Rare",
+			"alley",
+			"barista",
+			"stripes",
+			{ 222, 170, 96 },
+			"Smells like cinnamon and warm crust."
+		)
+	),
+	harvest(
+		cat(
+			"cornstalk",
+			"Cornstalk",
+			"Rare",
+			"alley",
+			"entertainer",
+			"spots",
+			{ 232, 196, 74 },
+			"Hides in the corn maze and pops out to say hi."
+		)
+	),
+	harvest(
+		cat(
+			"pumpkin_spice",
+			"Pumpkin Spice",
+			"Rare",
+			"alley",
+			"barista",
+			"stripes",
+			{ 226, 128, 52 },
+			"Every latte it makes comes with a little leaf on top."
+		)
+	),
+	harvest(
+		cat(
+			"cranberry",
+			"Cranberry",
+			"Epic",
+			"alley",
+			"waiter",
+			"spots",
+			{ 150, 32, 58 },
+			"Brings the cranberry sauce, never spills a drop."
+		)
+	),
+	harvest(
+		cat(
+			"maple_leaf",
+			"Maple Leaf",
+			"Legendary",
+			"alley",
+			"greeter",
+			"gradient",
+			{ 214, 110, 40 },
+			"Its tail rustles like falling leaves."
+		)
+	),
+	harvest(
+		cat(
+			"harvest_moon",
+			"Harvest Moon",
+			"Mythical",
+			"alley",
+			"entertainer",
+			"gradient",
+			{ 30, 30, 72 },
+			"Glows like the big orange moon over the patch."
+		)
+	),
 } :: { Types.CatDef }
 
 -- #3470: the Secret cats, in catalog order
@@ -1590,6 +1708,14 @@ Catalog.secretCats = {} :: { Types.CatDef }
 for _, def in Catalog.cats do
 	if def.rarity == "Secret" then
 		table.insert(Catalog.secretCats, def)
+	end
+end
+
+-- #4251: the harvest cats, in catalog order
+Catalog.harvestCats = {} :: { Types.CatDef }
+for _, def in Catalog.cats do
+	if def.area == "harvest" then
+		table.insert(Catalog.harvestCats, def)
 	end
 end
 
@@ -5912,6 +6038,83 @@ for _, row in EVENT_DECOR do
 	Catalog.decorById[row.id] = def
 	table.insert(Catalog.passDecor, def)
 	table.insert(Catalog.eventDecor, def)
+end
+
+-- #4251 Harvest Hollow's decor (Model-Agent's #4378): the six Stall pieces, bought for pumpkins, and the Feast Pie,
+-- the full pie's reward. Owned for good in profile.decorOwned (HarvestService), placed on the next free decor spots
+-- like the pass and event pieces (Catalog.passDecor), source "harvest", never sold for coins or Robux. Ids are
+-- "decor_" .. the Stall item's id (HarvestSave.decorId).
+local HARVEST_DECOR: { { id: string, rarity: Types.Rarity, name: string, kind: Types.DecorKind, description: string } } =
+	{
+		{
+			id = "decor_hay_bale_sofa",
+			rarity = "Common",
+			name = "Hay Bale Sofa",
+			kind = "furniture",
+			description = "Two hay bales and a cushion, comfy as a barn.",
+		},
+		{
+			id = "decor_paw_pumpkin",
+			rarity = "Common",
+			name = "Paw Pumpkin",
+			kind = "decoration",
+			description = "A pumpkin with a glowing paw print.",
+		},
+		{
+			id = "decor_apple_bushel",
+			rarity = "Common",
+			name = "Apple Bushel",
+			kind = "decoration",
+			description = "A basket heaped with red apples.",
+		},
+		{
+			id = "decor_corn_sheaf",
+			rarity = "Rare",
+			name = "Corn Sheaf",
+			kind = "decoration",
+			description = "Golden corn stalks tied with twine.",
+		},
+		{
+			id = "decor_pie_counter",
+			rarity = "Rare",
+			name = "Pie Counter",
+			kind = "furniture",
+			description = "A counter full of warm pies cooling.",
+		},
+		{
+			id = "decor_harvest_wreath",
+			rarity = "Rare",
+			name = "Harvest Wreath",
+			kind = "decoration",
+			description = "Leaves, wheat and little pumpkins in a ring.",
+		},
+		{
+			id = "decor_feast_pie",
+			rarity = "Epic",
+			name = "Feast Pie",
+			kind = "decoration",
+			description = "The giant pie everyone baked together.",
+		},
+	}
+Catalog.harvestDecor = {} :: { Types.DecorDef }
+for _, row in HARVEST_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
+		description = row.description,
+		bonus = bonus,
+		rarity = row.rarity,
+		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "harvest",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+	table.insert(Catalog.harvestDecor, def)
 end
 
 -- #4061 (Design-Agent's booth spec 1.3): the Ticket Booth's six weekly shelf pieces (TicketBooth.WEEKLY), bought with

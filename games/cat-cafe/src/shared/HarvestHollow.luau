@@ -5,7 +5,7 @@
 -- open and the tier it opens at. Pure: no services, so the cloud specs read it.
 --   STALL                 the Stall's items in the window's order: { id, kind, name, price, model }
 --   item(id)              one of them, or nil
---   TOTAL                 every item's price added up (480, about 8 hours of play over the 12 days)
+--   TOTAL                 every item's price added up (1,440, about 5 to 8 hours of play over the 12 days)
 --   earnsLike(rarity)     the rarity a kept harvest cat earns like in its owner's newest area
 --   open(now)             true from OPENS_AT until CLOSES_AT (the server's date switch has the last word)
 -- Fixed prices, nothing random, nothing sold for Robux here.
@@ -28,82 +28,86 @@ export type Item = {
 -- Model-Agent 2026-11-15 (#4375): all five outfits are hats on the Outfit_Hat spot; Sunflower Hat and Wheat Wreath
 -- replace the draft's Autumn Scarf and Leaf Crown; #4378: Hay Bale Sofa, Paw Pumpkin and Apple Bushel (Season 1 already
 -- has a Hay Bale Seat, a Pumpkin Lantern and an Apple Crate Shelf)
+-- Design-Agent 2026-11-17 economy check: the built patch (12 shared spots) gave a lone player about 480 pumpkins an
+-- hour and catches about 200 more, so 480 for everything took under an hour against the spec's 8. Prices x3 (TOTAL
+-- 1,440), the patch regrows in 5 minutes (2.5 with a busy area) and the day's first visit gives 40 (HarvestSave), so
+-- coming back each day pays a third of the Stall. Rewards for catches are unchanged.
 HarvestHollow.STALL = table.freeze({
 	{
 		id = "acorn_hat",
 		kind = "outfit",
 		name = "Acorn Hat",
-		price = 40,
+		price = 120,
 		model = "CatCafe_Accessory_AcornHat",
 	},
 	{
 		id = "sunflower_hat",
 		kind = "outfit",
 		name = "Sunflower Hat",
-		price = 50,
+		price = 150,
 		model = "CatCafe_Accessory_SunflowerHat",
 	},
 	{
 		id = "wheat_wreath",
 		kind = "outfit",
 		name = "Wheat Wreath",
-		price = 60,
+		price = 180,
 		model = "CatCafe_Accessory_WheatWreath",
 	},
 	{
 		id = "pumpkin_hat",
 		kind = "outfit",
 		name = "Pumpkin Hat",
-		price = 70,
+		price = 210,
 		model = "CatCafe_Accessory_PumpkinHat",
 	},
 	{
 		id = "feather_cap",
 		kind = "outfit",
 		name = "Feather Cap",
-		price = 80,
+		price = 240,
 		model = "CatCafe_Accessory_FeatherCap",
 	},
 	{
 		id = "hay_bale_sofa",
 		kind = "decor",
 		name = "Hay Bale Sofa",
-		price = 25,
+		price = 75,
 		model = "CatCafe_Decor_HayBaleSofa",
 	},
 	{
 		id = "paw_pumpkin",
 		kind = "decor",
 		name = "Paw Pumpkin",
-		price = 30,
+		price = 90,
 		model = "CatCafe_Decor_PawPumpkin",
 	},
 	{
 		id = "apple_bushel",
 		kind = "decor",
 		name = "Apple Bushel",
-		price = 30,
+		price = 90,
 		model = "CatCafe_Decor_AppleBushel",
 	},
 	{
 		id = "corn_sheaf",
 		kind = "decor",
 		name = "Corn Sheaf",
-		price = 25,
+		price = 75,
 		model = "CatCafe_Decor_CornSheaf",
 	},
 	{
 		id = "pie_counter",
 		kind = "decor",
 		name = "Pie Counter",
-		price = 40,
+		price = 120,
 		model = "CatCafe_Decor_PieCounter",
 	},
 	{
 		id = "harvest_wreath",
 		kind = "decor",
 		name = "Harvest Wreath",
-		price = 30,
+		price = 90,
 		model = "CatCafe_Decor_HarvestWreath",
 	},
 } :: { Item })

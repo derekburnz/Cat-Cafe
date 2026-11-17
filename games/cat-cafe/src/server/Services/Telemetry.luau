@@ -189,6 +189,8 @@ export type CustomEvent =
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
 	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
 	| "ticket_buy" -- #4061: value tickets before; prize id, tier
+	| "harvest_buy" -- #4251: value pumpkins before; Stall item id, tier
+	| "harvest_pie_reward" -- #4251 part 6: value spins banked (0 at the bank cap); tier
 	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
 	| "dragon_stage" -- #4062: value the stage reached; tier
 	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
@@ -351,6 +353,7 @@ export type CustomEvent =
 	-- #4913: today's Pal Day gift paid, value 1 (how the first pal was linked: friend, invite, follow or private; tier).
 	-- Roblox's own Platform dimension splits it by device
 	| "pal_day_claimed"
+	| "ab_return" -- Derek 2026-11-17: the return-day 50/50s (shared/ReturnAB), once a session: test, on/off, device
 	-- #3995 (friend-join-3995.md): a join through a friend with the palJoin switch on, value 1 (how: invite or follow;
 	-- new or returning; cafe next door yes or no)
 	| "pal_join"
@@ -1116,9 +1119,9 @@ local function logClean(player: Player, profile: Profile, event: string?)
 		return
 	end
 	local state = profile.telemetry
-	local logged = state.cleanV8Step or 0
+	local logged = state.cleanV9Step or 0
 	if logged == 0 and Onboarding.reached(state, "first_catch") then
-		state.cleanV8Step = Onboarding.CLEAN_COUNT -- #4504: began on v7 before the switch: out of v8
+		state.cleanV9Step = Onboarding.CLEAN_COUNT -- #4504: began before the funnel: out of it
 		return
 	end
 	if logged >= Onboarding.CLEAN_COUNT then
@@ -1138,9 +1141,13 @@ local function logClean(player: Player, profile: Profile, event: string?)
 		handCats = if type(caught) == "number"
 			then caught - (if type(tamed) == "number" then tamed else 0)
 			else 0,
+		tamed = if type(tamed) == "number" then tamed else 0, -- onboarding_v9
+		ownedCats = ProfileSchema.catCount(profile),
+		-- (only asked between Tier 2 and Tier 3, the one ready step after the walk-through)
+		nextReady = Economy.tier(profile) == 2 and Economy.rankUpBlocker(profile) == nil,
 	}
 	for _, step in Onboarding.cleanDue(state, logged, facts, event) do
-		state.cleanV8Step = step
+		state.cleanV9Step = step
 		sendClean(player, profile, Onboarding.CLEAN_FUNNEL, step, Onboarding.CLEAN_STEPS[step])
 	end
 end
@@ -1433,6 +1440,14 @@ function Telemetry.custom(player: Player, name: CustomEvent, value: number, valu
 	send(player, "custom " .. name, function()
 		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))
 	end)
+	-- onboarding_v9: some of its moments are these events (Onboarding.cleanFromCustom)
+	local moment = Onboarding.cleanFromCustom(name, fields)
+	if moment ~= nil then
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			logClean(player, profile, moment)
+		end
+	end
 end
 
 -- Logs the net swings counted since the last roll up, one net_swing event per result, net level and device.
@@ -1936,8 +1951,8 @@ end
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
 	logRarity(player, profile) -- #3876
-	if def.area == "spare" or def.area == "secret" then
-		return -- #3470: a Secret cat is on no area's Index page
+	if def.area == "spare" or def.area == "secret" or def.area == "harvest" then
+		return -- #3470: a Secret cat is on no area's Index page (#4251: nor a harvest cat)
 	end
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then
@@ -2355,6 +2370,20 @@ local function logJoined(player: Player)
 	saveAreas(profile, areasCaught)
 	session.areasCaught = areasCaught
 	Telemetry.onboarding(player, profile, "joined", { session.source })
+	do -- Derek 2026-11-17 15:24 UTC: the return-day 50/50s, once a session for an account in a test
+		local ReturnAB = require(ReplicatedStorage.Shared.ReturnAB) :: any
+		for _, test in ReturnAB.NAMES do
+			local group = ReturnAB.group(test, player.UserId, profile.telemetry.firstDay)
+			if group ~= nil then
+				Telemetry.custom(
+					player,
+					"ab_return",
+					1,
+					{ test, group, Telemetry.device(player) or "unknown" }
+				)
+			end
+		end
+	end
 	logFirstHour(player, profile)
 	session.rarityStep = 0 -- #3876
 	logRarity(player, profile)

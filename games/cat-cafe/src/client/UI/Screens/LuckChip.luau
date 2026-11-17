@@ -484,8 +484,9 @@ function LuckChip.toggle(self: any)
 		self:hide()
 		return true
 	end, self._closeButton)
-	if self._onCard ~= nil then
-		self._onCard()
+	local onCard: (() -> ())? = self._onCard
+	if onCard ~= nil then
+		onCard()
 	end
 end
 
@@ -532,8 +533,9 @@ function LuckChip.hide(self: any)
 	local was = self.card.Visible
 	self.card.Visible = false
 	self:_stopPity()
-	if was and self._onCard ~= nil then
-		self._onCard()
+	local onCard: (() -> ())? = self._onCard
+	if was and onCard ~= nil then
+		onCard()
 	end
 	local done: (() -> ())? = self._padDone
 	self._padDone = nil

@@ -68,6 +68,7 @@ type Entry = {
 	making: number, -- how far into the working bob it is (F90), 0 to 1, easing with its Making attribute
 	makingAt: number, -- os.clock() its current making started, for the bob's loop
 	drawn: Logic.Offsets?, -- #4601: the offsets last drawn, for redrawing an easing walk between steps
+	drawnAlpha: number, -- and the hiss hop's progress then (-1 none)
 }
 
 local ROLES: { [string]: Logic.Style } = {
@@ -560,6 +561,7 @@ local function bind(model: Model): Entry?
 		propBounce = propBounceOf(model),
 		making = 0,
 		drawn = nil,
+		drawnAlpha = -1,
 		makingAt = 0,
 	}
 	active[model] = entry
@@ -738,7 +740,7 @@ local function easeBetween(ease: number)
 				drop(model, entry)
 				continue
 			end
-			Pose.draw(rig, drawn, -1)
+			Pose.draw(rig, drawn, entry.drawnAlpha)
 		end
 	end
 end
@@ -884,7 +886,10 @@ local function step(dt: number)
 			Logic.eatPose(o, os.clock() - eatingAt)
 		end
 		Pose.draw(rig, o, alpha)
-		entry.drawn = if ease ~= nil and alpha < 0 then o else nil
+		-- a hiss hop too: a missed catch hisses and flees at once, and the flee's first writes landed on the skipped
+		-- frames (Sync's turn check on #5140: close fleeing turns 2 to 4.5 times the ground)
+		entry.drawn = if ease ~= nil then o else nil
+		entry.drawnAlpha = alpha
 		local yarn, wand = entry.yarn, entry.wand
 		if yarn ~= nil and wand ~= nil then
 			local floor = Pose.floor(entry.rig)

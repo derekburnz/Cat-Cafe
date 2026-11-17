@@ -295,6 +295,7 @@ export type CustomEvent =
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "return_hook_early_shown" -- #4626
+	| "tomorrow_card" -- #3951: the come back tomorrow card, value 1; its outcome (ReturnHook.CARD_OUTCOMES), the device
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
@@ -558,6 +559,7 @@ local REPORTS = {
 	"catch_reach", -- #3556: first time near a stray, first in-reach glow: near or shown (CATCH_REACH)
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"return_hook_early", -- #4626: the minute 6 "come back tomorrow" line showed, its kind (ReturnHook.EARLY_KINDS)
+	"tomorrow_card", -- #3951: the come back tomorrow card's outcome (ReturnHook.CARD_OUTCOMES)
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
@@ -2451,6 +2453,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		then
 			session.nudges["return_hook_early"] = true
 			Telemetry.custom(player, "return_hook_early_shown", 1, { kind })
+		end
+	elseif name == "tomorrow_card" then
+		-- #3951: each outcome once a session, with the switch on
+		local outcome = Guard.oneOf(rawValue, ReturnHook.CARD_OUTCOMES)
+		if
+			outcome ~= nil
+			and LiveFlagService.on(ReturnHook.CARD_FLAG)
+			and not session.nudges["tomorrow_card:" .. outcome]
+		then
+			session.nudges["tomorrow_card:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
+			Telemetry.custom(player, "tomorrow_card", 1, { outcome, session.device or "unknown" })
 		end
 	elseif name == "event_rsvp" then
 		local kind = Guard.oneOf(rawValue, RSVP_KINDS)

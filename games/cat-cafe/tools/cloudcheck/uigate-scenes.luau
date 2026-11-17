@@ -11818,6 +11818,122 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.nursery.open("fence")
 	end },
 	-- #4251: the Harvest Stall with 65 pumpkins: the Acorn Hat Owned, 50 and 60 gold, 70 and 80 greyed; then its Decor tab
+	-- #4251: the Thankful Board's face at 3/8 with twelve notes: the pie's three gold slices, its lines and every note
+	-- fit on the 10 x 5.6 stud Screen; the face is moved onto a frame for the shot
+	{ "ThankfulBoard", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local ThankfulBoard = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.ThankfulBoard") :: any
+		local Logic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ThankfulLogic") :: any
+		local decode = Logic.decode
+		local model = Instance.new("Model")
+		model.Name = "CatCafe_Harvest_Board"
+		local screen = Instance.new("Part")
+		screen.Name = "Screen"
+		screen.Parent = model
+		model.Parent = workspace
+		model:AddTag("HarvestBoard")
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "ThankfulBoardGate"
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.DisplayOrder = 100 -- over the HUD, so the shot shows the face
+		gui.Parent = UIShim.playerGui
+		local rows = {}
+		for index = 1, 12 do
+			table.insert(rows, { userId = index, note = ((index - 1) % 6) + 1 })
+		end
+		Logic.decode = function()
+			return rows
+		end
+		ReplicatedStorage:SetAttribute("HarvestPieCount", 12345)
+		ReplicatedStorage:SetAttribute("HarvestPieGoal", 25000)
+		ReplicatedStorage:SetAttribute("HarvestPieSlices", 3)
+		model:SetAttribute("HarvestNotes", "[rows]")
+		local board = ThankfulBoard.new(gui, function()
+			return true
+		end)
+		local ok, problem = pcall(function()
+			UIShim.advance(0.2)
+			local surface = gui:FindFirstChild("ThankfulBoardFace") :: SurfaceGui
+			assert(surface ~= nil and surface:IsA("SurfaceGui"), "uigate: the tagged board got no face (#4251)")
+			local title = surface:FindFirstChild("Title") :: TextLabel
+			assert(title.Text == "Feast Pie 3/8 baked", "uigate: the board's title reads " .. title.Text .. " (#4251)")
+			local count = surface:FindFirstChild("Count") :: TextLabel
+			assert(count.Text == "12,345 / 25,000 harvest cats", "uigate: the board's count reads " .. count.Text .. " (#4251)")
+			local helped = surface:FindFirstChild("Helped") :: TextLabel
+			assert(string.find(helped.Text, "You helped", 1, true) ~= nil, "uigate: the helped line reads " .. helped.Text .. " (#4251)")
+			local pie = surface:FindFirstChild("Pie") :: Frame
+			local gold = pie:FindFirstChild("Slice3") :: Frame
+			local tin = pie:FindFirstChild("Slice4") :: Frame
+			assert(gold.BackgroundColor3 ~= tin.BackgroundColor3, "uigate: the third slice is not baked and the fourth is (#4251)")
+			local shown = 0
+			for index = 1, 12 do
+				local card = surface:FindFirstChild("Note" .. index) :: Frame
+				if card.Visible then
+					shown += 1
+					local words = card:FindFirstChild("Words") :: TextLabel
+					assert(words.Text ~= "" and words.TextFits, "uigate: note " .. index .. " is cut off: " .. words.Text .. " (#4251)")
+				end
+			end
+			assert(shown == 12, "uigate: " .. shown .. " notes on the board, wanted 12 (#4251)")
+			assert(not (surface:FindFirstChild("Empty") :: GuiObject).Visible, "uigate: the empty line shows over the notes (#4251)")
+			-- the face at 1000 x 560 on a frame the shot can show
+			local face = Instance.new("Frame")
+			face.Name = "Face"
+			face.BackgroundColor3 = Color3.fromHex("1F2A44")
+			-- at the bottom, clear of Roblox's menu buttons at the top left
+			face.AnchorPoint = Vector2.new(0.5, 1)
+			face.Position = UDim2.new(0.5, 0, 1, -8)
+			local view = workspace.CurrentCamera.ViewportSize
+			local width = math.min(600, view.X - 32, (view.Y - 80) * 1000 / 560)
+			face.Parent = gui
+			local scale = Instance.new("UIScale")
+			scale.Scale = width / 1000
+			for _, child in surface:GetChildren() do
+				child.Parent = face
+			end
+			face.Size = UDim2.fromOffset(1000, 560)
+			scale.Parent = face
+			UIShim.advance(0.2)
+		end)
+		Logic.decode = decode
+		Scenes._thankfulReset = function()
+			board:destroy()
+			gui:Destroy()
+			model:Destroy()
+			ReplicatedStorage:SetAttribute("HarvestPieCount", nil)
+			ReplicatedStorage:SetAttribute("HarvestPieGoal", nil)
+			ReplicatedStorage:SetAttribute("HarvestPieSlices", nil)
+		end
+		assert(ok, problem)
+	end },
+	-- #4251: the note picker from the board's prompt: six fixed notes that fit, a tap pins one and closes it, and
+	-- opened again within the server's 10 s gap the notes are grey with "Pinned! Pick again in 10 s"
+	{ "ThankfulNotes", function()
+		local sent = {}
+		local link = UI.events.pinHarvestNote:Connect(function(note)
+			table.insert(sent, note)
+		end)
+		local ok, problem = pcall(function()
+			UI.harvest.openNotes()
+			assert(UI.isOpen() == "ThankfulNotes", "uigate: the note picker did not open (#4251)")
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("ThankfulNotes", true) :: GuiObject
+			for index = 1, 6 do
+				local button = window:FindFirstChild("Note" .. index, true) :: Instance
+				local label = button:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+				assert(label.Text ~= "" and label.TextFits, "uigate: note " .. index .. " does not fit: " .. label.Text .. " (#4251)")
+			end
+			press("ThankfulNotes", "Note2")
+			assert(#sent == 1 and sent[1] == 2, "uigate: tapping note 2 sent no PinHarvestNote 2 (#4251)")
+			assert(UI.isOpen() ~= "ThankfulNotes", "uigate: the picker stayed open after a pin (#4251)")
+			UI.harvest.openNotes()
+			local line = window:FindFirstChild("Line", true) :: TextLabel
+			assert(string.sub(line.Text, 1, 7) == "Pinned!", "uigate: right after a pin the line reads " .. line.Text .. " (#4251)")
+			press("ThankfulNotes", "Note3")
+			assert(#sent == 1, "uigate: a second pin went out inside the 10 s gap (#4251)")
+		end)
+		link:Disconnect()
+		assert(ok, problem)
+	end },
 	{ "HarvestStall", function()
 		UI.harvest.open("outfit")
 	end },
@@ -14887,6 +15003,10 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if Scenes._thankfulReset ~= nil then
+		Scenes._thankfulReset() -- #4251's Thankful Board scene: its made-up board and pie numbers
+		Scenes._thankfulReset = nil
+	end
 	if Scenes._mailbox then
 		-- #4249's scenes: the switch off and the box empty again
 		Scenes._mailbox = nil

@@ -132,7 +132,7 @@ return function()
 			expect(rows[1].key).to.equal("money")
 			expect(rows[1].passId).to.equal(200)
 			expect(rows[1].name).to.equal("2x Money")
-			expect(rows[1].effect).to.equal("Multiplies ALL your bonuses x2.")
+			expect(rows[1].effect).to.equal("Your cafe makes 2x money.")
 			expect(rows[1].owned).to.equal(false)
 			expect(rows[2].key).to.equal("longNap")
 			expect(rows[2].effect).to.equal(
@@ -144,10 +144,14 @@ return function()
 		it("shows only the next rung above the highest owned", function()
 			local rows = StoreLogic.rows(CONFIG, { [200] = true }, false)
 			expect(rows[1].passId).to.equal(300)
-			expect(rows[1].effect).to.equal("Multiplies ALL your bonuses x3, in place of x2.")
+			expect(rows[1].effect).to.equal(
+				"Your cafe makes 3x money. It replaces your 2x, it doesn't add to it."
+			)
 			rows = StoreLogic.rows(CONFIG, { [300] = true }, false)
 			expect(rows[1].passId).to.equal(400)
-			expect(rows[1].effect).to.equal("Multiplies ALL your bonuses x4, in place of x3.")
+			expect(rows[1].effect).to.equal(
+				"Your cafe makes 4x money. It replaces your 3x, it doesn't add to it."
+			)
 		end)
 
 		it("marks the top rung Owned once every rung is bought", function()
@@ -871,14 +875,14 @@ return function()
 				expect(StoreLogic.saleKey(rung)).to.equal("money3")
 				expect(StoreLogic.saleKey(card("vip"))).to.equal("vip")
 				expect(StoreLogic.saleKey(card("money"))).to.equal("money")
-				expect(StoreLogic.saleWas(rung, { robux = 29, forSale = true }, Config, before)).to.equal(
+				expect(StoreLogic.saleWas(rung, { robux = 20, forSale = true }, Config, before)).to.equal(
 					59
 				)
 				expect(StoreLogic.saleWas(rung, { robux = 59, forSale = true }, Config, before)).to.equal(
 					nil
 				)
 				rung.multiplier = 4
-				expect(StoreLogic.saleWas(rung, { robux = 49, forSale = true }, Config, before)).to.equal(
+				expect(StoreLogic.saleWas(rung, { robux = 30, forSale = true }, Config, before)).to.equal(
 					99
 				)
 			end)
@@ -886,11 +890,18 @@ return function()
 			it(
 				"lists the Store cards of Derek's fifteen items, each at half within half a Robux",
 				function()
+					local MONEY_4989: { [string]: number } =
+						{ money2 = 10, money3 = 20, money4 = 30, vip = 15 }
 					local count = 0
 					for key, entry in Config.StoreWasPrice do
 						count += 1
 						if key == "royalCat" or key == "kingPack" then
 							continue -- #4261: Derek's own prices, R$199 and R$299
+						end
+						if MONEY_4989[key] ~= nil then
+							-- #4989: Derek's own prices, 10, 20, 30 and VIP 15
+							expect(entry.now).to.equal(MONEY_4989[key])
+							continue
 						end
 						expect(math.abs(entry.was / 2 - entry.now) <= 0.5).to.equal(true)
 					end

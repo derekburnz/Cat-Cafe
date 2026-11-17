@@ -62,7 +62,9 @@ function PalDayService.start()
 			if LiveFlagService.on(Pals.PAL_DAY_FLAG) then
 				local now = os.time()
 				for _, player in Players:GetPlayers() do
-					local ok, err = pcall(check, player, now)
+					local ok, err: any = pcall(function()
+						check(player, now)
+					end)
 					if not ok then
 						warn(
 							"[PalDay] check failed for user "

@@ -320,6 +320,7 @@ function LuckChip.new(
 		Parent = list,
 	})
 	self._pityLoop = nil :: RBXScriptConnection?
+	self._pityLines = nil :: number?
 	self._hint = label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -525,7 +526,16 @@ end
 
 function LuckChip._paintPity(self: any)
 	local t = Workspace:GetServerTimeNow() - Config.ClockEpoch
-	self._pity.Text = table.concat(PityLogic.lines(PityLogic.view(t, PityLogic.current())), "\n")
+	local lines = PityLogic.lines(PityLogic.view(t, PityLogic.current()))
+	self._pity.Text = table.concat(lines, "\n")
+	-- a status line coming or going changes the open card's height, so it is placed again (Review-QA)
+	if self._pityLines ~= #lines then
+		local placed = self._pityLines ~= nil and self.card.Visible
+		self._pityLines = #lines
+		if placed then
+			self:_place()
+		end
+	end
 end
 
 function LuckChip._stopPity(self: any)

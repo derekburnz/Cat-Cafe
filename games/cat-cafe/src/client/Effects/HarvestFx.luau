@@ -391,7 +391,8 @@ local function watchBoard(board: Instance)
 	if type(now) == "string" then
 		notesSeen[board] = now
 	end
-	if boardLinks[board] ~= nil then
+	local link: RBXScriptConnection? = boardLinks[board]
+	if link ~= nil then
 		return
 	end
 	boardLinks[board] = board

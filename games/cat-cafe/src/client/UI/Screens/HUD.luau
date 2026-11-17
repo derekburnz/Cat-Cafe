@@ -2794,6 +2794,8 @@ function HUD.setCatching(self: any, active: boolean)
 			self._luck:hide()
 		end
 	end
+	-- #5054 (Review-QA): from the catch's first frame, so a goal preview or a fold before the next render keeps it aside
+	self._goal._held = active or not self:_open("goal")
 	self:_layoutBottom()
 	self:_renderTutorialTile()
 	self:_applyFocus()

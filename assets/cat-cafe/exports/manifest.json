@@ -331170,11 +331170,9 @@
         "CatCafe_Plot_BackDoor_Leaf",
         "CatCafe_Plot_BackDoor_Leaf_Glass",
         "CatCafe_Plot_BackDoor_FlapFrame",
-        "CatCafe_Plot_BackDoor_Flap",
-        "CatCafe_Plot_BackDoor_Sign",
-        "CatCafe_Plot_BackDoor_Sign_Bulb"
+        "CatCafe_Plot_BackDoor_Flap"
       ],
-      "triangles": 2022,
+      "triangles": 804,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -331218,16 +331216,6 @@
           8.0,
           17.57,
           2.35
-        ],
-        "CatCafe_Plot_BackDoor_Sign": [
-          10.88,
-          17.72,
-          0.0
-        ],
-        "CatCafe_Plot_BackDoor_Sign_Bulb": [
-          10.88,
-          17.72,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -331250,21 +331238,11 @@
           -8.0,
           2.35,
           17.57
-        ],
-        "CatCafe_Plot_BackDoor_Sign": [
-          -10.88,
-          0.0,
-          17.72
-        ],
-        "CatCafe_Plot_BackDoor_Sign_Bulb": [
-          -10.88,
-          0.0,
-          17.72
         ]
       },
-      "studio": "Every cafe, at the Plot pivot: a wooden door hung in the back doorway with a cat flap. Turn the child Model _Leaf about its pivot's Y to swing it (-90 degrees is wide open, out into the yard); _Flap rides the leaf and turns about its own X as a cat goes through. _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. The leaf's CatFlap Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code panel as the collider.",
+      "studio": "Every cafe, at the Plot pivot: a wooden door hung in the back doorway with a cat flap. Turn the child Model _Leaf about its pivot's Y to swing it (-90 degrees is wide open, out into the yard); _Flap rides the leaf and turns about its own X as a cat goes through. The leaf's CatFlap Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code panel as the collider.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_BackDoor.model.json",
-      "rbx_parts": 167,
+      "rbx_parts": 59,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_BackDoor.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_BackDoor.glb"
@@ -331276,10 +331254,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2022/4000 tris",
+          "budget": "804/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "987 faces on swatch centers",
+          "uv": "378 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=8.00 y=17.33"
@@ -331396,11 +331374,9 @@
       "objects": [
         "CatCafe_Door_FireEscape_Back",
         "CatCafe_Door_FireEscape_Back_Leaf",
-        "CatCafe_Door_FireEscape_Back_Leaf_Glass",
-        "CatCafe_Door_FireEscape_Back_Sign",
-        "CatCafe_Door_FireEscape_Back_Sign_Bulb"
+        "CatCafe_Door_FireEscape_Back_Leaf_Glass"
       ],
-      "triangles": 2454,
+      "triangles": 1284,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -331434,16 +331410,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_FireEscape_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_FireEscape_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -331456,21 +331422,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_FireEscape_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_FireEscape_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FireEscape_Back.model.json",
-      "rbx_parts": 205,
+      "rbx_parts": 101,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Back.glb"
@@ -331482,10 +331438,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2454/4000 tris",
+          "budget": "1284/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1209 faces on swatch centers",
+          "uv": "624 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.15"
@@ -331602,11 +331558,9 @@
       "objects": [
         "CatCafe_Door_GardenGate_Back",
         "CatCafe_Door_GardenGate_Back_Leaf",
-        "CatCafe_Door_GardenGate_Back_Leaf_Glass",
-        "CatCafe_Door_GardenGate_Back_Sign",
-        "CatCafe_Door_GardenGate_Back_Sign_Bulb"
+        "CatCafe_Door_GardenGate_Back_Leaf_Glass"
       ],
-      "triangles": 2494,
+      "triangles": 1324,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -331640,16 +331594,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_GardenGate_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_GardenGate_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -331662,21 +331606,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_GardenGate_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_GardenGate_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_GardenGate_Back.model.json",
-      "rbx_parts": 215,
+      "rbx_parts": 111,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Back.glb"
@@ -331688,10 +331622,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2494/4000 tris",
+          "budget": "1324/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1239 faces on swatch centers",
+          "uv": "654 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -331808,25 +331742,23 @@
       "objects": [
         "CatCafe_Door_FrontPorch_Back",
         "CatCafe_Door_FrontPorch_Back_Leaf",
-        "CatCafe_Door_FrontPorch_Back_Leaf_Glass",
-        "CatCafe_Door_FrontPorch_Back_Sign",
-        "CatCafe_Door_FrontPorch_Back_Sign_Bulb"
+        "CatCafe_Door_FrontPorch_Back_Leaf_Glass"
       ],
-      "triangles": 2776,
+      "triangles": 1558,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
-        "y": 1.37,
+        "y": 1.3,
         "z": 7.95
       },
       "size_roblox": [
         6.9,
         7.95,
-        1.37
+        1.3
       ],
       "bounds_min": [
         -3.45,
-        -0.55,
+        -0.48,
         0.0
       ],
       "bounds_max": [
@@ -331846,16 +331778,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_FrontPorch_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_FrontPorch_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -331868,21 +331790,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_FrontPorch_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_FrontPorch_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FrontPorch_Back.model.json",
-      "rbx_parts": 258,
+      "rbx_parts": 150,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Back.glb"
@@ -331894,13 +331806,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2776/4000 tris",
+          "budget": "1558/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1370 faces on swatch centers",
+          "uv": "761 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.13"
+          "centered": "footprint center x=0.00 y=0.17"
         }
       }
     },
@@ -331991,11 +331903,9 @@
       "module": "doorsets",
       "objects": [
         "CatCafe_Door_LogCabin_Back",
-        "CatCafe_Door_LogCabin_Back_Leaf",
-        "CatCafe_Door_LogCabin_Back_Sign",
-        "CatCafe_Door_LogCabin_Back_Sign_Bulb"
+        "CatCafe_Door_LogCabin_Back_Leaf"
       ],
-      "triangles": 2084,
+      "triangles": 914,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -332024,16 +331934,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_LogCabin_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_LogCabin_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -332041,21 +331941,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_LogCabin_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_LogCabin_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_LogCabin_Back.model.json",
-      "rbx_parts": 179,
+      "rbx_parts": 75,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.glb"
@@ -332067,10 +331957,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2084/4000 tris",
+          "budget": "914/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1030 faces on swatch centers",
+          "uv": "445 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -332187,25 +332077,23 @@
       "objects": [
         "CatCafe_Door_PortholeHatch_Back",
         "CatCafe_Door_PortholeHatch_Back_Leaf",
-        "CatCafe_Door_PortholeHatch_Back_Leaf_Glass",
-        "CatCafe_Door_PortholeHatch_Back_Sign",
-        "CatCafe_Door_PortholeHatch_Back_Sign_Bulb"
+        "CatCafe_Door_PortholeHatch_Back_Leaf_Glass"
       ],
-      "triangles": 3002,
+      "triangles": 1784,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
-        "y": 1.45,
+        "y": 1.3,
         "z": 7.95
       },
       "size_roblox": [
         6.9,
         7.95,
-        1.45
+        1.3
       ],
       "bounds_min": [
         -3.45,
-        -0.63,
+        -0.48,
         0.0
       ],
       "bounds_max": [
@@ -332225,16 +332113,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_PortholeHatch_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_PortholeHatch_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -332247,21 +332125,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_PortholeHatch_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_PortholeHatch_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PortholeHatch_Back.model.json",
-      "rbx_parts": 250,
+      "rbx_parts": 142,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Back.glb"
@@ -332273,13 +332141,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "3002/4000 tris",
+          "budget": "1784/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1481 faces on swatch centers",
+          "uv": "872 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.09"
+          "centered": "footprint center x=0.00 y=0.17"
         }
       }
     },
@@ -332393,11 +332261,9 @@
       "objects": [
         "CatCafe_Door_PanedGlass_Back",
         "CatCafe_Door_PanedGlass_Back_Leaf",
-        "CatCafe_Door_PanedGlass_Back_Leaf_Glass",
-        "CatCafe_Door_PanedGlass_Back_Sign",
-        "CatCafe_Door_PanedGlass_Back_Sign_Bulb"
+        "CatCafe_Door_PanedGlass_Back_Leaf_Glass"
       ],
-      "triangles": 2452,
+      "triangles": 760,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -332431,16 +332297,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_PanedGlass_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_PanedGlass_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -332453,21 +332309,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_PanedGlass_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_PanedGlass_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PanedGlass_Back.model.json",
-      "rbx_parts": 204,
+      "rbx_parts": 50,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Back.glb"
@@ -332479,10 +332325,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2452/4000 tris",
+          "budget": "760/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1186 faces on swatch centers",
+          "uv": "340 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -332599,11 +332445,9 @@
       "objects": [
         "CatCafe_Door_Medal_Back",
         "CatCafe_Door_Medal_Back_Leaf",
-        "CatCafe_Door_Medal_Back_Leaf_Glass",
-        "CatCafe_Door_Medal_Back_Sign",
-        "CatCafe_Door_Medal_Back_Sign_Bulb"
+        "CatCafe_Door_Medal_Back_Leaf_Glass"
       ],
-      "triangles": 1970,
+      "triangles": 800,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -332637,16 +332481,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_Medal_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_Medal_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -332659,21 +332493,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_Medal_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_Medal_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_Medal_Back.model.json",
-      "rbx_parts": 165,
+      "rbx_parts": 61,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_Medal_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_Medal_Back.glb"
@@ -332685,10 +332509,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1970/4000 tris",
+          "budget": "800/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "963 faces on swatch centers",
+          "uv": "378 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -332805,11 +332629,9 @@
       "objects": [
         "CatCafe_Door_ArchGate_Back",
         "CatCafe_Door_ArchGate_Back_Leaf",
-        "CatCafe_Door_ArchGate_Back_Leaf_Glass",
-        "CatCafe_Door_ArchGate_Back_Sign",
-        "CatCafe_Door_ArchGate_Back_Sign_Bulb"
+        "CatCafe_Door_ArchGate_Back_Leaf_Glass"
       ],
-      "triangles": 2094,
+      "triangles": 876,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -332843,16 +332665,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_ArchGate_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_ArchGate_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -332865,21 +332677,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_ArchGate_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_ArchGate_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_ArchGate_Back.model.json",
-      "rbx_parts": 177,
+      "rbx_parts": 69,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_ArchGate_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_ArchGate_Back.glb"
@@ -332891,10 +332693,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2094/4000 tris",
+          "budget": "876/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1035 faces on swatch centers",
+          "uv": "426 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -332988,25 +332790,23 @@
       "module": "doorsets",
       "objects": [
         "CatCafe_Door_TempleGate_Back",
-        "CatCafe_Door_TempleGate_Back_Leaf",
-        "CatCafe_Door_TempleGate_Back_Sign",
-        "CatCafe_Door_TempleGate_Back_Sign_Bulb"
+        "CatCafe_Door_TempleGate_Back_Leaf"
       ],
-      "triangles": 1782,
+      "triangles": 564,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
-        "y": 1.32,
+        "y": 1.3,
         "z": 7.95
       },
       "size_roblox": [
         6.9,
         7.95,
-        1.32
+        1.3
       ],
       "bounds_min": [
         -3.45,
-        -0.5,
+        -0.48,
         0.0
       ],
       "bounds_max": [
@@ -333021,16 +332821,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_TempleGate_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_TempleGate_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -333038,21 +332828,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_TempleGate_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_TempleGate_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_TempleGate_Back.model.json",
-      "rbx_parts": 151,
+      "rbx_parts": 43,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_TempleGate_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_TempleGate_Back.glb"
@@ -333064,13 +332844,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1782/4000 tris",
+          "budget": "564/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "879 faces on swatch centers",
+          "uv": "270 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.16"
+          "centered": "footprint center x=0.00 y=0.17"
         }
       }
     },
@@ -439867,11 +439647,9 @@
       "objects": [
         "CatCafe_Door_Chalet_Back",
         "CatCafe_Door_Chalet_Back_Leaf",
-        "CatCafe_Door_Chalet_Back_Leaf_Glass",
-        "CatCafe_Door_Chalet_Back_Sign",
-        "CatCafe_Door_Chalet_Back_Sign_Bulb"
+        "CatCafe_Door_Chalet_Back_Leaf_Glass"
       ],
-      "triangles": 1926,
+      "triangles": 708,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -439905,16 +439683,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_Chalet_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_Chalet_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -439927,21 +439695,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_Chalet_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_Chalet_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_Chalet_Back.model.json",
-      "rbx_parts": 163,
+      "rbx_parts": 55,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_Chalet_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_Chalet_Back.glb"
@@ -439953,10 +439711,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1926/4000 tris",
+          "budget": "708/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "951 faces on swatch centers",
+          "uv": "342 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -440724,11 +440482,9 @@
       "objects": [
         "CatCafe_Door_TicketGate_Back",
         "CatCafe_Door_TicketGate_Back_Leaf",
-        "CatCafe_Door_TicketGate_Back_Leaf_Glass",
-        "CatCafe_Door_TicketGate_Back_Sign",
-        "CatCafe_Door_TicketGate_Back_Sign_Bulb"
+        "CatCafe_Door_TicketGate_Back_Leaf_Glass"
       ],
-      "triangles": 1848,
+      "triangles": 630,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -440762,16 +440518,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_TicketGate_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_TicketGate_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -440784,21 +440530,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_TicketGate_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_TicketGate_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_TicketGate_Back.model.json",
-      "rbx_parts": 157,
+      "rbx_parts": 49,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_TicketGate_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_TicketGate_Back.glb"
@@ -440810,10 +440546,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1848/4000 tris",
+          "budget": "630/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "912 faces on swatch centers",
+          "uv": "303 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -441565,11 +441301,9 @@
       "objects": [
         "CatCafe_Door_Drawbridge_Back",
         "CatCafe_Door_Drawbridge_Back_Leaf",
-        "CatCafe_Door_Drawbridge_Back_Leaf_Glass",
-        "CatCafe_Door_Drawbridge_Back_Sign",
-        "CatCafe_Door_Drawbridge_Back_Sign_Bulb"
+        "CatCafe_Door_Drawbridge_Back_Leaf_Glass"
       ],
-      "triangles": 2358,
+      "triangles": 1140,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -441603,16 +441337,6 @@
           -2.88,
           -0.22,
           0.0
-        ],
-        "CatCafe_Door_Drawbridge_Back_Sign": [
-          -2.88,
-          -0.22,
-          0.0
-        ],
-        "CatCafe_Door_Drawbridge_Back_Sign_Bulb": [
-          -2.88,
-          -0.22,
-          0.0
         ]
       },
       "part_pivots_roblox": {
@@ -441625,21 +441349,11 @@
           2.88,
           0.0,
           -0.22
-        ],
-        "CatCafe_Door_Drawbridge_Back_Sign": [
-          2.88,
-          0.0,
-          -0.22
-        ],
-        "CatCafe_Door_Drawbridge_Back_Sign_Bulb": [
-          2.88,
-          0.0,
-          -0.22
         ]
       },
-      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_Drawbridge_Back.model.json",
-      "rbx_parts": 185,
+      "rbx_parts": 77,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_Drawbridge_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_Drawbridge_Back.glb"
@@ -441651,10 +441365,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2358/4000 tris",
+          "budget": "1140/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1125 faces on swatch centers",
+          "uv": "516 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"

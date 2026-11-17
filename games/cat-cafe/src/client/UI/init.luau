@@ -1741,6 +1741,13 @@ function UI.init(config: Types.InitConfig)
 			pills:setQuiet(active)
 		end
 	end)
+	-- #4998: the open Luck card is one of the boxes below; the stack (and the rest banner pinned in it) moves aside
+	-- as it opens and comes back as it closes, a frame later so the card has its place
+	hudInstance.luckCardChanged:Connect(function()
+		task.defer(function()
+			toastsInstance:replace()
+		end)
+	end)
 	toastsInstance:avoid(
 		function() -- #2338: clear of the HUD's menu column and goal card on a phone
 			return hudInstance:toastAvoid()

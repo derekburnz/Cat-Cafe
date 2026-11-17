@@ -176,7 +176,8 @@ if Settings.kinds[SettingsList.VIP_TAG_KEY] then
 		name = "VIP tag",
 		detail = "The gold VIP tag over your head",
 	}
-	table.insert(SettingsList.SECTIONS[2].rows, row)
+	-- #5010: first on the Screen tab, where the Store's "turn it on in Settings" sends a new VIP (a phone shows 3 rows)
+	table.insert(SettingsList.SECTIONS[2].rows, 1, row)
 end
 
 -- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",

@@ -864,6 +864,8 @@ fieldEvents=(
 	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"
 	"robux_purchase|CustomField1|CustomEventAvgValue|Average Robux per purchase, by sku (x count = revenue)"
 	"store_cancelled|CustomField1|CustomEventCount|Purchase prompts closed without buying, by sku"
+	"paid_item|CustomField1|CustomEventCount|Robux purchases by sku, robux_purchase's twin name (#4438)"
+	"paid_item|CustomField1|CustomEventAvgValue|Average Robux per purchase by sku, twin name (#4438; x count = revenue)"
 	"step_ready|CustomField1|CustomEventCountUser|First five minutes (#3098): players ready for each step"
 	"step_ready|CustomField1|CustomEventAvgValue|First five minutes: average account seconds when each step became ready"
 	"step_stall|CustomField1,CustomField2|CustomEventCountUser|First five minutes: players stalled by awaited step and 30/60/120 s"

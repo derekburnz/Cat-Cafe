@@ -418,6 +418,10 @@ export type CustomEvent =
 	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
 	-- "first" for the account's first spend here or "repeat"
 	| "robux_purchase"
+	-- #4438: robux_purchase's twin under a second name, the same value and fields. robux_purchase has never shown a
+	-- row in Roblox Analytics (Nov 13 to 16, against group log sales), while store_cancelled and pal_join from the
+	-- same send path did, so the name itself is the suspect
+	| "paid_item"
 	-- #1888: Roblox's purchase prompt closed without buying, value 1; the sku, tier
 	| "store_cancelled"
 	-- #1888: every fifth Cafe Pass level, value the level; the season, the paid track ("paid" or "free"), tier
@@ -2114,6 +2118,12 @@ function Telemetry.robuxPurchase(
 	Telemetry.custom(
 		player,
 		"robux_purchase",
+		math.max(0, math.floor(robux)),
+		{ sku, dayText(profile), if first then "first" else "repeat" }
+	)
+	Telemetry.custom(
+		player,
+		"paid_item",
 		math.max(0, math.floor(robux)),
 		{ sku, dayText(profile), if first then "first" else "repeat" }
 	)

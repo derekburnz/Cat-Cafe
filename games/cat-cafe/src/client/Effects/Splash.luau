@@ -239,7 +239,7 @@ function Splash.start()
 		return
 	end
 	started = true
-	Workspace.DescendantAdded:Connect(consider)
+	Context.onWorkspaceAdded(consider)
 	task.spawn(function()
 		for _, descendant in Workspace:GetDescendants() do
 			consider(descendant)

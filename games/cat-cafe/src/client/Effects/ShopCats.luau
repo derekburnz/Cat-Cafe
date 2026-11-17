@@ -602,8 +602,8 @@ function ShopCats.start()
 			considerCrest(descendant)
 		end
 	end
-	Workspace.DescendantAdded:Connect(consider)
-	Workspace.DescendantAdded:Connect(considerCrest)
+	Context.onWorkspaceAdded(consider)
+	Context.onWorkspaceAdded(considerCrest)
 	task.spawn(function()
 		while true do
 			task.wait(Presets.shopCats.duchess.pick)

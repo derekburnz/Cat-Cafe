@@ -127,6 +127,7 @@ LiveFlags.KEYS = {
 	"backdropsNear", -- #4857: far areas' backdrop rings leave this client's Workspace (shared/BackdropNear); off by default
 	"palDay", -- #4913: the Pal Day gift, 30 golden fish and a spin for 5 minutes beside a pal, once a day (shared/Pals)
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
+	"fxOneAdded", -- #5000: Effects' Workspace.DescendantAdded handlers share one connection (Effects/Context); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -167,6 +168,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	journeys = true,
 	palDay = true, -- #4913: on after Growth's days-with-friends baseline and a restart (the save field has no bump)
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
+	fxOneAdded = true, -- #5000: on once Sync's Studio read shows the shared connection is no slower
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

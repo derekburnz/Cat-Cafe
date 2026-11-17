@@ -164,6 +164,7 @@ export type HUD = {
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
 	isCatching: (self: HUD) -> boolean,
+	luckCardChanged: Signal.Signal, -- #4998: the Luck card opened or closed, so the toasts make room or come back
 	setMenuFolded: (self: HUD, folded: boolean) -> (),
 	gamepadMenu: (self: HUD) -> GuiButton?, -- #2872
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
@@ -378,7 +379,9 @@ local HIDE_CROSS = if Scale.isTouch() then 26 else 24
 local HIDE_PULSE_SECONDS = 6 -- #3638 (Derek: "just show the x for a bit"); 12 for a while (#3154)
 local HIDE_AFTER = 6 -- #3154: seconds after the tutorial's end before the × pulses
 local HIDE_HINT_H = 24
-local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
+-- #2411: how long the pulse waits for the HUD to be on screen and free (#4946: 300, as it also waits out the account's
+-- first 5 minutes; it was 120)
+local HIDE_WAIT_SECONDS = 300
 local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true) -- #3154: for the whole pulse
 local HIDE_GROW = 1.6 -- #3154: how big the × bounces (was 1.35)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
@@ -983,6 +986,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tutorialEnabled = true
 	self._catching = false
 	self.catchingChanged = Signal.new()
+	self.luckCardChanged = Signal.new() -- #4998: the Luck card opened or closed
 	local hide: TextButton = Create("TextButton", {
 		Name = "Hide",
 		Text = "",
@@ -2426,6 +2430,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 		function()
 			self:_hideBoosts()
+		end,
+		function()
+			self.luckCardChanged:Fire() -- #4998
 		end
 	)
 	-- F92: the pals' bonus is a row of the boosts card a tap on the money opens. Derek 2026-11-13 ("the friend bonus is
@@ -3019,6 +3026,9 @@ function HUD._hideFree(self: any): boolean
 	return self._tutorialTile.instance.Visible == true
 		and self.screenGui.Enabled == true
 		and self._catching ~= true
+		-- #4946 (Sync's Studio run: the arrow sat on the × 6 s after RANK UP while the goal said "Visit the Park"):
+		-- not while the UI's pop-up hold is on (the walk-through or the account's first 5 minutes)
+		and self._bannerHold.tutorial ~= true
 end
 
 function HUD.pulseHide(self: any)
@@ -3801,6 +3811,7 @@ function HUD.toastAvoid(self: any): { Types.Box }
 		box({ self._clock, self._banner, self._dayCard })
 	end
 	box({ self._goal.frame })
+	box({ self._luck.card }) -- #4998: the open Luck card (the "2x money in ..." rest bubble drew over its left half)
 	box({ self._corner }) -- the Potions tile, bottom right (left of the bottom row on touch, #2529)
 	-- a line's words: each label's text, from its right edge when right-aligned
 	for _, line in { self._spinLine } :: { GuiObject } do

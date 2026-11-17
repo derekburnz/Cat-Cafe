@@ -94,5 +94,31 @@ return function()
 			expect(QuietStart.tutorialHolds(false, 5, 1)).to.equal(false)
 			expect(QuietStart.tutorialHolds(false, 3, 2)).to.equal(false)
 		end)
+
+		it("holds the pop-ups through the account's first 5 minutes of play (#4946)", function()
+			expect(QuietStart.EARLY_SECONDS).to.equal(300)
+			local now = 1000000
+			-- joined just now on a new account: QuietUntil is now + SECONDS
+			local fresh = now + QuietStart.SECONDS
+			expect(QuietStart.earlyHolds(fresh, now)).to.equal(true)
+			expect(QuietStart.earlyEndsAt(fresh, now)).to.equal(now + QuietStart.EARLY_SECONDS)
+			-- 299 s in: still held; 300 s in: free
+			expect(QuietStart.earlyHolds(fresh, now + 299)).to.equal(true)
+			expect(QuietStart.earlyHolds(fresh, now + 300)).to.equal(false)
+			expect(QuietStart.earlyEndsAt(fresh, now + 300)).to.equal(nil)
+			-- a returning account with 4 minutes played: one more minute
+			local back = now + QuietStart.SECONDS - 240
+			expect(QuietStart.earlyHolds(back, now + 59)).to.equal(true)
+			expect(QuietStart.earlyHolds(back, now + 60)).to.equal(false)
+			-- no attribute (an old account past its quiet start): never held
+			expect(QuietStart.earlyHolds(nil, now)).to.equal(false)
+		end)
+
+		it("lets one held pop-up through every 5 minutes (#4946)", function()
+			expect(QuietStart.POP_GAP_SECONDS).to.equal(300)
+			expect(QuietStart.popFree(nil, 10)).to.equal(true)
+			expect(QuietStart.popFree(10, 309)).to.equal(false)
+			expect(QuietStart.popFree(10, 310)).to.equal(true)
+		end)
 	end)
 end

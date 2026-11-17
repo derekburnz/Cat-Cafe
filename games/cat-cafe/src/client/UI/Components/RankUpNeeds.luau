@@ -61,4 +61,33 @@ function RankUpNeeds.rarityCaption(rarity: string, count: number, touch: boolean
 	return ("%d %s+ cats"):format(count, rarity)
 end
 
+-- #4920 item 7 (Design-Agent: "the grey state says what is missing (\"2 more kinds\"), not just grey"): the first
+-- need not met yet, as the Rank Up window's grey button reads it. Cats first (the need players miss most), then the
+-- rarity, then the coins, which only take waiting. `money` writes the coins still short ("$1.2K"). Nil when ready.
+-- Short on purpose: the button is 260 px wide.
+function RankUpNeeds.missing(
+	nextTier: Types.TierDef,
+	needs: Needs,
+	money: (amount: number) -> string
+): string?
+	local cats = needs.catsNeed - needs.catsHave
+	if cats > 0 then
+		local word = if nextTier.anyCats == true then "cat" else "kind"
+		return ("Need %d more %s%s"):format(cats, word, if cats == 1 then "" else "s")
+	end
+	local rarity = needs.rarity
+	local rare = needs.rarityNeed - needs.rarityHave
+	if rarity ~= nil and rare > 0 then
+		if rare == 1 then
+			return ("Need a %s+ cat"):format(rarity)
+		end
+		return ("Need %d more %s+"):format(rare, rarity)
+	end
+	local coins = needs.coinsNeed - needs.coinsHave
+	if coins > 0 then
+		return ("Need %s more"):format(money(coins))
+	end
+	return nil
+end
+
 return RankUpNeeds

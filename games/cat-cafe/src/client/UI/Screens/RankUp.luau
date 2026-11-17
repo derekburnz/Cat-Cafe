@@ -701,9 +701,19 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	local fly: string? = if progress.ready then nil else self._fly
 	self._flying = fly ~= nil
 	self._button:setEnabled(progress.ready or fly ~= nil)
-	self._button:setText(
-		if progress.ready then "RANK UP  ·  " .. Format.money(nextTier.cost) else fly or "Not yet"
-	)
+	-- #4920 item 7: the grey button says what is still missing ("Need 2 more kinds"), not "Not yet"
+	local function short(amount: number): string
+		return Format.money(amount)
+	end
+	local missing: string? = nil
+	if not progress.ready and fly == nil then
+		missing = RankUpNeeds.missing(nextTier, RankUpNeeds.of(nextTier, state), short)
+	end
+	local words = fly or missing or "Not yet"
+	if progress.ready then
+		words = "RANK UP  ·  " .. Format.money(nextTier.cost)
+	end
+	self._button:setText(words)
 	-- #4847 (Derek 2026-11-16, his screenshot: the Tier 1 window, both requirements met, nothing pointing): the first
 	-- rank up's button gets the tutorial's ring and arrow whenever it is ready, wherever the window was opened (the
 	-- dimmed walk-through, RankSpot, lights it only on the safe side). No dim, so the window's X still works.

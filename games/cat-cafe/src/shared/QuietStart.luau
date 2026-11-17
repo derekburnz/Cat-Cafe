@@ -132,6 +132,34 @@ function QuietStart.tutorialHolds(bowlFirst: boolean, tutorialStep: number?, tie
 	return bowlFirst or (tutorialStep or 0) < QuietStart.TUTORIAL_DONE
 end
 
+-- #4946 (Derek 2026-11-16, via the coordinator: "one pop-up every 5 minutes", and no social asks or other unneeded
+-- pop-ups until the tutorial steps are done or the first 5 minutes have passed): the walk-through hold also lasts
+-- until the account has EARLY_SECONDS of play (read off ATTRIBUTE, which counts the account's first SECONDS), so the
+-- Tier 2 rank up at about 75 to 115 s no longer lets everything held go at once. After it, the pop-ups the hold keeps
+-- (event cards, asks, first visit cards, the Starter Bundle card, the Daily Treat opening itself) come at most one
+-- every POP_GAP_SECONDS (the client's UI.popPace).
+QuietStart.EARLY_SECONDS = 300
+QuietStart.POP_GAP_SECONDS = 300
+
+-- Whether a player whose attribute reads `untilAt` has played less than EARLY_SECONDS on the account at `now`.
+function QuietStart.earlyHolds(untilAt: unknown, now: number): boolean
+	return type(untilAt) == "number"
+		and untilAt - now > QuietStart.SECONDS - QuietStart.EARLY_SECONDS
+end
+
+-- The server time the early hold ends for `untilAt`, or nil when it is not on at `now`.
+function QuietStart.earlyEndsAt(untilAt: unknown, now: number): number?
+	if not QuietStart.earlyHolds(untilAt, now) then
+		return nil
+	end
+	return (untilAt :: number) - (QuietStart.SECONDS - QuietStart.EARLY_SECONDS)
+end
+
+-- Whether a held pop-up may show at `now` (this session's clock), the last one having shown at `lastAt`.
+function QuietStart.popFree(lastAt: number?, now: number): boolean
+	return lastAt == nil or now - lastAt >= QuietStart.POP_GAP_SECONDS
+end
+
 -- The client's read: whether the local player is quiet now. Not for the specs.
 function QuietStart.live(): boolean
 	local player = game:GetService("Players").LocalPlayer

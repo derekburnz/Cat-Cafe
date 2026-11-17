@@ -155,6 +155,31 @@ return function()
 			expect(SecondCatHelp.topUpFor(profile, true)).to.equal(0)
 		end)
 
+		-- Derek 2026-11-17 15:14 UTC: "rank up should be ready as soon as they catch their first cat from alleyway
+		-- ... free starting cat, into food bowl into alleyway cannon, 1 catch into rankup"
+		it(
+			"a new save's starter, the bowl cat and one Alleyway catch make the Rank Up ready",
+			function()
+				local CatStats = require(Shared.CatStats)
+				local profile = ProfileSchema.template(1_800_000_000)
+				expect(Economy.rankUpCats(profile.collection, profile.cats, tier2)).to.equal(1) -- the starter Tabby
+				-- the bowl cat and the first Alleyway catch, both Tabbies like the starter: duplicates count for Tier 2
+				profile.cats.bowl_cat = CatStats.newInstance("bowl_cat", "tabby", 1_800_000_010)
+				profile.stats.baitsTamed = 1
+				expect(Economy.rankUpCats(profile.collection, profile.cats, tier2)).to.equal(2)
+				expect(SecondCatHelp.topUpFor(profile, true, true)).to.equal(0) -- one short, no money yet
+				profile.cats.alley_cat = CatStats.newInstance("alley_cat", "tabby", 1_800_000_020)
+				profile.stats.catsCaught = 2
+				expect(Economy.rankUpCats(profile.collection, profile.cats, tier2)).to.equal(
+					tier2.distinctCats
+				)
+				profile.coins = 120
+				expect(SecondCatHelp.topUpFor(profile, true, true)).to.equal(tier2.cost - 120)
+				profile.coins += SecondCatHelp.topUpFor(profile, true, true)
+				expect(Economy.rankUpBlocker(profile)).to.equal(nil)
+			end
+		)
+
 		it("a new save starts with nothing paid", function()
 			expect(ProfileSchema.template(0).stats.tier2TopUp).to.equal(0)
 		end)

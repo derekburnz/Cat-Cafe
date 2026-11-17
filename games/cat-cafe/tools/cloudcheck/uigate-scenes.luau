@@ -13871,11 +13871,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local card = page:FindFirstChild("Pack_packWinter") :: GuiObject
 			local buy = card:FindFirstChild("Buy", true) :: GuiObject
 			local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
-			assert(string.find(label.Text, "4,950", 1, true), "uigate: the Winter Pack reads " .. label.Text .. " in fish mode (#4055)")
+			assert(string.find(label.Text, "2,500", 1, true), "uigate: the Winter Pack reads " .. label.Text .. " in fish mode (#4055)")
 			local bar = buy:FindFirstChild("FishBar") :: Frame
 			assert(bar and bar.Visible, "uigate: no bar of fish saved over the Winter Pack's button (#4055)")
 			local fill = bar:FindFirstChild("Fill") :: Frame
-			assert(math.abs(fill.Size.X.Scale - 2310 / 4950) < 0.01, "uigate: the fish bar is at " .. fill.Size.X.Scale .. " (#4055)")
+			assert(math.abs(fill.Size.X.Scale - 2310 / 2500) < 0.01, "uigate: the fish bar is at " .. fill.Size.X.Scale .. " (#4055)")
 			local effect = card:FindFirstChild("Effect") :: GuiObject
 			assert(bar.AbsolutePosition.Y >= buy.AbsolutePosition.Y and bar.AbsolutePosition.Y + bar.AbsoluteSize.Y <= buy.AbsolutePosition.Y + buy.AbsoluteSize.Y, "uigate: the fish bar is not inside the Winter Pack's button (#4055)")
 			-- the money ladder is Robux only, and a tap on it goes back to Robux prices
@@ -13895,7 +13895,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(#sent == 0 and string.find(label.Text, "Buy?", 1, true), "uigate: the first tap did not ask, it reads " .. label.Text .. " (#4055)")
 			assert(label.TextFits, "uigate: " .. label.Text .. " does not fit its button (#4055)")
 			press("Store", "Pack_packWinter.Buy")
-			assert(#sent == 1 and sent[1].key == "winterPack" and sent[1].fish == 4950, "uigate: the second tap sent no BuyWithFish winterPack 4950 (#4055)")
+			assert(#sent == 1 and sent[1].key == "winterPack" and sent[1].fish == 2500, "uigate: the second tap sent no BuyWithFish winterPack 2500 (#4055)")
 			UI.update({ fishStore = view({ winterPack = true }), goldenFish = 4050 } :: any)
 			local owned = card:FindFirstChild("Owned", true) :: GuiObject
 			assert(owned and owned.Visible and not buy.Visible, "uigate: the Winter Pack bought with fish does not show as yours (#4055)")

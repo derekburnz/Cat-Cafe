@@ -2138,7 +2138,7 @@ Catalog.TABLES_PLAIN = table.freeze({ [2] = 4, [3] = 6, [4] = 6 })
 -- Sets the tables caps of Tiers 2 to 4 to the spread (true) or the plain ladder (false), and the tables upgrade's
 -- requiresTierAtLevel from them. Returns whether anything changed.
 function Catalog.setTablesSpread(on: boolean): boolean
-	local caps = if on then Catalog.TABLES_SPREAD else Catalog.TABLES_PLAIN
+	local caps: { [number]: number } = if on then Catalog.TABLES_SPREAD else Catalog.TABLES_PLAIN
 	local changed = false
 	for tier, cap in caps do
 		local def = Catalog.tiers[tier]

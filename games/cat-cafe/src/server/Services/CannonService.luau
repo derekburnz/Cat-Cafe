@@ -38,6 +38,8 @@ local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local NightService = require(script.Parent.NightService)
 local PalService = require(script.Parent.PalService)
 local PlotService = require(script.Parent.PlotService)
+local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
+local StreamAround = require(script.Parent.Parent.Util.StreamAround)
 local Telemetry = require(script.Parent.Telemetry)
 local TravelService = require(script.Parent.TravelService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -45,8 +47,14 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 local CannonService = {}
 
 local STREAM_TIMEOUT = 2 -- seconds RequestStreamAroundAsync may wait
-local FLIGHT_ATTRIBUTES =
-	{ "Launching", "CannonLaunchAt", "CannonFrom", "CannonTo", "CannonHeading" }
+local FLIGHT_ATTRIBUTES = {
+	"Launching",
+	"CannonLaunchAt",
+	"CannonFrom",
+	"CannonTo",
+	"CannonHeading",
+	Cannon.FLIGHT_SCALE,
+}
 
 local world: WorldBuilder.World
 local landedAt: { [Player]: number } = {} -- server time each player's last flight ended
@@ -211,6 +219,12 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local seat = WorldBuilder.cannonSeat(cannon)
 	body.Anchored = true
 	flyer:PivotTo(seat)
+	-- #4920: the walk-through's flights out are quicker while the firstFlightQuick switch is on (Cannon.flightScale);
+	-- set before CannonLaunchAt, so the client reads it with the flight
+	local scale = if LiveFlagService.on(Cannon.QUICK_FLAG)
+		then Cannon.flightScale(Economy.tier(profile), SecondCat.caught(profile.stats), destination)
+		else 1
+	flyer:SetAttribute(Cannon.FLIGHT_SCALE, if scale ~= 1 then scale else nil)
 	flyer:SetAttribute("Launching", true)
 	flyer:SetAttribute("CannonLaunchAt", now)
 	flyer:SetAttribute("CannonFrom", cannonId)
@@ -257,7 +271,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 			end)
 		end
 	end)
-	task.delay(Config.CannonTeleportAtSeconds, function()
+	task.delay(Config.CannonTeleportAtSeconds * scale, function()
 		if current() then
 			-- one flight at a time picks its spot, so two moves never share one (section 3b)
 			local landing = landingFor(player, destination)
@@ -266,7 +280,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 			end
 		end
 	end)
-	task.delay(Config.CannonLaunchSeconds, function()
+	task.delay(Config.CannonLaunchSeconds * scale, function()
 		if not current() then
 			return
 		end
@@ -348,7 +362,12 @@ local function homeArrival(player: Player, character: Model)
 		or character.Parent == nil
 		or character:GetAttribute("Launching") == true
 		or CatService.isLoaded(player)
-		or not Cannon.stillAtSpawn(root.Position, Vector3.new(spawn.x, spawn.y, spawn.z))
+		or not Cannon.stillAtSpawn(
+			root.Position,
+			Vector3.new(spawn.x, spawn.y, spawn.z),
+			-- #4967: a new player anywhere in the Town Square still goes to their door
+			(profile.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
+		)
 	then
 		return -- gone, flying, carrying or walked off already: left where they are
 	end
@@ -446,6 +465,13 @@ function CannonService.landOnPad(player: Player, destination: string): boolean
 	local character = player.Character
 	local landing = if character ~= nil then landingFor(player, destination) else nil
 	if character == nil or landing == nil then
+		return false
+	end
+	-- #4788: with streaming on, the pad streams in first (yields up to StreamAround.SECONDS; never while it is off)
+	if
+		StreamAround.wait(player, landing.Position)
+		and (player.Character ~= character or character.Parent == nil)
+	then
 		return false
 	end
 	character:PivotTo(landing)

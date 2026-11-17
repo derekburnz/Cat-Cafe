@@ -64,4 +64,61 @@ return function()
 			expect(QuietStart.treatOpensItself(nil, 20405)).to.equal(true)
 		end)
 	end)
+
+	describe("the first cat hold (#4821)", function()
+		it("holds before the bowl cat is claimed and FIRST_CAT_AFTER seconds after", function()
+			expect(QuietStart.FIRST_CAT_AFTER).to.equal(10)
+			expect(QuietStart.firstCatHolds(true, nil, 100)).to.equal(true)
+			expect(QuietStart.firstCatHolds(false, 100, 100)).to.equal(true)
+			expect(QuietStart.firstCatHolds(false, 100, 109.9)).to.equal(true)
+			expect(QuietStart.firstCatHolds(false, 100, 110)).to.equal(false)
+		end)
+
+		it("does not hold for a player whose claim was not seen this session", function()
+			expect(QuietStart.firstCatHolds(false, nil, 5)).to.equal(false)
+		end)
+	end)
+
+	describe("the walk-through hold (Derek 2026-11-16)", function()
+		it("holds under bowl first until Tier 2, whatever the step", function()
+			expect(QuietStart.tutorialHolds(true, 0, 1)).to.equal(true)
+			expect(QuietStart.tutorialHolds(true, 5, 1)).to.equal(true)
+			expect(QuietStart.tutorialHolds(true, nil, nil)).to.equal(true)
+			expect(QuietStart.tutorialHolds(true, 2, 2)).to.equal(false)
+			expect(QuietStart.tutorialHolds(true, 5, 4)).to.equal(false)
+		end)
+
+		it("holds under catch first until the last step or Tier 2", function()
+			expect(QuietStart.tutorialHolds(false, 4, 1)).to.equal(true)
+			expect(QuietStart.tutorialHolds(false, nil, 1)).to.equal(true)
+			expect(QuietStart.tutorialHolds(false, 5, 1)).to.equal(false)
+			expect(QuietStart.tutorialHolds(false, 3, 2)).to.equal(false)
+		end)
+
+		it("holds the pop-ups through the account's first 5 minutes of play (#4946)", function()
+			expect(QuietStart.EARLY_SECONDS).to.equal(300)
+			local now = 1000000
+			-- joined just now on a new account: QuietUntil is now + SECONDS
+			local fresh = now + QuietStart.SECONDS
+			expect(QuietStart.earlyHolds(fresh, now)).to.equal(true)
+			expect(QuietStart.earlyEndsAt(fresh, now)).to.equal(now + QuietStart.EARLY_SECONDS)
+			-- 299 s in: still held; 300 s in: free
+			expect(QuietStart.earlyHolds(fresh, now + 299)).to.equal(true)
+			expect(QuietStart.earlyHolds(fresh, now + 300)).to.equal(false)
+			expect(QuietStart.earlyEndsAt(fresh, now + 300)).to.equal(nil)
+			-- a returning account with 4 minutes played: one more minute
+			local back = now + QuietStart.SECONDS - 240
+			expect(QuietStart.earlyHolds(back, now + 59)).to.equal(true)
+			expect(QuietStart.earlyHolds(back, now + 60)).to.equal(false)
+			-- no attribute (an old account past its quiet start): never held
+			expect(QuietStart.earlyHolds(nil, now)).to.equal(false)
+		end)
+
+		it("lets one held pop-up through every 5 minutes (#4946)", function()
+			expect(QuietStart.POP_GAP_SECONDS).to.equal(300)
+			expect(QuietStart.popFree(nil, 10)).to.equal(true)
+			expect(QuietStart.popFree(10, 309)).to.equal(false)
+			expect(QuietStart.popFree(10, 310)).to.equal(true)
+		end)
+	end)
 end

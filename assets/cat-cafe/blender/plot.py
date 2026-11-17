@@ -708,8 +708,8 @@ def _chair_up(b, x, z, s):
     bx = cx + s * 0.66
     for lz in (-0.6, 0.6):
         b.span((bx - 0.08, top - 1.43, z + lz - 0.08), (bx + 0.08, top + 0.17, z + lz + 0.08), "dark_wood")
-    for y in (top + 1.57 - 2.15, top + 1.57 - 2.7):                                                    # slats
-        b.span((bx - 0.06, y - 0.15, z - 0.65), (bx + 0.06, y + 0.15, z + 0.65), "caramel_wood")
+    # #4783: the back's two slats are one board (seen only through the shuttered windows of an empty plot)
+    b.span((bx - 0.06, top + 1.57 - 2.85, z - 0.65), (bx + 0.06, top + 1.57 - 2.0, z + 0.65), "caramel_wood")
 
 
 def _paint_tin(b, x, y, z, lid, r=0.3, h=0.45):

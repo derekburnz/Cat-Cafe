@@ -24,7 +24,8 @@ return function()
 				expect(food.lureId).to.equal(Dealer.FOODS[index])
 				local def = Catalog.getLure(food.lureId)
 				expect(def).to.be.ok()
-				expect((def :: any).source).to.equal("dealer")
+				-- #4900: the Eclipse Treat is the Day Cart's food too, sold here from Tier 8
+				expect(Dealer.sells(def :: any, 10)).to.equal(true)
 			end
 			-- #3011: sardines { 5, 15, 30, 30, 20 } at 0, caviar { 15, 35, 30, 15, 5 } at 0.99, moon milk
 			-- { 25, 40, 25, 10 } at 0.2, star treat { 55, 35, 10 } at 0.95
@@ -96,6 +97,19 @@ return function()
 
 	-- #3011 (Derek2 2026-11-10: "buff how often night market stocks good items and amount"): after
 	-- Config.DealerDryNights nights in a row with none of a food on one server, the next night stocks at least 1
+	describe("the Eclipse Treat (#4900)", function()
+		it("is sold by the dealer only from Tier 8, after the four older foods", function()
+			local eclipse = Catalog.getLure("eclipse_treat") :: any
+			expect(Dealer.FOODS[#Dealer.FOODS]).to.equal("eclipse_treat")
+			expect(Dealer.sells(eclipse, 7)).to.equal(false)
+			expect(Dealer.sells(eclipse, 8)).to.equal(true)
+			expect(Dealer.sells(Catalog.getLure("star_treat") :: any, 1)).to.equal(true)
+			expect(Dealer.sells(Catalog.getLure("honey_cream") :: any, 10)).to.equal(false)
+			expect(eclipse.secretShare).to.equal(0.1)
+			expect(eclipse.cost).to.equal(20000000000000)
+		end)
+	end)
+
 	describe("no long dry spells (#3011)", function()
 		local Config: any = require(Shared.Config)
 		local function none(): number
@@ -183,8 +197,13 @@ return function()
 		it(
 			"the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least",
 			function()
-				local means =
-					{ sardines = 2.45, caviar = 1.60, moon_milk = 1.20, star_treat = 0.55 } -- #3011
+				local means = {
+					sardines = 2.45,
+					caviar = 1.60,
+					moon_milk = 1.20,
+					star_treat = 0.55,
+					eclipse_treat = 0.8,
+				} -- #3011, #4900
 				for _, lureId in Dealer.FOODS do
 					local weights = Catalog.dealerAmountWeights[lureId]
 					assert(weights, lureId)

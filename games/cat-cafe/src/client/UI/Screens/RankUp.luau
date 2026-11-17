@@ -23,6 +23,7 @@ local RankUpNeeds = require(script.Parent.Parent.Components.RankUpNeeds) -- #114
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow) -- #4847
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -225,8 +226,10 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 		table.insert(
 			requirements,
 			requirement(
-				("%d different cats"):format(nextTier.distinctCats),
-				"Different cats",
+				(if nextTier.anyCats == true then "%d cats" else "%d different cats"):format(
+					nextTier.distinctCats
+				),
+				if nextTier.anyCats == true then "Cats" else "Different cats", -- #4809
 				needs.catsHave,
 				needs.catsNeed
 			)
@@ -698,9 +701,23 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	local fly: string? = if progress.ready then nil else self._fly
 	self._flying = fly ~= nil
 	self._button:setEnabled(progress.ready or fly ~= nil)
-	self._button:setText(
-		if progress.ready then "RANK UP  ·  " .. Format.money(nextTier.cost) else fly or "Not yet"
-	)
+	-- #4920 item 7: the grey button says what is still missing ("Need 2 more kinds"), not "Not yet"
+	local function short(amount: number): string
+		return Format.money(amount)
+	end
+	local missing: string? = nil
+	if not progress.ready and fly == nil then
+		missing = RankUpNeeds.missing(nextTier, RankUpNeeds.of(nextTier, state), short)
+	end
+	local words = fly or missing or "Not yet"
+	if progress.ready then
+		words = "RANK UP  ·  " .. Format.money(nextTier.cost)
+	end
+	self._button:setText(words)
+	-- #4847 (Derek 2026-11-16, his screenshot: the Tier 1 window, both requirements met, nothing pointing): the first
+	-- rank up's button gets the tutorial's ring and arrow whenever it is ready, wherever the window was opened (the
+	-- dimmed walk-through, RankSpot, lights it only on the safe side). No dim, so the window's X still works.
+	TutorialGlow.set(self._button.instance, progress.ready and progress.tier == 1, nil, true)
 end
 
 -- #3961: one cream card per line of what the tier opens, its picture on the left

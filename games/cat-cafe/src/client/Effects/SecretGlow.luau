@@ -229,7 +229,7 @@ function SecretGlow.start()
 	for _, descendant in Workspace:GetDescendants() do
 		consider(descendant)
 	end
-	Workspace.DescendantAdded:Connect(consider)
+	Context.onWorkspaceAdded(consider)
 	task.spawn(function()
 		local warned = false
 		while true do

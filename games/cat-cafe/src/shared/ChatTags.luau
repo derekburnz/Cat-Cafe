@@ -11,6 +11,14 @@
 --   validPick(pick) -> whether a saved pick is a known tag id or OFF
 --   textFor(tagId, text) -> the message text in the tag's colour, or nil
 --   addAchievementTitles(items, achievements) -> items with the claimed big achievements' titles (#3694)
+--   askable(userId) -> a user id a client may ask the tag of (#4882), or nil
+--   fromShared(value) -> a known tag id read back from SHARE_MAP, or nil
+--
+-- #4882 (Derek 2026-11-16: "make titles show in global chat"): a line in the chat's Global tab can come from a player
+-- on another server, whose ChatTag attribute this server cannot see. So every server also writes each of its
+-- players' shown tag to the MemoryStore hash map SHARE_MAP (server/Services/ChatTagShareService), and a client that
+-- gets a line from a speaker it can't see asks for that speaker's tag once (ChatTagAsk, answered with ChatTagOf). The
+-- chat shows the tag from that speaker's next line on, since a line already in the window cannot be changed.
 
 local Config = require(script.Parent.Config)
 
@@ -259,6 +267,33 @@ function ChatTags.textFor(tagId: unknown, text: string): string?
 		return nil
 	end
 	return string.format('<font color="%s">%s</font>', tag.color, text)
+end
+
+-- #4882: where each server keeps its players' shown tags for the other servers (key: the user id as text), how long
+-- an entry lives without a refresh, and how often a server refreshes its players' entries.
+ChatTags.SHARE_MAP = "CatCafeChatTags"
+ChatTags.SHARE_TTL_SECONDS = 2 * 60 * 60
+ChatTags.SHARE_REFRESH_SECONDS = 50 * 60
+-- How long a client keeps an answer for a speaker it can't see before it asks again (a changed tag shows by then).
+ChatTags.ASK_AGAIN_SECONDS = 5 * 60
+
+-- #4882: `userId` as a user id a client may ask the tag of (a whole number from 1 up), or nil.
+function ChatTags.askable(userId: unknown): number?
+	if type(userId) ~= "number" or userId ~= userId or userId < 1 or userId > 2 ^ 53 then
+		return nil
+	end
+	if math.floor(userId) ~= userId then
+		return nil
+	end
+	return userId
+end
+
+-- #4882: a value read back from SHARE_MAP as a tag id this game shows, or nil for anything else.
+function ChatTags.fromShared(value: unknown): string?
+	if type(value) ~= "string" or TAGS[value] == nil then
+		return nil
+	end
+	return value
 end
 
 -- Whether `pick` may be saved: a known tag id or OFF (whether the player may show it is checked when shown).

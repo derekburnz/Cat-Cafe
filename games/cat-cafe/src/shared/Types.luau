@@ -70,6 +70,9 @@ export type CatchCircle = {
 	-- one from it up to holdSeconds (Config.FirstRingHoldSeconds) later is a Perfect
 	hold: boolean?,
 	holdSeconds: number?,
+	-- #4814 (Derek 2026-11-16: "don't even let the player click early for the first cat just don't register their
+	-- hits before its in the circle"): a press before the ring reaches its Good band does nothing (Circles.press)
+	noEarly: boolean?,
 }
 export type CircleKind = "single" | "double" | "paw"
 
@@ -448,6 +451,10 @@ export type LureDef = {
 	description: string,
 	odds: LureOdds, -- percentages summing to 100, shown before purchase
 	asset: string, -- food model shown in the bowl while the lure is active
+	-- #4900: a Secret tier food's share of its rolled Mythicals that turn Secret (Catalog.secretPerMythical else),
+	-- shown on its odds line as its own Secret %
+	secretShare: number?,
+	needsTier: number?, -- #4900: the night dealer sells it only from this tier (the Day Cart's row has its own)
 }
 
 -- A Cafe Crate (F53, golden-fish.md section 4): ten cosmetics of one pool, opened at the Golden Fish Market. The
@@ -579,6 +586,8 @@ export type TierDef = {
 	name: string,
 	cost: number, -- coins spent on rank up; 0 for Tier 1
 	distinctCats: number, -- entries in the collection
+	-- #4809: true when the cat need counts cats of any kind, duplicates included (Economy.rankUpCats); Tier 2 only
+	anyCats: boolean?,
 	needsRarity: Rarity?, -- and this many different cats of this rarity in the collection
 	needsRarityCount: number?,
 	slots: number, -- role slots open at this tier
@@ -832,6 +841,7 @@ export type Stats = {
 	restSeconds: number,
 	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
 	tier2TopUp: number, -- #4453: coins the first tamed bait cat's welcome paid toward Tier 2 (0: none yet)
+	tier3TopUp: number, -- #5038: coins the Tier 3 welcome gift paid (shared/Tier3Path; 0: none yet)
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -1405,6 +1415,7 @@ export type Settings = {
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
 	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
+	vipTag: boolean, -- #4991: a VIP owner's gold tag over their head shows, off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1446,6 +1457,9 @@ export type SessionRecapView = {
 	tomorrow: ReturnHookView?,
 	goals: { ReturnGoalView }?, -- #2916: the next goals with their progress (shared/ReturnGoals)
 }
+
+-- #4913 (shared/Pals): the Pal Day gift's last UTC day; no version bump, the palDay switch goes on only after a restart.
+export type PalDaySave = { day: number }
 
 -- #3651 (shared/Pet): the cat petted last and when its heart ends (os.time).
 export type PetSave = { uid: string, untilAt: number }
@@ -1523,6 +1537,7 @@ export type PlayerProfile = {
 	quests: QuestState, -- F73
 	achievements: { [string]: boolean }, -- F73: achievementId -> claimed
 	dailyTreat: DailyTreatState, -- F70
+	palDay: PalDaySave, -- #4913: the UTC day (Spin.day) of the last Pal Day gift, 0 for never
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -1638,7 +1653,7 @@ export type PlayerState = {
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
-	firstBait: boolean?, -- #1895: no bait set yet on this account, so the next waits at most FirstBaitWaitSeconds
+	firstBait: boolean?, -- #1895: no bait set yet on this account, so the next waits at most FirstBaitReadySeconds
 	-- #1893: the Grand Opening roadmap's milestones done and whether it is over; the strip shows from tutorialStep 5
 	-- while finished is not true (a save already at Tier 3 when it shipped is finished)
 	grandOpening: GrandOpeningState?,
@@ -1658,7 +1673,7 @@ export type PlayerState = {
 	traits: TraitsView?,
 	-- #4195: the Admin Wheel that is up now (AdminWheel.view): its event's id and end, and whether this account has
 	-- spun it; nil with no wheel up
-	adminWheel: { eventId: string, spun: boolean, endsAt: number }?,
+	adminWheel: { eventId: string, spun: boolean, endsAt: number, spins: number, left: number }?, -- #4876 spins, left
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
@@ -1669,6 +1684,12 @@ export type PlayerState = {
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
+	-- #5031: Tier 2's cats still to get after the first check-in (shared/RankUpRightAway.catsShort), 0 once met; nil
+	-- with the rankUpRightAway switch off and from an older server
+	rankUpShort: number?,
+	-- #5038: the goal card's one next thing toward Tier 3 at Tier 2 (shared/Tier3Path.goalLine, wide and narrow), nil
+	-- with the tier3Path switch off, once met, and from an older server
+	tier3Goal: { wide: string, narrow: string }?,
 	-- #2912: true from the first bait cat resolved until the first rescue starts (shared/StuckGoal.waiting)
 	stuckGoal: boolean?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot

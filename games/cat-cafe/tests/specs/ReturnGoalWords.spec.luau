@@ -45,6 +45,18 @@ return function()
 			expect(away.progress).to.equal(nil)
 		end)
 
+		it(
+			"words Pal Day's line with no bar, and the welcome back card skips it (#4913)",
+			function()
+				local row = ReturnGoalWords.row({ kind = "palDay" }, money)
+				expect(row.text).to.equal("Play with a pal tomorrow for a Pal Day gift")
+				expect(row.progress).to.equal(nil)
+				expect(ReturnGoalWords.welcomeLine({ { kind = "palDay" }, GOALS[4] }, money)).to.equal(
+					nil
+				)
+			end
+		)
+
 		it("skips a kind it doesn't know or a goal with missing numbers", function()
 			expect(ReturnGoalWords.row({ kind = "rally" }, money)).to.equal(nil)
 			expect(ReturnGoalWords.row({ kind = "cats", have = 1 }, money)).to.equal(nil)

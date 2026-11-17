@@ -28,8 +28,8 @@ return function()
 		return ids
 	end
 
-	-- A Tier 2 profile with plenty of coins and NEED - 1 different caught cats, one of them Epic (Tier 3 needs NEED and
-	-- an Epic), plus the Bellhop Cat when `withBellhop`.
+	-- A Tier 2 profile with plenty of coins and NEED - 1 different caught cats, one Epic and one Rare among them (#4844:
+	-- Tier 3 needs NEED and two Rare or better; one Epic before), plus the Bellhop Cat when `withBellhop`.
 	local function profile(withBellhop: boolean): any
 		local p: any = ProfileSchema.template(NOW)
 		p.tier = 2
@@ -37,8 +37,9 @@ return function()
 		p.collection = {}
 		local epic = caughtIdsOf("Epic")[1]
 		p.collection[epic] = NOW
-		local added = 1
-		for _, rarity in { "Common", "Rare" } do
+		p.collection[caughtIdsOf("Rare")[1]] = NOW
+		local added = 2
+		for _, rarity in { "Common" } do
 			for _, id in caughtIdsOf(rarity) do
 				if added < NEED - 1 then
 					p.collection[id] = NOW
@@ -115,24 +116,33 @@ return function()
 				p.collection.not_a_cat = NOW
 				expect(Economy.rankUpCatCount(p.collection)).to.equal(NEED)
 				expect(Economy.rankUpCatsAtLeast(p.collection, "Epic")).to.equal(1)
+				expect(Economy.rankUpCatsAtLeast(p.collection, "Rare")).to.equal(2)
 				expect(Economy.rankUpBlocker(p)).to.equal(nil)
 				expect(client(p).ready).to.equal(true)
 			end
 		)
 
-		it("the rarity requirement agrees too: no Epic means not ready on both sides", function()
-			local p = profile(true)
-			for catId in p.collection do
-				local def = Catalog.getCat(catId)
-				if def ~= nil and def.rarity == "Epic" then
-					p.collection[catId] = nil
-					p.collection[caughtIdsOf("Common")[#caughtIdsOf("Common")]] = NOW
+		it(
+			"the rarity requirement agrees too: one Rare or better of the two means not ready on both sides (#4844)",
+			function()
+				local p = profile(true)
+				local commons = caughtIdsOf("Common")
+				local spare = #commons
+				for catId in table.clone(p.collection) do
+					local def = Catalog.getCat(catId)
+					if catId ~= BELLHOP and def ~= nil and def.rarity ~= "Common" then
+						p.collection[catId] = nil
+						p.collection[commons[spare]] = NOW
+						spare -= 1
+					end
 				end
+				-- the Bellhop Cat, a Rare, is the only one left
+				expect(Economy.rankUpCatCount(p.collection)).to.equal(NEED)
+				expect(Economy.rankUpCatsAtLeast(p.collection, "Rare")).to.equal(1)
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 2 different cats, Rare or better")
+				expect(client(p).ready).to.equal(false)
 			end
-			expect(Economy.rankUpCatsAtLeast(p.collection, "Epic")).to.equal(0)
-			expect(Economy.rankUpBlocker(p)).to.equal("Needs one cat, Epic or better")
-			expect(client(p).ready).to.equal(false)
-		end)
+		)
 	end)
 
 	describe("RankUpNeeds.rarityCaption (#2999, the goal card's short lines on a phone)", function()

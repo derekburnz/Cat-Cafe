@@ -12893,6 +12893,7 @@
      ]
     ]
    }
-  }
+  },
+  "ModelStreamingMode": "Atomic"
  }
 }

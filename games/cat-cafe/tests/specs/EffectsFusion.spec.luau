@@ -133,5 +133,20 @@ return function()
 			).to.equal(true)
 			expect(d.breathSeconds >= 1).to.equal(true)
 		end)
+
+		it(
+			"twinkles stars over the dome only at night, near it and never in Low performance (#4069)",
+			function()
+				local st = Presets.fusion.stars
+				expect(FusionFx.starsOn(true, false, 50, st.within)).to.equal(true)
+				expect(FusionFx.starsOn(false, false, 50, st.within)).to.equal(false)
+				expect(FusionFx.starsOn(true, true, 50, st.within)).to.equal(false)
+				expect(FusionFx.starsOn(true, false, st.within + 1, st.within)).to.equal(false)
+				local e = Presets.emitters[st.emitter]
+				expect(e).to.be.ok()
+				expect(e.rate < 3).to.equal(true) -- calm, under 3 a second
+				expect(e.speed[2]).to.equal(0) -- stars stay put
+			end
+		)
 	end)
 end

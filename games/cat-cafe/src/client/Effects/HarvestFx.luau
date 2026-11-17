@@ -12,10 +12,14 @@
 --   the pie     a Feast Pie slice baked (ReplicatedStorage's `HarvestPieSlices` rises, HarvestPieService) while you
 --               are in the area: gold sparkles and a ring at the Thankful Board; the last slice adds confetti and a
 --               gold beam. The first value seen only sets the mark.
+--   a pin       a note pinned on the Thankful Board (its `HarvestNotes` attribute changes, HarvestService) while you
+--               are in the area: a puff of leaves at the board, and a few gold sparkles when the pin is yours, and a
+--               paper flick for whoever listens (HarvestFx.onPin; Audio). The first value seen only sets the mark.
 -- Nothing runs until one of those tags is in the world, so the module is idle outside the event. Numbers in
 -- Presets.harvestFx.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Context = require(script.Parent.Context)
@@ -37,6 +41,10 @@ local slices: number? = nil -- the Feast Pie's slices as last seen
 local areaListeners: { (inside: boolean) -> () } = {}
 local arrivedAt: number? = nil -- os.clock() of the last arrival swirl
 local sinceGlint = 0
+local notesSeen: { [Instance]: string } = {} -- each board's HarvestNotes as last seen
+local boardLinks: { [Instance]: RBXScriptConnection } = {} -- each board's one HarvestNotes listener
+type PinListener = (at: Vector3, mine: boolean) -> ()
+local pinListeners: { PinListener } = {}
 
 -- What a pumpkin's `Ready` change means: "pick" when it was ready and is not now, "regrow" the other way, nil for
 -- the first sight of it (a pumpkin streaming in is not news) and for no change.
@@ -113,6 +121,26 @@ function HarvestFx.onArea(listener: (inside: boolean) -> ())
 	if inside then
 		task.spawn(listener, true)
 	end
+end
+
+-- Whether a board's HarvestNotes change is a new pin: a string that differs from the last one seen. The first sight
+-- (nil before, a board streaming in) is not news, and neither is the same list again.
+function HarvestFx.newPin(was: string?, now: unknown): boolean
+	return was ~= nil and type(now) == "string" and now ~= was
+end
+
+-- Who pinned last: the userId of the list's last row (HarvestSave.pinNote puts the newest pin last), or nil when the
+-- list holds none. Read off the JSON text with a pattern, so it needs no decode (each row has one userId).
+function HarvestFx.lastPinner(json: string): number?
+	local last: number? = nil
+	for digits in string.gmatch(json, '"userId"%s*:%s*(%d+)') do
+		last = tonumber(digits)
+	end
+	return last
+end
+
+function HarvestFx.onPin(listener: PinListener)
+	table.insert(pinListeners, listener)
 end
 
 -- Tells `listener` where a pumpkin was picked near you (Audio's cue).
@@ -325,6 +353,57 @@ local function pieChanged()
 	end
 end
 
+-- A note pinned on a board: leaves at the board if you are in the area to see it, gold sparkles too when it is yours.
+local function notesChanged(board: Instance)
+	local p = Presets.harvestFx
+	local now = board:GetAttribute(p.notesAttribute)
+	local fresh = HarvestFx.newPin(notesSeen[board], now)
+	if type(now) == "string" then
+		notesSeen[board] = now
+	end
+	local at = Context.positionOf(board)
+	if not fresh or not inside or at == nil then
+		return
+	end
+	local mine = HarvestFx.lastPinner(now :: string) == Players.LocalPlayer.UserId
+	local lifted = at + Vector3.new(0, p.pinLift, 0)
+	local count = if Context.reducedMotion() then math.ceil(p.pinCount / 2) else p.pinCount
+	Particles.burst(p.air, lifted, count)
+	if mine then
+		Particles.burst(p.pieBurst, lifted, p.pinSparkles, Presets.palette.golden)
+	end
+	for _, listener in pinListeners do
+		task.spawn(listener, at, mine)
+	end
+end
+
+local function forgetBoard(board: Instance)
+	notesSeen[board] = nil
+	local link: RBXScriptConnection? = boardLinks[board]
+	if link ~= nil then
+		link:Disconnect()
+		boardLinks[board] = nil
+	end
+end
+
+local function watchBoard(board: Instance)
+	local now = board:GetAttribute(Presets.harvestFx.notesAttribute)
+	if type(now) == "string" then
+		notesSeen[board] = now
+	end
+	local link: RBXScriptConnection? = boardLinks[board]
+	if link ~= nil then
+		return
+	end
+	boardLinks[board] = board
+		:GetAttributeChangedSignal(Presets.harvestFx.notesAttribute)
+		:Connect(function()
+			if board.Parent ~= nil then
+				notesChanged(board)
+			end
+		end)
+end
+
 function HarvestFx.start()
 	if started then
 		return
@@ -338,6 +417,11 @@ function HarvestFx.start()
 	end
 	CollectionService:GetInstanceAddedSignal(p.pumpkinTag):Connect(watch)
 	CollectionService:GetInstanceRemovedSignal(p.pumpkinTag):Connect(forget)
+	for _, board in CollectionService:GetTagged(p.boardTag) do
+		watchBoard(board)
+	end
+	CollectionService:GetInstanceAddedSignal(p.boardTag):Connect(watchBoard)
+	CollectionService:GetInstanceRemovedSignal(p.boardTag):Connect(forgetBoard)
 	task.spawn(function()
 		while true do
 			stepAir()

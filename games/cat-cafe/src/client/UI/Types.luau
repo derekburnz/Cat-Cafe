@@ -427,6 +427,13 @@ export type PartialState = {
 	newKindGoal: (number | false)?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
+	-- #5031 (switch rankUpRightAway): Tier 2's cats still short after the first check-in, for the goal card's "Catch 1
+	-- more cat to rank up"; false otherwise (UI.update skips a nil)
+	rankUpShort: (number | false)?,
+	-- #5031: the goal card's title when the rank up is ready (RankUpRightAway.READY_TITLE), false otherwise
+	rankUpTitle: (string | false)?,
+	-- #5038 (switch tier3Path): the goal card's one next thing toward Tier 3 (PlayerState.tier3Goal), false otherwise
+	tier3Goal: ({ wide: string, narrow: string } | false)?,
 	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
 	traits: (SharedTypes.TraitsView | false)?,
 }
@@ -585,6 +592,7 @@ export type CatFoundExtra = {
 	line: string?, -- in gold under the name, in place of the description
 	rate: number?, -- in place of the catalog's incomePerSecond (an exclusive cat earns like its rarity in the newest area)
 	source: string?, -- #4266: "bowl" for a cat tamed at the bait bowl (the server's CatCaught source)
+	quick: boolean?, -- #4920: the card closes itself sooner (Popups.QUICK_CLOSE), as at Tier 1
 }
 
 export type InitConfig = {

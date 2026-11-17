@@ -14,8 +14,8 @@ local LoadingCount = {}
 LoadingCount.FULL = 100
 LoadingCount.CREEP_TOP = 90
 LoadingCount.CREEP_HALF = 0.45 -- seconds for the creep to cover half of what is left to CREEP_TOP
-LoadingCount.SHOWN_MIN = 1.5 -- seconds from the screen's start to 100 when nothing holds it up
-LoadingCount.RACE_MIN = 0.35 -- seconds the run to 100 takes at least, so the eye sees it get there
+LoadingCount.SHOWN_MIN = 1.0 -- seconds from the screen's start to 100 when nothing holds it up (#4780: 1.5 before, quicker on fast devices)
+LoadingCount.RACE_MIN = 0.25 -- seconds the run to 100 takes at least, so the eye sees it get there
 
 function LoadingCount.creep(seconds: number): number
 	if seconds ~= seconds or seconds <= 0 then

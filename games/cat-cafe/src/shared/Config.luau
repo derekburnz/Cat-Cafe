@@ -314,6 +314,9 @@ local Config = {
 	NetSwingCooldown = 0.8,
 	NetSmackDelay = 0.22, -- Derek 2026-11-03 OK'd the smoother swing landing at 0.22 s (was 0.15)
 	NetReachStuds = 7,
+	-- #4815 (Derek 2026-11-16: "while in tutorial steps make it so that missed net swings can't scare cats and that
+	-- the net radius is bigger"): extra reach while the cafe is still Tier 1 (NetSwing.calm), on top of any other
+	TutorialNetExtraStuds = 3,
 	NetSlackStuds = 1.5,
 	NetArcDegrees = 60,
 	-- #2693 (Derek2 2026-11-09: easier to hit on mobile): within NetNearStuds of the feet the arc is NetNearArcDegrees
@@ -345,6 +348,11 @@ local Config = {
 	-- food), so the cutscene (camera over 0.5 s, the walk 1.6 s, the eat 1 s, camera back 0.5 s) plays while the
 	-- timer runs down and the Tame card comes up as it ends.
 	FirstBaitCatLeadSeconds = 4,
+	-- #4920 (Derek 2026-11-16: keep new players past 60 seconds): the account's first bait is ready this long after the
+	-- food goes in (Bait.firstWait), so the Tame card comes as the shorter first bait cut (#4931, about 2.7 s on touch
+	-- and 3.0 s on PC) ends instead of 2 s later. FirstBaitWaitSeconds stays the shortest wait there is (Bowl Frenzy's
+	-- floor, Bait.eventWait) and the bound for Bait.isFirst. The client's claim card still waits for the cut's end.
+	FirstBaitReadySeconds = 3,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
 	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes.
@@ -445,10 +453,12 @@ local Config = {
 		cafePass = { was = 299, now = 149 },
 		-- #4377 (Derek 2026-11-15: half price on every Robux item): the cards cut on 2026-11-15. The money ladder's
 		-- rungs share the card key "money", so each rung is keyed "money" plus its multiplier (StoreLogic.saleKey).
-		money2 = { was = 25, now = 12 },
-		money3 = { was = 59, now = 29 },
-		money4 = { was = 99, now = 49 },
-		vip = { was = 25, now = 12 },
+		-- #4989 (Derek 2026-11-16 23:35 UTC: "update the 2x/3x/4x to be 10/20/30 robux and vip price"): 10, 20, 30 and
+		-- VIP 15 (Derek OK 23:36 UTC), set on Roblox by Growth-Agent; `was` stays each card's price before the Nov 15 cut
+		money2 = { was = 25, now = 10 },
+		money3 = { was = 59, now = 20 },
+		money4 = { was = 99, now = 30 },
+		vip = { was = 25, now = 15 },
 		longNap = { was = 199, now = 99 },
 		accessories = { was = 149, now = 75 },
 		secondBowl = { was = 149, now = 75 },
@@ -815,8 +825,8 @@ local Config = {
 		},
 		{
 			id = "6810389993696133776",
-			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
-			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+			startsAt = 1794945600, -- "Better on Every Device", Tuesday 2026-11-17 20:00 UTC
+			title = "🔔 Next update Tuesday: better controls on every device! Want a reminder?",
 			name = "BETTER ON EVERY DEVICE",
 			poster = "rbxassetid://138232412903853",
 		},
@@ -1304,7 +1314,7 @@ local Config = {
 			tier: number?,
 		}
 	},
-	BinPadRadius = 4,
+	BinPadRadius = 7, -- #4862 (Derek 2026-11-16: "make it work from further away"): 4 before
 	BinPadDwellSeconds = 0.5,
 	BinRollSeconds = 2.5,
 	BinRevealSeconds = 1,

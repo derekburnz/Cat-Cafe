@@ -128,6 +128,7 @@ return function()
 			profile.tutorialStep = 5
 			profile.tier = tier
 			profile.telemetry.firstDay = TODAY
+			profile.stats.playtimeSeconds = Tips.ASK_PLAY_SECONDS -- #4854: the asks wait for 5 minutes of play
 			for _, id in { Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK } do
 				profile.tipsSeen[id] = true
 			end
@@ -157,6 +158,58 @@ return function()
 			local raw: any = { invite_ask = true }
 			expect(Tips.sanitizeSeen(raw, false) :: any).to.deepEqual(raw)
 			expect(Tips.cleared(raw) :: any).to.deepEqual(raw)
+		end)
+	end)
+
+	describe("Pal Day (#4913)", function()
+		local DAY = 86400
+		local TODAY = 20000
+		local AT = TODAY * DAY + 3600
+
+		it(
+			"pays 30 golden fish and 1 spin, after 5 minutes with a pal, behind the palDay switch (off)",
+			function()
+				expect(Pals.GIFT.fish).to.equal(30)
+				expect(Pals.GIFT.spins).to.equal(1)
+				expect(Pals.PAL_DAY_SECONDS).to.equal(300)
+				local LiveFlags = require(Shared.LiveFlags)
+				expect(LiveFlags.OFF_BY_DEFAULT[Pals.PAL_DAY_FLAG]).to.equal(true)
+				expect(table.find(LiveFlags.KEYS, Pals.PAL_DAY_FLAG) ~= nil).to.equal(true)
+			end
+		)
+
+		it("is due once a UTC day, with no streak to lose", function()
+			expect(Pals.palDayDue({ day = 0 }, AT, 3600, 5)).to.equal(true)
+			expect(Pals.palDayDue({ day = TODAY }, AT, 3600, 5)).to.equal(false)
+			expect(Pals.palDayDue({ day = TODAY - 1 }, AT, 3600, 5)).to.equal(true)
+			expect(Pals.palDayDue({ day = TODAY - 9 }, AT, 3600, 5)).to.equal(true)
+			expect(Pals.palDayDue({ day = TODAY }, (TODAY + 1) * DAY, 3600, 5)).to.equal(true)
+		end)
+
+		it("never comes in the tutorial or an account's first 5 minutes", function()
+			expect(Pals.palDayDue({ day = 0 }, AT, 3600, 4)).to.equal(false)
+			expect(Pals.palDayDue({ day = 0 }, AT, 299, 5)).to.equal(false)
+			expect(Pals.palDayDue({ day = 0 }, AT, 300, 5)).to.equal(true)
+		end)
+
+		it("knows a gift paid today, for the recap's tomorrow line", function()
+			expect(Pals.palDayToday({ day = TODAY }, AT)).to.equal(true)
+			expect(Pals.palDayToday({ day = TODAY - 1 }, AT)).to.equal(false)
+			expect(Pals.palDayToday({ day = 0 }, AT)).to.equal(false)
+		end)
+
+		it("is a new save field that cleans up bad values without a version bump", function()
+			local profile = ProfileSchema.template(NOW)
+			expect(profile.palDay.day).to.equal(0)
+			local raw: any = ProfileSchema.template(NOW)
+			raw.palDay = { day = TODAY }
+			expect(ProfileSchema.migrate(raw, NOW).palDay.day).to.equal(TODAY)
+			raw.palDay = "nope"
+			expect(ProfileSchema.migrate(raw, NOW).palDay.day).to.equal(0)
+			raw.palDay = nil
+			expect(ProfileSchema.migrate(raw, NOW).palDay.day).to.equal(0)
+			raw.palDay = { day = -5 }
+			expect(ProfileSchema.migrate(raw, NOW).palDay.day).to.equal(0)
 		end)
 	end)
 end

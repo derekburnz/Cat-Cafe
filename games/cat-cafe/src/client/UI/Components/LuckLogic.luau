@@ -54,7 +54,7 @@ local LINE_CHARS = 36 -- letters a line of the card's odds holds at textSmall in
 local NBSP = utf8.char(0xA0) -- a no-break space, as FoodOdds.rich joins a name to its share
 
 export type Row = {
-	id: string, -- "statue" | "potion" | "lucky_day"
+	id: string, -- "statue" | "potion" | "lucky_day"; #4990: "golden_day" | "rainbow_day" from dayRows
 	name: string,
 	value: string, -- "+0.3"
 	time: string?, -- what is left of a timed source, "8:12"
@@ -343,23 +343,64 @@ function LuckLogic.dayCard(view: DayView): { string }
 	return lines
 end
 
+-- #4990 (Derek 2026-11-16: "remove the lucky day/ all day showing just show they are active if people click into the
+-- luck breakdown"): the day kinds running today as rows of the Luck card, under the Luck sources. A Lucky Day is
+-- already one of those (`rows`, "Lucky Day  3:10  +50%"), so it is listed here only when `have` lacks it.
+function LuckLogic.dayRows(view: DayView?, have: { Row }): { Row }
+	local out: { Row } = {}
+	if view == nil then
+		return out
+	end
+	local cfg: any = Config
+	for _, kind in kinds(view) do
+		if kind.id == "lucky" then
+			local listed = false
+			for _, row in have do
+				if row.id == "lucky_day" then
+					listed = true
+				end
+			end
+			if not listed then
+				table.insert(out, {
+					id = "lucky_day",
+					name = "Lucky Day",
+					value = plus(cfg.LuckyDayPlayerLuck or 0.5),
+				})
+			end
+		elseif kind.id == "golden" then
+			table.insert(out, {
+				id = "golden_day",
+				name = "Golden Day",
+				value = ("x%s"):format(tostring(cfg.GoldenDayGoldMultiplier or 2)),
+			})
+		elseif kind.id == "rainbow" then
+			table.insert(out, {
+				id = "rainbow_day",
+				name = "Rainbow Day",
+				value = ("x%s"):format(tostring(cfg.RainbowDayMultiplier or 3)),
+			})
+		end
+	end
+	return out
+end
+
 function LuckLogic.dayBanner(view: DayView): (string?, string?)
 	local today = kinds(view)
 	if #today == 0 then
 		return nil, nil
 	end
+	-- #4867 (Derek 2026-11-16: "for the day pop ups like lucky day / gold day put less text no need to explain make it
+	-- just show the days"): the day names only, no effect line
 	if #today >= 3 then
-		-- three names (35 letters) and three effects run off a small phone's screen (the 72 px title), so a
-		-- Triple Day says so and names them on the line
-		return "Triple Day!", kindWords(today) .. " Day until night"
+		-- three names (35 letters) run off a small phone's screen (the 72 px title), so a Triple Day says so and names
+		-- them on the line
+		return "Triple Day!", kindWords(today) .. " Day"
 	end
 	local titles: { string } = {}
-	local effects: { string } = {}
 	for _, kind in today do
 		table.insert(titles, kind.name .. "!")
-		table.insert(effects, kind.effect)
 	end
-	return table.concat(titles, " "), table.concat(effects, ". ") .. " until night"
+	return table.concat(titles, " "), nil
 end
 
 -- #1572 (luck-and-rare-moments.md 1g): the warning LuckyDayWarnSeconds before a sunrise names every kind it brings,
@@ -378,10 +419,10 @@ function LuckLogic.warnBanner(
 	if #coming == 0 then
 		return nil, nil
 	elseif #coming == 1 then
-		return coming[1].name .. " soon!", coming[1].effect .. " from sunrise"
+		return coming[1].name .. " soon!", nil -- #4867: the day's name only
 	end
 	local title = if #coming == 2 then "Double Day soon!" else "Triple Day soon!"
-	return title, kindWords(coming) .. " Day at sunrise"
+	return title, kindWords(coming) .. " Day" -- #4867: the days, no "at sunrise"
 end
 
 -- #1153 (Derek 11-04: the odds blocks were hard to read): whole percents, one decimal below 1% ("42%", "0.6%").

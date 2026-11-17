@@ -11048,6 +11048,7 @@
      ]
     ]
    }
-  }
+  },
+  "ModelStreamingMode": "Atomic"
  }
 }

@@ -33,6 +33,7 @@ local CatCard = require(script.Screens.CatCard)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
+local CatchDim = require(script.Components.CatchDim)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
 local Codes = require(script.Screens.Codes)
@@ -103,6 +104,59 @@ UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 -- #4346: AFK mode's side for the HUD's AFK tile, set by Controllers/AfkController.start (shown, on, toggle, changed);
 -- nil until then. UI.bindAfk() hands it to the HUD.
 UI.afk = nil :: any
+-- #4821: the first cat hold (UI.setFirstCatHold); `tutorial`, the walk-through hold after it (UI.setTutorialHold)
+-- `clearedAt`: os.clock() the walk-through hold last ended, so a held event card waits a beat past it (CARD_AFTER)
+-- #4946: `tutorial` holds the pop-ups through the walk-through AND the account's first 5 minutes (QuietStart.earlyHolds);
+-- `walk` is the walk-through alone (it hides the Drop buttons, #4832)
+-- #4854 (#4919) `onHold`: run as the pop-up hold comes or goes, so the world bubbles that are social asks (the free
+-- cat stand's "join the group") follow it with no state update; set where those bubbles are built
+UI.firstCat = {
+	held = false,
+	tutorial = false,
+	walk = false,
+	clearedAt = nil :: number?,
+	CARD_AFTER = 3,
+	onHold = nil :: (() -> ())?,
+}
+-- #4946 (Derek 2026-11-16: "one pop-up every 5 minutes, not 30 s apart"): once the hold above ends, the pop-ups that
+-- open by themselves (event cards, slide-in asks and first visit cards, the Daily Treat window, the Starter Bundle
+-- card, the welcome back recap, the return hook line) show at most one every QuietStart.POP_GAP_SECONDS this session.
+-- Admin event cards keep their own timing (Derek's admin event rules) but count as the one. Warnings, the strip and
+-- walk-through lines, and cards that answer the player (a catch, a gift, a window they opened) are never paced.
+UI.popPace = { lastAt = nil :: number? }
+function UI.popPace.free(): boolean
+	local QuietStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+	return QuietStart.popFree(UI.popPace.lastAt, os.clock())
+end
+function UI.popPace.used()
+	UI.popPace.lastAt = os.clock()
+end
+-- #4946 (Sync's PC run: "Golden Day!" four times in the first 5 minutes while an admin event ran): the day and night
+-- title cards (AreaTitle's sunrise, night_market, lucky_day and lucky_warning) wait out the hold above, and the same
+-- banner shows at most once every QuietStart.POP_GAP_SECONDS. Since Sync's checks 1 and 2 of #4953 (title cards and a
+-- tip card seconds apart) they are also the one pop-up of their 5 minutes, as UI.popPace above. `follows`: the banner
+-- that leads into this one (the day kinds after the sunrise) and showed within FOLLOW_SECONDS, so both are one pop-up.
+-- The dusk warning ("Night falls in 15 s!") is a warning, so it is never paced.
+UI.popPace.banners = {} :: { [string]: number }
+UI.popPace.FOLLOW_SECONDS = 15
+function UI.popPace.banner(key: string, follows: string?): boolean
+	local last = UI.popPace.banners[key]
+	local QuietStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+	local now = os.clock()
+	if UI.firstCat.tutorial or not QuietStart.popFree(last, now) then
+		return false
+	end
+	local led = if follows ~= nil then UI.popPace.banners[follows] else nil
+	local same = led ~= nil and now - led <= UI.popPace.FOLLOW_SECONDS
+	if not (same or UI.popPace.free()) then
+		return false
+	end
+	UI.popPace.banners[key] = now
+	UI.popPace.used()
+	return true
+end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -191,6 +245,9 @@ UI.events = {
 	introNext = Signal.new(),
 	-- (seconds)   #4314: the loading screen slid away; forward as TelemetryReport("loading_seen", whole seconds), once
 	loadingSeen = Signal.new(),
+	-- ()   #4780: Skip (or gamepad B) on the loading screen: IntroController stops waiting for the world and starts
+	-- the intro or hands the camera to the character at once
+	loadingSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
@@ -478,6 +535,7 @@ local function cannonHint(): string?
 		bowlFirst = (require(
 			ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
 		) :: any).bowlFirst(),
+		loaded = state.tutorialStep ~= nil, -- #4967: not before the first sync
 	})
 end
 
@@ -517,7 +575,14 @@ function applyTutorial()
 		and (state.tier or 1) >= 2
 		and not park.reached
 	then
-		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
+		-- Sync's Studio run of #4947: the line named the paws while no trail showed (the trail rests after
+		-- ParkTrailLogic.REST_AFTER seconds, and waits while a window is up), so it names them only while a trail
+		-- target is set
+		text = if park.goal ~= nil and park.target ~= nil then park.STRIP else park.STRIP_PLAIN
+	end
+	-- #4836: the Tutorial tile's × waits to pulse until the Park is reached, so its arrow never shows beside the walk's
+	if hud then
+		hud:holdHide((walk and (state.tier or 1) >= 2 and not park.reached) == true)
 	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
@@ -547,9 +612,33 @@ function applyTutorial()
 			end)
 		end
 	end
+	-- #4973: the beat after a walk-through catch's result (UI.catch.retry.stripUntil, finishCatch)
+	local catchBeat: any = UI.catch
+	if catchBeat ~= nil and catchBeat.retry ~= nil and os.clock() < catchBeat.retry.stripUntil then
+		text = nil
+	end
 	if hud then
 		hud:holdTutorial(introPending)
 		hud:setTutorial(text)
+		-- #4777 (Derek 2026-11-16: "have them click the cannon button with dim screen and arrow"): bowl first's cannon
+		-- line after the first bowl cat, with no cannon in reach, lights the HUD's Cannon button (dim, ring, arrow)
+		-- in reach: within REACH studs of the Town Square cannon (cannonPart), where its walk-up opens the picker
+		local inReach = false
+		local character = game:GetService("Players").LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if cannonPart ~= nil and root ~= nil and root:IsA("BasePart") then
+			inReach = (root.Position - cannonPart.Position).Magnitude <= 30
+		end
+		local order: any =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder"))
+		local first = hint ~= nil
+			and not rankLine
+			and not introPending
+			and CannonLogic.isFirstFlight(hint)
+			and order.bowlFirst()
+			and not inReach
+		local board: any = hud
+		board:pointCannon(first == true)
 	end
 	if introScreen ~= nil and introScreen:playing() then
 		return -- the marker and trail come back when the intro ends
@@ -633,6 +722,8 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC: and not until the walk-through is done
+		or not UI.popPace.free() -- #4946: one pop-up every 5 minutes
 		-- #4005: on the account's first day the "!" on its button is enough
 		or not (function(): boolean
 			local QuietStart =
@@ -646,6 +737,7 @@ local function autoOpenDailyTreat()
 		return
 	end
 	dailyAutoOpen = false
+	UI.popPace.used()
 	windows:open("DailyTreat")
 end
 
@@ -728,6 +820,8 @@ local function render()
 	if settingsScreen then
 		settingsScreen:render(state)
 		settingsScreen:showTrading(Workspace:GetAttribute("TradingOn") ~= nil) -- F102: once TradeService runs
+		-- #4991: the VIP tag row for a VIP owner (VipTagService sets the attribute)
+		settingsScreen:showVipTag(Players.LocalPlayer:GetAttribute("VipOwner") == true)
 	end
 	if tipJarScreen then
 		tipJarScreen:render(state)
@@ -1138,6 +1232,18 @@ function UI.init(config: Types.InitConfig)
 			else
 				UI.lateStations.open(stationId, true)
 			end
+		end,
+		-- #4961: Rummage on the Alleyway card: the picker closes and the bar comes where the player stands
+		rummage = function()
+			local start = UI.cannon.rummage.start
+			if start ~= nil then
+				closeModal()
+				start()
+			end
+		end,
+		rummageOn = function(): boolean
+			local on = UI.cannon.rummage.on
+			return on ~= nil and on()
 		end,
 		close = closeModal,
 	})
@@ -1566,6 +1672,22 @@ function UI.init(config: Types.InitConfig)
 			end
 		end)
 	)
+	-- #4835 (Derek 2026-11-16: "when closing menus for stations you went into from the cannon to bring you back to the
+	-- cannon menu so you dont have to walk off and back on"): a station window opened from the Cannon picker's strip
+	-- hands back to the picker as it closes, while the player still stands at a cannon and nothing else has opened
+	modalInstance.closed:Connect(function(name: string, from: string?)
+		if from ~= "Cannon" or name == "Cannon" then
+			return
+		end
+		task.defer(function()
+			-- (through any: UI.cannon.nearest is declared further down the file)
+			local nearest: (() -> string?)? = (UI.cannon :: any).nearest
+			local near: string? = if nearest ~= nil then nearest() else nil
+			if near ~= nil and modalInstance:current() == nil then
+				(UI.cannon :: any).open(near)
+			end
+		end)
+	end)
 	modalInstance.changed:Connect(function(name: string?)
 		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
@@ -1578,7 +1700,9 @@ function UI.init(config: Types.InitConfig)
 			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
 			-- shout-outs drop and the event and day strip steps aside until it closes
 			UI.rollBusy.window = name == dashWindow or name == poolWindow or name == "Store"
-			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held())
+			view:setBusy(
+				UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held() or UI.firstCat.held
+			)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
 		hudInstance:holdBanner("window", UI.rollBusy.window)
@@ -1662,11 +1786,19 @@ function UI.init(config: Types.InitConfig)
 	-- #2724/#2727: toasts that come while the catch circles or the rescue bar run wait for the end (the HUD steps aside
 	-- then too, HUD._applyFocus)
 	hudInstance.catchingChanged:Connect(function(active: boolean)
+		CatchDim.set(active) -- #4842: the world dims while the catch runs, and clears at once when it ends
 		toastsInstance:setFocus(active)
 		local pills = actionPills -- #3861: and the action pills step away from the bar
 		if pills then
 			pills:setQuiet(active)
 		end
+	end)
+	-- #4998: the open Luck card is one of the boxes below; the stack (and the rest banner pinned in it) moves aside
+	-- as it opens and comes back as it closes, a frame later so the card has its place
+	hudInstance.luckCardChanged:Connect(function()
+		task.defer(function()
+			toastsInstance:replace()
+		end)
 	end)
 	toastsInstance:avoid(
 		function() -- #2338: clear of the HUD's menu column and goal card on a phone
@@ -1681,6 +1813,12 @@ function UI.init(config: Types.InitConfig)
 		return hudInstance:edgeAvoid()
 	end)
 	popups = Popups.new(parent)
+	if popups then -- narrows Popups? for luau-lsp (CI)
+		-- #4836: the new cat card points at its "Nice!" in the walk-through alone (#4953: not the first 5 minutes)
+		popups:glowOkWhen(function()
+			return UI.firstCat.walk
+		end)
+	end
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
 	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
 	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server
@@ -1738,6 +1876,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		waitEnded = function(seconds: number)
 			UI.events.loadingSeen:Fire(seconds) -- #4314
+		end,
+		waitSkipped = function()
+			UI.events.loadingSkip:Fire() -- #4780
 		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker", nil, false, true) -- #3055: the small, quiet one
@@ -1999,6 +2140,7 @@ function UI.update(partial: Types.PartialState)
 	deriveState(partial)
 	render()
 	UI.giftLadder.refresh() -- #2791
+	UI.autoRank.check() -- #4924
 end
 
 function UI.getState(): Types.PlayerState
@@ -2412,7 +2554,7 @@ function UI.setRollBusy(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or on or UI.cutscene.held())
+		view:setBusy(UI.rollBusy.window or on or UI.cutscene.held() or UI.firstCat.held)
 	end
 end
 -- #4018 (Derek OK'd the Mythic and up trait pull cutscene, 2026-11-13: every banner and pop-up muted while it plays,
@@ -2471,7 +2613,7 @@ function UI.setQuiet(key: string, on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held() or UI.firstCat.held)
 	end
 	if not cut.held() then
 		(cut :: any).flush()
@@ -2487,6 +2629,27 @@ task.defer(function()
 		return
 	end
 	local ok, adminFlash = pcall(require, flash)
+	-- #4821: nothing of the admin event takes the middle of the screen before the first bowl cat (UI.firstCat)
+	local quietWhen: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).quietWhen
+		else nil
+	if type(quietWhen) == "function" then
+		(quietWhen :: (() -> boolean) -> ())(function()
+			local hold = UI.firstCat
+			return hold.held
+				or hold.tutorial
+				or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
+		end)
+	end
+	-- #4877: in the walk-through nothing of an admin event is on screen at all, the strip and the tint too
+	local hideWhen: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).hideWhen
+		else nil
+	if type(hideWhen) == "function" then
+		(hideWhen :: (() -> boolean) -> ())(function()
+			return UI.firstCat.tutorial
+		end)
+	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"
 		then (adminFlash :: any).onPlaying
 		else nil
@@ -2497,6 +2660,50 @@ task.defer(function()
 		end)
 	end
 end)
+-- #4821 (shared/QuietStart.firstCatHolds; UIController says when): before the first bowl cat is claimed, and
+-- QuietStart.FIRST_CAT_AFTER seconds after, toasts but warnings wait (as through a cutscene), tips, asks and first
+-- visit cards wait, the event and day strip steps aside, and the admin event's countdown, splash and end card leave the
+-- middle of the screen (AdminFlash.quietWhen, below). The strip, its ring and arrow, the first bait's cutscene and the
+-- Tame card are not held.
+function UI.setFirstCatHold(on: boolean)
+	if UI.firstCat.held == on then
+		return
+	end
+	UI.firstCat.held = on
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held() or on)
+	end
+	if hud ~= nil then
+		hud:holdBanner("firstCat", on)
+	end
+end
+-- Derek 2026-11-16 15:22 UTC ("no unnecessary pop ups until tutorial steps done"; QuietStart.tutorialHolds,
+-- UIController says when): through the rest of the walk-through the event and day strip steps aside, the asks wait
+-- (UIController's quiet), and the Starter Bundle card, the Daily Treat window opening itself, the return hook line, the
+-- big event cards and the admin event's middle of the screen wait. Toasts and the walk-through's tips still show.
+-- `on`: the pop-up hold (the walk-through or, #4946, the account's first 5 minutes); `walk`: the walk-through alone
+-- (defaults to `on`)
+function UI.setTutorialHold(on: boolean, walk: boolean?)
+	local hold = UI.firstCat
+	local walking = if walk == nil then on else walk
+	if hold.tutorial == on and hold.walk == walking then
+		return
+	end
+	if hold.tutorial ~= on and not on then
+		hold.clearedAt = os.clock()
+	end
+	hold.tutorial = on
+	hold.walk = walking
+	if hud ~= nil then
+		hud:holdBanner("tutorial", on)
+		hud:setDropHidden(walking) -- #4832: and no Drop buttons (UIController drops nothing meanwhile)
+	end
+	local onHold = hold.onHold
+	if onHold ~= nil then
+		task.spawn(onHold)
+	end
+end
 function UI.setCutscene(on: boolean)
 	local cut = UI.cutscene
 	if cut.on == on then
@@ -2508,7 +2715,7 @@ function UI.setCutscene(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held() or UI.firstCat.held)
 	end
 	-- the event strip steps aside too (HUD.holdBanner, #4032)
 	if hud ~= nil then
@@ -2529,22 +2736,13 @@ end
 -- #4227 (Derek 2026-11-14, from a player's suggestion): spawn lines wait in a line (Components/SpawnQueue) and show
 -- one at a time for SpawnQueue.SHOW seconds, merged when several of a rarity are out in one area, "+N" saying how
 -- many wait. Through a cutscene, Mouse Dash or the Mystic Pool they wait instead of dropping. The sting plays as
--- each one shows (UI.onAnnounceShown, set by UIController). The `spawnQueue` switch off: spawn lines go as before.
+-- each one shows (UI.onAnnounceShown, set by UIController). The `spawnQueue` switch is retired (#4654).
 UI.spawns = {
 	queue = nil :: any,
 	until_ = 0,
 	pumping = false,
 } :: any
 UI.onAnnounceShown = nil :: ((string, string?) -> ())?
-function UI.spawns.on(): boolean
-	local SpawnQueue = require(script.Components.SpawnQueue) :: any
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	return LiveFlags.shown(
-		SpawnQueue.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SpawnQueue.FLAG)
-	)
-end
 function UI.spawns.pump()
 	local SpawnQueue = require(script.Components.SpawnQueue) :: any
 	local ToastRules = require(script.Components.ToastRules)
@@ -2588,7 +2786,7 @@ function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
 	local SpawnQueue = require(script.Components.SpawnQueue) :: any
-	if SpawnQueue.isSpawn(text) and UI.spawns.on() then
+	if SpawnQueue.isSpawn(text) then
 		local spawns = UI.spawns
 		spawns.queue = spawns.queue or SpawnQueue.new()
 		SpawnQueue.push(spawns.queue, text, rarity, now)
@@ -2633,6 +2831,9 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			banner = extra and extra.banner,
 			line = extra and extra.line,
 			rate = extra and extra.rate,
+			-- #4920 (Design-Agent's check-in spec): before the first rank up the card holds 2.5 s, not 5, so the
+			-- Rank Up (#4925) and the next step come sooner; Nice! still closes it at once
+			quick = (state.tier or 1) <= 1,
 		}
 		local cats: { [string]: Types.CatInstance } = state.cats or {}
 		local newest: Types.CatInstance? = nil
@@ -2990,12 +3191,22 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 		local lureId = if view then view.lureId else nil
 		-- #1161: with two bowls the banner names the bowl
 		local two = bowls.second == "on" or bowls.views[2] ~= nil
+		-- #4920 (Sync's stopwatch runs 2026-11-16: no arrow on Tame): bowl first, the first bowl cat comes before the
+		-- first check-in (step 0 or 1), not at step 4, so it got the usual card with X and Let go and no arrow. It
+		-- is the first bowl cat while the bowl part is still to do (TutorialOrder.bowlPending), as the strip reads it.
+		local TutorialOrder =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+		local stats: any = (state :: any).stats or {}
+		local bowlPart = TutorialOrder.bowlFirst()
+			and (stats.baitsTamed or 0) == 0
+			and TutorialOrder.bowlPending(state.tutorialStep or 0, stats.luresUsed or 0, true)
 		baitCard:show(
 			def :: Types.CatDef,
 			cat,
 			if lureId then foodName(lureId) else nil,
 			if two then index else nil,
-			state.tutorialStep == 4 -- #3815: the first bowl cat, which the tutorial's last step waits on (#3158)
+			-- #3815: the first bowl cat, which the tutorial's last step waits on (#3158)
+			state.tutorialStep == 4 or bowlPart
 		)
 	end
 	renderBait()
@@ -3333,7 +3544,30 @@ function UI.potions.giftResult(
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "giftCard")
 		)
 	then
+		-- #4884 (Derek 2026-11-16: "make it so that reward does pop up briefly so it doesnt feel like it didnt
+		-- work"): the Rummage Bin's small "You found:" card instead of the centre card, gone by itself, never blocking
 		Sound.play("giftOpen")
+		local items: { { kind: string, id: string?, count: number } } = {}
+		if kind == "coins" then -- seconds of income, priced at the cafe's rate as the gift card does
+			local rate: number = state.prizeRate or state.incomePerSecond or 0
+			local money = math.floor(count * rate)
+			if money >= 1 then
+				table.insert(items, { kind = "coins", count = money })
+			end
+		elseif kind == "crate" then
+			local Prizes =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Prizes")) :: any
+			local paid: string? = Prizes.crateFor(id or "", state.tier or 1)
+			if paid ~= nil then
+				table.insert(items, { kind = "crate", id = paid, count = count })
+			end
+		else
+			table.insert(items, { kind = kind, id = id, count = count })
+		end
+		if type(fish) == "number" and fish > 0 then
+			table.insert(items, { kind = "fish", count = fish })
+		end
+		UI.loot.show({ items = items })
 		return
 	end
 	local GiftLogic = require(script.Components.GiftLogic)
@@ -3596,6 +3830,13 @@ function UI.net.setInReach(model: Model?)
 	NetGlow.set(model)
 	if netButton then
 		netButton:setInReach(model ~= nil)
+	end
+end
+
+-- #4808: the tutorial's ring and arrow (no dim) on the touch Net button while it shows, during a catch step
+function UI.net.point(on: boolean)
+	if netButton then
+		netButton:point(on)
 	end
 end
 
@@ -3890,6 +4131,8 @@ end
 -- Every catching area is reached by the Cat Cannon in the Town Square, and each has a safe camp with a cannon back.
 -- Off until setEnabled(true), so the Areas button and panel work as before on a server without F84.
 UI.cannon = {}
+-- #4961: the Cat Cannon picker's Rummage button (BinController sets both): whether it may show, and the press
+UI.cannon.rummage = { on = nil :: (() -> boolean)?, start = nil :: (() -> ())? }
 
 -- On: the HUD's Cannon button takes the Areas button's place and fires events.travel("cannon") (the server moves
 -- the player to the front of the nearest cannon), the Alley button goes, and the carry banner reads "Bring it to the
@@ -3901,6 +4144,9 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 -- #2915: "Fly to the Park" on the rank-up card (flyToPark). `ring` is the area whose picker card is ringed, `travel`
 -- that the trip to the cannon is under way (UI.travel.result opens the picker when it lands), `token` the newest press.
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
+-- #4920: the walk-through's straight launch to the Alleyway: `pending` while its answer is out, `off` for the rest of
+-- the session once the server refused one (the picker opens instead, so a refused launch never loops)
+UI.cannon.direct = { pending = false, off = false }
 UI.cannon.bowlPending = false -- #4674: bowl first, the bowl part still to do (UIController)
 UI.cannon.walkRing = nil :: string? -- #4674: the walk-through's Alleyway ring on the picker, until Launch
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
@@ -3915,8 +4161,9 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
-	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
-	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
+	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
+	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
+	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same while no paw trail shows
 }
 
 -- #4480: whether the walk to the Park shows at all (the strip line, the "is open" hint, "Fly to the Park"): the
@@ -3969,11 +4216,14 @@ end
 
 function UI.parkTrail.set(target: BasePart?, goal: string?)
 	local changed = UI.parkTrail.target ~= target
+	local shows = (UI.parkTrail.target ~= nil) ~= (target ~= nil) -- the strip names the paws only while they show
 	UI.parkTrail.target = target
 	if UI.parkTrail.goal ~= goal and hud ~= nil then
 		UI.parkTrail.goal = goal
 		hud:setParkGoal(goal)
 		applyTutorial() -- #3893: the strip's Park line comes and goes with the walk
+	elseif shows and hud ~= nil then
+		applyTutorial()
 	end
 	if changed and not UI.parkTrail.tutorial then
 		UI.parkTrail.apply(nil)
@@ -4018,8 +4268,34 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	if target == nil then
 		return false
 	end
-	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters
-	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside, phase == "button")
+	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters. Derek 2026-11-16
+	-- ("when they click into menu point to the rankup button make sure it works properly for all devices"): inside the
+	-- window the button gets the ring, the arrow and the words but no dim (Sync's Studio run of #4769: the dim over an
+	-- open window covered its X and Escape did nothing), and a controller's selection lands on it so A ranks up
+	local confirm = phase == "confirm"
+	-- #4909 (Sync's rerun: the "You can rank up!" bubble sat over the strip and hid its line): on the strip's own
+	-- RANK UP the strip's words say it, so no bubble
+	local onStrip = phase == "button" and target.Name == "TutorialBuy"
+	UI.rankSpot.close = SpotlightGuide.show(
+		target,
+		if onStrip then "" else words or "",
+		onOutside,
+		phase == "button" and not onStrip,
+		confirm
+	)
+	if confirm then
+		local pad = require(script.Components.GamepadNav) :: any
+		-- the Button component is a frame round its Face: the selection goes on the GuiButton
+		local found: Instance? = if target:IsA("GuiButton")
+			then target
+			else target:FindFirstChildWhichIsA("GuiButton", true)
+		local face: GuiObject? = if found ~= nil and found:IsA("GuiObject")
+			then found :: any
+			else nil
+		if pad.isGamepad() and face ~= nil then
+			pad.select(face)
+		end
+	end
 	return true
 end
 
@@ -4071,9 +4347,9 @@ function UI.cannon.flyToPark()
 	local near = if nearest ~= nil then nearest() else nil
 	if near ~= nil then
 		UI.cannon.open(near)
-	elseif hud then
-		fly.travel = hud:pressTravel("cannon")
 	end
+	-- #4776 (Derek 2026-11-16: "make them walk to the cannon after rank up and do it themselves"): away from a cannon
+	-- there is no trip any more; the paw trail and the strip walk them there, and the Park's ring waits for the picker
 end
 
 -- Ends "Fly to the Park": the rank-up button is Rank up again and the picker's ring goes.
@@ -4113,6 +4389,47 @@ function UI.cannon.openAfterTravel()
 	task.delay(0.4, look, true)
 end
 
+-- #4920: the walk-through's Cannon button: once the cloud hop has put the player at the Town Square cannon, it opens
+-- (UI.cannon.open), which launches straight to the Alleyway while the walk-through's first flight is due. Nothing
+-- when the picker would open with no Alleyway ring (it then waits for Hop in, as before).
+function UI.cannon.directAfterTravel()
+	if UI.cannon.fly.travel or UI.cannon.fly.ring ~= nil or UI.cannon.direct.off then
+		return -- "Fly to the Park" opens its own picker
+	end
+	local WalkRingLogic = require(script.Components.WalkRingLogic)
+	local TutorialOrder =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	-- review: with the switch off the picker waits for Hop in, as before
+	if
+		not LiveFlags.shown(
+			WalkRingLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
+		)
+	then
+		return
+	end
+	local walk = WalkRingLogic.area({
+		bowlFirst = TutorialOrder.bowlFirst(),
+		tier = state.tier,
+		secondCatDone = (state :: any).secondCatDone,
+		cannonId = CannonLogic.TOWN,
+		flyRing = nil,
+	})
+	if walk == nil then
+		return
+	end
+	-- after the cloud hop (Config.CloudHopSeconds), so the launch is not refused mid-hop
+	task.delay((Config :: any).CloudHopSeconds or 1.6, function()
+		local nearest = UI.cannon.nearest
+		local near = if nearest ~= nil then nearest() else nil
+		if near == CannonLogic.TOWN and (modal == nil or modal:current() == nil) then
+			UI.cannon.open(near)
+		end
+	end)
+end
+
 -- The Town Square cannon, for the hint's arrow and trail.
 function UI.cannon.setCannon(part: BasePart?)
 	cannonPart = part
@@ -4130,6 +4447,11 @@ function UI.cannon.open(cannonId: string?)
 		return
 	end
 	screen:setCannon(cannonId or CannonLogic.TOWN)
+	-- #4777 (Review-QA on #4779): the Cannon button's dim goes as the picker opens, so it never sits over the window
+	if hud then
+		local board: any = hud
+		board:pointCannon(false)
+	end
 	-- #4674: in the bowl first walk-through the Alleyway card's Launch is ringed until it is pressed
 	local WalkRingLogic = require(script.Components.WalkRingLogic)
 	local TutorialOrder =
@@ -4141,6 +4463,27 @@ function UI.cannon.open(cannonId: string?)
 		cannonId = cannonId or CannonLogic.TOWN,
 		flyRing = UI.cannon.fly.ring,
 	})
+	-- #4920: the walk-through's first flight from the Town Square goes straight to the Alleyway (no picker)
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local direct = WalkRingLogic.direct(
+		{
+			bowlFirst = TutorialOrder.bowlFirst(),
+			tier = state.tier,
+			secondCatDone = (state :: any).secondCatDone,
+			cannonId = cannonId or CannonLogic.TOWN,
+			flyRing = UI.cannon.fly.ring,
+		},
+		LiveFlags.shown(
+			WalkRingLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
+		)
+	)
+	if direct ~= nil and not UI.cannon.direct.off then
+		UI.cannon.direct.pending = true
+		UI.events.launchCannon:Fire(cannonId or CannonLogic.TOWN, direct)
+		return
+	end
 	if walk ~= nil then
 		UI.cannon.walkRing = walk
 		screen:setRing(walk)
@@ -4207,11 +4550,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 			cannonCard:show(destination, name, launchAt, hold) -- in the clouds (the UI gate's held card)
 		else
 			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
+			-- #4920: a quick first flight (CannonFlightScale on the character) zips the card off sooner too
+			local Cannon =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cannon")) :: any
+			local character = Players.LocalPlayer.Character
+			local scale = Cannon.scaleOf(
+				if character ~= nil then character:GetAttribute(Cannon.FLIGHT_SCALE) else nil
+			)
 			cannonCard:show(
 				destination,
 				name,
 				launchAt,
-				CannonLogic.CHOSEN_HOLD,
+				CannonLogic.CHOSEN_HOLD * scale,
 				CannonLogic.CHOSEN_IN
 			)
 		end
@@ -4228,6 +4578,15 @@ function UI.cannon.checkedIn(_catName: string?) end
 function UI.cannon.result(ok: boolean, destination: string?)
 	if cannonScreen then
 		cannonScreen:result(ok, destination)
+	end
+	-- #4920 (review): a refused straight launch (night without the pass, a cooldown, mid hop) opens the picker as
+	-- before and stops the straight launch for the session, so the next tap never loops on the same refusal
+	if UI.cannon.direct.pending then
+		UI.cannon.direct.pending = false
+		if not ok then
+			UI.cannon.direct.off = true
+			UI.cannon.open(CannonLogic.TOWN)
+		end
 	end
 end
 
@@ -4249,6 +4608,7 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	end
 	if destination == "cannon" then
 		if ok then
+			UI.cannon.directAfterTravel() -- #4920
 			UI.cannon.openAfterTravel() -- #2915
 		else
 			UI.cannon.fly.travel = false
@@ -4318,7 +4678,13 @@ end
 -- and the "Safe zone: no tackling here" toast on 2026-11-02 (Derek 2026-10-28: "no need for the safe area reached
 -- banner either").
 function UI.setZone(zone: string?)
+	local before = currentZone
 	currentZone = zone
+	-- #5031: back in Town or the cafe, a closed Rank Up window may open again (declared further down: through any)
+	local autoRank: any = (UI :: any).autoRank
+	if autoRank ~= nil then
+		autoRank.landed(before, zone)
+	end
 	showDusk() -- walking into an area during the dusk warning
 	if netButton then
 		netButton:setInArea(not Wayfinding.isSafe(zone))
@@ -4359,11 +4725,15 @@ end
 -- limit for one function's locals; the module was at 196). Its tables are made out here, so every use of them
 -- type checks.
 UI.catch = {}
+-- #4973: a tutorial Miss keeps the HUD aside until its circle comes back (finishCatch); `starts` counts the circles
+-- shown, `token` the results, and GRACE is the wait past TutorialRetrySeconds before it gives up on a new circle
+UI.catch.retry = { token = 0, starts = 0, GRACE = 1.0, stripUntil = 0, STRIP_BEAT = 0.6 }
 -- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
 -- #3464 (Derek 2026-11-12: "show the loot obtained from rummage also"): the Rummage Bin's loot card
 -- (Screens/LootCard). It lists the server's items; since #3885 it shows as the prize lands in the hands.
+local YARD_LOOT_AFTER_SECONDS = 1 -- #4861: the Yard Sale's lit row shows this long before its card closes
 local LOOT_AFTER_POP_SECONDS = 0.9 -- #3885: as the prize's picture lands in the hands (Presets.binRoll.prize)
 UI.loot = { card = nil :: any, token = 0 }
 function UI.loot.show(win: unknown, after: number?, hint: string?)
@@ -4571,6 +4941,7 @@ do
 		if catch then
 			catch:hide() -- activePrompt and activeInfo stay so the card can come back
 		end
+		UI.catch.retry.starts += 1 -- #4973: a tutorial Miss's held HUD stays down for this circle
 		if hud then
 			hud:setCatching(true)
 		end
@@ -4615,6 +4986,17 @@ do
 				end
 			end
 		end
+		-- #4973 (Sync's forced Miss run): the server's easy catch (CatService.easyCatch) covers every free stray of
+		-- the walk-through, not only the Beginner one, and its Miss comes back after TutorialRetrySeconds, which the
+		-- result's retryAt says (an ordinary Miss waits StraySelfRetrySeconds, 3 s or more)
+		if
+			not outcome.success
+			and outcome.hint == nil
+			and type(retryAt) == "number"
+			and retryAt - Workspace:GetServerTimeNow() <= Config.TutorialRetrySeconds + 0.5
+		then
+			outcome.hint = "Try again!"
+		end
 		if not outcome.success and outcome.hint == nil then
 			local now = Workspace:GetServerTimeNow()
 			for id, retry in retries do
@@ -4634,14 +5016,56 @@ do
 		-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD
 		-- comes back the moment the result arrives. It waited for the result word before (0.4 s, and 0.6 s more for
 		-- the net wrap on a catch); the word still flashes over it.
-		if hud then
-			hud:setCatching(false)
+		-- #4973 (Derek 2026-11-16: "during the tutorial catching the tutorial steps (even tho all ui is supposed to be
+		-- hidden) will flash through"): a Miss on this player's own tutorial stray (outcome.hint) brings its circle back
+		-- by itself after TutorialRetrySeconds (CatService.tutorialMiss), so the HUD, its strip and the catch card stay
+		-- aside through that gap. Should no circle come (walked off, no press reached the server) they come back after
+		-- RETRY_GRACE more.
+		local retry = UI.catch.retry
+		retry.token += 1
+		local held = not outcome.success and outcome.hint ~= nil
+		local token, starts = retry.token, retry.starts
+		local function back()
+			if hud then
+				hud:setCatching(false)
+			end
+		end
+		local function card()
+			local info = activeInfo
+			local prompt = catch
+			if not outcome.success and activePrompt ~= nil and info ~= nil and prompt ~= nil then
+				prompt:show(info)
+			end
+		end
+		-- #4973 (Sync's run: the old step's line flashed 0.09 s after a Perfect, until the next step's sync): in the
+		-- walk-through a catch's result keeps the strip down for STRIP_BEAT, so the next line is the first it shows
+		if outcome.success and UI.firstCat.tutorial then
+			retry.stripUntil = os.clock() + retry.STRIP_BEAT
+			applyTutorial()
+			task.delay(retry.STRIP_BEAT + 0.05, function()
+				if hud ~= nil then
+					applyTutorial()
+				end
+			end)
+		end
+		if held then
+			task.delay(Config.TutorialRetrySeconds + retry.GRACE, function()
+				local cards: any = UI -- UI.rescue is built further down
+				if
+					retry.token == token
+					and retry.starts == starts
+					and not cards.rescue.isActive()
+				then
+					back()
+					card()
+				end
+			end)
+		else
+			back()
 		end
 		screen:showResult(outcome, function()
-			local info = activeInfo
-			local card = catch
-			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
-				card:show(info)
+			if not held then
+				card()
 			end
 		end)
 	end
@@ -4671,12 +5095,8 @@ do
 			charmGain = charmGain,
 			finish = ending,
 		}, retryAt)
-		-- #2282: the first catch whose Perfects added Charm says what Charm is for, once an account (the tip card
-		-- waits until the catch is over, as every tip does)
-		if success and type(charmGain) == "number" and charmGain > 0 and state.tipsSeen ~= nil then
-			local tips: any = (UI :: any).tips -- filled later in the file
-			tips.show("perfect")
-		end
+		-- #4838 (Derek 2026-11-16: "remove the tip for perfects giving more charm just adds bloat"): #2282's Charm tip
+		-- after the first Perfect catch is gone
 	end
 
 	function UI.catch.hideCircles()
@@ -5240,6 +5660,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 		and areaTitle
 		and not (toasts and toasts:isBusy())
 		and not UI.intro.playing()
+		and UI.popPace.banner("sunrise") -- #4946 (Sync's retest): not in the first 5 minutes
 	then
 		areaTitle:banner(
 			"sunrise",
@@ -5292,6 +5713,8 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 						and windows
 						and windows:current() == nil
 						and tips.quiet()
+						-- #4946 (Sync's check 1 of #4953): not in the hold, and at most once every 5 minutes
+						and UI.popPace.banner("night_market")
 					then
 						-- #1737 (Derek2 11-06): the Night Market's own cart picture, as on its map marker, not the moon
 						-- (required here: this file is at Luau's 200-local limit)
@@ -5438,6 +5861,7 @@ function UI.clock.bind(clock: Instance)
 						areaTitle
 						and not (toasts and toasts:isBusy())
 						and not UI.intro.playing()
+						and UI.popPace.banner("lucky_day", "sunrise")
 					then
 						areaTitle:banner("lucky_day", title, line, Theme.colors.gold, 4)
 					end
@@ -5487,7 +5911,7 @@ function UI.luckyDay(
 		return
 	end
 	if kind == "warning" then
-		local title: string?, said: string? = "Lucky Day soon!", line
+		local title: string?, said: string? = "Lucky Day soon!", nil -- #4867: no explaining line
 		if type(coming) == "table" then
 			title, said = (require(script.Components.LuckLogic) :: any).warnBanner(coming)
 		end
@@ -5496,8 +5920,9 @@ function UI.luckyDay(
 			and title ~= nil
 			and not (toasts and toasts:isBusy())
 			and not UI.intro.playing()
+			and UI.popPace.banner("lucky_warning")
 		then
-			areaTitle:banner("lucky_warning", title, said or line, Theme.colors.gold, 4)
+			areaTitle:banner("lucky_warning", title, said, Theme.colors.gold, 4)
 		end
 		return
 	end
@@ -5513,19 +5938,8 @@ function UI.roadmap.step(n: number)
 		return
 	end
 	local RoadmapLogic = require(script.Components.RoadmapLogic)
-	-- #4384: no prize toast during the tutorial while checkInCalm is on
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	if
-		n < #RoadmapLogic.STEPS
-		and RoadmapLogic.calm(
-			LiveFlags.shown(
-				RoadmapLogic.CALM_FLAG,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
-			),
-			state.tutorialStep
-		)
-	then
+	-- #4384: no prize toast during the tutorial
+	if n < #RoadmapLogic.STEPS and RoadmapLogic.calm(state.tutorialStep) then
 		return
 	end
 	if toasts then
@@ -5669,6 +6083,7 @@ do
 			flying = os.clock() < tipsHeldUntil,
 			window = (modal ~= nil and modal:current() ~= nil)
 				or UI.cutscene.held() -- #4018: tips, ask and first visit cards wait through a cutscene
+				or UI.firstCat.held -- #4821: and until the first bowl cat is claimed
 				or (popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing()),
@@ -5758,6 +6173,11 @@ do
 		if not TipQueue.free(tipMoment()) then
 			return
 		end
+		-- #4946 (Sync's retest: a tip card 9 s before an ask): the tip cards wait out the walk-through and the first 5
+		-- minutes too, and count as the one pop-up every 5 minutes
+		if UI.firstCat.tutorial or not UI.popPace.free() then
+			return
+		end
 		local now = os.clock()
 		local picked = tipQueue:take(now)
 		while picked ~= nil and tipKnown(picked) do
@@ -5767,6 +6187,7 @@ do
 			return
 		end
 		local id: string = picked -- closures below do not keep the refinement
+		UI.popPace.used() -- #4946: a tip card (or an ask in the queue) is this 5 minutes' pop-up
 		tipQueue:shown(now)
 		local device: TipQueue.Device = tipDevice()
 		local area = nextAreaName()
@@ -6031,11 +6452,17 @@ do
 	-- free; true when it shows. The card answers through the ask's own answer.
 	-- #2880: `news` is a card that tells of something happening now (a first visitor at the cafe, #2792), not an ask
 	-- for something: it skips the pace and does not hold the next ask back.
-	function UI.asks.card(ask: any, news: boolean?): boolean
+	-- #4946: `back` is a news card that already showed and stepped aside for a window (#3620); it comes back without
+	-- waiting for UI.popPace, as it is still the same pop-up
+	function UI.asks.card(ask: any, news: boolean?, back: boolean?): boolean
 		local card = askCard
 		local pace: any = UI.asks -- #2880: paced and shown are set further down the file
 		if card == nil or not initialized or card:isShowing() or not (news or pace.paced()) then
 			return false -- #2880: too soon after the last ask, or too early in the session; offered again later
+		end
+		-- #4946: news too waits out the walk-through and first 5 minutes, then one pop-up every 5 minutes
+		if news and (UI.firstCat.tutorial or not (back or UI.popPace.free())) then
+			return false
 		end
 		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
 		-- no ask card while a roll or its reveal plays (UI.rollBusy)
@@ -6045,6 +6472,8 @@ do
 		card:show(ask)
 		if not news then
 			pace.shown()
+		elseif not back then
+			UI.popPace.used()
 		end
 		return true
 	end
@@ -6061,6 +6490,10 @@ do
 			or not initialized
 			or (id ~= Tips.FAVORITE_ASK and id ~= Tips.LIKE_ASK)
 			or not TipQueue.free(tipMoment())
+			-- #4854 (folded in from #4902): no favourite or like ask in the hold (the walk-through and the first 5
+			-- minutes), and it is the one pop-up of its 5 minutes
+			or UI.firstCat.tutorial
+			or not UI.popPace.free()
 		then
 			return false
 		end
@@ -6071,6 +6504,7 @@ do
 		tipBusy = true
 		tipAnswered[id] = true -- so the queue never shows it again this session
 		tipQueue:shown(os.clock())
+		UI.popPace.used()
 		card:show(text, TipQueue.icon(id), TipQueue.ASK_SECONDS, function()
 			tipBusy = false
 		end)
@@ -6160,18 +6594,25 @@ do
 		if not tutorialButtonOn then
 			return false
 		end
+		-- #4946: no ask in the walk-through or the account's first 5 minutes, and one pop-up every 5 minutes
+		if UI.firstCat.tutorial or not UI.popPace.free() then
+			return false
+		end
 		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
 	end
 
-	-- #2880: a slide-in ask just showed, so the next one waits AskPacing.GAP_SECONDS
+	-- #2880: a slide-in ask just showed, so the next one waits AskPacing.GAP_SECONDS (#4946: and the next pop-up
+	-- UI.popPace's)
 	function UI.asks.shown()
 		early.lastAsk = os.clock() - sessionStart
+		UI.popPace.used()
 	end
 
 	-- #2880: the pace as if the session had run long enough with no ask yet (QA in Studio and the UI gate)
 	function UI.asks.skipPace()
 		sessionStart = os.clock() - AskPacing.FIRST_SECONDS
 		early.lastAsk = nil
+		UI.popPace.lastAt = nil -- #4946
 	end
 
 	local function openAsk(card: AskCard.AskCard)
@@ -6472,8 +6913,11 @@ do
 			owned = (state :: any).starterBought,
 			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
 			now = Workspace:GetServerTimeNow(),
-			tutorialDone = type(state.tutorialStep) == "number" and state.tutorialStep >= 5,
-			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
+			-- Derek 2026-11-16 15:22 UTC: and the walk-through hold is off (UI.firstCat.tutorial)
+			tutorialDone = type(state.tutorialStep) == "number"
+				and state.tutorialStep >= 5
+				and not UI.firstCat.tutorial,
+			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(), -- (#4946: popPace too)
 			priced = robux ~= nil,
 		})
 		if due and id ~= nil and robux ~= nil then
@@ -6790,7 +7234,7 @@ end
 -- from the cafe. At a free moment (UI.tips.quiet: no catch, rescue, window or other ask) it toasts at the cafe, or away
 -- puts the slide-in ask card up with "Go to my cafe" (events.travel "home") and Later (Components/FirstVisitLogic).
 -- The card goes when the visit ends. Its own block, as the module is short of locals.
-UI.firstVisit = { kind = nil :: string?, token = 0, carded = false }
+UI.firstVisit = { kind = nil :: string?, token = 0, carded = false, shown = 0 }
 do
 	local FirstVisitLogic = require(script.Components.FirstVisitLogic)
 
@@ -6813,7 +7257,16 @@ do
 		if visit.token ~= token or kind == nil then
 			return -- the visit ended, or another came, while it waited
 		end
-		if not initialized or not UI.tips.quiet() or busy() then
+		-- #4946: and not in the walk-through or the account's first 5 minutes, then one pop-up every 5 minutes (the toast
+		-- at the cafe too); a card that already showed for this visit and stepped aside for a window is the same pop-up
+		local back = visit.shown == token
+		if
+			not initialized
+			or not UI.tips.quiet()
+			or busy()
+			or UI.firstCat.tutorial
+			or not (back or UI.popPace.free())
+		then
 			task.delay(1, present, token, away)
 			return
 		end
@@ -6832,6 +7285,7 @@ do
 		end
 		local how, line = FirstVisitLogic.show(kind, away())
 		if how == "toast" then
+			UI.popPace.used() -- #4946
 			UI.toast(line, "good")
 		elseif how == "card" then
 			local choices: { AskCard.Choice } = {
@@ -6853,10 +7307,11 @@ do
 						UI.events.travel:Fire("home")
 					end
 				end,
-			}, true) -- news, not an ask: AskPacing does not hold it back (#2880)
+			}, true, back) -- news, not an ask: AskPacing does not hold it back (#2880)
 			if not visit.carded then
 				task.delay(1, present, token, away) -- the card's slot is taken (another card, or its own way out)
 			else
+				visit.shown = token
 				-- #3620: a window or the perk card that opens over the shown card takes the screen; the card
 				-- steps aside and comes back when it has closed, while the visit lasts
 				task.spawn(function()
@@ -7277,6 +7732,12 @@ do
 	end
 
 	-- UI.destroy: the card goes with the rest of the screens.
+	-- #4924: whether the card is up (the Rank Up window waits for it)
+	function UI.bigPull.showing(): boolean
+		local screen = pull.screen
+		return screen ~= nil and screen:showing()
+	end
+
 	function UI.bigPull.reset()
 		local screen = pull.screen
 		if screen ~= nil then
@@ -7970,7 +8431,9 @@ do
 			tag = "BellhopStand", -- shared/StarterCat.TAG
 			name = "CatCafeStarterBang",
 			line = function(claimed: any): string?
-				if claimed ~= false then
+				-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
+				-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
+				if claimed ~= false or UI.firstCat.tutorial then
 					return nil
 				end
 				return if (SharedConfig.GroupId or 0) ~= 0
@@ -7980,6 +8443,11 @@ do
 		})
 		starterBang:update((state :: any).starterCatClaimed)
 		camp.starter = starterBang
+		UI.firstCat.onHold = function() -- #4854: the bubble comes back as the hold ends, with no state update
+			if camp.starter == starterBang then
+				starterBang:update((UI.getState() :: any).starterCatClaimed)
+			end
+		end
 		local modalView = modal
 		if modalView == nil then
 			return
@@ -7995,7 +8463,6 @@ do
 				Moments.YardSaleTick:Fire()
 			end,
 			landed = function(crateId: string)
-				local name = crateId
 				local golden = false
 				local crates: { Types.CrateDef } = if currentCatalog ~= nil
 						and currentCatalog.crates ~= nil
@@ -8003,16 +8470,21 @@ do
 					else {}
 				for _, crate in crates do
 					if crate.id == crateId then
-						name = crate.name
 						golden = crate.golden == true
 					end
-				end
-				if toasts then
-					toasts:prize("Lucky pick: " .. name, { crates = { [crateId] = 1 } })
 				end
 				-- #3615: the landing's sound and, for a golden crate, the bigger show at the stall
 				Moments.YardSaleLanded:Fire(golden)
 				UI.events.yardSaleLanded:Fire(crateId)
+				-- #4861 (Derek 2026-11-16: "yard sale after landing on the reward close the menu and briefly show the
+				-- pop up of what you got on screen like rummage bin"): a moment on the lit row, then the card closes and
+				-- the Rummage Bin's loot card says what was won (it was a toast)
+				task.delay(YARD_LOOT_AFTER_SECONDS, function()
+					if modalView:current() == "YardSale" then
+						modalView:close()
+					end
+					UI.loot.show({ items = { { kind = "crate", id = crateId, count = 1 } } })
+				end)
 			end,
 			close = function()
 				if modalView:current() == "YardSale" then
@@ -8970,7 +9442,9 @@ do
 		end
 		local bang = pool.bang
 		if bang then
-			bang:update((playerState :: any).traits)
+			-- #4858: once the player has walked up to the pool, no "!" (a nil view hides it)
+			local visited = MysticPoolLogic.visited(playerState.tipsSeen)
+			bang:update(if visited then nil else (playerState :: any).traits)
 		end
 	end
 
@@ -9334,9 +9808,11 @@ UI.admin = {
 do
 	local AdminBarLogic = require(script.Components.AdminBarLogic)
 	local AdminWheel = require(script.Screens.AdminWheel)
+	local WheelPrize = require(script.Screens.WheelPrize)
 	local AUTO_OPEN = 4 -- seconds after the wheel comes up before its window opens by itself (the splash first)
 	local admin = {
 		window = nil :: AdminWheel.AdminWheel?,
+		prize = nil :: WheelPrize.WheelPrize?, -- #4876: the prize card after each spin
 		info = nil :: AdminBarLogic.Info?,
 		wheel = nil :: AdminBarLogic.Wheel?,
 		upAt = nil :: number?, -- when this event's wheel came up for this account (os.clock)
@@ -9355,8 +9831,10 @@ do
 	end
 
 	-- UI.init: the wheel's window in the modal.
-	function UI.admin.start(_parent: Instance)
+	function UI.admin.start(parent: Instance)
 		UI.admin.reset()
+		local prizeCard = WheelPrize.new(parent)
+		admin.prize = prizeCard
 		local window = AdminWheel.new({
 			spin = function()
 				UI.admin.spin:Fire()
@@ -9366,10 +9844,26 @@ do
 					modal:close()
 				end
 			end,
-			toast = function(text: string)
-				if toasts then
-					toasts:show(text, "good")
+			-- #4876 (Derek 2026-11-16): the wheel closes and the prize card shows for a few seconds; with spins
+			-- left the window comes back after it
+			won = function(prizeId: string, words: string, catId: string)
+				if modal and modal:current() == "AdminWheel" then
+					modal:close()
 				end
+				prizeCard:show(prizeId, words, catId, function()
+					local wheel = admin.wheel
+					local info = admin.info
+					if
+						wheel ~= nil
+						and not wheel.spun
+						and info ~= nil
+						and info.running
+						and modal
+						and modal:current() == nil
+					then
+						UI.admin.open()
+					end
+				end)
 			end,
 		})
 		admin.window = window
@@ -9408,6 +9902,10 @@ do
 				or UI.rollBusy.window
 				or UI.rollBusy.held()
 				or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)())
+				-- #4877 (Derek 2026-11-16 16:36 UTC: "no admin events ui or anything on screen for people in tutorial
+				-- steps"): not through the first cat hold or the walk-through either; it opens once they end
+				or UI.firstCat.held
+				or UI.firstCat.tutorial
 			if os.clock() - upAt >= AUTO_OPEN and modal and modal:current() == nil and not busy then
 				admin.autoOpened[wheel.eventId] = true
 				UI.admin.open()
@@ -9426,10 +9924,10 @@ do
 	end
 
 	-- AdminWheelResult(slice, prizeId, paid).
-	function UI.admin.result(slice: number, prizeId: string, paid: { string })
+	function UI.admin.result(slice: number, prizeId: string, paid: { string }, catId: string?)
 		local window = admin.window
 		if window then
-			window:result(slice, prizeId, paid)
+			window:result(slice, prizeId, paid, catId)
 		end
 	end
 
@@ -9440,6 +9938,11 @@ do
 			window:destroy()
 		end
 		admin.window = nil
+		local prizeCard = admin.prize
+		if prizeCard then
+			prizeCard:destroy()
+		end
+		admin.prize = nil
 	end
 end
 
@@ -10729,6 +11232,8 @@ local function recapTry(): boolean
 		or (tipCard ~= nil and tipCard:isShowing())
 		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
 		or not visible
+		or UI.firstCat.tutorial -- #4946: not in the walk-through or the account's first 5 minutes
+		or not UI.popPace.free() -- #4946: one pop-up every 5 minutes
 	if
 		not RecapLogic.canShow({
 			enabled = true,
@@ -10743,6 +11248,7 @@ local function recapTry(): boolean
 	end
 	UI.recap.shown = true
 	UI.recap.waiting = nil
+	UI.popPace.used()
 	card:show(recapLines(view), function(secondsUp: number)
 		UI.events.sessionRecapClose:Fire(secondsUp)
 	end, recapGoals(view))
@@ -10806,11 +11312,15 @@ function UI.returnHook.try(): boolean
 		or (hud ~= nil and hud:isCatching())
 		or state.carrying ~= nil
 		or UI.cutscene.held()
+		or UI.firstCat.held -- #4821
+		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC
 		or UI.rollBusy.held()
+		or not UI.popPace.free() -- #4946
 	if busy then
 		return false
 	end
 	hook.shown = true
+	UI.popPace.used()
 	UI.toast(words, "info", ReturnHookLine.SHOW_SECONDS)
 	UI.events.returnHookEarly:Fire(ReturnHookLine.kind((state :: any).tomorrowHook))
 	return true
@@ -10938,6 +11448,134 @@ function UI.calmForMoment(): boolean
 		and not (card ~= nil and card:isShowing())
 end
 
+-- #4924 (Derek 2026-11-16: "when its ready pull the rankup screen into their screen to click"): the Rank Up window
+-- opens by itself the first time each tier's rank up is ready this session, once the screen has been calm for
+-- AutoRankUp.CALM_SECONDS (no window, card, catch, rescue, carry, cutscene, roll or intro). Closed, it waits for the
+-- HUD button. One watcher at a time looks again every CHECK_SECONDS while a ready rank up waits for calm.
+UI.autoRank = {
+	opened = {} :: { [number]: boolean },
+	watching = false,
+	calmSince = nil :: number?,
+	-- #5031 (shared/RankUpRightAway), by tier this session: RANK UP pressed, the window closed without a press, and
+	-- `closes` when it last opened again; autoAt is os.clock() as it opens itself (UIController's rank_up_open how)
+	pressed = {} :: { [number]: boolean },
+	closes = {} :: { [number]: number },
+	reopened = {} :: { [number]: number },
+	autoAt = nil :: number?,
+}
+
+function UI.autoRank.ready(): (boolean, number)
+	local GoalLines = require(script.Components.GoalLines) :: any
+	local RankUpNeeds = require(script.Components.RankUpNeeds) :: any
+	local tier = state.tier or 1
+	local catalog = currentCatalog
+	if catalog == nil or (state :: any).plotIndex == 0 then
+		return false, tier
+	end
+	local nextTier = GoalLines.nextTier(catalog.tiers, tier)
+	if nextTier == nil then
+		return false, tier
+	end
+	return RankUpNeeds.of(nextTier, state :: any).ready == true, tier
+end
+
+function UI.autoRank.calm(): boolean
+	return modal ~= nil
+		and UI.calmForMoment()
+		and not UI.intro.playing()
+		and not UI.bigPull.showing()
+end
+
+function UI.autoRank.check()
+	local auto: any = UI.autoRank -- any: luau-lsp lost `calm` on the table it is still building (CI)
+	if auto.watching then
+		return
+	end
+	local AutoRankUp = require(script.Components.AutoRankUp) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local function on(): boolean
+		return LiveFlags.shown(
+			AutoRankUp.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AutoRankUp.FLAG)
+		)
+	end
+	local ready, tier = auto.ready()
+	-- for Effects (Motion-FX's glow on RANK UP): the tier whose rank up is ready, nil while none is; local only
+	local player = Players.LocalPlayer
+	local readyTier = if ready then tier else nil
+	if player ~= nil and player:GetAttribute(AutoRankUp.ATTRIBUTE) ~= readyTier then
+		player:SetAttribute(AutoRankUp.ATTRIBUTE, readyTier)
+	end
+	if not on() or not ready or auto.opened[tier] then
+		return
+	end
+	auto.watching = true
+	auto.calmSince = nil
+	task.spawn(function()
+		while true do
+			local nowReady, nowTier = auto.ready()
+			if modal == nil or not on() or not nowReady or auto.opened[nowTier] then
+				break
+			end
+			local now = os.clock()
+			if auto.calm() then
+				auto.calmSince = auto.calmSince or now
+			else
+				auto.calmSince = nil
+			end
+			if
+				AutoRankUp.due({
+					on = true,
+					tier = nowTier,
+					ready = nowReady,
+					opened = false,
+					calmFor = now - (auto.calmSince or now),
+				})
+			then
+				auto.opened[nowTier] = true
+				auto.autoAt = os.clock() -- #5031: this open is the window's own
+				local window = modal :: Modal.Modal
+				window:open("RankUp")
+				break
+			end
+			task.wait(AutoRankUp.CHECK_SECONDS)
+		end
+		auto.watching = false
+	end)
+end
+
+-- #5031 (switch rankUpRightAway, shared/RankUpRightAway.againDue): a Rank Up window closed without a press opens again
+-- the next time the player comes into Town or their cafe (UI.setZone), once a close and at most REOPENS times
+function UI.autoRank.landed(before: string?, zone: string?)
+	local auto: any = UI.autoRank
+	if not Wayfinding.isSafe(zone) or Wayfinding.isSafe(before) then
+		return
+	end
+	local Shared = ReplicatedStorage:WaitForChild("Shared")
+	local RankUpRightAway = require(Shared:WaitForChild("RankUpRightAway")) :: any
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local ready, tier = auto.ready()
+	local closes = auto.closes[tier] or 0
+	if
+		RankUpRightAway.againDue({
+			on = LiveFlags.shown(
+				RankUpRightAway.FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankUpRightAway.FLAG)
+			),
+			ready = ready,
+			pressed = auto.pressed[tier] == true,
+			closes = closes,
+			reopened = auto.reopened[tier] or 0,
+			landed = true,
+		})
+	then
+		auto.reopened[tier] = closes
+		auto.opened[tier] = nil
+		auto.check()
+	end
+end
+
 UI.gift = {
 	card = nil :: any,
 	queue = {} :: { { kind: string, paid: { string }? } },
@@ -10987,6 +11625,9 @@ local function giftTry(): boolean
 		or card:isShowing()
 		or not visible
 		or UI.bigTraitCutting() -- #3846: never over a trait roll's cutscene
+		-- #4946 (Sync's check 1 of #4953): the thank-you card opens by itself, so it waits out the hold and the pace
+		or UI.firstCat.tutorial
+		or not UI.popPace.free()
 	if
 		not GiftCardLogic.canShow({
 			idleSeconds = recapIdleSeconds(),
@@ -11002,6 +11643,7 @@ local function giftTry(): boolean
 		return false
 	end
 	table.remove(UI.gift.queue, 1)
+	UI.popPace.used()
 	giftOpen(waiting.kind, waiting.paid)
 	return #UI.gift.queue == 0
 end
@@ -11103,7 +11745,9 @@ do
 
 	function UI.rest.calm(): boolean
 		local tips: any = UI.tips
-		return tips.calm()
+		-- #4848 (folded in from #4902): no "Stand still for 2x money" banner in the hold (the walk-through and the
+		-- first 5 minutes)
+		return tips.calm() == true and UI.firstCat.tutorial ~= true and UI.popPace.free()
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session
@@ -11111,8 +11755,22 @@ do
 		local now = Workspace:GetServerTimeNow()
 		local view = EventLogic.read(get, UI.cafeEvent.decode)
 		local seen, started = EventLogic.follow(events.seen, view, now)
-		events.seen = seen
-		if started and view ~= nil and toasts then
+		-- Derek 2026-11-16 15:22 UTC: no event card or toast in the walk-through (UI.firstCat.tutorial). Its start is
+		-- not marked seen meanwhile, so the card comes once the hold ends: right after the first sync for a returning
+		-- player (the hold starts on at load), after the Tier 2 rank up for a new one, while the event still runs.
+		-- Sync's Studio read: and before the first sync (the placeholder state has no tutorialStep; the card played
+		-- under the loading cover) and CARD_AFTER seconds past the hold's end
+		local hold = UI.firstCat
+		local waiting = hold.tutorial
+			or state.tutorialStep == nil
+			or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
+		-- #4946: the event's own card (not the admin event's) also waits for UI.popPace
+		local held = started and (waiting or not UI.popPace.free())
+		if not held then
+			events.seen = seen
+		end
+		if started and view ~= nil and toasts and not held then
+			UI.popPace.used()
 			-- #3420: an Update Party starts with the party card; any other event with the toast
 			local party = EventLogic.partyBanner(
 				view,
@@ -11152,16 +11810,26 @@ do
 		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
 		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
 		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
-		events.adminSeen = adminSeen
-		if adminBeat ~= nil and adminView ~= nil then
+		-- an admin event running at join or through the walk-through: its start card comes once the hold ends, as
+		-- the Cafe Event's (its 2 minute warning is only dropped)
+		local adminHeld = adminBeat == "start" and waiting
+		if not adminHeld then
+			events.adminSeen = adminSeen
+		end
+		if adminBeat ~= nil and adminView ~= nil and not adminHeld then
 			local card = if adminBeat == "start"
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)
 			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
-			EventBanner.show(card)
-			-- the same words as one line in the chat window, for a player who looked away
-			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
-			AdminEventChat.say(AdminEventLogic.chatLine(card))
+			-- Derek 2026-11-16 15:22 UTC and #4877 (16:36 UTC, "no admin events ui or anything on screen for people in
+			-- tutorial steps"): through the first cat hold and the walk-through, no banner and no chat line either
+			if not (UI.firstCat.tutorial or UI.firstCat.held) then
+				EventBanner.show(card)
+				UI.popPace.used() -- #4946: it counts as the one pop-up
+				-- the same words as one line in the chat window, for a player who looked away
+				local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+				AdminEventChat.say(AdminEventLogic.chatLine(card))
+			end
 		end
 		local current = hud
 		if current then
@@ -11170,7 +11838,8 @@ do
 				eventLines,
 				eventKind,
 				EventLogic.strip(view, seen, now),
-				AdminEventLogic.stripLine(adminView, now)
+				-- #4877: no admin timer on the chip or strip in the walk-through
+				AdminEventLogic.stripLine(if UI.firstCat.tutorial then nil else adminView, now)
 			)
 			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
@@ -11225,9 +11894,15 @@ do
 		return true
 	end
 
-	-- Different kinds owned toward rank up, from the Index the client has.
+	-- Different kinds owned toward rank up, from the Index the client has. #4809: every cat owned while the next
+	-- tier takes any cats (NewKind.anyAt).
 	function UI.newKind.kinds(): number
 		local Economy = require(Shared:WaitForChild("Economy")) :: any
+		local tier = state.tier or 1
+		if NewKind.anyAt(tier) then
+			local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+			return Economy.rankUpCats(state.collection or {}, state.cats, Catalog.getTier(tier + 1))
+		end
 		return Economy.rankUpCatCount(state.collection or {})
 	end
 
@@ -11266,10 +11941,22 @@ do
 
 	-- The catch card's line for a cat of this kind, nil when the switch is off or the kind is not new.
 	function UI.newKind.line(catId: unknown, rarity: unknown): string?
-		if not UI.newKind.on() or not NewKind.isNew(state.collection, catId, rarity) then
+		if not UI.newKind.on() then
 			return nil
 		end
-		return NewKind.line(UI.newKind.kinds(), state.tier or 1)
+		-- #4809: while Tier 2 takes any cats, every cat that counts gets "Cat 2/3 for Cozy Cafe", new kind or not
+		local tier = state.tier or 1
+		if NewKind.anyAt(tier) and type(catId) == "string" and rarity ~= "Secret" then
+			local Economy = require(Shared:WaitForChild("Economy")) :: any
+			local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+			if Catalog.getCat(catId) ~= nil and Economy.countsForRankUp(catId) then
+				return NewKind.line(UI.newKind.kinds(), tier, true)
+			end
+		end
+		if not NewKind.isNew(state.collection, catId, rarity) then
+			return nil
+		end
+		return NewKind.line(UI.newKind.kinds(), tier)
 	end
 end
 

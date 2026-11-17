@@ -31,6 +31,20 @@ function Logic.pickVoice(voices: { VoiceState }, max: number): number
 end
 
 -- False while the cue played less than `minGap` seconds ago (drops coin spam and double presses).
+-- #3918: the pooled voices to let go (by index, highest first so they can be removed in order): idle (not
+-- playing) and last started more than `idle` seconds ago. A Sound kept for every cue ever heard holds its audio for
+-- the whole session, which showed as a creep with a step at each new area.
+function Logic.idleVoices(voices: { VoiceState }, now: number, idle: number): { number }
+	local drop: { number } = {}
+	for index = #voices, 1, -1 do
+		local voice = voices[index]
+		if not voice.playing and now - voice.startedAt > idle then
+			table.insert(drop, index)
+		end
+	end
+	return drop
+end
+
 function Logic.canPlay(lastPlayed: number?, now: number, minGap: number): boolean
 	return lastPlayed == nil or now - lastPlayed >= minGap
 end
@@ -544,6 +558,7 @@ end
 -- #4197: what an admin event drops lands (Effects/AdminDrops.onLand)
 Logic.ADMIN_DROP_CUES = { fish = "adminFishLand", crate = "adminCrateLand" } :: { [string]: string }
 Logic.HARVEST_PICK_CUE = "harvestPick" -- #4251: a Harvest Hollow patch pumpkin is picked (Effects/HarvestFx)
+Logic.HARVEST_PIN_CUE = "harvestPin" -- #4251: a note pinned on the Thankful Board (Effects/HarvestFx)
 Logic.STORM_LAND_CUE = "stormLand" -- #4197: a Cat Storm's stray lands (Effects/StormFall)
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then

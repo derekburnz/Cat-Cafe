@@ -44,14 +44,15 @@ function SpotlightGuide.show(
 	target: GuiObject,
 	words: string,
 	onOutside: (() -> ())?,
-	ringOutside: boolean?
+	ringOutside: boolean?,
+	noDim: boolean? -- Derek 2026-11-16: ring and arrow only, nothing dimmed (the rank up window's button)
 ): () -> ()
 	local previous = closeCurrent
 	if previous ~= nil then
 		previous()
 	end
 	local gui = target:FindFirstAncestorOfClass("ScreenGui")
-	TutorialGlow.set(target, true, ringOutside) -- outside: for a card whose words reach its edge
+	TutorialGlow.set(target, true, ringOutside, noDim) -- outside: for a card whose words reach its edge
 	local caption: TextLabel? = nil
 	if gui ~= nil and words ~= "" then
 		local made: TextLabel = Create("TextLabel", {

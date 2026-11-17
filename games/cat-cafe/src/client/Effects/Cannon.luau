@@ -25,6 +25,7 @@ local Moments = require(script.Parent.Parent.Moments)
 
 local Clouds = require(script.Parent.Clouds)
 local Context = require(script.Parent.Context)
+local FlightClock = require(script.Parent.FlightClock)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
@@ -257,7 +258,10 @@ end
 local function stepFlight(character: Model, flight: Flight, now: number)
 	local c = Presets.cannon
 	local s = flight.stage
-	local t = now - flight.at
+	-- a real flight's beats run on its CannonFlightScale (FlightClock); the intro's copy keeps its own stage
+	local t = if flight.staged
+		then now - flight.at
+		else FlightClock.seconds(character, flight.at, now)
 	local root = rootOf(character)
 	if t > s.endAt + c.stale or character.Parent == nil or (root == nil and not flight.staged) then
 		endFlight(character)
@@ -354,7 +358,8 @@ local function fly(
 	spot: Vector3
 )
 	local c = Presets.cannon
-	local t = Workspace:GetServerTimeNow() - at
+	local now = Workspace:GetServerTimeNow()
+	local t = if staged then now - at else FlightClock.seconds(character, at, now)
 	local muzzle, fuse, aim = aimOf(cannon, spot)
 	local beats: { [string]: number } =
 		{ boom = stage.boomAt, puff = stage.puffAt, land = stage.landAt }
@@ -395,14 +400,19 @@ local function launched(character: Model)
 	end
 	endFlight(character)
 	local c = Presets.cannon
-	local t = Workspace:GetServerTimeNow() - at
+	local scale = FlightClock.scale(character, at)
+	local t = FlightClock.toBeats(Workspace:GetServerTimeNow() - at, scale)
 	if t > c.endAt + c.stale then
 		return -- joined or streamed in after it was over
 	end
 	local spot = (root :: BasePart).Position
 	fly(character, at, REAL, false, findCannon(character, spot), spot)
 	if character == Players.LocalPlayer.Character then
-		Clouds.play(at, Presets.clouds.cannon, tintOf(character:GetAttribute("CannonTo")))
+		Clouds.play(
+			at,
+			FlightClock.clouds(Presets.clouds.cannon, scale),
+			tintOf(character:GetAttribute("CannonTo"))
+		)
 		-- your own character glides through the clouds (Animation-Engineer), between the clouds behind and in front
 		local g, rider = glide, Clouds.rider()
 		if g ~= nil and rider ~= nil then
@@ -552,6 +562,23 @@ end
 -- `startedAt` (Workspace:GetServerTimeNow() terms; call it stage.boomAt - fuseSeconds early for the fuse fizz). The
 -- muzzle and fuse come from `cannon`'s attachments. This screen only: the clouds tinted toward `destination` and
 -- the copy gliding in them (CannonGlide.mountStaged).
+-- #4985: the intro's flight had no sound (Audio follows a character's CannonLaunchAt, which the copy never has), so the
+-- BOOM was silent. Listeners hear each staged flight's "boom" with the server time it comes at; Audio plays its
+-- launch cue on it while Cannon.stagedLive(model) still says the flight is on. No landing cue: the short intro (what
+-- live plays) cuts from the BOOM straight to the catch, with no landing on screen.
+export type StagedBeat = "boom"
+local stagedListeners: { (beat: StagedBeat, at: number, model: Model) -> () } = {}
+
+function Cannon.onStaged(listener: (beat: StagedBeat, at: number, model: Model) -> ())
+	table.insert(stagedListeners, listener)
+end
+
+-- Whether the intro's flight on `model` is still on (not ended by Skip or the intro's end).
+function Cannon.stagedLive(model: Model): boolean
+	local flight = flights[model]
+	return flight ~= nil and flight.staged
+end
+
 function Cannon.playStaged(
 	model: Model,
 	cannon: Model?,
@@ -562,6 +589,10 @@ function Cannon.playStaged(
 	local plan = stage or Presets.cannon.introStage
 	endFlight(model)
 	fly(model, startedAt, plan, true, cannon, model:GetPivot().Position)
+	local beat: StagedBeat = "boom"
+	for _, listener in stagedListeners do
+		task.spawn(listener, beat, startedAt + plan.boomAt, model)
+	end
 	Clouds.play(startedAt, plan.clouds, tintOf(destination))
 	local g, rider = glide, Clouds.rider()
 	local staged: MountStaged? = if g ~= nil then (g :: any).mountStaged else nil

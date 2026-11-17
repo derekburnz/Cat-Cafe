@@ -245,15 +245,27 @@ return function()
 		end
 
 		it("sends a Tier 1 player to the Alleyway until the first flight", function()
-			expect(CannonLogic.hint(view({}))).to.equal("Hop in the cannon to fly to the Alleyway!")
+			expect(CannonLogic.hint(view({}))).to.equal(
+				"Hop in the cannon: wild cats wait in the Alleyway!"
+			)
 			expect(CannonLogic.hint(view({ launched = true }))).to.equal(nil)
 			expect(CannonLogic.hint(view({ tier = 3 }))).to.equal(nil)
+		end)
+
+		it("says nothing before the save's first sync (#4967)", function()
+			expect(CannonLogic.hint(view({ loaded = false }))).to.equal(nil)
+			expect(CannonLogic.hint(view({ loaded = false, bowlFirst = true, told = false }))).to.equal(
+				nil
+			)
+			expect(CannonLogic.hint(view({ loaded = true }))).to.equal(
+				"Hop in the cannon: wild cats wait in the Alleyway!"
+			)
 		end)
 
 		it("waits for the bowl and has no wrap-up line under bowl first (#4674)", function()
 			expect(CannonLogic.hint(view({ bowlPending = true }))).to.equal(nil)
 			expect(CannonLogic.hint(view({ bowlPending = false }))).to.equal(
-				"Hop in the cannon to fly to the Alleyway!"
+				"Hop in the cannon: wild cats wait in the Alleyway!"
 			)
 			expect(CannonLogic.hint(view({ tutorialStep = 5, wrapUp = true, bowlFirst = true }))).to.equal(
 				nil
@@ -268,7 +280,7 @@ return function()
 			function()
 				local quiet = { bowlFirst = true, tutorialStep = 5, told = false }
 				expect(CannonLogic.hint(view(quiet))).to.equal(
-					"Hop in the cannon to fly to the Alleyway!"
+					"Hop in the cannon: wild cats wait in the Alleyway!"
 				)
 				expect(CannonLogic.hint(view({ bowlFirst = true, tutorialStep = 5, told = true }))).to.equal(
 					nil
@@ -302,10 +314,10 @@ return function()
 		it("lets the onboarding line come first after the first catch", function()
 			expect(CannonLogic.hint(view({ tutorialStep = 4 }))).to.equal(nil)
 			expect(CannonLogic.hint(view({ tutorialStep = 4, told = false }))).to.equal(
-				"Hop in the cannon to fly to the Alleyway!"
+				"Hop in the cannon: wild cats wait in the Alleyway!"
 			)
 			expect(CannonLogic.hint(view({ tutorialStep = 1 }))).to.equal(
-				"Hop in the cannon to fly to the Alleyway!"
+				"Hop in the cannon: wild cats wait in the Alleyway!"
 			)
 		end)
 
@@ -313,7 +325,7 @@ return function()
 			expect(CannonLogic.WALKTHROUGH_STEP).to.equal(5)
 			local done = CannonLogic.WALKTHROUGH_STEP
 			expect(CannonLogic.hint(view({ tutorialStep = done - 1, told = false }))).to.equal(
-				"Hop in the cannon to fly to the Alleyway!"
+				"Hop in the cannon: wild cats wait in the Alleyway!"
 			)
 			expect(CannonLogic.hint(view({ tutorialStep = done, told = false }))).to.equal(nil)
 			expect(CannonLogic.hint(view({ tutorialStep = done + 3, told = false }))).to.equal(nil)
@@ -329,7 +341,7 @@ return function()
 			"points at the cannon once the walk-through ends this session, until a flight (#2477)",
 			function()
 				local done = CannonLogic.WALKTHROUGH_STEP
-				local line = "Hop in the cannon to catch more cats!"
+				local line = "Hop in the cannon: catch more cats to rank up!"
 				expect(CannonLogic.WRAP_UP_HINT).to.equal(line)
 				expect(CannonLogic.hint(view({ tutorialStep = done, wrapUp = true }))).to.equal(
 					line

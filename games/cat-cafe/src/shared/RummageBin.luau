@@ -32,6 +32,10 @@ local Types = require(script.Parent.Types)
 local RummageBin = {}
 
 RummageBin.SPOT = "bin_alley" -- its bar's id on RescueBegin, RescuePress, RescueCancel, RescueChallenge, RescueResult
+-- #4961 (Derek 2026-11-16: "make rummage bin able to do from the cannon menu"): RescueBegin with this id starts a
+-- rummage from the Cat Cannon picker's Alleyway card, wherever the player stands: no walk up, no pad, no roll show
+-- (the board is at the bin); the bar and the presses then run under SPOT as at the bin
+RummageBin.REMOTE_SPOT = "bin_alley_remote"
 RummageBin.AREA = "alley"
 RummageBin.TAG = "RummageBin" -- the placed model (WorldBuilder)
 RummageBin.PROMPT = "RummagePrompt"
@@ -46,7 +50,9 @@ RummageBin.PRIZE_ATTRIBUTE = "BinPrize" -- on the Player: the waiting prize's ro
 RummageBin.MODE_ROLL = "roll"
 RummageBin.MODE_FIXED = "fixed"
 RummageBin.MODE_WAITING = "waiting"
-RummageBin.RANGE_STUDS = 10 -- the prompt's reach; the server allows a little past it
+-- the prompt's reach; the server allows a little past it. #4862 (Derek 2026-11-16: "make it work from further
+-- away"): 10 before; 16 covers the whole 7 stud pad (Config.BinPadRadius), whose far edge is 14 from the bin's front
+RummageBin.RANGE_STUDS = 16
 RummageBin.PAD_HEIGHT = 8 -- studs over or under the pad that still count as standing on it (#3680)
 RummageBin.PAD_FIRST = "Step up to the bin to rummage" -- #3680: a press from off the pad
 local RARITY: Types.Rarity = "Common"

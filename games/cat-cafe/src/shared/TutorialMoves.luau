@@ -11,6 +11,10 @@
 -- #4674 (Derek 2026-11-16: "then upgrade to tier 2 into park teleport"): under bowl first (shared/TutorialOrder) the
 -- rank up to Tier 2 moves the player onto the Park's landing pad, PARK_DELAY seconds after it (the rank up toast first).
 -- A rank up happens once a save, so this move does too.
+-- #4776 / #4777 (Derek 2026-11-16: "don't teleport them to park make them walk to the cannon after rank up and do it
+-- themselves", "instead of teleporting player to the cannon after food bowl have them click the cannon button with dim
+-- screen and arrow"): both bowl first moves are off (PARK_MOVE, BOWL_CANNON_MOVE). The paw trail walks the player to a
+-- cannon after the rank up, and the HUD's Cannon button is lit after the first bowl cat (UI init, cannon spotlight).
 
 local TutorialMoves = {}
 
@@ -32,6 +36,8 @@ TutorialMoves.CANNON_DELAY = 2 -- seconds between the step and the move to the c
 TutorialMoves.LEFT_STUDS = 30 -- walked this far in that time: no move
 TutorialMoves.PARK_DELAY = 2 -- seconds between the rank up to Tier 2 and the move into the Park (#4674)
 TutorialMoves.PARK_TIER = 2 -- the rank up that moves the player (its area is the Park)
+TutorialMoves.PARK_MOVE = false -- #4776: no move into the Park after the rank up
+TutorialMoves.BOWL_CANNON_MOVE = false -- #4777: no move to the cannon after bowl first's first bowl cat
 -- The tags the client's step pointers (#2697 part 1) find the targets by: the bowl part in each plot (the owner's
 -- plot is the Plot-tagged ancestor with OwnerUserId), and the cannons (CannonId "town" for the Town Square's).
 TutorialMoves.BOWL_TAG = "BaitBowl"
@@ -62,7 +68,7 @@ end
 
 -- #4674: whether a rank up to `tier` moves the player into the Park: bowl first on (`bowlFirst`) and the Tier 2 one.
 function TutorialMoves.parkAfterRankUp(tier: number, bowlFirst: boolean): boolean
-	return bowlFirst and tier == TutorialMoves.PARK_TIER
+	return TutorialMoves.PARK_MOVE and bowlFirst and tier == TutorialMoves.PARK_TIER
 end
 
 -- Whether a player who stood at `from` when the step came and stands at `now` after the wait is still there to be

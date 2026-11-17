@@ -47,7 +47,7 @@ return function()
 
 	describe("catalog and switches", function()
 		it(
-			"is a ten-level perk from 60 to 3800 golden fish, each dearer, first of the perks",
+			"is a ten-level perk from 60 to 1100 golden fish, each dearer, first of the perks (#4860)",
 			function()
 				local row = Catalog.getFishShopRow(SwiftPaws.ID)
 				assert(row and row.costs)
@@ -59,11 +59,11 @@ return function()
 					300,
 					500,
 					800,
-					1200,
-					1700,
-					2300,
-					3000,
-					3800,
+					850,
+					900,
+					950,
+					1000,
+					1100,
 				})
 				expect(#SwiftPaws.LEVELS).to.equal(10)
 				local firstPerk: string? = nil
@@ -78,13 +78,12 @@ return function()
 		)
 
 		it(
-			"has its own live switch, on by default, and one for levels 6 to 10, off by default (levels 3 to 5 have none since #4654 batch 7)",
+			"has its own live switch, on by default, and none for levels 3 to 5 (#4654 batch 7) or 6 to 10 (#4654)",
 			function()
 				expect(table.find(LiveFlags.KEYS, SwiftPaws.FLAG) ~= nil).to.equal(true)
 				expect(LiveFlags.defaults()[SwiftPaws.FLAG]).to.equal(true)
 				expect(table.find(LiveFlags.KEYS, "swiftPaws5")).to.equal(nil)
-				expect(table.find(LiveFlags.KEYS, SwiftPaws.FLAG_TEN) ~= nil).to.equal(true)
-				expect(LiveFlags.defaults()[SwiftPaws.FLAG_TEN]).to.equal(false)
+				expect(table.find(LiveFlags.KEYS, "swiftPaws10")).to.equal(nil)
 			end
 		)
 

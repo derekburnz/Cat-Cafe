@@ -60,6 +60,36 @@ return function()
 			end
 		end)
 
+		it("runs a Trait Party 3 minutes at most (Derek 2026-11-16)", function()
+			expect(CafeEvents.TRAIT_PARTY_MAX_SECONDS).to.equal(180)
+			local made = CafeEvents.adminRecord("traits", NOW, nil, true) :: { [string]: any }
+			expect(made.endsAt - made.startsAt).to.equal(180)
+			local asked = CafeEvents.adminRecord("traits", NOW, 15, true) :: { [string]: any }
+			expect(asked.endsAt - asked.startsAt).to.equal(180)
+			local test = CafeEvents.adminTest("traits", NOW, 15, true) :: CafeEvents.AdminEvent
+			expect(test.endsAt - test.startsAt).to.equal(180)
+			-- a 15 minute record written by hand (the events workflow) is cut to 3 minutes as it is read
+			local event = parseOne({ traitParty = true })
+			assert(event ~= nil)
+			expect(event.endsAt - event.startsAt).to.equal(180)
+			-- other kinds keep their length
+			local storm = CafeEvents.adminRecord("storm", NOW, 15, true) :: { [string]: any }
+			expect(storm.endsAt - storm.startsAt).to.equal(900)
+		end)
+
+		it("runs a Secret Hunt 3 minutes at most (#4871)", function()
+			expect(CafeEvents.SECRET_HUNT_MAX_SECONDS).to.equal(180)
+			local made = CafeEvents.adminRecord("hunt", NOW, nil, true) :: { [string]: any }
+			expect(made.endsAt - made.startsAt).to.equal(180)
+			local asked = CafeEvents.adminRecord("hunt", NOW, 15, true) :: { [string]: any }
+			expect(asked.endsAt - asked.startsAt).to.equal(180)
+			local event = parseOne({ secretHunt = 3 })
+			assert(event ~= nil)
+			expect(event.endsAt - event.startsAt).to.equal(180)
+			local golden = CafeEvents.adminRecord("golden", NOW, nil, true) :: { [string]: any }
+			expect(golden.endsAt - golden.startsAt).to.equal(900)
+		end)
+
 		it("clamps each multiplier to its cap and drops a bad one", function()
 			local event, notes = parseOne({ goldBoost = 99, rainbowBoost = 99, moneyStorm = 99 })
 			assert(event ~= nil)

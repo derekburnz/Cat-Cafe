@@ -420,7 +420,7 @@ function CampWater.start()
 	for _, descendant in Workspace:GetDescendants() do
 		consider(descendant)
 	end
-	Workspace.DescendantAdded:Connect(consider)
+	Context.onWorkspaceAdded(consider)
 	task.spawn(function()
 		while true do
 			pick()

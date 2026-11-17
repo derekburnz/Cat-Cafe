@@ -230,6 +230,7 @@ return function()
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		FirstBaitWaitSeconds = 5, -- #1895: the account's first bait; #3161: was 1 (#2946), 45 (#2774), 120 before
 		FirstBaitCatLeadSeconds = 4, -- #3161: the first bait's cat stands at the bowl this long before its timer ends
+		FirstBaitReadySeconds = 3, -- #4920: the account's first bait is ready this long after the food
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
 		RecapFirstSessionSeconds = 480, -- #2123: sooner in the account's first session; #3772: 8 minutes
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
@@ -362,7 +363,7 @@ return function()
 		BinZoneWidth = 0.18, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before; #4284: 0.22 before
 		BinBarSpeed = 0.80, -- #3458: 0.64 before
 		BinHits = 5, -- #3458: the bin's own hit count
-		BinPadRadius = 4, -- #3608: the pad in front of the bin
+		BinPadRadius = 7, -- #3608: the pad in front of the bin; #4862: 4 before
 		BinPadDwellSeconds = 0.5,
 		BinRollSeconds = 2.5, -- #3608: the roll before the bar
 		BinRevealSeconds = 1,
@@ -551,6 +552,7 @@ return function()
 				SecretNextMythicTimes = true, -- #4618: checked in SecretCats.spec (a Secret earns 10x the next area's Mythic)
 				HarvestStallRange = true, -- #4251: the Harvest Stall prompt and BuyHarvest range
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
+				TutorialNetExtraStuds = true, -- #4815: the walk-through net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
 				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)

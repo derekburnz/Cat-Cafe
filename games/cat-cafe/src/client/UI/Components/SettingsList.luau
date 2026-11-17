@@ -165,6 +165,21 @@ if Settings.kinds[SettingsList.AUTO_EQUIP_KEY] then
 	table.insert(SettingsList.SECTIONS[2].rows, row)
 end
 
+-- #4991 (Derek 2026-11-16): the VIP tag over your head, off by default. Settings shows the row to a VIP owner alone
+-- (showVipTag, from the server's VipOwner attribute on the player).
+SettingsList.VIP_TAG_KEY = "vipTag"
+if Settings.kinds[SettingsList.VIP_TAG_KEY] then
+	local row: Row = {
+		key = SettingsList.VIP_TAG_KEY,
+		kind = "switch",
+		icon = "👑",
+		name = "VIP tag",
+		detail = "The gold VIP tag over your head",
+	}
+	-- #5010: first on the Screen tab, where the Store's "turn it on in Settings" sends a new VIP (a phone shows 3 rows)
+	table.insert(SettingsList.SECTIONS[2].rows, 1, row)
+end
+
 -- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",
 -- "friends" or "off", default "everyone") in the Trading section (Screens/Settings, TradeLogic.requestsMode), so the
 -- server can save its key without a switch row here. #1893: roadmapOpen was the Grand Opening strip's open or closed

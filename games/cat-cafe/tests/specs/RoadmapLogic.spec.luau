@@ -66,17 +66,12 @@ return function()
 			expect(RoadmapLogic.toast(99)).to.equal("Grand Opening")
 		end)
 		describe("checkInCalm (#4384)", function()
-			it(
-				"holds the strip and its toasts until the tutorial's end, with the switch on",
-				function()
-					expect(RoadmapLogic.CALM_FLAG).to.equal("checkInCalm")
-					expect(RoadmapLogic.calm(true, 2)).to.equal(true)
-					expect(RoadmapLogic.calm(true, 4)).to.equal(true)
-					expect(RoadmapLogic.calm(true, 5)).to.equal(false)
-					expect(RoadmapLogic.calm(true, nil)).to.equal(false)
-					expect(RoadmapLogic.calm(false, 2)).to.equal(false)
-				end
-			)
+			it("holds the strip and its toasts until the tutorial's end", function()
+				expect(RoadmapLogic.calm(2)).to.equal(true)
+				expect(RoadmapLogic.calm(4)).to.equal(true)
+				expect(RoadmapLogic.calm(5)).to.equal(false)
+				expect(RoadmapLogic.calm(nil)).to.equal(false)
+			end)
 		end)
 	end)
 end

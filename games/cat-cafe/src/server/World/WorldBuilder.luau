@@ -665,6 +665,10 @@ local function buildPlot(index: number, parent: Instance): Plot
 	model:SetAttribute("RichTipAmount", 0) -- display only; RichTipService keeps the tip itself
 	model:SetAttribute("RichTipExpiresAt", 0)
 	model.WorldPivot = cframe -- GetPivot is the plot's own frame: -Z faces the street
+	-- #4788: Persistent, so every client always has every cafe with streaming on: about 50 client lookups go through
+	-- the Plot tag (your own cafe's map marker, door and check-in, the cat cards, the world tags) from anywhere, and
+	-- the decor inside is already Persistent (CafeService). The cafes sit together in town.
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(model, "Plot")
 
 	local halfW = W.PlotWidth / 2
@@ -1319,7 +1323,9 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 	end
 	-- Model-Agent's backdrop ring round the area (#741), CatCafe_<Area>_Backdrop, when it is in: built in set space,
 	-- so it pivots as the camp set does, its ground starting at the Ground plate's edge below. Every part is
-	-- non-colliding, unqueried and shadowless. Persistent like the town's, so it never streams out behind a player.
+	-- non-colliding, unqueried and shadowless. #4788: streams like the area's other parts (it was Persistent, which
+	-- kept every area's ring, about 18,000 instances, on every device all session); a player in the area is well
+	-- inside the streaming radius of its ring, so it is there whenever it can be seen.
 	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop" .. artSuffix(camp.area)
 	if AssetRegistry.has(backdropName) then
 		local backdrop = place(
@@ -1329,7 +1335,6 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 			parent
 		)
 		backdrop.Name = "Backdrop"
-		backdrop.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	end
 	-- the area and its camp on their own ground, out to the backdrop ring
 	local x1, z1 =
@@ -1746,7 +1751,16 @@ local function buildArea(
 		)
 	end
 
-	local spawnFolder = folder("SpawnPoints", model)
+	-- #4788: a Persistent Model, not a Folder, so the invisible anchors are on every client with streaming on:
+	-- the tutorial trail points at the Alleyway's from the town (UIController.tutorialStrayPoint). #5026: only the
+	-- Alleyway's. No client reads another area's, and the ten areas' anchors were 959 instances on every device
+	-- wherever it stood (Sync's census), so those stream with their area.
+	local spawnFolder = Instance.new("Model")
+	spawnFolder.Name = "SpawnPoints"
+	spawnFolder.ModelStreamingMode = if id == "alley"
+		then Enum.ModelStreamingMode.Persistent
+		else Enum.ModelStreamingMode.Default
+	spawnFolder.Parent = model
 	local spawnPoints: { BasePart } = {}
 	for i, point in spec.spawnPoints do
 		local sp = anchor(id .. "_" .. i, CFrame.new(point.x, point.y, point.z), spawnFolder)

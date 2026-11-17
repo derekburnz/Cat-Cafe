@@ -156,6 +156,32 @@ return function()
 			end
 		)
 
+		it(
+			"keeps the strip and end card readable on a small phone, unchanged on a PC (#5040)",
+			function()
+				-- a 317 px tall phone draws the splash at scaleMin, but the strip's clock line stays 12 px or more
+				local r = Flash.readScale(p.scaleMin, p.readMin)
+				expect(r).to.equal(p.readMin)
+				expect(p.stripSmall * r >= 12).to.equal(true)
+				expect(p.overLine * r >= 18).to.equal(true)
+				-- a 720 px PC screen keeps its sizes
+				expect(Flash.readScale(1, p.readMin)).to.equal(1)
+				expect(Flash.readScale(1.4, p.readMin)).to.equal(1.4)
+			end
+		)
+
+		it(
+			"gives small words a thin outline and keeps the old outline elsewhere (#5040)",
+			function()
+				expect(Flash.outlineOf(8, p.thinUnder, p.thinOutline)).to.equal(p.thinOutline)
+				expect(Flash.outlineOf(15, p.thinUnder, p.thinOutline)).to.equal(2)
+				expect(Flash.outlineOf(25, p.thinUnder, p.thinOutline)).to.equal(
+					math.clamp(25 / 9, 2, 6)
+				)
+				expect(Flash.outlineOf(66, p.thinUnder, p.thinOutline)).to.equal(6)
+			end
+		)
+
 		it("adds up what came in and never takes spending away", function()
 			local total = Flash.earned(0, 1000, 1500)
 			expect(total).to.equal(500)

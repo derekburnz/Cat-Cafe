@@ -387,7 +387,8 @@ local KEEP_TRADE: PackLine = { left = "Yours to keep. Can't be traded.", right =
 StoreLogic.INFO = {
 	vip = {
 		{ left = "Money", right = "+50%" },
-		{ left = "VIP tag over your head", right = "" },
+		-- #4991 (Derek 2026-11-16): the head tag is off until the owner turns on Settings' "VIP tag" row
+		{ left = "VIP tag over your head", right = "turn it on in Settings" },
 		{ left = "VIP tag in chat", right = "" },
 		{ left = "Gold VIP plate on your cafe sign", right = "" },
 		KEEP,
@@ -1108,12 +1109,14 @@ function StoreLogic.rows(
 				name = ("%dx Money"):format(nextRung.multiplier),
 				icon = MONEY_ICON,
 				multiplier = nextRung.multiplier,
+				-- #4989 (Design-Agent's text audit): what it multiplies (all cafe money, Economy.passMultiplier), with
+				-- no shouting, and that a higher rung replaces the lower one rather than adding to it
 				effect = if top > 1
-					then ("Multiplies ALL your bonuses x%d, in place of x%d."):format(
+					then ("Your cafe makes %dx money. It replaces your %dx, it doesn't add to it."):format(
 						nextRung.multiplier,
 						top
 					)
-					else ("Multiplies ALL your bonuses x%d."):format(nextRung.multiplier),
+					else ("Your cafe makes %dx money."):format(nextRung.multiplier),
 				owned = false,
 				tab = "passes",
 			})
@@ -1125,7 +1128,7 @@ function StoreLogic.rows(
 				name = ("%dx Money"):format(last.multiplier),
 				icon = MONEY_ICON,
 				multiplier = last.multiplier,
-				effect = ("Multiplies ALL your bonuses x%d."):format(last.multiplier),
+				effect = ("Your cafe makes %dx money."):format(last.multiplier), -- #4989
 				owned = true,
 				tab = "passes",
 			})

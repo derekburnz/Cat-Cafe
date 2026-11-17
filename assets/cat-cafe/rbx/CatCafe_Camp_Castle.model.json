@@ -2457,9 +2457,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         293.0,
+         0.0,
          -0.3,
-         -11.0
+         0.0
         ],
         "orientation": [
          [
@@ -3558,9 +3558,9 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
+       -11.0,
        0.0,
-       0.0,
-       0.0
+       -293.0
       ],
       "orientation": [
        [
@@ -16199,7 +16199,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_Castle_016_BannerPole_Swing"
   },
@@ -16781,7 +16782,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_Castle_017_BannerPole_Swing"
   },
@@ -18623,7 +18625,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_Castle_020_BannerPole_Swing"
   },
@@ -19205,7 +19208,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_Castle_021_BannerPole_Swing"
   },

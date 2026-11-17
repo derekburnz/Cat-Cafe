@@ -57,6 +57,8 @@ export type GoalCard = {
 	setFolded: (self: GoalCard, folded: boolean) -> (), -- #2714: fold into the chip, or open again
 	folded: (self: GoalCard) -> boolean,
 	seen: (self: GoalCard) -> (), -- #2331: the rank up card opened, so the ready pulse and arrow stop
+	-- #5031: the title a ready rank up shows in place of the next tier's name (nil for the name), from the next render
+	setReadyTitle: (self: GoalCard, title: string?) -> (),
 	alerting: (self: GoalCard) -> boolean, -- #2331: the ready pulse and arrow are on
 	destroy: (self: GoalCard) -> (),
 }
@@ -140,6 +142,7 @@ function GoalCard.new(
 ): GoalCard
 	local self = setmetatable({}, GoalCard) :: any
 	self._folded = false
+	self._held = false
 	self._onFold = onFold
 	self._last =
 		nil :: { progress: RankUp.Progress?, tierText: string, nudge: string?, goal: Goal? }?
@@ -434,7 +437,9 @@ function GoalCard.render(
 	nudge: string?,
 	goal: Goal?
 )
-	self.frame.Visible = true
+	-- #5050: `_held` (the HUD's: locked, or a catch has the HUD aside) keeps it hidden, so a render never flips it on
+	-- and back off in one frame
+	self.frame.Visible = self._held ~= true
 	self._last = { progress = progress, tierText = tierText, nudge = nudge, goal = goal }
 	if self._folded then
 		self:_renderFolded(progress, nudge, goal)
@@ -527,8 +532,9 @@ function GoalCard.render(
 		end
 	end
 	if nextTier then
-		-- ready: "[Rank up!] Cozy Cafe" in gold, short enough to keep clear of the sticker
-		self._title.Text = nextTier.name
+		-- ready: "[Rank up!] Cozy Cafe" in gold, short enough to keep clear of the sticker; #5031: or the ready title
+		local readyTitle: string? = self._readyTitle
+		self._title.Text = if ready and readyTitle ~= nil then readyTitle else nextTier.name
 		self._title.TextColor3 = Theme.hud.text
 	end
 	local height = if nextTier then TOP + count * (ROW + ROW_GAP) - ROW_GAP else TIER_H
@@ -579,6 +585,10 @@ function GoalCard._alert(self: any, key: string?)
 	else
 		TutorialArrow.remove(self.frame)
 	end
+end
+
+function GoalCard.setReadyTitle(self: any, title: string?)
+	self._readyTitle = title
 end
 
 function GoalCard.seen(self: any)

@@ -36,6 +36,9 @@ export type HintView = {
 	bowlPending: boolean?,
 	-- #4674 (Derek 2026-11-16: "no need for the hop in cannon to catch more cats"): bowl first has no wrap-up line
 	bowlFirst: boolean?,
+	-- #4967: the save's state has reached this client (its first sync). Before it, the step and the bowl part are
+	-- unknown, so no hint: a fast loading skip put "hop in the cannon" over a new player's bowl step
+	loaded: boolean?,
 }
 
 local CannonLogic = {}
@@ -49,9 +52,10 @@ CannonLogic.CARRY_REFUSED = "Bring your cat to the camp first"
 -- hint stops for good, and the Tutorial tile's × hides the tutorial strip; before it the walk-through shows anyway
 -- ("should still make the first walk through of the game play after closing the X").
 CannonLogic.WALKTHROUGH_STEP = 5
+CannonLogic.FIRST_FLIGHT = "Hop in the cannon: " -- #4777; #4926: then "wild cats wait in the <area>!"
 -- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the line once the walk-through's last
 -- step (the bowl) is done this session, until the next flight
-CannonLogic.WRAP_UP_HINT = "Hop in the cannon to catch more cats!"
+CannonLogic.WRAP_UP_HINT = "Hop in the cannon: catch more cats to rank up!" -- #4926
 CannonLogic.HINT_TIER = 2 -- the rank up that gets its own "is open!" hint (section 3a)
 -- how long that hint, its marker and its trail of dots stay up when the player does not fly (Derek 2026-11-03: "the
 -- tutorial yellow dots are still showing")
@@ -243,8 +247,21 @@ end
 -- line (the catch needs the flight); after that the onboarding line comes first. #2477: once the walk-through ends
 -- this session (the bait bowl step), "Hop in the cannon to catch more cats!" with the arrow until the next flight,
 -- ahead of any onboarding line; it is session-only, so a rejoin does not bring it back (#2411).
+-- #4777: whether a strip line is the first flight's "Hop in the cannon to fly to the <area>!" (bowl first lights the
+-- HUD's Cannon button beside it)
+function CannonLogic.isFirstFlight(text: string?): boolean
+	return text ~= nil
+		and string.sub(text, 1, #CannonLogic.FIRST_FLIGHT) == CannonLogic.FIRST_FLIGHT
+end
+
 function CannonLogic.hint(view: HintView): string?
-	if not view.on or view.wild or view.intro or view.bowlPending == true then
+	if
+		not view.on
+		or view.wild
+		or view.intro
+		or view.bowlPending == true
+		or view.loaded == false
+	then
 		return nil
 	end
 	local text: string? = nil
@@ -254,14 +271,16 @@ function CannonLogic.hint(view: HintView): string?
 		-- #4674 (Sync's Studio walk 2026-11-16: nothing pointed at the cannon after the bowl part): bowl first, the
 		-- quiet strip leaves the cannon its pointer until the first Launch, whatever the step; a line on the strip
 		-- (the carry, the Rank Up) comes first
-		return if view.told then nil else "Hop in the cannon to fly to the " .. view.first .. "!"
+		return if view.told
+			then nil
+			else CannonLogic.FIRST_FLIGHT .. "wild cats wait in the " .. view.first .. "!"
 	elseif
 		not view.launched
 		and view.tier <= 1
 		and view.first
 		and view.tutorialStep < CannonLogic.WALKTHROUGH_STEP
 	then
-		text = "Hop in the cannon to fly to the " .. view.first .. "!"
+		text = CannonLogic.FIRST_FLIGHT .. "wild cats wait in the " .. view.first .. "!"
 	elseif view.wrapUp and not view.launched and view.bowlFirst ~= true then
 		return CannonLogic.WRAP_UP_HINT
 	end

@@ -80,8 +80,6 @@ LiveFlags.KEYS = {
 	"luckyCharm",
 	"introSplit",
 	"parkGateTrail",
-	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
-	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
 	"storeRework", -- #3572: the reworked Store layout
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
@@ -98,7 +96,6 @@ LiveFlags.KEYS = {
 	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
 	"mailbox", -- #4249: the Mailbox tile and window (letters from Derek with a gift to claim), Feedback into the Menu list
 	"autoBowl", -- #4266: the Auto Bowl pass's offer card, switches and Store card (Screens/BaitBowl)
-	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
 	"checkInCalm", -- #4384: one ask at a time at the first check-in (one toast, the waiting stray's call holds); false goes back
 	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
 	"deviceFixes", -- the Tue 2026-11-17 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)

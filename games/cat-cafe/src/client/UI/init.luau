@@ -2588,6 +2588,15 @@ task.defer(function()
 				or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
 		end)
 	end
+	-- #4877: in the walk-through nothing of an admin event is on screen at all, the strip and the tint too
+	local hideWhen: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).hideWhen
+		else nil
+	if type(hideWhen) == "function" then
+		(hideWhen :: (() -> boolean) -> ())(function()
+			return UI.firstCat.tutorial
+		end)
+	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"
 		then (adminFlash :: any).onPlaying
 		else nil
@@ -11666,7 +11675,8 @@ do
 				eventLines,
 				eventKind,
 				EventLogic.strip(view, seen, now),
-				AdminEventLogic.stripLine(adminView, now)
+				-- #4877: no admin timer on the chip or strip in the walk-through
+				AdminEventLogic.stripLine(if UI.firstCat.tutorial then nil else adminView, now)
 			)
 			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))

@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
 local AdminFlashLogic = require(script.Parent.AdminFlashLogic)
+local AdminHide = require(script.Parent.AdminHide)
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
@@ -54,7 +55,8 @@ local function tick()
 	end, decode)
 	local preset = AdminAir.pick(
 		AdminFlashLogic.rainOf(view),
-		AdminEventLogic.runs(view, Workspace:GetServerTimeNow()),
+		-- #4877: none in the walk-through
+		AdminEventLogic.runs(view, Workspace:GetServerTimeNow()) and not AdminHide.on(),
 		Context.lowPerformance or Context.reducedMotion(),
 		p.kinds
 	)

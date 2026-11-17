@@ -21,6 +21,12 @@ Mover.WALK_TO = "WalkTo"
 Mover.WALK_SPEED = "WalkSpeed"
 Mover.WALK_AT = "WalkAt"
 
+-- #4601: under strayWalkSlow, where each model's current walk really is on the ground and the frame it last wrote.
+-- A walk that starts while another is running (a turn) starts from that true spot, not from the last 10 Hz write,
+-- which can be up to a step behind; starting behind is what made the drawn cat shuffle back and forth on a turn.
+type Track = { ground: Vector3, placed: CFrame? }
+local tracks: { [Model]: Track } = setmetatable({}, { __mode = "k" }) :: any
+
 local function slow(): boolean
 	return RunService:IsServer()
 		and LiveFlags.shown(
@@ -58,10 +64,18 @@ function Mover.walkTo(
 	draw: ((Model, CFrame, number, number) -> boolean)?
 ): boolean
 	local elapsed = 0
+	local slowed = draw == nil and slow()
 	local start = model:GetPivot().Position
+	local track = if slowed then tracks[model] else nil
+	if
+		track ~= nil
+		and track.placed ~= nil
+		and model:GetPivot().Position:FuzzyEq(track.placed.Position, 1e-3)
+	then
+		start = track.ground -- nobody else moved it since that walk's last write
+	end
 	local ground = Vector3.new(start.X, target.Y, start.Z)
 	local placed: CFrame? = nil -- where the last plain step put the model, bob and all
-	local slowed = draw == nil and slow()
 	local sinceWrite = math.huge -- seconds since the last write, under strayWalkSlow
 	local startedAt = workspace:GetServerTimeNow()
 	if model:GetAttribute(Mover.WALK_AT) == startedAt then
@@ -101,6 +115,9 @@ function Mover.walkTo(
 		end
 		local moved = math.min(speed * dt, distance)
 		ground += delta.Unit * moved
+		if slowed then
+			tracks[model] = { ground = ground, placed = placed }
+		end
 		local facing = flat(delta)
 		if draw ~= nil then
 			local feet = if facing.Magnitude < 0.05
@@ -124,6 +141,9 @@ function Mover.walkTo(
 			else CFrame.lookAt(shown, shown + facing.Unit)
 		model:PivotTo(frame)
 		placed = frame
+		if slowed then
+			tracks[model] = { ground = ground, placed = frame }
+		end
 	end
 	local last = placed
 	if

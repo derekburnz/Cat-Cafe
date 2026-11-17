@@ -537,6 +537,21 @@ local function kindsOf(s: Types.PlayerState): number
 end
 
 -- Whether five different cats is the goal now (the switch on, the Grand Opening's next milestone, under five kinds).
+-- #5031: the goal card's ready title at Tier 1 with the rankUpRightAway switch on (shared/RankUpRightAway), else false
+local function rankUpTitle(s: Types.PlayerState): string | false
+	if s.tier ~= 1 then
+		return false
+	end
+	local Shared = ReplicatedStorage:WaitForChild("Shared")
+	local RankUpRightAway = require(Shared:WaitForChild("RankUpRightAway")) :: any
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local on = LiveFlags.shown(
+		RankUpRightAway.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankUpRightAway.FLAG)
+	)
+	return if on then RankUpRightAway.READY_TITLE else false
+end
+
 local function newKindGoal(s: Types.PlayerState): boolean
 	if s.tutorialStep < 5 or not UI.newKind.on() then
 		return false
@@ -815,6 +830,35 @@ local function refreshTutorial(s: Types.PlayerState)
 				townCannon(),
 				"Cannon"
 			)
+		elseif
+			type((s :: any).rankUpShort) == "number"
+			and (s :: any).rankUpShort > 0
+			and not areasShutForMe()
+		then
+			-- #5031 (switch rankUpRightAway; the server sends rankUpShort only then): the bowl cat was let go, so
+			-- Tier 2 is a cat short after the Alleyway catch. In the Alleyway the strip names the catch and leads to
+			-- the nearest stray (one waits near the landing, CatService); anywhere else to the Town Square cannon.
+			local short: number = (s :: any).rankUpShort
+			if (UI.cannon :: any).area == "alley" then
+				UI.tutorial.show(
+					if short >= 2
+						then deviceLine("alleyCatch2", "Catch 2 cats to rank up! Click by one")
+						else deviceLine(
+							"alleyCatch",
+							"Catch 1 more cat to rank up! Click by one"
+						),
+					nearestAlleyStray() or tutorialStrayPoint(),
+					"Cat"
+				)
+				pointNet(true)
+			else
+				local RankUpRightAway = require(Shared:WaitForChild("RankUpRightAway")) :: any
+				UI.tutorial.show(
+					RankUpRightAway.shortTitle(short) .. ": hop in the cannon!",
+					townCannon(),
+					"Cannon"
+				)
+			end
 		else
 			UI.tutorial.hide()
 		end
@@ -1459,6 +1503,11 @@ local function applyState(s: Types.PlayerState)
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
 		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.done(s.stats),
+		-- #5031 (switch rankUpRightAway, shared/RankUpRightAway): the goal card's short and ready lines
+		rankUpShort = if type(s.rankUpShort) == "number" and s.rankUpShort > 0
+			then s.rankUpShort
+			else false,
+		rankUpTitle = rankUpTitle(s),
 		stuckGoal = stuckGoalActive(s), -- #2912: the goal card's "Free a stuck cat" while the pointer may show
 		-- #3529: the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal; false otherwise
 		newKindGoal = if newKindGoal(s) then kindsOf(s) else false,
@@ -2286,7 +2335,46 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "screen", screenNow)
 		end
 	end
+	-- #5031 (shared/RankUpRightAway): a Tier 1 Rank Up window is reported the moment it opens (how: its own open or a
+	-- tap) and again as it ends (pressed or closed); a close without a press counts toward it opening again
+	-- (UI.autoRank.landed), a press stops that
+	local rankWindow = { open = false, pressed = false, tier = 0 }
+	UI.events.rankUp:Connect(function()
+		if rankWindow.open then
+			rankWindow.pressed = true
+		end
+	end)
 	UI.events.screenOpened:Connect(function(name: string?)
+		local autoRank: any = UI.autoRank
+		if rankWindow.open and name ~= "RankUp" then
+			rankWindow.open = false
+			Net.fire(
+				"TelemetryReport",
+				"rank_up_end",
+				if rankWindow.pressed then "pressed" else "closed"
+			)
+			if rankWindow.pressed then
+				autoRank.pressed[rankWindow.tier] = true
+			else
+				autoRank.closes[rankWindow.tier] = (autoRank.closes[rankWindow.tier] or 0) + 1
+			end
+		elseif
+			not rankWindow.open
+			and name == "RankUp"
+			and state ~= nil
+			and (state :: any).tier == 1
+		then
+			rankWindow.open = true
+			rankWindow.pressed = false
+			rankWindow.tier = 1
+			local at: number? = autoRank.autoAt
+			autoRank.autoAt = nil
+			Net.fire(
+				"TelemetryReport",
+				"rank_up_open",
+				if at ~= nil and os.clock() - at < 1 then "auto" else "button"
+			)
+		end
 		if name == "Store" then
 			-- #1888: every Store visit starts a Store funnel, with where the UI said it was opened from
 			Net.fire("TelemetryReport", "store_opened", StoreFunnel.takeSource())

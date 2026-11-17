@@ -360,8 +360,11 @@ local function pickNearLights()
 end
 
 -- Records a night part's day look the first time it is seen, then gives it the current phase's look.
+-- Sync's Park landing read (Nov 17): this ran for every part that streamed in, 12.4 ms over three landings, by day
+-- for nothing (a new part already has its day look). By day it returns at once: dusk's setNight walks the World and
+-- tracks every night part then, and at night each part that streams in is tracked as it comes.
 local function track(instance: Instance)
-	if not instance:IsA("BasePart") then
+	if not isNight or not instance:IsA("BasePart") then
 		return
 	end
 	local part = instance :: BasePart

@@ -229,6 +229,12 @@ def tunnel_mouth(mat, kind, w=MOUTH_W, H=WALL_H, spring=8.0):
 
 
 # ------------------------------------------------------------------- walls ---
+# The light build (#5026: fewer instances for a phone to load on landing). Off by default, so the old set keeps its
+# look; sewerf85.build_set turns it on. Thinner wall dressing: two vent slats, tile grout lines every 4 studs, pipe
+# brackets every 9, stone block joints every 7.
+LIGHT = False
+
+
 def _course(b, x0, x1, z, h, swatch, out=0.25):
     b.box((((x0 + x1) / 2), -out / 2 + 0.005, z), (x1 - x0, out, h), swatch, bevel=False)
 
@@ -244,7 +250,7 @@ def _seg_brick(b, x0, x1, H, k):
     b.box_base((px, -0.04, 2.6 + 0.5 * (k % 3)), (L * 0.28, 0.1, 3.4), "fur_russet", bevel=False)
     vx = m - L * 0.25 * (1 if k % 2 else -1)                                      # a vent and its stain
     b.box_base((vx, -0.1, 4.2), (1.8, 0.24, 1.1), IRON, bevel=False)
-    for i in range(4):
+    for i in ((0.5, 2.5) if LIGHT else range(4)):
         b.box((vx, -0.25, 4.35 + i * 0.27), (1.6, 0.08, 0.1), "metal", bevel=False)
     b.box_base((vx, -0.03, 1.2), (1.2, 0.06, 3.0), "fur_soot", bevel=False)
 
@@ -280,8 +286,9 @@ def _seg_tiled(b, x0, x1, H, k):
     b.box_base((m, -0.06, 0), (L, 0.14, th), "fur_mist", bevel=False)
     b.box_base((m, -0.1, th - 1.0), (L, 0.2, 0.7), "sign_teal", bevel=False)
     b.box_base((m, -0.1, 0), (L, 0.2, 0.8), "paw_sewer", bevel=False)
-    for i in range(1, max(2, round(L / 2.0))):                                    # grout lines
-        x = x0 + i * L / max(2, round(L / 2.0))
+    ng = max(2, round(L / (4.0 if LIGHT else 2.0)))
+    for i in range(1, ng):                                                        # grout lines
+        x = x0 + i * L / ng
         b.box_base((x, -0.14, 0.8), (0.08, 0.04, th - 1.8), "paving_grout", bevel=False)
     for z in (2.4, 4.0, 5.6)[: 2 + (th > 6)]:
         b.box((m, -0.145, z), (L, 0.04, 0.08), "paving_grout", bevel=False)
@@ -299,8 +306,9 @@ def _seg_pipes(b, x0, x1, H, k):
     _course(b, x0, x1, 12.0 if H > 15 else 9.0, 0.4, "concrete", 0.3)
     for (z, r, sw_) in ((5.2, 0.6, "dumpster_green"), (6.9, 0.4, "metal"), (9.6, 0.35, "rust"))[: 2 + (H > 15)]:
         b.cyl((m, -r - 0.1, z), r, L - 0.4, sw_, segments=10, bevel=False, rot=ry(90))
-        for i in range(max(2, round(L / 4.5))):
-            x = x0 + (i + 0.5) * L / max(2, round(L / 4.5))
+        nb = max(2, round(L / (9.0 if LIGHT else 4.5)))
+        for i in range(nb):
+            x = x0 + (i + 0.5) * L / nb
             b.box((x, -(r + 0.1) / 2, z - r - 0.1), (0.3, r + 0.3, 0.2), IRON, bevel=False)          # brackets
     dx = m + L * (0.3 if k % 2 else -0.3)
     b.cyl((dx, -0.5, 2.7), 0.4, 5.0, "dumpster_green", segments=10, bevel=False)                  # the drop pipe
@@ -324,7 +332,7 @@ def _seg_stone(b, x0, x1, H, k):
         while x < x1 - 1.0:
             if (j + k) % 3 != 1:
                 b.box_base((x, -0.03, j * 2.0 + 0.06), (0.12, 0.08, 1.88), "concrete_dark", bevel=False)
-            x += 3.5
+            x += 7.0 if LIGHT else 3.5
     for i, (fx, fz) in enumerate(((0.2, 1.2), (-0.3, 6.4), (0.35, 9.8))):
         if (i + k) % 2 == 0:
             b.ico((m + fx * L, -0.1, fz), 1.0, "fur_moss", subdivisions=1, scale=(1.6, 0.25, 0.8))

@@ -104,14 +104,17 @@ local hearts: { [Player]: BillboardGui } = {}
 
 local function heartFor(pal: Player, head: BasePart): BillboardGui
 	local h = Presets.palDay.heart
-	local gui = hearts[pal]
-	if gui == nil or gui.Parent == nil then
-		gui = Instance.new("BillboardGui")
-		gui.Name = "EffectsPalDayHeart"
-		gui.Size = UDim2.new(h.size, h.pixels, h.size, h.pixels)
-		gui.StudsOffsetWorldSpace = Vector3.new(0, h.up, 0)
-		gui.LightInfluence = 0
-		gui.MaxDistance = h.range * 1.2
+	local had: BillboardGui? = hearts[pal]
+	local made: BillboardGui
+	if had ~= nil and had.Parent ~= nil then
+		made = had
+	else
+		made = Instance.new("BillboardGui")
+		made.Name = "EffectsPalDayHeart"
+		made.Size = UDim2.new(h.size, h.pixels, h.size, h.pixels)
+		made.StudsOffsetWorldSpace = Vector3.new(0, h.up, 0)
+		made.LightInfluence = 0
+		made.MaxDistance = h.range * 1.2
 		local label = Instance.new("TextLabel")
 		label.BackgroundTransparency = 1
 		label.Size = UDim2.fromScale(1, 1)
@@ -119,11 +122,10 @@ local function heartFor(pal: Player, head: BasePart): BillboardGui
 		label.TextScaled = true
 		label.TextColor3 = Presets.palDay.colour
 		label.TextStrokeTransparency = 0.4
-		label.Parent = gui
-		gui.Parent = Context.folder()
-		hearts[pal] = gui
+		label.Parent = made
+		made.Parent = Context.folder()
+		hearts[pal] = made
 	end
-	local made = gui :: BillboardGui
 	if made.Adornee ~= (head :: Instance) then
 		made.Adornee = head
 	end
@@ -131,7 +133,7 @@ local function heartFor(pal: Player, head: BasePart): BillboardGui
 end
 
 local function dropHeart(pal: Player)
-	local gui = hearts[pal]
+	local gui: BillboardGui? = hearts[pal]
 	if gui ~= nil then
 		hearts[pal] = nil
 		gui:Destroy()
@@ -166,7 +168,8 @@ local function checkHearts()
 		end
 	end
 	for pal in hearts do
-		if wanted[pal] == nil then
+		local keep: BasePart? = wanted[pal]
+		if keep == nil then
 			dropHeart(pal)
 		end
 	end

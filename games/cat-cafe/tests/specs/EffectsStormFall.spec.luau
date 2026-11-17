@@ -22,6 +22,15 @@ return function()
 			end
 		)
 
+		it("falls only for a fresh drop, not a stray streaming in later (#4796)", function()
+			expect(StormFall.fresh(1000, 1003, 8)).to.equal(true)
+			expect(StormFall.fresh(1000, 1008, 8)).to.equal(true)
+			expect(StormFall.fresh(1000, 1009, 8)).to.equal(false)
+			expect(StormFall.fresh(1000, 1500, 8)).to.equal(false)
+			expect(StormFall.fresh(nil, 1500, 8)).to.equal(true) -- no SpawnedAt: as before
+			expect(StormFall.fresh("x", 1500, 8)).to.equal(true)
+		end)
+
 		it(
 			"drifts only while a storm runs, and never with Reduce Motion or Low performance",
 			function()

@@ -785,6 +785,8 @@ fieldEvents=(
 	"rank_up_spotlight_shown|CustomField1|CustomEventCountUser|Rank up walk-through shown: players by device (#3555)"
 	"rank_up_spotlight_closed|CustomField1|CustomEventCountUser|Rank up walk-through closed: players by device (#3555)"
 	"starter_suggest|CustomField1|CustomEventCountUser|Starter Bundle card: players by outcome (#4174)"
+	"tomorrow_card|CustomField1|CustomEventCountUser|Come back tomorrow card: players by outcome (#3951)"
+	"tomorrow_card|CustomField2,CustomField1|CustomEventCountUser|Come back tomorrow card: players by device and outcome (#3951)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
 	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"

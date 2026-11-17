@@ -8,8 +8,8 @@
 -- instead of stopping, so the beacon lasts until the cat is caught or gone. It starts `delay` seconds after the cat
 -- first shows (SecondCat's TRAIL_DELAY_SECONDS and TRAIL_SECONDS when present). Reduce Motion keeps the sparkles and a
 -- still badge without the rings; Low performance keeps the badge and rings without the sparkles. Listening only.
--- #4384: all of it waits while the player is on the bowl step with a Bait bowl to fill (`WaitingCat.held`, switch
--- `checkInCalm`), so the bowl is the one thing asked for after the first check-in; it starts when that step is done,
+-- #4384: all of it waits while the player is on the bowl step with a Bait bowl to fill (`WaitingCat.held`), so the
+-- bowl is the one thing asked for after the first check-in; it starts when that step is done,
 -- or after Presets.waitingCat.holdMost seconds.
 --
 -- Roblox terms: a BillboardGui is 2D UI drawn at a point in the world, always facing the camera; AlwaysOnTop draws it
@@ -20,8 +20,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
-
-local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 local Net = require(script.Parent.Parent.Net)
 
@@ -46,17 +44,14 @@ local heldSince: number? = nil -- os.clock when the hold began
 -- #4384: true while the bowl step is the one ask (Logic.waitingHeld): no beacon here, and StrayCall and Audio ask
 -- this before the cat calls. The server keeps the stray waiting all the while.
 function WaitingCat.held(): boolean
-	local key = Presets.waitingCat.holdSwitch
-	local on =
-		LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 	local now = os.clock()
-	if not Logic.waitingHeld(on, tutorialStep, bowlLevel, 0) then
+	if not Logic.waitingHeld(tutorialStep, bowlLevel, 0) then
 		heldSince = nil -- the step is over (or never was): a later bowl step would hold afresh
 		return false
 	end
 	local since = heldSince or now
 	heldSince = since
-	return Logic.waitingHeld(on, tutorialStep, bowlLevel, now - since)
+	return Logic.waitingHeld(tutorialStep, bowlLevel, now - since)
 end
 
 -- SecondCat's attribute name and timings, if that module is in, else Presets.waitingCat's.

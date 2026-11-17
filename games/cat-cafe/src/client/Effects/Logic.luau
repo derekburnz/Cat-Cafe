@@ -1625,19 +1625,13 @@ function Logic.startle(o: Offsets, alpha: number)
 	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
 end
 
--- #4384: whether the waiting stray's beacon, call and sound wait: the switch is on (LiveFlags.shown of `checkInCalm`)
--- and the player is on the bowl step (`tutorialStep` is Presets.waitingCat.holdStep) with a Bait bowl to fill
+-- #4384: whether the waiting stray's beacon, call and sound wait: the player is on the bowl step (`tutorialStep` is Presets.waitingCat.holdStep) with a Bait bowl to fill
 -- (`bowlLevel` 1 or more), for at most `holdMost` seconds (`heldFor` is how long it has held). A step or a level not
 -- yet known holds nothing.
-function Logic.waitingHeld(
-	switchOn: boolean,
-	tutorialStep: unknown,
-	bowlLevel: unknown,
-	heldFor: number
-): boolean
+-- (#4654: the checkInCalm switch is retired; this always applies.)
+function Logic.waitingHeld(tutorialStep: unknown, bowlLevel: unknown, heldFor: number): boolean
 	local p = Presets.waitingCat
-	return switchOn
-		and tutorialStep == p.holdStep
+	return tutorialStep == p.holdStep
 		and type(bowlLevel) == "number"
 		and bowlLevel >= 1
 		and heldFor < p.holdMost

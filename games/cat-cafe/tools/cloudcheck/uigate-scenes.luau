@@ -10297,6 +10297,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local title = goal:FindFirstChild("Title") :: TextLabel
 		assert(title.Visible and title.TextFits, "uigate: the goal card's tier name does not fit (#2331)")
 		assertArrowAt(goal, "the goal card")
+		-- #5009: the arrow hides while the Luck card the player opened shows (on phones it sat on the card's x3
+		-- values), and comes back when the card closes
+		local function arrowShows(): boolean
+			for _, piece in UIShim.playerGui:GetDescendants() do
+				if piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible then
+					return true
+				end
+			end
+			return false
+		end
+		local luckBefore: any = UI.getState()
+		UI.update({ luck = 1.3, luckSources = { { id = "statue", value = 0.3 } } } :: any)
+		task.wait(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: Instance
+		local card = hud:FindFirstChild("LuckCard", true) :: GuiObject?
+		if not (card and card.Visible) then
+			press("CatCafeHUD", "Luck")
+		end
+		task.wait(0.1)
+		card = hud:FindFirstChild("LuckCard", true) :: GuiObject?
+		assert(card and card.Visible, "uigate: the Luck card did not open over the ready goal card (#5009)")
+		assert(not arrowShows(), "uigate: the rank up arrow shows over the open Luck card (#5009)")
+		press("CatCafeHUD", "LuckCard.Close")
+		task.wait(0.1)
+		assertArrowAt(goal, "the goal card after the Luck card closed (#5009)")
+		UI.update({ luck = luckBefore.luck, luckSources = luckBefore.luckSources } :: any)
 	end },
 	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch the ▶ button folds the
 	-- goal card into one finger-tall chip and saves goalFolded; a tap on the chip opens it again. Desktop has no tab.

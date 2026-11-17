@@ -4,7 +4,10 @@
 -- it unlocks (Effects/StationUnlockCut). The server has already asked Roblox to stream that station's spot in
 -- (CafeService); this waits for the player to be free (not carrying a cat, flying or in another cut or the intro), then
 -- up to StationCut.WAIT seconds for the station to arrive. While the cut plays the HUD, toasts, pop-ups and any open
--- window are put away the way a camera cut tip does (UI.tips.clearStage), so the cards that follow wait for it. The
+-- window are put away the way a camera cut tip does (UI.tips.clearStage), and it counts as a cutscene
+-- (UI.setCutscene), so the bowl and other cards and the Rank Up window's own opening wait for it (Sync's run on #5128:
+-- a bowl card stayed over the cut and the Rank Up window opened itself again 2 s in). It waits for a bowl or perk card
+-- already up to be dealt with first. The
 -- key goes into tipsSeen (TipSeen, logged once as tip_shown: skipped "yes" for a skip or a fallback). A station that
 -- never arrives, or a camera another script holds, gets an "Unlocked" toast instead. Nothing while `stationCut` is off.
 
@@ -26,7 +29,8 @@ local UIController = require(script.Parent.UIController)
 local StationCutController = {}
 
 local POLL = 0.1
-local FREE_MOST = 30 -- seconds to wait for the player to be free before giving the toast instead
+local FREE_MOST = 60 -- seconds to wait for the player to be free before giving the toast instead
+local BAIT_CARD = "CatCafeBaitCard" -- UI/Screens/BaitCard's ScreenGui
 
 local started = false
 local asked: { [number]: boolean } = {} -- tiers handled this session (the save hears TipSeen a moment later)
@@ -49,6 +53,16 @@ local function free(): boolean
 		character:GetAttribute("CarryingCatId") ~= nil
 		or character:GetAttribute("Launching") == true
 	then
+		return false
+	end
+	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	local bowlCard = if playerGui ~= nil then playerGui:FindFirstChild(BAIT_CARD) else nil
+	if bowlCard ~= nil and bowlCard:IsA("ScreenGui") and (bowlCard :: ScreenGui).Enabled then
+		return false -- a bowl card is up: its Tame or Let go first
+	end
+	local perks = ui().perks
+	local perkCard = if perks ~= nil then perks.card else nil
+	if perkCard ~= nil and perkCard:isShowing() then
 		return false
 	end
 	local tips = ui().tips
@@ -80,6 +94,10 @@ local function waitFor(seconds: number, check: () -> boolean): boolean
 end
 
 local function stage(held: boolean)
+	local setCutscene: any = ui().setCutscene
+	if type(setCutscene) == "function" then
+		(setCutscene :: (boolean) -> ())(held)
+	end
 	local tips = ui().tips
 	local clear: any = if tips ~= nil then tips.clearStage else nil
 	if type(clear) == "function" then

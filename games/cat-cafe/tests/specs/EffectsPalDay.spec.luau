@@ -15,5 +15,14 @@ return function()
 			expect(p.overHead >= 0 and p.up > 0).to.equal(true)
 			expect(p.colour).to.equal(Presets.petCat.colour)
 		end)
+
+		it("keeps the hearts over pals few, still and in reach (#4913)", function()
+			local h = Presets.palDay.heart
+			expect(h.most >= 1 and h.most <= 4).to.equal(true) -- Design: at most 4 BillboardGuis
+			expect(h.range <= Presets.palDay.range).to.equal(true)
+			expect(h.every >= 0.25).to.equal(true)
+			expect(type(h.due)).to.equal("string")
+			expect(#h.glyph > 0).to.equal(true)
+		end)
 	end)
 end

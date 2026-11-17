@@ -21,7 +21,7 @@ function Spread.drain(jobs: { Job }, clock: () -> number, budget: number): numbe
 	local ran = 0
 	while #jobs > 0 do
 		local job = table.remove(jobs, 1) :: Job
-		local ok, err = pcall(job)
+		local ok, err = pcall(job :: () -> any) -- a Job returns nothing; pcall then gives the error as its second value
 		if not ok then
 			warn("[Spread] a queued job failed: " .. tostring(err))
 		end

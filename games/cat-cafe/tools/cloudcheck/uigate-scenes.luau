@@ -10853,7 +10853,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(cannon ~= nil, "uigate: no Cannon tile on the HUD")
 		Glow.set(cannon, true)
 		local was = UI.firstCat.tutorial
+		local wasWalk = UI.firstCat.walk
 		UI.firstCat.tutorial = true
+		UI.firstCat.walk = true -- #4953: the ring on Nice! is the walk-through's alone
 		local big = Catalog.cats[2]
 		for _, def in Catalog.cats do
 			if def.rarity == "Legendary" then
@@ -10877,6 +10879,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(ok ~= nil, "uigate: no Nice! on the cat found card")
 		assertArrowAt(ok, "Nice! on the cat found card")
 		assert(tutorialSpotlight() == nil, "uigate: the cat found card is dimmed")
+		UI.firstCat.walk = wasWalk
 		UI.firstCat.tutorial = was
 		Glow.set(cannon, false)
 	end },

@@ -841,8 +841,9 @@ local Config = {
 		},
 		{
 			id = "6693355219203523122",
-			startsAt = 1796500800, -- "Cherry Blossom Grove", Saturday 2026-12-05 20:00 UTC
-			title = "🔔 Next update Sat Dec 5: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
+			-- #5098: moved to after Christmas (Derek 2026-11-17); Growth re-dated the Roblox Event
+			startsAt = 1806177600, -- "Cherry Blossom Grove", Saturday 2027-03-27 20:00 UTC
+			title = "🔔 Next update Sat Mar 27: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
 			name = "CHERRY BLOSSOM GROVE",
 		},
 		{

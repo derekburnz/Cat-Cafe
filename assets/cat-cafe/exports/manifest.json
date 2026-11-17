@@ -373217,6 +373217,686 @@
       }
     },
     {
+      "name": "CatCafe_Plot_ThemeGarden_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGarden_48x37",
+        "CatCafe_Plot_ThemeGarden_48x37_Bulb",
+        "CatCafe_Plot_ThemeGarden_48x37_Awning"
+      ],
+      "triangles": 1972,
+      "budget": 3000,
+      "size_studs": {
+        "x": 44.15,
+        "y": 3.09,
+        "z": 12.75
+      },
+      "size_roblox": [
+        44.15,
+        12.75,
+        3.09
+      ],
+      "bounds_min": [
+        -22.08,
+        -22.56,
+        0.0
+      ],
+      "bounds_max": [
+        22.08,
+        -19.47,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGarden, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGarden laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_ThemeGarden on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGarden_48x37.model.json",
+      "rbx_parts": 97,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "1972/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-19.47 (want 0)",
+          "centered": "footprint center x=0.00 y=-21.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrand_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrand_48x37",
+        "CatCafe_Plot_ThemeGrand_48x37_Bulb",
+        "CatCafe_Plot_ThemeGrand_48x37_Awning"
+      ],
+      "triangles": 2056,
+      "budget": 3000,
+      "size_studs": {
+        "x": 44.15,
+        "y": 4.86,
+        "z": 12.75
+      },
+      "size_roblox": [
+        44.15,
+        12.75,
+        4.86
+      ],
+      "bounds_min": [
+        -22.08,
+        -24.33,
+        0.0
+      ],
+      "bounds_max": [
+        22.08,
+        -19.47,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrand, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrand laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_ThemeGrand on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrand_48x37.model.json",
+      "rbx_parts": 105,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "2056/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "832 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-19.47 (want 0)",
+          "centered": "footprint center x=0.00 y=-21.90"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrandChandelier_48x37",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrandChandelier_48x37",
+        "CatCafe_Plot_ThemeGrandChandelier_48x37_Glow"
+      ],
+      "triangles": 806,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.32,
+        "y": 8.69,
+        "z": 3.32
+      },
+      "size_roblox": [
+        2.32,
+        3.32,
+        8.69
+      ],
+      "bounds_min": [
+        -1.16,
+        -7.65,
+        9.23
+      ],
+      "bounds_max": [
+        1.16,
+        1.04,
+        12.55
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrandChandelier, on its own 48 x 37 room's floor centre: place it 1.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrandChandelier laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_ThemeGrandChandelier on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrandChandelier_48x37.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_48x37.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_48x37.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "806/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "521 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=1.04 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.30"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGarden_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGarden_52x40",
+        "CatCafe_Plot_ThemeGarden_52x40_Bulb",
+        "CatCafe_Plot_ThemeGarden_52x40_Awning"
+      ],
+      "triangles": 1972,
+      "budget": 3000,
+      "size_studs": {
+        "x": 48.15,
+        "y": 3.09,
+        "z": 12.75
+      },
+      "size_roblox": [
+        48.15,
+        12.75,
+        3.09
+      ],
+      "bounds_min": [
+        -24.08,
+        -24.06,
+        0.0
+      ],
+      "bounds_max": [
+        24.08,
+        -20.97,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGarden, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGarden laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_ThemeGarden on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGarden_52x40.model.json",
+      "rbx_parts": 97,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "1972/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-20.97 (want 0)",
+          "centered": "footprint center x=0.00 y=-22.51"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrand_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrand_52x40",
+        "CatCafe_Plot_ThemeGrand_52x40_Bulb",
+        "CatCafe_Plot_ThemeGrand_52x40_Awning"
+      ],
+      "triangles": 2056,
+      "budget": 3000,
+      "size_studs": {
+        "x": 48.15,
+        "y": 4.86,
+        "z": 12.75
+      },
+      "size_roblox": [
+        48.15,
+        12.75,
+        4.86
+      ],
+      "bounds_min": [
+        -24.08,
+        -25.83,
+        0.0
+      ],
+      "bounds_max": [
+        24.08,
+        -20.97,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrand, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrand laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_ThemeGrand on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrand_52x40.model.json",
+      "rbx_parts": 105,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "2056/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "832 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-20.97 (want 0)",
+          "centered": "footprint center x=0.00 y=-23.40"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrandChandelier_52x40",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrandChandelier_52x40",
+        "CatCafe_Plot_ThemeGrandChandelier_52x40_Glow"
+      ],
+      "triangles": 806,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.32,
+        "y": 9.44,
+        "z": 3.32
+      },
+      "size_roblox": [
+        2.32,
+        3.32,
+        9.44
+      ],
+      "bounds_min": [
+        -1.16,
+        -8.29,
+        9.23
+      ],
+      "bounds_max": [
+        1.16,
+        1.15,
+        12.55
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrandChandelier, on its own 52 x 40 room's floor centre: place it 3 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrandChandelier laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_ThemeGrandChandelier on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrandChandelier_52x40.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_52x40.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_52x40.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "806/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "521 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=1.15 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.57"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGarden_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGarden_56x43",
+        "CatCafe_Plot_ThemeGarden_56x43_Bulb",
+        "CatCafe_Plot_ThemeGarden_56x43_Awning"
+      ],
+      "triangles": 1972,
+      "budget": 3000,
+      "size_studs": {
+        "x": 52.15,
+        "y": 3.09,
+        "z": 12.75
+      },
+      "size_roblox": [
+        52.15,
+        12.75,
+        3.09
+      ],
+      "bounds_min": [
+        -26.08,
+        -25.56,
+        0.0
+      ],
+      "bounds_max": [
+        26.08,
+        -22.47,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGarden, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGarden laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_ThemeGarden on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGarden_56x43.model.json",
+      "rbx_parts": 97,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "1972/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-22.47 (want 0)",
+          "centered": "footprint center x=0.00 y=-24.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrand_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrand_56x43",
+        "CatCafe_Plot_ThemeGrand_56x43_Bulb",
+        "CatCafe_Plot_ThemeGrand_56x43_Awning"
+      ],
+      "triangles": 2056,
+      "budget": 3000,
+      "size_studs": {
+        "x": 52.15,
+        "y": 4.86,
+        "z": 12.75
+      },
+      "size_roblox": [
+        52.15,
+        12.75,
+        4.86
+      ],
+      "bounds_min": [
+        -26.08,
+        -27.33,
+        0.0
+      ],
+      "bounds_max": [
+        26.08,
+        -22.47,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrand, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrand laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_ThemeGrand on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrand_56x43.model.json",
+      "rbx_parts": 105,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "2056/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "832 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-22.47 (want 0)",
+          "centered": "footprint center x=0.00 y=-24.90"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrandChandelier_56x43",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrandChandelier_56x43",
+        "CatCafe_Plot_ThemeGrandChandelier_56x43_Glow"
+      ],
+      "triangles": 806,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.32,
+        "y": 10.19,
+        "z": 3.32
+      },
+      "size_roblox": [
+        2.32,
+        3.32,
+        10.19
+      ],
+      "bounds_min": [
+        -1.16,
+        -8.93,
+        9.23
+      ],
+      "bounds_max": [
+        1.16,
+        1.26,
+        12.55
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrandChandelier, on its own 56 x 43 room's floor centre: place it 4.5 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrandChandelier laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_ThemeGrandChandelier on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrandChandelier_56x43.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_56x43.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_56x43.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "806/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "521 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=1.26 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.84"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGarden_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGarden_60x46",
+        "CatCafe_Plot_ThemeGarden_60x46_Bulb",
+        "CatCafe_Plot_ThemeGarden_60x46_Awning"
+      ],
+      "triangles": 1972,
+      "budget": 3000,
+      "size_studs": {
+        "x": 56.15,
+        "y": 3.09,
+        "z": 12.75
+      },
+      "size_roblox": [
+        56.15,
+        12.75,
+        3.09
+      ],
+      "bounds_min": [
+        -28.08,
+        -27.06,
+        0.0
+      ],
+      "bounds_max": [
+        28.08,
+        -23.97,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGarden, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGarden laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_ThemeGarden on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGarden_60x46.model.json",
+      "rbx_parts": 97,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "1972/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-23.97 (want 0)",
+          "centered": "footprint center x=0.00 y=-25.51"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrand_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrand_60x46",
+        "CatCafe_Plot_ThemeGrand_60x46_Bulb",
+        "CatCafe_Plot_ThemeGrand_60x46_Awning"
+      ],
+      "triangles": 2056,
+      "budget": 3000,
+      "size_studs": {
+        "x": 56.15,
+        "y": 4.86,
+        "z": 12.75
+      },
+      "size_roblox": [
+        56.15,
+        12.75,
+        4.86
+      ],
+      "bounds_min": [
+        -28.08,
+        -28.83,
+        0.0
+      ],
+      "bounds_max": [
+        28.08,
+        -23.97,
+        12.75
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrand, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrand laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_ThemeGrand on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrand_60x46.model.json",
+      "rbx_parts": 105,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "2056/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "832 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=-23.97 (want 0)",
+          "centered": "footprint center x=0.00 y=-26.40"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrandChandelier_60x46",
+      "category": "Plot",
+      "module": "plotsizes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrandChandelier_60x46",
+        "CatCafe_Plot_ThemeGrandChandelier_60x46_Glow"
+      ],
+      "triangles": 806,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.32,
+        "y": 10.94,
+        "z": 3.32
+      },
+      "size_roblox": [
+        2.32,
+        3.32,
+        10.94
+      ],
+      "bounds_min": [
+        -1.16,
+        -9.58,
+        9.23
+      ],
+      "bounds_max": [
+        1.16,
+        1.36,
+        12.55
+      ],
+      "pivot": "as CatCafe_Plot_ThemeGrandChandelier, on its own 60 x 46 room's floor centre: place it 6 studs behind the plot's pivot (+Z), so the front wall and the door stay where the 44 x 34 room's are",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ThemeGrandChandelier laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_ThemeGrandChandelier on a cafe of that size. Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrandChandelier_60x46.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_60x46.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier_60x46.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "806/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "521 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=1.36 (want 0)",
+          "centered": "footprint center x=0.00 y=-4.11"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Cat_Popcorn",
       "category": "Cat",
       "module": "cats",

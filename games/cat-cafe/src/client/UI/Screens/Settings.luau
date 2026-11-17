@@ -75,6 +75,7 @@ export type Settings = {
 	set: (self: Settings, key: string, value: boolean | number) -> (),
 	showTutorial: (self: Settings, shown: boolean) -> (),
 	showTrading: (self: Settings, shown: boolean) -> (),
+	showVipTag: (self: Settings, shown: boolean) -> (),
 	showTester: (self: Settings, shown: boolean) -> (),
 	showCredit: (self: Settings, shown: boolean) -> (), -- #1083: only for a player with a credit on the board
 	cancelReset: (self: Settings) -> (),
@@ -115,6 +116,7 @@ local TILE_COLORS: { [string]: Color3 } = {
 	catIncome = Theme.colors.gold, -- #2551
 	markers = Theme.colors.good,
 	stationCircles = Theme.colors.sky, -- #4668
+	vipTag = Theme.colors.gold, -- #4991
 	tutorialButton = Theme.colors.gold,
 	replayTutorial = Theme.colors.gold,
 	showTips = Theme.colors.sky,
@@ -376,6 +378,7 @@ function Settings.new(callbacks: Callbacks): Settings
 	end
 	self:showTutorial(false)
 	self:showTrading(false)
+	self:showVipTag(false)
 	self:showTester(false)
 
 	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
@@ -670,6 +673,15 @@ end
 -- The Trading tab, hidden until TradeService runs (F102).
 function Settings.showTrading(self: any, shown: boolean)
 	self:_allow({ "tradeRequests", TRADES_ROW.key }, shown)
+end
+
+-- #4991: the VIP tag row, for a VIP owner alone. Laid out again only when it changes (render calls it on every sync).
+function Settings.showVipTag(self: any, shown: boolean)
+	if self._vipShown == shown then
+		return
+	end
+	self._vipShown = shown
+	self:_allow({ SettingsList.VIP_TAG_KEY }, shown)
 end
 
 -- #3961: shows or hides rows on every tab (by key), then lays the tabs out again.

@@ -727,10 +727,10 @@ return function()
 			-- #4189 (Derek 2026-11-14: into the next areas sooner): 520,000, 16.8M, 390M, 5.6B and 54B, and 10, 22, 26, 38
 			-- and 47 kinds before; the 4x Money 2 hour floor is dropped
 			{ "Busy Cafe", 50000, 6, "Rare", 2, 6, 1.50, "neighbourhood", { 4, 4, 2 } }, -- #4844: 2 Rares (one Epic before)
-			{ "Famous Cafe", 1000000, 13, "Legendary", 1, 8, 1.75, "woods", { 5, 5, 2 } },
-			{ "Grand Cafe", 17000000, 14, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Famous Cafe", 1000000, 10, "Legendary", 1, 8, 1.75, "woods", { 5, 5, 2 } },
+			{ "Grand Cafe", 12000000, 13, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 312500000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Sunstone Cafe", 150000000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
 			{ "Wonder Cafe", 3125000000, 27, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 			-- #3997 (tier8-snowy-mountain.md section 1, draft numbers)
 			{ "Summit Cafe", 21000000000, 43, "Mythical", 5, 16, 2.75, "snowy", { 6, 8, 3 } },

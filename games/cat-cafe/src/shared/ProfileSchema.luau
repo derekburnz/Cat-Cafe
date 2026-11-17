@@ -153,6 +153,8 @@ local ProfileSchema = {}
 -- #3618 (no new version): stats.cannonFlights, for the Liftoff badge; an older server dropping it only loses the count.
 -- #4453 (no new version): stats.tier2TopUp, the Tier 2 top up paid; it pays only as the first bait cat is tamed
 -- (stats.baitsTamed 1), so an older server dropping it cannot make it pay twice.
+-- #5038 (no new version): stats.tier3TopUp, the Tier 3 welcome gift paid. An older server dropping it could pay it
+-- once more while the save is still at Tier 2 with the kinds and Rares met, never past Tier 3's cost (Tier3Path).
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
 -- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
 -- one past 10 or 30 minutes already is paid on its next join.
@@ -266,6 +268,7 @@ local function newStats(): Types.Stats
 		restSeconds = 0,
 		cannonFlights = 0, -- #3618
 		tier2TopUp = 0, -- #4453
+		tier3TopUp = 0, -- #5038
 	}
 end
 
@@ -402,6 +405,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		giftSteps = {},
 		eventRewards = {},
 		eventLast = "",
+		palDay = { day = 0 }, -- #4913, no version
 	}
 end
 
@@ -1218,6 +1222,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		EquipBest.apply(profile, EquipBest.plan(profile))
 	end
 
+	-- #4913: no version bump; an older server would drop it, so the palDay switch goes on only after a restart
+	local palDay = if type(raw.palDay) == "table" then raw.palDay else {}
+	profile.palDay = { day = math.max(0, asInt(palDay.day, 0)) }
 	profile.version = ProfileSchema.VERSION
 	return profile
 end

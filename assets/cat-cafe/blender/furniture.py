@@ -154,11 +154,17 @@ def build_window_seat(mat):
     return [b.finalize("CatCafe_Furniture_WindowSeat", mat)]
 
 
-def build_bench(name, seat="caramel_wood", frame="dark_wood", cushion="mint", mat=None, slats=True):
+def build_bench(name, seat="caramel_wood", frame="dark_wood", cushion="mint", mat=None, slats=True, light=False):
+    """`light` (#4857, the Park set): two wide seat slats and two back slats in place of four and three."""
     b = Builder()
     for x in (-1.75, 1.75):
         b.box_base((x, 0, 0), (0.25, 1.3, 1.3), frame)
-    if slats:
+    if slats and light:
+        for y in (-0.31, 0.31):
+            b.box_base((0, y, 1.2), (4.0, 0.56, 0.15), seat)
+        for z in (1.9, 2.6):
+            b.box((0, 0.65, z), (4.0, 0.15, 0.45), seat)
+    elif slats:
         for y in (-0.45, -0.15, 0.15, 0.45):
             b.box_base((0, y, 1.2), (4.0, 0.26, 0.15), seat)
         for z in (1.8, 2.25, 2.7):

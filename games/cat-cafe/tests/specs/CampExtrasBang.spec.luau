@@ -81,6 +81,7 @@ return function()
 			expect(CampExtrasLogic.remoteAction(nil)).to.equal(nil)
 			expect(CampExtrasLogic.REMOTE_WORDS.collect).to.equal("Collect")
 			expect(CampExtrasLogic.REMOTE_WORDS.open).to.equal("Open")
+			expect(CampExtrasLogic.REMOTE_WORDS.rummage).to.equal("Rummage") -- #4961
 			expect(CampExtrasLogic.GOLD_POND_ATTRIBUTE).to.equal("GoldenPondPass")
 		end)
 	end)

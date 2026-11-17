@@ -174,6 +174,26 @@ return function()
 			expect(LuckLogic.dayLine({})).to.equal(nil)
 		end)
 
+		it("lists the day kinds as Luck card rows (#4990)", function()
+			local view = { luckyDay = true, goldenDay = true, rainbowDay = true, phase = "day" }
+			local rows = LuckLogic.dayRows(view, {})
+			expect(#rows).to.equal(3)
+			expect(rows[1].id).to.equal("lucky_day")
+			expect(rows[1].name).to.equal("Lucky Day")
+			expect(rows[1].value).to.equal("+50%")
+			expect(rows[2].name).to.equal("Golden Day")
+			expect(rows[2].value).to.equal("x3")
+			expect(rows[3].name).to.equal("Rainbow Day")
+			expect(rows[3].value).to.equal("x3")
+			-- a Lucky Day already listed as a Luck source is not listed twice
+			local have = { { id = "lucky_day", name = "Lucky Day", value = "+50%" } }
+			expect(#LuckLogic.dayRows(view, have)).to.equal(2)
+			-- nothing at night, on a plain day or with no clock
+			expect(#LuckLogic.dayRows({ goldenDay = true, phase = "night" }, {})).to.equal(0)
+			expect(#LuckLogic.dayRows({ phase = "day" }, {})).to.equal(0)
+			expect(#LuckLogic.dayRows(nil, {})).to.equal(0)
+		end)
+
 		it("gives each kind's card line and the sunrise banner", function()
 			local view = { luckyDay = true, goldenDay = true, phase = "day" }
 			local lines = LuckLogic.dayCard(view)

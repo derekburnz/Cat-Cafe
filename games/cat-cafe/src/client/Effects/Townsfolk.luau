@@ -300,7 +300,7 @@ function Townsfolk.start()
 	for _, descendant in Workspace:GetDescendants() do
 		add(descendant)
 	end
-	Workspace.DescendantAdded:Connect(function(descendant: Instance)
+	Context.onWorkspaceAdded(function(descendant: Instance)
 		if descendant:IsA("Model") and string.sub(descendant.Name, 1, #PREFIX) == PREFIX then
 			-- its parts arrive after it; wait a frame so the pieces are all there
 			task.defer(add, descendant)

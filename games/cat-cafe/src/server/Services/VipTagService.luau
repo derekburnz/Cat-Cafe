@@ -3,10 +3,14 @@
 -- VIP tag floats over every VIP owner's head, seen by everyone, behind the `vipBoost` switch (on unless switched off).
 -- Built on the server so it replicates to every player; it is put back on each new character, appears the moment the
 -- pass is bought in game, and comes off when the switch is turned off.
+-- #4991 (Derek 2026-11-16: "make a toggle for showing vip above head in titles and toggle it off by default"): only
+-- while the owner's own Settings switch `vipTag` is on (off by default; CafeService's SetSetting calls refresh). The
+-- player's VipOwner attribute tells their Settings screen to show that row.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local PassService = require(script.Parent.PassService)
@@ -75,8 +79,21 @@ local function owns(player: Player): boolean
 	return Config.VipPassId ~= 0 and PassService.owns(player, Config.VipPassId)
 end
 
+VipTagService.SETTING = "vipTag" -- #4991: shared/Settings' key
+VipTagService.OWNER_ATTRIBUTE = "VipOwner" -- #4991: on the Player, for the client's Settings row
+
+-- #4991: the owner's saved switch; off until the save says true (and before it loads)
+local function wants(player: Player): boolean
+	local profile = DataService.get(player)
+	return profile ~= nil and (profile.settings :: any)[VipTagService.SETTING] == true
+end
+
 -- Puts the tag on (or takes it off) `player`'s current character to match the pass and the switch.
 function VipTagService.refresh(player: Player)
+	local owner = on() and owns(player)
+	if player:GetAttribute(VipTagService.OWNER_ATTRIBUTE) ~= owner then
+		player:SetAttribute(VipTagService.OWNER_ATTRIBUTE, owner)
+	end
 	local character = player.Character
 	if character == nil then
 		return
@@ -86,7 +103,7 @@ function VipTagService.refresh(player: Player)
 		return
 	end
 	local tag: Instance? = head:FindFirstChild(VipTagService.NAME)
-	local want = on() and owns(player)
+	local want = owner and wants(player)
 	if want and not tag then
 		local gui = VipTagService.build()
 		gui.Adornee = head
@@ -130,6 +147,11 @@ function VipTagService.start()
 		watch(player)
 	end
 	Players.PlayerAdded:Connect(watch)
+	-- #4991 (Review-QA): the save can load after the spawn's retries (a rejoin waiting on the session lock), and the
+	-- owner's vipTag switch is read from it
+	DataService.onLoaded:Connect(function(player: Player)
+		task.defer(VipTagService.refresh, player)
+	end)
 	-- the join lookup answers after the character can already be in, and a purchase in game: both fire `changed`
 	PassService.changed:Connect(function(player: Player)
 		task.defer(VipTagService.refresh, player)

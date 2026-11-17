@@ -453,10 +453,12 @@ local Config = {
 		cafePass = { was = 299, now = 149 },
 		-- #4377 (Derek 2026-11-15: half price on every Robux item): the cards cut on 2026-11-15. The money ladder's
 		-- rungs share the card key "money", so each rung is keyed "money" plus its multiplier (StoreLogic.saleKey).
-		money2 = { was = 25, now = 12 },
-		money3 = { was = 59, now = 29 },
-		money4 = { was = 99, now = 49 },
-		vip = { was = 25, now = 12 },
+		-- #4989 (Derek 2026-11-16 23:35 UTC: "update the 2x/3x/4x to be 10/20/30 robux and vip price"): 10, 20, 30 and
+		-- VIP 15 (Derek OK 23:36 UTC), set on Roblox by Growth-Agent; `was` stays each card's price before the Nov 15 cut
+		money2 = { was = 25, now = 10 },
+		money3 = { was = 59, now = 20 },
+		money4 = { was = 99, now = 30 },
+		vip = { was = 25, now = 15 },
 		longNap = { was = 199, now = 99 },
 		accessories = { was = 149, now = 75 },
 		secondBowl = { was = 149, now = 75 },

@@ -562,6 +562,23 @@ end
 -- `startedAt` (Workspace:GetServerTimeNow() terms; call it stage.boomAt - fuseSeconds early for the fuse fizz). The
 -- muzzle and fuse come from `cannon`'s attachments. This screen only: the clouds tinted toward `destination` and
 -- the copy gliding in them (CannonGlide.mountStaged).
+-- #4985: the intro's flight had no sound (Audio follows a character's CannonLaunchAt, which the copy never has), so the
+-- BOOM was silent. Listeners hear each staged flight's "boom" with the server time it comes at; Audio plays its
+-- launch cue on it while Cannon.stagedLive(model) still says the flight is on. No landing cue: the short intro (what
+-- live plays) cuts from the BOOM straight to the catch, with no landing on screen.
+export type StagedBeat = "boom"
+local stagedListeners: { (beat: StagedBeat, at: number, model: Model) -> () } = {}
+
+function Cannon.onStaged(listener: (beat: StagedBeat, at: number, model: Model) -> ())
+	table.insert(stagedListeners, listener)
+end
+
+-- Whether the intro's flight on `model` is still on (not ended by Skip or the intro's end).
+function Cannon.stagedLive(model: Model): boolean
+	local flight = flights[model]
+	return flight ~= nil and flight.staged
+end
+
 function Cannon.playStaged(
 	model: Model,
 	cannon: Model?,
@@ -572,6 +589,10 @@ function Cannon.playStaged(
 	local plan = stage or Presets.cannon.introStage
 	endFlight(model)
 	fly(model, startedAt, plan, true, cannon, model:GetPivot().Position)
+	local beat: StagedBeat = "boom"
+	for _, listener in stagedListeners do
+		task.spawn(listener, beat, startedAt + plan.boomAt, model)
+	end
 	Clouds.play(startedAt, plan.clouds, tintOf(destination))
 	local g, rider = glide, Clouds.rider()
 	local staged: MountStaged? = if g ~= nil then (g :: any).mountStaged else nil

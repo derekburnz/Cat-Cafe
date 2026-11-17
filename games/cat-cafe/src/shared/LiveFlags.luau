@@ -27,8 +27,6 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
--- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
---   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
 -- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
 --   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
 --   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
@@ -79,12 +77,9 @@ LiveFlags.KEYS = {
 	"alleyBin",
 	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 	"goldenDrops",
-	"swiftPaws10", -- #4705
 	"luckyCharm",
 	"introSplit",
 	"parkGateTrail",
-	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
-	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
 	"storeRework", -- #3572: the reworked Store layout
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
@@ -101,8 +96,6 @@ LiveFlags.KEYS = {
 	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
 	"mailbox", -- #4249: the Mailbox tile and window (letters from Derek with a gift to claim), Feedback into the Menu list
 	"autoBowl", -- #4266: the Auto Bowl pass's offer card, switches and Store card (Screens/BaitBowl)
-	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
-	"checkInCalm", -- #4384: one ask at a time at the first check-in (one toast, the waiting stray's call holds); false goes back
 	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
 	"deviceFixes", -- the Tue 2026-11-17 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
@@ -125,7 +118,15 @@ LiveFlags.KEYS = {
 	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
 	"journeys", -- #4544: Roblox Journey events (shared/Journeys); on once the configs are published in Creator Hub
 	"backdropsNear", -- #4857: far areas' backdrop rings leave this client's Workspace (shared/BackdropNear); off by default
+	"palDay", -- #4913: the Pal Day gift, 30 golden fish and a spin for 5 minutes beside a pal, once a day (shared/Pals)
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
+	"fxOneAdded", -- #5000: Effects' Workspace.DescendantAdded handlers share one connection (Effects/Context); off by default
+	"areaOnly", -- #5026: the areas' night fences stream like the rest of their area (shared/AreaOnly); off by default
+	"rankUpRightAway", -- #5031: Rank Up opens again until pressed, goal card ready and short lines, a stray waits (shared/RankUpRightAway); off by default
+	"parkRingEarly", -- #5034: the nearest Park stray is ringed early after a landing (Motion-FX, PR #5035); off by default
+	"parkTrailBack", -- #5045: the Park trail comes back 30 s into a rest even while walking (Motion-FX, PR #5047); off by default
+	"tier3Path", -- #5038: at Tier 2 a new kind waits by the Park landing, one next goal, a Tier 3 welcome gift (shared/Tier3Path); off by default
+	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -134,7 +135,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightCatch = true,
 	loadingScreen = true,
 	goldenDrops = true,
-	swiftPaws10 = true, -- #4705
 	luckyCharm = true,
 	introSplit = true,
 	noIntro = true, -- #4929
@@ -164,7 +164,14 @@ LiveFlags.OFF_BY_DEFAULT = {
 	earlyKindBonus = true,
 	returnHookEarly = true,
 	journeys = true,
+	palDay = true, -- #4913: on after Growth's days-with-friends baseline and a restart (the save field has no bump)
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
+	fxOneAdded = true, -- #5000: on once Sync's Studio read shows the shared connection is no slower
+	areaOnly = true, -- #5026: on once Sync's before and after census shows the win
+	rankUpRightAway = true, -- #5031: on after Review-QA and Sync's Studio pass
+	parkRingEarly = true, -- #5034: on at least a UTC day apart from rankUpRightAway (Design)
+	parkTrailBack = true, -- #5045: on after Sync's look at a Park rest
+	tier3Path = true, -- #5038: on after Review-QA and Sync's Studio pass, a UTC day apart from the other funnel switches
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

@@ -3907,6 +3907,7 @@ Presets.stormFall = {
 	driftHeight = 22,
 	driftEvery = 0.5,
 	markWait = 2,
+	freshFor = 8, -- seconds after its SpawnedAt that a storm stray streaming in still counts as just dropped (#4796)
 }
 
 -- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name. Since #4325
@@ -4045,6 +4046,12 @@ Presets.harvestFx = {
 	pieBeamWidth = 1.2,
 	pieBeamHeight = 14,
 	pieBeamSeconds = 1.2,
+	-- a note pinned on the Thankful Board while you are in the area: `pinCount` leaves `pinLift` studs over the board,
+	-- and `pinSparkles` gold sparkles when the pin is yours
+	notesAttribute = "HarvestNotes",
+	pinLift = 4,
+	pinCount = 6,
+	pinSparkles = 5,
 	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
 	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
 	-- sparkles; not again within `arriveGap` seconds
@@ -4077,6 +4084,9 @@ Presets.adminFlash = {
 	designHeight = 720,
 	scaleMin = 0.5,
 	scaleMax = 1.4,
+	readMin = 0.8, -- #5040: the strip and end card never draw smaller than this (AdminFlashLogic.readScale)
+	thinUnder = 14, -- #5040: words under this many px get the thin outline
+	thinOutline = 1.5,
 	dim = 0.55,
 	band = 0.5,
 	bandClear = 0.2,
@@ -6480,13 +6490,12 @@ Presets.bowlFrenzy = {
 -- only 51 of 139 players reached the second cat's trail). `attribute`, `delay` and `seconds` are shared/SecondCat's
 -- when it is in.
 -- #4384 (one ask at a time after the first check-in): while the player's tutorialStep is `holdStep` (the bowl step)
--- the beacon, the call and its sound wait, so the Bait bowl is the only ask; switch `holdSwitch` (on unless false).
+-- the beacon, the call and its sound wait, so the Bait bowl is the only ask (always, since #4654 retired its switch).
 -- Only once the player owns the Bait bowl (upgrade `holdUpgrade`): one who cannot buy it yet keeps the beacon to the
 -- free second cat. And for `holdMost` seconds at most, so nobody is left with no next step.
 Presets.waitingCat = {
 	attribute = "WaitsFor",
 	holdStep = 4,
-	holdSwitch = "checkInCalm",
 	holdUpgrade = "lure_bowl",
 	holdMost = 180,
 	delay = 2,

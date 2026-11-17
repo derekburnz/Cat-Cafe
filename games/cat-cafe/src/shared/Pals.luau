@@ -7,8 +7,14 @@
 --                                   more, at most PalTipBonusMax (#1165)
 --   inviteData(userId) -> string    the LaunchData an invite carries ("pal:<userId>")
 --   inviterOf(launchData) -> number?  the inviter's user id from a join's LaunchData, nil for anything else
+--   palDayDue(save, now, playSeconds, tutorialStep) -> boolean
+--                                   #4913: whether today's Pal Day gift (GIFT) is still to come: once a UTC day, never
+--                                   in the tutorial or the account's first PAL_DAY_AFTER_PLAY seconds; no streak
+--   palDayToday(save, now) -> boolean  whether the gift was paid today (the recap's "tomorrow" line)
 
 local Config = require(script.Parent.Config)
+local Spin = require(script.Parent.Spin)
+local Types = require(script.Parent.Types)
 
 local Pals = {}
 
@@ -41,6 +47,30 @@ function Pals.inviterOf(launchData: unknown): number?
 	end
 	local id = tonumber(digits)
 	return if id ~= nil and id > 0 then id else nil
+end
+
+-- #4913 (Pal Day, behind the palDay switch): once a UTC day, the first PAL_DAY_SECONDS of play beside at least one
+-- pal pay GIFT. Nothing is lost by missing a day and nothing counts up: it is a gift, not a streak.
+Pals.PAL_DAY_FLAG = "palDay"
+Pals.PAL_DAY_SECONDS = 300 -- 5 minutes beside a pal today
+Pals.PAL_DAY_AFTER_PLAY = 300 -- never in an account's first 5 minutes
+Pals.PAL_DAY_TUTORIAL_DONE = 5 -- Onboarding.NEW_PLAYER_STEP: the walk-through is behind the player
+Pals.GIFT = table.freeze({ fish = 30, spins = 1 })
+
+function Pals.palDayDue(
+	save: Types.PalDaySave,
+	now: number,
+	playSeconds: number,
+	tutorialStep: number
+): boolean
+	if tutorialStep < Pals.PAL_DAY_TUTORIAL_DONE or playSeconds < Pals.PAL_DAY_AFTER_PLAY then
+		return false
+	end
+	return Spin.day(now) > save.day
+end
+
+function Pals.palDayToday(save: Types.PalDaySave, now: number): boolean
+	return save.day > 0 and save.day == Spin.day(now)
 end
 
 return Pals

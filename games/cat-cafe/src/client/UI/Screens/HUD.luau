@@ -164,6 +164,7 @@ export type HUD = {
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
 	isCatching: (self: HUD) -> boolean,
+	luckCardChanged: Signal.Signal, -- #4998: the Luck card opened or closed, so the toasts make room or come back
 	setMenuFolded: (self: HUD, folded: boolean) -> (),
 	gamepadMenu: (self: HUD) -> GuiButton?, -- #2872
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
@@ -378,7 +379,9 @@ local HIDE_CROSS = if Scale.isTouch() then 26 else 24
 local HIDE_PULSE_SECONDS = 6 -- #3638 (Derek: "just show the x for a bit"); 12 for a while (#3154)
 local HIDE_AFTER = 6 -- #3154: seconds after the tutorial's end before the × pulses
 local HIDE_HINT_H = 24
-local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
+-- #2411: how long the pulse waits for the HUD to be on screen and free (#4946: 300, as it also waits out the account's
+-- first 5 minutes; it was 120)
+local HIDE_WAIT_SECONDS = 300
 local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true) -- #3154: for the whole pulse
 local HIDE_GROW = 1.6 -- #3154: how big the × bounces (was 1.35)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
@@ -983,6 +986,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tutorialEnabled = true
 	self._catching = false
 	self.catchingChanged = Signal.new()
+	self.luckCardChanged = Signal.new() -- #4998: the Luck card opened or closed
 	local hide: TextButton = Create("TextButton", {
 		Name = "Hide",
 		Text = "",
@@ -2426,6 +2430,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 		function()
 			self:_hideBoosts()
+		end,
+		function()
+			self.luckCardChanged:Fire() -- #4998
 		end
 	)
 	-- F92: the pals' bonus is a row of the boosts card a tap on the money opens. Derek 2026-11-13 ("the friend bonus is
@@ -2787,6 +2794,8 @@ function HUD.setCatching(self: any, active: boolean)
 			self._luck:hide()
 		end
 	end
+	-- #5054 (Review-QA): from the catch's first frame, so a goal preview or a fold before the next render keeps it aside
+	self._goal._held = active or not self:_open("goal")
 	self:_layoutBottom()
 	self:_renderTutorialTile()
 	self:_applyFocus()
@@ -3019,6 +3028,9 @@ function HUD._hideFree(self: any): boolean
 	return self._tutorialTile.instance.Visible == true
 		and self.screenGui.Enabled == true
 		and self._catching ~= true
+		-- #4946 (Sync's Studio run: the arrow sat on the × 6 s after RANK UP while the goal said "Visit the Park"):
+		-- not while the UI's pop-up hold is on (the walk-through or the account's first 5 minutes)
+		and self._bannerHold.tutorial ~= true
 end
 
 function HUD.pulseHide(self: any)
@@ -3291,6 +3303,25 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._second = second
 	-- #3554: after it, on the way to a first Park catch, "Visit the Park 🐾" then "Catch a Park cat 🐾"
 	local park: string? = self._parkGoal
+	-- #5031 (switch rankUpRightAway, Tier 1): "Your cafe is ready!" in place of the tier's name when ready, the
+	-- shorter "Cafe ready!" on a phone's narrow card (shared/RankUpRightAway)
+	local readyTitle: unknown = (state :: any).rankUpTitle -- (the UI state's field, set by UIController)
+	if type(readyTitle) == "string" and TOUCH then
+		local RankUpRightAway = require(
+			game:GetService("ReplicatedStorage")
+				:WaitForChild("Shared")
+				:WaitForChild("RankUpRightAway")
+		) :: any
+		readyTitle = RankUpRightAway.READY_NARROW
+	end
+	self._goal:setReadyTitle(if type(readyTitle) == "string" then readyTitle else nil)
+	-- #5050 (Sync's timed run: TierGoal.Visible went true and back to false 334 times in 410 s): the card is only drawn
+	-- shown while it is unlocked and no catch has the HUD aside; mid-catch it is kept for the catch's end (_applyFocus)
+	local goalOpen = self:_open("goal")
+	self._goal._held = not goalOpen or self._catching == true
+	if goalOpen and self._catching == true then
+		self._focusHidden[self._goal.frame] = true
+	end
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
@@ -3298,7 +3329,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self:_secondGoal()
 			or (if park ~= nil then { title = park, lines = {}, chip = park } else nil)
 	)
-	if not self:_open("goal") then
+	if not goalOpen then
 		self._goal.frame.Visible = false
 	end
 	if started then
@@ -3556,6 +3587,7 @@ function HUD.setTutorial(self: any, text: string?)
 		end
 	else
 		self._tutorial.Visible = false
+		self._tutorial.Text = "" -- #5050: a hidden strip keeps no old line (Sync read "Click by one" while carrying)
 		self._focusHidden[self._tutorial] = nil
 	end
 	self:_renderStripBuy()
@@ -3801,6 +3833,7 @@ function HUD.toastAvoid(self: any): { Types.Box }
 		box({ self._clock, self._banner, self._dayCard })
 	end
 	box({ self._goal.frame })
+	box({ self._luck.card }) -- #4998: the open Luck card (the "2x money in ..." rest bubble drew over its left half)
 	box({ self._corner }) -- the Potions tile, bottom right (left of the bottom row on touch, #2529)
 	-- a line's words: each label's text, from its right edge when right-aligned
 	for _, line in { self._spinLine } :: { GuiObject } do
@@ -3842,6 +3875,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._nightTips.Visible = false
 		self._luckyLine.Visible = false
 		self._luckyRow.Visible = false
+		self._luck:setDay(nil) -- #4990
 		self._rallyLine.Visible = false
 		self._night = false
 		self._clockSeen = false
@@ -3898,23 +3932,29 @@ function HUD._renderLuckyLine(self: any)
 	local view: LuckLogic.DayView? = self._luckyDay
 	local clock: Types.ClockState? = self._clockState
 	local line: string? = nil
+	local today: LuckLogic.DayView? = nil
 	if view ~= nil and clock ~= nil then
-		local today: LuckLogic.DayView = {
+		local now: LuckLogic.DayView = {
 			day = view.day,
 			luckyDay = view.luckyDay,
 			goldenDay = view.goldenDay,
 			rainbowDay = view.rainbowDay,
 			phase = clock.phase,
 		}
-		line = LuckLogic.dayLine(today)
-		self._dayCardText.Text = table.concat(LuckLogic.dayCard(today), "\n")
+		today = now
+		line = LuckLogic.dayLine(now)
+		self._dayCardText.Text = table.concat(LuckLogic.dayCard(now), "\n")
 	end
-	self._luckyLine.Text = line or "" -- the clover is the circle in front (LuckChip.circle) on a Lucky Day
-	self._luckyClover.Visible = view ~= nil and view.luckyDay == true
-	self._luckyLine.Visible = line ~= nil and self._clock.Visible
-	self._luckyRow.Visible = self._luckyLine.Visible
+	-- #4990 (Derek 2026-11-16: "remove the lucky day/ all day showing just show they are active if people click into
+	-- the luck breakdown"): the day line never shows in the strip, so a day with no event or Rally has no strip at
+	-- all. The Luck card lists the kinds running today (LuckChip.setDay); the event strip's card keeps its day lines.
+	self._luck:setDay(today)
+	self._luckyLine.Text = line or ""
+	self._luckyClover.Visible = false
+	self._luckyLine.Visible = false
+	self._luckyRow.Visible = false
 	-- Derek 2026-11-13: the card opens from any piece of the strip, so it keeps open without the day line
-	self._dayCardText.Visible = self._luckyLine.Visible
+	self._dayCardText.Visible = line ~= nil and self._clock.Visible
 end
 
 -- Derek 2026-11-13: the card's top lines, the running event's full words ("Cafe Party · x2 money · ends in 1:59:40",
@@ -4523,6 +4563,7 @@ function HUD._renderFreeSpin(self: any)
 	local spin = if state then state.spin else nil
 	if state == nil or spin == nil or (state.tutorialStep or TUTORIAL_DONE) < TUTORIAL_DONE then
 		self._spinLine.Visible = false
+		self._focusHidden[self._spinLine] = nil
 		return
 	end
 	local now = Workspace:GetServerTimeNow()
@@ -4534,7 +4575,12 @@ function HUD._renderFreeSpin(self: any)
 	-- #2397 (Derek2 11-08: "for mobile remove the free spin at town square"): never on touch; the wheel's own "!"
 	-- still shows in the world
 	local shown = due and not TOUCH
-	if shown and not self._spinLine.Visible then
+	if self._catching == true then
+		-- #5050 (Sync's timed run: FreeSpin.Visible flipped every 0.2 s through a catch): mid-catch the line stays
+		-- aside and the catch's end puts it back (_applyFocus)
+		self._focusHidden[self._spinLine] = if shown then true else nil
+		shown = false
+	elseif shown and not self._spinLine.Visible then
 		Tween.popIn(self._spinLine, 0.8)
 	end
 	self._spinLine.Visible = shown
@@ -5942,6 +5988,40 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 					else { StuckGoal.NIGHT },
 				chip = StuckGoal.TITLE,
 			}
+		end
+		-- #5031 (switch rankUpRightAway): after the first check-in with Tier 2's cats short, "Catch 1 more cat to rank
+		-- up" (shared/RankUpRightAway), with what Tier 2 opens and its coins line under it
+		local short = if state ~= nil then state.rankUpShort else nil
+		if state ~= nil and type(short) == "number" and short > 0 and state.carrying == nil then
+			local RankUpRightAway = require(
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("RankUpRightAway")
+			) :: any
+			local title: string = RankUpRightAway.shortTitle(short, TOUCH) -- a phone's card: "Catch 1 more cat"
+			local opens = GoalLines.opens(self._nextTierName, TOUCH)
+			local lines: { string } = if opens then { opens } else {}
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
+		end
+		-- #5038 (switch tier3Path, shared/Tier3Path): at Tier 2 the one next thing toward Tier 3, "Catch 2 more new
+		-- kinds" ("Catch 2 new kinds" on a phone) then "Catch 1 more Rare", with what it opens and the coins line
+		local tier3: unknown = if state ~= nil then state.tier3Goal else nil
+		if state ~= nil and type(tier3) == "table" and state.carrying == nil then
+			local line = tier3 :: { wide: string, narrow: string }
+			local title = if TOUCH then line.narrow else line.wide
+			local opens = GoalLines.opens(self._nextTierName, TOUCH)
+			local lines: { string } = if opens then { opens } else {}
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
 		end
 		-- #3529 (shared/NewKind): "Catch new kinds of cat 3/5" while five different cats is the goal
 		local newKind = if state ~= nil then state.newKindGoal else nil

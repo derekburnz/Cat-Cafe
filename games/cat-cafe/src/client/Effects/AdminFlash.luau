@@ -36,6 +36,7 @@ local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
 local AdminFlashLogic = require(script.Parent.AdminFlashLogic)
+local AdminHide = require(script.Parent.AdminHide)
 local Context = require(script.Parent.Context)
 local EventBanner = require(script.Parent.EventBanner)
 local Net = require(script.Parent.Parent.Net)
@@ -115,6 +116,17 @@ function AdminFlash.quietWhen(probe: () -> boolean)
 	quietProbe = probe
 end
 
+-- #4877 (Derek 2026-11-16: "no admin events ui or anything on screen for people in tutorial steps"): `probe()` says
+-- whether this player is in the walk-through (the UI's UI.firstCat.tutorial). While it is, nothing of an admin event
+-- shows: no splash, no strip, no tint, no drift (AdminHide, which AdminAir reads too). With none set, all shows.
+function AdminFlash.hideWhen(probe: () -> boolean)
+	AdminHide.set(probe)
+end
+
+function AdminFlash.hidden(): boolean
+	return AdminHide.on()
+end
+
 local function quiet(): boolean
 	local probe = quietProbe
 	if probe == nil then
@@ -168,7 +180,8 @@ local function label(name: string, parent: Instance, maxSize: number, colour: Co
 	limit.Parent = text
 	local stroke = Instance.new("UIStroke")
 	stroke.Name = "Outline"
-	stroke.Thickness = math.clamp(maxSize / 9, 2, 6)
+	local look = Presets.adminFlash
+	stroke.Thickness = AdminFlashLogic.outlineOf(maxSize, look.thinUnder, look.thinOutline)
 	stroke.Color = Presets.adminFlash.outline
 	stroke.Parent = text
 	text.Parent = parent
@@ -228,6 +241,7 @@ local function build(): Parts?
 		end
 	end
 	local s = scaleOf(splash)
+	local r = AdminFlashLogic.readScale(s, p.readMin) -- #5040: the strip and end card stay readable on a small phone
 
 	local dim = Instance.new("Frame")
 	dim.Name = "Dim"
@@ -273,20 +287,20 @@ local function build(): Parts?
 	local anchorY, atY, liftY = AdminFlashLogic.stripSpot(touchOnly(), s, p.stripY, p.stripLift)
 	strip.AnchorPoint = Vector2.new(0.5, anchorY)
 	strip.Position = UDim2.new(0.5, 0, atY, liftY)
-	strip.Size = UDim2.fromOffset(p.stripWidth * s, p.stripHeight * s)
+	strip.Size = UDim2.fromOffset(p.stripWidth * r, p.stripHeight * r)
 	strip.BackgroundColor3 = WHITE
 	strip.BorderSizePixel = 0
 	strip.Visible = false
-	rounded(strip, 14 * s, math.max(2, 3 * s))
+	rounded(strip, 14 * r, math.max(2, 3 * r))
 	strip.Parent = low
 	local stripFill = gradient(strip)
 	local stripScale = Instance.new("UIScale")
 	stripScale.Parent = strip
-	local big = label("Big", strip, p.stripBig * s, WHITE)
+	local big = label("Big", strip, p.stripBig * r, WHITE)
 	big.Position = UDim2.fromScale(0.5, 0.36)
 	big.Size = UDim2.fromScale(0.92, 0.56)
 	big.Visible = true
-	local left = label("Left", strip, p.stripSmall * s, WHITE)
+	local left = label("Left", strip, p.stripSmall * r, WHITE)
 	left.Position = UDim2.fromScale(0.5, 0.79)
 	left.Size = UDim2.fromScale(0.92, 0.32)
 	left.Visible = true
@@ -296,17 +310,17 @@ local function build(): Parts?
 	over.Name = "Over"
 	over.AnchorPoint = Vector2.new(0.5, 0.5)
 	over.Position = UDim2.fromScale(0.5, 0.42)
-	over.Size = UDim2.fromOffset(p.overWidth * s, p.overHeight * s)
+	over.Size = UDim2.fromOffset(p.overWidth * r, p.overHeight * r)
 	over.BackgroundColor3 = p.card
 	over.BorderSizePixel = 0
 	over.Visible = false
-	rounded(over, 16 * s, math.max(2, 3 * s))
+	rounded(over, 16 * r, math.max(2, 3 * r))
 	over.Parent = splash
-	local overTitle = label("Title", over, p.overTitle * s, p.gold)
+	local overTitle = label("Title", over, p.overTitle * r, p.gold)
 	overTitle.Position = UDim2.fromScale(0.5, 0.32)
 	overTitle.Size = UDim2.fromScale(0.9, 0.42)
 	overTitle.Visible = true
-	local overLine = label("Line", over, p.overLine * s, WHITE)
+	local overLine = label("Line", over, p.overLine * r, WHITE)
 	overLine.Position = UDim2.fromScale(0.5, 0.72)
 	overLine.Size = UDim2.fromScale(0.9, 0.3)
 	overLine.RichText = true
@@ -464,9 +478,10 @@ local function frame()
 		local spec = p.looks[AdminFlashLogic.lookOf(current) or ""]
 		burst(made, if spec ~= nil then spec.top else p.gold)
 	end
-	setLook(if running then AdminFlashLogic.lookOf(current) else nil)
+	local away = AdminFlash.hidden() -- #4877: the walk-through
+	setLook(if running and not away then AdminFlashLogic.lookOf(current) else nil)
 
-	local hidden = TradeUnlock.blocked() or TradeUnlock.playing()
+	local hidden = TradeUnlock.blocked() or TradeUnlock.playing() or away
 	-- #4953 (Derek, #4877: no admin event UI in the walk-through or the first 5 minutes): while the UI holds the
 	-- screen quiet, the low strip hides too, and comes back as the hold ends (the splash does not replay)
 	local calm = quiet()

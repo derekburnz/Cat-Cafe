@@ -39,6 +39,16 @@ type Turn = {
 
 local boards: { [Model]: boolean } = {} -- two-board signs, by sign
 local turns: { [Model]: Turn } = {} -- two-sided signs, by sign
+
+-- #5003 (Sync's Park flight read: DoorSign was 3 to 4.4 ms of each 4,000-instance streaming burst): the answer for
+-- each parent, kept until a sign is taken, so the parts of one model walk up once between them. Weak keys, so a
+-- parent that streams out is let go.
+local signOfParent: { [Instance]: Model | false } = setmetatable({}, { __mode = "k" }) :: any
+
+local function signTaken()
+	table.clear(signOfParent)
+end
+
 local night = false
 local started = false
 local stepping: RBXScriptConnection? = nil
@@ -147,20 +157,40 @@ local function addTurn(sign: Model)
 	end
 	local turn: Turn = { base = base, parts = parts, angle = 0, from = 0, to = 0, startedAt = nil }
 	turns[sign] = turn
+	signTaken()
 	turn.angle, turn.to = target(), target()
 	place(turn, turn.angle)
 end
 
+-- The sign a part streaming in belongs to: its nearest ancestor already taken as a two-sided or two-board sign.
+-- #4987 (Sync's load read: this was 236 ms of the Effects start on a PC): it was an IsA and a FindFirstChild on every
+-- ancestor of every part in the map; it is now a table look-up per ancestor, and nothing at all with no sign known.
 local function signOf(instance: Instance): Model?
-	local d = Presets.doorSign
-	local at: Instance? = instance.Parent
+	if next(turns) == nil and next(boards) == nil then
+		return nil
+	end
+	local parent = instance.Parent
+	if parent == nil then
+		return nil
+	end
+	local known = signOfParent[parent]
+	if known == false then
+		return nil
+	elseif known ~= nil then
+		return known :: Model
+	end
+	local found: Model? = nil
+	local at: Instance? = parent
 	while at ~= nil and at ~= (Workspace :: Instance) do
-		if at:IsA("Model") and at:FindFirstChild(d.closed) ~= nil and at.Name ~= d.closed then
-			return at :: Model
+		local model = at :: Model
+		if turns[model] ~= nil or boards[model] ~= nil then
+			found = model
+			break
 		end
 		at = at.Parent
 	end
-	return nil
+	signOfParent[parent] = if found ~= nil then found else false
+	return found
 end
 
 local function consider(instance: Instance)
@@ -174,6 +204,7 @@ local function consider(instance: Instance)
 					addTurn(model)
 				else
 					boards[model] = true
+					signTaken()
 					hideOther(model)
 				end
 			end
@@ -223,10 +254,13 @@ function DoorSign.start()
 	task.spawn(function()
 		local clock = ReplicatedStorage:WaitForChild("Clock")
 		night = clock:GetAttribute("Phase") == "night"
+		-- #4987: the first look needs only the signs' models: addTurn and hideOther take the parts already there
 		for _, descendant in Workspace:GetDescendants() do
-			consider(descendant)
+			if descendant:IsA("Model") then
+				consider(descendant)
+			end
 		end
-		Workspace.DescendantAdded:Connect(consider)
+		Context.onWorkspaceAdded(consider)
 		clock:GetAttributeChangedSignal("Phase"):Connect(function()
 			local now = clock:GetAttribute("Phase") == "night"
 			if now ~= night then

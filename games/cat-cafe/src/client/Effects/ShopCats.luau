@@ -594,12 +594,16 @@ function ShopCats.start()
 	end
 	started = true
 	Moments.TipSwept:Connect(swept)
+	-- #4987 (Sync's load read: 60 ms of the Effects start on a PC): the first look takes models only. A part here
+	-- only clears a crest's laid shine, and no crest has any yet; it was an ancestor search for every part in the map.
 	for _, descendant in Workspace:GetDescendants() do
-		consider(descendant)
-		considerCrest(descendant)
+		if descendant:IsA("Model") then
+			consider(descendant)
+			considerCrest(descendant)
+		end
 	end
-	Workspace.DescendantAdded:Connect(consider)
-	Workspace.DescendantAdded:Connect(considerCrest)
+	Context.onWorkspaceAdded(consider)
+	Context.onWorkspaceAdded(considerCrest)
 	task.spawn(function()
 		while true do
 			task.wait(Presets.shopCats.duchess.pick)

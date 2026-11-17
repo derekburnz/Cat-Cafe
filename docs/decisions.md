@@ -1205,3 +1205,14 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-15 No golden fish caps in trades (#4623, Gameplay-Engineer)
 - **Why:** Derek, 2026-11-15 23:21 to 23:23 UTC: "I don't care about the alt account farming", "no fish limit a trade I dont care", "no 250 fish a day either".
 - **What:** `TradeFishPerDay` is 0 (no daily cap on fish received; `Trade.fishRoom` is math.huge and the trade view sends no room) and `TradeMaxFish` is 1,000,000, only the remote's sanity bound. The 24 h hold after buying the Golden Pond pass stays. There is no fee: the receiver gets exactly what was offered. The fish picker's line reads "No limit".
+
+## 2026-11-17 Tier ladder: Tier 4 kinds, Tier 5 kinds and coins, Tier 6 coins (#4192, Design-Agent)
+- **Why:** The Nov 15 to 16 read (onboarding_v8, quit_have's first missing need) shows where each step's leavers fall short. Tier 2 to 3 loses 61% and Tier 3 to 4 loses 47%, mostly short of kinds; Tier 3 is handled by `tier3Path` (#5038). Tier 4 asks for 13 kinds after Tier 3's 6. Tier 4 to 5 leavers are short of coins first (55 of 74), and Tier 5 to 6 loses 52%, short of coins too. The Pace model had Tier 5 to 6 at 1 h 49.
+- **What:**
+  - Tier 4 kinds go from 13 to 10.
+  - Tier 5 kinds go from 14 to 13, and its coins from 17M to 12M.
+  - Tier 6 coins go from 312.5M to 150M.
+  - Tier 7 stays at 3.125B. A cut there pushed Pace's Tier 8 wait out of its band, because players arrive with fewer Mythicals. With n of 17, its read waits for more rows.
+  - Pace (10-run medians): Tier 5 goes from 1 h 08 to 1 h 00, Tier 6 from 2 h 51 to 2 h 18 (1 h 02 after Tier 5) and Tier 7 from 3 h 40 to 3 h 37. Tiers 8 to 10 stay in band.
+  - Rewards and odds are unchanged.
+- **Read:** compare Tier 3 to 4 and Tier 5 to 6 loss, and quit_have's t4_kinds and t6_coins shares, a full day before and after it goes live.

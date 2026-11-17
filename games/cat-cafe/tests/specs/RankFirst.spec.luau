@@ -8,21 +8,17 @@ return function()
 	local RankFirst = require(Shared:WaitForChild("RankFirst"))
 
 	describe("RankFirst", function()
-		it("is a live switch that only an explicit false turns off", function()
-			expect(table.find(LiveFlags.KEYS, RankFirst.FLAG) ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT[RankFirst.FLAG]).to.equal(nil)
-			expect(LiveFlags.shown(RankFirst.FLAG, nil)).to.equal(true)
-			expect(LiveFlags.shown(RankFirst.FLAG, false)).to.equal(false)
+		it("has no live switch any more (#4654)", function()
+			expect(table.find(LiveFlags.KEYS, "rankFirst")).to.equal(nil)
 		end)
 
 		it(
 			"holds the stuck cat goal only for a Tier 1 cafe that can rank up, with the switch on",
 			function()
-				expect(RankFirst.holds(true, 1, true)).to.equal(true)
-				expect(RankFirst.holds(true, nil, true)).to.equal(true) -- a state with no tier yet reads as Tier 1
-				expect(RankFirst.holds(false, 1, true)).to.equal(false) -- the switch
-				expect(RankFirst.holds(true, 1, false)).to.equal(false) -- a need not met: the stuck cat goal as before
-				expect(RankFirst.holds(true, 2, true)).to.equal(false) -- past Tier 2
+				expect(RankFirst.holds(1, true)).to.equal(true)
+				expect(RankFirst.holds(nil, true)).to.equal(true) -- a state with no tier yet reads as Tier 1
+				expect(RankFirst.holds(1, false)).to.equal(false) -- a need not met: the stuck cat goal as before
+				expect(RankFirst.holds(2, true)).to.equal(false) -- past Tier 2
 			end
 		)
 
@@ -56,10 +52,9 @@ return function()
 			"puts the walk-through away only at the third press with the switch on, at the first with it off",
 			function()
 				expect(RankFirst.PRESSES).to.equal(3)
-				expect(RankFirst.forGood(true, 1)).to.equal(false)
-				expect(RankFirst.forGood(true, 2)).to.equal(false)
-				expect(RankFirst.forGood(true, 3)).to.equal(true)
-				expect(RankFirst.forGood(false, 1)).to.equal(true)
+				expect(RankFirst.forGood(1)).to.equal(false)
+				expect(RankFirst.forGood(2)).to.equal(false)
+				expect(RankFirst.forGood(3)).to.equal(true)
 				expect(RankFirst.REST_SECONDS > 0).to.equal(true)
 			end
 		)

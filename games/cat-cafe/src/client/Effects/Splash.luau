@@ -40,8 +40,18 @@ local water: { [BasePart]: boolean } = {}
 local walkers: { [Model]: Walker } = setmetatable({}, { __mode = "k" }) :: any
 local started = false
 
+-- #4987 (Sync's load read: 212 ms of the Effects start on a PC): the last letter first ("Water" ends in r, "Puddle" in
+-- e), with no new string, so most of the map's parts are passed over before the name test and the class check.
+local LAST_R, LAST_E = string.byte("r"), string.byte("e")
+
 local function consider(instance: Instance)
-	if instance:IsA("BasePart") and Logic.isWaterName(instance.Name) then
+	local name = instance.Name
+	local last = string.byte(name, -1)
+	if
+		(last == LAST_R or last == LAST_E)
+		and Logic.isWaterName(name)
+		and instance:IsA("BasePart")
+	then
 		water[instance :: BasePart] = true
 	end
 end
@@ -229,7 +239,7 @@ function Splash.start()
 		return
 	end
 	started = true
-	Workspace.DescendantAdded:Connect(consider)
+	Context.onWorkspaceAdded(consider)
 	task.spawn(function()
 		for _, descendant in Workspace:GetDescendants() do
 			consider(descendant)

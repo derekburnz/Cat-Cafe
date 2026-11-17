@@ -101,12 +101,19 @@ def window(b, panes, x, y, z, w, h, frame="offwhite", sill=True, cross=True):
         b.box((x, y - 0.3, z - h / 2 - 0.25), (w + 0.7, 0.5, 0.2), frame, bevel=False)
 
 
+STEMS = True      # False while a set builds light (#4857): flowers are the head alone, low in the leaves
+
+
 def flowers(b, x, y, z, n=5, r=0.7, cols=("blush", "pastel_butter", "neon_pink", "pastel_lilac", "offwhite"), seed=0):
+    """n flower heads round (x, y). With STEMS each has a 0.08 wide stem under it, a second part that no phone
+    shows past a few studs; a set that sets STEMS False (parkf85, #4857) gets the heads alone, sat lower."""
     for i in range(n):
         a = 2 * PI * (i + 0.3 * seed) / n + seed
         px, py = x + r * math.cos(a) * (0.5 + 0.5 * ((i * 7 + seed) % 3) / 2), y + r * math.sin(a) * 0.8
-        b.box_base((px, py, z), (0.08, 0.08, 0.45), "leaf_dark", bevel=False)
-        b.ico((px, py, z + 0.5), 0.2 + 0.01 * (i % 3), cols[(i + seed) % len(cols)], subdivisions=1)
+        if STEMS:
+            b.box_base((px, py, z), (0.08, 0.08, 0.45), "leaf_dark", bevel=False)
+        b.ico((px, py, z + (0.5 if STEMS else 0.24)), 0.2 + 0.01 * (i % 3), cols[(i + seed) % len(cols)],
+              subdivisions=1)
 
 
 def tree_round(b, x, y, z=0.0, h=7.0, r=2.6, leaf="leaf_green", trunk="fur_brown"):

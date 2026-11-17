@@ -837,6 +837,7 @@ export type Stats = {
 	restSeconds: number,
 	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
 	tier2TopUp: number, -- #4453: coins the first tamed bait cat's welcome paid toward Tier 2 (0: none yet)
+	tier3TopUp: number, -- #5038: coins the Tier 3 welcome gift paid (shared/Tier3Path; 0: none yet)
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -1410,6 +1411,7 @@ export type Settings = {
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
 	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
+	vipTag: boolean, -- #4991: a VIP owner's gold tag over their head shows, off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1451,6 +1453,9 @@ export type SessionRecapView = {
 	tomorrow: ReturnHookView?,
 	goals: { ReturnGoalView }?, -- #2916: the next goals with their progress (shared/ReturnGoals)
 }
+
+-- #4913 (shared/Pals): the Pal Day gift's last UTC day; no version bump, the palDay switch goes on only after a restart.
+export type PalDaySave = { day: number }
 
 -- #3651 (shared/Pet): the cat petted last and when its heart ends (os.time).
 export type PetSave = { uid: string, untilAt: number }
@@ -1519,6 +1524,7 @@ export type PlayerProfile = {
 	quests: QuestState, -- F73
 	achievements: { [string]: boolean }, -- F73: achievementId -> claimed
 	dailyTreat: DailyTreatState, -- F70
+	palDay: PalDaySave, -- #4913: the UTC day (Spin.day) of the last Pal Day gift, 0 for never
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -1665,6 +1671,12 @@ export type PlayerState = {
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
+	-- #5031: Tier 2's cats still to get after the first check-in (shared/RankUpRightAway.catsShort), 0 once met; nil
+	-- with the rankUpRightAway switch off and from an older server
+	rankUpShort: number?,
+	-- #5038: the goal card's one next thing toward Tier 3 at Tier 2 (shared/Tier3Path.goalLine, wide and narrow), nil
+	-- with the tier3Path switch off, once met, and from an older server
+	tier3Goal: { wide: string, narrow: string }?,
 	-- #2912: true from the first bait cat resolved until the first rescue starts (shared/StuckGoal.waiting)
 	stuckGoal: boolean?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot

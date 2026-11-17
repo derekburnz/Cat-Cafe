@@ -45,6 +45,51 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE6",
 	},
+	-- #2718 refresh (Design-Agent, 2026-11-17 01:20 UTC): the changes live since the full Nov 16 rows (#4981). Luck card
+	-- day kinds #4990 #4998; VIP tag switch #4991 #5012; Rummage Bin from the cannon #4961; chat titles #4882; Rank Up
+	-- button #5005; Auto Roll fix #4898; load time trims; Ticket Booth Moon Milk.
+	{
+		id = "luck_card_days",
+		date = "2026-11-17",
+		icon = "look",
+		text = "Luck card lists day boosts",
+	},
+	{
+		id = "vip_tag_setting",
+		date = "2026-11-17",
+		icon = "new",
+		text = "VIP tag switch in Settings",
+	},
+	{
+		id = "rank_up_missing",
+		date = "2026-11-17",
+		icon = "look",
+		text = "Rank Up says what's missing",
+	},
+	{
+		id = "bin_from_cannon",
+		date = "2026-11-17",
+		icon = "new",
+		text = "Rummage Bin in Cannon menu",
+	},
+	{
+		id = "chat_titles_global",
+		date = "2026-11-17",
+		icon = "new",
+		text = "Titles on Global chat",
+	},
+	{
+		id = "auto_roll_fix",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "Mystic Pool Auto Roll fixed",
+	},
+	{
+		id = "faster_load_fx",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Quicker load on phones",
+	},
 	-- #4981 (Derek 2026-11-16 22:28 UTC: "do an full update of the whats new and player ideas board"): everything live
 	-- since the 13:30 UTC rows, and the Better on Every Device rows, live now (deviceFixes on), no longer waiting for Tue.
 	-- Pad menus #4224; Rank Up opens #4925; AFK tile #4346 #4976; paw trails #4942; tutorial lines #4928; first flight

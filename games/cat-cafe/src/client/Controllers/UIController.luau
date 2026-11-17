@@ -437,28 +437,20 @@ local stuckGoal = {
 	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
 }
 
--- #4383 (shared/RankFirst, switch rankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
+-- #4383 (shared/RankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
 -- the rank up first; the stuck cat goal waits until then (and comes back should the coins be spent).
 local function rankFirstNow(s: Types.PlayerState): boolean
 	if (s.tier or 1) ~= 1 or s.tutorialStep < 5 then
 		return false
 	end
 	local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
-	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
-	local on: boolean = LiveFlags.shown(
-		RankFirst.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.FLAG)
-	)
-	if not on then
-		return false
-	end
 	local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
 	local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
 	local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
 	if nextTier == nil then
 		return false
 	end
-	return RankFirst.holds(on, s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
+	return RankFirst.holds(s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
 end
 
 local function stuckGoalActive(s: Types.PlayerState): boolean
@@ -545,6 +537,21 @@ local function kindsOf(s: Types.PlayerState): number
 end
 
 -- Whether five different cats is the goal now (the switch on, the Grand Opening's next milestone, under five kinds).
+-- #5031: the goal card's ready title at Tier 1 with the rankUpRightAway switch on (shared/RankUpRightAway), else false
+local function rankUpTitle(s: Types.PlayerState): string | false
+	if s.tier ~= 1 then
+		return false
+	end
+	local Shared = ReplicatedStorage:WaitForChild("Shared")
+	local RankUpRightAway = require(Shared:WaitForChild("RankUpRightAway")) :: any
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local on = LiveFlags.shown(
+		RankUpRightAway.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankUpRightAway.FLAG)
+	)
+	return if on then RankUpRightAway.READY_TITLE else false
+end
+
 local function newKindGoal(s: Types.PlayerState): boolean
 	if s.tutorialStep < 5 or not UI.newKind.on() then
 		return false
@@ -823,6 +830,35 @@ local function refreshTutorial(s: Types.PlayerState)
 				townCannon(),
 				"Cannon"
 			)
+		elseif
+			type((s :: any).rankUpShort) == "number"
+			and (s :: any).rankUpShort > 0
+			and not areasShutForMe()
+		then
+			-- #5031 (switch rankUpRightAway; the server sends rankUpShort only then): the bowl cat was let go, so
+			-- Tier 2 is a cat short after the Alleyway catch. In the Alleyway the strip names the catch and leads to
+			-- the nearest stray (one waits near the landing, CatService); anywhere else to the Town Square cannon.
+			local short: number = (s :: any).rankUpShort
+			if (UI.cannon :: any).area == "alley" then
+				UI.tutorial.show(
+					if short >= 2
+						then deviceLine("alleyCatch2", "Catch 2 cats to rank up! Click by one")
+						else deviceLine(
+							"alleyCatch",
+							"Catch 1 more cat to rank up! Click by one"
+						),
+					nearestAlleyStray() or tutorialStrayPoint(),
+					"Cat"
+				)
+				pointNet(true)
+			else
+				local RankUpRightAway = require(Shared:WaitForChild("RankUpRightAway")) :: any
+				UI.tutorial.show(
+					RankUpRightAway.shortTitle(short) .. ": hop in the cannon!",
+					townCannon(),
+					"Cannon"
+				)
+			end
 		else
 			UI.tutorial.hide()
 		end
@@ -1367,7 +1403,15 @@ end
 -- #4821 (shared/QuietStart.firstCatHolds): under bowl first, the pop-ups wait until the first bowl cat is claimed and
 -- FIRST_CAT_AFTER seconds more. `before` is the last sync's answer; `claimedAt` the clock when it turned false here.
 -- `tutorial` (QuietStart.tutorialHolds, Derek 2026-11-16 15:22 UTC): the softer hold through the rest of the tutorial.
-local firstCat = { before = false, claimedAt = nil :: number?, held = false, tutorial = false }
+-- `early` (#4946, QuietStart.earlyHolds): the account's first 5 minutes of play, which hold the pop-ups (not the Drop)
+local firstCat = {
+	before = false,
+	claimedAt = nil :: number?,
+	held = false,
+	tutorial = false,
+	early = false,
+	earlyTimer = false,
+}
 local function firstCatHold(s: Types.PlayerState)
 	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
 	local QuietStart = require(Shared:WaitForChild("QuietStart")) :: any
@@ -1394,9 +1438,25 @@ local function firstCatHold(s: Types.PlayerState)
 	end
 	local tutorial = QuietStart.tutorialHolds(TutorialOrder.bowlFirst(), s.tutorialStep, s.tier)
 		== true
-	if tutorial ~= firstCat.tutorial then
+	-- #4946: and the account's first 5 minutes, checked again as they end
+	local untilAt = player:GetAttribute(QuietStart.ATTRIBUTE)
+	local now = Workspace:GetServerTimeNow()
+	local early = QuietStart.earlyHolds(untilAt, now) == true
+	local endsAt: number? = QuietStart.earlyEndsAt(untilAt, now)
+	if endsAt ~= nil and not firstCat.earlyTimer then
+		firstCat.earlyTimer = true
+		task.delay(endsAt - now + 0.1, function()
+			firstCat.earlyTimer = false
+			local current = state
+			if current ~= nil then
+				firstCatHold(current)
+			end
+		end)
+	end
+	if tutorial ~= firstCat.tutorial or early ~= firstCat.early then
 		firstCat.tutorial = tutorial
-		UI.setTutorialHold(tutorial)
+		firstCat.early = early
+		UI.setTutorialHold(tutorial or early, tutorial)
 	end
 end
 
@@ -1443,6 +1503,12 @@ local function applyState(s: Types.PlayerState)
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
 		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.done(s.stats),
+		-- #5031 (switch rankUpRightAway, shared/RankUpRightAway): the goal card's short and ready lines
+		rankUpShort = if type(s.rankUpShort) == "number" and s.rankUpShort > 0
+			then s.rankUpShort
+			else false,
+		rankUpTitle = rankUpTitle(s),
+		tier3Goal = if s.tier3Goal ~= nil then s.tier3Goal else false, -- #5038
 		stuckGoal = stuckGoalActive(s), -- #2912: the goal card's "Free a stuck cat" while the pointer may show
 		-- #3529: the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal; false otherwise
 		newKindGoal = if newKindGoal(s) then kindsOf(s) else false,
@@ -1470,6 +1536,9 @@ local function applyState(s: Types.PlayerState)
 		fishPerks = s.fishPerks,
 		goldLuck = s.goldLuck, -- F54: the Index's gold luck and faster bait, capped
 		baitSpeed = s.baitSpeed,
+		-- #5050 (Sync's timed run): sent since #1895 but never copied, so the empty Bait bowl promised "A cat comes by in
+		-- 10m 0s" while the first bait comes in 3 s. false once used, as UI.update skips a nil.
+		firstBait = (s :: any).firstBait == true,
 		potions = s.potions, -- F64: the potion bag
 		catFood = s.catFood, -- #1181: the Bag's cat food
 		hideCredit = s.hideCredit, -- #1083: the Settings row "Show my name on the Thank You board" (on when false)
@@ -2270,7 +2339,46 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "screen", screenNow)
 		end
 	end
+	-- #5031 (shared/RankUpRightAway): a Tier 1 Rank Up window is reported the moment it opens (how: its own open or a
+	-- tap) and again as it ends (pressed or closed); a close without a press counts toward it opening again
+	-- (UI.autoRank.landed), a press stops that
+	local rankWindow = { open = false, pressed = false, tier = 0 }
+	UI.events.rankUp:Connect(function()
+		if rankWindow.open then
+			rankWindow.pressed = true
+		end
+	end)
 	UI.events.screenOpened:Connect(function(name: string?)
+		local autoRank: any = UI.autoRank
+		if rankWindow.open and name ~= "RankUp" then
+			rankWindow.open = false
+			Net.fire(
+				"TelemetryReport",
+				"rank_up_end",
+				if rankWindow.pressed then "pressed" else "closed"
+			)
+			if rankWindow.pressed then
+				autoRank.pressed[rankWindow.tier] = true
+			else
+				autoRank.closes[rankWindow.tier] = (autoRank.closes[rankWindow.tier] or 0) + 1
+			end
+		elseif
+			not rankWindow.open
+			and name == "RankUp"
+			and state ~= nil
+			and (state :: any).tier == 1
+		then
+			rankWindow.open = true
+			rankWindow.pressed = false
+			rankWindow.tier = 1
+			local at: number? = autoRank.autoAt
+			autoRank.autoAt = nil
+			Net.fire(
+				"TelemetryReport",
+				"rank_up_open",
+				if at ~= nil and os.clock() - at < 1 then "auto" else "button"
+			)
+		end
 		if name == "Store" then
 			-- #1888: every Store visit starts a Store funnel, with where the UI said it was opened from
 			Net.fire("TelemetryReport", "store_opened", StoreFunnel.takeSource())
@@ -2577,7 +2685,8 @@ local function quiet(): boolean
 	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
 		return false
 	end
-	if firstCat.held or firstCat.tutorial then
+	if firstCat.held or firstCat.tutorial or firstCat.early then
+		-- #4946: nor in the account's first 5 minutes
 		-- #4821: no asks (notifications, favorite, like, invite, the event's Notify Me) before the first cat, and
 		-- (Derek 2026-11-16 15:22 UTC) none until the walk-through is done
 		return false
@@ -2636,12 +2745,14 @@ local ASK_LINES: { [string]: string } = {
 local function showAsk(id: string)
 	task.spawn(function()
 		local waited = 0
-		while not quiet() do
+		-- #4946 (Sync's PC run: the favorite card came 20 s after a gift ask): and one pop-up every 5 minutes
+		while not quiet() or not UI.popPace.free() do
 			if waited >= ASK_WAIT_SECONDS then
 				return
 			end
 			waited += task.wait(1)
 		end
+		UI.popPace.used() -- #4946: the ask, its card or its toast, is this 5 minutes' pop-up
 		if id == Tips.NOTIFY_ASK then
 			local ok, can = pcall(function()
 				return ExperienceNotificationService:CanPromptOptInAsync()
@@ -2961,6 +3072,28 @@ local function wireServerEvents()
 		local hook: unknown = (UI :: any).pals
 		if type(hook) == "function" then
 			(hook :: ({ number }) -> ())(userIds)
+		end
+	end)
+	-- #4913: today's Pal Day gift was paid (PalDayService, palDay switch): the loot card lists it, never blocking
+	Net.on("PalDayPaid", function(fish: number, spins: number)
+		local loot: unknown = (UI :: any).loot
+		local show: unknown = if type(loot) == "table" then (loot :: any).show else nil
+		if type(show) ~= "function" then
+			return
+		end
+		local items = {}
+		if type(fish) == "number" and fish > 0 then
+			table.insert(items, { kind = "fish", count = math.floor(fish) })
+		end
+		if type(spins) == "number" and spins > 0 then
+			table.insert(items, { kind = "spin", count = math.floor(spins) })
+		end
+		if #items > 0 then
+			(show :: (unknown, number?, string?) -> ())(
+				{ items = items },
+				nil,
+				"Pal Day gift! Again tomorrow."
+			)
 		end
 	end)
 	-- F92 (playing-together.md section 5): a player arrived at a pal's front door. Moments.PalArrived on every client
@@ -3394,8 +3527,8 @@ local function wireServerEvents()
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
 				return
 			end
-			if firstCat.tutorial then
-				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through; the gift still comes
+			if firstCat.tutorial or firstCat.early then
+				return -- Derek 2026-11-16 15:22 UTC: no big card in the walk-through (#4946: or the first 5 minutes)
 			end
 			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
@@ -3652,7 +3785,7 @@ function UIController.start()
 	firstCat.held = true
 	UI.setFirstCatHold(true)
 	firstCat.tutorial = true
-	UI.setTutorialHold(true)
+	UI.setTutorialHold(true, true)
 	if state ~= nil then
 		firstCatHold(state)
 	end

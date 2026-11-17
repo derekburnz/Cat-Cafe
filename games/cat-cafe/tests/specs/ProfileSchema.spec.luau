@@ -133,6 +133,7 @@ return function()
 			expect(profile.stats.trades).to.equal(0)
 			expect(profile.stats.tradesToday :: any).to.deepEqual({ day = 0, count = 0 })
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
+			expect(profile.palDay :: any).to.deepEqual({ day = 0 }) -- #4913, no version
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
 			expect(next(profile.buffs)).never.to.be.ok()
@@ -192,6 +193,7 @@ return function()
 				autoBowlRefill = true,
 				bowlNewCatCard = true,
 				stationCircles = false, -- #4668
+				vipTag = false, -- #4991
 			})
 		end)
 
@@ -667,6 +669,7 @@ return function()
 					autoBowlRefill = true,
 					bowlNewCatCard = true,
 					stationCircles = false, -- #4668
+					vipTag = false, -- #4991
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })

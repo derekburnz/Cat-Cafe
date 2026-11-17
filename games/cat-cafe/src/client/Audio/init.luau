@@ -2356,10 +2356,31 @@ local function followAreas()
 	HarvestFx.onPick(function(at)
 		Audio.play(Logic.HARVEST_PICK_CUE, at)
 	end)
+	-- #5031: Tier 2's last need met (switch rankUpRightAway), one soft chime with the goal card's glow
+	require(script.Parent.Effects.RankUpPulse).onGoalReady(function()
+		Audio.play("rankUpReadyChime")
+	end)
+	-- #4251: a note pinned on the Thankful Board near you
+	HarvestFx.onPin(function(at)
+		Audio.play(Logic.HARVEST_PIN_CUE, at)
+	end)
 	-- #4251: Harvest Hollow's own song while you are in it
 	HarvestFx.onArea(function(inside)
 		inHarvest = inside
 		followAreaSong()
+	end)
+end
+
+-- #4985: the intro's cannon shot on its copy of you (Effects/Cannon.onStaged): the launch cue at the BOOM, flat,
+-- unless Skip ended the flight first.
+local function followStagedCannon()
+	local Cannon = require(script.Parent.Effects.Cannon)
+	Cannon.onStaged(function(_beat, at, model)
+		task.delay(math.max(0, at - Workspace:GetServerTimeNow()), function()
+			if Cannon.stagedLive(model) then
+				Audio.play("cannonLaunch")
+			end
+		end)
 	end)
 end
 
@@ -2574,6 +2595,7 @@ function Audio.start()
 	followFusion()
 	followBinRoll()
 	followTrampoline()
+	followStagedCannon()
 	followPetCat()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)

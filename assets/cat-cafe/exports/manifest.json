@@ -325263,7 +325263,7 @@
         "CatCafe_Park_SetF85_215_Poplar",
         "CatCafe_Park_SetF85_216_Poplar"
       ],
-      "triangles": 124872,
+      "triangles": 92128,
       "budget": 150000,
       "size_studs": {
         "x": 119.5,
@@ -325680,7 +325680,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_SetF85.model.json",
-      "rbx_parts": 5207,
+      "rbx_parts": 3862,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.glb"
@@ -325693,7 +325693,7 @@
           "centered"
         ],
         "checks": {
-          "budget": "124872/150000 tris",
+          "budget": "92128/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
           "uv": "78654 faces on swatch centers",
@@ -329697,7 +329697,7 @@
         "CatCafe_Woods_SetF85_281_PineTall",
         "CatCafe_Woods_SetF85_282_OakRound"
       ],
-      "triangles": 136074,
+      "triangles": 130606,
       "budget": 150000,
       "size_studs": {
         "x": 160.0,
@@ -330309,7 +330309,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetF85.model.json",
-      "rbx_parts": 6144,
+      "rbx_parts": 5081,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.glb"
@@ -330322,10 +330322,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "136074/150000 tris",
+          "budget": "130606/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "84848 faces on swatch centers",
+          "uv": "80538 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.33 (want 0)",
           "centered": "footprint center x=0.00 y=0.25"
@@ -330594,7 +330594,7 @@
         "CatCafe_Sewer_SetF85_169_Grate",
         "CatCafe_Sewer_SetF85_170_Grate"
       ],
-      "triangles": 128622,
+      "triangles": 121686,
       "budget": 150000,
       "size_studs": {
         "x": 119.2,
@@ -331137,7 +331137,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetF85.model.json",
-      "rbx_parts": 6868,
+      "rbx_parts": 6290,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.glb"
@@ -331149,10 +331149,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "128622/150000 tris",
+          "budget": "121686/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "66350 faces on swatch centers",
+          "uv": "62882 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.07"
@@ -339322,6 +339322,20 @@
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-141.50"
         }
+      },
+      "part_pivots": {
+        "CatCafe_Camp_Alleyway_000_Basket": [
+          11.0,
+          -138.5,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Alleyway_000_Basket": [
+          -11.0,
+          0.0,
+          -138.5
+        ]
       }
     },
     {
@@ -339490,7 +339504,7 @@
         "CatCafe_Camp_ParkF85_016_FlowerBed_Decor",
         "CatCafe_Camp_ParkF85_Barrier"
       ],
-      "triangles": 9340,
+      "triangles": 9100,
       "budget": 20000,
       "size_studs": {
         "x": 122.0,
@@ -339557,7 +339571,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_ParkF85.model.json",
-      "rbx_parts": 469,
+      "rbx_parts": 449,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_ParkF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_ParkF85.glb"
@@ -339570,14 +339584,28 @@
           "centered"
         ],
         "checks": {
-          "budget": "9340/20000 tris",
+          "budget": "9100/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "5826 faces on swatch centers",
+          "uv": "5706 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-171.00"
         }
+      },
+      "part_pivots": {
+        "CatCafe_Camp_ParkF85_000_Basket": [
+          11.0,
+          -168.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_ParkF85_000_Basket": [
+          -11.0,
+          0.0,
+          -168.0
+        ]
       }
     },
     {
@@ -339832,6 +339860,20 @@
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-231.00"
         }
+      },
+      "part_pivots": {
+        "CatCafe_Camp_NeighbourhoodF85_000_Basket": [
+          11.0,
+          -228.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_NeighbourhoodF85_000_Basket": [
+          -11.0,
+          0.0,
+          -228.0
+        ]
       }
     },
     {
@@ -340078,6 +340120,20 @@
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-261.00"
         }
+      },
+      "part_pivots": {
+        "CatCafe_Camp_WoodsF85_000_Basket": [
+          11.0,
+          -258.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_WoodsF85_000_Basket": [
+          -11.0,
+          0.0,
+          -258.0
+        ]
       }
     },
     {
@@ -340222,7 +340278,7 @@
         "CatCafe_Camp_SewerF85_013_TrafficCone",
         "CatCafe_Camp_SewerF85_Barrier"
       ],
-      "triangles": 6596,
+      "triangles": 6028,
       "budget": 20000,
       "size_studs": {
         "x": 122.0,
@@ -340289,7 +340345,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_SewerF85.model.json",
-      "rbx_parts": 223,
+      "rbx_parts": 197,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_SewerF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_SewerF85.glb"
@@ -340302,14 +340358,28 @@
           "centered"
         ],
         "checks": {
-          "budget": "6596/20000 tris",
+          "budget": "6028/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2978 faces on swatch centers",
+          "uv": "2702 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-301.00"
         }
+      },
+      "part_pivots": {
+        "CatCafe_Camp_SewerF85_000_Basket": [
+          11.0,
+          -298.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_SewerF85_000_Basket": [
+          -11.0,
+          0.0,
+          -298.0
+        ]
       }
     },
     {
@@ -340433,6 +340503,20 @@
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-296.00"
         }
+      },
+      "part_pivots": {
+        "CatCafe_Camp_Desert_000_Basket": [
+          11.0,
+          -293.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Desert_000_Basket": [
+          -11.0,
+          0.0,
+          -293.0
+        ]
       }
     },
     {
@@ -340565,7 +340649,21 @@
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Ruins.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Ruins.png"
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Ruins.png",
+      "part_pivots": {
+        "CatCafe_Camp_Ruins_000_Basket": [
+          11.0,
+          -313.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Ruins_000_Basket": [
+          -11.0,
+          0.0,
+          -313.0
+        ]
+      }
     },
     {
       "name": "CatCafe_Camp_Snowy",
@@ -340687,6 +340785,20 @@
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-296.00"
         }
+      },
+      "part_pivots": {
+        "CatCafe_Camp_Snowy_000_Basket": [
+          11.0,
+          -293.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Snowy_000_Basket": [
+          -11.0,
+          0.0,
+          -293.0
+        ]
       }
     },
     {
@@ -342347,16 +342459,16 @@
         "CatCafe_Town_Backdrop_Sails",
         "CatCafe_Town_Backdrop_Bulbs"
       ],
-      "triangles": 26630,
+      "triangles": 23718,
       "budget": 60000,
       "size_studs": {
         "x": 645.03,
         "y": 912.57,
-        "z": 243.65
+        "z": 243.07
       },
       "size_roblox": [
         645.03,
-        243.65,
+        243.07,
         912.57
       ],
       "bounds_min": [
@@ -342367,12 +342479,12 @@
       "bounds_max": [
         325.72,
         456.54,
-        64.51
+        63.93
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_Backdrop.model.json",
-      "rbx_parts": 1175,
+      "rbx_parts": 1019,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.glb"
@@ -342385,10 +342497,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "26630/60000 tris",
+          "budget": "23718/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "20495 faces on swatch centers",
+          "uv": "17739 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-179.14 (want 0)",
           "centered": "footprint center x=3.20 y=0.26"
@@ -354296,7 +354408,7 @@
         "CatCafe_Ruins_Set_220_Rubble",
         "CatCafe_Ruins_Set_220_Rubble_Decor"
       ],
-      "triangles": 134874,
+      "triangles": 116898,
       "budget": 150000,
       "size_studs": {
         "x": 140.0,
@@ -355065,7 +355177,7 @@
       },
       "studio": "Tier 7 (tier6-7-areas.md section 5). Place it at the Ruins' centre on its floor with the camp's turn (0: the camp on the south edge, toward the town), like the F85 sets. Every blocker has a _Barrier BLOCK_OVER over its top and the walls a 30 high one all round but the 24 stud way in at z -300 and the east bridge bay (a 9 high parapet barrier). The rescue spots (points_roblox trap_rubble_pile, trap_stone_urn, trap_bridge_ledge) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Ruins_Set.model.json",
-      "rbx_parts": 6858,
+      "rbx_parts": 6056,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Ruins_Set.glb"
@@ -355077,10 +355189,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "134874/150000 tris",
+          "budget": "116898/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "76642 faces on swatch centers",
+          "uv": "63478 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.33 (want 0)",
           "centered": "footprint center x=0.00 y=0.00",
@@ -364170,7 +364282,7 @@
         "CatCafe_WaterPark_Set_291_BalloonBunch_Swing",
         "CatCafe_WaterPark_Set_292_PlanterPalm"
       ],
-      "triangles": 113008,
+      "triangles": 109760,
       "budget": 150000,
       "size_studs": {
         "x": 151.2,
@@ -365957,7 +366069,7 @@
       },
       "studio": "Tier 9, the Theme Park and Water Park (next-areas plan section 2, #4066). Place it at the area's centre on its floor, camp side -Z, like the Snowy set. Asphalt to z 20 and blue tiles from there on, right out to the walls. Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The lazy river is a kerb 0.7 high (a step, not a wall) round _Water; the spine crosses it on two plank bridges 1.15 up with a ramp at each end. The coaster's track, the balloons and the wave crests are _Decor (no collision), the pool's glass is _Pane. Turning pieces for Motion-FX, each its own Model: ..._CarouselTurn about a vertical axis at (-38, -110), ..._TeacupsTurn about a vertical axis at (38, -118), ..._FerrisTurn about the x axis through its hub at (59, 24, -42). The rescue spots (points_roblox trap_carousel, trap_ball_pit, trap_plush_pile, trap_river_ring, trap_balloons) carry their piece's turn; trap_carousel's spot is 0.3 up, on its deck.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_Set.model.json",
-      "rbx_parts": 6744,
+      "rbx_parts": 6291,
       "files": [
         "assets/cat-cafe/exports/CatCafe_WaterPark_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_WaterPark_Set.glb"
@@ -365969,10 +366081,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "113008/150000 tris",
+          "budget": "109760/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "67836 faces on swatch centers",
+          "uv": "66160 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=0.00 y=0.30",
@@ -366502,6 +366614,11 @@
       "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
+        "CatCafe_Camp_WaterPark_000_Basket": [
+          11.0,
+          -293.0,
+          0.0
+        ],
         "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing": [
           -30.0,
           -293.0,
@@ -366519,6 +366636,11 @@
         ]
       },
       "part_pivots_roblox": {
+        "CatCafe_Camp_WaterPark_000_Basket": [
+          -11.0,
+          0.0,
+          -293.0
+        ],
         "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing": [
           30.0,
           0.7,
@@ -367095,7 +367217,7 @@
         "CatCafe_Castle_Set_274_BannerPole_Swing",
         "CatCafe_Castle_Set_275_Bench"
       ],
-      "triangles": 64900,
+      "triangles": 64036,
       "budget": 150000,
       "size_studs": {
         "x": 152.2,
@@ -368626,7 +368748,7 @@
       },
       "studio": "Tier 10, the Medieval Castle (next-areas plan section 3, #4067). Place it at the area's centre on its floor, camp side -Z, like the Snowy set. Packed earth right out to the walls, cobbles, the field's sand and the keep's flags over it. Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The moat is a kerb 0.7 high (a step, not a wall) round shallow _Water; the drawbridge and the postern's plank bridge are 0.9 up with a ramp at each end. The curtain wall and the keep's walls collide; the tilt fence is a low rail to hop. Torch flames are _Glow, windows _Pane, the drawbridge's chains _Decor. The rescue spots (points_roblox trap_haystack, trap_barrel, trap_banner_pole, trap_awning, trap_helmet) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_Set.model.json",
-      "rbx_parts": 4977,
+      "rbx_parts": 4373,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Castle_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Castle_Set.glb"
@@ -368638,10 +368760,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "64900/150000 tris",
+          "budget": "64036/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "29219 faces on swatch centers",
+          "uv": "28787 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=0.00 y=0.85",
@@ -369245,6 +369367,11 @@
       "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
+        "CatCafe_Camp_Castle_000_Basket": [
+          11.0,
+          -293.0,
+          0.0
+        ],
         "CatCafe_Camp_Castle_016_BannerPole_Swing": [
           -70.0,
           -306.3,
@@ -369267,6 +369394,11 @@
         ]
       },
       "part_pivots_roblox": {
+        "CatCafe_Camp_Castle_000_Basket": [
+          -11.0,
+          0.0,
+          -293.0
+        ],
         "CatCafe_Camp_Castle_016_BannerPole_Swing": [
           70.0,
           10.72,

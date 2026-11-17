@@ -222,14 +222,19 @@ CampExtrasLogic.POND = "pond"
 -- for `line`. "collect" while the Picnic Basket, Fish Pond or Lost and Found holds something (CollectCampExtra,
 -- from anywhere); "open" for a station with a card of its own (the Yard Sale, the Oasis Spa, the Relic Museum); nil
 -- for no button. A strip only shows for a station the player's tier has opened.
-export type RemoteAction = "collect" | "open"
+export type RemoteAction = "collect" | "open" | "rummage"
 CampExtrasLogic.REMOTE_COLLECT =
 	{ picnic = true, pond = true, lostFound = true } :: { [string]: boolean }
-CampExtrasLogic.REMOTE_WORDS = { collect = "Collect", open = "Open" } :: { [string]: string }
+CampExtrasLogic.REMOTE_WORDS =
+	{ collect = "Collect", open = "Open", rummage = "Rummage" } :: { [string]: string }
 
 function CampExtrasLogic.remoteAction(line: Line?): RemoteAction?
-	if line == nil or line.extraId == CampExtrasLogic.BIN then
-		return nil -- the Rummage Bin is played at the bin: no button, the red dot says it is full
+	if line == nil then
+		return nil
+	end
+	-- #4961 (Derek 2026-11-16: "make rummage bin able to do from the cannon menu"): Rummage while the bin is full
+	if line.extraId == CampExtrasLogic.BIN then
+		return if line.ready then "rummage" else nil
 	end
 	if CampExtrasLogic.REMOTE_COLLECT[line.extraId] then
 		return if line.ready then "collect" else nil

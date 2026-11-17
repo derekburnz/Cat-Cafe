@@ -64,6 +64,9 @@ local M = {
 	Payout = require(script.Parent.Payout),
 	Pity = require(ReplicatedStorage.Shared.Pity),
 	PlotService = require(script.Parent.PlotService),
+	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
+	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	OpenSpot = require(script.Parent.Parent.World.OpenSpot), -- #5038: where a waiting Park stray may sit
 	Potions = require(ReplicatedStorage.Shared.Potions),
 	RallyService = require(script.Parent.RallyService),
 	RareMomentService = require(script.Parent.RareMomentService),
@@ -1162,8 +1165,8 @@ do
 		end
 	end
 
-	local function secondPad(): Vector3?
-		local pad = M.Layout.landingPads[SecondCat.AREA]
+	local function secondPad(areaId: string?): Vector3?
+		local pad = M.Layout.landingPads[areaId or SecondCat.AREA]
 		if pad == nil then
 			return nil
 		end
@@ -1187,10 +1190,10 @@ do
 		stray.model:SetAttribute("Napping", false) -- a Sleepy one gets up
 	end
 
-	-- Whether the stray can be the one that waits: on the Alleyway's floor, nobody's catch, tutorial stray or waiting
-	-- stray, not Dropped, walking home or running, and a plain Rare or below (SecondCat.fits).
-	local function canWait(stray: Stray, now: number): boolean
-		if not stray.alive or stray.area ~= SecondCat.AREA then
+	-- Whether the stray can be the one that waits: on the Alleyway's floor (#5038: or `areaId`'s), nobody's catch,
+	-- tutorial stray or waiting stray, not Dropped, walking home or running, and a plain Rare or below (SecondCat.fits).
+	local function canWait(stray: Stray, now: number, areaId: string?): boolean
+		if not stray.alive or stray.area ~= (areaId or SecondCat.AREA) then
 			return false
 		end
 		if not SecondCat.fits(stray.def.rarity, stray.variant) then
@@ -1278,6 +1281,9 @@ do
 			waitFor(picked, player.UserId, pad)
 			waiting = picked
 		end
+		if not SecondCat.waiting(profile) then
+			return -- #5031: waiting for a Tier 2 cat (M.RankUpRightAway), not the second cat: no second cat steps
+		end
 		Second.step(player, profile, SecondCat.SHOWN)
 		local root = rootPosition(player)
 		if root ~= nil and SecondCat.followed(root, waiting.body.Position) then
@@ -1293,13 +1299,21 @@ do
 		end
 	end
 
-	-- Whether the rule runs for the player now: their save waits for its second cat, the areas are open and their hands
-	-- and Backpack are empty.
+	-- Whether the player's save waits for its second cat, or (#5031, switch rankUpRightAway) for the cat Tier 2 still
+	-- needs after the first check-in (the bowl cat was let go)
+	local function waitsForCat(profile: Types.PlayerProfile): boolean
+		return SecondCat.waiting(profile)
+			or M.RankUpRightAway.strayWaits(profile, M.LiveFlagService.on(M.RankUpRightAway.FLAG))
+	end
+	Second.waitsForCat = waitsForCat
+
+	-- Whether the rule runs for the player now: their save waits for a cat (waitsForCat), the areas are open and their
+	-- hands and Backpack are empty.
 	local function secondCatDue(player: Player): Types.PlayerProfile?
 		local profile = M.DataService.get(player)
 		if
 			profile == nil
-			or not SecondCat.waiting(profile)
+			or not waitsForCat(profile)
 			or carrying[player] ~= nil
 			or packed[player] ~= nil
 			or not M.ClockService.areasOpen()
@@ -1309,16 +1323,160 @@ do
 		return profile
 	end
 
-	function Second.tick()
-		local pad = secondPad()
-		if pad == nil then
+	-- #5038 (switch tier3Path, shared/Tier3Path): at Tier 2 a stray of a kind the player lacks (once the kinds are
+	-- met, a Rare they lack) waits near the Park camp's landing, as the Alleyway's does. The nearest fitting free Park
+	-- stray within Tier3Path.SEARCH_STUDS of the landing is theirs; with none, one of Tier3Path.spawnRarity and a kind
+	-- they lack arrives at the Park's nearest free `near` point, at most once every Tier3Path.SPAWN_SECONDS.
+	type ParkNeed = "kinds" | "rare" -- shared/Tier3Path.Need
+	local parkSpawned: { [Player]: number } = {}
+
+	local function parkNeed(player: Player): (Types.PlayerProfile?, ParkNeed?)
+		local profile = M.DataService.get(player)
+		if
+			profile == nil
+			or not M.LiveFlagService.on(M.Tier3Path.FLAG)
+			or carrying[player] ~= nil
+			or packed[player] ~= nil
+			or not M.ClockService.areasOpen()
+		then
+			return nil, nil
+		end
+		return profile, M.Tier3Path.need(profile)
+	end
+
+	-- Sync's PC run of #5049: a waiting stray wedged against the Park gate's low wall and a pillar could not be netted
+	-- on foot (the player stopped 7 studs off, up on the wall). A stray only waits where nothing solid stands within
+	-- OPEN_STUDS of it above the floor: a wall, pillar, fence or prop that could keep the player away.
+	local OPEN_STUDS = 6
+	local function openSpot(stray: Stray): boolean
+		local area = world.areas[stray.area]
+		if area == nil then
+			return false
+		end
+		local exclude: { Instance } = { stray.model }
+		for _, player in Players:GetPlayers() do
+			if player.Character ~= nil then
+				table.insert(exclude, player.Character :: Model)
+			end
+		end
+		return M.OpenSpot.clear(stray.body.Position, area.floorY, OPEN_STUDS, exclude)
+	end
+
+	local function pickPark(
+		player: Player,
+		profile: Types.PlayerProfile,
+		pad: Vector3,
+		need: ParkNeed
+	): Stray?
+		local now = serverNow()
+		local best: Stray? = nil
+		local bestDistance = math.huge
+		for _, stray in strays do
+			if
+				canWait(stray, now, M.Tier3Path.AREA)
+				and M.Tier3Path.fits(profile, stray.def, stray.variant, need)
+				and openSpot(stray)
+			then
+				local at = stray.body.Position
+				local distance = (Vector3.new(at.X, pad.Y, at.Z) - pad).Magnitude
+				if distance <= M.Tier3Path.SEARCH_STUDS and distance < bestDistance then
+					best, bestDistance = stray, distance
+				end
+			end
+		end
+		if best ~= nil then
+			return best
+		end
+		local clock = os.clock()
+		if clock - (parkSpawned[player] or -math.huge) < M.Tier3Path.SPAWN_SECONDS then
+			return nil
+		end
+		local area = world.areas[M.Tier3Path.AREA]
+		if area == nil then
+			return nil
+		end
+		local occupied = occupiedPoints[M.Tier3Path.AREA] or {}
+		local pick: number? = nil
+		local pickDistance = math.huge
+		for _, index in tutorialPoints(M.Tier3Path.AREA) do
+			if occupied[index] == nil then
+				local distance = (area.spawnPoints[index].Position - pad).Magnitude
+				if distance < pickDistance then
+					pick, pickDistance = index, distance
+				end
+			end
+		end
+		local rarity = M.Tier3Path.spawnRarity(profile, need)
+		if pick == nil or rarity == nil then
+			return nil
+		end
+		parkSpawned[player] = clock
+		local stray =
+			spawnAt(M.Tier3Path.AREA, pick, rarity :: Types.Rarity, nil, profile.collection)
+		-- (a kind they lack, unless they own every one of that rarity: then it is just another stray)
+		return if M.Tier3Path.fits(profile, stray.def, stray.variant, need) then stray else nil
+	end
+
+	local function parkFor(
+		player: Player,
+		profile: Types.PlayerProfile,
+		stray: Stray?,
+		pad: Vector3,
+		need: ParkNeed
+	)
+		if stray ~= nil then
 			return
 		end
-		local due: { [number]: { player: Player, profile: Types.PlayerProfile } } = {}
+		local picked = pickPark(player, profile, pad, need)
+		if picked == nil then
+			return
+		end
+		waitFor(picked, player.UserId, pad)
+		Telemetry.custom(player, "tier3_path", 1, { need :: string })
+	end
+
+	-- Whether a stray that waits for a player still waits for what they need now: the right area and, in the Park,
+	-- a kind (or Rare) they still lack
+	type Due = {
+		player: Player,
+		profile: Types.PlayerProfile,
+		area: string,
+		pad: Vector3,
+		need: ParkNeed?,
+	}
+	local function stillFits(stray: Stray, entry: Due): boolean
+		if stray.area ~= entry.area then
+			return false
+		end
+		local need: ParkNeed? = entry.need
+		return need == nil or M.Tier3Path.fits(entry.profile, stray.def, stray.variant, need)
+	end
+
+	function Second.tick()
+		local alleyPad = secondPad()
+		local parkPad = secondPad(M.Tier3Path.AREA)
+		local due: { [number]: Due } = {}
 		for _, player in M.DataService.loadedPlayers() do
 			local profile = secondCatDue(player)
-			if profile ~= nil then
-				due[player.UserId] = { player = player, profile = profile }
+			if profile ~= nil and alleyPad ~= nil then
+				due[player.UserId] = {
+					player = player,
+					profile = profile,
+					area = SecondCat.AREA,
+					pad = alleyPad,
+					need = nil,
+				}
+			elseif parkPad ~= nil then
+				local parkProfile, need = parkNeed(player)
+				if parkProfile ~= nil and need ~= nil then
+					due[player.UserId] = {
+						player = player,
+						profile = parkProfile,
+						area = M.Tier3Path.AREA,
+						pad = parkPad,
+						need = need :: ParkNeed,
+					}
+				end
 			end
 		end
 		local has: { [number]: Stray } = {}
@@ -1327,12 +1485,14 @@ do
 			if who == nil then
 				continue
 			end
+			local entry = due[who]
 			if
-				due[who] == nil
+				entry == nil
 				or has[who] ~= nil
 				or not stray.alive
 				or stray.drop ~= nil
 				or stray.returning
+				or not stillFits(stray, entry)
 			then
 				waitFor(stray, nil)
 			else
@@ -1340,8 +1500,20 @@ do
 			end
 		end
 		for userId, entry in due do
-			secondCatFor(entry.player, entry.profile, has[userId], pad)
+			if entry.need ~= nil then
+				parkFor(entry.player, entry.profile, has[userId], entry.pad, entry.need :: ParkNeed)
+			else
+				secondCatFor(entry.player, entry.profile, has[userId], entry.pad)
+			end
 		end
+	end
+
+	-- #5038: the waiting Park stray's catch is the first catch's slow circle too (easyCatch)
+	function Second.parkWaits(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
+		return stray.waitsFor == player.UserId
+			and stray.area == M.Tier3Path.AREA
+			and M.LiveFlagService.on(M.Tier3Path.FLAG)
+			and M.Tier3Path.need(profile) ~= nil
 	end
 
 	-- The first customer was just served: the stray waits from now, not the next tick.
@@ -1363,6 +1535,7 @@ do
 
 	function Second.forget(player: Player)
 		secondSteps[player] = nil
+		parkSpawned[player] = nil
 	end
 end
 
@@ -2314,8 +2487,11 @@ local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
 end
 
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
-	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
+	if stray.waitsFor == player.UserId and Second.waitsForCat(profile) then
 		return true
+	end
+	if Second.parkWaits(player, profile, stray) then
+		return true -- #5038
 	end
 	-- #3662 (Derek 2026-11-12: "the first cat catch where it used to stop the circle and wait for you to click/guide
 	-- you should now be for the second catch not first because first is the free one from food bowl"): the

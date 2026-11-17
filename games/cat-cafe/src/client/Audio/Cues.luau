@@ -878,6 +878,19 @@ local Cues: { [string]: Cue } = {
 		range = 45,
 		voices = 2,
 	},
+	-- #4251 (Effects/HarvestFx.onPin): a note pinned on Harvest Hollow's Thankful Board near you. The reward card's
+	-- turn-over, lighter and quicker: a paper flick. No upload (sheetKeep).
+	harvestPin = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 9.450, 9.670 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 1.18, 1.3 },
+		minGap = 0.5,
+		range = 40,
+		voices = 2,
+	},
 	adminCrateLand = {
 		ids = { "rbxassetid://103029343434588" },
 		group = "Sfx",
@@ -1049,6 +1062,15 @@ local Cues: { [string]: Cue } = {
 		group = "Ui",
 		volume = 0.45,
 		minGap = 1,
+	},
+	-- #5031 (Effects/RankUpPulse.onGoalReady, switch rankUpRightAway): Tier 2's last need is met. The
+	-- tutorial step chime, a little higher and softer, once a session. No upload.
+	rankUpReadyChime = {
+		ids = { "rbxassetid://125474672370745" },
+		group = "Ui",
+		volume = 0.38,
+		pitch = { 1.12, 1.12 },
+		minGap = 2,
 	},
 	uiToast = { ids = { "rbxassetid://101668755145423" }, group = "Ui", volume = 0.5, minGap = 0.2 },
 	uiHint = { ids = { "rbxassetid://84709734267357" }, group = "Ui", volume = 0.5, minGap = 0.5 },

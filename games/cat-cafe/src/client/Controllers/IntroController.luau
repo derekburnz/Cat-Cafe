@@ -643,7 +643,13 @@ local function campBasket(r: Run): Model?
 	local bestDistance = 12
 	for _, tagged in CollectionService:GetTagged("CampBasket") do
 		if tagged:IsA("Model") and tagged:IsDescendantOf(Workspace) then
-			local distance = ((tagged :: Model):GetPivot().Position - r.camp.basket).Magnitude
+			-- #5050 (Sync's carry reads): the Alleyway basket model's pivot sits 139 studs off its basket part, so the
+			-- part's own place is used when it is there
+			local model = tagged :: Model
+			local at = if model.PrimaryPart ~= nil
+				then (model.PrimaryPart :: BasePart).Position
+				else model:GetPivot().Position
+			local distance = (at - r.camp.basket).Magnitude
 			if distance < bestDistance then
 				best, bestDistance = tagged :: Model, distance
 			end

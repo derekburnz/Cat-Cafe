@@ -316,6 +316,7 @@ export type PlayerState = {
 	fishPerks: { [string]: number }?, -- F53: Golden Fish Market perk id -> level
 	goldLuck: number?, -- F54: the Index's gold luck, capped (GoldLuckMax); nil adds it up from the claims
 	baitSpeed: number?, -- F54: the Index's faster bait, capped (BaitSpeedMax); nil adds it up from the claims
+	firstBait: boolean?, -- #1895: no bait set yet on this account, so the empty bowl promises the short first wait
 	-- F88 (luck-and-rare-moments.md section 1): the player's Luck (1 to LuckMax) and what makes it up; the HUD's Luck
 	-- chip and card, and the odds every food and crate card shows (shared/Luck)
 	luck: number?,
@@ -427,6 +428,13 @@ export type PartialState = {
 	newKindGoal: (number | false)?,
 	-- #3188: the "Catch a 2nd cat" goal is finished (two cats caught by hand and checked in); nil reads as finished
 	secondCatDone: boolean?,
+	-- #5031 (switch rankUpRightAway): Tier 2's cats still short after the first check-in, for the goal card's "Catch 1
+	-- more cat to rank up"; false otherwise (UI.update skips a nil)
+	rankUpShort: (number | false)?,
+	-- #5031: the goal card's title when the rank up is ready (RankUpRightAway.READY_TITLE), false otherwise
+	rankUpTitle: (string | false)?,
+	-- #5038 (switch tier3Path): the goal card's one next thing toward Tier 3 (PlayerState.tier3Goal), false otherwise
+	tier3Goal: ({ wide: string, narrow: string } | false)?,
 	-- #3196: the Mystic Pool card's numbers; false while the `traits` switch is off (UI.update skips a nil)
 	traits: (SharedTypes.TraitsView | false)?,
 }

@@ -53,6 +53,10 @@ export type Ask = {
 	-- band, the line and buttons to its right, the card that much wider
 	picture: string?,
 	line: string?, -- #4174: up to two short lines of what the ask is about, over the buttons
+	-- #5152: a drawing across the card under the band (the like ask's LikePicture), drawingH tall: drawing(holder) draws
+	-- it into the holder and returns its cleanup, run as the ask ends. Not with a picture.
+	drawing: ((holder: Frame) -> () -> ())?,
+	drawingH: number?,
 	answer: (id: string?) -> (),
 	ended: ((how: string) -> ())?,
 }
@@ -223,6 +227,12 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 			Image = "",
 		}),
 	})
+	self._drawing = Create("Frame", {
+		Name = "Drawing",
+		BackgroundTransparency = 1,
+		Visible = false,
+		Parent = card,
+	})
 	self._line = Create("TextLabel", {
 		Name = "Line",
 		BackgroundTransparency = 1,
@@ -329,7 +339,8 @@ function AskCard._setLines(
 	rows: number?,
 	picture: string?,
 	line: string?,
-	timed: boolean?
+	timed: boolean?,
+	drawingH: number?
 )
 	local two = (rows or 1) >= 2
 	self._lines = lines
@@ -339,6 +350,18 @@ function AskCard._setLines(
 	local inset: number = self._titleInset or 0
 	self._band.Size = UDim2.new(1, 0, 0, PAD + titleH + BAND_FOOT)
 	local top = PAD + titleH + BELOW
+	-- #5152: a drawing under the band, the line and buttons below it
+	local drawH = if drawingH ~= nil
+			and drawingH > 0
+			and not (picture ~= nil and picture ~= "")
+		then drawingH
+		else 0
+	self._drawing.Visible = drawH > 0
+	if drawH > 0 then
+		self._drawing.Position = UDim2.fromOffset(PAD, top)
+		self._drawing.Size = UDim2.new(1, -PAD * 2, 0, drawH)
+		top += drawH + GAP
+	end
 	local buttonsH = if two then self._choiceH * 2 + GAP else self._choiceH
 	local hasPicture = picture ~= nil and picture ~= ""
 	local compact = hasPicture and COMPACT
@@ -435,6 +458,11 @@ end
 function AskCard._answer(self: any, id: string?, how: string)
 	local ask: Ask? = self._ask
 	self._ask = nil
+	local drawDone: (() -> ())? = self._drawDone -- #5152: the drawing goes with its ask
+	self._drawDone = nil
+	if drawDone ~= nil then
+		drawDone()
+	end
 	if ask ~= nil then
 		ask.answer(id)
 		local ended = ask.ended
@@ -470,16 +498,20 @@ function AskCard.show(self: any, ask: Ask)
 	self._title.Text = ask.title
 	local seconds = ask.seconds
 	local timed = seconds ~= nil and seconds > 0
-	self:_setLines(ask.lines or 1, ask.rows, ask.picture, ask.line, timed)
+	self:_setLines(ask.lines or 1, ask.rows, ask.picture, ask.line, timed, ask.drawingH)
 	-- #4552: a one-line title too long for the card (a phone's narrower card) takes two lines at its full size
 	-- rather than shrinking to a whisper; FitText still covers what two lines cannot hold
 	local long = (ask.lines or 1) < 2 and self:_long(ask.title)
 	if long then
-		self:_setLines(2, ask.rows, ask.picture, ask.line, timed)
+		self:_setLines(2, ask.rows, ask.picture, ask.line, timed, ask.drawingH)
 	end
 	-- the two lines at the title's full size, wrapped; a one-line title keeps FitText's shrink as the backstop
 	self._title.TextScaled = not long
 	self:_buildChoices(ask.choices)
+	local draw = ask.drawing
+	if draw ~= nil and self._drawing.Visible then
+		self._drawDone = draw(self._drawing)
+	end
 	local card: Frame = self._holder
 	local wasVisible = card.Visible
 	card.Visible = true
@@ -595,6 +627,11 @@ end
 function AskCard.destroy(self: any)
 	self._token += 1
 	self._ask = nil
+	local drawDone: (() -> ())? = self._drawDone
+	self._drawDone = nil
+	if drawDone ~= nil then
+		drawDone()
+	end
 	self._resize:Disconnect()
 	for _, button: Button.Button in self._buttons do
 		button:destroy()

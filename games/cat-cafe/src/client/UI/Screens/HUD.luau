@@ -3301,6 +3301,9 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._second = second
 	-- #3554: after it, on the way to a first Park catch, "Visit the Park 🐾" then "Catch a Park cat 🐾"
 	local park: string? = self._parkGoal
+	-- #5031 (switch rankUpRightAway, Tier 1): "Rank up now! Your cafe is ready" in place of the tier's name when ready
+	local readyTitle: unknown = (state :: any).rankUpTitle -- (the UI state's field, set by UIController)
+	self._goal:setReadyTitle(if type(readyTitle) == "string" then readyTitle else nil)
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
@@ -5960,6 +5963,25 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 					else { StuckGoal.NIGHT },
 				chip = StuckGoal.TITLE,
 			}
+		end
+		-- #5031 (switch rankUpRightAway): after the first check-in with Tier 2's cats short, "Catch 1 more cat to rank
+		-- up" (shared/RankUpRightAway), with what Tier 2 opens and its coins line under it
+		local short = if state ~= nil then state.rankUpShort else nil
+		if state ~= nil and type(short) == "number" and short > 0 and state.carrying == nil then
+			local RankUpRightAway = require(
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("RankUpRightAway")
+			) :: any
+			local title: string = RankUpRightAway.shortTitle(short)
+			local opens = GoalLines.opens(self._nextTierName, TOUCH)
+			local lines: { string } = if opens then { opens } else {}
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
 		end
 		-- #3529 (shared/NewKind): "Catch new kinds of cat 3/5" while five different cats is the goal
 		local newKind = if state ~= nil then state.newKindGoal else nil

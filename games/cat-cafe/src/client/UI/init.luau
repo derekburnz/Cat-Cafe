@@ -768,6 +768,8 @@ local function render()
 	if settingsScreen then
 		settingsScreen:render(state)
 		settingsScreen:showTrading(Workspace:GetAttribute("TradingOn") ~= nil) -- F102: once TradeService runs
+		-- #4991: the VIP tag row for a VIP owner (VipTagService sets the attribute)
+		settingsScreen:showVipTag(Players.LocalPlayer:GetAttribute("VipOwner") == true)
 	end
 	if tipJarScreen then
 		tipJarScreen:render(state)

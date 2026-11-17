@@ -5245,6 +5245,23 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local music = list and list:FindFirstChild("music") :: GuiObject?
 		assert(music and not music.Visible, "uigate: the Sound rows show on the Screen tab (#3961)")
 	end },
+	-- #4991: the VIP tag row on the Screen tab for a VIP owner alone, off by default
+	{ "SettingsVipTag", function()
+		local player = game:GetService("Players").LocalPlayer
+		player:SetAttribute("VipOwner", nil)
+		UI.update({ money = ((UI.getState() :: any).money or 0) + 1 } :: any)
+		UI.open("Settings")
+		press("Settings", "Tabs.Screen")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local panel = modals and modals:FindFirstChild("Settings", true)
+		local list = panel and panel:FindFirstChild("List", true)
+		local row = list and list:FindFirstChild("vipTag") :: GuiObject?
+		assert(row and not row.Visible, "uigate: the VIP tag row shows to a player without VIP (#4991)")
+		player:SetAttribute("VipOwner", true)
+		UI.update({ money = ((UI.getState() :: any).money or 0) + 1 } :: any)
+		assert((row :: GuiObject).Visible, "uigate: no VIP tag row on the Screen tab for a VIP owner (#4991)")
+		player:SetAttribute("VipOwner", nil)
+	end },
 	{ "SettingsHelpTab", function()
 		UI.open("Settings")
 		press("Settings", "Tabs.Help")

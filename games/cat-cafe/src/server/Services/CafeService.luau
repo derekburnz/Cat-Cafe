@@ -2550,6 +2550,10 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	end
 	settings[rawKey :: string] = value
 	CafeService.sync(player)
+	if rawKey == "vipTag" then
+		-- #4991: the VIP tag over the head follows its switch at once (required here: no new top-level local)
+		(require(script.Parent.VipTagService) :: any).refresh(player)
+	end
 end
 
 -- #3995 (friend-join-3995.md): the door of the friend a player joined through, for the cafe next door; nil

@@ -4668,7 +4668,13 @@ end
 -- and the "Safe zone: no tackling here" toast on 2026-11-02 (Derek 2026-10-28: "no need for the safe area reached
 -- banner either").
 function UI.setZone(zone: string?)
+	local before = currentZone
 	currentZone = zone
+	-- #5031: back in Town or the cafe, a closed Rank Up window may open again (declared further down: through any)
+	local autoRank: any = (UI :: any).autoRank
+	if autoRank ~= nil then
+		autoRank.landed(before, zone)
+	end
 	showDusk() -- walking into an area during the dusk warning
 	if netButton then
 		netButton:setInArea(not Wayfinding.isSafe(zone))
@@ -11436,7 +11442,17 @@ end
 -- opens by itself the first time each tier's rank up is ready this session, once the screen has been calm for
 -- AutoRankUp.CALM_SECONDS (no window, card, catch, rescue, carry, cutscene, roll or intro). Closed, it waits for the
 -- HUD button. One watcher at a time looks again every CHECK_SECONDS while a ready rank up waits for calm.
-UI.autoRank = { opened = {} :: { [number]: boolean }, watching = false, calmSince = nil :: number? }
+UI.autoRank = {
+	opened = {} :: { [number]: boolean },
+	watching = false,
+	calmSince = nil :: number?,
+	-- #5031 (shared/RankUpRightAway), by tier this session: RANK UP pressed, the window closed without a press, and
+	-- `closes` when it last opened again; autoAt is os.clock() as it opens itself (UIController's rank_up_open how)
+	pressed = {} :: { [number]: boolean },
+	closes = {} :: { [number]: number },
+	reopened = {} :: { [number]: number },
+	autoAt = nil :: number?,
+}
 
 function UI.autoRank.ready(): (boolean, number)
 	local GoalLines = require(script.Components.GoalLines) :: any
@@ -11508,6 +11524,7 @@ function UI.autoRank.check()
 				})
 			then
 				auto.opened[nowTier] = true
+				auto.autoAt = os.clock() -- #5031: this open is the window's own
 				local window = modal :: Modal.Modal
 				window:open("RankUp")
 				break
@@ -11516,6 +11533,37 @@ function UI.autoRank.check()
 		end
 		auto.watching = false
 	end)
+end
+
+-- #5031 (switch rankUpRightAway, shared/RankUpRightAway.againDue): a Rank Up window closed without a press opens again
+-- the next time the player comes into Town or their cafe (UI.setZone), once a close and at most REOPENS times
+function UI.autoRank.landed(before: string?, zone: string?)
+	local auto: any = UI.autoRank
+	if not Wayfinding.isSafe(zone) or Wayfinding.isSafe(before) then
+		return
+	end
+	local Shared = ReplicatedStorage:WaitForChild("Shared")
+	local RankUpRightAway = require(Shared:WaitForChild("RankUpRightAway")) :: any
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local ready, tier = auto.ready()
+	local closes = auto.closes[tier] or 0
+	if
+		RankUpRightAway.againDue({
+			on = LiveFlags.shown(
+				RankUpRightAway.FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankUpRightAway.FLAG)
+			),
+			ready = ready,
+			pressed = auto.pressed[tier] == true,
+			closes = closes,
+			reopened = auto.reopened[tier] or 0,
+			landed = true,
+		})
+	then
+		auto.reopened[tier] = closes
+		auto.opened[tier] = nil
+		auto.check()
+	end
 end
 
 UI.gift = {

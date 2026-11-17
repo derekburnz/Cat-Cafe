@@ -121,6 +121,8 @@ LiveFlags.KEYS = {
 	"palDay", -- #4913: the Pal Day gift, 30 golden fish and a spin for 5 minutes beside a pal, once a day (shared/Pals)
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 	"fxOneAdded", -- #5000: Effects' Workspace.DescendantAdded handlers share one connection (Effects/Context); off by default
+	"rankUpRightAway", -- #5031: Rank Up opens again until pressed, goal card ready and short lines, a stray waits (shared/RankUpRightAway); off by default
+	"parkRingEarly", -- #5034: the nearest Park stray is ringed early after a landing (Motion-FX, PR #5035); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -162,6 +164,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	palDay = true, -- #4913: on after Growth's days-with-friends baseline and a restart (the save field has no bump)
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
 	fxOneAdded = true, -- #5000: on once Sync's Studio read shows the shared connection is no slower
+	rankUpRightAway = true, -- #5031: on after Review-QA and Sync's Studio pass
+	parkRingEarly = true, -- #5034: on at least a UTC day apart from rankUpRightAway (Design)
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

@@ -1242,3 +1242,10 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
   - The Christmas Roblox Event gets added there once it exists.
   - The Cherry Blossom Event page moves or is cancelled.
   - The closed Cherry PRs keep their branches until about Mar 1 2027.
+
+## 2026-11-17 First 5 minutes and tutorial switches go on now; Rank Up pointer is dim and arrow (Design-Agent)
+- **Why:** Derek (15:00 UTC): "put all the first 5 min/turorial step and tutorial changes into game asap also no need for extra rankup button above the bottom middle tutorial step its just ugly make I think a dim screen and arrow point to rank menu is fine then a dim and arrow to rankup button".
+- **What:**
+  - This overrides the staggered dates in the 2026-11-17 Park switch entry and the tomorrowCard plan. `parkRingEarly`, `parkTrailBack`, `parkGateTrail`, `tier3Path`, `tomorrowCard` and `cannonCue` go on as soon as each passes review.
+  - The strip's extra RANK UP button is removed. The rank up walk-through (RankSpot) dims the screen and points at the goal card, then dims and points at the window's RANK UP. It shows in safe zones only, and the window's X stays visible.
+- **Read:** one combined before and after for the first 5 minutes and Tier 2 to 3. Each on-minute goes in Growth's timeline.

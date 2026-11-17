@@ -12,6 +12,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local CafeService = require(script.Parent.CafeService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CozyCafe = require(ReplicatedStorage.Shared.CozyCafe)
@@ -44,10 +45,8 @@ end
 
 -- Whether `position` is inside the plot's cafe footprint (its local X along the width, Z along the depth).
 local function insideCafe(plot: WorldBuilder.Plot, position: Vector3): boolean
-	local W = Config.World
 	local at = plot.cframe:PointToObjectSpace(position)
-	return math.abs(at.X) <= W.PlotWidth / 2
-		and math.abs(at.Z) <= W.PlotDepth / 2
+	return CafeRoom.inside(at, plot.room.width, plot.room.depth) -- #4543: the room standing now
 		and at.Y > -4
 		and at.Y < 30
 end

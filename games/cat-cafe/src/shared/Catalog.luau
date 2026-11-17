@@ -1924,7 +1924,7 @@ Catalog.tiers = {
 		tier = 4,
 		name = "Famous Cafe",
 		cost = 1000000, -- #4685 (Derek 2026-11-16: "lower the money needed from tier 3 to 4 to like 1million and tier 4 to 5 also"): 2,600,000 before; #4320: 4,000,000 before; #4189: 8,000,000 at first, 16,800,000 before; #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
-		distinctCats = 13, -- #4320: 17 before; #4189 (the 4x Money 2 hour floor is dropped): 22 before; #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
+		distinctCats = 10, -- #4192 (Nov 17 read: 139 Tier 3 leavers short of kinds first, 46 of rarity; Tier 3 asks 6, so 13 was a 7 kind step): 13 before; #4320: 17 before; #4189 (the 4x Money 2 hour floor is dropped): 22 before; #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
 		needsRarity = "Legendary", -- #4713 (Derek 2026-11-16: "make tier 3-4 just a legendary needed not a mythic"): Mythical before; #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
@@ -1935,8 +1935,8 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 17000000, -- #4685 (the same cut as Tier 4, about 38% of the old cost): 45,000,000 before; #4320: 90,000,000 before; #4189: 180,000,000 at first, 390,000,000 before; #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
-		distinctCats = 14, -- #4320: 20 before; #4189: 26 before; #3111: 28 before; #2683: 33 before; #2230: 30 before
+		cost = 12000000, -- #4192 (Nov 17 read: Tier 4 leavers short of coins first, 55 of 74; Pace gap Tier 4 to 5 37 min, target under 25): 17,000,000 before; #4685 (the same cut as Tier 4, about 38% of the old cost): 45,000,000 before; #4320: 90,000,000 before; #4189: 180,000,000 at first, 390,000,000 before; #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		distinctCats = 13, -- #4192 (Tier 4 now 10, so a 3 kind step): 14 before; #4320: 20 before; #4189: 26 before; #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
 		slots = 10,
@@ -1950,7 +1950,7 @@ Catalog.tiers = {
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 312500000, -- #4537 (Derek 2026-11-15: "lower the money amount for tier 5 to 6 by like half and tier 6 to 7 also"): 625,000,000 before; #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
+		cost = 150000000, -- #4192 (Nov 17 read: Tier 5 to 6 lost 40%, its leavers short of coins first; Pace gap 1 h 49, target under 45 min): 312,500,000 before; #4537 (Derek 2026-11-15: "lower the money amount for tier 5 to 6 by like half and tier 6 to 7 also"): 625,000,000 before; #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
 		distinctCats = 21, -- #4320: 30 before; #4189: 38 before; #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
@@ -2732,6 +2732,9 @@ Catalog.questPrizes = {
 	dailyBig = { coins = 400, coinSeconds = 150, fish = 3, passXp = 300 },
 	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 6, passXp = 300 },
 	weekly = { coins = 2000, coinSeconds = 600, fish = 10, passXp = 600 },
+	-- #4055 (Derek 2026-11-13 23:53 UTC, the golden fish Store plan): from Tier 8 (Quests.LATE_FISH_TIER) a weekly
+	-- quest pays 40 fish, so the fish prices can be reached by playing
+	weeklyLate = { coins = 2000, coinSeconds = 600, fish = 40, passXp = 600 },
 	weeklySet = {
 		potions = { big_tip_potion = 3 },
 		crates = { classic_golden_crate = 1 },
@@ -4073,66 +4076,68 @@ Catalog.indexPrizes = {
 			tag = "Ruins Gold Master",
 		},
 	},
-	snowy = { -- #3997 (tier8-snowy-mountain.md section 6): the Ruins' coins times 3; no goldLuck (capped)
-		cats3 = { coins = 810000, coinSeconds = 300, fish = 25 },
+	-- #4055 (Derek 2026-11-13 23:53 UTC, the golden fish Store plan): the three new areas' Index pages pay twice the
+	-- fish (their step over the Ruins, doubled), so the fish Store can be reached by playing
+	snowy = { -- #3997 (tier8-snowy-mountain.md section 6): the Ruins' coins times 3; no goldLuck (capped); #4055 fish x2
+		cats3 = { coins = 810000, coinSeconds = 300, fish = 50 },
 		cats6 = { crates = { snowy_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
 		cats10 = {
 			crates = { snowy_crate = 2, snowy_golden_crate = 1 },
-			fish = 65,
+			fish = 130,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 25, crates = { snowy_crate = 1 } },
-		gold2 = { coins = 2700000, coinSeconds = 450, fish = 35 },
-		gold4 = { crates = { snowy_golden_crate = 1 }, fish = 55 },
-		gold6 = { coins = 5400000, coinSeconds = 900, fish = 70 },
-		gold8 = { crates = { snowy_golden_crate = 1 }, fish = 90 },
+		gold1 = { fish = 50, crates = { snowy_crate = 1 } },
+		gold2 = { coins = 2700000, coinSeconds = 450, fish = 70 },
+		gold4 = { crates = { snowy_golden_crate = 1 }, fish = 110 },
+		gold6 = { coins = 5400000, coinSeconds = 900, fish = 140 },
+		gold8 = { crates = { snowy_golden_crate = 1 }, fish = 180 },
 		gold10 = {
 			coins = 13500000,
 			coinSeconds = 1800,
 			crates = { snowy_golden_crate = 2 },
-			fish = 165,
+			fish = 330,
 			tag = "Snowy Mountain Gold Master",
 		},
 	},
-	waterpark = { -- #4070: the Snowy Mountain's coins times 3 and its step in fish; no goldLuck (capped)
-		cats3 = { coins = 2430000, coinSeconds = 300, fish = 30 },
+	waterpark = { -- #4070: the Snowy Mountain's coins times 3 and its step in fish; no goldLuck (capped); #4055 fish x2
+		cats3 = { coins = 2430000, coinSeconds = 300, fish = 60 },
 		cats6 = { crates = { waterpark_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
 		cats10 = {
 			crates = { waterpark_crate = 2, waterpark_golden_crate = 1 },
-			fish = 70,
+			fish = 140,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 30, crates = { waterpark_crate = 1 } },
-		gold2 = { coins = 8100000, coinSeconds = 450, fish = 40 },
-		gold4 = { crates = { waterpark_golden_crate = 1 }, fish = 60 },
-		gold6 = { coins = 16200000, coinSeconds = 900, fish = 75 },
-		gold8 = { crates = { waterpark_golden_crate = 1 }, fish = 95 },
+		gold1 = { fish = 60, crates = { waterpark_crate = 1 } },
+		gold2 = { coins = 8100000, coinSeconds = 450, fish = 80 },
+		gold4 = { crates = { waterpark_golden_crate = 1 }, fish = 120 },
+		gold6 = { coins = 16200000, coinSeconds = 900, fish = 150 },
+		gold8 = { crates = { waterpark_golden_crate = 1 }, fish = 190 },
 		gold10 = {
 			coins = 40500000,
 			coinSeconds = 1800,
 			crates = { waterpark_golden_crate = 2 },
-			fish = 180,
+			fish = 360,
 			tag = "Water Park Gold Master",
 		},
 	},
-	castle = { -- #4184: the Water Park's coins times 3 and its step in fish; no goldLuck (capped)
-		cats3 = { coins = 7290000, coinSeconds = 300, fish = 35 },
+	castle = { -- #4184: the Water Park's coins times 3 and its step in fish; no goldLuck (capped); #4055 fish x2
+		cats3 = { coins = 7290000, coinSeconds = 300, fish = 70 },
 		cats6 = { crates = { castle_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
 		cats10 = {
 			crates = { castle_crate = 2, castle_golden_crate = 1 },
-			fish = 75,
+			fish = 150,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 35, crates = { castle_crate = 1 } },
-		gold2 = { coins = 24300000, coinSeconds = 450, fish = 45 },
-		gold4 = { crates = { castle_golden_crate = 1 }, fish = 65 },
-		gold6 = { coins = 48600000, coinSeconds = 900, fish = 80 },
-		gold8 = { crates = { castle_golden_crate = 1 }, fish = 100 },
+		gold1 = { fish = 70, crates = { castle_crate = 1 } },
+		gold2 = { coins = 24300000, coinSeconds = 450, fish = 90 },
+		gold4 = { crates = { castle_golden_crate = 1 }, fish = 130 },
+		gold6 = { coins = 48600000, coinSeconds = 900, fish = 160 },
+		gold8 = { crates = { castle_golden_crate = 1 }, fish = 200 },
 		gold10 = {
 			coins = 121500000,
 			coinSeconds = 1800,
 			crates = { castle_golden_crate = 2 },
-			fish = 195,
+			fish = 390,
 			tag = "Medieval Castle Gold Master",
 		},
 	},

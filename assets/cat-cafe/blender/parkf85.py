@@ -307,7 +307,7 @@ def glasshouse(mat):
     for a in corners:
         b.box_base((R * math.cos(a), R * math.sin(a), h0), (0.4, 0.4, h1 - h0), "offwhite", bevel=False,
                    rot=(a, "Z"))
-    for z, t in ((h0 + 0.15, 0.3), (4.9, 0.25), (h1 - 0.15, 0.3)):
+    for z, t in ((h0 + 0.15, 0.3), (h1 - 0.15, 0.3)) if parkset.LIGHT else ((h0 + 0.15, 0.3), (4.9, 0.25), (h1 - 0.15, 0.3)):
         b.ring((0, 0, z), R + 0.2, 0.5, t, "offwhite", segments=8, bevel=False, rot=oct_rot)
     ap = R * math.cos(PI / 8)                                                                      # the front face
     b.box((0, -ap - 0.12, h0 + 1.85), (2.9, 0.25, 3.7), "offwhite", bevel=False)                    # the door
@@ -329,7 +329,7 @@ def glasshouse(mat):
     bulb.cyl((0, 0, lt + 0.8), 1.6, 1.6, "lamp_warm", segments=8, bevel=False, rot=oct_rot)
     b.cyl((0, 0, lt + 0.05), 2.0, 0.1, "offwhite", segments=8, bevel=False, rot=oct_rot)
     b.cyl((0, 0, lt + 2.1), 2.0, 1.0, "offwhite", segments=8, bevel=False, rot=oct_rot, radius2=0.2)
-    for a in corners:
+    for a in (corners[::2] if parkset.LIGHT else corners):                                       # the lantern's posts
         b.box_base((1.6 * math.cos(a), 1.6 * math.sin(a), lt + 0.1), (0.2, 0.2, 1.5), "offwhite", bevel=False,
                    rot=(a, "Z"))
     b.cyl_base((0, 0, lt + 2.6), 0.08, 0.6, "gold_mid", segments=6, bevel=False)

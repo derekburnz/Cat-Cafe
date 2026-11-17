@@ -243,6 +243,9 @@ function RankUpPulse.start()
 	player:GetAttributeChangedSignal("TutorialCount"):Connect(function()
 		counted(player:GetAttribute("TutorialCount"))
 	end)
+	-- #5068: a start that comes after RankUpReady was set (fxAfterLoad holds this start until the loading screen has
+	-- gone) still glows the button once; only the button, so a join never plays the goal card's moment
+	ready(player:GetAttribute("RankUpReady"))
 end
 
 return RankUpPulse

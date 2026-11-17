@@ -402,7 +402,7 @@ STUDIO_NOTES = {
     "CatCafe_Plot_BackDoor": "Every cafe, at the Plot pivot: a wooden door hung in the back doorway with a cat flap. "
                              "Turn the child Model _Leaf about its pivot's Y to swing it (-90 degrees is wide open, out "
                              "into the yard); _Flap rides the leaf and turns about its own X as a cat goes through. "
-                             "_Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. The leaf's CatFlap "
+                             "The leaf's CatFlap "
                              "Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code "
                              "panel as the collider.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
@@ -741,7 +741,7 @@ for _st in doorsets.SETS:                       # F80 door sets: CafeService.ref
     STUDIO_NOTES[_b] = ("F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the "
                         "inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide "
                         "open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain "
-                        "when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. "
+                        "when none is picked). "
                         "Nothing collides.")
 for _fl in doorsets.FLAPS:                      # F80 cat flaps: on a back leaf's CatFlap attachment
     _n = f"CatCafe_CatFlap_{_fl}"

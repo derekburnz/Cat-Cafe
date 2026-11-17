@@ -972,7 +972,7 @@ function Quests._renderRow(
 	row.count.Text = if QuestLogic.isCoins(self._catalog, quest.id)
 		then Format.money(progress) .. "/" .. Format.money(needs)
 		else ShortNumber.commas(progress) .. "/" .. ShortNumber.commas(needs)
-	row.chips:set(QuestLogic.prize(self._catalog, kind, slot), look)
+	row.chips:set(QuestLogic.prize(self._catalog, kind, slot, look.tier), look)
 
 	-- a claim on its way shows as claimed; a swap on its way reads "..."
 	local claimed = quest.claimed or (pending ~= nil and pending.action == "claim")

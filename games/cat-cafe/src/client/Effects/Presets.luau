@@ -86,6 +86,8 @@ export type Budget = {
 	rallyPops: number, -- "+1" pops and paws flying into the Rally bar at once (F101)
 	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
 	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
+	rides: number, -- #5065: Water Park rides turning at once (Effects/Rides)
+	rideHz: number, -- #5065: their turns a second
 	netTrails: number, -- nets drawing a whoosh trail at once (F93)
 	luckyShimmers: number, -- jade Lucky Cat statues shimmering at once (F88), a Highlight each
 	campDrips: number, -- camp pipes dripping at once (F100), a drop part each
@@ -150,6 +152,8 @@ Presets.budget = {
 		rallyPops = 5,
 		pennants = 20, -- #4857: 40 before
 		decorMotion = 6, -- #4857: 12 before
+		rides = 1, -- #5065 (Sync's phone read: 2 rides at 30 Hz were half of Effects' time in the Water Park): 3 before
+		rideHz = 15, -- #5065: 30 before
 		netTrails = 3,
 		luckyShimmers = 2,
 		campDrips = 1,
@@ -188,6 +192,8 @@ Presets.budget = {
 		rallyPops = 8,
 		pennants = 90,
 		decorMotion = 24,
+		rides = 3,
+		rideHz = 30,
 		netTrails = 6,
 		luckyShimmers = 4,
 		campDrips = 2,
@@ -226,6 +232,8 @@ Presets.budget = {
 		rallyPops = 6,
 		pennants = 60,
 		decorMotion = 16,
+		rides = 3,
+		rideHz = 30,
 		netTrails = 4,
 		luckyShimmers = 3,
 		campDrips = 1,
@@ -264,6 +272,8 @@ Presets.budget = {
 		rallyPops = 4,
 		pennants = 0,
 		decorMotion = 0,
+		rides = 1, -- #5065: the lite budget turns one ride (rides.mostLite before)
+		rideHz = 15,
 		netTrails = 2,
 		luckyShimmers = 1,
 		campDrips = 1,
@@ -302,6 +312,8 @@ Presets.budget = {
 		rallyPops = 3,
 		pennants = 0,
 		decorMotion = 0,
+		rides = 0, -- Low performance leaves every ride still
+		rideHz = 15,
 		netTrails = 1,
 		luckyShimmers = 0,
 		campDrips = 1,
@@ -4589,8 +4601,8 @@ Presets.decorMotion = {
 -- #4070 the Water Park's rides (Effects/Rides): each turning piece of the area set is a Model named ending with a key
 -- of `kinds`, and turns once every `seconds` about the middle of its own box: `axis` "up" straight up (the carousel,
 -- the teacups), "thin" along the box's thin side (the Ferris wheel, about its hub). All slow: the fastest rim, the
--- carousel's, moves about 3.5 studs a second. The nearest `most` within `radius` studs turn (`mostLite` where the
--- budget has no decor motion), chosen every `pick` seconds, stepped at the budget's rate but never above `hz`;
+-- carousel's, moves about 3.5 studs a second. The nearest budget.rides within `radius` studs turn (#5065: one on a
+-- phone), chosen every `pick` seconds, stepped budget.rideHz times a second but never above `hz`;
 -- a step never covers more than `longest` seconds. Reduce Motion and Low performance hold them all still.
 export type Ride = { axis: "up" | "thin", seconds: number }
 Presets.rides = {
@@ -4599,10 +4611,8 @@ Presets.rides = {
 		TeacupsTurn = { axis = "up", seconds = 16 },
 		FerrisTurn = { axis = "thin", seconds = 60 },
 	} :: { [string]: Ride },
-	radius = 260,
-	most = 3,
-	mostLite = 1,
-	hz = 30,
+	radius = 260, -- how many turn and how often: the budget's `rides` and `rideHz` (#5065)
+	hz = 30, -- never faster than this
 	longest = 0.25,
 	pick = 1,
 }
@@ -6842,6 +6852,18 @@ Presets.petCat = {
 	edge = Color3.fromRGB(94, 70, 52), -- palette 2, the UI's outline colour
 	move = { seconds = 0.6, height = 3, size = 0.9 },
 	range = 120,
+}
+
+-- #4913 Pal Day (Effects/PalDayFx): when today's gift is paid, this player waves with a heart puff (PetCat's hearts)
+-- `overHead` studs over the head (`up` over the root without one), and each pal within `range` studs waves back
+-- `palDelay` seconds later; at most `most` pals are kept from PalsChanged.
+Presets.palDay = {
+	overHead = 0.8,
+	up = 3,
+	range = 120,
+	palDelay = 0.45,
+	most = 12,
+	colour = Presets.palette.nosePink,
 }
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each

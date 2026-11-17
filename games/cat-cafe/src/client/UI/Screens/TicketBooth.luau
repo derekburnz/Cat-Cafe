@@ -88,11 +88,11 @@ local PICTURES: { [string]: { glyph: string, rarity: string, image: (() -> strin
 				return ShopIcons.prize("spins")
 			end,
 		},
-		caviar = {
-			glyph = "🐟",
+		moonMilk = { -- #4959
+			glyph = "🥛",
 			rarity = "Legendary",
 			image = function()
-				return ShopIcons.food("caviar")
+				return ShopIcons.food("moon_milk")
 			end,
 		},
 		bestGolden = {

@@ -197,6 +197,7 @@ export type HUD = {
 
 local AFK_ICON = "💤" -- #4346: the AFK tile's glyph (a sleeping cat's Zs)
 local AFK_ON = "AFK ON" -- the tile's words while the mode is on
+local AFK_OFF = "AFK OFF" -- #4974: and while it is off
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -1148,16 +1149,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #4346 (Derek 2026-11-14: "add an afk button on the top right maybe on top of where the feedback button was
 	-- before"): the AFK tile, left of the Feedback place, while UI.afk says it shows (the afkButton
 	-- switch; HUD.bindAfk). A tap asks the server for AFK mode on or off: home, 2x rest at once, and the rejoin
-	-- before Roblox's idle kick keeps it. Purple with "AFK" while off, gold with "AFK ON" while on. With it
+	-- before Roblox's idle kick keeps it. #4974: green "AFK ON" while on, grey "AFK OFF" while off. With it
 	-- showing, Feedback moves into the Menu list (_feedbackInMenu), so the row keeps its width.
 	self._afk = nil :: any -- UI.afk (Controllers/AfkController), once bound
 	self._afkTile = Button.new({
 		name = "AFK",
-		text = "AFK",
+		text = AFK_OFF,
 		icon = AFK_ICON,
 		layout = "clean",
 		textSize = ICON_TEXT,
-		style = "purple",
+		style = "slate",
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 3,
 		parent = icons,
@@ -4944,12 +4945,13 @@ function HUD.bindAfk(self: any, afk: any)
 	self:_paintAfk()
 end
 
--- #4346: purple "AFK" while off, gold "AFK ON" while on (the tile's On attribute for the UI gate).
+-- #4974 (Derek 2026-11-16: "make it turn green when on and grey/blue when off or something obvious"): green
+-- "AFK ON" while on, grey "AFK OFF" while off (#4346 had purple and gold); the tile's On attribute for the UI gate.
 function HUD._paintAfk(self: any)
 	local afk = self._afk
 	local on = afk ~= nil and afk.on() == true
-	self._afkTile:setStyle(if on then "gold" else "purple")
-	self._afkTile:setText(if on then AFK_ON else "AFK")
+	self._afkTile:setStyle(if on then "primary" else "slate")
+	self._afkTile:setText(if on then AFK_ON else AFK_OFF)
 	self._afkTile.instance:SetAttribute("On", on)
 end
 

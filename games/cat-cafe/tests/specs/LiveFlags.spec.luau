@@ -174,10 +174,11 @@ return function()
 							or key == "storeGuard" -- #4472
 							or key == "noIntro" -- #4929
 							or key == "firstFlightQuick" -- #4920
+							or key == "backdropsNear" -- #4857
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(35) -- #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
+				expect(count).to.equal(36) -- #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
 				-- #4654: the shipped stuckCall and fxLite switches are gone
 				expect(table.find(LiveFlags.KEYS, "stuckCall")).to.equal(nil)
 				expect(table.find(LiveFlags.KEYS, "fxLite")).to.equal(nil)

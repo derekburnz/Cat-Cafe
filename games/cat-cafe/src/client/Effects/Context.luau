@@ -14,6 +14,7 @@ local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
 local Logic = require(script.Parent.Logic)
+local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Presets)
 local Rumble = require(script.Parent.Rumble)
 
@@ -87,6 +88,8 @@ function Context.init()
 		if Logic.slowStep(slow, dt, Presets.slow, Context.cutscene()) then
 			Context.struggling = true
 			rebudget()
+			-- #4945: once a session, for the analytics: when it tripped and how slow (Logic.liteReport)
+			Net.fire("TelemetryReport", "fx_lite", Logic.liteReport(slow))
 			if watch ~= nil then
 				watch:Disconnect()
 			end

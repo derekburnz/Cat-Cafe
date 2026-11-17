@@ -3130,7 +3130,8 @@ local SCENES = {
 		assert(sheet and sheet.Visible, "uigate: Auto did not open the Auto Roll sheet (#4712)")
 		press("MysticPool", "AutoRoll.Targets.TargetLegendary")
 		local start = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
-		assert(start.Text == "Start (up to 5 Trait Tokens)", "uigate: Start reads " .. start.Text .. " (#4714 review)")
+		-- #4898: 5 tokens and the scene's 34 golden fish (one roll's worth) make 6 rolls
+		assert(start.Text == "Start (up to 6 rolls)", "uigate: Start reads " .. start.Text .. " (#4714 review, #4898)")
 		local sentUid, sentAt = nil, nil
 		local connection = UI.events.rollTrait:Connect(function(uid, stopAt)
 			sentUid, sentAt = uid, stopAt
@@ -3147,7 +3148,7 @@ local SCENES = {
 		end
 		UI.update({ traits = { tokens = 4, freeLeft = 0, held = 0, autoRoll = { id = rare, n = 1 } } } :: any)
 		local status = sheet:FindFirstChild("Status")
-		assert(status.Text == "1 of 5 rolls · 1 Trait Token used · last: Rare", "uigate: the Auto Roll line reads " .. status.Text .. " (#4712)")
+		assert(status.Text == "1 of 6 rolls · 1 Trait Token used · last: Rare", "uigate: the Auto Roll line reads " .. status.Text .. " (#4712)")
 		local go = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
 		assert(go.Text == "Stop", "uigate: the running Auto Roll's button reads " .. go.Text .. " (#4712)")
 	end },
@@ -4966,8 +4967,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.bait.showReady(cat, 1)
 		local card = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
 		local tame = card:FindFirstChild("Tame", true)
-		assert(card:FindFirstChild("LetGo", true).Visible and card:FindFirstChild("Close", true).Visible,
-			"uigate: a later bowl cat's card lost Let go or the X (#3815)")
+		-- #4849 (Derek: "just remove the let go button from the game"): Let go never shows; the X is back
+		assert(card:FindFirstChild("Close", true).Visible, "uigate: a later bowl cat's card lost the X (#3815)")
+		assert(not card:FindFirstChild("LetGo", true).Visible, "uigate: Let go still shows on a bowl cat's card (#4849)")
 		assert(tame:FindFirstChild("TutorialGlow") == nil, "uigate: a later bowl cat's Tame still glows (#3815)")
 		-- the first bowl cat's card, as the scene's picture
 		UI.update({ tutorialStep = 4 })
@@ -4994,7 +4996,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		-- a bowl cat after one was tamed is a later one
 		UI.update({ stats = { luresUsed = 2, baitsTamed = 1 } } :: any)
 		UI.bait.showReady(cat, 1)
-		assert(card:FindFirstChild("LetGo", true).Visible, "uigate: a second bowl cat before the check-in lost Let go (#4920)")
+		assert(tame:FindFirstChild("TutorialGlow") == nil, "uigate: a second bowl cat's Tame still glows (#4920)")
+		assert(not card:FindFirstChild("LetGo", true).Visible, "uigate: Let go still shows on a second bowl cat (#4849)")
 		RS:SetAttribute("LiveFlag_" .. TutorialOrder.FLAG, flagWas)
 		UI.update({ tutorialStep = 4, stats = statsWas } :: any)
 		UI.bait.showReady(cat, 1)
@@ -8597,6 +8600,83 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		back("a miss's result comes")
 		UIShim.advance(2)
 	end },
+	-- #4973 (Derek 2026-11-16: "during the tutorial catching the tutorial steps ... will flash through"): a Miss on the
+	-- player's own tutorial stray comes back by itself (CatService.tutorialMiss), so the HUD stays aside through the
+	-- gap until the new circle; with no new circle it comes back after TutorialRetrySeconds plus the grace
+	{ "TutorialMissHold", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		UIShim.advance(4)
+		local before: { [Instance]: boolean } = {}
+		for _, child in root:GetChildren() do
+			if child:IsA("GuiObject") then
+				before[child] = child.Visible
+			end
+		end
+		local function aside(): boolean
+			for child, was in before do
+				if was and not (child :: GuiObject).Visible then
+					return true
+				end
+			end
+			return false
+		end
+		local function back(what: string)
+			for child, was in before do
+				assert(
+					(child :: GuiObject).Visible == was,
+					"uigate: the HUD's " .. child.Name .. " is not back " .. what .. " (#4973)"
+				)
+			end
+		end
+		local function beginner(strayId: string)
+			local model = workspace:FindFirstChild("Stray_" .. strayId)
+			assert(model ~= nil, "uigate: no stray model for " .. strayId)
+			model:SetAttribute("Beginner", UIShim.player.UserId)
+		end
+		startCatchV3("gate_tm", "Common", { "single" }, 0, 1)
+		beginner("gate_tm")
+		UIShim.advance(0.3)
+		assert(aside(), "uigate: the HUD did not step aside for the catch, so the scene proves nothing (#4973)")
+		UI.catch.showGrades("gate_tm", { "miss" }, false, 0, nil, nil)
+		assert(aside(), "uigate: the HUD came back on a tutorial Miss while its circle is on its way back (#4973)")
+		UIShim.advance(1.0)
+		assert(aside(), "uigate: the HUD flashed back before the tutorial circle came back (#4973)")
+		startCatchV3("gate_tm", "Common", { "single" }, 0, 1) -- the server's own restart
+		UIShim.advance(2.5)
+		assert(aside(), "uigate: the HUD came back mid catch after a tutorial retry (#4973)")
+		UI.catch.showGrades("gate_tm", { "perfect" }, true, 0)
+		back("the moment the retried catch lands")
+		UIShim.advance(2)
+		-- no new circle (walked off, no press): back after the retry time and the grace
+		startCatchV3("gate_tm2", "Common", { "single" }, 0, 1)
+		beginner("gate_tm2")
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm2", { "miss" }, false, 0, nil, nil)
+		UIShim.advance(1.5)
+		assert(aside(), "uigate: the HUD came back inside the retry wait (#4973)")
+		UIShim.advance(1.0)
+		back("after a tutorial Miss with no new circle")
+		UIShim.advance(2)
+		-- Sync's forced Miss run: an easy catch on a stray that is not the Beginner one; its retryAt (now + 1 s) says
+		-- the circle comes back, so the HUD stays aside too
+		startCatchV3("gate_tm3", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		local t = workspace:GetServerTimeNow()
+		UI.catch.showGrades("gate_tm3", { "miss" }, false, 0, t + 1, nil)
+		assert(aside(), "uigate: the HUD came back on an easy catch's Miss whose circle comes back (#4973)")
+		startCatchV3("gate_tm3", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm3", { "perfect" }, true, 0)
+		back("the moment the easy catch lands")
+		UIShim.advance(2)
+		-- an ordinary Miss (retryAt 3 s or more away): the HUD is back at once (#3078)
+		startCatchV3("gate_tm4", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm4", { "miss" }, false, 0, workspace:GetServerTimeNow() + 3, nil)
+		back("the moment an ordinary Miss lands")
+		UIShim.advance(4)
+	end },
 	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): with a PackedCatId on the character
 	-- and nothing in the arms, a small "Drop bag cat" pill sits where the carry banner would, thumb sized, on screen,
 	-- one line; a tap fires dropCat. While carrying, the carry banner's Drop takes over and the pill hides.
@@ -9322,6 +9402,28 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local tier, done = was.tier, was.secondCatDone
 		RS:SetAttribute("LiveFlag_catchFirst", false)
 		UI.update({ tier = 1, secondCatDone = false } :: any)
+		-- #4920: with firstFlightDirect on, the first flight launches straight to the Alleyway with no picker; a
+		-- refused launch opens the picker (with its ring) and stops the straight launch for the session
+		RS:SetAttribute("LiveFlag_firstFlightDirect", true)
+		local fired: { string } = {}
+		local listen = UI.events.launchCannon:Connect(function(_cannon: string, area: string)
+			table.insert(fired, area)
+		end)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(fired[1] == "alley", "uigate: the first flight did not launch straight to the Alleyway (#4920)")
+		local shown = UIShim.playerGui:FindFirstChild("Cannon", true) :: GuiObject?
+		assert(shown == nil or not shown.Visible, "uigate: the picker opened on the straight launch (#4920)")
+		UI.cannon.result(false, "alley")
+		UIShim.advance(0.3)
+		assert(UI.cannon.direct.off, "uigate: a refused straight launch did not stop it (#4920)")
+		assert(UI.cannon.walkRing == "alley", "uigate: a refused straight launch did not open the picker (#4920)")
+		listen:Disconnect()
+		UI.close("Cannon")
+		UIShim.advance(0.3)
+		UI.cannon.direct.off = false
+		-- the switch off: the picker as before
+		RS:SetAttribute("LiveFlag_firstFlightDirect", false)
 		UI.cannon.open()
 		UIShim.advance(0.3)
 		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
@@ -9339,6 +9441,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.3)
 		assert(UI.cannon.walkRing == nil and launch:FindFirstChild("TutorialGlow") == nil, "uigate: the ring came back after the catches (#4674)")
 		RS:SetAttribute("LiveFlag_catchFirst", nil)
+		RS:SetAttribute("LiveFlag_firstFlightDirect", nil)
 		UI.update({ tier = tier, secondCatDone = if done == nil then true else done } :: any)
 		UI.close("Cannon")
 	end },
@@ -10342,6 +10445,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		-- a rank up in an earlier scene leaves "The Park is open!" up for its time; the Park line comes after it
 		local CannonLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.CannonLogic")
 		UIShim.advance(CannonLogic.OPENED_HINT_SECONDS + 1)
+		-- Sync's Studio run of #4947: with no trail showing (resting, or a window up) the line does not name the paws
+		assert(strip() == UI.parkTrail.STRIP_PLAIN, "uigate: with no trail showing the strip reads " .. strip() .. " (#4947)")
+		local cannonMark = Instance.new("Part")
+		cannonMark.Name = "ParkStripCannon"
+		cannonMark.Anchored = true
+		cannonMark.Parent = workspace
+		UI.parkTrail.set(cannonMark, "Visit the Park 🐾")
+		UIShim.advance(0.1)
 		assert(strip() == UI.parkTrail.STRIP, "uigate: on the way to the Park the strip reads " .. strip() .. " (#3893)")
 		-- the Tutorial tile's red X (its Hide button, the Cross's grandparent)
 		local cross = hud:FindFirstChild("Cross", true) :: Instance
@@ -10357,6 +10468,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(strip() == UI.parkTrail.STRIP, "uigate: the wrap-up hint took the Park line's place, the strip reads " .. strip() .. " (#3893)")
 		-- with the paw trail switched off (no goal) the line stays, without naming the paws (Review-QA's PC run)
 		UI.parkTrail.set(nil, nil)
+		cannonMark:Destroy()
 		UIShim.advance(0.1)
 		assert(strip() == UI.parkTrail.STRIP_PLAIN, "uigate: with the trail off the strip reads " .. strip() .. " (#3893)")
 		UI.cannon.wrapUp.on = false
@@ -12705,10 +12817,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			ready = 3,
 			prizes = {
 				prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
-				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 6000, 1, "week", short), -- #4596
+				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 2000, 1, "week", short), -- #4596, #4960
 				prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
 				prize("spins5", "5 Wheel Spins", "Five spins of the wheel", 1000, 3, "day"),
-				prize("caviar", "Caviar Bait", "The best bait", 1200, 3, "day", short),
+				prize("moonMilk", "Moon Milk Bait", "Legendary bait", 1200, 3, "day", short), -- #4959
 				prize("bestGolden", "Best Golden Crate", "Your best area's golden crate", 1800, 1, "day", short),
 			},
 		}
@@ -12742,7 +12854,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 			assert(cards == 6, ("uigate: the booth shows %d prizes, not 6 (#4061)"):format(cards))
-			local lucky = grid:FindFirstChild("Prize_caviar") :: GuiObject
+			local lucky = grid:FindFirstChild("Prize_moonMilk") :: GuiObject
 			local saved = lucky:FindFirstChild("Saved") :: GuiObject
 			assert(saved.Visible, "uigate: no bar of tickets saved on a prize short of its price (#4061)")
 			local numbers = saved:FindFirstChild("Numbers") :: TextLabel
@@ -12750,7 +12862,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local function buyText(id)
 				return (grid:FindFirstChild("Prize_" .. id):FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
 			end
-			assert(buyText("caviar") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("caviar") .. " (#4061)")
+			assert(buyText("moonMilk") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("moonMilk") .. " (#4061)")
 			press("TicketBooth", "Prize_fish25.Buy")
 			assert(#sent == 1 and sent[1].remote == "BuyTicketPrize" and sent[1].id == "fish25", "uigate: BUY sent no BuyTicketPrize fish25 (#4061)")
 			-- 1,000 and over asks first
@@ -14325,7 +14437,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return ""
 		end
-		assert(tile:GetAttribute("On") == false and words() == "AFK", "uigate: the AFK tile looks on while the mode is off (#4346)")
+		assert(tile:GetAttribute("On") == false and words() == "AFK OFF", "uigate: the AFK tile looks on while the mode is off (#4346, #4974)")
 		tapPiece(tile)
 		assert(fake.toggles == 1, ("uigate: the AFK tile asked %d times for one tap (#4346)"):format(fake.toggles))
 		fake.onNow = true

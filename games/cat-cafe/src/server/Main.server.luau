@@ -167,6 +167,7 @@ ShopCatService.start() -- #1447: the Royal and King cats on their passes
 RareMomentService.start() -- F89: the toast clock
 GlobalCatchService.start() -- #2203: rare catches from other servers, as chat lines
 RareCatsTabService.start() -- #3053: the chat's Rare Cats tab (its rareCatsTab switch retired in #4654 batch 4)
+require(script.Parent.Services.ChatTagShareService).start() -- #4882: titles on Global tab lines from other servers
 IntroService.start()
 IntroModeService.start() -- #4001: the short intro test arm, read as each player joins
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join

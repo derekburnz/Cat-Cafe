@@ -110,6 +110,7 @@ LiveFlags.KEYS = {
 	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
 	"firstFlightQuick", -- #4920: the walk-through's flights out take 2/3 of every beat (shared/Cannon.flightScale)
 	"moneyCard", -- #4437: the HUD Money button's first tap opens the boost card (UI/Screens/MoneyCard); false prompts at once
+	"firstFlightDirect", -- #4920: the walk-through's first flight goes straight to the Alleyway (UI/Components/WalkRingLogic)
 	"autoRankUp", -- #4924: the Rank Up window opens by itself once a tier when it is ready (UI/Components/AutoRankUp)
 	"noIntro", -- #4929: no intro plays by itself on a first join (shared/IntroSplit.NO_INTRO); off unless switched on
 	"autoFirstBait", -- #4452: the starter Kibble goes in bowl 1 by itself at the tutorial's bowl step (shared/SecondCatHelp)
@@ -123,6 +124,7 @@ LiveFlags.KEYS = {
 	"earlyKindBonus", -- #4624: kinds 2 to 5 pay 3x a Common's new-kind money in Tier 1 (shared/SecondCat); off until the Nov 16 read
 	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
 	"journeys", -- #4544: Roblox Journey events (shared/Journeys); on once the configs are published in Creator Hub
+	"backdropsNear", -- #4857: far areas' backdrop rings leave this client's Workspace (shared/BackdropNear); off by default
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -136,6 +138,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	luckyCharm = true,
 	introSplit = true,
 	noIntro = true, -- #4929
+	backdropsNear = true, -- #4857
 	firstFlightQuick = true, -- #4920: on once the effects scale by CannonFlightScale
 	parkGateTrail = true,
 	storeRework = true,

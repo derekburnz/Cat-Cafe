@@ -48,14 +48,15 @@ return function()
 					at += shot.seconds
 				end
 				-- 30.5 with the camp cuts, until #1542; 22.5 with the Index Board shot, until #1782; 20 until #2242's
-				-- 3 s rich visitor; 23 until #2357 took out the 2 s "first cat is waiting" shot
-				expect(Intro.length(shots)).to.be.near(21, 1e-9)
+				-- 3 s rich visitor; 23 until #2357 took out the 2 s "first cat is waiting" shot; 21 until #4971 gave shot 1
+				-- 0.5 s more moves inside its caption hold (the hop in view), so the intro plays no longer
+				expect(Intro.length(shots)).to.be.near(21.5, 1e-9)
 				local starts = {}
 				for _, shot in shots do
 					table.insert(starts, math.floor(shot.starts * 10 + 0.5) / 10)
 				end
 				-- #2242: the 3 s rich visitor after the cafe job; #2113: the 3 s night before the 2.7 s spin
-				expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 15.3, 18.3 })
+				expect(starts :: any).to.deepEqual({ 0, 3, 5.5, 8, 10, 12.8, 15.8, 18.8 })
 			end
 		)
 
@@ -147,7 +148,7 @@ return function()
 					at += shot.seconds
 				end
 				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 6, 7, 8 })
-				expect(Intro.length(shots)).to.be.near(16.5, 1e-9)
+				expect(Intro.length(shots)).to.be.near(17, 1e-9) -- 16.5 until #4971
 				-- shot 2 holds the clouds to its end instead of cutting to the camp
 				local cuts = shots[2].cuts
 				expect(near(cuts[#cuts].from.position, cuts[1].to.position)).to.equal(true)
@@ -591,16 +592,16 @@ return function()
 		it("is the position of the shot showing, 0 once the last has ended", function()
 			local shots = Intro.shots(EAST, true)
 			expect(Intro.shotAt(shots, 0)).to.equal(1)
-			expect(Intro.shotAt(shots, 2.49)).to.equal(1)
-			expect(Intro.shotAt(shots, 2.5)).to.equal(2)
-			expect(Intro.shotAt(shots, 5)).to.equal(3)
-			expect(Intro.shotAt(shots, 8)).to.equal(4)
-			expect(Intro.shotAt(shots, 10)).to.equal(5)
-			expect(Intro.shotAt(shots, 12.29)).to.equal(5)
-			expect(Intro.shotAt(shots, 12.31)).to.equal(6) -- the rich visitor, straight after the job (#2242)
-			expect(Intro.shotAt(shots, 15.31)).to.equal(7) -- the square
-			expect(Intro.shotAt(shots, 20.99)).to.equal(8) -- the last since #2357
-			expect(Intro.shotAt(shots, 21.01)).to.equal(0)
+			expect(Intro.shotAt(shots, 2.99)).to.equal(1) -- #4971: shot 1 is 3 s
+			expect(Intro.shotAt(shots, 3)).to.equal(2)
+			expect(Intro.shotAt(shots, 5.5)).to.equal(3)
+			expect(Intro.shotAt(shots, 8.5)).to.equal(4)
+			expect(Intro.shotAt(shots, 10.5)).to.equal(5)
+			expect(Intro.shotAt(shots, 12.79)).to.equal(5)
+			expect(Intro.shotAt(shots, 12.81)).to.equal(6) -- the rich visitor, straight after the job (#2242)
+			expect(Intro.shotAt(shots, 15.81)).to.equal(7) -- the square
+			expect(Intro.shotAt(shots, 21.49)).to.equal(8) -- the last since #2357
+			expect(Intro.shotAt(shots, 21.51)).to.equal(0)
 			expect(Intro.shotAt(shots, 100)).to.equal(0)
 		end)
 	end)

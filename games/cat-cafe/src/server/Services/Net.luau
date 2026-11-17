@@ -24,8 +24,11 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	MouseDashStart = RateLimiter.new(1, 1), -- #3296
 	MouseDashTap = RateLimiter.new(12, 1),
 	MouseDashQuit = RateLimiter.new(1, 1),
-	RollTrait = RateLimiter.new(1, 1), -- #3196
-	ChooseTrait = RateLimiter.new(1, 1),
+	-- #3196; #4898 (Derek 2026-11-16: rerolls "when going fast gets stuck" on "..."): still 1 a second on average,
+	-- but a bucket of 3, so two presses the client sent 1.1 s apart that arrive closer (network jitter) are both taken
+	-- instead of one dropped without an answer
+	RollTrait = RateLimiter.new(3, 3),
+	ChooseTrait = RateLimiter.new(3, 3),
 	CollectTraitTokens = RateLimiter.new(1, 1),
 	RescueHelp = RateLimiter.new(1, 1), -- F92 (playing-together.md section 6): 1 a second
 	DropCat = RateLimiter.new(1, 1),
@@ -62,6 +65,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	PassClaim = RateLimiter.new(4, 1), -- #1645: a Claim tap on the Pass screen
 	PassClaimAll = RateLimiter.new(1, 1), -- #1645
 	PassSetTag = RateLimiter.new(2, 1), -- #1626: the Pass screen's tag picker
+	ChatTagAsk = RateLimiter.new(10, 10), -- #4882: one per new Global tab speaker
 	SetSignStyle = RateLimiter.new(2, 1), -- #1625: a pick on the Style panel; each one refreshes the plot
 	SetLook = RateLimiter.new(2, 1), -- #1624: a theme or uniform pick on the Style tab; each refreshes the plot
 	-- #1168 row 2: a song pick on the Jukebox card; #3299: 4 a second, so the last of a few quick taps through the list
@@ -161,6 +165,7 @@ local DROP_SUMMARY_SECONDS = 60
 local QUIET_DROPS: { [string]: boolean } = {
 	Tackle = true,
 	LaunchCannon = true,
+	ChatTagAsk = true, -- #4882: a busy Global tab
 }
 local dropCounts: { [number]: { [string]: number } } = {} -- userId -> remote -> drops since the last summary
 local dropLoggedAt: { [number]: number } = {} -- userId -> when the last summary line was written

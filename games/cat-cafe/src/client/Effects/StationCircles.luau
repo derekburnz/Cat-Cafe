@@ -84,7 +84,9 @@ function StationCircles.shown(): boolean
 end
 
 local function track(instance: Instance)
-	if not StationCircles.isCircle(instance.Name, instance.ClassName) then
+	-- #4987: the name first, so the class name is read only for the few named like a circle
+	local name = instance.Name
+	if NAMES[name] ~= true or not StationCircles.isCircle(name, instance.ClassName) then
 		return
 	end
 	if not (instance:IsA("BasePart") or instance:IsA("Model")) then

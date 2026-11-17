@@ -535,6 +535,7 @@ local function cannonHint(): string?
 		bowlFirst = (require(
 			ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
 		) :: any).bowlFirst(),
+		loaded = state.tutorialStep ~= nil, -- #4967: not before the first sync
 	})
 end
 
@@ -574,7 +575,10 @@ function applyTutorial()
 		and (state.tier or 1) >= 2
 		and not park.reached
 	then
-		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
+		-- Sync's Studio run of #4947: the line named the paws while no trail showed (the trail rests after
+		-- ParkTrailLogic.REST_AFTER seconds, and waits while a window is up), so it names them only while a trail
+		-- target is set
+		text = if park.goal ~= nil and park.target ~= nil then park.STRIP else park.STRIP_PLAIN
 	end
 	-- #4836: the Tutorial tile's × waits to pulse until the Park is reached, so its arrow never shows beside the walk's
 	if hud then
@@ -607,6 +611,11 @@ function applyTutorial()
 				end
 			end)
 		end
+	end
+	-- #4973: the beat after a walk-through catch's result (UI.catch.retry.stripUntil, finishCatch)
+	local catchBeat: any = UI.catch
+	if catchBeat ~= nil and catchBeat.retry ~= nil and os.clock() < catchBeat.retry.stripUntil then
+		text = nil
 	end
 	if hud then
 		hud:holdTutorial(introPending)
@@ -1221,6 +1230,18 @@ function UI.init(config: Types.InitConfig)
 			else
 				UI.lateStations.open(stationId, true)
 			end
+		end,
+		-- #4961: Rummage on the Alleyway card: the picker closes and the bar comes where the player stands
+		rummage = function()
+			local start = UI.cannon.rummage.start
+			if start ~= nil then
+				closeModal()
+				start()
+			end
+		end,
+		rummageOn = function(): boolean
+			local on = UI.cannon.rummage.on
+			return on ~= nil and on()
 		end,
 		close = closeModal,
 	})
@@ -4091,6 +4112,8 @@ end
 -- Every catching area is reached by the Cat Cannon in the Town Square, and each has a safe camp with a cannon back.
 -- Off until setEnabled(true), so the Areas button and panel work as before on a server without F84.
 UI.cannon = {}
+-- #4961: the Cat Cannon picker's Rummage button (BinController sets both): whether it may show, and the press
+UI.cannon.rummage = { on = nil :: (() -> boolean)?, start = nil :: (() -> ())? }
 
 -- On: the HUD's Cannon button takes the Areas button's place and fires events.travel("cannon") (the server moves
 -- the player to the front of the nearest cannon), the Alley button goes, and the carry banner reads "Bring it to the
@@ -4102,6 +4125,9 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 -- #2915: "Fly to the Park" on the rank-up card (flyToPark). `ring` is the area whose picker card is ringed, `travel`
 -- that the trip to the cannon is under way (UI.travel.result opens the picker when it lands), `token` the newest press.
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
+-- #4920: the walk-through's straight launch to the Alleyway: `pending` while its answer is out, `off` for the rest of
+-- the session once the server refused one (the picker opens instead, so a refused launch never loops)
+UI.cannon.direct = { pending = false, off = false }
 UI.cannon.bowlPending = false -- #4674: bowl first, the bowl part still to do (UIController)
 UI.cannon.walkRing = nil :: string? -- #4674: the walk-through's Alleyway ring on the picker, until Launch
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
@@ -4118,7 +4144,7 @@ UI.parkTrail = {
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
 	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
 	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
-	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same with the paw trail switched off
+	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same while no paw trail shows
 }
 
 -- #4480: whether the walk to the Park shows at all (the strip line, the "is open" hint, "Fly to the Park"): the
@@ -4171,11 +4197,14 @@ end
 
 function UI.parkTrail.set(target: BasePart?, goal: string?)
 	local changed = UI.parkTrail.target ~= target
+	local shows = (UI.parkTrail.target ~= nil) ~= (target ~= nil) -- the strip names the paws only while they show
 	UI.parkTrail.target = target
 	if UI.parkTrail.goal ~= goal and hud ~= nil then
 		UI.parkTrail.goal = goal
 		hud:setParkGoal(goal)
 		applyTutorial() -- #3893: the strip's Park line comes and goes with the walk
+	elseif shows and hud ~= nil then
+		applyTutorial()
 	end
 	if changed and not UI.parkTrail.tutorial then
 		UI.parkTrail.apply(nil)
@@ -4341,6 +4370,47 @@ function UI.cannon.openAfterTravel()
 	task.delay(0.4, look, true)
 end
 
+-- #4920: the walk-through's Cannon button: once the cloud hop has put the player at the Town Square cannon, it opens
+-- (UI.cannon.open), which launches straight to the Alleyway while the walk-through's first flight is due. Nothing
+-- when the picker would open with no Alleyway ring (it then waits for Hop in, as before).
+function UI.cannon.directAfterTravel()
+	if UI.cannon.fly.travel or UI.cannon.fly.ring ~= nil or UI.cannon.direct.off then
+		return -- "Fly to the Park" opens its own picker
+	end
+	local WalkRingLogic = require(script.Components.WalkRingLogic)
+	local TutorialOrder =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	-- review: with the switch off the picker waits for Hop in, as before
+	if
+		not LiveFlags.shown(
+			WalkRingLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
+		)
+	then
+		return
+	end
+	local walk = WalkRingLogic.area({
+		bowlFirst = TutorialOrder.bowlFirst(),
+		tier = state.tier,
+		secondCatDone = (state :: any).secondCatDone,
+		cannonId = CannonLogic.TOWN,
+		flyRing = nil,
+	})
+	if walk == nil then
+		return
+	end
+	-- after the cloud hop (Config.CloudHopSeconds), so the launch is not refused mid-hop
+	task.delay((Config :: any).CloudHopSeconds or 1.6, function()
+		local nearest = UI.cannon.nearest
+		local near = if nearest ~= nil then nearest() else nil
+		if near == CannonLogic.TOWN and (modal == nil or modal:current() == nil) then
+			UI.cannon.open(near)
+		end
+	end)
+end
+
 -- The Town Square cannon, for the hint's arrow and trail.
 function UI.cannon.setCannon(part: BasePart?)
 	cannonPart = part
@@ -4374,6 +4444,27 @@ function UI.cannon.open(cannonId: string?)
 		cannonId = cannonId or CannonLogic.TOWN,
 		flyRing = UI.cannon.fly.ring,
 	})
+	-- #4920: the walk-through's first flight from the Town Square goes straight to the Alleyway (no picker)
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local direct = WalkRingLogic.direct(
+		{
+			bowlFirst = TutorialOrder.bowlFirst(),
+			tier = state.tier,
+			secondCatDone = (state :: any).secondCatDone,
+			cannonId = cannonId or CannonLogic.TOWN,
+			flyRing = UI.cannon.fly.ring,
+		},
+		LiveFlags.shown(
+			WalkRingLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
+		)
+	)
+	if direct ~= nil and not UI.cannon.direct.off then
+		UI.cannon.direct.pending = true
+		UI.events.launchCannon:Fire(cannonId or CannonLogic.TOWN, direct)
+		return
+	end
 	if walk ~= nil then
 		UI.cannon.walkRing = walk
 		screen:setRing(walk)
@@ -4469,6 +4560,15 @@ function UI.cannon.result(ok: boolean, destination: string?)
 	if cannonScreen then
 		cannonScreen:result(ok, destination)
 	end
+	-- #4920 (review): a refused straight launch (night without the pass, a cooldown, mid hop) opens the picker as
+	-- before and stops the straight launch for the session, so the next tap never loops on the same refusal
+	if UI.cannon.direct.pending then
+		UI.cannon.direct.pending = false
+		if not ok then
+			UI.cannon.direct.off = true
+			UI.cannon.open(CannonLogic.TOWN)
+		end
+	end
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -4489,6 +4589,7 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	end
 	if destination == "cannon" then
 		if ok then
+			UI.cannon.directAfterTravel() -- #4920
 			UI.cannon.openAfterTravel() -- #2915
 		else
 			UI.cannon.fly.travel = false
@@ -4599,6 +4700,9 @@ end
 -- limit for one function's locals; the module was at 196). Its tables are made out here, so every use of them
 -- type checks.
 UI.catch = {}
+-- #4973: a tutorial Miss keeps the HUD aside until its circle comes back (finishCatch); `starts` counts the circles
+-- shown, `token` the results, and GRACE is the wait past TutorialRetrySeconds before it gives up on a new circle
+UI.catch.retry = { token = 0, starts = 0, GRACE = 1.0, stripUntil = 0, STRIP_BEAT = 0.6 }
 -- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
@@ -4812,6 +4916,7 @@ do
 		if catch then
 			catch:hide() -- activePrompt and activeInfo stay so the card can come back
 		end
+		UI.catch.retry.starts += 1 -- #4973: a tutorial Miss's held HUD stays down for this circle
 		if hud then
 			hud:setCatching(true)
 		end
@@ -4856,6 +4961,17 @@ do
 				end
 			end
 		end
+		-- #4973 (Sync's forced Miss run): the server's easy catch (CatService.easyCatch) covers every free stray of
+		-- the walk-through, not only the Beginner one, and its Miss comes back after TutorialRetrySeconds, which the
+		-- result's retryAt says (an ordinary Miss waits StraySelfRetrySeconds, 3 s or more)
+		if
+			not outcome.success
+			and outcome.hint == nil
+			and type(retryAt) == "number"
+			and retryAt - Workspace:GetServerTimeNow() <= Config.TutorialRetrySeconds + 0.5
+		then
+			outcome.hint = "Try again!"
+		end
 		if not outcome.success and outcome.hint == nil then
 			local now = Workspace:GetServerTimeNow()
 			for id, retry in retries do
@@ -4875,14 +4991,56 @@ do
 		-- #3078 (Derek2 11-10: "the ui after catch still takes a second to pop back up should be instant"): the HUD
 		-- comes back the moment the result arrives. It waited for the result word before (0.4 s, and 0.6 s more for
 		-- the net wrap on a catch); the word still flashes over it.
-		if hud then
-			hud:setCatching(false)
+		-- #4973 (Derek 2026-11-16: "during the tutorial catching the tutorial steps (even tho all ui is supposed to be
+		-- hidden) will flash through"): a Miss on this player's own tutorial stray (outcome.hint) brings its circle back
+		-- by itself after TutorialRetrySeconds (CatService.tutorialMiss), so the HUD, its strip and the catch card stay
+		-- aside through that gap. Should no circle come (walked off, no press reached the server) they come back after
+		-- RETRY_GRACE more.
+		local retry = UI.catch.retry
+		retry.token += 1
+		local held = not outcome.success and outcome.hint ~= nil
+		local token, starts = retry.token, retry.starts
+		local function back()
+			if hud then
+				hud:setCatching(false)
+			end
+		end
+		local function card()
+			local info = activeInfo
+			local prompt = catch
+			if not outcome.success and activePrompt ~= nil and info ~= nil and prompt ~= nil then
+				prompt:show(info)
+			end
+		end
+		-- #4973 (Sync's run: the old step's line flashed 0.09 s after a Perfect, until the next step's sync): in the
+		-- walk-through a catch's result keeps the strip down for STRIP_BEAT, so the next line is the first it shows
+		if outcome.success and UI.firstCat.tutorial then
+			retry.stripUntil = os.clock() + retry.STRIP_BEAT
+			applyTutorial()
+			task.delay(retry.STRIP_BEAT + 0.05, function()
+				if hud ~= nil then
+					applyTutorial()
+				end
+			end)
+		end
+		if held then
+			task.delay(Config.TutorialRetrySeconds + retry.GRACE, function()
+				local cards: any = UI -- UI.rescue is built further down
+				if
+					retry.token == token
+					and retry.starts == starts
+					and not cards.rescue.isActive()
+				then
+					back()
+					card()
+				end
+			end)
+		else
+			back()
 		end
 		screen:showResult(outcome, function()
-			local info = activeInfo
-			local card = catch
-			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
-				card:show(info)
+			if not held then
+				card()
 			end
 		end)
 	end

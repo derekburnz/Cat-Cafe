@@ -252,6 +252,16 @@ return function()
 			expect(CannonLogic.hint(view({ tier = 3 }))).to.equal(nil)
 		end)
 
+		it("says nothing before the save's first sync (#4967)", function()
+			expect(CannonLogic.hint(view({ loaded = false }))).to.equal(nil)
+			expect(CannonLogic.hint(view({ loaded = false, bowlFirst = true, told = false }))).to.equal(
+				nil
+			)
+			expect(CannonLogic.hint(view({ loaded = true }))).to.equal(
+				"Hop in the cannon: wild cats wait in the Alleyway!"
+			)
+		end)
+
 		it("waits for the bowl and has no wrap-up line under bowl first (#4674)", function()
 			expect(CannonLogic.hint(view({ bowlPending = true }))).to.equal(nil)
 			expect(CannonLogic.hint(view({ bowlPending = false }))).to.equal(

@@ -467,10 +467,11 @@ local function frame()
 	setLook(if running then AdminFlashLogic.lookOf(current) else nil)
 
 	local hidden = TradeUnlock.blocked() or TradeUnlock.playing()
-	made.splash.Enabled = not hidden
-	made.low.Enabled = not hidden
-
+	-- #4953 (Derek, #4877: no admin event UI in the walk-through or the first 5 minutes): while the UI holds the
+	-- screen quiet, the low strip hides too, and comes back as the hold ends (the splash does not replay)
 	local calm = quiet()
+	made.splash.Enabled = not hidden
+	made.low.Enabled = not hidden and not calm
 	local step = AdminFlashLogic.step(current, now, seenAt, p, calm)
 	local spec = p.looks[AdminFlashLogic.lookOf(current) or ""]
 		or p.looks[AdminFlashLogic.DEFAULT_LOOK]
@@ -521,7 +522,9 @@ local function frame()
 		local last = step.last
 		if last and not wasLast then
 			wasLast = true
-			beat("last")
+			if not calm then
+				beat("last") -- no last-minute sound for a strip the hold keeps hidden
+			end
 		end
 		made.stripFill.Color = if last
 			then ColorSequence.new(p.lastTop, p.lastBottom)

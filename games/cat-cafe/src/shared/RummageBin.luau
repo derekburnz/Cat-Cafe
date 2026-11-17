@@ -32,6 +32,10 @@ local Types = require(script.Parent.Types)
 local RummageBin = {}
 
 RummageBin.SPOT = "bin_alley" -- its bar's id on RescueBegin, RescuePress, RescueCancel, RescueChallenge, RescueResult
+-- #4961 (Derek 2026-11-16: "make rummage bin able to do from the cannon menu"): RescueBegin with this id starts a
+-- rummage from the Cat Cannon picker's Alleyway card, wherever the player stands: no walk up, no pad, no roll show
+-- (the board is at the bin); the bar and the presses then run under SPOT as at the bin
+RummageBin.REMOTE_SPOT = "bin_alley_remote"
 RummageBin.AREA = "alley"
 RummageBin.TAG = "RummageBin" -- the placed model (WorldBuilder)
 RummageBin.PROMPT = "RummagePrompt"

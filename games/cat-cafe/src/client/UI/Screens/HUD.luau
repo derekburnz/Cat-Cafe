@@ -709,6 +709,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		})
 	end
 	local money = counter("Money", 1, "TextButton") :: TextButton
+	money.Selectable = false -- #5103 (#4224 item 6): the D-pad passes over the counter; a tap still opens the boosts card
 	-- the gold coin picture (Icon_Clean_CoinGold, #1253), then the amount. The rate per second shows only in the
 	-- boosts card a tap opens (Derek 2026-11-02: "how much per second should be hidden until clicked also"). If the
 	-- picture fails to load, the gold "$" shows instead.
@@ -1395,6 +1396,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Position = UDim2.new(0, -(LUCKY_CLOVER + LUCKY_GAP), 0.5, 0),
 		Size = UDim2.new(1, LUCKY_CLOVER + LUCKY_GAP, 0, Scale.tapHeight(Theme.sizes.touchMin)),
 		ZIndex = luckyLine.ZIndex + 1,
+		Selectable = false, -- #5103 (#4224 item 6): the D-pad passes over the day line; a tap still opens its card
 		Parent = luckyLine,
 	})
 	self._dayCard = Create("Frame", {
@@ -2020,6 +2022,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, menuFold)
 	self._menuFold = menuFold
+	-- #5103 (Sync's controller pass, #4224 item 6): the D-pad passes over the fold arrows; a tap still folds
+	for _, part in menuFold.instance:GetDescendants() do
+		if part:IsA("GuiButton") then
+			(part :: GuiButton).Selectable = false
+		end
+	end
 	self._menuTop = MARGIN
 	self._gridTop = MARGIN
 	self._foldBeside = false
@@ -2241,6 +2249,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, travelFold)
 	self._travelFold = travelFold
+	for _, part in travelFold.instance:GetDescendants() do -- #5103: as the MenuFold arrow
+		if part:IsA("GuiButton") then
+			(part :: GuiButton).Selectable = false
+		end
+	end
 
 	-- Carry banner (bottom centre, above the bottom row): the cat you carry and a red Drop button (G)
 	local carry = hudPanel("Carry", {

@@ -1230,3 +1230,15 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 - **Why:** At the old numbers a lone player could buy all 11 Harvest items in about 45 minutes (the patch gave about 480 pumpkins an hour). The area runs Nov 25 to Dec 6, so it would be finished on day one.
 - **What:** Stall prices x3 (all 11 items now 1,440 pumpkins). Patch regrow 300 s (150 s when busy). Daily visit gift +40 pumpkins. Catch pumpkins unchanged, so no reward is cut. Rides the Wed Nov 18 Harvest fold.
 - **Read:** Thu Nov 26. If more than 25% of players own all 11 by Sat Nov 28, raise the week two prices.
+
+## 2026-11-17 Cherry Blossom Grove moves to spring; a Christmas slot (#5098, Design-Agent)
+- **Why:** Derek (14:29 UTC): "move the cherry blossom event to wayy later after christmas because I am thinking about drafting a christmas update between thanks giving and cherry blossom". The old dates (Dec 5 to Dec 12) also overlapped Harvest Hollow's last two days.
+- **What:**
+  - Harvest Hollow stays Wed Nov 25 to Sun Dec 6.
+  - A Christmas update is proposed for Sat Dec 12 20:00 UTC to Sun Jan 3 20:00 UTC. It opens six days after Harvest closes and covers the school break, Christmas and New Year. Derek drafts its content.
+  - Cherry Blossom Grove is proposed for Sat Mar 27 2027 20:00 UTC to Sat Apr 3 2027 20:00 UTC, at bloom season. It is still one week, opens at Tier 2 and gets no group post.
+- **Follow-ups:**
+  - The Cherry Blossom entry leaves `Config.UpdateEvents` before the Nov 25 publish, so nothing in game teases Dec 5.
+  - The Christmas Roblox Event gets added there once it exists.
+  - The Cherry Blossom Event page moves or is cancelled.
+  - The closed Cherry PRs keep their branches until about Mar 1 2027.

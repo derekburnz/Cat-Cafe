@@ -316,6 +316,7 @@ export type PlayerState = {
 	fishPerks: { [string]: number }?, -- F53: Golden Fish Market perk id -> level
 	goldLuck: number?, -- F54: the Index's gold luck, capped (GoldLuckMax); nil adds it up from the claims
 	baitSpeed: number?, -- F54: the Index's faster bait, capped (BaitSpeedMax); nil adds it up from the claims
+	firstBait: boolean?, -- #1895: no bait set yet on this account, so the empty bowl promises the short first wait
 	-- F88 (luck-and-rare-moments.md section 1): the player's Luck (1 to LuckMax) and what makes it up; the HUD's Luck
 	-- chip and card, and the odds every food and crate card shows (shared/Luck)
 	luck: number?,

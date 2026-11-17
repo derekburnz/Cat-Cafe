@@ -1486,6 +1486,9 @@ local function applyState(s: Types.PlayerState)
 		fishPerks = s.fishPerks,
 		goldLuck = s.goldLuck, -- F54: the Index's gold luck and faster bait, capped
 		baitSpeed = s.baitSpeed,
+		-- #5050 (Sync's timed run): sent since #1895 but never copied, so the empty Bait bowl promised "A cat comes by in
+		-- 10m 0s" while the first bait comes in 3 s. false once used, as UI.update skips a nil.
+		firstBait = (s :: any).firstBait == true,
 		potions = s.potions, -- F64: the potion bag
 		catFood = s.catFood, -- #1181: the Bag's cat food
 		hideCredit = s.hideCredit, -- #1083: the Settings row "Show my name on the Thank You board" (on when false)

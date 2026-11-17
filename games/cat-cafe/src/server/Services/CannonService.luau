@@ -258,24 +258,24 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 			and flyer.Parent ~= nil
 			and flyer:GetAttribute("CannonLaunchAt") == now
 	end
-	task.spawn(function()
-		local pad = Layout.landingPads[destination]
-		if current() and pad ~= nil then
-			local centre = pad.centre
-			-- with StreamingEnabled off this has nothing to do; it can also time out, which only means pop-in
-			pcall(function()
-				player:RequestStreamAroundAsync(
-					Vector3.new(centre.x, centre.y, centre.z),
-					STREAM_TIMEOUT
-				)
-			end)
-		end
-	end)
 	task.delay(Config.CannonTeleportAtSeconds * scale, function()
 		if current() then
 			-- one flight at a time picks its spot, so two moves never share one (section 3b)
 			local landing = landingFor(player, destination)
 			if landing ~= nil then
+				-- #4857 (Sync's Park reads, 2026-11-17): the destination streams in as the body moves there, not at
+				-- the launch. Asked at the launch, it came in 0.3 s after it (a 150 to 190 ms frame on a PC) while the
+				-- body was still in town, more than StreamingTargetRadius away, so StreamOutBehavior Opportunistic let
+				-- it go again and it all came a second time after the landing. Now it comes once, under the clouds.
+				-- With StreamingEnabled off this has nothing to do; it can also time out, which only means pop-in.
+				task.spawn(function()
+					pcall(function()
+						player:RequestStreamAroundAsync(
+							(landing :: CFrame).Position,
+							STREAM_TIMEOUT
+						)
+					end)
+				end)
 				flyer:PivotTo(landing)
 			end
 		end

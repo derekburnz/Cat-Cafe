@@ -60,7 +60,7 @@ local function buttons(): { GuiObject }
 end
 
 -- One glow off `object`: a rounded frame its size swelling by `grow` pixels as it fades over `seconds`, following
--- the object if it moves.
+-- the object if it moves. Also CannonCue's (#5034 follow-up).
 local function glow(gui: ScreenGui, object: GuiObject, p: typeof(Presets.rankUpPulse))
 	local frame = Instance.new("Frame")
 	frame.Name = "Glow"
@@ -229,6 +229,8 @@ local function goalReady(tier: unknown)
 		glow(gui, card :: GuiObject, Presets.rankUpPulse)
 	end
 end
+
+RankUpPulse.glow = glow
 
 function RankUpPulse.start()
 	if started then

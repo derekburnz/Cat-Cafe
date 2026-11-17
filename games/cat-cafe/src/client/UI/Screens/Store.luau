@@ -686,6 +686,9 @@ function Store.setFish(self: any, list: { StoreLogic.FishRow }?, have: number)
 		if not on then
 			self._fishMode = false
 			self._armed = nil
+			if self._rework then
+				self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, false))
+			end
 		end
 		self:_paintSwitch()
 	end
@@ -699,6 +702,9 @@ function Store.setFishMode(self: any, on: boolean)
 		return
 	end
 	self._fishMode = mode
+	if self._rework then
+		self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, mode)) -- the header line names what prices show
+	end
 	self:_paintSwitch()
 	self:_repaint()
 end
@@ -2012,7 +2018,7 @@ function Store.showTab(self: any, tab: string)
 	end
 	if self._rework then
 		-- #3572: the tab's header line
-		self._panel:setTitle("Store", StoreLogic.subtitle(self._tab))
+		self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, self._fishMode))
 	end
 	-- #1823 §4: opening a tab clears its New dot, and the server saves it once
 	if self._new[self._tab] then

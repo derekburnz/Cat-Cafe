@@ -77,14 +77,34 @@ local SUBTITLES: { [string]: string } = {
 	featured = "Prices are in Robux.", -- Featured can show potion packs, which are used up
 	deal = "A new deal every day. Prices are in Robux.",
 	packs = "Packs are yours to keep. Prices are in Robux.",
-	cats = "Passes are yours to keep. Prices are in Robux.",
+	cats = "Cat helpers are yours to keep. Prices are in Robux.", -- its own line
 	passes = "Passes are yours to keep. Prices are in Robux.",
 	potions = "Potions are used from your Bag. Prices are in Robux.",
 	cafePass = "Prices are in Robux.",
 }
 
-function StoreLogic.subtitle(tab: string): string
-	return SUBTITLES[tab] or StoreLogic.SUBTITLE_DEFAULT
+-- The header line's last words on the switch's Fish side, for the tabs whose cards are not all fish priced.
+local FISH_LINES: { [string]: string } = {
+	featured = "Fish prices show where an item has one.",
+	deal = "These need Robux.",
+	potions = "These need Robux.",
+	-- mixed tabs: the Money passes (Passes) and the Starter Bundle (Cats) are Robux only; short for a phone's header
+	passes = "Some need Robux.",
+	cats = "Some need Robux.",
+}
+
+-- `fish` is the Robux / Fish switch on its Fish side (#4055): the line then says golden fish, as the cards do.
+function StoreLogic.subtitle(tab: string, fish: boolean?): string
+	local line = SUBTITLES[tab]
+	if line == nil then
+		return StoreLogic.SUBTITLE_DEFAULT
+	end
+	if fish then
+		-- a tab with no fish card (every card reads "Robux only") says so; Featured can hold either kind
+		local to = FISH_LINES[tab] or "Prices are in golden fish."
+		return (line:gsub("Prices are in Robux%.", to))
+	end
+	return line
 end
 
 -- What Roblox said about a pass: its price in Robux and whether it is on sale. Missing until the lookup returns.
@@ -250,7 +270,7 @@ local PASSES: { PassCard } = {
 		configKey = "StylishPackPassId",
 		name = "Stylish Pack",
 		icon = "🕶️",
-		effect = "Turn your cafe into a night club: sharp suits, cool shades and a disco ball.",
+		effect = "Sharp suits, cool shades and a disco ball.",
 		note = "Yours to keep.",
 		tab = "packs",
 		perk = "Up to +100% money",
@@ -261,7 +281,7 @@ local PASSES: { PassCard } = {
 		configKey = "WinterPackPassId",
 		name = "Winter Pack",
 		icon = "❄️",
-		effect = "A cosy snow day: warm coats, bobble hats and a cocoa stand.",
+		effect = "Warm coats, bobble hats and a cocoa stand.",
 		note = "Yours to keep.",
 		tab = "packs",
 		perk = "Up to +100% money",
@@ -272,7 +292,7 @@ local PASSES: { PassCard } = {
 		configKey = "ChefPackPassId",
 		name = "Chef Pack",
 		icon = "🧁",
-		effect = "Run a real bakery: chef whites, chef hats and a pastry case.",
+		effect = "Chef whites, chef hats and a pastry case.",
 		note = "Yours to keep.",
 		tab = "packs",
 		perk = "Up to +100% money",
@@ -283,7 +303,7 @@ local PASSES: { PassCard } = {
 		configKey = "SpacePackPassId",
 		name = "Space Pack",
 		icon = "🚀",
-		effect = "Blast off: space suits, bubble helmets and a rocket lamp.",
+		effect = "Space suits, bubble helmets and a rocket lamp.",
 		note = "Yours to keep.",
 		tab = "packs",
 		perk = "Up to +100% money",

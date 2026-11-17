@@ -30,6 +30,7 @@ export type AchievementRow = {
 local QuestLogic = {}
 
 QuestLogic.BIG_SLOT = 5 -- the Big Request is the fifth daily (Quests.DAILY_POOLS)
+QuestLogic.LATE_FISH_TIER = 8 -- #4055: shared/Quests.LATE_FISH_TIER, the weekly quests' 40 fish from here
 
 local function number(value: any): number
 	if type(value) ~= "number" or value ~= value or value == math.huge or value == -math.huge then
@@ -43,12 +44,22 @@ function QuestLogic.done(quest: Types.QuestView): boolean
 	return number(quest.progress) >= needs
 end
 
-function QuestLogic.prize(catalog: Types.Catalog?, kind: string, slot: number): Types.IndexPrize?
+-- `tier` (the cafe's): from Tier 8 the weekly quests show the late prize (#4055, shared/Quests.LATE_FISH_TIER).
+function QuestLogic.prize(
+	catalog: Types.Catalog?,
+	kind: string,
+	slot: number,
+	tier: number?
+): Types.IndexPrize?
 	local prizes = if catalog then catalog.questPrizes else nil
 	if prizes == nil then
 		return nil
 	end
 	if kind == "weekly" then
+		local late: Types.IndexPrize? = prizes.weeklyLate
+		if late ~= nil and (tier or 0) >= QuestLogic.LATE_FISH_TIER then
+			return late
+		end
 		return prizes.weekly
 	end
 	return if slot == QuestLogic.BIG_SLOT then prizes.dailyBig else prizes.daily

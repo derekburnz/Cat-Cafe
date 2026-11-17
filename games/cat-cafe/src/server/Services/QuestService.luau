@@ -62,7 +62,7 @@ local function payQuest(
 	local entry = list[slot]
 	entry.claimed = true
 	local sku = if kind == "daily" then "quest_daily" else "quest_weekly"
-	local paid = Payout.pay(player, profile, Quests.prize(kind, slot), sku)
+	local paid = Payout.pay(player, profile, Quests.prize(kind, slot, Economy.tier(profile)), sku)
 	if kind == "daily" then
 		profile.stats.dailyQuestsDone += 1
 	else

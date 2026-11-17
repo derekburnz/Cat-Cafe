@@ -2666,6 +2666,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local pity = stray.pity
 		local area = stray.area
 		local waitedFor = stray.beginner -- #3181: someone else's tutorial stray
+		local recaught = stray.recaught -- #4251: a let go cat that walked home pays no Harvest pumpkins twice
 		-- #1181 (corner-shop-v2.md section 3): 1 in CatchSnackChance a stray's net catch drops a Small Snack, never a
 		-- Dropped or re-caught cat's, so shoving and catching one cat again cannot farm them
 		local dropsSnack = stray.drop == nil
@@ -2693,8 +2694,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		if M.Catalog.getArea(area) ~= nil then
 			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
 		end
-		for _, hook in M.caughtHooks do
-			task.spawn(hook, player, def, area)
+		if not recaught then
+			for _, hook in M.caughtHooks do
+				task.spawn(hook, player, def, area)
+			end
 		end
 		local home = M.homeFromCampless
 		if home ~= nil then
@@ -4502,7 +4505,8 @@ function CatService.spawnIn(areaId: string, rarity: Types.Rarity): boolean
 end
 
 -- #4251: `hook(player, def, areaId)` runs (in its own thread) after every successful net catch, as the cat goes
--- into the catcher's arms.
+-- into the catcher's arms; not for a cat let go that walked home first (`recaught`), so Harvest pumpkins and the pie
+-- count each cat once (Sync's Harvest run, 2026-11-17: a drop then a late re-catch paid +1 twice).
 function CatService.onCaught(hook: (Player, Types.CatDef, string) -> ())
 	table.insert(M.caughtHooks, hook)
 end

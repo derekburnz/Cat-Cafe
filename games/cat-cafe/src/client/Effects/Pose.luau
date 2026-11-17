@@ -81,6 +81,14 @@ export type Rig = {
 	-- whether the server's walk (Mover's WalkFrom, WalkTo, WalkSpeed and WalkAt attributes) was being drawn last read
 	walking: boolean,
 	walkAt: number?, -- that walk's WalkAt, so a new walk (a fleeing cat turning) eases in too
+	-- the walk drawn last read (from, flat way, length, speed, WalkAt) and where on it the cat was then, so a server
+	-- write that lands a frame later eases from where that walk has the cat now, not from a frame back
+	lineFrom: Vector3,
+	lineWay: Vector3,
+	lineLength: number,
+	lineSpeed: number,
+	lineAt: number,
+	walkSpot: Vector3?,
 	frames: { CFrame },
 	scale: number, -- the cat's size against the manifest's (its Scale attribute times the model's scale)
 }
@@ -322,6 +330,12 @@ local function newRig(model: Model, body: BasePart): Rig
 		easing = false,
 		walking = false,
 		walkAt = nil,
+		lineFrom = Vector3.zero,
+		lineWay = Vector3.zero,
+		lineLength = 0,
+		lineSpeed = 0,
+		lineAt = 0,
+		walkSpot = nil,
 	}
 end
 
@@ -782,7 +796,7 @@ end
 -- #4601 (Model-Agent's #5139): while the server walks a stray under strayWalkSlow it sets WalkFrom, WalkTo, WalkSpeed
 -- and WalkAt (server time) on the model: a straight line on the ground at a set speed. The ground shift that takes
 -- the server's last write (its pivot) to where that walk has the cat now, or nil when no walk is set.
-local function walkShift(rig: Rig): (CFrame?, number?)
+local function walkShift(rig: Rig, serverNow: number): (CFrame?, number?)
 	local model = rig.model
 	local at = model:GetAttribute("WalkAt")
 	if type(at) ~= "number" then
@@ -808,13 +822,13 @@ local function walkShift(rig: Rig): (CFrame?, number?)
 	else
 		pivot = model.WorldPivot
 	end
-	local now = Logic.walkAlong(
-		from :: Vector3,
-		way,
-		length,
-		speed :: number,
-		Workspace:GetServerTimeNow() - at
-	)
+	local now = Logic.walkAlong(from :: Vector3, way, length, speed :: number, serverNow - at)
+	rig.lineFrom = from :: Vector3
+	rig.lineWay = way
+	rig.lineLength = length
+	rig.lineSpeed = speed :: number
+	rig.lineAt = at
+	rig.walkSpot = now
 	return CFrame.new(now.X - pivot.Position.X, 0, now.Z - pivot.Position.Z), at
 end
 
@@ -874,15 +888,32 @@ function Pose.read(rig: Rig, ease: number?): boolean
 	local seconds = ease or 0
 	-- where the server's walk has the cat now, as a ground shift on top of its last write (none when not walking)
 	local shift: CFrame?, walkAt: number? = nil, nil
+	-- #4601 (Sync's run on #5149): a write read a frame after the last draw eased from that draw, a frame back on the
+	-- walk, so the cat stood still for that frame (0.52, 0.02, 0.49). The ease starts from where the walk drawn last
+	-- read has the cat now instead; at a walk's end that is where its line stops.
+	local from = before
 	if seconds > 0 then
-		shift, walkAt = walkShift(rig)
+		local serverNow = Workspace:GetServerTimeNow()
+		local spot = rig.walkSpot
+		if spot ~= nil then
+			local was = Logic.walkAlong(
+				rig.lineFrom,
+				rig.lineWay,
+				rig.lineLength,
+				rig.lineSpeed,
+				serverNow - rig.lineAt
+			)
+			from = CFrame.new(was.X - spot.X, 0, was.Z - spot.Z) * before
+		end
+		rig.walkSpot = nil
+		shift, walkAt = walkShift(rig, serverNow)
 	end
 	local walking = shift ~= nil
 	local shifted = if shift ~= nil then shift else IDENTITY
 	if seconds > 0 and (moved or walking ~= rig.walking or walkAt ~= rig.walkAt) then
 		local landed = shifted * server[rig.bodyIndex]
-		if (landed.Position - before.Position).Magnitude <= Presets.motion.hiss.jumpStuds then
-			rig.easeFrom = landed:ToObjectSpace(before)
+		if (landed.Position - from.Position).Magnitude <= Presets.motion.hiss.jumpStuds then
+			rig.easeFrom = landed:ToObjectSpace(from)
 			rig.easeAt = now
 			rig.easing = true
 		else

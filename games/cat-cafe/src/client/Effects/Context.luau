@@ -291,14 +291,15 @@ function Context.onWorkspaceAdded(handler: (Instance) -> ())
 		addedHandlers = handlers
 		Workspace.DescendantAdded:Connect(function(instance: Instance)
 			for index, each in handlers do
-				local ok, problem = pcall(each, instance)
-				if not ok and not addedWarned[index] then
-					addedWarned[index] = true
-					warn(
-						"[Effects] a Workspace.DescendantAdded handler failed: "
-							.. tostring(problem)
-					)
-				end
+				xpcall(each, function(problem: unknown)
+					if not addedWarned[index] then
+						addedWarned[index] = true
+						warn(
+							"[Effects] a Workspace.DescendantAdded handler failed: "
+								.. tostring(problem)
+						)
+					end
+				end, instance)
 			end
 		end)
 	end

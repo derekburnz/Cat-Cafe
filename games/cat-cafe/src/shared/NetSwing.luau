@@ -49,7 +49,20 @@ end
 -- share of NetReachStuds (DragonKeep.of, only while its switch is on). The server's swing and the NetExtraStuds
 -- attribute for the client's glow both read it.
 function NetSwing.extraForProfile(profile: Types.PlayerProfile): number
-	return NetSwing.extraFor(profile.mystery) + Config.NetReachStuds * DragonKeep.of(profile).reach
+	return NetSwing.extraFor(profile.mystery)
+		+ Config.NetReachStuds * DragonKeep.of(profile).reach
+		+ (if NetSwing.calm(profile.tier) then Config.TutorialNetExtraStuds else 0) -- #4815
+end
+
+-- #4815 (Derek 2026-11-16): the walk-through, which ends with the rank up to Tier 2: a missed swing or circle never
+-- scares a cat and the net reaches TutorialNetExtraStuds further. `tier` is the saved tier; a damaged one (0, a
+-- fraction, NaN) reads as Tier 1, the way Economy.tier does.
+NetSwing.CALM_BELOW_TIER = 2
+function NetSwing.calm(tier: unknown): boolean
+	if type(tier) ~= "number" or tier ~= tier then
+		return true
+	end
+	return math.max(1, math.floor(tier)) < NetSwing.CALM_BELOW_TIER
 end
 
 -- #4447: a profile's time between swings: NetSwingCooldown, less the Dragon Keep's Ember Net share. The server's check
@@ -159,8 +172,10 @@ end
 
 -- Whether a miss makes nearby cats hop for a player at `tutorialStep`: a player who has not caught a cat yet never
 -- does, so the first catch stays easy (easy-start.md section 2b; the step the tutorial stray waits for).
-function NetSwing.missHops(tutorialStep: number): boolean
+-- #4815: nor does one still in the walk-through (`tier` below CALM_BELOW_TIER), when given.
+function NetSwing.missHops(tutorialStep: number, tier: number?): boolean
 	return tutorialStep >= Config.TutorialGuaranteedStrayStep
+		and (tier == nil or not NetSwing.calm(tier))
 end
 
 -- Why this swing does nothing, as a short reason (for the specs and the Studio log), or nil when it swings. The

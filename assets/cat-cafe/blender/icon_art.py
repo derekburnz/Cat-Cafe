@@ -6,6 +6,7 @@ picture"). Nothing here is placed in the game; icons.py renders each one to a PN
   golden_fish        the one Golden Fish picture: a plump shiny gold fish, a happy eye, a white glint
   kibble, tuna, sardines, salmon, caviar, moon_milk, star_treat   the seven foods, Kibble to Star Treat
   honey_cream, comet_treat   #3462 the Day Cart's own two baits
+  eclipse_treat, royal_feast #4900 the Secret tier bait and the 50,000 XP cat food
   golden_espresso, big_bowl, extra_decor_spot                     the Golden Fish Market perks
   coins, spin_wheel  prize pictures: a stack of three gold coins, the Spin Wheel's own wheel
 
@@ -312,6 +313,48 @@ def comet_treat(mat):
     _twinkle(b, -1.1, 1.75, -0.2, 0.45)
     _twinkle(b, 0.75, 0.2, -0.2, 0.28)
     return [b.finalize("CatCafe_IconArt_CometTreat", mat)]
+
+
+def eclipse_treat(mat):
+    """#4900 the Eclipse Treat, the Secret tier bait: the Comet Treat gone dark. A deep indigo biscuit with near black
+    icing and a gold star, flying down to the left with purple and gold tails and purple stars behind it."""
+    b = RB()
+    cx, cy = -0.3, 0.85
+    ux, uy = math.cos(math.radians(35)), math.sin(math.radians(35))
+    for (off, length, sw, w) in ((0.42, 1.5, "rarity_epic", 0.26), (0.0, 2.0, "sparkle", 0.36),
+                                 (-0.42, 1.3, "aurora_violet", 0.24)):
+        b.box((cx + ux * length / 2 - uy * off, cy + uy * length / 2 + ux * off, 0.2), (length, w, 0.08), sw, rot=rot_z(35))
+    _sb(b, (cx, cy, 0), 0.8, "fur_indigo", scale=(1.0, 1.0, 0.55))                      # the biscuit
+    _sb(b, (cx, cy, -0.26), 0.56, "fur_black", scale=(1.0, 1.0, 0.4))                   # its near black icing
+    _star_up(b, cx, cy, -0.5, 0.42, 0.19, 0.06, "rarity_legend")
+    _star_up(b, cx, cy, -0.54, 0.24, 0.11, 0.04, "pastel_butter")
+    for (x, y) in ((-0.3, 0.38), (0.28, 0.4), (-0.24, -0.4), (0.3, -0.36)):
+        b.box((cx + x, cy + y, -0.46), (0.07, 0.07, 0.04), "rarity_epic", rot=rot_z(45))
+    _star_up(b, 1.2, 0.55, -0.1, 0.17, 0.08, 0.06, "rarity_epic")
+    _twinkle(b, -1.1, 1.75, -0.2, 0.45, "sparkle")
+    _twinkle(b, 0.75, 0.2, -0.2, 0.28, "rarity_epic")
+    return [b.finalize("CatCafe_IconArt_EclipseTreat", mat)]
+
+
+def royal_feast(mat):
+    """#4900 the Royal Feast, the 50,000 XP cat food: a wide gold platter heaped with five round treats in bright
+    colours, a small gold crown with red jewels floating over it."""
+    b = RB()
+    b.cyl((0, 0.1, 0), 0.75, 0.2, "gold_dark", r2=1.15, segments=24)                    # the foot, flaring up
+    b.cyl((0, 0.27, 0), 1.3, 0.14, "gold_mid", segments=24)                             # the platter
+    b.cyl((0, 0.36, 0), 1.08, 0.06, "gold_light", segments=24)                          # its bright well
+    for (x, z, sw) in ((-0.5, 0.3, "rarity_mythic"), (0.0, 0.42, "fur_golden"), (0.5, 0.3, "leaf_green")):
+        _sb(b, (x, 0.74, z), 0.4, sw, scale=(1.0, 0.85, 1.0))                           # the back row
+    for (x, z, sw) in ((-0.3, -0.3, "fur_strawberry"), (0.3, -0.3, "rarity_rare")):
+        _sb(b, (x, 0.7, z), 0.42, sw, scale=(1.0, 0.85, 1.0))                           # the front two
+    y = 1.62                                                                             # the crown's band
+    b.box((0, y, 0), (0.86, 0.16, 0.3), "rarity_legend")
+    for x in (-0.3, 0.0, 0.3):
+        b.cyl((x, y + 0.27, 0), 0.15, 0.4, "rarity_legend", r2=0.02, segments=4)
+        b.ball((x, y + 0.52, 0), 0.075, "rarity_mythic")
+    _twinkle(b, -1.25, 1.55, -0.2, 0.4)
+    _twinkle(b, 1.25, 1.2, -0.2, 0.3)
+    return [b.finalize("CatCafe_IconArt_RoyalFeast", mat)]
 
 
 # --- the Golden Fish Market perks ---------------------------------------------------------------------------------

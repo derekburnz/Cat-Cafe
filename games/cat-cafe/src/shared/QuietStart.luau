@@ -102,6 +102,64 @@ function QuietStart.treatOpensItself(firstDay: unknown, today: number): boolean
 	return type(firstDay) ~= "number" or firstDay <= 0 or today > firstDay
 end
 
+-- #4821 (Growth-Agent's Home research and Design-Agent's first-60-seconds spec, 2026-11-16: 35.56% of Home players
+-- leave at 61 to 180 s, phone worst): under bowl first, until the first bowl cat is claimed (TutorialOrder.bowlPending)
+-- only the walk-through shows (its strip, ring and arrow, the first bait's cutscene and the Tame card). Toasts other
+-- than warnings, tips, asks, the event strip and the admin event's middle of the screen wait, and keep waiting
+-- FIRST_CAT_AFTER seconds past the claim, so the cat's own card has the screen. The client holds them (UI.firstCat).
+QuietStart.FIRST_CAT_AFTER = 10
+
+-- Whether the first cat hold is on: `before` the bowl cat is claimed, or less than FIRST_CAT_AFTER seconds since
+-- `claimedAt` (this session's clock as the claim was seen, nil when it was not seen this session).
+function QuietStart.firstCatHolds(before: boolean, claimedAt: number?, now: number): boolean
+	return before or (claimedAt ~= nil and now - claimedAt < QuietStart.FIRST_CAT_AFTER)
+end
+
+-- Derek 2026-11-16 15:22 UTC ("no unnecessary pop ups until tutorial steps done"): past the first cat hold, the rest
+-- of the walk-through is quiet too, until it ends: the Tier 2 rank up under bowl first (TutorialOrder; the Park move
+-- is gone, #4776), else tutorialStep TUTORIAL_DONE or Tier 2. The asks, the event's Notify Me offer, the Starter
+-- Bundle card, the Daily Treat window opening itself, the return hook line, the event and day strip, the big event
+-- cards and the admin event's middle of the screen wait (the client's UI.firstCat.tutorial); badges wait on the server
+-- (Badges.TUTORIAL_TIER). The walk-through, its tips, the catch and reward cards and the toasts are not held.
+QuietStart.TUTORIAL_DONE = 5
+
+-- Whether the walk-through hold is on: `bowlFirst` is TutorialOrder.bowlFirst()'s answer, `tutorialStep` and `tier`
+-- the state's (nil reads as 0 and 1).
+function QuietStart.tutorialHolds(bowlFirst: boolean, tutorialStep: number?, tier: number?): boolean
+	if (tier or 1) >= QuietStart.TIER then
+		return false
+	end
+	return bowlFirst or (tutorialStep or 0) < QuietStart.TUTORIAL_DONE
+end
+
+-- #4946 (Derek 2026-11-16, via the coordinator: "one pop-up every 5 minutes", and no social asks or other unneeded
+-- pop-ups until the tutorial steps are done or the first 5 minutes have passed): the walk-through hold also lasts
+-- until the account has EARLY_SECONDS of play (read off ATTRIBUTE, which counts the account's first SECONDS), so the
+-- Tier 2 rank up at about 75 to 115 s no longer lets everything held go at once. After it, the pop-ups the hold keeps
+-- (event cards, asks, first visit cards, the Starter Bundle card, the Daily Treat opening itself) come at most one
+-- every POP_GAP_SECONDS (the client's UI.popPace).
+QuietStart.EARLY_SECONDS = 300
+QuietStart.POP_GAP_SECONDS = 300
+
+-- Whether a player whose attribute reads `untilAt` has played less than EARLY_SECONDS on the account at `now`.
+function QuietStart.earlyHolds(untilAt: unknown, now: number): boolean
+	return type(untilAt) == "number"
+		and untilAt - now > QuietStart.SECONDS - QuietStart.EARLY_SECONDS
+end
+
+-- The server time the early hold ends for `untilAt`, or nil when it is not on at `now`.
+function QuietStart.earlyEndsAt(untilAt: unknown, now: number): number?
+	if not QuietStart.earlyHolds(untilAt, now) then
+		return nil
+	end
+	return (untilAt :: number) - (QuietStart.SECONDS - QuietStart.EARLY_SECONDS)
+end
+
+-- Whether a held pop-up may show at `now` (this session's clock), the last one having shown at `lastAt`.
+function QuietStart.popFree(lastAt: number?, now: number): boolean
+	return lastAt == nil or now - lastAt >= QuietStart.POP_GAP_SECONDS
+end
+
 -- The client's read: whether the local player is quiet now. Not for the specs.
 function QuietStart.live(): boolean
 	local player = game:GetService("Players").LocalPlayer

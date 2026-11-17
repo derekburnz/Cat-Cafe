@@ -6,10 +6,8 @@ return function()
 	local NightLights = require(Shared.NightLights)
 
 	describe("NightLights", function()
-		it("is a switch that starts on", function()
-			expect(table.find(LiveFlags.KEYS, NightLights.FLAG) ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT[NightLights.FLAG]).to.equal(nil)
-			expect(LiveFlags.defaults()[NightLights.FLAG]).to.equal(true)
+		it("has no live switch any more (#4654)", function()
+			expect(table.find(LiveFlags.KEYS, "nearLights")).to.equal(nil)
 		end)
 
 		it("lights the nearest few within range only", function()

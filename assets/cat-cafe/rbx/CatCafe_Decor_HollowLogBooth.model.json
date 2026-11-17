@@ -10582,7 +10582,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_HollowLogBooth_Lantern_Swing"
   }

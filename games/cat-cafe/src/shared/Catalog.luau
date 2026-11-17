@@ -1768,6 +1768,9 @@ Catalog.tiers = {
 		name = "Cozy Cafe",
 		cost = 1500, -- #4188 (Derek 2026-11-14: "build the cheaper tier 2 we need to get them into the next area's asap"; Pace's focused player holds about 1,660 at 150 s of play, 30 s after the tutorial's bait cat at about 120 s): 7,500 before; #4098 (Derek 2026-11-14: "Tier 2 is another huge fall off"; Design-Agent's Pace runs: the focused player 9.7 to 5.4 min, the buy-everything player 10.3 to 8.3, below 7,500 barely helps): 13,500 before; #3195 (Design-Agent: nights 45 s give more daytime; holds Tier 2 near 8.5 min): 12,000 before; #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
 		distinctCats = 3, -- #4188: the tutorial cat, the second cat and the bait cat (always a new kind); 4 for #4098, 5 before
+		-- #4809 (Derek 2026-11-16 13:38 UTC: "if the tutorial cat first one caught from alleyway is the same as one you
+		-- own it doesn't work make the first rank up 3 of ANY cat not different"): any 3 cats, duplicates count
+		anyCats = true,
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
@@ -1782,8 +1785,10 @@ Catalog.tiers = {
 		name = "Busy Cafe",
 		cost = 50000, -- #4496 (Derek 2026-11-15 13:58 UTC: "the money jump between tier 2 and 3 is a little much make it like 50k coins"): 110,000 before; #4320 (Derek 2026-11-14 21:41 UTC: "lower all tier requirements for money and different cats now so people start getting to 7 before new areas unlock"): 150,000 before; #4189 (Derek 2026-11-14: "we need to get them into the next area's asap", "lower for right now by a decent bit", then "its fine to make less hours of play": Tier 3 near 12 min): 300,000 at first, 520,000 before; #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 6, -- #4320: 8 before; #4189: 10 before; #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
-		needsRarity = "Epic",
-		needsRarityCount = 1,
+		-- #4844 (Derek 2026-11-16 15:49 UTC: "make it so its only 2 rares for the tier 2 to 3 instead of an epic"):
+		-- one Epic before. The free Bellhop Cat is a Rare and counts.
+		needsRarity = "Rare",
+		needsRarityCount = 2,
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",
@@ -2193,6 +2198,25 @@ Catalog.lures = {
 		description = "Still warm from the sky.",
 		odds = { Common = 0, Rare = 0, Epic = 35, Legendary = 48, Mythical = 17 },
 		asset = "CatCafe_Item_CometTreat",
+	},
+	-- #4900 (Derek 2026-11-16: "a new secret tier of bait bowl food ... night market and coin shop ... assume people are
+	-- making 1B a second so make it really expensive", then "make the price 10x"): a late game money sink at a flat
+	-- $20T (about 5.5 hours at $1B a second), used up by one bowl. A tenth of its Mythicals turn Secret
+	-- (secretShare; 1 in 100 for every other food), so its card reads Legendary 50%, Mythical 45%, Secret 5%. Sold by
+	-- the night dealer and the Day Cart from Tier 8. It wears the Comet Treat's model until its own is made.
+	{
+		id = "eclipse_treat",
+		name = "Eclipse Treat",
+		cost = 20000000000000,
+		sortOrder = 10,
+		attracts = "Mythical",
+		rarity = "Secret",
+		source = "cart",
+		description = "A bite of the night sky. Secret cats wake up for it.",
+		odds = { Common = 0, Rare = 0, Epic = 0, Legendary = 50, Mythical = 50 },
+		asset = "CatCafe_Item_EclipseTreat",
+		secretShare = 0.1,
+		needsTier = 8,
 	},
 } :: { Types.LureDef }
 
@@ -3442,32 +3466,35 @@ end
 -- Rare 25, Super 5, then a row of it. A Common potion is Money, Lucky or Steady (the Swift Potion left the pool), its
 -- coins are 3 minutes of income, a Rare quest potion is one of the three 30-minute ones, and a Super crate is the one
 -- of the highest open area plus 15 golden fish. About 3.8 golden fish a gift on average (it was 3).
+-- #4884 (Derek 2026-11-16: "buff it by a lot"): wraps 60 / 30 / 10 (were 70 / 25 / 5); Common 2 potions, 10 minutes
+-- of income or 25 fish (were 1, 3 minutes, 8); Rare 2 quest potions, 60 fish, 2 spins or 4 Big Snacks (were 1, 20, 1,
+-- 2); Super 2 crates plus 40 fish or 150 fish (were 1 plus 15, 50). About 15.9 golden fish a gift on average.
 Catalog.mysteryGiftTiers = {
 	{
 		tier = "Common",
-		chance = 70,
+		chance = 60,
 		rows = {
-			{ kind = "potion", count = 1, chance = 45 },
-			{ kind = "coins", count = 180, chance = 35 },
-			{ kind = "fish", count = 8, chance = 20 },
+			{ kind = "potion", count = 2, chance = 45 },
+			{ kind = "coins", count = 600, chance = 35 },
+			{ kind = "fish", count = 25, chance = 20 },
 		},
 	},
 	{
 		tier = "Rare",
-		chance = 25,
+		chance = 30,
 		rows = {
-			{ kind = "questPotion", count = 1, chance = 40 },
-			{ kind = "fish", count = 20, chance = 25 },
-			{ kind = "spin", count = 1, chance = 20 },
-			{ kind = "food", id = "big_cat_snack", count = 2, chance = 15 },
+			{ kind = "questPotion", count = 2, chance = 40 },
+			{ kind = "fish", count = 60, chance = 25 },
+			{ kind = "spin", count = 2, chance = 20 },
+			{ kind = "food", id = "big_cat_snack", count = 4, chance = 15 },
 		},
 	},
 	{
 		tier = "Super",
-		chance = 5,
+		chance = 10,
 		rows = {
-			{ kind = "crate", id = "highest", count = 1, fish = 15, chance = 60 },
-			{ kind = "fish", count = 50, chance = 40 },
+			{ kind = "crate", id = "highest", count = 2, fish = 40, chance = 60 },
+			{ kind = "fish", count = 150, chance = 40 },
 		},
 	},
 } :: { Types.MysteryGiftTier }
@@ -3517,6 +3544,7 @@ Catalog.dealerSlotWeights =
 -- Config.DealerDryNights a long run without Moon Milk or a Star Treat ends on its own (shared/Dealer). F94
 -- (rewards-and-shops.md section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
 Catalog.dealerAmountWeights = {
+	eclipse_treat = { 40, 40, 20, 0, 0 }, -- #4900: in stock 3 nights in 5, 1 or 2 (Tier 8 and up only)
 	sardines = { 5, 15, 30, 30, 20 },
 	caviar = { 15, 35, 30, 15, 5 },
 	moon_milk = { 25, 40, 25, 10, 0 },
@@ -4243,12 +4271,12 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2500, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
 	},
-	-- Growth-Agent 2026-11-15: the Better on Every Device update's code (Wed 2026-11-18 20:00 UTC), the same size;
+	-- Growth-Agent 2026-11-15: the Better on Every Device update's code (Tue 2026-11-17 20:00 UTC), the same size;
 	-- no end.
 	update6 = {
 		id = "update6",
 		active = true,
-		startsAt = 1795032000, -- 2026-11-18 20:00 UTC, Better on Every Device
+		startsAt = 1794945600, -- 2026-11-17 20:00 UTC, Better on Every Device
 		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { lucky_potion = 2 } },
 	},
 	-- Growth-Agent 2026-11-15 (coordinator, under Derek's standing OK on recommendations): the 3 New Worlds update's
@@ -5981,11 +6009,13 @@ end
 -- #3317 (Derek2 2026-11-11: "move to the top of perks"): Swift Paws first, five levels (shared/SwiftPaws; Monetization-
 -- Agent's prices, 1,810 fish in all). The Star Treat's row (150 fish) is gone from the Market only (Derek2: "remove
 -- star treat from fish market"); it still comes from the Daily Treat, the Dealer and prizes, and saved ones stay.
--- #4705 (Derek 2026-11-16: "add more speed upgrade stages past 5"): levels 6 to 10, each about 1.3 to 1.5 times the last
+-- #4705 (Derek 2026-11-16: "add more speed upgrade stages past 5"): levels 6 to 10. #4860 (Derek 2026-11-16: "lower the
+-- cost of swift paws upgrades 6-10 by a lot"): 850 to 1,100, 4,800 in all (were 1,200 / 1,700 / 2,300 / 3,000 / 3,800,
+-- 12,000), a small step a level on from level 5's 800
 shopRow({
 	id = "swift_paws",
 	kind = "perk",
-	costs = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 },
+	costs = { 60, 150, 300, 500, 800, 850, 900, 950, 1000, 1100 },
 	maxLevel = 10,
 })
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
@@ -6342,6 +6372,31 @@ Catalog.cornerShop = {
 		needsTier = 6,
 		topShelf = true,
 	},
+	-- #4900 (Derek 2026-11-16, prices 10x the draft): the late game money sinks, Tier 8 and up. The Eclipse Treat at its
+	-- flat $20T, and the Royal Feast, 50,000 XP (Cat Feast is 20,000), at $5T (about 1.4 hours at $1B a second)
+	{
+		id = "eclipse_treat",
+		name = "Eclipse Treat",
+		family = "bait",
+		size = "mega",
+		kind = "bait",
+		lureId = "eclipse_treat",
+		price = 20000000000000,
+		needsTier = 8,
+		topShelf = true,
+	},
+	{
+		id = "royal_feast",
+		name = "Royal Feast",
+		family = "food",
+		size = "mega",
+		kind = "food",
+		foodId = "royal_feast",
+		xp = 50000,
+		price = 5000000000000,
+		needsTier = 8,
+		topShelf = true,
+	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
 for _, row in Catalog.cornerShop do
@@ -6365,6 +6420,7 @@ Catalog.catFood = {
 	{ id = "cat_snack", name = "Cat Snack", xp = 2000 },
 	{ id = "big_cat_snack", name = "Big Snack", xp = 6000 },
 	{ id = "cat_feast", name = "Cat Feast", xp = 20000 },
+	{ id = "royal_feast", name = "Royal Feast", xp = 50000 }, -- #4900
 } :: { Types.CatFoodDef }
 Catalog.catFoodById = {} :: { [string]: Types.CatFoodDef }
 for _, food in Catalog.catFood do

@@ -2,14 +2,13 @@
 -- #4311 (Derek 2026-11-14: "I know their is a low quality mode just make it better"; Review-QA's census: 423 night
 -- Light objects on at once, in every area, while the player stood in the Park): at night only the COUNT lights
 -- nearest the camera and within RANGE studs are on; the rest keep their Neon glow with the Light off. Every device,
--- whether or not Low performance is on (which still turns them all off). Behind the live switch FLAG (on by
--- default; off brings back every light at night). Controllers/WorldController picks again every STEP seconds. Pure.
---   FLAG, COUNT, RANGE, STEP
+-- whether or not Low performance is on (which still turns them all off). The `nearLights` switch is retired (#4654).
+-- Controllers/WorldController picks again every STEP seconds. Pure.
+--   COUNT, RANGE, STEP
 --   nearest(points, origin, count, range)   the indexes of `points` to light, as a set
 
 local NightLights = {}
 
-NightLights.FLAG = "nearLights"
 NightLights.COUNT = 16
 NightLights.RANGE = 160 -- studs
 NightLights.STEP = 1 -- seconds between picks

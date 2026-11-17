@@ -268,17 +268,17 @@ def tree(rb, f, x, z, s=1.0, leaf="leaf_green"):
     """The hometown backdrop's round tree, standing on this backdrop's ground."""
     y = f.gy(x, z) - 0.3 * s
     rb.cyl((x, y + 2.2 * s, z), 0.5 * s, 4.4 * s, "fur_brown", segments=8)
-    rb.ball((x, y + 6.0 * s, z), 3.0 * s, leaf)
-    rb.ball((x + 1.9 * s, y + 4.9 * s, z - 0.5 * s), 1.9 * s, leaf)
-    rb.ball((x - 1.7 * s, y + 5.3 * s, z + 0.6 * s), 1.8 * s, leaf)
+    rb.ball((x, y + 6.0 * s, z), 3.1 * s, leaf)                         # #4857: two balls, not three (phones)
+    rb.ball((x + 1.5 * s, y + 4.8 * s, z - 0.6 * s), 2.3 * s, leaf, scale=(1.25, 0.9, 1.1))
 
 
 def fir(rb, f, x, z, s=1.0, leaf="leaf_dark"):
-    """A fir: a trunk under three stacked, squashed tiers."""
+    """A fir: a trunk under two stacked tiers (#4857: three before; these stand far outside the walls and every
+    part of every backdrop is sent to every phone)."""
     y = f.gy(x, z) - 0.3 * s
     rb.cyl((x, y + 1.6 * s, z), 0.45 * s, 3.2 * s, "fur_brown", segments=8)
-    for r, h in ((2.8, 3.9), (1.9, 6.3), (1.0, 8.2)):
-        rb.ball((x, y + h * s, z), r * s, leaf, scale=(1.0, 0.85, 1.0))
+    for r, h, sy in ((2.8, 4.1, 0.9), (1.7, 7.0, 1.15)):
+        rb.ball((x, y + h * s, z), r * s, leaf, scale=(1.0, sy, 1.0))
 
 
 def far_tree(rb, f, x, z, s, leaf):
@@ -956,10 +956,10 @@ PEAK_RGB = (128, 138, 152)                     # the far mountains' rock (concre
 
 
 def snow_fir(rb, f, x, z, s=1.0, leaf="leaf_dark"):
-    """A fir in snow: the fir's trunk and three tiers, a white cap on each tier."""
+    """A fir in snow: the fir's trunk and two tiers, a white cap on each tier."""
     fir(rb, f, x, z, s, leaf)
     y = f.gy(x, z) - 0.3 * s
-    for r, h in ((2.2, 4.9), (1.5, 7.1), (0.8, 8.8)):
+    for r, h in ((2.2, 5.2), (1.25, 8.25)):
         rb.ball((x, y + h * s, z), r * s, "milk", scale=(1.0, 0.45, 1.0))
 
 
@@ -1005,14 +1005,14 @@ def theme_snowy(f, P):
     rb = P["rb"]
     pond = (-(f.ex + 46.0), f.cz - 70.0, 18.0)
     leaves = ("leaf_dark", "paw_woods")
-    for i, (x, z, nx, nz) in enumerate(f.around(10.0, 13.0, 93, wobble=3.0, shift=4.0)):
+    for i, (x, z, nx, nz) in enumerate(f.around(10.0, 15.0, 93, wobble=3.0, shift=4.0)):
         if f.out(x, z) < KEEP + 3 or math.hypot(x - pond[0], z - pond[1]) < pond[2] + 10.0:
             continue
         if _hash(i, 94) < 0.8:
             snow_fir(rb, f, x, z, 1.5 + 0.4 * _hash(i, 95), leaves[i % 2])
         else:
             snow_rock(rb, f, x, z, 1.0 + 0.6 * _hash(i, 96))
-    for i, (x, z, nx, nz) in enumerate(f.around(27.0, 17.0, 97, wobble=5.0, shift=6.0)):
+    for i, (x, z, nx, nz) in enumerate(f.around(27.0, 21.0, 97, wobble=5.0, shift=6.0)):
         if f.out(x, z) < KEEP + 3 or math.hypot(x - pond[0], z - pond[1]) < pond[2] + 10.0:
             continue
         snow_fir(rb, f, x, z, 1.9 + 0.5 * _hash(i, 98), leaves[(i + 1) % 2])

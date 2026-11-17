@@ -12,6 +12,7 @@ local AdminEventController = require(script.Parent.Controllers.AdminEventControl
 local AfkController = require(script.Parent.Controllers.AfkController)
 local AirMovesController = require(script.Parent.Controllers.AirMovesController)
 local Audio = require(script.Parent.Audio)
+local BackdropController = require(script.Parent.Controllers.BackdropController)
 local BinController = require(script.Parent.Controllers.BinController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
 local CannonController = require(script.Parent.Controllers.CannonController)
@@ -27,9 +28,11 @@ local MemoryWatchController = require(script.Parent.Controllers.MemoryWatchContr
 local Moments = require(script.Parent.Moments)
 local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryController)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
+local NoClimbController = require(script.Parent.Controllers.NoClimbController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
 local ParkTrailController = require(script.Parent.Controllers.ParkTrailController)
 local PerfSuggestController = require(script.Parent.Controllers.PerfSuggestController)
+local PerfWatchController = require(script.Parent.Controllers.PerfWatchController)
 local PetController = require(script.Parent.Controllers.PetController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RankSpotController = require(script.Parent.Controllers.RankSpotController)
@@ -66,6 +69,7 @@ do
 	Net.fire("TelemetryReport", "boot_ui", math.min(os.clock() - bootAt, 300))
 	local function synced()
 		Net.fire("TelemetryReport", "boot_sync", math.min(os.clock() - bootAt, 300))
+		PerfWatchController.synced() -- #4783: client_load's ready waits for the save too
 	end
 	if UIController.state ~= nil then
 		synced() -- the save came while the UI was being built
@@ -83,8 +87,11 @@ end
 WorldController.start()
 DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
+PerfWatchController.start(bootAt) -- #4783: load time and average FPS for every player, analytics only
+BackdropController.start() -- #4857: far areas' backdrop rings out of this client's Workspace, behind backdropsNear
 MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()
+NoClimbController.start() -- #4073: the player's own character climbs only at the real ladders
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 AirMovesController.start() -- #4447: the Dragon Keep's Double Jump and Glide

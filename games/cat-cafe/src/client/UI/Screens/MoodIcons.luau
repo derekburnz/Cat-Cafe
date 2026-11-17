@@ -18,6 +18,7 @@ local Workspace = game:GetService("Workspace")
 local Create = require(script.Parent.Parent.Components.Create)
 local MoodLogic = require(script.Parent.Parent.Components.MoodLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Spread = require(script.Parent.Parent.Components.Spread)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
@@ -110,13 +111,23 @@ function MoodIcons.new(): MoodIcons
 	self._watched = {} :: { [Instance]: { RBXScriptConnection } }
 	self._connections = {} :: { RBXScriptConnection }
 	self._turn = nil :: RBXScriptConnection?
+	self._gone = false
 	for _, stray in CollectionService:GetTagged(TAG) do
 		self:_watch(stray)
 	end
 	table.insert(
 		self._connections,
 		CollectionService:GetInstanceAddedSignal(TAG):Connect(function(stray: Instance)
-			self:_watch(stray)
+			-- Sync's Park landing timing: a landing's stray burst built every icon in one frame; a frame at a time
+			Spread.later(function()
+				if
+					not self._gone
+					and stray:IsDescendantOf(Workspace)
+					and CollectionService:HasTag(stray, TAG)
+				then
+					self:_watch(stray)
+				end
+			end)
 		end)
 	)
 	table.insert(
@@ -326,6 +337,7 @@ function MoodIcons._startTurn(self: any)
 end
 
 function MoodIcons.destroy(self: any)
+	self._gone = true
 	if self._turn then
 		self._turn:Disconnect()
 		self._turn = nil

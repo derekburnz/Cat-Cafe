@@ -138,11 +138,16 @@ def _seg_brick(b, L, shade):
     _ivy(b, -L / 2, L / 2, 9.0, shade)
 
 
+RAIL_GAP = 1.0     # studs between a hedge railing's bars; parkf85 builds with 2.0 (#4857: each bar is 2 parts)
+LIGHT = False      # parkf85 builds with True (#4857): no pillar plinth and neck, no lamp tip, no stone coursing,
+                   # fewer bench slats, spring rider coils, bandstand trims and rose bed kerb pieces, no urn rim
+
+
 def _seg_rail(b, L, shade):
     b.box_base((0, 1.6, 0), (L, 1.6, 9.4), ("leaf_dark", "leaf_green")[shade % 2])               # hedge behind
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.4), "brick")                                  # brick plinth
     b.box_base((0, WALL_D / 2, 1.4), (L + 0.1, WALL_D + 0.2, 0.2), "concrete", bevel=False)
-    n = max(2, round(L / 1.0))
+    n = max(2, round(L / RAIL_GAP))
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 0.45, 1.6), (0.16, 0.16, 3.5), "fur_black", bevel=False)
@@ -153,7 +158,7 @@ def _seg_rail(b, L, shade):
 
 def _seg_stone(b, L, shade):
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 10.0), "concrete")
-    for z in (2.0, 4.0, 6.0, 8.0):                                                             # coursing
+    for z in (() if LIGHT else (2.0, 4.0, 6.0, 8.0)):                                          # coursing
         b.box((0, -0.03, z), (L, 0.06, 0.12), "concrete_dark", bevel=False)
     b.box_base((0, WALL_D / 2, 10.0), (L + 0.1, WALL_D + 0.3, 0.4), "concrete_dark", bevel=False)
     # a bricked-up old gate under a stone arch
@@ -175,7 +180,7 @@ def _seg_low(b, L, shade, flowers_b):
     """Town side: a plinth, a railing 4.6 high and flower boxes, so the town shows through."""
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
     b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
-    n = max(2, round(L / 1.0))
+    n = max(2, round(L / 1.0))        # stays 1.0 in a light build too: these bars are the boundary
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.15, 0.15, 3.25), "fur_black", bevel=False)
@@ -197,7 +202,7 @@ def _seg_tall(b, L, shade, flowers_b):
     feeling its the start of the game no need to be harsh no invisible barriers either")."""
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
     b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
-    n = max(2, round(L / 1.0))
+    n = max(2, round(L / 1.0))        # stays 1.0 in a light build too: these bars are the boundary
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.16, 0.16, TALL_RAIL - 1.35), "fur_black", bevel=False)
@@ -236,11 +241,13 @@ def pillar(mat, top="ball", h=10.6, w=1.8):
     b, bulb = Builder(), Builder()
     d = WALL_D + 0.2
     b.box_base((0, WALL_D / 2, 0), (w, d, h), "concrete")
-    b.box_base((0, WALL_D / 2, 0), (w + 0.2, d + 0.2, 0.8), "concrete_dark", bevel=False)
+    if not LIGHT:
+        b.box_base((0, WALL_D / 2, 0), (w + 0.2, d + 0.2, 0.8), "concrete_dark", bevel=False)
     b.box_base((0, WALL_D / 2, h), (w + 0.3, d + 0.3, 0.35), "concrete_dark", bevel=False)
     if top == "ball":
-        b.cyl_base((0, WALL_D / 2, h + 0.35), 0.45, 0.35, "concrete", segments=10)
-        b.sphere((0, WALL_D / 2, h + 1.3), 0.65, "concrete", segments=10, rings=6)
+        if not LIGHT:
+            b.cyl_base((0, WALL_D / 2, h + 0.35), 0.45, 0.35, "concrete", segments=10)
+        b.sphere((0, WALL_D / 2, h + (0.95 if LIGHT else 1.3)), 0.65, "concrete", segments=10, rings=6)
         return [b.finalize(N + "Pillar", mat)]
     b.box_base((0, WALL_D / 2, h + 0.35), (0.9, 0.9, 0.15), "fur_black", bevel=False)
     for sx in (-1, 1):
@@ -407,13 +414,16 @@ def bandstand(mat):
     ang = [2 * PI * (k + 0.5) / 8 for k in range(8)]
     for a in ang:
         x, y = R * math.cos(a), R * math.sin(a)
-        b.cyl_base((x, y, stage), 0.45, 0.4, "gold_mid", segments=8, bevel=False)
+        if not LIGHT:
+            b.cyl_base((x, y, stage), 0.45, 0.4, "gold_mid", segments=8, bevel=False)
         b.cyl_base((x, y, stage), 0.28, post_h - 0.05, "offwhite", segments=8)
-        b.cyl_base((x, y, stage + post_h - 0.35), 0.42, 0.35, "gold_mid", segments=8, bevel=False)
+        if not LIGHT:
+            b.cyl_base((x, y, stage + post_h - 0.35), 0.42, 0.35, "gold_mid", segments=8, bevel=False)
     top = stage + post_h
     b.ring((0, 0, top + 0.3), 6.9, 0.9, 0.6, "mint", segments=16, bevel=False)                # frieze
-    b.ring((0, 0, top - 0.05), 6.95, 0.6, 0.1, "gold_mid", segments=16, bevel=False)
-    for k in range(16):
+    if not LIGHT:
+        b.ring((0, 0, top - 0.05), 6.95, 0.6, 0.1, "gold_mid", segments=16, bevel=False)
+    for k in range(0, 16, 2 if LIGHT else 1):
         a = 2 * PI * k / 16
         bulbs.ico((7.0 * math.cos(a), 7.0 * math.sin(a), top + 0.3), 0.16, "lamp_warm", subdivisions=1)
     for k in range(8):                                                                        # railings
@@ -496,12 +506,13 @@ def lamp(mat):
     bulb.box_base((0, 0, 8.1), (0.85, 0.85, 1.05), "lamp_warm", bevel=False)
     b.box_base((0, 0, 9.15), (1.15, 1.15, 0.12), "dumpster_green", bevel=False)
     b.pyramid((0, 0, 9.27), 1.0, 0.55, "dumpster_green")
-    b.sphere((0, 0, 9.9), 0.14, "gold_mid", segments=6, rings=4)
+    if not LIGHT:
+        b.sphere((0, 0, 9.9), 0.14, "gold_mid", segments=6, rings=4)
     return [b.finalize(N + "Lamp", mat), bulb.finalize(N + "Lamp_Bulb", mat)]
 
 
 def bench(mat):
-    return [build_bench(N + "Bench", seat="caramel_wood", frame="dumpster_green").finalize(N + "Bench", mat)]
+    return [build_bench(N + "Bench", seat="caramel_wood", frame="dumpster_green", light=LIGHT).finalize(N + "Bench", mat)]
 
 
 def bin_(mat):
@@ -517,7 +528,8 @@ def urn(mat):
     b.box_base((0, 0, 0), (1.2, 1.2, 0.9), "concrete")
     b.cyl_base((0, 0, 0.9), 0.3, 0.3, "concrete", segments=10)
     b.cyl_base((0, 0, 1.2), 0.45, 0.8, "concrete", segments=10, radius2=0.75)
-    b.ring((0, 0, 2.05), 0.8, 0.12, 0.12, "concrete_dark", segments=10, bevel=False)
+    if not LIGHT:                                                                   # the rim: a ring is 10 parts
+        b.ring((0, 0, 2.05), 0.8, 0.12, 0.12, "concrete_dark", segments=10, bevel=False)
     b.ico((0, 0, 2.15), 0.65, "leaf_dark", subdivisions=1, scale=(1, 1, 0.6))
     flowers(fl, 0, 0, 2.2, n=4, r=0.35, seed=2)
     return [b.finalize(N + "Urn", mat), fl.finalize(N + "Urn_Flowers", mat)]
@@ -657,7 +669,7 @@ def spring_rider(mat, body="pastel_butter"):
     b = Builder()
     b.cyl_base((0, 0, 0), 0.7, 0.15, "metal", segments=10, bevel=False)
     b.cyl_base((0, 0, 0.15), 0.25, 1.05, "metal", segments=8, bevel=False)
-    for k in range(4):
+    for k in ((0.5, 2.5) if LIGHT else range(4)):                                    # the coils: each is 10 parts
         b.ring((0, 0, 0.3 + 0.25 * k), 0.38, 0.13, 0.1, "fur_black", segments=10, bevel=False)
     b.ico((0, 0, 1.55), 0.6, body, subdivisions=1, scale=(1.4, 0.75, 0.75))                    # a duck to ride
     b.ico((-0.9, 0, 2.15), 0.38, body, subdivisions=1)
@@ -668,7 +680,7 @@ def spring_rider(mat, body="pastel_butter"):
 
 def rose_bed(mat, seed=0):
     b, fl = Builder(), Builder()
-    b.ring((0, 0, 0.28), 2.0, 0.35, 0.55, "concrete", segments=14, bevel=False)
+    b.ring((0, 0, 0.28), 2.0, 0.35, 0.55, "concrete", segments=10 if LIGHT else 14, bevel=False)
     b.cyl_base((0, 0, 0), 1.7, 0.57, "choco", segments=14, bevel=False)
     for k in range(6):
         a = 2 * PI * (k + 0.3 * seed) / 6

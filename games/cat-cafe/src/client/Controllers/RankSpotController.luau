@@ -11,7 +11,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Net = require(script.Parent.Parent.Net)
 local RankFirst = require(Shared:WaitForChild("RankFirst"))
 local RankSpot = require(Shared:WaitForChild("RankSpot"))
@@ -56,14 +55,10 @@ local function show(next: any)
 			window = open
 		end
 		if RankSpot.putsAway(os.clock() - shownAt, next, window) then
-			-- #4383 (shared/RankFirst): with the switch on a press only rests it, until the PRESSES-th; a phone
-			-- player's thumbstick touch counts as a press, and closed it for good at once
+			-- #4383 (shared/RankFirst): a press only rests it, until the PRESSES-th; a phone player's thumbstick
+			-- touch counts as a press, and closed it for good at once
 			presses += 1
-			local on = LiveFlags.shown(
-				RankFirst.FLAG,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.FLAG)
-			)
-			if RankFirst.forGood(on, presses) then
+			if RankFirst.forGood(presses) then
 				putAway = true
 				report("closed")
 				Net.fire("TipSeen", RankSpot.SEEN, false)

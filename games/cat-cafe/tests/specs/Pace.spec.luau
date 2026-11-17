@@ -765,12 +765,12 @@ return function()
 								{
 									lureId = food,
 									placedAt = now,
-									-- #4188: the account's first food comes within FirstBaitWaitSeconds (Bait.firstWait)
+									-- #4188: the account's first food comes within FirstBaitReadySeconds (Bait.firstWait)
 									readyAt = now + (if profile.stats.baitsTamed == 0
 											and run.firstBaitAt == nil
 										then math.min(
 											baitWait(not day),
-											Config.FirstBaitWaitSeconds
+											Config.FirstBaitReadySeconds
 										)
 										else baitWait(not day)),
 									night = if day then nil else true,
@@ -1601,6 +1601,37 @@ return function()
 			end
 			return math.max(worst, HOUR - last)
 		end
+
+		-- #2996: the first shop buys a minute or so apart. The Nov 13 live read had buy 2 to 3 at 143 s (before the $1,000
+		-- start and the bowl-first flow, #4696). The model on 2026-11-16: Tables at 0, Espresso 2 at about 2.9 min, Lucky
+		-- Cat 2 about 55 s after it (the middle run). This pins Espresso 2 to Lucky Cat 2 at 30 to 120 s.
+		it(
+			"buys Lucky Cat 2 30 to 120 s after Espresso 2 (the middle run, #2996: 55 s on 2026-11-16)",
+			function()
+				local gaps = {}
+				for _, run in firstHour() do
+					local espresso = nthBuy("espresso", 1)(run)
+					local lucky = nthBuy("lucky_cat", 1)(run)
+					if espresso ~= nil and lucky ~= nil then
+						table.insert(gaps, math.abs(lucky - espresso))
+					end
+				end
+				table.sort(gaps)
+				assert(
+					#gaps >= #firstHour() / 2,
+					"fewer than half the runs bought both Espresso 2 and Lucky Cat 2"
+				)
+				local median = gaps[math.ceil(#gaps / 2)]
+				if median < 30 or median > 120 then
+					error(
+						string.format(
+							"Espresso 2 to Lucky Cat 2 at %d s (median), outside 30 to 120",
+							median
+						)
+					)
+				end
+			end
+		)
 
 		it("buys something in the first 3 minutes", function()
 			for _, run in firstHour() do

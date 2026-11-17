@@ -193,15 +193,15 @@ return function()
 			)
 		end)
 
-		it("asks 2,100 Warmth for stage 4 and 4,000 for stage 5 (#4615)", function()
+		it("asks 1,400 Warmth for stage 4 and 2,400 for stage 5 (#4615, #4962)", function()
 			expect(DragonKeep.STAGES[3].warmth).to.equal(1000)
-			expect(DragonKeep.STAGES[4].warmth).to.equal(2100)
-			expect(DragonKeep.STAGES[5].warmth).to.equal(4000)
+			expect(DragonKeep.STAGES[4].warmth).to.equal(1400)
+			expect(DragonKeep.STAGES[5].warmth).to.equal(2400)
 			expect(DragonKeep.REKINDLE).to.equal(1500)
 		end)
 
 		it("gives a loaded save the stage its Warmth already reaches (#4615)", function()
-			local save = DragonKeep.sanitize({ warmth = 2200, stage = 3, slots = { "", "", "" } })
+			local save = DragonKeep.sanitize({ warmth = 1500, stage = 3, slots = { "", "", "" } })
 			expect(save.stage).to.equal(4)
 			expect(#save.slots).to.equal(4)
 			expect(save.queue[1]).to.equal("stage")
@@ -210,14 +210,14 @@ return function()
 			expect(again.stage).to.equal(4)
 			expect(#again.queue).to.equal(1)
 			-- a save below the next stage is left alone
-			local low = DragonKeep.sanitize({ warmth = 2099, stage = 3 })
+			local low = DragonKeep.sanitize({ warmth = 1399, stage = 3 })
 			expect(low.stage).to.equal(3)
 			expect(#low.queue).to.equal(0)
 		end)
 
 		it("caps Rekindle hands at 3 waiting and keeps the Warmth for later", function()
 			local save = DragonKeep.fresh()
-			save.warmth = 4000 + 1500 * 5
+			save.warmth = 2400 + 1500 * 5
 			DragonKeep.give({ cats = {}, dragon = save } :: any, {})
 			expect(save.stage).to.equal(5)
 			local rekindles = 0
@@ -389,6 +389,7 @@ return function()
 				local profile = ProfileSchema.migrate({ version = 49 }, T) :: any
 				-- three Claw cards light the Claw set: +0.25 bowl luck, with Sharp Eye's 0.03
 				profile.dragon = withSlots({ "sharpEye", "quickPaws", "steadyClaw" })
+				profile.tier = 2 -- #4815: past the walk-through's bigger net
 				DragonKeep.setOn(false)
 				local off = DragonKeep.of(profile)
 				DragonKeep.setOn(true)

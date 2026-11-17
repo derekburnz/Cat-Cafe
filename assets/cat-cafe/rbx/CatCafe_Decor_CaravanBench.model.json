@@ -3853,7 +3853,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_CaravanBench_Lantern_Swing"
   }

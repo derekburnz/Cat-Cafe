@@ -8,9 +8,10 @@
 --                                      cats    "Open the Park: 3 of 5 cats"           "3/5"
 --                                      rarity  "Rank up: 1 of 2 Epic or better cats"  "1/2"
 --                                      coins   "Rank up to Famous Cafe"               "$1.2K / $5K"
+--                                      palDay  "Play with a pal tomorrow for a Pal Day gift"  no bar (#4913)
 --                                      away    "About $4.5K while you're away (8 h)"  no bar
 --   rows(goals, money, max) -> { Row }   the known ones in the server's order, at most `max`
---   welcomeLine(goals, money) -> string? the welcome back card's line from the first goal that isn't "away":
+--   welcomeLine(goals, money) -> string? the welcome back card's line from the first goal that isn't "away" or "palDay":
 --                                    "Next: open the Park, 3 of 5 cats"; nil with none
 
 local Catalog = require(
@@ -99,6 +100,13 @@ function ReturnGoalWords.row(goal: any, money: (number) -> string): Row?
 			count = ("%s / %s"):format(money(math.min(have, need)), money(need)),
 			progress = share(have, need),
 		}
+	elseif goal.kind == "palDay" then
+		return {
+			kind = "palDay",
+			text = "Play with a pal tomorrow for a Pal Day gift",
+			count = nil,
+			progress = nil,
+		}
 	elseif goal.kind == "away" then
 		local amount = numberOf(goal.amount)
 		if amount == nil or amount <= 0 then
@@ -133,7 +141,7 @@ end
 
 function ReturnGoalWords.welcomeLine(goals: any, money: (number) -> string): string?
 	for _, row in ReturnGoalWords.rows(goals, money, math.huge) do
-		if row.kind ~= "away" then
+		if row.kind ~= "away" and row.kind ~= "palDay" then
 			local words = string.gsub(row.text, ": ", ", ", 1)
 			return "Next: " .. string.lower(string.sub(words, 1, 1)) .. string.sub(words, 2)
 		end

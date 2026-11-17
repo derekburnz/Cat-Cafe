@@ -11,6 +11,8 @@
 -- * The first pass after the lookup is the catch-up: badges earned before this join (or made after they were
 --   earned) are awarded quietly and logged as "catchup"; later ones are "live" (Telemetry badge_awarded).
 -- A badge whose Config.Badges id is 0 is not made yet and is skipped.
+-- * #4775: before Tier 3 only Badges.EARLY award (Badges.allowed), and at most one badge is awarded every
+--   AWARD_GAP_SECONDS, so reaching Tier 3 (or a join with several earned) never shows a pile of pop-ups at once.
 -- #3324: while the owner's account (Config.OwnerUserIds) is in the server, every other loaded player is due Met the
 -- Owner: everyone already here when the owner joins, and anyone who joins while the owner stays.
 
@@ -31,6 +33,7 @@ local LOOKUP_BATCH = 10 -- CheckUserBadgesAsync takes at most 10 badge ids a cal
 local LOOKUP_RETRY_SECONDS = 60
 local RETRY_SECONDS = 60
 local RETRY_MAX_SECONDS = 900
+local AWARD_GAP_SECONDS = 120 -- #4775: at least this long between two awards to one player
 
 type State = {
 	owned: { [number]: boolean }, -- badge id -> true, filled by the lookup
@@ -41,6 +44,7 @@ type State = {
 	catchup: { [string]: boolean }, -- keys due in that first pass (a retry keeps the label)
 	waitUntil: { [string]: number }, -- the retry list: key -> os.clock() of the next try
 	retryDelay: { [string]: number },
+	nextAwardAt: number, -- #4775: os.clock() before which no other badge is awarded
 }
 
 local states: { [Player]: State } = {}
@@ -143,6 +147,7 @@ local function check(player: Player, owner: boolean)
 			catchup = {},
 			waitUntil = {},
 			retryDelay = {},
+			nextAwardAt = 0,
 		}
 		states[player] = state
 	end
@@ -175,18 +180,20 @@ local function check(player: Player, owner: boolean)
 			state.catchup[key] = true
 		end
 	end
-	if #due == 0 then
+	if #due == 0 or now < state.nextAwardAt then
 		return
 	end
+	-- #4775: one badge a pass, in LIST order; the next waits AWARD_GAP_SECONDS (a failed award waits its retry instead)
+	local key = due[1]
 	state.busy = true
 	task.spawn(function()
-		for _, key in due do
-			if states[player] ~= state then
-				return
+		award(player, state, key)
+		if states[player] == state then
+			if state.waitUntil[key] == nil then
+				state.nextAwardAt = os.clock() + AWARD_GAP_SECONDS
 			end
-			award(player, state, key)
+			state.busy = false
 		end
-		state.busy = false
 	end)
 end
 

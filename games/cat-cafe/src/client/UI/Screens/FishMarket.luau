@@ -2030,11 +2030,8 @@ function FishMarket._refresh(self: any)
 		if row.id == SwiftPaws.ID then
 			-- #3317: levels 3 to 5 always show (#4654 batch 7: their `swiftPaws5` switch is retired)
 			local fiveOn = true
-			-- #4705: and levels 6 to 10 once theirs is
-			local tenOn = LiveFlags.shown(
-				SwiftPaws.FLAG_TEN,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG_TEN)
-			)
+			-- #4705: and levels 6 to 10 (#4654: their `swiftPaws10` switch is retired)
+			local tenOn = true
 			local shown = table.clone(row)
 			shown.maxLevel = SwiftPaws.topLevel(row.maxLevel or 1, fiveOn, tenOn)
 			row = shown

@@ -70057,7 +70057,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Harvest_Set_005_Windmill_Sails_Spin"
   }

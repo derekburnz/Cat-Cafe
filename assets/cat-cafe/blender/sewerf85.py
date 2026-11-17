@@ -668,6 +668,17 @@ def _ground():
 
 # --------------------------------------------------------------------------------------------------- set --
 def build_set(mat):
+    """The set, in the light build (sewerset.LIGHT): the old look stays the default for every other builder."""
+    import sewerset
+    old = sewerset.LIGHT
+    sewerset.LIGHT = True
+    try:
+        return _build_set(mat)
+    finally:
+        sewerset.LIGHT = old
+
+
+def _build_set(mat):
     s = Set(NAME)
 
     def put(objs, x, z, rot=0.0, h=0.0):
@@ -718,7 +729,7 @@ def build_set(mat):
     for (x, z, r) in ((20, -230, 0), (22.5, -232.5, 20), (36, -228, 0)):
         put(sw.traffic_cone(mat), x, z, r)
     _spot(s, "cones", 14, -232)
-    put(alleyway.build_crate_stack(mat), -46, -266, 30)
+    put(alleyway.build_crate_stack(mat, light=True), -46, -266, 30)
     _spot(s, "crates", -40, -262)
     put(sw.suitcase_stack(mat), -52, -238, 80)
     _spot(s, "suitcases", -48, -240.5)
@@ -729,7 +740,7 @@ def build_set(mat):
     for (x, z) in ((-20, -160), (-17.6, -161.5)):                      # clear of the walk-in arch's way
         put(sw.barrel(mat), x, z, 0)
     put(sw.tyre_stack(mat), 52, -158, 0)
-    put(alleyway.build_crate_stack(mat), 14, -172, -20)
+    put(alleyway.build_crate_stack(mat, light=True), 14, -172, -20)
     put(sw.glow_mushrooms(mat), 46, -176, 0)
     for (x, z) in ((20, -193), (-20, -193)):
         _spot(s, "bank", x, z)
@@ -748,7 +759,7 @@ def build_set(mat):
     for (x, z) in ((52, -142), (54.4, -140)):
         put(sw.barrel(mat), x, z, 0)
     put(sw.suitcase_stack(mat), 53, -100, -90)
-    put(alleyway.build_crate_stack(mat), -18, -96, 20)
+    put(alleyway.build_crate_stack(mat, light=True), -18, -96, 20)
     put(sw.tyre_stack(mat), -52, -96, 0)
     put(sw.steam_vent(mat), 22, -118, 0)
     put(sw.glow_mushrooms(mat), 6, -92, 0)
@@ -771,7 +782,7 @@ def build_set(mat):
     put(sw.tyre_stack(mat), -50, -64, 0)
     for (x, z) in ((-30, -64), (-27.6, -65.5)):
         put(sw.barrel(mat), x, z, 0)
-    put(alleyway.build_crate_stack(mat), 49, -14, -15)
+    put(alleyway.build_crate_stack(mat, light=True), 49, -14, -15)
     put(sw.glow_mushrooms(mat), -48, -30, 0)
     _spot(s, "glow_mushrooms", -48, -26.5)
     for (x, z) in ((-20, -44), (24, -20)):
@@ -832,7 +843,7 @@ def build_set(mat):
     for (x, z) in ((-50, 100), (-47.6, 101.5)):
         put(sw.barrel(mat), x, z, 0)
     put(sw.tyre_stack(mat), 54, 104, 0)
-    put(alleyway.build_crate_stack(mat), -47, 133, 15)
+    put(alleyway.build_crate_stack(mat, light=True), -47, 133, 15)
     for (x, z) in ((-36, 104), (-4, 156), (-40, 172)):
         _spot(s, "town", x, z)
 
@@ -852,7 +863,7 @@ def build_set(mat):
     for (x, z) in ((-52, 250), (-49.6, 251.5)):
         put(sw.barrel(mat), x, z, 0)
     put(sw.tyre_stack(mat), 52, 210, 0)
-    put(alleyway.build_crate_stack(mat), -14, 226, -15)
+    put(alleyway.build_crate_stack(mat, light=True), -14, 226, -15)
     put(sw.drain_pipe(mat), IN_X - 2.4, 255, 90)                        # under the blind arch, clear of wall pipes
     _spot(s, "trap_drain_pipe", *turned(IN_X - 2.4, 255, 90, -1.0, -2.4), turn=90)
     put(sw.glow_mushrooms(mat), 16, 276, 0)

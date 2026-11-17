@@ -35,7 +35,9 @@ local BOB_INFO = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection
 local Z = 60 -- over the target's ScreenGui's own pieces (they stay under 30)
 local SPOT_Z = Z - 1 -- #3153: the spotlight's dim, under the arrow and over the rest of the ScreenGui
 
-type Entry = { target: GuiObject, since: number, low: boolean }
+-- `plain` (#4909): a tutorial target that leads the arrow like any other but gets no dim (a card's button: the dim
+-- would darken the card itself)
+type Entry = { target: GuiObject, since: number, low: boolean, plain: boolean? }
 
 local entries: { Entry } = {}
 local arrow: Frame? = nil
@@ -48,9 +50,17 @@ TutorialArrow.EDGES_NAME = "CatCafeTutorialSpotEdges"
 local spotFor: GuiObject? = nil
 local spotSince = 0
 local lead = false
+-- #4920 (Sync's stopwatch runs 2026-11-16: after RANK UP the arrow flashed on the Tutorial tile's X and the goal card
+-- for 0.2 to 0.4 s): a `low` target takes the arrow only once no tutorial target has led for LOW_SETTLE seconds, so
+-- the gap between one step's button and the next (a window opening) never shows it
+TutorialArrow.LOW_SETTLE = 0.8
+local leadAt = -math.huge -- os.clock() when a tutorial (not `low`) target last had the arrow
 local loop: RBXScriptConnection? = nil
 -- the other buttons the arrow should keep off, measured again every OTHERS_SECONDS (a walk of the whole ScreenGui)
 local OTHERS_SECONDS = 0.5
+-- #5009: cards the player opens themselves (the Luck card). A `low` arrow (the goal card's rank up nudge) hides
+-- while one shows, so it never sits on what the player asked to read, and comes back when the card closes.
+local covers: { GuiObject } = {}
 local others: { TutorialArrowLogic.Rect } = {}
 local othersFor: GuiObject? = nil
 local othersAt = -math.huge
@@ -334,8 +344,14 @@ local function showSpot(into: ScreenGui, target: GuiObject, screen: Vector2, now
 	if holder.Parent ~= into then
 		holder.Parent = into
 	end
-	-- the holder sits at the ScreenGui's origin, in the same pixels as the arrow and AbsolutePosition
-	local rects = TutorialArrowLogic.holes(target.AbsolutePosition, target.AbsoluteSize, screen)
+	-- the holder sits at the ScreenGui's origin, in the same pixels as the arrow and AbsolutePosition. #4836: a
+	-- ScreenGui that ignores the top bar inset has its origin up in the bar (AbsolutePosition 0, -inset), so the
+	-- target is measured from that origin (the catch's held ring sat 58 px under its hole and arrow)
+	local rects = TutorialArrowLogic.holes(
+		target.AbsolutePosition - into.AbsolutePosition,
+		target.AbsoluteSize,
+		screen
+	)
 	local shade = if GuiService.ReducedMotionEnabled
 		then TutorialArrowLogic.SPOT_SOFT
 		else TutorialArrowLogic.dim(now - spotSince)
@@ -372,6 +388,22 @@ local function update()
 		hide()
 		return
 	end
+	if not chosen.low then
+		leadAt = now
+	elseif now - leadAt < TutorialArrow.LOW_SETTLE then
+		hide()
+		return
+	else
+		for index = #covers, 1, -1 do
+			local card = covers[index]
+			if card.Parent == nil then
+				table.remove(covers, index)
+			elseif visible(card) then
+				hide() -- #5009
+				return
+			end
+		end
+	end
 	local current = arrow or TutorialArrow.make()
 	arrow = current
 	local px = SIZE * Scale.get()
@@ -397,7 +429,9 @@ local function update()
 		top
 	)
 	current.Size = UDim2.fromOffset(px, px)
-	current.Position = UDim2.fromOffset(place.x, place.y)
+	-- #4836: Position counts from the ScreenGui's origin, which is up in the top bar when it ignores the inset
+	local origin = into.AbsolutePosition
+	current.Position = UDim2.fromOffset(place.x - origin.X, place.y - origin.Y)
 	current.Rotation = place.rotation
 	local head = current:FindFirstChild("Head", true)
 	if head and head:IsA("TextLabel") then
@@ -408,7 +442,7 @@ local function update()
 	end
 	current.Visible = true
 	lead = not chosen.low
-	if lead then
+	if lead and not chosen.plain then
 		showSpot(into, target, screen, now)
 	else
 		hideSpot() -- the goal card's rank up nudge is no tutorial step: no dim for it
@@ -431,14 +465,32 @@ local function watch()
 	update()
 end
 
-function TutorialArrow.add(target: GuiObject, low: boolean?)
+function TutorialArrow.add(target: GuiObject, low: boolean?, plain: boolean?)
 	for _, entry in entries do
 		if entry.target == target then
+			entry.plain = plain == true
+			-- #4847 follow-up (Sync's camp run: "You can rank up!" with no dim): the goal card's ready nudge adds the
+			-- card as a `low` target first, so the rank up walk-through's spotlight on the same card found it there
+			-- and kept it low, with no dim. A tutorial ask on a low target lifts it.
+			if entry.low and low ~= true then
+				entry.low = false
+				watch()
+			end
 			return
 		end
 	end
-	table.insert(entries, { target = target, since = os.clock(), low = low == true })
+	table.insert(
+		entries,
+		{ target = target, since = os.clock(), low = low == true, plain = plain == true }
+	)
 	watch()
+end
+
+-- #5009: `card` is one the player opens (the Luck card): no `low` arrow shows while it does.
+function TutorialArrow.yieldTo(card: GuiObject)
+	if not table.find(covers, card) then
+		table.insert(covers, card)
+	end
 end
 
 function TutorialArrow.remove(target: GuiObject)

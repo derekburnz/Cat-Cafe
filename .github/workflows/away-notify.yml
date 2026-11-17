@@ -38,6 +38,8 @@ jobs:
     timeout-minutes: 10
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.OWNER_KEY }}
+      # the Creator Hub string AwayEarnings: "Your cats earned {amount} while you were away!" (not secret)
+      AWAY_MESSAGE_ID: "832f69ae-4f4e-aa43-a325-a1c0523dde16"
       # the hourly run sends; a run started by hand does what was picked
       ACTION: ${{ inputs.action || 'send' }}
     steps:

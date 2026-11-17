@@ -190,28 +190,28 @@ def tree(rb, x, z, s=1.0, leaf="leaf_green", y=None):
     """A round tree s times the town gardens' size, standing on the backdrop's ground at (x, z)."""
     y = ground_y(x, z) - 0.3 * s if y is None else y
     rb.cyl((x, y + 2.2 * s, z), 0.5 * s, 4.4 * s, "fur_brown", segments=8)
-    rb.ball((x, y + 6.0 * s, z), 3.0 * s, leaf)
-    rb.ball((x + 1.9 * s, y + 4.9 * s, z - 0.5 * s), 1.9 * s, leaf)
-    rb.ball((x - 1.7 * s, y + 5.3 * s, z + 0.6 * s), 1.8 * s, leaf)
+    # #5026: two balls, not three (as the area backdrops since #4857): the town's backdrop is on every device
+    # wherever it stands, so every part counts
+    rb.ball((x, y + 6.0 * s, z), 3.1 * s, leaf)
+    rb.ball((x + 1.6 * s, y + 4.8 * s, z - 0.6 * s), 2.3 * s, leaf)          # a plain ball: a scaled one is 2 instances
 
 
 def far_tree(rb, x, z, s, leaf):
     """A far tree: a trunk and one round crown, two parts."""
     y = ground_y(x, z) - 0.3 * s
     rb.cyl((x, y + 1.8 * s, z), 0.5 * s, 3.6 * s, "fur_brown", segments=6)
-    rb.ball((x, y + 5.2 * s, z), 2.9 * s, leaf, scale=(1.0, 1.1, 1.0))
+    rb.ball((x, y + 5.2 * s, z), 3.0 * s, leaf)                              # plain since #5026 (was 1.1 tall)
 
 
 def bush(rb, x, z, s=1.0, leaf="leaf_dark"):
     y = ground_y(x, z)
-    rb.ball((x, y + 0.6 * s, z), 1.6 * s, leaf, scale=(1.3, 0.8, 1.0))
-    rb.ball((x + 1.6 * s, y + 0.4 * s, z + 0.5 * s), 1.0 * s, leaf, scale=(1.2, 0.8, 1.0))
+    rb.ball((x + 0.4 * s, y + 0.6 * s, z + 0.1 * s), 1.7 * s, leaf, scale=(1.6, 0.8, 1.05))   # one ball, two until #5026
 
 
 def tuft(rb, flowers, x, z, spread):
     """A clump of wildflowers on a low tuft of grass."""
     rb.cyl((x, 0.04, z), spread + 0.6, 0.08, "leaf_dark", segments=10)
-    flower_clump(flowers, x, 0.08, z, n=3, spread=spread)
+    flower_clump(flowers, x, 0.08, z, n=2, spread=spread)                          # 3 until #5026
 
 
 def _clear_of_town(x, z, pad):

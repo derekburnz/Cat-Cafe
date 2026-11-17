@@ -10,7 +10,7 @@
 --   KEY, ATTRIBUTE, ARMS, EVENT, SEEN_EVENT, SEEN_REPORT, SEEN_MAX, LAST_STEP
 --   arm(value)                 "on" or "off" for a config value, else nil
 --   joins(sessions, introSeen) whether a save is new enough to join the test
---   shows(arm, flagOn)         whether the loading screen shows
+--   shows(arm, flagOn)         whether the loading screen shows (#4780: an "off" arm no longer hides it)
 
 local LoadingTest = {}
 
@@ -35,13 +35,10 @@ function LoadingTest.joins(sessions: number, introSeen: boolean): boolean
 	return sessions <= 1 and not introSeen
 end
 
+-- #4780 (Derek 2026-11-16: "turn it all on ... make all players go through it"): the test is over, so an "off" arm
+-- no longer hides the screen; the loadingScreen switch decides for everyone, and "on" still shows it.
 function LoadingTest.shows(arm: string?, flagOn: boolean): boolean
-	if arm == "on" then
-		return true
-	elseif arm == "off" then
-		return false
-	end
-	return flagOn
+	return arm == "on" or flagOn
 end
 
 return LoadingTest

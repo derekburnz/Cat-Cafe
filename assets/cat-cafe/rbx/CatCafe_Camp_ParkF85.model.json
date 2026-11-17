@@ -2457,9 +2457,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         168.0,
+         0.0,
          -0.3,
-         -11.0
+         0.0
         ],
         "orientation": [
          [
@@ -3558,9 +3558,9 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
+       -11.0,
        0.0,
-       0.0,
-       0.0
+       -168.0
       ],
       "orientation": [
        [
@@ -5945,8 +5945,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.6667,
-         6.53,
+         9.6,
+         6.59,
          -180.5
         ],
         "orientation": [
@@ -5969,9 +5969,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.48,
+       0.48,
+       0.48
       ],
       "Color": [
        0.9098,
@@ -5994,106 +5994,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.4667,
-         6.518,
-         -180.4254
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.5925,
-         6.506,
-         -180.5994
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.2521,
-         6.53,
+         9.1854,
+         6.578,
          -179.9294
         ],
         "orientation": [
@@ -6116,58 +6018,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.0522,
-         6.518,
-         -179.8548
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
+       0.456,
+       0.456,
+       0.456
       ],
       "Color": [
        1.0,
@@ -6190,57 +6043,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.1779,
-         6.506,
-         -180.0287
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         8.5813,
-         6.53,
+         8.5146,
+         6.566,
          -180.1473
         ],
         "orientation": [
@@ -6263,107 +6067,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         8.3813,
-         6.518,
-         -180.0728
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         8.5071,
-         6.506,
-         -180.2467
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
+       0.432,
+       0.432,
+       0.432
       ],
       "Color": [
        1.0,
@@ -6386,8 +6092,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.5813,
-         6.53,
+         8.5146,
+         6.554,
          -180.8527
         ],
         "orientation": [
@@ -6410,14 +6116,14 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.408,
+       0.408,
+       0.408
       ],
       "Color": [
-       0.9098,
-       0.6275,
-       0.6275
+       0.8784,
+       0.4784,
+       0.549
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -6435,106 +6141,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.3813,
-         6.518,
-         -180.7781
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         8.5071,
-         6.506,
-         -180.952
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.2521,
-         6.53,
+         9.1854,
+         6.542,
          -181.0706
         ],
         "orientation": [
@@ -6557,112 +6165,14 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.0522,
-         6.518,
-         -180.9961
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
+       0.384,
+       0.384,
+       0.384
       ],
       "Color": [
        1.0,
        0.9569,
        0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_002_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.1779,
-         6.506,
-         -181.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -16654,8 +16164,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.3333,
-         6.53,
+         -8.4,
+         6.59,
          -180.5
         ],
         "orientation": [
@@ -16678,9 +16188,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.48,
+       0.48,
+       0.48
       ],
       "Color": [
        0.9098,
@@ -16703,106 +16213,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.5333,
-         6.518,
-         -180.4254
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.4075,
-         6.506,
-         -180.5994
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.7479,
-         6.53,
+         -8.8146,
+         6.578,
          -179.9294
         ],
         "orientation": [
@@ -16825,58 +16237,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.9478,
-         6.518,
-         -179.8548
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
+       0.456,
+       0.456,
+       0.456
       ],
       "Color": [
        1.0,
@@ -16899,57 +16262,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.8221,
-         6.506,
-         -180.0287
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -9.4187,
-         6.53,
+         -9.4854,
+         6.566,
          -180.1473
         ],
         "orientation": [
@@ -16972,107 +16286,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -9.6187,
-         6.518,
-         -180.0728
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -9.4929,
-         6.506,
-         -180.2467
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
+       0.432,
+       0.432,
+       0.432
       ],
       "Color": [
        1.0,
@@ -17095,8 +16311,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.4187,
-         6.53,
+         -9.4854,
+         6.554,
          -180.8527
         ],
         "orientation": [
@@ -17119,14 +16335,14 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.408,
+       0.408,
+       0.408
       ],
       "Color": [
-       0.9098,
-       0.6275,
-       0.6275
+       0.8784,
+       0.4784,
+       0.549
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -17144,106 +16360,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.6187,
-         6.518,
-         -180.7781
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -9.4929,
-         6.506,
-         -180.952
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.7479,
-         6.53,
+         -8.8146,
+         6.542,
          -181.0706
         ],
         "orientation": [
@@ -17266,112 +16384,14 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.9478,
-         6.518,
-         -180.9961
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
+       0.384,
+       0.384,
+       0.384
       ],
       "Color": [
        1.0,
        0.9569,
        0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Camp_ParkF85_010_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -8.8221,
-         6.506,
-         -181.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,

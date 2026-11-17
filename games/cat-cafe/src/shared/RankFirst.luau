@@ -8,23 +8,30 @@
 --   any press outside the walk-through's spotlight after RankSpot.KEEP_SECONDS put it away for good, and a phone
 --     player's first thumbstick touch is such a press. A press now only rests it REST_SECONDS; the PRESSES-th puts it
 --     away (`forGood`).
--- Switch `rankFirst` (LiveFlags), on unless switched off: off gives back the old order and the old one-press close.
+-- #4654: the `rankFirst` switch is retired; this is always the order and the close.
 -- Pure.
 
 local RankFirst = {}
 
-RankFirst.FLAG = "rankFirst"
 RankFirst.REST_SECONDS = 20 -- a press outside the spotlight hides it this long
 RankFirst.PRESSES = 3 -- the press that puts it away for good
+-- #4836 (Sync's pointer audit: the strip said "Tap YOUR GOAL" while the arrow pointed at the green RANK UP button):
+-- the line names the button the arrow and the strip's own button show
+-- #4926 (Derek 2026-11-16: what to do and why): and what the rank up opens
 RankFirst.LINES = table.freeze({
-	touch = "Rank up! Tap YOUR GOAL",
-	keyboard = "Rank up! Click YOUR GOAL",
-	gamepad = "Rank up! Select YOUR GOAL",
+	touch = "Rank up! Tap RANK UP to open the Park",
+	keyboard = "Rank up! Click RANK UP to open the Park",
+	gamepad = "Rank up! Select RANK UP to open the Park",
 })
 
--- Whether the rank up goes first now: the switch on, the cafe at Tier 1 and every Tier 2 need met.
-function RankFirst.holds(on: boolean, tier: number?, ready: boolean): boolean
-	return on and (tier or 1) == 1 and ready
+-- The strip's button beside a rank up line (client HUD): it opens the rank up window from anywhere, since the
+-- walk-through's spotlight only shows on the safe side of the gates (the Nov 16 drop-off read: 148 of 431 ready
+-- players never pressed).
+RankFirst.BUTTON = "RANK UP"
+
+-- Whether the rank up goes first now: the cafe at Tier 1 and every Tier 2 need met.
+function RankFirst.holds(tier: number?, ready: boolean): boolean
+	return (tier or 1) == 1 and ready
 end
 
 -- The strip's line for a device ("touch", "keyboard" or "gamepad"; anything else reads as keyboard).
@@ -49,10 +56,9 @@ function RankFirst.isLine(text: string?): boolean
 	return false
 end
 
--- Whether a press outside the spotlight puts it away for good: with the switch off every such press does (the old
--- rule, RankSpot.putsAway deciding), with it on only the PRESSES-th of this session.
-function RankFirst.forGood(on: boolean, presses: number): boolean
-	return not on or presses >= RankFirst.PRESSES
+-- Whether a press outside the spotlight puts it away for good: only the PRESSES-th of this session.
+function RankFirst.forGood(presses: number): boolean
+	return presses >= RankFirst.PRESSES
 end
 
 return RankFirst

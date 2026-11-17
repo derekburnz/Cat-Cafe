@@ -120,8 +120,8 @@ AdminFlashLogic.KINDS = {
 	},
 	{
 		name = "speedRush",
-		head = "SPEED SHOES",
-		stay = "Everyone is fast. Go catch cats!",
+		head = "SPEED RUSH", -- #4878: +10 walk speed, no shoes
+		stay = "Everyone is faster. Go catch cats!",
 		look = "mint",
 		rain = "speedRush",
 	},
@@ -275,6 +275,22 @@ function AdminFlashLogic.stripSpot(
 		return 1, 1, -math.floor(stripLift * s)
 	end
 	return 0, stripY, 0
+end
+
+-- #5040: the size the small pieces (the strip and the end card) are drawn at. The splash follows the screen
+-- (`s`, down to scaleMin), but on a small phone that leaves the strip's clock line under 10 px, so these never go
+-- under `readMin`. A PC or tablet, where `s` is over `readMin`, is unchanged.
+function AdminFlashLogic.readScale(s: number, readMin: number): number
+	return math.max(s, readMin)
+end
+
+-- #5040: the outline round a word of `size` px. Under `thinUnder` px the usual 2 px outline eats the letters,
+-- so small words get `thin`; every bigger size keeps the old look.
+function AdminFlashLogic.outlineOf(size: number, thinUnder: number, thin: number): number
+	if size < thinUnder then
+		return thin
+	end
+	return math.clamp(size / 9, 2, 6)
 end
 
 -- 12340 -> "+$12,340"

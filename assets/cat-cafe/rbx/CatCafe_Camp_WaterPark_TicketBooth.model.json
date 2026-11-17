@@ -6961,7 +6961,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin"
   }

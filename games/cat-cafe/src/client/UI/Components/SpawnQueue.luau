@@ -11,7 +11,6 @@
 --   waiting(queue, now) -> number          how many still wait after the one just taken
 local SpawnQueue = {}
 
-SpawnQueue.FLAG = "spawnQueue" -- on unless switched off: off, spawn lines show as they come, as before
 SpawnQueue.SHOW = 4
 SpawnQueue.MAX_AGE = 30
 SpawnQueue.CAP = 6

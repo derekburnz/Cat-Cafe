@@ -1553,6 +1553,8 @@ def build_ticket_booth(mat):
 MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}},
           KEEP: {"nest": {"_Gold_Glow": "_Gold"}},   # #4062: the jewels ride the gold
           HOARD_CHEST: {"nest": {"_Gold_Glow": "_Gold"}},
+          # #4069: the lookout turns once in a minute and a half, the lit strip riding in it
+          "CatCafe_Camp_Snowy_FusionObservatory": {"nest": {"_Slit_Glow": "_Slit_Spin"}, "model_attributes": {"_Slit_Spin": {"Seconds": {"Float64": 90.0}}}},
           # #4061: the ticket wheel faces the front, so its _Spin pivot's Y axis is turned onto -Z
           BOOTH: {"pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}}}
 
@@ -1574,7 +1576,7 @@ def _obs_arc(b, r, a0, a1, n, width, thick, swatch):
 
 
 def build_fusion_observatory(mat):
-    b, glow, bulb = RB(), RB(), RB()
+    b, glow, bulb, spin = RB(), RB(), RB(), RB()
     R, W = OBS_R, OBS_WALL
     # the tower: a dark foot, grey stone in two courses, a pale ledge with snow on it
     b.cyl((0, 0.35, 0), R + 0.35, 0.7, "concrete_dark", segments=16)
@@ -1592,12 +1594,15 @@ def build_fusion_observatory(mat):
         b.cyl((0, y0 + D * math.sin(a0) + h / 2, 0), r0, h, ("milk", "offwhite")[k % 2], r2=r1, segments=16)
     b.cyl((0, y0 + 0.12, 0), D + 0.12, 0.24, "brass", segments=16)                            # the dome's brass ring
     # the slit: a brass frame from the front horizon over the crown, the lit strip in it
-    _obs_arc(b, D + 0.0, 5.0, 119.0, 9, 1.6, 0.3, "brass")
+    # #4069: the slit's frame and the telescope are the child Model _Slit_Spin, pivoted on the dome's upright axis,
+    # so Effects/Motion turns the lookout slowly round the dome (the white rings under it are the same all round,
+    # so only the slit and the telescope are seen to move). The lit strip (_Slit_Glow) rides inside it.
+    _obs_arc(spin, D + 0.0, 5.0, 119.0, 9, 1.6, 0.3, "brass")
     _obs_arc(glow, D + 0.1, 8.0, 116.0, 9, 1.0, 0.3, "pastel_butter")
     # the telescope out of the slit, short enough to stay inside the paw lights' circle (1.15 R)
     ta = math.radians(52.0)
     for (d, w, ln, sw) in ((D + 0.5, 0.75, 2.6, "brass"), (D + 1.9, 0.95, 0.5, "gold_dark"), (D - 0.6, 1.05, 0.5, "gold_dark")):
-        b.box((0, y0 + d * math.sin(ta), -d * math.cos(ta)), (w, ln, w), sw, rot=rot_x(52.0 - 90.0))
+        spin.box((0, y0 + d * math.sin(ta), -d * math.cos(ta)), (w, ln, w), sw, rot=rot_x(52.0 - 90.0))
     # the door, two steps, a lantern over it
     b.span((-1.1, 0.7, -R - 0.12), (1.1, 3.5, -R + 0.3), "dark_wood")
     b.span((-0.9, 0.7, -R - 0.2), (0.9, 3.3, -R - 0.1), "caramel_wood")
@@ -1633,7 +1638,8 @@ def build_fusion_observatory(mat):
     _anchor(OBS, "PromptAnchor", (0.0, 1.5 + 0.7, -R - 1.6))
     _anchor(OBS, "BangAnchor", (sx_, s1 + 1.25 + 2.0, sz_))
     _anchor(OBS, "GlowAnchor", (0.0, 0.7 * OBS_TOP, 0.0))
-    return [b.finalize(OBS, mat), glow.finalize(OBS + "_Slit_Glow", mat), bulb.finalize(OBS + "_Bulb", mat)]
+    return [b.finalize(OBS, mat), glow.finalize(OBS + "_Slit_Glow", mat), bulb.finalize(OBS + "_Bulb", mat),
+            spin.finalize(OBS + "_Slit_Spin", mat, location=(0, y0, 0))]
 
 
 def rbx_attachments(name):

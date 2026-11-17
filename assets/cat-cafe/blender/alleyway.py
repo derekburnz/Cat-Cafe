@@ -432,7 +432,9 @@ def build_mural(mat):
 
 
 # --------------------------------------------------------------------------------------------- props --
-def _crate(b, x, y, z, s=2.6, stencil=None):
+def _crate(b, x, y, z, s=2.6, stencil=None, light=False, top=True):
+    """light (the Sewer's stacks, #5026): plank seams on the front face only, top planks only on a column's top
+    crate, no stencil. 5 or 7 parts a crate where the full one is 13 and its letters."""
     i = s - 0.1
     b.span((x - i / 2, y, z - i / 2), (x + i / 2, y + i, z + i / 2), "caramel_wood")
     for dx in (-1, 1):
@@ -443,16 +445,18 @@ def _crate(b, x, y, z, s=2.6, stencil=None):
     for k in (1, 2):                                                                       # plank seams
         yy = y + i * k / 3
         b.span((x - i / 2, yy - 0.04, z - i / 2 - 0.03), (x + i / 2, yy + 0.04, z - i / 2), "dark_wood")
+        if light:
+            continue
         b.span((x - i / 2 - 0.03, yy - 0.04, z - i / 2), (x - i / 2, yy + 0.04, z + i / 2), "dark_wood")
         b.span((x + i / 2, yy - 0.04, z - i / 2), (x + i / 2 + 0.03, yy + 0.04, z + i / 2), "dark_wood")
-    for k in (1, 2):
+    for k in (1, 2) if top or not light else ():
         xx = x - i / 2 + i * k / 3
         b.span((xx - 0.04, y + i, z - i / 2), (xx + 0.04, y + i + 0.03, z + i / 2), "dark_wood")
-    if stencil:
+    if stencil and not light:
         label(b, stencil, x, y + i * 0.42, z - i / 2 - 0.03, 0.12, 0.02, "rust", -1)
 
 
-def build_crate_stack(mat):
+def build_crate_stack(mat, light=False):
     name = "CatCafe_Alley_CrateStack"
     b = RB()
     s = 2.6
@@ -460,7 +464,7 @@ def build_crate_stack(mat):
     for x, n in cols:
         for k in range(n):
             _crate(b, x, k * s, 0, s, stencil=("FISH" if (x, k) == (0.0, 0) else "MILK" if (x, k) == (2.6, 1)
-                                                else None))
+                                                else None), light=light, top=k == n - 1)
     px0 = -5.2                                                                             # pallet step
     for k in range(5):
         b.span((px0 - 1.2, 0.35, -1.2 + k * 0.6), (px0 + 1.2, 0.5, -0.8 + k * 0.6), "caramel_wood")

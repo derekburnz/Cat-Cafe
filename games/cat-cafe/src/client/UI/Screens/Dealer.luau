@@ -507,7 +507,7 @@ function Dealer._buildCard(self: any, index: number, group: DealerRows.Row)
 		detail = detail,
 		cover = cover,
 		close = close,
-		odds = FoodOdds.rich(def.odds, rarityHex),
+		odds = FoodOdds.rich(def.odds, rarityHex, def.secretShare),
 		split = nil :: string?,
 		group = group,
 	})
@@ -796,7 +796,11 @@ function Dealer._renderAll(self: any)
 		self._luck = playerLuck
 		for _, row in self._rows do
 			local def: Types.LureDef = row.group.def
-			row.odds = FoodOdds.rich(FoodOdds.atBowl(def.odds, bowlLevel, playerLuck), rarityHex)
+			row.odds = FoodOdds.rich(
+				FoodOdds.atBowl(def.odds, bowlLevel, playerLuck),
+				rarityHex,
+				def.secretShare
+			)
 			row.split = FoodOdds.split(catalog, def, state.tier, bowlLevel, playerLuck)
 		end
 	end

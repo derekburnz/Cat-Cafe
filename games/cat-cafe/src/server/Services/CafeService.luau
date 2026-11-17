@@ -62,7 +62,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
-local QuietStartService = require(script.Parent.QuietStartService)
+local RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
@@ -76,6 +76,7 @@ local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 local Telemetry = require(script.Parent.Telemetry)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
+local Tier3Path = require(ReplicatedStorage.Shared.Tier3Path)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Traits = require(ReplicatedStorage.Shared.Traits)
@@ -403,6 +404,11 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			else nil,
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
+		-- #5031: Tier 2's cats still short after the first check-in, behind rankUpRightAway (the goal card's line)
+		rankUpShort = if LiveFlagService.on(RankUpRightAway.FLAG)
+			then RankUpRightAway.catsShort(profile)
+			else nil,
+		tier3Goal = CafeService.tier3Goal(profile), -- #5038
 		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
@@ -1682,14 +1688,11 @@ function CafeService.addCaughtCat(
 			TipService.show(player, "second_cat")
 		end
 		-- #4384 (Derek 2026-11-15 "still the drop off at second cat"): one ask at a time at the first check-in, so the
-		-- new cat and its job come as one toast ("Your first cat! Mochi is your Barista (+$50)"), behind checkInCalm
+		-- new cat and its job come as one toast ("Your first cat! Mochi is your Barista (+$50)")
 		local spotHere = if instance.spotId ~= nil
 			then Catalog.getSpot(instance.spotId :: string)
 			else nil
-		local oneToast = isNew
-			and firstCheckIn
-			and spotHere ~= nil
-			and LiveFlagService.on("checkInCalm")
+		local oneToast = isNew and firstCheckIn and spotHere ~= nil
 		if oneToast and spotHere ~= nil then
 			Net.toast(
 				player,
@@ -1737,9 +1740,38 @@ function CafeService.addCaughtCat(
 		-- Cats window shows it); #2727: nor "X is in the cat room. Every role is taken" for one with no role free (the
 		-- Cats tile's dot shows a resting cat; slots_full is still logged above)
 		CafeService.tier2ReadyTopUp(player, profile)
+		CafeService.tier3ReadyTopUp(player, profile) -- #5038
 		CafeService.sync(player)
 	end
 	return instance, isNew
+end
+
+-- #5038 (switch tier3Path, shared/Tier3Path): at Tier 2 the goal card's one next thing toward Tier 3, wide and narrow
+function CafeService.tier3Goal(profile: Profile): { wide: string, narrow: string }?
+	if not LiveFlagService.on(Tier3Path.FLAG) then
+		return nil
+	end
+	local wide, narrow = Tier3Path.goalLine(profile), Tier3Path.goalLine(profile, true)
+	return if wide ~= nil and narrow ~= nil then { wide = wide, narrow = narrow } else nil
+end
+
+-- #5038 (switch tier3Path): once Tier 3's kinds and Rares are met at Tier 2, the coins are topped up once by up to
+-- Tier3Path.GIFT_MAX, never past Tier 3's cost (stats.tier3TopUp), and said to be a gift; the price stays the real one
+function CafeService.tier3ReadyTopUp(player: Player, profile: Profile)
+	local gift = Tier3Path.topUpFor(profile, LiveFlagService.on(Tier3Path.FLAG))
+	if gift <= 0 then
+		return
+	end
+	profile.stats.tier3TopUp = gift
+	Economy.credit(profile, gift)
+	Telemetry.source(player, profile, gift, "Onboarding", "tier3_topup")
+	Telemetry.custom(
+		player,
+		"tier3_topup",
+		gift,
+		{ tostring((Catalog.getTier(3) :: Types.TierDef).cost) }
+	)
+	Net.toast(player, Tier3Path.giftLine(gift), "good")
 end
 
 -- #4674 (Derek 2026-11-16: "give more starter money ... if you the 2nd cat safe it should be ready for rankup and park
@@ -2190,6 +2222,11 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
+	do -- #4815: the tutorial's bigger net ends at Tier 2, so the client's reach glow (NetExtraStuds) shrinks with it
+		local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+		local extra = NetSwing.extraForProfile(profile)
+		player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
+	end
 	local fish = GoldenFish.forRankUp(def.tier) -- F52
 	GoldenFish.credit(profile, fish)
 	Telemetry.fishSource(player, profile, fish, "Gameplay", "rank_up")
@@ -2205,12 +2242,7 @@ local function onRankUp(player: Player)
 		),
 		"good"
 	)
-	-- #4005: not on a new player's screen in their quiet start
-	QuietStartService.fireAll(
-		player,
-		"Announce",
-		string.format("%s's cafe is now a %s!", player.DisplayName, def.name)
-	)
+	-- #4872 (Derek, 2026-11-16): rank ups are told only to the player (the toast above), never to the whole server
 	giveLawnGifts(player, profile) -- F91: a Garden Bench at Tier 2, an Umbrella Table at Tier 3
 	CafeService.autoEquip(player, profile) -- #1534: the new slots take the best resting cats
 	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))
@@ -2553,6 +2585,10 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	end
 	settings[rawKey :: string] = value
 	CafeService.sync(player)
+	if rawKey == "vipTag" then
+		-- #4991: the VIP tag over the head follows its switch at once (required here: no new top-level local)
+		(require(script.Parent.VipTagService) :: any).refresh(player)
+	end
 end
 
 -- #3995 (friend-join-3995.md): the door of the friend a player joined through, for the cafe next door; nil

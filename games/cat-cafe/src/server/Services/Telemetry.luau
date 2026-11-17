@@ -58,9 +58,11 @@ local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
 local PerfSuggest = require(ReplicatedStorage.Shared.PerfSuggest)
+local PerfWatch = require(ReplicatedStorage.Shared.PerfWatch)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway)
 local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
@@ -342,6 +344,9 @@ export type CustomEvent =
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"
+	-- #4913: today's Pal Day gift paid, value 1 (how the first pal was linked: friend, invite, follow or private; tier).
+	-- Roblox's own Platform dimension splits it by device
+	| "pal_day_claimed"
 	-- #3995 (friend-join-3995.md): a join through a friend with the palJoin switch on, value 1 (how: invite or follow;
 	-- new or returning; cafe next door yes or no)
 	| "pal_join"
@@ -373,10 +378,18 @@ export type CustomEvent =
 	| "first_window"
 	-- #1273: the Tutorial tile's red X, value 1, once a session; tutorialStep
 	| "tutorial_closed"
+	-- #5031: a Tier 1 Rank Up window ended, value 1, at most RankUpRightAway.WINDOWS_MAX a session; how it opened
+	-- (auto or button), how it ended (pressed, closed or left), device
+	| "rank_up_window"
+	-- #5038 (shared/Tier3Path): a stray started waiting by the Park landing for a Tier 2 player, value 1; kind or rare
+	| "tier3_path"
+	-- #5038: the Tier 3 welcome gift paid, value the coins; Tier 3's cost
+	| "tier3_topup"
 	-- #2915: the first Park landing's hint, value 1, each kind once a session; toast or ring (PARK_HINTS)
 	| "park_first_hint"
 	-- #3554: the walk to a first Park catch, value 1, each once a session; the tier (PARK_TRAIL)
 	| "park_gate_trail_shown"
+	| "park_trail_back" -- #5045: the walk to the Park came back after a rest (parkTrailBack)
 	| "park_entered_first"
 	| "park_first_catch"
 	-- #3556: once a session each, value 1: first time near a free stray, and the first in-reach glow; the device,
@@ -384,7 +397,8 @@ export type CustomEvent =
 	| "stray_near_first"
 	-- #3555: the first rank up's walk-through. rank_up_ready_first (value 1) and rank_up_pressed_first (value the
 	-- seconds from ready to the rank up) from RankSpotService, once a session; shown and closed from the client
-	-- (RANK_SPOT), value 1, once a session each; the device
+	-- (RANK_SPOT), value 1, once a session each; the device. rank_up_ready_first's second field: where the player
+	-- stood, "safe" or the catching area's id (the Nov 16 drop-off read)
 	| "rank_up_ready_first"
 	| "rank_up_pressed_first"
 	| "rank_up_spotlight_shown"
@@ -440,6 +454,19 @@ export type CustomEvent =
 	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
 	-- and "<UI build>/<save wait>" (FirstFive.bootBucket each)
 	| "client_boot"
+	-- #4783 (shared/PerfWatch): once a session for every player, value the seconds (tenths) from the join to the world
+	-- ready on the client; the device, the client's own part (PerfWatch.loadBucket), "first" or "back" (sessions)
+	| "client_load"
+	-- #4783: the client's average frames a second over each window up to a PerfWatch.MARKS minute, for every player;
+	-- the device, the mark ("m1"), "<low|std>:q<graphics quality>" (the Low performance setting, 0 Automatic)
+	| "client_fps"
+	-- #4821 (Design-Agent's first-60-seconds spec): once an account, as its first bowl cat is tamed, value the seconds
+	-- from the world ready on this session's client (the "loaded" step; the join when that never came); the device,
+	-- the cat's rarity
+	| "first_cat_owned"
+	-- #4945: once a session, a phone or tablet that tripped the lighter effects budget (client Effects, Logic.slowStep);
+	-- value the seconds from the join; the device, the slow windows' average fps, "low" or "std" (Low performance)
+	| "fx_lite"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -505,6 +532,8 @@ local REPORTS = {
 	"step",
 	"screen",
 	"tutorial_closed",
+	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
+	"rank_up_end", -- #5031: how that window ended, "pressed" or "closed" (rank_up_window)
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
 	"new_kind_trail", -- #3529: the five cats trail showed or was followed (shared/NewKind.REPORTS)
 	"bowl_step", -- #4674: a bowl first strip line shown, a shared/TutorialOrder.BOWL_STEPS key
@@ -538,6 +567,9 @@ local REPORTS = {
 	"boot_sync", -- #4307: seconds from the client's first script line to its first ProfileSync (client_boot)
 	"intro_shot", -- #3098 P1b: an intro shot started, 1 to FirstFive.INTRO_SHOTS (quit_scene; the first logs first_scene)
 	LoadingTest.SEEN_REPORT, -- #4314: the whole seconds the loading screen was up (0 to LoadingTest.SEEN_MAX), once
+	PerfWatch.READY, -- #4783: seconds from the client's first script line to the world ready (client_load), once
+	PerfWatch.FPS, -- #4783: the average fps up to a mark (PerfWatch.encode), once a mark a session (client_fps)
+	"fx_lite", -- #4945: the lighter effects budget tripped, seconds x 100 + fps (Effects Logic.liteReport), once
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -566,6 +598,7 @@ local CATCH_REACH: { [string]: CustomEvent } = {
 -- #3554: the client's park_trail report to the event it logs (UI/Components/ParkTrailLogic)
 local PARK_TRAIL: { [string]: CustomEvent } = {
 	shown = "park_gate_trail_shown",
+	back = "park_trail_back", -- #5045
 	entered = "park_entered_first",
 	caught = "park_first_catch",
 }
@@ -641,6 +674,8 @@ type Session = {
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
 	catchReach: { [string]: boolean }, -- #3556: catch_reach logged this session, by kind
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
+	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
+	rankWindows: number, -- #5031: rank_up_window events logged this session
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -690,6 +725,10 @@ type Session = {
 	rarityStep: number?, -- #3876: rarity_v1 steps logged this session (nil until joined is logged)
 	loadingArm: string?, -- #4314: this new save's loading screen test arm (shared/LoadingTest), nil outside it
 	loadingSeen: boolean, -- #4314: ab_loading_seen logged this session
+	loadLogged: boolean, -- #4783: client_load logged this session
+	loadPending: { seconds: number, bucket: string }?, -- #4783: client_load's, held until the device report comes
+	fpsLogged: { [number]: boolean }, -- #4783: client_fps marks logged this session
+	liteLogged: boolean, -- #4945: fx_lite logged this session
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -700,6 +739,7 @@ type ShownGoal = { goal: Types.ReturnGoalView, mode: string, at: number }
 type StoreVisit = { id: string, step: number, sku: string?, landing: string? }
 
 local sessions: { [Player]: Session } = {}
+local addedClock: { [Player]: number } = {} -- #4783: os.clock() as each player joined the server (client_load)
 local studio = RunService:IsStudio()
 local log: { LogEntry } = {}
 
@@ -730,6 +770,17 @@ local function catsDistinct(profile: Profile): string
 		{ 4, 11, 19, 29 },
 		{ "1-4", "5-11", "12-19", "20-29", "30+" }
 	)
+end
+
+-- #5031: the Tier 1 Rank Up window open now ended (shared/RankUpRightAway): one rank_up_window, at most WINDOWS_MAX
+local function rankWindowEnd(player: Player, session: Session, outcome: string)
+	local how = session.rankWindow
+	session.rankWindow = nil
+	if how == nil or session.rankWindows >= RankUpRightAway.WINDOWS_MAX then
+		return
+	end
+	session.rankWindows += 1
+	Telemetry.custom(player, "rank_up_window", 1, { how, outcome, session.device or "unknown" })
 end
 
 local function tierText(profile: Profile): string
@@ -932,6 +983,12 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 		return
 	end
 	if introSkip ~= nil and introSkip(player) then
+		introChecked[player] = false
+		return
+	end
+	-- #4929 (Derek's first minute goal, Sync's stopwatch: 22 s of loading and intro before the first press): with the
+	-- noIntro switch on, no intro plays by itself; the bowl step comes at once and the intro stays on the Tutorial tile
+	if LiveFlagService.on(IntroSplit.NO_INTRO) then
 		introChecked[player] = false
 		return
 	end
@@ -1233,6 +1290,22 @@ end
 -- above; #3022's three second cat steps (shared/SecondCat.STEPS) come through here from CatService.
 function Telemetry.stepTime(player: Player, profile: Profile, name: string)
 	Telemetry.custom(player, "step_time", math.floor(PlayTime.seconds(player, profile)), { name })
+end
+
+-- #4821: the account's first bowl cat was just tamed (BaitService, once an account): first_cat_owned.
+function Telemetry.firstCatOwned(player: Player, rarity: string)
+	local session = sessions[player]
+	local from = if session ~= nil then session.stepClock.loaded else nil
+	from = from or addedClock[player]
+	if from == nil then
+		return
+	end
+	Telemetry.custom(
+		player,
+		"first_cat_owned",
+		math.floor(os.clock() - from),
+		{ if session ~= nil then session.device or "unknown" else "unknown", rarity }
+	)
 end
 
 -- #2996: call right after an upgrade's level went up. Logs how long after the previous buy it came, so the first
@@ -2302,6 +2375,21 @@ end
 -- What the client reports (TelemetryReport), analytics only: every name and value is allowlisted or range checked,
 -- the remote is limited to 40 a minute (Net), and nothing here pays, unlocks or saves anything but telemetry. A
 -- funnel step a client sends is reached by itself (Onboarding.CLIENT_STEPS) and logs once per player.
+-- #4783: logs a held client_load once the device is known (the client sends both around its first ProfileSync, in
+-- either order).
+local function logLoad(player: Player, session: Session, profile: Profile)
+	local pending = session.loadPending
+	if pending == nil or session.device == nil then
+		return
+	end
+	session.loadPending = nil
+	Telemetry.custom(player, "client_load", pending.seconds, {
+		session.device :: string,
+		pending.bucket,
+		if profile.stats.sessions <= 1 then "first" else "back",
+	})
+end
+
 local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 	local name = Guard.oneOf(rawName, REPORTS)
 	local session = sessions[player]
@@ -2314,6 +2402,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local device = Guard.oneOf(rawValue, DEVICES)
 		if device ~= nil and session.device == nil then
 			session.device = device
+			logLoad(player, session, profile) -- #4783: a client_load held for the device
 			Telemetry.onboarding(player, profile, "loaded", { device })
 		end
 	elseif name == "intro_choice" then
@@ -2486,6 +2575,65 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				{ arm, session.device or "unknown" }
 			)
 		end
+	elseif name == PerfWatch.READY then
+		-- #4783: once a session, every player; the value is the server's own clock since the player joined the server
+		-- (addedClock: the session itself starts only once the save has loaded), the client's part only buckets (a
+		-- client cannot stretch the logged time past the real one). Held for the device when it has not come yet.
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue <= PerfWatch.MAX_READY
+			and not session.loadLogged
+		then
+			session.loadLogged = true
+			local since = addedClock[player] or session.joinedClock
+			session.loadPending = {
+				seconds = math.floor(math.max(0, os.clock() - since) * 10) / 10,
+				bucket = PerfWatch.loadBucket(rawValue :: number),
+			}
+			logLoad(player, session, profile)
+		end
+	elseif name == PerfWatch.FPS then
+		-- #4783: once a mark a session, and not before the mark's minute (less half a minute for the two clocks)
+		local mark, quality, fps = PerfWatch.decode(rawValue)
+		local minutes = if mark ~= nil then PerfWatch.MARKS[mark] else nil
+		if
+			mark ~= nil
+			and quality ~= nil
+			and fps ~= nil
+			and minutes ~= nil
+			and not session.fpsLogged[mark]
+			and os.time() - session.joinedAt >= minutes * 60 - 30
+		then
+			session.fpsLogged[mark] = true
+			local low = if profile.settings.lowPerformance then "low" else "std"
+			Telemetry.custom(player, "client_fps", fps, {
+				session.device or "unknown",
+				"m" .. tostring(minutes),
+				low .. ":q" .. tostring(quality),
+			})
+		end
+	elseif name == "fx_lite" then
+		-- #4945: once a session; seconds 0 to 3600 and fps 0 to 60, else dropped
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue < 360100
+			and not session.liteLogged
+		then
+			local value = math.floor(rawValue :: number)
+			local seconds, fps = value // 100, value % 100
+			if fps <= 60 then
+				session.liteLogged = true
+				Telemetry.custom(player, "fx_lite", seconds, {
+					session.device or "unknown",
+					tostring(fps),
+					if profile.settings.lowPerformance then "low" else "std",
+				})
+			end
+		end
 	elseif name == "health_fps" then
 		if
 			type(rawValue) == "number"
@@ -2528,6 +2676,21 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
 			end
 		end
+	elseif name == "rank_up_open" then
+		-- #5031: step 15 logs the moment the window opens, so one closed inside the screen report's 5 s counts too
+		local how = Guard.oneOf(rawValue, RankUpRightAway.HOWS)
+		if how ~= nil and Economy.tier(profile) == RankUpRightAway.TIER then
+			logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown)
+			if session.rankWindow ~= nil then
+				rankWindowEnd(player, session, "closed") -- (an end report lost on the way)
+			end
+			session.rankWindow = how
+		end
+	elseif name == "rank_up_end" then
+		local outcome = Guard.oneOf(rawValue, { "pressed", "closed" })
+		if outcome ~= nil and session.rankWindow ~= nil then
+			rankWindowEnd(player, session, outcome)
+		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then
 			session.tutorialClosed = true
@@ -2540,7 +2703,7 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			Telemetry.custom(player, "park_first_hint", 1, { kind })
 		end
 	elseif name == "park_trail" then
-		local kind = Guard.oneOf(rawValue, { "shown", "entered", "caught" })
+		local kind = Guard.oneOf(rawValue, { "shown", "entered", "caught", "back" })
 		local event = if kind ~= nil then PARK_TRAIL[kind] else nil
 		if kind ~= nil and event ~= nil and not session.parkTrail[kind] and profile.tier >= 2 then
 			session.parkTrail[kind] = true
@@ -2820,6 +2983,8 @@ local function onLoaded(player: Player, profile: Profile)
 		parkTrail = {},
 		catchReach = {},
 		rankSpot = {},
+		rankWindow = nil,
+		rankWindows = 0,
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",
@@ -2857,6 +3022,9 @@ local function onLoaded(player: Player, profile: Profile)
 		memFirst = nil,
 		introShot = 0,
 		loadingSeen = false,
+		loadLogged = false,
+		fpsLogged = {},
+		liteLogged = false,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any
@@ -3114,6 +3282,9 @@ local function onRelease(player: Player, profile: Profile)
 					else ""
 			),
 	})
+	if session.rankWindow ~= nil then
+		rankWindowEnd(player, session, "left") -- #5031: left with the Rank Up window open
+	end
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),
 		tierText(profile),
@@ -3179,7 +3350,10 @@ local function onRelease(player: Player, profile: Profile)
 			"quit_have",
 			played,
 			StepGaps.quitFields(
-				Economy.rankUpCatCount(profile.collection),
+				-- #4809: the cats toward Tier 2 as its need counts them (any kind, duplicates included)
+				if tier2 ~= nil
+					then Economy.rankUpCats(profile.collection, profile.cats, tier2)
+					else Economy.rankUpCatCount(profile.collection),
 				profile.coins,
 				if tier2 ~= nil then tier2.cost else 0,
 				Economy.rankUpBlocker(profile) == nil
@@ -3363,11 +3537,15 @@ function Telemetry.start()
 			whereOf(player)
 		end)
 	end
-	Players.PlayerAdded:Connect(watchCharacter)
+	Players.PlayerAdded:Connect(function(player: Player)
+		addedClock[player] = os.clock() -- #4783: client_load counts from here
+		watchCharacter(player)
+	end)
 	for _, player in Players:GetPlayers() do
 		watchCharacter(player)
 	end
 	Players.PlayerRemoving:Connect(function(player: Player)
+		addedClock[player] = nil
 		task.delay(120, function() -- long after the save's release, which reads it
 			lastWhere[player] = nil
 		end)

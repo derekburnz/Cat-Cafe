@@ -14,6 +14,7 @@ local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
 local Logic = require(script.Parent.Logic)
+local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Presets)
 local Rumble = require(script.Parent.Rumble)
 
@@ -27,7 +28,7 @@ Context.lowPerformance = false -- the Low performance setting
 Context.console = false -- an Xbox or PlayStation (a ten-foot screen): Presets.budget.console (#2871)
 Context.lite = false -- #3794: the lighter budget (Logic.wantsLite): a struggling phone or graphics quality 1 to 3
 Context.struggling = false -- #4311: this phone or tablet's frame rate stayed low (Logic.slowStep); kept all session
-local RUMBLE_FLAG = "deviceFixes" -- #4224: rumble ships with the Wed 2026-11-18 device update's switch (off by default)
+local RUMBLE_FLAG = "deviceFixes" -- #4224: rumble ships with the Tue 2026-11-17 device update's switch (off by default)
 
 local SHAKE_STEP = "CatCafeEffectsShake"
 
@@ -87,6 +88,8 @@ function Context.init()
 		if Logic.slowStep(slow, dt, Presets.slow, Context.cutscene()) then
 			Context.struggling = true
 			rebudget()
+			-- #4945: once a session, for the analytics: when it tripped and how slow (Logic.liteReport)
+			Net.fire("TelemetryReport", "fx_lite", Logic.liteReport(slow))
 			if watch ~= nil then
 				watch:Disconnect()
 			end
@@ -260,6 +263,80 @@ function Context.whenRemote(name: string, connect: (RemoteEvent) -> ())
 				waiting:Disconnect()
 			end
 		end)
+	end)
+end
+
+-- #5000 (phone lag while walking, #4857, now that the place streams): about 17 effects each connected their own
+-- Workspace.DescendantAdded, so every instance streaming in started that many handler threads. With the `fxOneAdded`
+-- switch on (off by default) they share one connection that hands each new instance to every handler in turn, in the
+-- order they joined; each runs under pcall, so one handler's error stays its own (reported once). Off, each handler
+-- gets its own connection as before. The switch is read once, when the first handler joins (after LiveFlags' first
+-- read, which the client waits for at start). None of the handlers yields.
+-- #4857 (the Park landing hitch: 4,000 to 5,000 instances stream in in one frame, and Effects' handlers take 18 to
+-- 27 ms of it): with the switch on, the shared connection only queues each new instance, and the handlers run
+-- through the queue on the Heartbeat for at most ADDED_SPREAD_SECONDS a frame, so a burst is spread over several
+-- frames. An instance gone again before its turn (streamed back out) is skipped, and a handler that joins later never
+-- gets one queued before it joined (its own start walk found it). Every handler here is either
+-- timer-driven or waits a frame itself, so a few frames late changes nothing on screen.
+local ONE_ADDED_FLAG = "fxOneAdded"
+local ADDED_SPREAD_SECONDS = 0.0015
+local addedHandlers: { (Instance) -> () }? = nil
+local addedOnError: { (unknown) -> () } = {}
+local addedQueue: { Instance } = {}
+local addedHead, addedTail = 1, 0 -- only ever count up, so a position names one instance for the session
+local addedJoinedAt: { number } = {} -- each handler's addedTail when it joined: it walked everything up to there
+
+function Context.onWorkspaceAdded(handler: (Instance) -> ())
+	if addedHandlers == nil then
+		if
+			not LiveFlags.shown(
+				ONE_ADDED_FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. ONE_ADDED_FLAG)
+			)
+		then
+			Workspace.DescendantAdded:Connect(handler)
+			return
+		end
+		local handlers: { (Instance) -> () } = {}
+		addedHandlers = handlers
+		Workspace.DescendantAdded:Connect(function(instance: Instance)
+			addedTail += 1
+			addedQueue[addedTail] = instance
+		end)
+		RunService.Heartbeat:Connect(function()
+			if addedHead > addedTail then
+				return
+			end
+			local stop = os.clock() + ADDED_SPREAD_SECONDS
+			while addedHead <= addedTail do
+				local at = addedHead
+				local instance = addedQueue[at]
+				addedQueue[at] = nil
+				addedHead += 1
+				if instance.Parent ~= nil then
+					for index, each in handlers do
+						-- a handler that joined after this instance was queued found it in its own start walk
+						if at > addedJoinedAt[index] then
+							xpcall(each, addedOnError[index], instance)
+						end
+					end
+				end
+				if os.clock() >= stop then
+					break
+				end
+			end
+		end)
+	end
+	local handlers = addedHandlers :: { (Instance) -> () }
+	table.insert(handlers, handler)
+	table.insert(addedJoinedAt, addedTail)
+	-- each handler's own error report, made once here so a streamed-in instance makes no new closure
+	local warned = false
+	table.insert(addedOnError, function(problem: unknown)
+		if not warned then
+			warned = true
+			warn("[Effects] a Workspace.DescendantAdded handler failed: " .. tostring(problem))
+		end
 	end)
 end
 

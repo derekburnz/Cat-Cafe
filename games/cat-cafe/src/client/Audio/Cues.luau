@@ -358,12 +358,18 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.1,
 		voices = 1,
 	}, -- F45: hold E; one voice (Audio's fade relies on it)
-	catchStart = { ids = { "rbxassetid://96760734642727" }, group = "Sfx", volume = 0.6 },
+	catchStart = {
+		ids = { "rbxassetid://96760734642727" },
+		group = "Sfx",
+		volume = 0.6,
+		preload = true,
+	},
 	circleAppear = {
 		ids = { "rbxassetid://103026194958680" },
 		group = "Sfx",
 		volume = 0.5,
 		voices = 2,
+		preload = true, -- #3918 follow-up: kept warm in the voice pool so the catch loop is never late
 	}, -- played one scale step per circle
 	circleClose = { ids = {}, group = "Sfx", volume = 0.3, voices = 2 },
 	netSwing = {
@@ -415,6 +421,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
 		range = 40,
+		preload = true, -- #3918 follow-up: kept warm in the voice pool so the catch loop is never late
 	}, -- v0.4: a Miss ends the catch
 	pawLost = { ids = { "rbxassetid://115646034851877" }, group = "Sfx", volume = 0.6 }, -- v0.4; retired by F40 (no paws), kept for its upload record
 	purrfectChime = {
@@ -437,6 +444,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.7,
 		pitch = { 0.95, 1.08 },
 		range = 50,
+		preload = true, -- #3918 follow-up: kept warm in the voice pool so the catch loop is never late
 	}, -- v0.5 F40
 
 	-- Rescue minigames (5.2) and F92 Team Rescue: all in the Rescue sheet (2026-11-02; silent until then) -----------
@@ -768,6 +776,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.27,
 		looped = true,
 		range = 8,
+		preload = true, -- #3918 follow-up: kept warm in the voice pool so the catch loop is never late
 	},
 	rareNear = {
 		ids = { "rbxassetid://134220486232962" },
@@ -867,6 +876,19 @@ local Cues: { [string]: Cue } = {
 		pitch = { 0.68, 0.78 },
 		minGap = 0.3,
 		range = 45,
+		voices = 2,
+	},
+	-- #4251 (Effects/HarvestFx.onPin): a note pinned on Harvest Hollow's Thankful Board near you. The reward card's
+	-- turn-over, lighter and quicker: a paper flick. No upload (sheetKeep).
+	harvestPin = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 9.450, 9.670 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 1.18, 1.3 },
+		minGap = 0.5,
+		range = 40,
 		voices = 2,
 	},
 	adminCrateLand = {
@@ -1040,6 +1062,15 @@ local Cues: { [string]: Cue } = {
 		group = "Ui",
 		volume = 0.45,
 		minGap = 1,
+	},
+	-- #5031 (Effects/RankUpPulse.onGoalReady, switch rankUpRightAway): Tier 2's last need is met. The
+	-- tutorial step chime, a little higher and softer, once a session. No upload.
+	rankUpReadyChime = {
+		ids = { "rbxassetid://125474672370745" },
+		group = "Ui",
+		volume = 0.38,
+		pitch = { 1.12, 1.12 },
+		minGap = 2,
 	},
 	uiToast = { ids = { "rbxassetid://101668755145423" }, group = "Ui", volume = 0.5, minGap = 0.2 },
 	uiHint = { ids = { "rbxassetid://84709734267357" }, group = "Ui", volume = 0.5, minGap = 0.5 },
@@ -1315,6 +1346,7 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.05,
 		voices = 3,
 		range = 40,
+		preload = true, -- #3918 follow-up: kept warm in the voice pool so the catch loop is never late
 	}, -- the net slapping down: mesh, a padded thump and the hoop's tok
 	netBounce = {
 		ids = {},

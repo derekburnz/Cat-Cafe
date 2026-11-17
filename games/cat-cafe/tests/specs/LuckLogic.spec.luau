@@ -174,6 +174,26 @@ return function()
 			expect(LuckLogic.dayLine({})).to.equal(nil)
 		end)
 
+		it("lists the day kinds as Luck card rows (#4990)", function()
+			local view = { luckyDay = true, goldenDay = true, rainbowDay = true, phase = "day" }
+			local rows = LuckLogic.dayRows(view, {})
+			expect(#rows).to.equal(3)
+			expect(rows[1].id).to.equal("lucky_day")
+			expect(rows[1].name).to.equal("Lucky Day")
+			expect(rows[1].value).to.equal("+50%")
+			expect(rows[2].name).to.equal("Golden Day")
+			expect(rows[2].value).to.equal("x3")
+			expect(rows[3].name).to.equal("Rainbow Day")
+			expect(rows[3].value).to.equal("x3")
+			-- a Lucky Day already listed as a Luck source is not listed twice
+			local have = { { id = "lucky_day", name = "Lucky Day", value = "+50%" } }
+			expect(#LuckLogic.dayRows(view, have)).to.equal(2)
+			-- nothing at night, on a plain day or with no clock
+			expect(#LuckLogic.dayRows({ goldenDay = true, phase = "night" }, {})).to.equal(0)
+			expect(#LuckLogic.dayRows({ phase = "day" }, {})).to.equal(0)
+			expect(#LuckLogic.dayRows(nil, {})).to.equal(0)
+		end)
+
 		it("gives each kind's card line and the sunrise banner", function()
 			local view = { luckyDay = true, goldenDay = true, phase = "day" }
 			local lines = LuckLogic.dayCard(view)
@@ -187,9 +207,7 @@ return function()
 			)
 			local title, line = LuckLogic.dayBanner(view)
 			expect(title).to.equal("Lucky Day! Golden Day!")
-			expect(line).to.equal(
-				"+50% Luck: rarer cats more likely. Gold cats x3 as likely until night"
-			)
+			expect(line).to.equal(nil) -- #4867: just the days
 			expect(LuckLogic.dayBanner({ phase = "day" })).to.equal(nil)
 		end)
 
@@ -197,16 +215,16 @@ return function()
 			local title, line =
 				LuckLogic.warnBanner({ lucky = true, golden = false, rainbow = false })
 			expect(title).to.equal("Lucky Day soon!")
-			expect(line).to.equal("+50% Luck: rarer cats more likely from sunrise")
+			expect(line).to.equal(nil) -- #4867
 			title, line = LuckLogic.warnBanner({ lucky = false, golden = true, rainbow = false })
 			expect(title).to.equal("Golden Day soon!")
-			expect(line).to.equal("Gold cats x3 as likely from sunrise")
+			expect(line).to.equal(nil)
 			title, line = LuckLogic.warnBanner({ lucky = true, golden = true, rainbow = false })
 			expect(title).to.equal("Double Day soon!")
-			expect(line).to.equal("Lucky and Golden Day at sunrise")
+			expect(line).to.equal("Lucky and Golden Day")
 			title, line = LuckLogic.warnBanner({ lucky = true, golden = true, rainbow = true })
 			expect(title).to.equal("Triple Day soon!")
-			expect(line).to.equal("Lucky, Golden and Rainbow Day at sunrise")
+			expect(line).to.equal("Lucky, Golden and Rainbow Day")
 			expect(LuckLogic.warnBanner({ lucky = false, golden = false, rainbow = false })).to.equal(
 				nil
 			)
@@ -222,7 +240,7 @@ return function()
 					rainbowDay = true,
 				})
 				expect(title).to.equal("Triple Day!")
-				expect(line).to.equal("Lucky, Golden and Rainbow Day until night")
+				expect(line).to.equal("Lucky, Golden and Rainbow Day")
 			end
 		)
 	end)

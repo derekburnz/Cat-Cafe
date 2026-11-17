@@ -203,10 +203,15 @@ return function()
 				expect(CampExtrasLogic.binLine("alley", NOW - 1, NOW, false)).to.equal(nil)
 			end)
 
-			it("has no button: the bin is played at the bin", function()
+			it("has Rummage while full, and no button while empty (#4961)", function()
 				expect(
 					CampExtrasLogic.remoteAction(
 						CampExtrasLogic.binLine("alley", NOW - 1, NOW, true)
+					)
+				).to.equal("rummage")
+				expect(
+					CampExtrasLogic.remoteAction(
+						CampExtrasLogic.binLine("alley", NOW + 60, NOW, true)
 					)
 				).to.equal(nil)
 			end)

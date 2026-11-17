@@ -6,8 +6,8 @@
 --   RollTrait(uid): the cat owned, no re-roll waiting, and a roll paid for (Traits.pay: a free starter roll, else a
 --     Trait Token, else Traits.COST_FISH golden fish, checked and spent in one step before the roll). A cat with no trait takes
 --     the roll at once; a cat with one keeps it and the roll waits in the save (`pending`) for ChooseTrait.
---   #4712 Auto Roll: RollTrait(uid, stopAt) with a rarity id from Uncommon up: paid by a party roll, a free starter roll
---     or a Trait Token only, never golden fish. A re-roll below `stopAt` is dropped at once (the cat keeps its trait,
+--   #4712 Auto Roll: RollTrait(uid, stopAt) with a rarity id from Uncommon up: paid as any roll (#4898, Derek
+--     2026-11-16: "make auto trait reroll work with cat food rolls also"; was never golden fish). A re-roll below `stopAt` is dropped at once (the cat keeps its trait,
 --     nothing waits); one at `stopAt` or better waits for ChooseTrait as usual. The client sends one roll at a time
 --     (the 1 a second limit stays) and reads each roll from PlayerState.traits.autoRoll.
 --   ChooseTrait(takeNew): the waiting re-roll goes on its cat (true) or is dropped (false), so a cat never gets worse.
@@ -155,14 +155,17 @@ local function onRoll(player: Player, rawUid: unknown, rawStopAt: unknown)
 	local party = EventService.takePartyRoll(player)
 	local paid: string?, fish = "party", 0
 	if not party then
-		-- #4712: Auto Roll never spends golden fish
-		paid, fish = Traits.pay(save, if stopAt ~= nil then 0 else profile.goldenFish)
+		-- #4898: Auto Roll pays like a hand roll, golden fish too once the tokens are gone
+		paid, fish = Traits.pay(save, profile.goldenFish)
 	end
 	if paid == nil then
 		refuse(
 			player,
 			if stopAt ~= nil
-				then "Auto Roll stopped: no Trait Tokens left"
+				then string.format(
+					"Auto Roll stopped: no Trait Tokens or %d golden fish left",
+					Traits.COST_FISH
+				)
 				else string.format(
 					"You need a Trait Token or %d golden fish",
 					Traits.COST_FISH

@@ -62,6 +62,7 @@ Pivots are at the base centre except where noted.
 
 import math
 
+import rbx_export
 from alleyway import _arch, flower_clump, label, lantern
 from common import RB
 from plot import SQUARE_EDGE_X, SQUARE_HALF_D, rot_x, rot_y, rot_z
@@ -126,49 +127,6 @@ def _hash(*v):
 
 
 # ------------------------------------------------------------------------------------------------- paving --
-def _tiles(b, x0, x1, z0, z1):
-    """Checker tiles over a rect, a JOINT of grout between them."""
-    nx, nz = round((x1 - x0) / TILE_X), round((z1 - z0) / TILE_Z)
-    tx, tz = (x1 - x0) / nx, (z1 - z0) / nz
-    for i in range(nx):
-        for k in range(nz):
-            xa, za = x0 + i * tx, z0 + k * tz
-            cx, cz = xa + tx / 2, za + tz / 2
-            if math.hypot(abs(cx) - tx / 2 if abs(cx) > tx / 2 else 0, abs(cz) - tz / 2 if abs(cz) > tz / 2 else 0) \
-                    > MED_R or max(math.hypot(xa + dx, za + dz) for dx in (0, tx) for dz in (0, tz)) > MED_R:
-                sw = "paving_sand" if (i + k + round(x0 / tx) + round(z0 / tz)) % 2 == 0 else "paving_tan"
-                h = JOINT / 2
-                b.span((xa + h, 0, za + h), (xa + tx - h, STONE, za + tz - h), sw)
-
-
-def _pavers(b, x0, x1, z0, z1, along):
-    """Running bond pavers over a rect, rows across the walk; `along` is the walking axis ("x" or "z")."""
-    a0, a1, c0, c1 = (x0, x1, z0, z1) if along == "x" else (z0, z1, x0, x1)
-    rows = max(1, round((a1 - a0) / PAVER_W))
-    rw = (a1 - a0) / rows
-    n = max(1, round((c1 - c0) / PAVER_L))
-    cl = (c1 - c0) / n
-    h = JOINT / 2
-    for r in range(rows):
-        ra = a0 + r * rw
-        cuts = [c0 + cl * k for k in range(n + 1)]
-        if r % 2:
-            cuts = [c0] + [c0 + cl * (k + 0.5) for k in range(n)] + [c1]
-        for p, (ca, cb) in enumerate(zip(cuts, cuts[1:])):
-            mid_a, mid_c = ra + rw / 2, (ca + cb) / 2
-            mx, mz = (mid_a, mid_c) if along == "x" else (mid_c, mid_a)
-            corners = [(xx, zz) for xx in ((ra, ra + rw) if along == "x" else (ca, cb))
-                       for zz in ((ca, cb) if along == "x" else (ra, ra + rw))]
-            if max(math.hypot(xx, zz) for xx, zz in corners) < MED_R - 0.2:
-                continue                                                 # under the medallion
-            sw = "floor_tile" if _hash(mx, mz) % 6 == 0 else "paving_light"
-            lo_a, hi_a, lo_c, hi_c = ra + h, ra + rw - h, ca + h, cb - h
-            if along == "x":
-                b.span((lo_a, 0, lo_c), (hi_a, STONE, hi_c), sw)
-            else:
-                b.span((lo_c, 0, lo_a), (hi_c, STONE, hi_a), sw)
-
-
 def _kerbs(b, x0, x1, z0, z1, along):
     """Brick kerbs along both long edges of a walk."""
     if along == "x":
@@ -177,15 +135,6 @@ def _kerbs(b, x0, x1, z0, z1, along):
     else:
         b.span((x0, 0, z0), (x0 + KERB, STONE, z1), "terracotta")
         b.span((x1 - KERB, 0, z0), (x1, STONE, z1), "terracotta")
-
-
-def _walk(b, x0, x1, z0, z1, along):
-    if along == "x":
-        _kerbs(b, x0, x1, z0, z1, "x")
-        _pavers(b, x0, x1, z0 + KERB, z1 - KERB, "x")
-    else:
-        _kerbs(b, x0, x1, z0, z1, "z")
-        _pavers(b, x0 + KERB, x1 - KERB, z0, z1, "z")
 
 
 def _border(b):
@@ -236,26 +185,126 @@ def _compass(b):
         flat_tri(b, [inner, tip, right], y0, y1, "terracotta")
 
 
+# #4783 (phone FPS): the checker tiles and the lane's pavers were about 1,400 flat parts on the first screen every
+# player sees. They are now one slab a run, each with a tiling picture on its top face (rbx_export.TEXTURES): the
+# four quarters share the checker, the street's line and the two walks have a paver picture each. The brick border,
+# the kerbs and the compass stay parts. `paving_textures` draws the pictures from the same numbers as the slabs, so
+# a tile in the picture is a tile on the ground; upload them once (upload-image.yml) and put the ids in TEXTURE_IDS.
+CHECKER, LANE_PAVERS, WALK_PAVERS = (
+    "CatCafe_Square_Paving_Checker", "CatCafe_Square_Paving_LanePavers", "CatCafe_Square_Paving_WalkPavers")
+TEXTURE_IDS = {CHECKER: "rbxassetid://79826597041207", LANE_PAVERS: "rbxassetid://140389683301172",
+               WALK_PAVERS: "rbxassetid://94807277022223"}   # exports/textures/CatCafe_Tex_Square*.png, run 43871713881
+PAVER_UNIT_ROWS = 6                            # rows in a paver picture before it repeats
+
+
+def _paving_runs():
+    """The paved rects: (quarters, lane, walks), each rect (x0, x1, z0, z1)."""
+    ix, iz = SQ_W - BORDER, SQ_D - BORDER
+    quarters = [(*sorted((sx * LANE, sx * ix)), *sorted((sz * CROSS, sz * iz))) for sx in (-1, 1) for sz in (-1, 1)]
+    lane = (-LANE + KERB, LANE - KERB, -iz, iz)
+    walks = [(*sorted((s * LANE, s * ix)), -CROSS + KERB, CROSS - KERB) for s in (-1, 1)]
+    return quarters, lane, walks
+
+
+def _paver_grid(x0, x1, z0, z1, along):
+    """(row width along the walk, paver length across it) for a paver run, as _pavers lays them."""
+    a, c = (x1 - x0, z1 - z0) if along == "x" else (z1 - z0, x1 - x0)
+    return a / max(1, round(a / PAVER_W)), c / max(1, round(c / PAVER_L))
+
+
+def paving_tiles():
+    """Studs a picture covers before it repeats, by slab: (along X, along Z)."""
+    quarters, lane, walks = _paving_runs()
+    x0, x1, z0, z1 = quarters[0]
+    tx, tz = (x1 - x0) / round((x1 - x0) / TILE_X), (z1 - z0) / round((z1 - z0) / TILE_Z)
+    lane_rw, _ = _paver_grid(*lane, "z")
+    walk_rw, _ = _paver_grid(*walks[0], "x")
+    return {CHECKER: (2 * tx, 2 * tz),
+            LANE_PAVERS: (lane[1] - lane[0], PAVER_UNIT_ROWS * lane_rw),
+            WALK_PAVERS: (PAVER_UNIT_ROWS * walk_rw, walks[0][3] - walks[0][2])}
+
+
+for _name, (_u, _v) in paving_tiles().items():
+    rbx_export.TEXTURES[_name] = {"Texture": TEXTURE_IDS[_name], "StudsPerTileU": _u, "StudsPerTileV": _v}
+
+
+def paving_textures(out_dir, px=1024):
+    """Draw the three paving pictures (PNG, `px` square) into out_dir. Needs Pillow; returns the paths."""
+    import os
+
+    import palette
+    from PIL import Image, ImageDraw
+
+    def rgb(swatch):
+        return tuple(round(c * 255) for c in palette.hex_to_rgb(palette.SWATCHES[palette.idx(swatch)][1]))
+
+    S = 2                                      # drawn at twice the size, then scaled down for soft joints
+    N = px * S
+    sizes = paving_tiles()
+    quarters, lane, walks = _paving_runs()
+    out = {}
+
+    def save(name, im):
+        path = os.path.join(out_dir, name.replace("CatCafe_Square_Paving_", "CatCafe_Tex_Square") + ".png")
+        im.resize((px, px), Image.LANCZOS).save(path)
+        out[name] = path
+
+    # the checker: two tiles each way, a JOINT of grout between them
+    w, d = sizes[CHECKER]
+    im = Image.new("RGB", (N, N), rgb("paving_grout"))
+    dr = ImageDraw.Draw(im)
+    jx, jz = JOINT / 2 / w * N, JOINT / 2 / d * N
+    for i in range(2):
+        for k in range(2):
+            dr.rectangle((i * N / 2 + jx, k * N / 2 + jz, (i + 1) * N / 2 - jx - 1, (k + 1) * N / 2 - jz - 1),
+                         fill=rgb("paving_sand" if (i + k) % 2 == 0 else "paving_tan"))
+    save(CHECKER, im)
+
+    # the pavers: running bond, rows across the walk, one in six a shade greyer
+    def pavers(name, rect, along):
+        rw, cl = _paver_grid(*rect, along)
+        across = (rect[3] - rect[2]) if along == "x" else (rect[1] - rect[0])
+        n = round(across / cl)
+        im = Image.new("RGB", (N, N), rgb("paving_grout"))
+        dr = ImageDraw.Draw(im)
+        ja, jc = JOINT / 2 / (PAVER_UNIT_ROWS * rw) * N, JOINT / 2 / across * N
+        for r in range(PAVER_UNIT_ROWS):
+            cuts = [k / n for k in range(n + 1)]
+            if r % 2:
+                cuts = [0.0] + [(k + 0.5) / n for k in range(n)] + [1.0]
+            for p, (ca, cb) in enumerate(zip(cuts, cuts[1:])):
+                sw = "floor_tile" if _hash(r * 3.7 + 1, p * 5.3 + (2 if along == "x" else 9)) % 6 == 0 \
+                    else "paving_light"
+                a0, a1 = r / PAVER_UNIT_ROWS * N + ja, (r + 1) / PAVER_UNIT_ROWS * N - ja - 1
+                c0, c1 = ca * N + jc, cb * N - jc - 1
+                dr.rectangle((a0, c0, a1, c1) if along == "x" else (c0, a0, c1, a1), fill=rgb(sw))
+        save(name, im)
+
+    pavers(LANE_PAVERS, lane, "z")
+    pavers(WALK_PAVERS, walks[0], "x")
+    return out
+
+
 def build_paving(mat):
     b, slab = RB(), RB()
     slab.span((-SQ_W, -0.4, -SQ_D), (SQ_W, 0, SQ_D), "paving_grout")               # players stand on its top
     _border(b)
-    ix, iz = SQ_W - BORDER, SQ_D - BORDER
-    for sx in (-1, 1):                                                            # the quarters
-        for sz in (-1, 1):
-            x0, x1 = sorted((sx * LANE, sx * ix))
-            z0, z1 = sorted((sz * CROSS, sz * iz))
-            _tiles(b, x0, x1, z0, z1)
+    iz = SQ_D - BORDER
+    quarters, lane, walks = _paving_runs()
+    checker, lane_p, walk_p = RB(), RB(), RB()
+    for x0, x1, z0, z1 in quarters:                                               # the quarters: one slab each
+        checker.span((x0, 0, z0), (x1, STONE, z1), "paving_sand")
     _kerbs(b, -LANE, LANE, -iz, -CROSS, "z")                                       # the street's line, kerbs
     _kerbs(b, -LANE, LANE, CROSS, iz, "z")                                         # either side of the lane
-    _pavers(b, -LANE + KERB, LANE - KERB, -iz, iz, "z")                            # and pavers right through
-    for s in (-1, 1):
-        x0, x1 = sorted((s * LANE, s * ix))
-        _walk(b, x0, x1, -CROSS, CROSS, "x")                                       # the lane in the square
+    lane_p.span((lane[0], 0, lane[2]), (lane[1], STONE, lane[3]), "paving_light")  # and pavers right through
+    for x0, x1, z0, z1 in walks:
+        _kerbs(b, x0, x1, -CROSS, CROSS, "x")                                      # the lane in the square
+        walk_p.span((x0, 0, z0), (x1, STONE, z1), "paving_light")
     # #1130: the lane stops at the brick border; the paths that carried it on through the gardens to their wall are
     # gone, and the middle garden bed (CatCafe_Square_GardenMid) fills that ground between the two beds each side
     _compass(b)
-    return [b.finalize("CatCafe_Square_Paving", mat), slab.finalize("CatCafe_Square_Paving_Slab", mat)]
+    return [b.finalize("CatCafe_Square_Paving", mat), slab.finalize("CatCafe_Square_Paving_Slab", mat),
+            checker.finalize(CHECKER, mat), lane_p.finalize(LANE_PAVERS, mat), walk_p.finalize(WALK_PAVERS, mat)]
 
 
 # ------------------------------------------------------------------------------------------------ fountain --
@@ -409,9 +458,11 @@ def build_lamp(mat):
     b.cyl((0, 6.0, 0), 0.75, 0.55, "terracotta", r2=0.95, segments=12)                         # flower ring
     flowers = RB()
     flowers.cyl((0, 6.31, 0), 0.85, 0.08, "leaf_green", segments=12)
-    for k in range(5):
-        a = 2 * math.pi * k / 5
-        flower_clump(flowers, 0.6 * math.cos(a), 6.35, 0.6 * math.sin(a), n=3, spread=0.2)
+    for k in range(5):                         # #4783: one bigger bloom a spot (three small ones until then; 28 lamps
+        a = 2 * math.pi * k / 5                # stand in the square, so ten parts fewer a lamp is 280 fewer in town)
+        fx, fz, r = 0.6 * math.cos(a), 0.6 * math.sin(a), 0.24 - 0.012 * k
+        flowers.span((fx - r, 6.35, fz - r), (fx + r, 6.35 + 2 * r, fz + r),
+                     ("blush", "sparkle", "offwhite", "nose_pink", "sparkle")[k])
     return [b.finalize("CatCafe_Square_Lamp", mat), lamps.finalize("CatCafe_Square_Lamp_Bulb", mat),
             flowers.finalize("CatCafe_Square_Lamp_Flowers", mat)]
 

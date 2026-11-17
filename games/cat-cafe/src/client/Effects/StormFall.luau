@@ -52,6 +52,16 @@ function StormFall.plan(
 	return if still then "puff" else "fall"
 end
 
+-- #4796 (instance streaming): whether a storm stray is a fresh drop, by its `SpawnedAt` (server os.time, CatService)
+-- against the server's clock now. One that streams in long after it landed (you flew or walked near it) did not just
+-- fall. No SpawnedAt reads as fresh, as before.
+function StormFall.fresh(spawnedAt: unknown, now: number, freshFor: number): boolean
+	if type(spawnedAt) ~= "number" then
+		return true
+	end
+	return now - spawnedAt <= freshFor
+end
+
 -- Whether the drift runs: a storm is on, and neither Reduce Motion nor Low performance.
 function StormFall.drifts(storm: boolean, still: boolean): boolean
 	return storm and not still
@@ -107,6 +117,15 @@ end
 local function fall(model: Model)
 	local p = Presets.stormFall
 	if model.Parent == nil or model:FindFirstChildWhichIsA("BasePart", true) == nil then
+		return
+	end
+	if
+		not StormFall.fresh(
+			model:GetAttribute("SpawnedAt"),
+			Workspace:GetServerTimeNow(),
+			p.freshFor
+		)
+	then
 		return
 	end
 	local frame, size = model:GetBoundingBox()

@@ -10805,7 +10805,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_FlowerCart_Lantern_Swing"
   }

@@ -28,6 +28,23 @@ return function()
 			expect(Logic.pickVoice({}, 1)).to.equal(1)
 		end)
 
+		it(
+			"lets go of voices idle past the limit, highest index first, never a playing one (#3918)",
+			function()
+				local voices = {
+					{ playing = false, startedAt = 0 },
+					{ playing = true, startedAt = 0 },
+					{ playing = false, startedAt = 90 },
+					{ playing = false, startedAt = 10 },
+				}
+				local drop = Logic.idleVoices(voices, 100, 45)
+				expect(#drop).to.equal(2)
+				expect(drop[1]).to.equal(4)
+				expect(drop[2]).to.equal(1)
+				expect(#Logic.idleVoices({}, 100, 45)).to.equal(0)
+			end
+		)
+
 		it("restarts the oldest when every voice is busy", function()
 			local voices = { { playing = true, startedAt = 5 }, { playing = true, startedAt = 3 } }
 			expect(Logic.pickVoice(voices, 2)).to.equal(2)

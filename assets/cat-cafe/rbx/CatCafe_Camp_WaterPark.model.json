@@ -2457,9 +2457,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         293.0,
+         0.0,
          -0.3,
-         -11.0
+         0.0
         ],
         "orientation": [
          [
@@ -3558,9 +3558,9 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
+       -11.0,
        0.0,
-       0.0,
-       0.0
+       -293.0
       ],
       "orientation": [
        [
@@ -17937,7 +17937,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing"
   },
@@ -20295,7 +20296,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing"
   },
@@ -23130,7 +23132,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing"
   },

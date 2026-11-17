@@ -28,6 +28,7 @@ local HarvestWorld = require(script.Parent.Parent.World.HarvestWorld)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local StreamAround = require(script.Parent.Parent.Util.StreamAround)
 local Telemetry = require(script.Parent.Telemetry)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -118,6 +119,7 @@ local function cloudHop(player: Player, landing: CFrame, arrived: (() -> ())?)
 	local startedAt = Workspace:GetServerTimeNow()
 	character:SetAttribute("CloudHopAt", startedAt)
 	character:SetAttribute("CloudHopTo", "home")
+	StreamAround.start(player, landing.Position) -- #4788: streamed in by the time the clouds move it there
 	local function current(): boolean
 		return player.Character == character
 			and character.Parent ~= nil
@@ -282,10 +284,24 @@ function TravelService.sendHome(player: Player, arrived: (() -> ())?): boolean
 	if wildAreaOf(player) ~= nil then
 		cloudHop(player, landing, arrived)
 	else
-		character:PivotTo(landing)
-		Cannon.noteMove(player, landing)
-		if arrived ~= nil then
-			arrived()
+		local function go()
+			if player.Character ~= character or character.Parent == nil then
+				return
+			end
+			character:PivotTo(landing)
+			Cannon.noteMove(player, landing)
+			if arrived ~= nil then
+				arrived()
+			end
+		end
+		if StreamAround.on() then
+			-- #4788: the street streams in first, on its own thread (NightService sends everyone home in one loop)
+			task.spawn(function()
+				StreamAround.wait(player, landing.Position)
+				go()
+			end)
+		else
+			go()
 		end
 	end
 	return true

@@ -31,6 +31,7 @@ local Cues = require(script.Cues)
 local DragonRise = require(script.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
+local FlightClock = require(script.Parent.Effects.FlightClock)
 local FusionFx = require(script.Parent.Effects.FusionFx)
 local HarvestFx = require(script.Parent.Effects.HarvestFx)
 local Logic = require(script.Logic)
@@ -205,6 +206,34 @@ local function dropVoice(voice: Voice)
 		voice.anchor:Destroy()
 	end
 	voice.sound:Destroy()
+end
+
+-- #3918: every REAP_EVERY seconds, voices idle for REAP_IDLE seconds are destroyed (a cue marked preload keeps
+-- one warm, so the first net swing stays on time); the next play of that cue makes a fresh Sound.
+local REAP_EVERY = 20
+local REAP_IDLE = 45
+
+local function reapIdleVoices()
+	local now = os.clock()
+	for cueId, pool in pools do
+		local states: { Logic.VoiceState } = {}
+		for index, voice in pool do
+			states[index] = {
+				playing = voice.sound.Parent ~= nil and voice.sound.IsPlaying,
+				startedAt = voice.startedAt,
+			}
+		end
+		local keep = if Cues[cueId] ~= nil and Cues[cueId].preload then 1 else 0
+		for _, index in Logic.idleVoices(states, now, REAP_IDLE) do
+			if #pool <= keep then
+				break
+			end
+			dropVoice(table.remove(pool, index) :: Voice)
+		end
+		if #pool == 0 then
+			pools[cueId] = nil
+		end
+	end
 end
 
 -- The pooled Sound for the next play of a cue: an idle one, a new one while under `voices`, else the oldest.
@@ -1358,8 +1387,15 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 			return
 		end
 		flightCue("cannonLaunch")
-		local function later(at: number, cueId: string)
-			task.delay(math.max(0, launchAt + at - Workspace:GetServerTimeNow()), function()
+		-- a shorter first flight (CannonFlightScale, Effects/FlightClock) brings the clouds and the landing in with it
+		local scale = FlightClock.scale(character, launchAt)
+		-- `at` is in the usual flight's seconds; `lead` (real seconds, the whistle's own length) is not scaled
+		local function later(at: number, cueId: string, lead: number?)
+			local delay = launchAt
+				+ FlightClock.realAt(at, scale)
+				- (lead or 0)
+				- Workspace:GetServerTimeNow()
+			task.delay(math.max(0, delay), function()
 				if
 					character.Parent ~= nil
 					and character:GetAttribute("CannonLaunchAt") == launchAt
@@ -1378,7 +1414,7 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 		if isLocal then
 			later(clouds, "cannonClouds")
 		end
-		later(math.max(0, touchdown - CANNON_LAND_LEAD), "cannonLand")
+		later(touchdown, "cannonLand", CANNON_LAND_LEAD)
 	end)
 	local hop = character:GetAttributeChangedSignal("CloudHopAt"):Connect(function()
 		if
@@ -2113,6 +2149,19 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- #2946: the first bait cutscene's bait cat eats at your bowl: a soft purr there while it eats (`seconds`, 2.5 when
 	-- not given, at most 5), fired by Effects/FirstBaitCut at the eating beat. The arrival and the bowl already sound
 	-- through ProfileSync (baitArrive, the food cue), so the cut adds only this.
+	-- First minute (Effects/FirstMinuteFx): the first bowl cat's card gets its rarity's jingle (a chime when it has
+	-- none), and the first net catch a cheer on top of the catch sparkle.
+	FirstBowlCard = function(rarity: any)
+		-- a rarity whose jingle has no file yet (Rare today) gets a chime instead; not the found jingle, which the
+		-- reveal plays about a second later once the cat is tamed (Sync, #4935)
+		local jingle = Logic.jingleFor(str(rarity))
+		if jingle == nil or Audio.play(jingle) == nil then
+			Audio.play("purrfectChime")
+		end
+	end,
+	FirstCatchCheer = function()
+		Audio.play("jingleCatFound")
+	end,
 	FirstBaitEat = function(position: any, seconds: any)
 		local at = vec(position)
 		if at == nil then
@@ -2307,10 +2356,31 @@ local function followAreas()
 	HarvestFx.onPick(function(at)
 		Audio.play(Logic.HARVEST_PICK_CUE, at)
 	end)
+	-- #5031: Tier 2's last need met (switch rankUpRightAway), one soft chime with the goal card's glow
+	require(script.Parent.Effects.RankUpPulse).onGoalReady(function()
+		Audio.play("rankUpReadyChime")
+	end)
+	-- #4251: a note pinned on the Thankful Board near you
+	HarvestFx.onPin(function(at)
+		Audio.play(Logic.HARVEST_PIN_CUE, at)
+	end)
 	-- #4251: Harvest Hollow's own song while you are in it
 	HarvestFx.onArea(function(inside)
 		inHarvest = inside
 		followAreaSong()
+	end)
+end
+
+-- #4985: the intro's cannon shot on its copy of you (Effects/Cannon.onStaged): the launch cue at the BOOM, flat,
+-- unless Skip ended the flight first.
+local function followStagedCannon()
+	local Cannon = require(script.Parent.Effects.Cannon)
+	Cannon.onStaged(function(_beat, at, model)
+		task.delay(math.max(0, at - Workspace:GetServerTimeNow()), function()
+			if Cannon.stagedLive(model) then
+				Audio.play("cannonLaunch")
+			end
+		end)
 	end)
 end
 
@@ -2496,6 +2566,12 @@ function Audio.start()
 	started = true
 	build()
 	task.spawn(preload)
+	task.spawn(function()
+		while true do
+			task.wait(REAP_EVERY)
+			reapIdleVoices()
+		end
+	end)
 	task.spawn(followClock)
 	followTags()
 	followStrays()
@@ -2519,6 +2595,7 @@ function Audio.start()
 	followFusion()
 	followBinRoll()
 	followTrampoline()
+	followStagedCannon()
 	followPetCat()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)

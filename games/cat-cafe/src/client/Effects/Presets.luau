@@ -99,12 +99,16 @@ export type Budget = {
 
 -- When a phone or tablet counts as struggling (#4311, Logic.slowStep; Derek 2026-11-14): under `fps` frames a second
 -- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
--- frames longer than `pause` seconds. Gameplay's Low performance suggestion uses the same numbers.
+-- frames longer than `pause` seconds. #4307 (phones leave at 61 to 180 s): it used to need 60 + 2 x 20 = 100 s, past
+-- most of the tutorial, so a struggling phone ran the full budget through its first minutes; now 20 + 2 x 10 = 40 s
+-- at the earliest (cutscenes still hold the count, so the intro does not count). #4857 read (Nov 16, first 5 minutes
+-- priority): phones average about 49 fps, so "a little laggy" ones (35 to 39) never tripped at 30; now under 40, and
+-- from 10 s in, so the lighter budget can be on by 30 s.
 Presets.slow = {
-	fps = 30,
-	window = 20,
+	fps = 40, -- 30 before
+	window = 10,
 	windows = 2,
-	after = 60,
+	after = 10, -- 20 before
 	pause = 1,
 }
 
@@ -123,10 +127,10 @@ Presets.budget = {
 		animRadius = 60,
 		animHz = 30,
 		steadyEmitters = 4,
-		rateScale = 1,
+		rateScale = 0.85, -- #4857 (phones average 49 fps): 1 before
 		goldEmitters = 3,
 		butterflies = 6,
-		ambientRadius = 80,
+		ambientRadius = 75, -- #4857: 80 before
 		chimneyRadius = 140,
 		burstScale = 0.5,
 		maxBurst = 12,
@@ -144,8 +148,8 @@ Presets.budget = {
 		rainbowCats = 6,
 		rainbowOutlines = 3,
 		rallyPops = 5,
-		pennants = 40,
-		decorMotion = 12,
+		pennants = 20, -- #4857: 40 before
+		decorMotion = 6, -- #4857: 12 before
 		netTrails = 3,
 		luckyShimmers = 2,
 		campDrips = 1,
@@ -1497,6 +1501,34 @@ Presets.emitters = {
 		rotSpeed = { -180, 180 },
 	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
+	-- The first wow bowl cat's soft sparkle (#4822, Effects/WowBaitGlow): slow points round the body, tinted by its
+	-- rarity; about a dozen alive at once (rate 6 times 2 s), under the phone budget's 15
+	wowSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite },
+		size = { 0.45, 0 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 1.5, 2.5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 6,
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	-- The night stars over the Observatory (#4069, Effects/FusionFx): still, pale points that grow in and fade
+	-- out, a few at a time over a wide box, so the sky over the telescope twinkles. Under 3 a second.
+	observatoryStars = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Color3.fromRGB(200, 220, 255) },
+		size = { 0.9, 0 },
+		transparency = { 0.15, 0.85 },
+		lifetime = { 1.6, 3 },
+		speed = { 0, 0 },
+		spread = 0,
+		rate = 2.5,
+		lightEmission = 1,
+		rotSpeed = { -20, 20 },
+	},
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.sparkle, Presets.palette.offwhite },
@@ -3071,6 +3103,7 @@ Presets.rankUp = {
 	fountains = 3,
 	fountainEvery = 0.3,
 	fountain = 12, -- gateSparkle particles in each
+	awayRoof = 10, -- #4922: away from the door the beam drops from this far over your feet
 }
 
 -- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
@@ -3874,6 +3907,7 @@ Presets.stormFall = {
 	driftHeight = 22,
 	driftEvery = 0.5,
 	markWait = 2,
+	freshFor = 8, -- seconds after its SpawnedAt that a storm stray streaming in still counts as just dropped (#4796)
 }
 
 -- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name. Since #4325
@@ -3912,6 +3946,26 @@ Presets.adminDrops = {
 		colour = Presets.palette.golden,
 		splash = "coinGlint",
 		splashCount = 6,
+		fresh = 2, -- seconds after the server's DroppedAt that a fish still arcs in; later it streamed in and just shows
+		remember = 120, -- seconds a fish's spot is remembered, so one streaming back in does not arc again
+	},
+	-- the pickup pop (Derek2 11-16): a bead `bead` studs wide hops `hop` studs and shrinks away over `seconds`, with
+	-- `glints` glints and a `ring` stud ring; only within `within` studs, and only when a character was within
+	-- `reach` studs of the fish as it went (a touch, not a fish running out)
+	pickup = {
+		-- a fish's life on the server (AdminDropService FISH_LIFE, from its DroppedAt): one going within `margin` of it
+		-- ran out, so it gets no pop
+		life = 20,
+		margin = 1,
+		reach = 7,
+		within = 120,
+		bead = 0.7,
+		hop = 2,
+		seconds = 0.35,
+		glint = "coinGlint",
+		glints = 5,
+		ring = 3,
+		colour = Presets.palette.golden,
 	},
 	crate = {
 		seconds = 3,
@@ -3928,6 +3982,25 @@ Presets.adminDrops = {
 		ringSeconds = 0.5,
 		puff = "stormPuff",
 		puffCount = 10,
+	},
+	-- #4888 the crate grab pop (Effects/AdminDrops.popCrate): a copy of `art` on the spot, its lid turning `lidDegrees`
+	-- over `open` seconds, held `hold`, then shrunk away over `shrink`; `count` sparkles `lift` studs up and a `ring`
+	-- stud ring. Only within `within` studs, and only when a character was within `reach` studs as it went.
+	cratePop = {
+		art = "CatCafe_Prop_Crate_Drop",
+		life = 90, -- a crate's life after it lands (AdminDropService CRATE_LIFE, from LandsAt); later it ran out
+		reach = 9,
+		within = 140,
+		lidDegrees = 110,
+		open = 0.25,
+		hold = 0.25,
+		shrink = 0.3,
+		burst = "catchSparkle",
+		count = 14,
+		lift = 2.5,
+		ring = 6,
+		ringSeconds = 0.4,
+		colour = Presets.palette.golden,
 	},
 }
 
@@ -3973,6 +4046,12 @@ Presets.harvestFx = {
 	pieBeamWidth = 1.2,
 	pieBeamHeight = 14,
 	pieBeamSeconds = 1.2,
+	-- a note pinned on the Thankful Board while you are in the area: `pinCount` leaves `pinLift` studs over the board,
+	-- and `pinSparkles` gold sparkles when the pin is yours
+	notesAttribute = "HarvestNotes",
+	pinLift = 4,
+	pinCount = 6,
+	pinSparkles = 5,
 	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
 	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
 	-- sparkles; not again within `arriveGap` seconds
@@ -4005,6 +4084,9 @@ Presets.adminFlash = {
 	designHeight = 720,
 	scaleMin = 0.5,
 	scaleMax = 1.4,
+	readMin = 0.8, -- #5040: the strip and end card never draw smaller than this (AdminFlashLogic.readScale)
+	thinUnder = 14, -- #5040: words under this many px get the thin outline
+	thinOutline = 1.5,
 	dim = 0.55,
 	band = 0.5,
 	bandClear = 0.2,
@@ -4282,6 +4364,41 @@ Presets.fusion = {
 		rate = 1 / 60, -- every frame near the dome: at 20 a second the paw lights stepped round in jerks (#4563)
 		lookSeconds = 3,
 	},
+	-- #4069: the night stars over the Observatory (emitter `observatoryStars`), a flat box `across` studs wide,
+	-- `lift` studs over the dome's top
+	stars = {
+		emitter = "observatoryStars",
+		across = 40,
+		lift = 10,
+		within = 110,
+		check = 1,
+	},
+}
+
+-- The first wow bowl cat (#4822, Effects/WowBaitGlow): the rarities that get the look, the bowl folders looked in,
+-- the outline, the sparkle (`whiten` toward white of the rarity colour), the tag (pixels, studs over the head, popped
+-- `pop` times as big over `popSeconds` on a claim), the claim burst, and how often to look (`check`), how long a
+-- claim may be from the cat going (`claimWindow`) and how long to wait for the cat after FirstWow (`giveUp`).
+Presets.wowBait = {
+	rarities = { Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
+	folders = { "Bait", "Bait2" },
+	outline = 0,
+	sparkle = "wowSparkle",
+	whiten = 0.35,
+	tag = {
+		width = 96,
+		height = 30,
+		lift = 1.6,
+		maxDistance = 90,
+		stroke = 2,
+		pop = 1.5,
+		popSeconds = 0.35,
+	},
+	burst = "catchSparkle",
+	burstCount = 18,
+	check = 0.25,
+	claimWindow = 1.5,
+	giveUp = 60,
 }
 
 -- The arcade cabinet's idle glow (#3062; Effects/ArcadeGlow): its `screen` part drifts through `colours`, one every
@@ -4464,7 +4581,7 @@ Presets.tradeFly = {
 -- random point of its cycle; Reduce Motion and Low performance hold them all still as modelled.
 Presets.decorMotion = {
 	angle = { default = 10, least = 0, most = 45 },
-	seconds = { default = 2, least = 0.3, most = 30 },
+	seconds = { default = 2, least = 0.3, most = 120 }, -- up to 120 for a slow lookout turn (#4069 telescope, Seconds 90)
 	rise = { default = 0.08, least = 0, most = 1 },
 	pick = 1, -- seconds between choosing which parts move
 }
@@ -5754,31 +5871,33 @@ Presets.contextCut = {
 -- transparency) sits in the bottom right on a ScreenGui at `displayOrder`. Everything is given back at `cap` s
 -- whatever happened. Off when the bowl is more than `maxDistance` studs from the player.
 Presets.firstBaitCut = {
-	swingIn = 0.5,
-	swingOut = 0.5,
+	-- #4920 cut 2 (Design-Agent, first 5 minutes): about 2.5 s from the food to the camera back, with the cat out
+	-- at food + 0.3 s: swing in 0.4, walk about 0.8 (5.4 studs at SlotWalk's 7), eat 0.6, swing out 0.4
+	swingIn = 0.4,
+	swingOut = 0.4,
 	back = 10,
 	up = 6,
 	backTall = 13,
 	upTall = 7,
 	lookUp = 1.5,
 	swings = { 0, 45, -45, 90, -90 },
-	walk = 1.6,
-	walkMax = 2.2,
-	walkDistance = 9,
-	walkSide = 3,
-	eat = 1.0,
+	walk = 0.8,
+	walkMax = 1.0,
+	walkDistance = 5,
+	walkSide = 2,
+	eat = 0.6,
 	bites = 2,
 	dip = 0.1,
 	pitch = 30,
 	happy = 10,
 	happyUp = 2,
-	waitCat = 2.5,
+	waitCat = 2.0, -- room for a laggy phone while the server still puts the cat out at food + 1 s
 	skipAfter = 0.3,
 	skipOut = 0.25,
 	skipSize = 18,
 	skipFade = 0.4,
 	displayOrder = 10,
-	cap = 6.5,
+	cap = 4.5,
 	maxDistance = 120,
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 }
@@ -6371,13 +6490,12 @@ Presets.bowlFrenzy = {
 -- only 51 of 139 players reached the second cat's trail). `attribute`, `delay` and `seconds` are shared/SecondCat's
 -- when it is in.
 -- #4384 (one ask at a time after the first check-in): while the player's tutorialStep is `holdStep` (the bowl step)
--- the beacon, the call and its sound wait, so the Bait bowl is the only ask; switch `holdSwitch` (on unless false).
+-- the beacon, the call and its sound wait, so the Bait bowl is the only ask (always, since #4654 retired its switch).
 -- Only once the player owns the Bait bowl (upgrade `holdUpgrade`): one who cannot buy it yet keeps the beacon to the
 -- free second cat. And for `holdMost` seconds at most, so nobody is left with no next step.
 Presets.waitingCat = {
 	attribute = "WaitsFor",
 	holdStep = 4,
-	holdSwitch = "checkInCalm",
 	holdUpgrade = "lure_bowl",
 	holdMost = 180,
 	delay = 2,
@@ -6397,6 +6515,51 @@ Presets.waitingCat = {
 		bob = 0.6, -- studs up and down
 		seconds = 1.4, -- one bob
 		glyph = "🐾",
+	},
+}
+
+-- Effects/FirstMinuteFx: the first bowl cat card's sparkle and the first net catch's cheer.
+Presets.firstMinute = {
+	card = {
+		wait = 0.35, -- the card pops in first
+		displayOrder = 36, -- over the bait card (35), under the cat found reveal (40)
+		sparks = 10,
+		sparkle = { size = 14, seconds = 0.6, reach = 46, stagger = 0.15 },
+		rings = 2,
+		ringEvery = 0.25,
+		ringGrow = 2.2,
+		ringSeconds = 0.6,
+		colour = Color3.fromRGB(255, 214, 92),
+	},
+	cheer = {
+		confetti = 0.75, -- of the budget's confetti, from each side
+		side = 3,
+		up = 3,
+		sparkle = 12,
+	},
+}
+
+-- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.
+Presets.rankUpPulse = {
+	displayOrder = 29, -- over the HUD and windows, under toasts (30)
+	wait = 0.35, -- the Rank Up window slides in first
+	look = 0.5, -- seconds between looks for a RANK UP button once a tier's rank up is ready
+	lookFor = 120, -- and for how long (the window waits for a calm screen; a later flip looks again)
+	pulses = 3,
+	every = 0.55,
+	seconds = 0.7,
+	grow = 26, -- pixels the glow swells past the button
+	corner = 14,
+	thickness = 4,
+	fill = 0.35, -- the glow's own fill at its start (0 none)
+	colour = Color3.fromRGB(255, 214, 92),
+	sparkle = { size = 12, seconds = 0.5, reach = 34, stagger = 0.1 },
+	tick = {
+		sparks = 6,
+		sparkle = { size = 9, seconds = 0.45, reach = 26, stagger = 0.06 },
+		ringFrom = 8,
+		ringTo = 44,
+		ringSeconds = 0.4,
 	},
 }
 
@@ -6686,12 +6849,14 @@ Presets.petCat = {
 -- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).
 -- `turn` turns the drawing on its part, should the toes come out facing the wrong way in Studio.
 Presets.pawTrail = {
-	attribute = "Paws",
+	attribute = "Paws", -- UI's mark; since #4940 every tutorial trail is paws, so it gates nothing
 	home = "CatCafePawTrail",
-	size = 1.7,
+	size = 2.1, -- #4940: bigger for phones (1.7 before)
 	pixels = 64,
 	offset = 0.45,
-	brightness = 1.6,
+	brightness = 2, -- the SurfaceGui ignores light (LightInfluence 0), so this is how it glows at night (1.6 before)
+	faintest = 0.4, -- the comet's tail fades a print no further than this (GuideTrail's tail is 0.75)
+	rim = { colour = Color3.fromRGB(92, 58, 34), pixels = 2, transparency = 0.45 }, -- cocoa, for pale floors
 	turn = 0,
 	toes = {
 		{ 0.2, 0.36, 0.2, 0.26 },

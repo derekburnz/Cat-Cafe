@@ -14,7 +14,8 @@
 -- #4705 (Derek 2026-11-16: "add more speed upgrade stages past 5 in perks"): five more levels, +0.5 each, +6 in all at
 -- level 10. Past level 5 the perk outgrows the Swift Potion's +4 and a full carry passes a plain walk; players
 -- already stack past both with speed traits and the Dragon Keep's cards. Levels 6 to 10 wait on FLAG_TEN (off by
--- default) the same way: a server older than this publish keeps a saved level only up to 5. Pure.
+-- default) the same way: a server older than this publish keeps a saved level only up to 5. #4654: that switch ran on
+-- live from 2026-11-16 03:32 UTC and is retired, so the callers pass tenOn = true. Pure.
 
 local Types = require(script.Parent.Types)
 
@@ -22,7 +23,6 @@ local SwiftPaws = {}
 
 SwiftPaws.ID = "swift_paws"
 SwiftPaws.FLAG = "swiftPaws" -- the LiveFlags key
-SwiftPaws.FLAG_TEN = "swiftPaws10" -- the LiveFlags key that opens levels 6 to 10 (#4705)
 SwiftPaws.LEVELS = { 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 } :: { number } -- the walk speed each level adds
 SwiftPaws.OLD_TOP = 2 -- the top level a server older than #3317 keeps
 SwiftPaws.MID_TOP = 5 -- the top level a server older than #4705 keeps

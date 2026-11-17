@@ -1721,8 +1721,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.6667,
-         6.53,
+         0.6,
+         6.59,
          0.0
         ],
         "orientation": [
@@ -1745,9 +1745,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.48,
+       0.48,
+       0.48
       ],
       "Color": [
        0.9098,
@@ -1770,106 +1770,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.4667,
-         6.518,
-         0.0746
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.5925,
-         6.506,
-         -0.0994
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.2521,
-         6.53,
+         0.1854,
+         6.578,
          0.5706
         ],
         "orientation": [
@@ -1892,58 +1794,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0522,
-         6.518,
-         0.6452
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
+       0.456,
+       0.456,
+       0.456
       ],
       "Color": [
        1.0,
@@ -1966,57 +1819,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.1779,
-         6.506,
-         0.4713
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.4187,
-         6.53,
+         -0.4854,
+         6.566,
          0.3527
         ],
         "orientation": [
@@ -2039,107 +1843,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.6187,
-         6.518,
-         0.4272
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.4929,
-         6.506,
-         0.2533
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
+       0.432,
+       0.432,
+       0.432
       ],
       "Color": [
        1.0,
@@ -2162,8 +1868,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.4187,
-         6.53,
+         -0.4854,
+         6.554,
          -0.3527
         ],
         "orientation": [
@@ -2186,14 +1892,14 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.408,
+       0.408,
+       0.408
       ],
       "Color": [
-       0.9098,
-       0.6275,
-       0.6275
+       0.8784,
+       0.4784,
+       0.549
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -2211,106 +1917,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.6187,
-         6.518,
-         -0.2781
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
-      ],
-      "Color": [
-       1.0,
-       0.9569,
-       0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.4929,
-         6.506,
-         -0.452
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.2521,
-         6.53,
+         0.1854,
+         6.542,
          -0.5706
         ],
         "orientation": [
@@ -2333,112 +1941,14 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0522,
-         6.518,
-         -0.4961
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.336,
-       0.336,
-       0.336
+       0.384,
+       0.384,
+       0.384
       ],
       "Color": [
        1.0,
        0.9569,
        0.6902
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Square_Lamp_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.1779,
-         6.506,
-         -0.67
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.312,
-       0.312,
-       0.312
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,

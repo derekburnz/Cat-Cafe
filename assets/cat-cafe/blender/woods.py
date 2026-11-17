@@ -22,13 +22,32 @@ from areakit import PI, Set, gable, rx, ry, rz, tree_round, window
 from common import RB, Builder
 
 N = "CatCafe_Woods_"
+# The light build (#4857, #5026: fewer instances for a phone to load on landing). Off by default so every other
+# builder keeps the old look; woodsf85.build_set turns it on for the F85 set only. A cone exports as stacked bands
+# (rbx_export._cyl_parts), so a pine is 14 parts: light makes it 10 (a near straight trunk, three taller tiers).
+# A fern's frond segment is one blade, not two half blades.
+LIGHT = False
+PINE_TIERS = ((0.22, 4.2), (0.42, 3.4), (0.6, 2.6), (0.76, 1.7))
+PINE_TIERS_LIGHT = ((0.22, 4.2), (0.46, 3.2), (0.7, 2.0))
+
+
+def pine_into(b, x, y, h, base=0.0):
+    """A pine's trunk and tiers at (x, y), into Builder b."""
+    if LIGHT:
+        b.cyl_base((x, y, base), 0.66, h * 0.35, "fur_brown", segments=8, radius2=0.6)
+        for z, r in PINE_TIERS_LIGHT:
+            b.cyl_base((x, y, base + h * z), r, h * 0.34 if z < 0.7 else h * 0.32, "leaf_dark", segments=8,
+                       radius2=0.25, bevel=False)
+        return
+    b.cyl_base((x, y, base), 0.7, h * 0.35, "fur_brown", segments=8, radius2=0.5)
+    for i, (z, r) in enumerate(PINE_TIERS):
+        b.cyl_base((x, y, base + h * z), r, h * 0.3 if i < 3 else h * 0.26, "leaf_dark", segments=8, radius2=0.25,
+                   bevel=False)
 
 
 def pine(mat, h=18.0):
     b = Builder()
-    b.cyl_base((0, 0, 0), 0.7, h * 0.35, "fur_brown", segments=8, radius2=0.5)
-    for i, (z, r) in enumerate(((0.22, 4.2), (0.42, 3.4), (0.6, 2.6), (0.76, 1.7))):
-        b.cyl_base((0, 0, h * z), r, h * 0.3 if i < 3 else h * 0.26, "leaf_dark", segments=8, radius2=0.25, bevel=False)
+    pine_into(b, 0, 0, h)
     return [b.finalize(N + "PineTall", mat)]
 
 
@@ -269,6 +288,10 @@ def fern(mat):
             d = f * math.cos(p) + Vector((0, 0, math.sin(p)))
             R = Matrix.Rotation(a - PI / 2, 3, "Z") @ Matrix.Rotation(p, 3, "X")
             c = at + d * (L / 2)
+            if LIGHT:                                                         # one blade a segment
+                b.box(tuple(c), (w, L, 0.05), tone, bevel=False, rot=R)
+                at = at + d * L
+                continue
             for side in (-1, 1):                                              # half blades, outer edges raised
                 off = R @ Vector((side * w / 4, 0, 0))
                 b.box(tuple(c + off), (w / 2, L, 0.05), tone, bevel=False,

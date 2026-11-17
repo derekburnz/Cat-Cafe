@@ -440,7 +440,7 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 			>= SwiftPaws.topLevel(
 				row.maxLevel or 1,
 				true, -- #4654 batch 7: the `swiftPaws5` switch is retired
-				LiveFlagService.on(SwiftPaws.FLAG_TEN)
+				true -- #4654: the `swiftPaws10` switch is retired
 			)
 	then
 		-- #3317, #4705: the higher levels wait on their own switches until no older server is left; nothing is spent

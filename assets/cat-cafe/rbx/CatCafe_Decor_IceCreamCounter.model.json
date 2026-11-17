@@ -6699,7 +6699,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_IceCreamCounter_Sign_Spin"
   }

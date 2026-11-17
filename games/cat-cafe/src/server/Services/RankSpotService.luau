@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local Layout = require(script.Parent.Parent.World.Layout)
 local PlotService = require(script.Parent.PlotService)
 local RankSpot = require(ReplicatedStorage.Shared.RankSpot)
 local Telemetry = require(script.Parent.Telemetry)
@@ -34,11 +35,14 @@ local function watch(player: Player, on: boolean)
 	local blocker = if tier == 1 then Economy.rankUpBlocker(profile) else nil
 	if tier == 1 and blocker == nil and readyAt[player] == nil then
 		readyAt[player] = os.clock()
+		-- the Nov 16 drop-off read (148 of 431 ready players never pressed): the second field says where the player
+		-- stood when Tier 2 got ready, "safe" (cafes and Town Square, where the walk-through shows) or the area id
+		local zone = WorldBuilder.areaAt(PlotService.world(), (root :: BasePart).Position)
 		Telemetry.custom(
 			player,
 			"rank_up_ready_first",
 			1,
-			{ Telemetry.device(player) or "unknown" }
+			{ Telemetry.device(player) or "unknown", zone or "safe" }
 		)
 	elseif tier >= 2 and readyAt[player] ~= nil and not pressed[player] then
 		pressed[player] = true
@@ -53,7 +57,14 @@ local function watch(player: Player, on: boolean)
 	local due = false
 	if RankSpot.due(on, tier, seen, blocker, nil) then
 		-- the area last, and only when everything else holds
-		local area = WorldBuilder.areaAt(PlotService.world(), (root :: BasePart).Position)
+		local at = (root :: BasePart).Position
+		local area = WorldBuilder.areaAt(PlotService.world(), at)
+		-- #4847 (Derek 2026-11-16: "the rank up doesn't get pointed to when ready unless the player teleports
+		-- somewhere else"): an area's camp is a safe zone too. Bowl first readies Tier 2 at the Alleyway camp, where
+		-- the third cat is checked in, so the walk-through shows there at once
+		if area ~= nil and Layout.campAt(at.X, at.Z) ~= nil then
+			area = nil
+		end
 		due = RankSpot.due(on, tier, seen, blocker, area)
 	end
 	player:SetAttribute(RankSpot.ATTRIBUTE, if due then true else nil)

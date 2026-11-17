@@ -322,7 +322,9 @@ local function startBar(player: Player, run: Run)
 	Net.fire(player, "RescueChallenge", RummageBin.SPOT, challenge)
 end
 
-local function begin(player: Player)
+-- `remote` (#4961): from the Cat Cannon picker, so no walk up and no pad, and the bar comes at once (the roll board
+-- is at the bin, out of sight). The bin is free and on its own wait, so where the player stands changes nothing.
+local function begin(player: Player, remote: boolean?)
 	local profile = DataService.get(player)
 	if profile == nil or runs[player] ~= nil then
 		return
@@ -339,7 +341,7 @@ local function begin(player: Player)
 		return
 	end
 	local away = distance(player)
-	if away == nil or away > RummageBin.RANGE_STUDS + RANGE_SLACK then
+	if not remote and (away == nil or away > RummageBin.RANGE_STUDS + RANGE_SLACK) then
 		Net.toast(player, "Walk up to the Rummage Bin first", "warn")
 		return
 	end
@@ -356,7 +358,7 @@ local function begin(player: Player)
 	end
 	-- #3680: a rummage starts only for a player standing on the pad, so the roll never plays for someone still
 	-- walking up (#4654 batch 4: the `binRoll` switch is retired, the roll always plays)
-	if not onPad(player) then
+	if not remote and not onPad(player) then
 		Net.toast(player, RummageBin.PAD_FIRST, "info")
 		return
 	end
@@ -372,7 +374,7 @@ local function begin(player: Player)
 		Telemetry.custom(player, "bin_roll", 1, { row.id, mode })
 	end
 	-- #3680: the roll always plays, for a prize kept after a miss too (it lands on the kept prize)
-	local seconds: number = Config.BinRollSeconds
+	local seconds: number = if remote then 0 else Config.BinRollSeconds
 	Net.fire(player, "BinRolled", row.id, mode, seconds)
 	if seconds <= 0 then
 		startBar(player, run)
@@ -422,7 +424,18 @@ end
 
 function BinService.start()
 	RescueService.addBar(RummageBin.SPOT, {
-		begin = begin,
+		begin = function(player: Player)
+			begin(player, false)
+		end,
+		press = press,
+		cancel = cancel,
+		busy = BinService.busy,
+	})
+	-- #4961: the Cat Cannon picker's Rummage button; its presses and Give up come under RummageBin.SPOT
+	RescueService.addBar(RummageBin.REMOTE_SPOT, {
+		begin = function(player: Player)
+			begin(player, true)
+		end,
 		press = press,
 		cancel = cancel,
 		busy = BinService.busy,

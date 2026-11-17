@@ -12,7 +12,7 @@ local Types = require(script.Parent.Types)
 local FishStore = {}
 
 FishStore.FLAG = "fishStore" -- the live switch: BuyWithFish is refused and the Store shows no fish prices while off
-FishStore.PER_ROBUX = 50
+FishStore.PER_ROBUX = 25 -- Derek 2026-11-17: "half all the fish prices for store" (was 50)
 
 export type Item = {
 	key: string, -- the save key in profile.fishBought, and what BuyWithFish sends
@@ -105,7 +105,7 @@ function FishStore.product(key: string): Product?
 	return productByKey[key]
 end
 
--- The fish price: PER_ROBUX fish a Robux, to the nearest 50 (R$99 -> 4,950). A pass or a product.
+-- The fish price: PER_ROBUX fish a Robux, to the nearest 50 (R$99 -> 2,500). A pass or a product.
 function FishStore.price(item: { robux: number }): number
 	return math.floor(item.robux * FishStore.PER_ROBUX / 50 + 0.5) * 50
 end

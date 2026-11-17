@@ -43,6 +43,17 @@ return function()
 			expect(QuestLogic.setPrize(catalog, "weekly").spins).to.equal(3)
 			expect(QuestLogic.prize(nil, "daily", 1)).to.equal(nil)
 		end)
+
+		it("shows the late weekly prize from Tier 8 when the catalog has it (#4055)", function()
+			local late = table.clone(catalog) :: any
+			late.questPrizes = table.clone(catalog.questPrizes)
+			late.questPrizes.weeklyLate = { fish = 40 }
+			expect(QuestLogic.prize(late, "weekly", 2, 7).fish).to.equal(15)
+			expect(QuestLogic.prize(late, "weekly", 2, 8).fish).to.equal(40)
+			expect(QuestLogic.prize(late, "daily", 1, 10).fish).to.equal(2)
+			-- an older catalog with no late prize keeps the plain one
+			expect(QuestLogic.prize(catalog, "weekly", 2, 9).fish).to.equal(15)
+		end)
 	end)
 
 	describe("QuestLogic counts", function()

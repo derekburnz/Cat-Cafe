@@ -235,6 +235,13 @@ return function()
 			expect(Quests.prize("daily", 4)).to.equal(Catalog.questPrizes.daily)
 			expect(Quests.prize("daily", 5)).to.equal(Catalog.questPrizes.dailyBig)
 			expect(Quests.prize("weekly", 2)).to.equal(Catalog.questPrizes.weekly)
+			-- #4055: from Tier 8 a weekly quest pays 40 fish, the dailies stay as they are
+			expect(Quests.prize("weekly", 2, 7)).to.equal(Catalog.questPrizes.weekly)
+			expect(Quests.prize("weekly", 2, 8)).to.equal(Catalog.questPrizes.weeklyLate)
+			expect(Quests.prize("weekly", 1, 10)).to.equal(Catalog.questPrizes.weeklyLate)
+			expect(Quests.prize("daily", 5, 10)).to.equal(Catalog.questPrizes.dailyBig)
+			expect(Catalog.questPrizes.weeklyLate.fish).to.equal(40)
+			expect(Catalog.questPrizes.weekly.fish).to.equal(10)
 			expect(Quests.setPrize("daily")).to.equal(Catalog.questPrizes.dailySet)
 			expect(Quests.setPrize("weekly")).to.equal(Catalog.questPrizes.weeklySet)
 			for _, prize in Catalog.questPrizes :: any do

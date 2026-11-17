@@ -104,7 +104,7 @@ function Mover.walkTo(
 	end
 	while alive() and model.Parent ~= nil do
 		local dt = RunService.Heartbeat:Wait()
-		if not (alive() and model.Parent ~= nil) then
+		if not alive() or not model.Parent then
 			break -- cancelled during the wait: take no more steps, so a newer walk's track and pivot stay its own
 		end
 		elapsed += dt

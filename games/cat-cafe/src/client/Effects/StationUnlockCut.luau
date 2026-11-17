@@ -20,7 +20,7 @@
 -- first clear one wins; with none clear, the one that sees furthest, pulled in to just short of what is in the way.
 -- A station StationLockController hid below its tier (`locked`) comes back fully shown, never as it was hidden. Every
 -- other ScreenGui of the player (the HUD, the cards, the touch controls) is off while the cut plays and comes back
--- as it was after, so the cards that follow wait under it.
+-- after, so the cards that follow wait under it; one whose own code changes it meanwhile is left as that code set it.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -351,9 +351,12 @@ local function freeAlong(
 	return 0
 end
 
--- Hides every other ScreenGui of the player while the cut plays; gives back the ones it turned off.
-local function hideGuis(except: ScreenGui?): { ScreenGui }
-	local off: { ScreenGui } = {}
+-- Hides every other ScreenGui of the player while the cut plays. Each one it turned off is remembered with a watch
+-- on its Enabled: if the gui's own code changes it during the cut (the Rank Up window closing under it, a card putting
+-- itself away), the gui is the owner's again and is never turned back on (Review-QA, #5127).
+type GuisOff = { [ScreenGui]: RBXScriptConnection }
+local function hideGuis(except: ScreenGui?): GuisOff
+	local off: GuisOff = {}
 	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	if playerGui == nil then
 		return off
@@ -363,11 +366,28 @@ local function hideGuis(except: ScreenGui?): { ScreenGui }
 			local gui = child :: ScreenGui
 			if gui.Enabled then
 				gui.Enabled = false
-				table.insert(off, gui)
+				off[gui] = gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+					local watch = off[gui]
+					if watch ~= nil then
+						watch:Disconnect()
+						off[gui] = nil
+					end
+				end)
 			end
 		end
 	end
 	return off
+end
+
+-- Gives back the guis still the cut's to give back.
+local function showGuis(off: GuisOff)
+	for gui, watch in off do
+		watch:Disconnect()
+		if gui.Parent ~= nil then
+			gui.Enabled = true
+		end
+	end
+	table.clear(off)
 end
 
 -- Plays the cut for a rank up to `tier`; true when it took the camera (see the top). `done(outcome)` once at the end.
@@ -466,11 +486,7 @@ function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boo
 		if screen ~= nil then
 			screen.gui:Destroy()
 		end
-		for _, gui in guisOff do
-			if gui.Parent ~= nil then
-				gui.Enabled = true
-			end
-		end
+		showGuis(guisOff)
 		local cam = Workspace.CurrentCamera
 		if cam ~= nil then
 			cam.CFrame = start

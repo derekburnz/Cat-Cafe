@@ -1411,7 +1411,7 @@ do
 			return
 		end
 		waitFor(picked, player.UserId, pad)
-		Telemetry.custom(player, "tier3_path", 1, { need })
+		Telemetry.custom(player, "tier3_path", 1, { need :: string })
 	end
 
 	-- Whether a stray that waits for a player still waits for what they need now: the right area and, in the Park,
@@ -1427,7 +1427,7 @@ do
 		if stray.area ~= entry.area then
 			return false
 		end
-		local need = entry.need
+		local need: ParkNeed? = entry.need
 		return need == nil or M.Tier3Path.fits(entry.profile, stray.def, stray.variant, need)
 	end
 
@@ -1453,7 +1453,7 @@ do
 						profile = parkProfile,
 						area = M.Tier3Path.AREA,
 						pad = parkPad,
-						need = need,
+						need = need :: ParkNeed,
 					}
 				end
 			end

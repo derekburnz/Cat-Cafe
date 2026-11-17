@@ -35,7 +35,7 @@ Tier3Path.AREA = "park" -- where the stray waits
 Tier3Path.SEARCH_STUDS = 120 -- a fitting free Park stray this near the landing is the one that waits
 Tier3Path.SPAWN_SECONDS = 30 -- at most one stray brought in for a player this often, when none is near
 Tier3Path.GIFT_MAX = 15000 -- the welcome gift's cap (Design's pick: Tier 3 still takes some play)
-Tier3Path.RARITY = "Rare" -- the rarity the Rares need asks for, and the waiting Rare's
+Tier3Path.RARITY = "Rare" :: Types.Rarity -- the rarity the Rares need asks for, and the waiting Rare's
 Tier3Path.PATH_EVENT = "tier3_path" -- custom event as a stray starts waiting; field kind or rare
 Tier3Path.TOPUP_EVENT = "tier3_topup" -- custom event, value the gift
 

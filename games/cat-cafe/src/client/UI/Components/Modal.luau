@@ -30,8 +30,10 @@ export type Modal = {
 	changed: Signal.Signal, -- fires (name: string?)
 	closed: Signal.Signal, -- #4835: fires (name: string, from: string?) as a window closes, with the window it opened from
 	register: (self: Modal, name: string, screen: Screen) -> (),
-	open: (self: Modal, name: string) -> (),
-	close: (self: Modal, via: string?) -> (),
+	open: (self: Modal, name: string, force: boolean?) -> (),
+	close: (self: Modal, via: string?, force: boolean?) -> (),
+	hold: (self: Modal, name: string, held: (() -> boolean)?) -> (),
+	held: (self: Modal) -> boolean,
 	lastVia: (self: Modal) -> string,
 	back: (self: Modal) -> (),
 	toggle: (self: Modal, name: string) -> (),
@@ -152,7 +154,7 @@ function Modal.current(self: any): string?
 	return self._current
 end
 
-function Modal.open(self: any, name: string)
+function Modal.open(self: any, name: string, force: boolean?)
 	local screen: Screen? = self._screens[name]
 	if not screen then
 		warn(("[CatCafeUI] no modal screen named %q"):format(name))
@@ -161,6 +163,9 @@ function Modal.open(self: any, name: string)
 	assert(screen, "modal screen missing")
 	if self._current == name then
 		return
+	end
+	if not force and self:held() then
+		return -- the open window is held (Modal.hold): nothing opens over it
 	end
 	local fresh = self._current == nil
 	-- #4224: the window this one opened from (the Cannon picker's Open strip opening the Yard Sale), for B
@@ -209,10 +214,13 @@ function Modal.open(self: any, name: string)
 end
 
 -- `via` says how the window was closed, for telemetry (#5031 Growth read): "x" (its X), "back" (B), else "other".
-function Modal.close(self: any, via: string?)
+function Modal.close(self: any, via: string?, force: boolean?)
 	local name = self._current
 	if not name then
 		return
+	end
+	if not force and self:held() then
+		return -- held open (Modal.hold): its X, B and the menu buttons do nothing until it lets go
 	end
 	self._lastVia = via or "other"
 	local screen: Screen = self._screens[name]
@@ -264,6 +272,24 @@ function Modal.back(self: any)
 		return
 	end
 	self:close("back")
+end
+
+-- Derek 2026-11-17 (shared/RankUpRightAway.locked): `held` true keeps the window `name` open while it is the
+-- current one: close and opening another window do nothing, unless forced. nil lets go.
+function Modal.hold(self: any, name: string, held: (() -> boolean)?)
+	self._holds = self._holds or {}
+	self._holds[name] = held
+end
+
+-- Whether the open window is held open now.
+function Modal.held(self: any): boolean
+	local name = self._current
+	local holds = self._holds
+	if name == nil or holds == nil then
+		return false
+	end
+	local held = holds[name]
+	return held ~= nil and held() == true
 end
 
 -- How the last window closed (Modal.close's `via`), "other" before any close.

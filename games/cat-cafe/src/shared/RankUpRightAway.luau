@@ -55,6 +55,15 @@ function RankUpRightAway.parseEnd(raw: unknown): (string?, string)
 	return nil, ""
 end
 RankUpRightAway.WINDOWS_MAX = 8 -- rank_up_window events a session at most
+-- Derek 2026-11-17 20:12 UTC ("for the people closing menu without clicking it don't let them for first rankup just
+-- dim screen and point at rankup button"): with this switch on, the Tier 1 Rank Up window cannot be closed while the
+-- rank up is ready; the screen dims and the arrow points at RANK UP. Leaving the game always works.
+RankUpRightAway.LOCK_FLAG = "firstRankLock"
+
+-- Whether the Rank Up window must stay open: the switch on, Tier 1 (the first rank up) and the rank up ready.
+function RankUpRightAway.locked(on: boolean, tier: number, ready: boolean): boolean
+	return on and tier == RankUpRightAway.TIER and ready
+end
 
 function RankUpRightAway.catsShort(profile: Types.PlayerProfile): number
 	if Economy.tier(profile) ~= RankUpRightAway.TIER then

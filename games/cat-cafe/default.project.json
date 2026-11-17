@@ -34,7 +34,7 @@
       "$properties": {
         "FilteringEnabled": true,
         "StreamingEnabled": true,
-        "StreamingTargetRadius": 1024,
+        "StreamingTargetRadius": 384,
         "StreamingMinRadius": 128,
         "StreamingIntegrityMode": "MinimumRadiusPause",
         "StreamOutBehavior": "Opportunistic"

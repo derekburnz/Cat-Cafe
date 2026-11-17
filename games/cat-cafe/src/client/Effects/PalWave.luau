@@ -38,6 +38,11 @@ local function arrived(joiner: unknown, pal: unknown)
 	end
 end
 
+-- #4913: one player's character waves, `after` seconds from now (PalDayFx: the Pal Day gift).
+function PalWave.wave(userId: number, after: number?)
+	starts[userId] = os.clock() + math.max(0, after or 0)
+end
+
 -- The wave over a player's character this frame: its left arm's Transforms and how much of them to show, or nil and
 -- 0 when that player is not waving.
 function PalWave.layer(userId: number, rig: Avatar.Rig): ({ [Avatar.Joint]: CFrame }?, number)

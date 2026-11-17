@@ -270,10 +270,15 @@ function Quests.repair(
 	return changed
 end
 
--- What finishing slot `slot` of `kind` pays: the Big Request pays more.
-function Quests.prize(kind: Types.QuestKind, slot: number): Types.IndexPrize
+Quests.LATE_FISH_TIER = 8 -- #4055: from this tier a weekly quest pays Catalog.questPrizes.weeklyLate (40 fish)
+
+-- What finishing slot `slot` of `kind` pays: the Big Request pays more. `tier` (the cafe's) picks the late weekly
+-- prize from LATE_FISH_TIER (#4055); nil pays the plain one.
+function Quests.prize(kind: Types.QuestKind, slot: number, tier: number?): Types.IndexPrize
 	if kind == "weekly" then
-		return Catalog.questPrizes.weekly
+		return if (tier or 0) >= Quests.LATE_FISH_TIER
+			then Catalog.questPrizes.weeklyLate
+			else Catalog.questPrizes.weekly
 	end
 	return if Quests.DAILY_POOLS[slot] == "big"
 		then Catalog.questPrizes.dailyBig

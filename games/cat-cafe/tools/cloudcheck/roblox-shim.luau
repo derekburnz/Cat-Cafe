@@ -285,8 +285,9 @@ _G.task = {
 		return seconds or 0
 	end,
 	spawn = function(fn, ...)
-		-- Like Roblox: the handler runs in its own thread and an error there is reported, not raised.
-		local thread = coroutine.create(fn)
+		-- Like Roblox: the handler runs in its own thread and an error there is reported, not raised. A thread (one
+		-- parked in coroutine.yield) is resumed, as Roblox's task.spawn does (#4307, shared/Parallel).
+		local thread = if type(fn) == "thread" then fn else coroutine.create(fn)
 		local ok, err = coroutine.resume(thread, ...)
 		if not ok then
 			print("[task.spawn error] " .. tostring(err))

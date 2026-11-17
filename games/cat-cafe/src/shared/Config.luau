@@ -1652,6 +1652,16 @@ local Config = {
 		-- PlotDepth stay the room built today, until the room follows the tier.
 		PlotCapWidth = 60,
 		PlotCapDepth = 46,
+		-- #4543 (Design-Agent's ladder, 2026-11-15): the room's width (along the street) and depth by the cafe's tier,
+		-- from `tier` up to the next row's; behind the `cafeGrows` switch (shared/CafeRoom), off: every room 44 x 34.
+		-- The front wall stays put and the room grows back and to both sides (Model-Agent's _WxD shells, #4598).
+		CafeRoomByTier = {
+			{ tier = 1, width = 44, depth = 34 },
+			{ tier = 3, width = 48, depth = 37 },
+			{ tier = 5, width = 52, depth = 40 },
+			{ tier = 7, width = 56, depth = 43 },
+			{ tier = 9, width = 60, depth = 46 },
+		} :: { { tier: number, width: number, depth: number } },
 		FrontGardenDepth = 5, -- path, bench and chalkboard between the sidewalk and the front wall
 		YardDepth = 10, -- the patio yard between the back wall and the back alley
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have

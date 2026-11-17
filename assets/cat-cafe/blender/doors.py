@@ -17,8 +17,9 @@ Model layout (rbx_export):
                                              flap, which brings its own frame, is in use)
       CatCafe_Plot_BackDoor_Flap             the default cat flap's swinging panel, pivot on its top hinge: turn it
                                              about its X (up to about 60 degrees either way) as a cat goes through
-      CatCafe_Plot_BackDoor_Sign             "CLOSED / UNTIL SUNRISE" on the leaf's lock rail, for the night
-      CatCafe_Plot_BackDoor_Sign_Bulb        the sign's letters and moon (_Bulb: Neon at night)
+The night sign ("CLOSED / UNTIL SUNRISE", _sign below) is no longer built (#4788): WorldBuilder.removeDoorSign took
+it off every placed door since the hometown (F84), so its 110 parts a door only sat in ReplicatedStorage.Assets, which
+every device loads.
 Nothing here needs to collide: the code-built back door panel stays the
 collider, made invisible.
 """
@@ -28,7 +29,7 @@ import math
 from mathutils import Matrix, Vector
 
 from alleyway import label
-from common import RB, text_width
+from common import RB, _glyph_rects, text_width
 from plot import BACK, BACK_DOOR
 
 NAME = "CatCafe_Plot_BackDoor"
@@ -138,16 +139,15 @@ def _sign(b, glow, z=0.06, y0=3.1, bh=1.1, cu=2.6, both=False, face=0.0):
         label(b, big, mx(tx), yb, zf, px, 0.03, SIGN_INK, facing)
         if facing > 0:                                            # the back keeps to CLOSED and the moon
             label(glow, small, mx(tx), ys, zf, spx, 0.03, SIGN_GLOW, facing)
-        for r, row in enumerate(MOON):
-            for c, ch in enumerate(row):
-                if ch == "#":
-                    x = mx(left + 0.15 + (c + 0.5) * mp)
-                    glow.span((x - mp / 2, mtop - (r + 1) * mp, min(zf, zf + s * 0.03)),
-                              (x + mp / 2, mtop - r * mp, max(zf, zf + s * 0.03)), SIGN_GLOW)
+        # #4788: the moon in whole rectangles (5 parts, not one a pixel: every cafe's back door is on every device)
+        for r, c, e, h in _glyph_rects([row.replace("#", "1") for row in MOON]):
+            xa, xb = sorted((mx(left + 0.15 + c * mp), mx(left + 0.15 + e * mp)))
+            glow.span((xa, mtop - h * mp, min(zf, zf + s * 0.03)),
+                      (xb, mtop - r * mp, max(zf, zf + s * 0.03)), SIGN_GLOW)
 
 
 def build_back_door(mat):
-    b, leaf, glass, frame, flap, sign, glow = RB(), RB(), RB(), RB(), RB(), RB(), RB()
+    b, leaf, glass, frame, flap = RB(), RB(), RB(), RB(), RB()
     # the threshold, and the inside architrave the shell's doorway lacks (its outside frame is the shell's)
     b.span((X0 + 0.01, 0.0, BACK - 1.0), (X1 - 0.01, 0.08, BACK - 0.02), "dark_wood")
     zi = BACK - 1.0                                             # the wall's inside face
@@ -158,14 +158,12 @@ def build_back_door(mat):
     _leaf(leaf, glass)
     _flap_frame(frame)
     _flap(flap)
-    _sign(sign, glow)
     hinge = (HX, 0.0, HZ)
     flap_at = (HX + FC, FY1, HZ - LT / 2)
     return [b.finalize(NAME, mat), leaf.finalize(NAME + "_Leaf", mat, location=hinge),
             glass.finalize(NAME + "_Leaf_Glass", mat, location=hinge),
             frame.finalize(NAME + "_FlapFrame", mat, location=hinge),
-            flap.finalize(NAME + "_Flap", mat, location=flap_at),
-            sign.finalize(NAME + "_Sign", mat, location=hinge), glow.finalize(NAME + "_Sign_Bulb", mat, location=hinge)]
+            flap.finalize(NAME + "_Flap", mat, location=flap_at)]
 
 
 def cat_flap_attachment():

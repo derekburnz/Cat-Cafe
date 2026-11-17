@@ -21,6 +21,7 @@ local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
+local Parallel = require(ReplicatedStorage.Shared.Parallel)
 local PassCheck = require(ReplicatedStorage.Shared.PassCheck)
 local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
 local Signal = require(ReplicatedStorage.Shared.Signal)
@@ -37,6 +38,9 @@ PassService.purchased = Signal.new() :: Signal.Signal<Player, number>
 -- pass id -> owned, per player, from join; a purchase sets its id true. Weak keys: a player who leaves during the
 -- join lookup is never seen by PlayerRemoving afterwards.
 local owned: { [Player]: { [number]: boolean } } = setmetatable({}, { __mode = "k" }) :: any
+
+-- #4307: how many join pass lookups run at once
+local LOOKUPS_AT_ONCE = 8
 
 -- The five store passes (#1624) that are made (not 0).
 local function storePassIds(): { number }
@@ -242,9 +246,14 @@ function PassService.check(player: Player): Economy.Passes
 		markPlayer(player, set)
 		return PassService.fromOwned(set)
 	end
+	-- #4307: each lookup is its own web call, so they go side by side (20+ in a row were most of the join's save wait)
+	local ids = passIds()
+	local answers = Parallel.map(ids, LOOKUPS_AT_ONCE, function(id: number): boolean?
+		return lookup(player, id)
+	end)
 	local failed: { number } = {}
-	for _, id in passIds() do
-		local result = lookup(player, id)
+	for index, id in ids do
+		local result = answers[index]
 		if result == nil then
 			table.insert(failed, id)
 		else

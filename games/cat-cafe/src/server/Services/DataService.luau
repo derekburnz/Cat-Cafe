@@ -13,6 +13,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FishStore = require(ReplicatedStorage.Shared.FishStore)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
+local Parallel = require(ReplicatedStorage.Shared.Parallel)
 local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ProfileStore = require(script.Parent.Parent.Vendor.ProfileStore)
@@ -78,6 +79,10 @@ local function finalize(player: Player, session: Session)
 end
 
 local function load(player: Player)
+	-- #4307: the pass lookups need nothing from the save, so they run while the session starts instead of after it
+	local passesReady = Parallel.start(function(): Economy.Passes
+		return PassService.check(player)
+	end)
 	local profileStore = store:StartSessionAsync(key(player), {
 		Cancel = function()
 			return player.Parent ~= Players
@@ -112,8 +117,9 @@ local function load(player: Player)
 		return
 	end
 
-	-- F95: the passes first, since Long Nap sets the offline rate and cap (rateAtLogout already has the Money pass)
-	local passes = PassService.check(player)
+	-- F95: the passes first, since Long Nap sets the offline rate and cap (rateAtLogout already has the Money pass);
+	-- a check that errored counts as no passes
+	local passes = passesReady() or PassService.fromOwned({})
 	local now = os.time()
 	local retired = ProfileSchema.retiredRefund(profileStore.Data) -- #2891: before migrate drops those potions
 	local profile = ProfileSchema.migrate(profileStore.Data, now)

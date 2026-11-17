@@ -27,6 +27,7 @@ local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Spread = require(script.Parent.Parent.Components.Spread)
 local Theme = require(script.Parent.Parent.Theme)
 
 local NewKind = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("NewKind"))
@@ -111,7 +112,16 @@ function NewKindTags.new(): NewKindTags
 		table.insert(
 			self._connections,
 			CollectionService:GetInstanceAddedSignal(tag):Connect(function(cat: Instance)
-				self:_watch(cat)
+				-- Sync's Park landing timing: a landing's stray burst built every label in one frame; a frame at a time
+				Spread.later(function()
+					if
+						not self._gone
+						and cat:IsDescendantOf(Workspace)
+						and CollectionService:HasTag(cat, tag)
+					then
+						self:_watch(cat)
+					end
+				end)
 			end)
 		)
 		table.insert(

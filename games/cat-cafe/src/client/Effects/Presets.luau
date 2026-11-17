@@ -1960,10 +1960,10 @@ Presets.purchase = {
 Presets.motion = {
 	-- #4601 strayWalkSlow (Model-Agent's server step of a stray walk at 10 Hz): Cats eases each server step in over
 	-- this long instead of snapping to it (Pose.read's `ease`); read straight off the switch, off by default.
-	-- 0.18, not the step's own 0.1: server writes land at 0.1 s or a little later, so an ease of one step ended before
-	-- the next write and the cat stood still on about a third of frames (Sync's Alley run). Longer than a step, each
-	-- write lands mid ease and the cat keeps moving, drawn about 0.1 s behind the server
-	stepEase = { flag = "strayWalkSlow", seconds = 0.18 },
+	-- Between writes the cat is drawn on at the walk's speed (dead reckoning, Logic.reckonShare): up to `ahead`
+	-- seconds past the last write, falling back to it by `stale`, so the next write lands about where the cat already
+	-- is and only the small miss is eased (Sync's Alley runs: an ease that trailed the server fought every write)
+	stepEase = { flag = "strayWalkSlow", seconds = 0.1, ahead = 0.15, stale = 0.3 },
 	breathe = { studs = 0.03, seconds = 2.6 },
 	-- The shape of one breath while asleep or resting (Logic.breath): the belly fills over `inhale` of the cycle,
 	-- lets out over `exhale`, and rests for the rest. The nap, loaf and doze give the length and the rise.

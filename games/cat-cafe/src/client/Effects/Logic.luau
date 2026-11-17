@@ -4609,6 +4609,21 @@ end
 
 -- How far along an ease of `seconds` is after `since` seconds: 0 at the start, 1 done (#4601, Pose.read's server
 -- step ease).
+-- #4601: how many seconds of a walk's speed to draw a cat on past the server's last write, `since` that write. It
+-- grows with the time up to `ahead`, then falls back to 0 by `stale` (the writes stopped: the cat arrived). Pure.
+function Logic.reckonShare(since: number, ahead: number, stale: number): number
+	if since <= 0 then
+		return 0
+	end
+	if since <= ahead then
+		return since
+	end
+	if since >= stale or stale <= ahead then
+		return 0
+	end
+	return ahead * (stale - since) / (stale - ahead)
+end
+
 function Logic.easeShare(since: number, seconds: number): number
 	if seconds <= 0 then
 		return 1

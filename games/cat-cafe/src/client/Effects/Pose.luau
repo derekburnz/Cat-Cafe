@@ -78,6 +78,11 @@ export type Rig = {
 	easeFrom: CFrame, -- where the body was drawn when the server's new frames came, in the new body's own space
 	easeAt: number,
 	easing: boolean,
+	-- and where the walk is heading: the body's ground speed between the last two writes (studs a second) and when the
+	-- last one came. The cat is drawn that far on from the last write (capped at `ahead`), so the next write lands
+	-- about where it already is instead of ahead of it (Sync's third Alley run)
+	velocity: Vector3,
+	wroteAt: number,
 	frames: { CFrame },
 	scale: number, -- the cat's size against the manifest's (its Scale attribute times the model's scale)
 }
@@ -317,6 +322,8 @@ local function newRig(model: Model, body: BasePart): Rig
 		easeFrom = CFrame.identity,
 		easeAt = 0,
 		easing = false,
+		velocity = Vector3.zero,
+		wroteAt = 0,
 	}
 end
 
@@ -780,7 +787,7 @@ function Pose.pending(rig: Rig): boolean
 	if rig.usesMotors or rig.bodyIndex == 0 then
 		return false
 	end
-	if rig.easing then
+	if rig.easing or rig.velocity ~= Vector3.zero then
 		return true
 	end
 	if rig.bodyIndex > #rig.parts then
@@ -810,6 +817,7 @@ function Pose.read(rig: Rig, ease: number?): boolean
 	local written = rig.written
 	local server = rig.server
 	local before = base[rig.bodyIndex]
+	local lastServer = server[rig.bodyIndex]
 	local moved = false
 	for i, part in rig.parts do
 		if part.Parent == nil then
@@ -823,28 +831,51 @@ function Pose.read(rig: Rig, ease: number?): boolean
 		end
 	end
 	local seconds = ease or 0
+	local jump = Presets.motion.hiss.jumpStuds
 	if moved and seconds > 0 then
-		local landed = base[rig.bodyIndex]
-		if (landed.Position - before.Position).Magnitude <= Presets.motion.hiss.jumpStuds then
+		local landed = server[rig.bodyIndex]
+		if (landed.Position - before.Position).Magnitude <= jump then
+			-- the walk's ground speed from the last two writes, for drawing it on between them
+			local step = landed.Position - lastServer.Position
+			local gap = now - rig.wroteAt
+			local reckon = Presets.motion.stepEase
+			rig.velocity = if gap > 0
+					and gap < reckon.stale
+					and step.Magnitude <= jump
+				then Vector3.new(step.X, 0, step.Z) / gap
+				else Vector3.zero
+			rig.wroteAt = now
 			rig.easeFrom = landed:ToObjectSpace(before)
 			rig.easeAt = now
 			rig.easing = true
 		else
+			rig.velocity = Vector3.zero
+			rig.wroteAt = now
 			rig.easing = false
 		end
 	elseif moved then
+		rig.velocity = Vector3.zero
 		rig.easing = false
 	end
-	if rig.easing then
-		local k = Logic.easeShare(now - rig.easeAt, seconds)
-		if k >= 1 then
-			rig.easing = false
+	if rig.easing or rig.velocity ~= Vector3.zero then
+		local lag = IDENTITY
+		if rig.easing then
+			local k = Logic.easeShare(now - rig.easeAt, seconds)
+			if k >= 1 then
+				rig.easing = false
+			end
+			-- the lag is eased in the body's own space, so a turn swings about the cat and not the world's origin
+			local body = server[rig.bodyIndex]
+			lag = body * IDENTITY:Lerp(rig.easeFrom, 1 - k) * body:Inverse()
 		end
-		-- the lag is eased in the body's own space, so a turn swings about the cat and not the world's origin
-		local body = server[rig.bodyIndex]
-		local lag = body * IDENTITY:Lerp(rig.easeFrom, 1 - k) * body:Inverse()
+		local reckon = Presets.motion.stepEase
+		local share = Logic.reckonShare(now - rig.wroteAt, reckon.ahead, reckon.stale)
+		if share <= 0 and now - rig.wroteAt >= reckon.stale then
+			rig.velocity = Vector3.zero -- no write for a while: the walk has stopped
+		end
+		local shift = CFrame.new(rig.velocity * share) * lag
 		for i, frame in server do
-			base[i] = lag * frame
+			base[i] = shift * frame
 		end
 	end
 	local position = base[rig.bodyIndex].Position

@@ -992,6 +992,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Hide",
 		Text = "",
 		AutoButtonColor = false,
+		Selectable = false, -- #5129: not a D-pad stop (Up from Store jumped across to it); Settings hides the tile too
 		BackgroundTransparency = 1,
 		-- #3184: on the tile's top-left corner, its middle on the corner, so the bigger dot leaves the "?" clear and never
 		-- reaches the next tile (#1176: the Rewards badge's corner on the right); low enough that its bounce stays on

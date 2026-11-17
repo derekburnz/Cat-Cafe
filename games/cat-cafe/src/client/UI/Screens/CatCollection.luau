@@ -480,6 +480,12 @@ function CatCollection._buildDetail(self: any, parent: Instance)
 	local card: Frame = Create("Frame", {
 		Name = "Card",
 		Active = true, -- taps on the card stay on it
+		-- #5129: the D-pad stays on the card (as Modal fences its windows); Down from its X no longer reaches the book
+		SelectionGroup = true,
+		SelectionBehaviorUp = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorDown = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorLeft = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorRight = Enum.SelectionBehavior.Stop,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(DETAIL.X, DETAIL.Y),

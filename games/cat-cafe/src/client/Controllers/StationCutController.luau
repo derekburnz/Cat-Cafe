@@ -7,7 +7,7 @@
 -- window are put away the way a camera cut tip does (UI.tips.clearStage), and it counts as a cutscene
 -- (UI.setCutscene), so the bowl and other cards and the Rank Up window's own opening wait for it (Sync's run on #5128:
 -- a bowl card stayed over the cut and the Rank Up window opened itself again 2 s in). It waits for a bowl or perk card
--- already up to be dealt with first. The
+-- already up to be dealt with first, and asks for the station's spot again if it streamed out meanwhile. The
 -- key goes into tipsSeen (TipSeen, logged once as tip_shown: skipped "yes" for a skip or a fallback). A station that
 -- never arrives, or a camera another script holds, gets an "Unlocked" toast instead. Nothing while `stationCut` is off.
 
@@ -58,7 +58,7 @@ local function free(): boolean
 	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	local bowlCard = if playerGui ~= nil then playerGui:FindFirstChild(BAIT_CARD) else nil
 	if bowlCard ~= nil and bowlCard:IsA("ScreenGui") and (bowlCard :: ScreenGui).Enabled then
-		return false -- a bowl card is up: its Tame or Let go first
+		return false -- a bowl card is up: it is dealt with first
 	end
 	local perks = ui().perks
 	local perkCard = if perks ~= nil then perks.card else nil
@@ -108,7 +108,8 @@ end
 local function fallback(tier: number)
 	local station = StationUnlockCut.stationFor(tier)
 	if station ~= nil then
-		ui().toast(string.format("%s unlocked! %s", station.name, station.line), "good")
+		-- "info": ToastRules.quiet drops a "good" toast that is not on its KEEP list (Sync's run on #5128)
+		ui().toast(string.format("%s unlocked! %s", station.name, station.line), "info")
 	end
 	Net.fire("TipSeen", StationCut.key(tier), true)
 end
@@ -121,11 +122,33 @@ local function ranked(tier: number)
 		return
 	end
 	asked[tier] = true
+	local seenAt: Vector3? = nil -- where the station stood when it last streamed in
 	local function arrived(): boolean
-		return stationOf(tag :: string) ~= nil
+		local model = stationOf(tag :: string)
+		if model ~= nil then
+			seenAt = model:GetPivot().Position
+		end
+		return model ~= nil
+	end
+	local function freeNow(): boolean
+		arrived() -- notes where the server's stream brought it in, meanwhile
+		return free()
 	end
 	task.spawn(function()
-		if not waitFor(FREE_MOST, free) or not waitFor(StationCut.WAIT, arrived) then
+		if not waitFor(FREE_MOST, freeNow) then
+			fallback(tier)
+			return
+		end
+		-- a long wait (a carry home) can let the station stream out again: ask for it again where it stood
+		local at = seenAt
+		if not arrived() and at ~= nil then
+			task.spawn(function()
+				pcall(function()
+					Players.LocalPlayer:RequestStreamAroundAsync(at :: Vector3, StationCut.WAIT)
+				end)
+			end)
+		end
+		if not waitFor(StationCut.WAIT, arrived) then
 			fallback(tier)
 			return
 		end

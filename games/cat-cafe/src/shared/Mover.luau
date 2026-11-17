@@ -63,16 +63,22 @@ function Mover.walkTo(
 	local placed: CFrame? = nil -- where the last plain step put the model, bob and all
 	local slowed = draw == nil and slow()
 	local sinceWrite = math.huge -- seconds since the last write, under strayWalkSlow
+	local startedAt = workspace:GetServerTimeNow()
+	if model:GetAttribute(Mover.WALK_AT) == startedAt then
+		startedAt += 1e-6 -- two walks started in one frame still tell apart
+	end
 	if slowed then
 		-- The walk itself, so a client can draw it exactly between the 10 Hz writes (Effects/Pose): it is a straight
 		-- line from WalkFrom to WalkTo at WalkSpeed studs a second from server time WalkAt. WalkAt goes when it ends.
 		model:SetAttribute(Mover.WALK_FROM, ground)
 		model:SetAttribute(Mover.WALK_TO, target)
 		model:SetAttribute(Mover.WALK_SPEED, speed)
-		model:SetAttribute(Mover.WALK_AT, workspace:GetServerTimeNow())
+		model:SetAttribute(Mover.WALK_AT, startedAt)
 	end
+	-- A newer walk on the same model has set its own WalkAt by the time this one sees it is cancelled, so this walk
+	-- clears WalkAt only while it is still its own (#4601: a turn left the new walk without one).
 	local function ended()
-		if slowed and model.Parent ~= nil then
+		if slowed and model.Parent ~= nil and model:GetAttribute(Mover.WALK_AT) == startedAt then
 			model:SetAttribute(Mover.WALK_AT, nil)
 		end
 	end

@@ -151,12 +151,18 @@ local function addTurn(sign: Model)
 	place(turn, turn.angle)
 end
 
+-- The sign a part streaming in belongs to: its nearest ancestor already taken as a two-sided or two-board sign.
+-- #4987 (Sync's load read: this was 236 ms of the Effects start on a PC): it was an IsA and a FindFirstChild on every
+-- ancestor of every part in the map; it is now a table look-up per ancestor, and nothing at all with no sign known.
 local function signOf(instance: Instance): Model?
-	local d = Presets.doorSign
+	if next(turns) == nil and next(boards) == nil then
+		return nil
+	end
 	local at: Instance? = instance.Parent
 	while at ~= nil and at ~= (Workspace :: Instance) do
-		if at:IsA("Model") and at:FindFirstChild(d.closed) ~= nil and at.Name ~= d.closed then
-			return at :: Model
+		local model = at :: Model
+		if turns[model] ~= nil or boards[model] ~= nil then
+			return model
 		end
 		at = at.Parent
 	end
@@ -223,8 +229,11 @@ function DoorSign.start()
 	task.spawn(function()
 		local clock = ReplicatedStorage:WaitForChild("Clock")
 		night = clock:GetAttribute("Phase") == "night"
+		-- #4987: the first look needs only the signs' models: addTurn and hideOther take the parts already there
 		for _, descendant in Workspace:GetDescendants() do
-			consider(descendant)
+			if descendant:IsA("Model") then
+				consider(descendant)
+			end
 		end
 		Workspace.DescendantAdded:Connect(consider)
 		clock:GetAttributeChangedSignal("Phase"):Connect(function()

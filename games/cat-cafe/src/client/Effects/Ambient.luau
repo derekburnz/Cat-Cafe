@@ -116,8 +116,23 @@ local function remove(source: Source)
 	sources[source.instance] = nil
 end
 
+-- #4987 (Sync's load read: 97 ms of the Effects start on a PC): the last letters of every name classify takes
+-- (_Steam and Steam, Smoke, _Chimney, _Flowers and _Fireflies, _Bulb). Any other name is passed over before the class
+-- checks and the string tests, with no new string made.
+local LAST_LETTERS: { [number]: boolean } = {
+	[string.byte("m")] = true,
+	[string.byte("e")] = true,
+	[string.byte("y")] = true,
+	[string.byte("s")] = true,
+	[string.byte("b")] = true,
+}
+
 local function classify(instance: Instance)
 	local name = instance.Name
+	local last = string.byte(name, -1)
+	if last == nil or LAST_LETTERS[last] ~= true then
+		return
+	end
 	local part = instance:IsA("BasePart")
 	-- an Attachment named just `Steam` too: the camp Picnic Basket's thermos (F100, Model-Agent's #750)
 	local attachment = instance:IsA("Attachment")

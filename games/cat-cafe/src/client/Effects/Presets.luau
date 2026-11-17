@@ -3907,6 +3907,7 @@ Presets.stormFall = {
 	driftHeight = 22,
 	driftEvery = 0.5,
 	markWait = 2,
+	freshFor = 8, -- seconds after its SpawnedAt that a storm stray streaming in still counts as just dropped (#4796)
 }
 
 -- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name. Since #4325

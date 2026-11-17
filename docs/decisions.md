@@ -1216,3 +1216,17 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
   - Pace (10-run medians): Tier 5 goes from 1 h 08 to 1 h 00, Tier 6 from 2 h 51 to 2 h 18 (1 h 02 after Tier 5) and Tier 7 from 3 h 40 to 3 h 37. Tiers 8 to 10 stay in band.
   - Rewards and odds are unchanged.
 - **Read:** compare Tier 3 to 4 and Tier 5 to 6 loss, and quit_have's t4_kinds and t6_coins shares, a full day before and after it goes live.
+
+## 2026-11-17 Come back tomorrow card (#3951, Design-Agent)
+- **Why:** First day return (D1) fell under the 6% line: Nov 12 6.54%, Nov 13 4.70%, Nov 14 2.74%. The minute 6 return line (#4626) is easy to miss.
+- **What:** A slide-in card on the player's first UTC day: "Golden crate tomorrow!", "Come back tomorrow and it is yours.", the Classic gold crate picture, OK and X. It shows only when the tomorrow pick is the gift kind, 30 s or more into the session, after the first cat holds end, inside the one pop-up per 5 minutes pace, and never for a player who closed the Tutorial tile. When it shows, the minute 6 line is skipped that session. Switch `tomorrowCard`, off by default (#5079). Telemetry `tomorrow_card` (shown, ok, closed, hidden, by device).
+- **Switch-on:** only after the D1 read of the Nov 16 and Nov 17 cohorts (the minute 6 line has been on since 04:58 UTC Nov 16). Proposed Sun Nov 22 12:05 UTC, a day with no other funnel switch. Read: D1 of players who saw the card against those who saw the minute 6 line.
+
+## 2026-11-17 Park funnel switches get their own UTC days (Design-Agent)
+- **Why:** Switches turned on together cannot be read apart.
+- **What:** `parkRingEarly` Thu Nov 19, `tier3Path` Sat Nov 21, `parkTrailBack` with `parkGateTrail` Mon Nov 23, all at 12:05 UTC. Each is read on its next clean UTC day. A switch goes off the same day if any device gets more than 5 points worse on its step.
+
+## 2026-11-17 Harvest Hollow prices and pumpkin pace (#4251, Design-Agent)
+- **Why:** At the old numbers a lone player could buy all 11 Harvest items in about 45 minutes (the patch gave about 480 pumpkins an hour). The area runs Nov 25 to Dec 6, so it would be finished on day one.
+- **What:** Stall prices x3 (all 11 items now 1,440 pumpkins). Patch regrow 300 s (150 s when busy). Daily visit gift +40 pumpkins. Catch pumpkins unchanged, so no reward is cut. Rides the Wed Nov 18 Harvest fold.
+- **Read:** Thu Nov 26. If more than 25% of players own all 11 by Sat Nov 28, raise the week two prices.

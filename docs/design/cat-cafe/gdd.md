@@ -4,6 +4,27 @@ Draft v0.10, 2026-10-27 (v0.10 after the round 4 answers in [feedback/answers-20
 
 Reference games: Steal an Egg (timed spawns in shared stages, place-and-earn pets, chasing players who carry eggs) and Roll a Fisherman, also called Spin for a Fisherman (roll for staff, collect what they produce, expand the dock). We borrow the structure, never the names, art or characters. Gavin keeps "Cat Cafe" as the placeholder name for now (round 2); the working title stays Cat Cafe and the repo slug `cat-cafe`.
 
+## Where the game is now (v0.11, 2026-11-17)
+
+Read this first. The sections below it are the v0.10 slice design from 2026-10-27, kept as history; where they differ, this section and the linked docs win. Numbers live in [data-model.md](data-model.md), the code and `docs/decisions.md`, not here.
+
+**The game.** Catch a Cat Cafe is live on Roblox (final name since 2026-11-02). The loop is the same as the slice: catch strays, carry them home, give them a job, earn tips, rank up and open the next area. It has grown a lot:
+
+- **Ten areas and ten tiers.** Alleyway, Park, Neighbourhood, Woods, Sewer, Desert, Ruins, Snowy Mountain, Water Park and Medieval Castle. Each rank up opens the next one; the last three opened on 2026-11-15. Tier costs and the pace guards: [economy-ladder.md](economy-ladder.md) and the Tier ladder entries in `docs/decisions.md`. Late areas and stations: [tier6-7-areas.md](tier6-7-areas.md), [late-stations.md](late-stations.md).
+- **Getting around.** Players fly between areas with the Cat Cannon from Hometown ([hometown-cannon.md](hometown-cannon.md)).
+- **Cats.** Six rarities: Common to Mythical, plus Secret cats above Mythical, which can turn up in any area ([secret-cats.md](secret-cats.md)). Gold coats, the Rainbow coat ([rainbow-coat.md](rainbow-coat.md)), one trait per cat at the Mystic Pool ([trait-station.md](trait-station.md)) and Fusion from Tier 8.
+- **Catching.** Net circles by rarity and rescues ([catch-rework.md](catch-rework.md)), the bait bowl, luck and rare moments ([luck-and-rare-moments.md](luck-and-rare-moments.md)).
+- **Rewards and shops.** Golden fish, crates and Index rewards ([golden-fish.md](golden-fish.md), [rewards-and-shops.md](rewards-and-shops.md), [crate-reel.md](crate-reel.md)), the Corner Shop and Day Cart ([corner-shop-v2.md](corner-shop-v2.md), [day-cart.md](day-cart.md)), the Mystery Market ([mystery-market.md](mystery-market.md)), quests and achievements ([achievements-v2.md](achievements-v2.md)), badges in order ([badges-order.md](badges-order.md)).
+- **Things to do.** The Cat Arcade with Mouse Dash ([mouse-dash.md](mouse-dash.md), [new-activities.md](new-activities.md)), camp stations ([camp-stations.md](camp-stations.md)), the Ticket Booth from Tier 9, leaderboards ([leaderboards.md](leaderboards.md)), cafe events and admin events ([live-events.md](live-events.md)).
+- **Trading** from Tier 3 ([trading.md](trading.md)). This replaces the 2026-10-25 "No trading" line below.
+- **Playing together.** Pals, invites and Team Rescue ([playing-together.md](playing-together.md)); the Pal Day gift once per UTC day for 5 minutes with a pal, no streak (#4913, switch `palDay`).
+- **Coming back.** The first-session recap and tomorrow gift ([come-back-tomorrow.md](come-back-tomorrow.md)), the minute 6 return line (#4626) and the first-day "Golden crate tomorrow!" card (#3951, switch `tomorrowCard`). Offline earnings and AFK in the cafe ([afk-cafe.md](afk-cafe.md)).
+- **First minutes.** Easy start and the tutorial ([easy-start.md](easy-start.md), [first-hour.md](first-hour.md), [intro-cutscene.md](intro-cutscene.md)). Funnel switches are listed in `docs/decisions.md`.
+- **Limited areas.** Harvest Hollow, Wed 2026-11-25 to Sun 2026-12-06, through a Tier 2 portal: pumpkins, a stall of 11 items to keep and scaled harvest cats (#4251).
+- **Money.** Passes, the Starter Bundle, the Cafe Pass and the Store ([cafe-pass.md](cafe-pass.md), [store-layout-v2.md](store-layout-v2.md), [store-pass-looks.md](store-pass-looks.md)). Everything sold can also be earned by playing, odds are always shown and nothing pushes young players (`monetization-policy`).
+
+**Rules that still hold.** Raise costs, never cut rewards (rule v0.8). Features ship behind LiveFlags switches and go on one at a time so each can be read on its own UTC day. No pop-up in a player's first 5 minutes, at most one pop-up every 5 minutes, and none for a player who closed the Tutorial tile.
+
 ## Pitch
 
 A cozy cat cafe tycoon where the cats do the work and you do the collecting. Strays roam five areas around your street: the Alleyway, the Park, the Neighbourhood, the Woods and the Sewer. You catch them with a net and a quick timing game, rescue the ones stuck in bins and trees, or leave food in your bait bowl and see who turns up. Carry each one home, give it a job (Barista, Waiter, Greeter or Entertainer) and watch it sit down at its station in its uniform and start earning. Tips buy tables, decor and a better net, and ranking your cafe up through five tiers opens the next area. Fifty cats to find, ten per area, each with a gold version.

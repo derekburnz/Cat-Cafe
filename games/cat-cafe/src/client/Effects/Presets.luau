@@ -4041,6 +4041,17 @@ Presets.harvestFx = {
 	regrow = "catchSparkle",
 	regrowCount = 5,
 	regrowColour = Presets.palette.leaf,
+	-- a regrow spot (#4251 spec section 3): a soil mound with a green shoot where a picked pumpkin stood, and a thin
+	-- ring `sproutRing` studs across its half that fills toward RegrowAt; at most `sproutMost` spots, plain parts
+	regrowAttribute = "RegrowAt",
+	sproutMost = 12,
+	sproutRing = 1.6,
+	sproutRingColour = Color3.fromRGB(255, 240, 210),
+	sproutRingTransparency = 0.6,
+	sproutFillTransparency = 0.35,
+	sproutMound = Vector3.new(1.6, 0.5, 1.6),
+	sproutSoil = Color3.fromRGB(110, 78, 52),
+	sproutShoot = Vector3.new(0.25, 0.9, 0.25),
 	glint = "coinGlint",
 	glintCount = 2,
 	glintEvery = 5,

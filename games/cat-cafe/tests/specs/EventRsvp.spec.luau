@@ -98,11 +98,15 @@ return function()
 				expect((EventRsvp.next(Config.UpdateEvents, 1794945600 + 600))).to.equal(
 					"2956295611862876771"
 				)
+				-- Derek 2026-11-17: the Christmas Event (Dec 12) comes next, then Cherry Blossom Grove
 				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(
-					"6693355219203523122"
+					"3056428113926947439"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1796500800 + 600))).to.equal(
+					"3056428113926947439"
 				)
 				-- #5098: Cherry Blossom Grove moved to Sat Mar 27 2027
-				expect((EventRsvp.next(Config.UpdateEvents, 1796500800 + 600))).to.equal(
+				expect((EventRsvp.next(Config.UpdateEvents, 1797105600 + 600))).to.equal(
 					"6693355219203523122"
 				)
 				expect((EventRsvp.next(Config.UpdateEvents, 1806177600 + 600))).to.equal(nil)

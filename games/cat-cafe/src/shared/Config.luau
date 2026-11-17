@@ -839,6 +839,14 @@ local Config = {
 			title = "🔔 Next update Wed Nov 25: HARVEST HOLLOW! Want a reminder when it lands?",
 			name = "HARVEST HOLLOW",
 		},
+		-- Derek 2026-11-17 (Christmas Event Dec 12 to Jan 3): Growth made the Roblox Event in Creator Hub (saved
+		-- private while the public upcoming cap is full; public once Harvest Hollow ends)
+		{
+			id = "3056428113926947439",
+			startsAt = 1797105600, -- "Christmas Event", Saturday 2026-12-12 20:00 UTC
+			title = "🔔 Next update Sat Dec 12: the CHRISTMAS EVENT! Want a reminder when it lands?",
+			name = "CHRISTMAS EVENT",
+		},
 		{
 			id = "6693355219203523122",
 			-- #5098: moved to after Christmas (Derek 2026-11-17); Growth re-dated the Roblox Event

@@ -14,6 +14,7 @@ local AirMovesController = require(script.Parent.Controllers.AirMovesController)
 local Audio = require(script.Parent.Audio)
 local BackdropController = require(script.Parent.Controllers.BackdropController)
 local BinController = require(script.Parent.Controllers.BinController)
+local CafeGrewController = require(script.Parent.Controllers.CafeGrewController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
 local CannonController = require(script.Parent.Controllers.CannonController)
 local ChatTagController = require(script.Parent.Controllers.ChatTagController)
@@ -97,6 +98,7 @@ NetSwingController.start() -- F93: the net swing, after the UI whose Net button 
 AirMovesController.start() -- #4447: the Dragon Keep's Double Jump and Glide
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
+CafeGrewController.start() -- #4543: "Your cafe grew!" on the Rank Up card, after the UI
 ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
 RankSpotController.start() -- #3555: the first rank up's walk-through, behind rankUpSpotlight
 AdminEventController.start() -- #4195: the admin event's banner, timer and the Admin Wheel, behind adminEvents

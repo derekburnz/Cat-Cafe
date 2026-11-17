@@ -4375,7 +4375,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels, grandOpening = { done = {} } } :: any)
 		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
 		task.wait(0.1)
-		-- #4384 (checkInCalm, on unless switched off): mid tutorial a prize gives no toast
+		-- #4384: mid tutorial a prize gives no toast
 		local toastsBefore = 0
 		for _, piece in UIShim.playerGui:GetDescendants() do
 			if piece:IsA("TextLabel") and piece.Visible and string.find(piece.Text, "Grand Opening 1/8", 1, true) then

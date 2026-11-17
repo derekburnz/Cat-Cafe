@@ -1679,14 +1679,11 @@ function CafeService.addCaughtCat(
 			TipService.show(player, "second_cat")
 		end
 		-- #4384 (Derek 2026-11-15 "still the drop off at second cat"): one ask at a time at the first check-in, so the
-		-- new cat and its job come as one toast ("Your first cat! Mochi is your Barista (+$50)"), behind checkInCalm
+		-- new cat and its job come as one toast ("Your first cat! Mochi is your Barista (+$50)")
 		local spotHere = if instance.spotId ~= nil
 			then Catalog.getSpot(instance.spotId :: string)
 			else nil
-		local oneToast = isNew
-			and firstCheckIn
-			and spotHere ~= nil
-			and LiveFlagService.on("checkInCalm")
+		local oneToast = isNew and firstCheckIn and spotHere ~= nil
 		if oneToast and spotHere ~= nil then
 			Net.toast(
 				player,

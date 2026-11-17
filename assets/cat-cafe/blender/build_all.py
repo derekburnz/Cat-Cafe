@@ -878,7 +878,17 @@ RETIRED = {f"CatCafe_{a}_{k}" for a in ("Park", "Neighbourhood", "Woods", "Sewer
 # Built for Blender only (#4656): the game never loads these, so a normal build writes their FBX and GLB and no rbx
 # file. The Tiny Hat left the Looks list (it is "tail_bow" now); its mesh stays as the Hat slot's attach reference
 # for the head pieces (accessories.HEAD_LOOKS, poses.py, the pack scripts).
-NO_RBX = {"CatCafe_Accessory_Hat"}
+NO_RBX = {"CatCafe_Accessory_Hat"} | {
+    # #4656 (2026-11-17): 20 more no table or script names (about 600 instances on every client). Their builders stay:
+    # icons.py draws the potion icons from potions.py, scenes.py places the old starter decor, and the coin, net,
+    # crest, theme props and tip pile can come back by taking a name out of this set.
+    f"CatCafe_Prop_Potion_{k}" for k in (
+        "BigGoldRush", "BigLucky", "BigTip", "GoldRush", "Lucky", "MegaTip", "QuickBait", "Steady", "Swift", "Tip")
+} | {
+    "CatCafe_Prop_FishCoin", "CatCafe_Item_LongNet", "CatCafe_Prop_GardenGarland", "CatCafe_Prop_GardenTablePot",
+    "CatCafe_Prop_GrandCushion", "CatCafe_Decor_Cup", "CatCafe_Decor_MenuBoard", "CatCafe_Decor_PlantPot",
+    "CatCafe_Plot_SignKingCrest", "CatCafe_Prop_TipPile",
+}
 
 
 def all_assets():

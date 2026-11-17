@@ -48,7 +48,11 @@ HarvestWorld.FLOOR_SIZE = Vector3.new(150, 4, 120)
 -- #4667 moved the quarter's stations to its west edge (x -50: Arcade Cabinet at z 28.6, Spin Wheel at 48.75, the Rally
 -- board at 68.9), which put the Spin Wheel 13.4 studs from (-42, 38); the arch now stands in the quarter's open middle,
 -- 22 studs or more from each, off the street's line and the lane, still facing the cannon.
-HarvestWorld.ARCH_AT = Vector3.new(-30, 0.1, 40)
+-- Sync's Harvest FX check (2026-11-17): from the cannon pad the Spin Wheel (-50, 48.75) stood 9 degrees off the arch's
+-- middle, inside its 24 stud width, so the wheel's "2 spins to use" pill and "!" sat on the sign's top corner. At
+-- (-21, 55) the arch is 21 degrees off the street and the wheel 25 degrees beyond it (the arch's half width is about
+-- 11.5 degrees from the pad): about 30 studs from the wheel and the Rally board, 1 stud past the lane's 12 stud margin.
+HarvestWorld.ARCH_AT = Vector3.new(-21, 0.1, 55)
 HarvestWorld.AREA_EARLY_SECONDS = 3600 -- built this long before it opens, so the first trip never waits on it
 HarvestWorld.ARCH_EARLY_SECONDS = 86400 -- the arch and its countdown from a day before (the update countdown's 24 hours)
 

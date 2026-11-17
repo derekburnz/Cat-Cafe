@@ -5901,13 +5901,16 @@ Presets.firstBaitCut = {
 	pitch = 30,
 	happy = 10,
 	happyUp = 2,
-	waitCat = 2.0, -- room for a laggy phone while the server still puts the cat out at food + 1 s
+	-- #5074: the server puts the cat out at catOutAt (placedAt + 1 on whole os.time seconds, checked by a 1 s loop),
+	-- so it lands 1 to 2 s after the food, plus streaming on a phone. 2.0 left too little and the cut ended "none"
+	-- with no cat. A cat on time plays the same 2.2 s cut; only a late one gets the extra second.
+	waitCat = 3.0,
 	skipAfter = 0.3,
 	skipOut = 0.25,
 	skipSize = 18,
 	skipFade = 0.4,
 	displayOrder = 10,
-	cap = 4.5,
+	cap = 5.5, -- #5074: waitCat + walkMax + eat + swingOut (5.0) and a little room
 	maxDistance = 120,
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 }

@@ -2379,6 +2379,41 @@ local SCENES = {
 		end
 		assert(found, "uigate: the Tier 2 card does not list the bait bowl cap (#2121)")
 	end },
+	-- #4920 item 7: the grey rank-up button says what is missing. Its longest line, "Need 2 more Legendary+" (Tier 5
+	-- with every kind caught and no Legendary yet), fits the 260 px button on every screen
+	{ "RankUpMissing", function()
+		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
+		local tierDef = Catalog.getTier(5) :: any
+		assert(tierDef.needsRarity == "Legendary" and (tierDef.needsRarityCount or 1) == 2, "RankUpMissing: Tier 5 no longer needs 2 Legendary cats; pick the tier with the longest line")
+		local before: any = UI.getState()
+		local oldCollection, oldMoney = before.collection, before.money
+		local collection: { [string]: number } = {}
+		local picked = 0
+		for _, def in Catalog.cats do
+			local plain = def.rarity == "Common" or def.rarity == "Rare" or def.rarity == "Epic"
+			if plain and def.exclusive ~= true and picked < tierDef.distinctCats + 4 then
+				collection[def.id] = 1
+				picked += 1
+			end
+		end
+		atTier(4)
+		UI.update({ collection = collection, money = 0 } :: any)
+		UI.open("RankUp")
+		UIShim.advance(0.2)
+		local button = UIShim.playerGui:FindFirstChild("RankUpButton", true) :: Instance
+		assert(button, "uigate: no rank-up button (#4920)")
+		local words: TextLabel? = nil
+		for _, piece in button:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text ~= "" then
+				words = piece
+			end
+		end
+		assert(words, "uigate: the rank-up button has no words (#4920)")
+		local label = words :: TextLabel
+		assert(label.Text == "Need 2 more Legendary+", "uigate: the grey rank-up button reads " .. label.Text .. " (#4920)")
+		assert(label.TextFits, ("uigate: %q is cut on the rank-up button, %d px wide (#4920)"):format(label.Text, label.AbsoluteSize.X))
+		UI.update({ collection = oldCollection, money = oldMoney } :: any)
+	end },
 	-- #2915: ranking up to Tier 2 turns the rank-up button into "Fly to the Park"; pressing it closes the window, and
 	-- the picker (opened here, as the trip to the cannon would) rings the Park card's Launch. A flight ends both.
 	{ "ParkFly", function()

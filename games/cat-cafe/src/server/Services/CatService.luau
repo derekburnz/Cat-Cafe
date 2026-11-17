@@ -1343,6 +1343,39 @@ do
 		return profile, M.Tier3Path.need(profile)
 	end
 
+	-- Sync's PC run of #5049: a waiting stray wedged against the Park gate's low wall and a pillar could not be netted
+	-- on foot (the player stopped 7 studs off, up on the wall). A stray only waits where nothing solid stands within
+	-- OPEN_STUDS of it above the floor: a wall, pillar, fence or prop that could keep the player away.
+	local OPEN_STUDS = 6
+	local openParams = OverlapParams.new()
+	openParams.FilterType = Enum.RaycastFilterType.Exclude
+	openParams.RespectCanCollide = true
+	local function openSpot(stray: Stray): boolean
+		local area = world.areas[stray.area]
+		if area == nil then
+			return false
+		end
+		local at = stray.body.Position
+		local exclude: { Instance } = { stray.model }
+		for _, player in Players:GetPlayers() do
+			if player.Character ~= nil then
+				table.insert(exclude, player.Character)
+			end
+		end
+		openParams.FilterDescendantsInstances = exclude
+		for _, part in Workspace:GetPartBoundsInRadius(at, OPEN_STUDS, openParams) do
+			-- the floor and flat ground stay under the knees; a stray (another cat) is not in the way
+			local top = part.Position.Y + part.Size.Y / 2
+			if top > area.floorY + 1.5 then
+				local model = part:FindFirstAncestorWhichIsA("Model")
+				if model == nil or model:GetAttribute("CatId") == nil then
+					return false
+				end
+			end
+		end
+		return true
+	end
+
 	local function pickPark(
 		player: Player,
 		profile: Types.PlayerProfile,
@@ -1356,6 +1389,7 @@ do
 			if
 				canWait(stray, now, M.Tier3Path.AREA)
 				and M.Tier3Path.fits(profile, stray.def, stray.variant, need)
+				and openSpot(stray)
 			then
 				local at = stray.body.Position
 				local distance = (Vector3.new(at.X, pad.Y, at.Z) - pad).Magnitude

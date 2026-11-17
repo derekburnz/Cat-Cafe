@@ -206,7 +206,7 @@ function RuinsWater.start()
 	for _, descendant in Workspace:GetDescendants() do
 		consider(descendant)
 	end
-	Workspace.DescendantAdded:Connect(function(descendant: Instance)
+	Context.onWorkspaceAdded(function(descendant: Instance)
 		-- the water's parts stream in after its Model, so take a known water Model again as they arrive
 		local parent = descendant.Parent
 		local known: Source? = if parent ~= nil then sources[parent] else nil

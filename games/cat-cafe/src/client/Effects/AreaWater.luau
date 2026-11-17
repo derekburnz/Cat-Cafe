@@ -394,7 +394,7 @@ function AreaWater.start()
 	for _, descendant in Workspace:GetDescendants() do
 		consider(descendant)
 	end
-	Workspace.DescendantAdded:Connect(function(descendant: Instance)
+	Context.onWorkspaceAdded(function(descendant: Instance)
 		if descendant:IsA("Model") then
 			if AreaWater.kindOf(descendant.Name) ~= nil then
 				task.defer(consider, descendant)

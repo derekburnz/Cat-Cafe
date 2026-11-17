@@ -266,4 +266,43 @@ function Context.whenRemote(name: string, connect: (RemoteEvent) -> ())
 	end)
 end
 
+-- #5000 (phone lag while walking, #4857, now that the place streams): about 17 effects each connected their own
+-- Workspace.DescendantAdded, so every instance streaming in started that many handler threads. With the `fxOneAdded`
+-- switch on (off by default) they share one connection that hands each new instance to every handler in turn, in the
+-- order they joined; each runs under pcall, so one handler's error stays its own (reported once). Off, each handler
+-- gets its own connection as before. The switch is read once, when the first handler joins (after LiveFlags' first
+-- read, which the client waits for at start). None of the handlers yields.
+local ONE_ADDED_FLAG = "fxOneAdded"
+local addedHandlers: { (Instance) -> () }? = nil
+local addedWarned: { [number]: boolean } = {}
+
+function Context.onWorkspaceAdded(handler: (Instance) -> ())
+	if addedHandlers == nil then
+		if
+			not LiveFlags.shown(
+				ONE_ADDED_FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. ONE_ADDED_FLAG)
+			)
+		then
+			Workspace.DescendantAdded:Connect(handler)
+			return
+		end
+		local handlers: { (Instance) -> () } = {}
+		addedHandlers = handlers
+		Workspace.DescendantAdded:Connect(function(instance: Instance)
+			for index, each in handlers do
+				local ok, problem = pcall(each, instance)
+				if not ok and not addedWarned[index] then
+					addedWarned[index] = true
+					warn(
+						"[Effects] a Workspace.DescendantAdded handler failed: "
+							.. tostring(problem)
+					)
+				end
+			end
+		end)
+	end
+	table.insert(addedHandlers :: { (Instance) -> () }, handler)
+end
+
 return Context

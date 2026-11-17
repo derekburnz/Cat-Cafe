@@ -235,7 +235,7 @@ function DoorSign.start()
 				consider(descendant)
 			end
 		end
-		Workspace.DescendantAdded:Connect(consider)
+		Context.onWorkspaceAdded(consider)
 		clock:GetAttributeChangedSignal("Phase"):Connect(function()
 			local now = clock:GetAttribute("Phase") == "night"
 			if now ~= night then

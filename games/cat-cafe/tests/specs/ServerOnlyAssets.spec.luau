@@ -35,6 +35,11 @@ return function()
 					"CatCafe_Town_LeaderboardRow",
 					"CatCafe_Park_IndexBoard",
 					"CatCafe_Snowy_IndexBoard",
+					"CatCafe_WaterPark_IndexBoard", -- #5026
+					"CatCafe_Castle_IndexBoard",
+					"CatCafe_Town_ArcadeCabinet",
+					"CatCafe_Town_FeedbackStand",
+					"CatCafe_Square_FishFountain",
 					"CatCafe_Plot_Interior",
 					"CatCafe_Plot_Tier3",
 					"CatCafe_Plot_YardFence",
@@ -49,7 +54,6 @@ return function()
 					"CatCafe_Square_MysteryCart_RingIcon_Decor",
 					"CatCafe_Plot_BackDoor",
 					"CatCafe_Plot_LuckyCat_3",
-					"CatCafe_Town_ArcadeCabinet",
 				}
 			do
 				expect(ServerOnlyAssets.matches(name)).to.equal(false)
@@ -285,8 +289,6 @@ return function()
 					"CatCafe_Plot_ThemeGarden",
 					"CatCafe_Plot_Cafe_Oven",
 					"CatCafe_Cafe_Oven",
-					"CatCafe_Town_FeedbackStand",
-					"CatCafe_Town_ArcadeCabinet",
 					"CatCafe_Town_Gate",
 					"CatCafe_Nook_Town",
 					"CatCafe_NPC_Townsfolk_Baker",

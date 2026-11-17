@@ -44,6 +44,8 @@ local M = {
 	-- and the hooks told of every stray caught by net, with the area it was caught in (CatService.onCaught)
 	areaGates = {} :: { [string]: (Types.PlayerProfile) -> boolean },
 	caughtHooks = {} :: { (Player, Types.CatDef, string) -> () },
+	-- #4251: checks in a cat caught or picked up in an added area with no camp (set below finishCheckIn)
+	homeFromCampless = nil :: ((Player, string) -> ())?,
 	AssetRegistry = require(script.Parent.Parent.World.AssetRegistry),
 	Badges = require(ReplicatedStorage.Shared.Badges),
 	BagColours = require(ReplicatedStorage.Shared.BagColours),
@@ -2694,6 +2696,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		for _, hook in M.caughtHooks do
 			task.spawn(hook, player, def, area)
 		end
+		local home = M.homeFromCampless
+		if home ~= nil then
+			home(player, area)
+		end
 		return
 	end
 
@@ -3007,7 +3013,12 @@ local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray
 	local def, charm, variant, homePos = stray.def, stray.charm, stray.variant, stray.homePos
 	local knocks, pity = stray.knocks, stray.pity
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
+	local area = stray.area
 	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks, nil, pity)
+	local home = M.homeFromCampless
+	if home ~= nil then
+		home(player, area)
+	end
 	return nil
 end
 
@@ -3318,6 +3329,26 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 	if not ok then
 		error(err, 0)
 	end
+end
+
+-- #4251 (Sync's Harvest Studio run, 2026-11-17): Harvest Hollow has no camp and stands far from every cafe door, and
+-- fast travel waits until the arms are empty (busyReason), so a cat caught there could never be taken home. A cat
+-- caught or picked up in an added area with no camp goes home a moment later instead, once the catch has shown in
+-- the arms: checked in as at a door, if it is still the cat in the arms (or the Backpack) by then.
+M.homeFromCampless = function(player: Player, areaId: string)
+	local area = world.areas[areaId]
+	if area == nil or area.camp ~= nil then
+		return
+	end
+	local carry = carrying[player] or packed[player]
+	if carry == nil then
+		return
+	end
+	task.delay(1, function()
+		if carrying[player] == carry or packed[player] == carry then
+			finishCheckIn(player, true)
+		end
+	end)
 end
 
 -- Dusk (data-model section 9, v0.9): a Dropped stray goes to its last carrier while they are in the server, checked

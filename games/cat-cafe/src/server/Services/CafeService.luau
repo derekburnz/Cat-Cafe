@@ -15,6 +15,7 @@ local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -491,6 +492,20 @@ end
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	plot.model:SetAttribute("Tier", tier)
+	-- #4543 (cafeGrows): the room the tier has earned. When it grows, everything standing on the old anchors comes
+	-- down here and the rest of refreshPlot builds it again in the new room (the cats as on a fresh join).
+	local width, depth = CafeRoom.size(tier, LiveFlagService.on(CafeRoom.FLAG))
+	if WorldBuilder.setRoom(plot, width, depth) then
+		for _, holder in
+			{ plot.cats, plot.decor, plot.tables, plot.bait, plot.bait2 } :: { Instance }
+		do
+			holder:ClearAllChildren()
+		end
+		local espresso = plot.model:FindFirstChild("Espresso")
+		if espresso ~= nil then
+			espresso:Destroy()
+		end
+	end
 	WorldBuilder.setDressing(plot, tier, Economy.extraSlots(profile)) -- #2047: a bed for each extra slot's cat
 	-- No floating "opens at Tier N" text over locked slots (Derek 2026-10-27: placeholder text is ugly); the
 	-- Upgrades screen's Roles section lists which slots each tier opens.

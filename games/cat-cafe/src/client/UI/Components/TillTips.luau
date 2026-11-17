@@ -6,8 +6,11 @@
 --   TILL                             the till on the counter top in plot space, where the button floats: the
 --                                    counter stands at Layout.plot.counter (0, 0, PlotDepth / 2 - 3) and the till
 --                                    at x 0.7 to 1.7, 3 up
---   onPlot(offset)                   true for a point in plot space inside the box CollectTips accepts: the
+--   onPlot(offset, width?, depth?)   true for a point in plot space inside the box CollectTips accepts: the
 --                                    server's WorldBuilder.inSafeZone box, front garden to yard and a stud wider
+--   room(plot) -> (width, depth)     #4543: the room standing on the plot (its RoomWidth and RoomDepth attributes,
+--                                    44 x 34 without them); till(depth) is TILL in that room (the counter moves
+--                                    back with the back wall)
 -- Plot space is the plot model's GetPivot() (WorldBuilder sets WorldPivot; -Z faces the street). No Theme, Format
 -- or CFrame here, so the cloud test runner (no fonts, no CFrame) can load and test it.
 
@@ -32,10 +35,24 @@ function TillTips.amount(count: any, total: any): number
 	return total
 end
 
-function TillTips.onPlot(offset: Vector3): boolean
-	return math.abs(offset.X) <= HALF_W + 1
+function TillTips.room(plot: Instance): (number, number)
+	local width, depth = plot:GetAttribute("RoomWidth"), plot:GetAttribute("RoomDepth")
+	if type(width) ~= "number" or type(depth) ~= "number" then
+		return World.PlotWidth, World.PlotDepth
+	end
+	return width, depth
+end
+
+function TillTips.till(depth: number): Vector3
+	return TillTips.TILL + Vector3.new(0, 0, depth - World.PlotDepth)
+end
+
+function TillTips.onPlot(offset: Vector3, width: number?, depth: number?): boolean
+	local halfW = if width ~= nil then width / 2 else HALF_W
+	local back = -HALF_D + (depth or World.PlotDepth)
+	return math.abs(offset.X) <= halfW + 1
 		and offset.Z >= -HALF_D - 1 - World.FrontGardenDepth
-		and offset.Z <= HALF_D + 1 + World.YardDepth
+		and offset.Z <= back + 1 + World.YardDepth
 end
 
 return TillTips

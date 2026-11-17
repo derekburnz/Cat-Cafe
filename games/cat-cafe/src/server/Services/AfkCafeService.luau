@@ -21,6 +21,7 @@ local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local CafeService = require(script.Parent.CafeService)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -213,13 +214,14 @@ local function check(player: Player, now: number)
 		watch.at = position
 		watch.stillSince = now
 	end
-	local W = Config.World
+	-- #4543: the room standing now, about its own middle (a grown room's middle is further back)
+	local room = plot.cframe * CFrame.new(0, 0, CafeRoom.centre(plot.room.depth))
 	local front = TravelService.homeFront(player)
 	local inZone = AfkCafe.inZone(
-		plot.cframe:PointToObjectSpace(position),
-		if front ~= nil then plot.cframe:PointToObjectSpace(front.Position) else nil,
-		W.PlotWidth,
-		W.PlotDepth
+		room:PointToObjectSpace(position),
+		if front ~= nil then room:PointToObjectSpace(front.Position) else nil,
+		plot.room.width,
+		plot.room.depth
 	)
 	-- #3701: the rest banner's zone, for a player past the tutorial. It replaces the once a session line (Derek
 	-- 2026-11-12: it "only pops up once not everytime your in cafe and also gets cut off"): the client's banner

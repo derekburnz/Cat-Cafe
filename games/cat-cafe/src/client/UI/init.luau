@@ -8370,8 +8370,11 @@ do
 			return false
 		end
 		local TillTips = require(script.Components.TillTips) :: any
+		local width, depth = TillTips.room(plot)
 		return TillTips.onPlot(
-			(plot :: Model):GetPivot():PointToObjectSpace((root :: BasePart).Position)
+			(plot :: Model):GetPivot():PointToObjectSpace((root :: BasePart).Position),
+			width,
+			depth
 		)
 	end
 

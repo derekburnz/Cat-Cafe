@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local AssetRegistry = require(script.Parent.AssetRegistry)
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -71,6 +72,14 @@ export type Plot = {
 	lawnSpots: { [string]: BasePart },
 	shell: Model?,
 	shellPath: Model?,
+	-- #4543 (shared/CafeRoom, behind cafeGrows): the room standing now (44 x 34 until it grows), the shell's base
+	-- asset name (its sized ones add "_WxD"), the floor and the World.Zones box the room resizes, and where each piece
+	-- the walls carry stood in the 44 x 34 room (plot-local), for setRoom
+	room: { width: number, depth: number },
+	shellName: string,
+	floor: BasePart,
+	zone: BasePart?,
+	roomBase: { [Instance]: CFrame },
 }
 
 export type AreaInfo = {
@@ -291,12 +300,13 @@ end
 
 -- An invisible box under World.Zones naming the place the player stands in: "Cafe", or an area such as "Alley".
 -- The client reads it for the ambience (Audio.setZone) and the first tutorial step; the server never does.
-local function zone(name: string, size: Vector3, cframe: CFrame, parent: Instance)
+local function zone(name: string, size: Vector3, cframe: CFrame, parent: Instance): BasePart
 	local box = part(name, size, cframe, Color3.new(1, 1, 1), nil, parent)
 	box.Transparency = 1
 	box.CanCollide = false
 	box.CanQuery = false
 	box.CanTouch = false
+	return box
 end
 
 local function localCFrame(base: CFrame, p: Layout.Point): CFrame
@@ -441,10 +451,19 @@ end
 -- #2047: `extra` extra role slots (Economy.extraSlots) bring the next beds early (Layout.bedsOpen); the plot's `Beds`
 -- attribute says how many stand, for SleepSpots.
 function WorldBuilder.setDressing(plot: Plot, tier: number, extra: number?)
+	-- #4543: a grown room's tier pieces are its sized ones, centred on the room; its beds keep to the walls
+	local width, depth = plot.room.width, plot.room.depth
+	local suffix = CafeRoom.suffix(width, depth)
+	local centred = plot.cframe * CFrame.new(0, 0, CafeRoom.centre(depth))
 	local function show(name: string, asset: string, wanted: boolean)
 		local existing = plot.dressing:FindFirstChild(name)
+		local sized = asset .. suffix
+		local at = plot.cframe
+		if suffix ~= "" and AssetRegistry.has(sized) then
+			asset, at = sized, centred
+		end
 		if wanted and existing == nil and AssetRegistry.has(asset) then
-			local placed = place(asset, plot.cframe, plot.dressing)
+			local placed = place(asset, at, plot.dressing)
 			placed.Name = name
 			removeLawnClashes(placed) -- F91: the Tier 2 and 3 bistro sets stood where lawn spots are
 		elseif not wanted and existing ~= nil then
@@ -465,7 +484,12 @@ function WorldBuilder.setDressing(plot: Plot, tier: number, extra: number?)
 		local existing = plot.dressing:FindFirstChild(bed.id)
 		if index <= beds and existing == nil and AssetRegistry.has(CAT_BED) then
 			local point: Layout.Point = { x = bed.x, y = bed.y, z = bed.z, rotY = bed.rotY }
-			place(CAT_BED, localCFrame(plot.cframe, point), plot.dressing).Name = bed.id
+			place(
+				CAT_BED,
+				localCFrame(plot.cframe, CafeRoom.point(point, width, depth) :: any),
+				plot.dressing
+			).Name =
+				bed.id
 		elseif index > beds and existing ~= nil then
 			existing:Destroy()
 		end
@@ -477,7 +501,7 @@ function WorldBuilder.setDressing(plot: Plot, tier: number, extra: number?)
 	-- SleepSpots reads only the F79 beds, so no working cat walks to these at night.
 	for n, point in Layout.plot.napSpots do
 		local name = "NapBed_" .. n
-		local floorAt = localCFrame(plot.cframe, point)
+		local floorAt = localCFrame(plot.cframe, CafeRoom.point(point, width, depth) :: any)
 		local bed: Instance? = plot.dressing:FindFirstChild(name)
 		if tier >= 1 and bed == nil and AssetRegistry.has(CAT_BED) then
 			local placed = place(CAT_BED, floorAt, plot.dressing)
@@ -504,16 +528,138 @@ function WorldBuilder.setDressing(plot: Plot, tier: number, extra: number?)
 	end
 end
 
+-- #1624 (themes.py): a cafe theme brings its own awning, so the shell's `_Awning` child Models hide while one shows.
+-- Hiding keeps each part's own transparency in an attribute and puts it back after; nothing on an awning collides.
+local AWNING_TRANSPARENCY = "ThemeTransparency"
+
+-- #4543 (behind cafeGrows): the room grows to `width` x `depth` (CafeRoom.size, Config.World.CafeRoomByTier). The
+-- front wall stays where it is and the room reaches further back: the shell, interior and yard fence swap for
+-- Model-Agent's sized art (`<asset>_WxD`, centred on the room), the floor and the Cafe zone grow, and every piece the
+-- walls carry moves by CafeRoom.offset (side pieces out, back pieces back). The tier sets and beds come off so the next
+-- setDressing puts up the sized ones. True when the room changed; false (nothing touched) when it already stands at
+-- that size or a sized piece's art is missing. The caller (CafeService.refreshSpots) rebuilds the cats, decor,
+-- tables, bait and looks after a change.
+function WorldBuilder.setRoom(plot: Plot, width: number, depth: number): boolean
+	if plot.room.width == width and plot.room.depth == depth then
+		return false
+	end
+	local suffix = CafeRoom.suffix(width, depth)
+	local shellAsset = plot.shellName .. suffix
+	local interiorAsset = "CatCafe_Plot_Interior" .. suffix
+	local fenceAsset = YARD_FENCE_ART .. suffix
+	local oldShell = plot.shell
+	if
+		oldShell == nil
+		or not AssetRegistry.has(shellAsset)
+		or not AssetRegistry.has(interiorAsset)
+		or not AssetRegistry.has(fenceAsset)
+	then
+		return false
+	end
+	-- the back door art (and the night-closed back door) stand at the plot pivot, so they only move back; their place
+	-- in the 44 x 34 room is kept the first time
+	local backPieces: { Instance } = {}
+	if plot.backDoorArt ~= nil then
+		table.insert(backPieces, plot.backDoorArt :: Model)
+	end
+	local closed = plot.model:FindFirstChild("BackDoorClosed")
+	if closed ~= nil then
+		table.insert(backPieces, closed)
+	end
+	for _, piece in backPieces do
+		if plot.roomBase[piece] == nil then
+			plot.roomBase[piece] = plot.cframe:ToObjectSpace((piece :: any):GetPivot())
+		end
+	end
+
+	local centred = plot.cframe * CFrame.new(0, 0, CafeRoom.centre(depth))
+	-- the shell: the sign's SurfaceGui moves to the new SignBoard, a hidden awning stays hidden, a hidden path too
+	local awningHidden = false
+	for _, descendant in oldShell:GetDescendants() do
+		if descendant:GetAttribute(AWNING_TRANSPARENCY) ~= nil then
+			awningHidden = true
+			break
+		end
+	end
+	local pathShown = plot.shellPath == nil or (plot.shellPath :: Model).Parent ~= nil
+	local shell = place(shellAsset, centred, plot.model)
+	shell.Name = "Shell"
+	removeLawnClashes(shell)
+	local gui = plot.sign:FindFirstAncestorOfClass("SurfaceGui")
+	local board = shell:FindFirstChild("SignBoard", true)
+	if gui ~= nil and board ~= nil and board:IsA("BasePart") then
+		gui.Parent = board
+	end
+	oldShell:Destroy()
+	plot.shell = shell
+	local path = shell:FindFirstChild(shellAsset .. "_Path")
+	plot.shellPath = if path ~= nil and path:IsA("Model") then path :: Model else nil
+	if plot.shellPath ~= nil and not pathShown then
+		(plot.shellPath :: Model).Parent = nil
+	end
+	if awningHidden then
+		WorldBuilder.setAwningHidden(plot, true)
+	end
+	for _, item in { { "Interior", interiorAsset }, { "YardFence", fenceAsset } } do
+		local existing = plot.model:FindFirstChild(item[1])
+		if existing ~= nil then
+			existing:Destroy()
+		end
+		place(item[2], centred, plot.model).Name = item[1]
+	end
+
+	plot.floor.Size = Vector3.new(width, plot.floor.Size.Y, depth)
+	plot.floor.CFrame = centred * CFrame.new(0, -0.2, 0)
+	if plot.zone ~= nil then
+		local zoneBox = plot.zone :: BasePart
+		zoneBox.Size = Vector3.new(width, zoneBox.Size.Y, depth)
+		zoneBox.CFrame = centred * CFrame.new(0, zoneBox.Size.Y / 2, 0)
+	end
+
+	local backShift = CFrame.new(0, 0, CafeRoom.backShift(depth))
+	local backSet: { [Instance]: boolean } = {}
+	for _, piece in backPieces do
+		backSet[piece] = true
+	end
+	for item, base in plot.roomBase do
+		if item.Parent == nil and item ~= plot.counter and item ~= plot.oven then
+			continue -- gone (a crate spot's furniture swapped out); the counter and oven wait out a For Rent plot
+		end
+		local at = if backSet[item]
+			then plot.cframe * backShift * base
+			else plot.cframe * CafeRoom.offset(base, width, depth)
+		if item:IsA("BasePart") then
+			(item :: BasePart).CFrame = at
+		elseif item:IsA("PVInstance") then
+			(item :: PVInstance):PivotTo(at)
+		end
+	end
+
+	for _, child in plot.dressing:GetChildren() do
+		local name = child.Name
+		if name:match("^Tier%d+$") ~= nil or name:sub(1, 7) == "NapBed_" or name == "ForRent" then
+			child:Destroy()
+		end
+	end
+	for _, bed in Layout.plot.beds do
+		local existing = plot.dressing:FindFirstChild(bed.id)
+		if existing ~= nil then
+			existing:Destroy()
+		end
+	end
+
+	plot.room = { width = width, depth = depth }
+	plot.model:SetAttribute("RoomWidth", width)
+	plot.model:SetAttribute("RoomDepth", depth)
+	return true
+end
+
 -- The one door sign (#1140, Model-Agent #1346): CatCafe_Decor_DoorSign hangs from the shell's SignHook (the middle
 -- of the front transom's underside), unturned so OPEN faces the street, while the plot is owned: Dressing/DoorSign.
 -- Every client shows its OPEN board by day and its CLOSED board at night (Effects/DoorSign), so the server places it
 -- once and never swaps it. Nothing on it collides. Skipped while the sign's art or the shell's SignHook is missing.
 -- It replaces the old night-only Closed sign (v0.5 F44, CatCafe_Plot_ClosedSign).
 local DOOR_SIGN = "CatCafe_Decor_DoorSign"
-
--- #1624 (themes.py): a cafe theme brings its own awning, so the shell's `_Awning` child Models hide while one shows.
--- Hiding keeps each part's own transparency in an attribute and puts it back after; nothing on an awning collides.
-local AWNING_TRANSPARENCY = "ThemeTransparency"
 
 function WorldBuilder.setAwningHidden(plot: Plot, hidden: boolean)
 	local shell = plot.shell
@@ -634,8 +780,8 @@ end
 -- where its owner cannot be shoved (data-model section 10c).
 function WorldBuilder.inSafeZone(plot: Plot, position: Vector3, radius: number): boolean
 	local offset = plot.cframe:PointToObjectSpace(position)
-	local halfW = W.PlotWidth / 2 + 1
-	local back = W.PlotDepth / 2 + 1 + W.YardDepth
+	local halfW = plot.room.width / 2 + 1 -- #4543: the room standing now
+	local back = -W.PlotDepth / 2 + plot.room.depth + 1 + W.YardDepth
 	if
 		math.abs(offset.X) <= halfW
 		and offset.Z >= Layout.plot.frontGarden.z1
@@ -993,7 +1139,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local baitCat2 = anchor("BaitCat2", localCFrame(cframe, Layout.plot.baitCat2), model)
 	local richTipAnchor = anchor("RichTipAnchor", localCFrame(cframe, Layout.plot.richTip), model)
 	-- the Cat Collector's spot (F63): CollectorService measures range from it and clients stand him on it
-	anchor("CollectorSpot", localCFrame(cframe, Layout.plot.collectorSpot), model)
+	local collectorSpot =
+		anchor("CollectorSpot", localCFrame(cframe, Layout.plot.collectorSpot), model)
 
 	local napFolder = folder("NapSpots", model)
 	local napSpots: { BasePart } = {}
@@ -1052,7 +1199,42 @@ local function buildPlot(index: number, parent: Instance): Plot
 		lawnSpots = lawnSpots,
 		shell = shell,
 		shellPath = shellPath,
+		room = { width = W.PlotWidth, depth = W.PlotDepth },
+		shellName = shellName,
+		floor = plotFloor,
+		zone = nil,
+		roomBase = {},
 	}
+	-- #4543: every piece the room's walls carry, where it stands in the 44 x 34 room (setRoom moves them by
+	-- CafeRoom.offset). The nap anchors follow their beds (setDressing); the front door, sign and lawn stay put.
+	local carried: { Instance? } = {
+		counter,
+		oven,
+		espresso,
+		backDoor,
+		backDoorZone,
+		baitBowl,
+		baitCat,
+		baitBowl2,
+		baitCat2,
+		richTipAnchor,
+		collectorSpot,
+	}
+	for _, list in
+		{ spots, spotFurniture, decorAnchors, decorSpots, tableAnchors, expansions } :: { any }
+	do
+		for _, item in list do
+			table.insert(carried, item)
+		end
+	end
+	for _, waypoint in waypoints:GetChildren() do
+		table.insert(carried, waypoint)
+	end
+	for _, item in carried do
+		if item ~= nil then
+			plot.roomBase[item] = cframe:ToObjectSpace((item :: any):GetPivot())
+		end
+	end
 	WorldBuilder.setDressing(plot, 0)
 	-- Shut as an empty plot's, and unseen under the real door: the panel was built in sight, and on a plot nobody had
 	-- taken since the server started its green planks stood round the art's leaf, sign and flap frame (Derek's 10-30
@@ -3154,7 +3336,7 @@ function WorldBuilder.build(): World
 	for i = 1, W.PlotCount do
 		local plot = buildPlot(i, plotsFolder)
 		table.insert(plots, plot)
-		zone(
+		plot.zone = zone(
 			"Cafe",
 			Vector3.new(W.PlotWidth, W.WallHeight, W.PlotDepth),
 			plot.cframe * CFrame.new(0, W.WallHeight / 2, 0),

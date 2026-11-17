@@ -1153,9 +1153,13 @@ return function()
 				"Potions are used from your Bag. These need Robux."
 			)
 			expect(StoreLogic.subtitle("deal", true)).to.equal("A new deal every day. These need Robux.")
+			expect(StoreLogic.subtitle("cats", true)).to.equal("Cat helpers are yours to keep. Some need Robux.")
+			expect(StoreLogic.subtitle("packs", true)).to.equal(
+				"Packs are yours to keep. Prices are in golden fish."
+			)
 			expect(StoreLogic.subtitle("cafePass", true)).to.equal("Prices are in golden fish.")
 			expect(StoreLogic.subtitle("passes", true)).to.equal(
-				"Passes are yours to keep. Prices are in golden fish."
+				"Passes are yours to keep. Some need Robux."
 			)
 			expect(StoreLogic.subtitle("passes", false)).to.equal(StoreLogic.subtitle("passes"))
 			expect(StoreLogic.subtitle("codes", true)).to.equal(StoreLogic.SUBTITLE_DEFAULT)

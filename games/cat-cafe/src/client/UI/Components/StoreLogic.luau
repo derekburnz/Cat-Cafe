@@ -88,6 +88,9 @@ local FISH_LINES: { [string]: string } = {
 	featured = "Fish prices show where an item has one.",
 	deal = "These need Robux.",
 	potions = "These need Robux.",
+	-- mixed tabs: the Money passes (Passes) and the Starter Bundle (Cats) are Robux only; short for a phone's header
+	passes = "Some need Robux.",
+	cats = "Some need Robux.",
 }
 
 -- `fish` is the Robux / Fish switch on its Fish side (#4055): the line then says golden fish, as the cards do.

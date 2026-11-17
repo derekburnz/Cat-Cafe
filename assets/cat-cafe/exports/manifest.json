@@ -329697,7 +329697,7 @@
         "CatCafe_Woods_SetF85_281_PineTall",
         "CatCafe_Woods_SetF85_282_OakRound"
       ],
-      "triangles": 136074,
+      "triangles": 130606,
       "budget": 150000,
       "size_studs": {
         "x": 160.0,
@@ -330309,7 +330309,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetF85.model.json",
-      "rbx_parts": 6144,
+      "rbx_parts": 5081,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.glb"
@@ -330322,10 +330322,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "136074/150000 tris",
+          "budget": "130606/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "84848 faces on swatch centers",
+          "uv": "80538 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.33 (want 0)",
           "centered": "footprint center x=0.00 y=0.25"

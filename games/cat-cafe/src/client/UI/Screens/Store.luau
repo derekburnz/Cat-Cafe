@@ -120,10 +120,8 @@ local EFFECT_MIN = 48 -- three small lines at least
 local PERK_H = 20 -- #2147: the gold "+15% money" chip over a card's words
 local PERK_BROWN = Color3.fromHex("4A2E12") -- dark words on gold, as the Pity cat tag
 local EFFECT_MIN_TEXT = 12 -- a card's contents shrink no smaller than this (9 px on a phone) to fit
-local CELL_MAX = 230 -- a grid card no taller than this, however tall the window
-local GRID_COLUMNS = 3
-local NARROW = 520 -- a page narrower than this (design px) gets 2 columns
--- #3572 (the `storeRework` switch, Model-Agent's OK'd mock): a tab's cards two across, each a wide card with its
+local CELL_MAX = 230 -- a Featured pick card no taller than this, however tall the window
+-- #3572 (Model-Agent's OK'd mock): a tab's cards two across, each a wide card with its
 -- picture at the left and the name, what it does and the price button beside it, about three rows in view
 local WIDE_TILE = 76
 local WIDE_NAME_H = 24
@@ -269,12 +267,6 @@ function Store.new(callbacks: Callbacks): Store
 	self._ownedIds = {} :: { [number]: boolean }
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self._cellMin = CARD_PAD + TILE + 6 + EFFECT_MIN + 6 + self._actionHeight + CARD_PAD
-	-- #3572: read once, when the Store is built at join, so a flip never changes a window under a player
-	local reworkAttribute = LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.REWORK_FLAG
-	self._rework = LiveFlags.shown(
-		StoreLogic.REWORK_FLAG,
-		game:GetService("ReplicatedStorage"):GetAttribute(reworkAttribute)
-	)
 	self._wideMin = math.max(
 		CARD_PAD + WIDE_NAME_H + 2 + WIDE_EFFECT_MIN + 6 + self._actionHeight + CARD_PAD,
 		WIDE_TILE + 2 * CARD_PAD
@@ -326,7 +318,7 @@ function Store.new(callbacks: Callbacks): Store
 		}),
 		Outline.listPadding(7), -- #2294: room for the tabs' outlines, and the scroll bar on the right
 	})
-	for order, tab in StoreLogic.railTabs(self._rework) do
+	for order, tab in StoreLogic.TABS do
 		local id = tab.id
 		self._railButtons[id] = Button.new({
 			name = id,
@@ -530,10 +522,10 @@ function Store.new(callbacks: Callbacks): Store
 		}),
 	})
 
-	-- #3572: with the rework on, the Potions tab leads with what the bag already holds (StoreLogic.bag), filled by
-	-- setBag; the list moves down under it on that tab only
+	-- #3572: the Potions tab leads with what the bag already holds (StoreLogic.bag), filled by setBag; the list moves
+	-- down under it on that tab only
 	self._bag = {} :: { StoreLogic.BagEntry }
-	if self._rework then
+	do
 		local strip: Frame = Create("Frame", {
 			Name = "BagStrip",
 			BackgroundColor3 = CARD.goldCard,
@@ -580,7 +572,7 @@ function Store.new(callbacks: Callbacks): Store
 	return self :: Store
 end
 
--- #3572: the potions the bag holds, for the Potions tab's strip (rework only). One chip per potion: its flask and
+-- #3572: the potions the bag holds, for the Potions tab's strip. One chip per potion: its flask and
 -- "x3", as the OK'd mock; the pack cards under it name each potion beside the same flask.
 -- #4055 (the golden fish plan Derek OK'd, 2026-11-13 23:53 UTC): the Robux / Fish switch in the title bar, left of the
 -- X, with the player's golden fish beside it. It shows only while the fishStore switch is on (PlayerState.fishStore).
@@ -686,9 +678,7 @@ function Store.setFish(self: any, list: { StoreLogic.FishRow }?, have: number)
 		if not on then
 			self._fishMode = false
 			self._armed = nil
-			if self._rework then
-				self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, false))
-			end
+			self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, false))
 		end
 		self:_paintSwitch()
 	end
@@ -702,9 +692,7 @@ function Store.setFishMode(self: any, on: boolean)
 		return
 	end
 	self._fishMode = mode
-	if self._rework then
-		self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, mode)) -- the header line names what prices show
-	end
+	self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, mode)) -- the header line names what prices show
 	self:_paintSwitch()
 	self:_repaint()
 end
@@ -912,8 +900,8 @@ function Store._makeCard(
 	order: number
 ): any
 	local hero = look == "hero"
-	-- #3572: with the rework on, a tab page's card is a wide one (WIDE_TILE): the Featured cards stay as they are
-	local wide = self._rework and slot:sub(1, 5) == "grid:"
+	-- #3572: a tab page's card is a wide one (WIDE_TILE): the Featured cards stay as they are
+	local wide = slot:sub(1, 5) == "grid:"
 	local card: Frame = Create("Frame", {
 		Name = slot,
 		LayoutOrder = order,
@@ -1524,14 +1512,12 @@ function Store._layout(self: any)
 		hero.effect.TextSize = hero.effectMax
 		self:_place(hero)
 	end
-	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room. A tab with one card (the Cafe Pass)
-	-- gives it the whole width, so its long contents keep readable text on a phone.
+	-- the grid (#3572): 2 across, about 3 rows in view when there is room. A tab with one card (the Cafe Pass) gives it
+	-- the whole width, so its long contents keep readable text on a phone.
 	local single = #StoreLogic.tabRows(self._rows, self._tab) == 1
-	local columns = if single then 1 elseif width < NARROW or self._rework then 2 else GRID_COLUMNS
+	local columns = if single then 1 else 2
 	local cellW = math.floor((width - SCROLL_BAR - (columns - 1) * spacing) / columns)
-	local cellH = if self._rework
-		then math.clamp(math.floor((height - 2 * spacing) / 3), self._wideMin, WIDE_MAX)
-		else math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
+	local cellH = math.clamp(math.floor((height - 2 * spacing) / 3), self._wideMin, WIDE_MAX)
 	self._grid.CellSize = UDim2.fromOffset(cellW, cellH)
 	-- #4026: pack cards two a row where each keeps PACK_MIN_W, else one; the art is the lower part of the 2:1 render
 	-- (the cats close up), ART_RATIO wide
@@ -2016,10 +2002,7 @@ function Store.showTab(self: any, tab: string)
 	for id, button in self._railButtons do
 		button:setStyle(if id == self._tab then "gold" else "ghost")
 	end
-	if self._rework then
-		-- #3572: the tab's header line
-		self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, self._fishMode))
-	end
+	self._panel:setTitle("Store", StoreLogic.subtitle(self._tab, self._fishMode)) -- #3572: the tab's header line
 	-- #1823 §4: opening a tab clears its New dot, and the server saves it once
 	if self._new[self._tab] then
 		self._new[self._tab] = nil
@@ -2296,10 +2279,8 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	self._empty.Visible = #rows == 0
 	-- the grid: a card per row, kept for the next render
 	local shown: { [string]: boolean } = {}
-	-- #3572: with the rework on, each tab cheapest first (StoreLogic.cheapestFirst); the cards are ordered, not moved
-	local gridRows: { StoreLogic.Row } = if self._rework
-		then StoreLogic.cheapestFirst(rows, prices)
-		else rows
+	-- #3572: each tab cheapest first (StoreLogic.cheapestFirst); the cards are ordered, not moved
+	local gridRows: { StoreLogic.Row } = StoreLogic.cheapestFirst(rows, prices)
 	local packOrder = 0
 	for _, row in rows do
 		if row.pack ~= nil then

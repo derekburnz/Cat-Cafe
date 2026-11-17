@@ -327,8 +327,8 @@ return function()
 			for _, tab in StoreLogic.tabs(rows) do
 				table.insert(tabs, tab.id)
 			end
-			-- no Cafe Pass card yet, so no Cafe Pass tab; Codes always (#1428)
-			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,codes")
+			-- no Cafe Pass card yet, so no Cafe Pass tab; Codes always (#1428); #3572: Cats above Passes
+			expect(table.concat(tabs, ",")).to.equal("featured,cats,passes,codes")
 		end)
 
 		it("lights a New dot only on a tab the rail shows (#1823 section 4)", function()
@@ -1134,17 +1134,15 @@ return function()
 		end)
 	end)
 
-	describe("the reworked Store (#3572, storeRework)", function()
-		it("puts Cats above Passes on the rail with the rework on, as before without", function()
+	describe("the reworked Store (#3572)", function()
+		it("puts Cats above Passes on the rail", function()
 			local ids = {}
-			for _, tab in StoreLogic.railTabs(true) do
+			for _, tab in StoreLogic.TABS do
 				table.insert(ids, tab.id)
 			end
 			expect(table.concat(ids, ",")).to.equal(
 				"featured,deal,packs,cats,passes,potions,cafePass,codes"
 			) -- #4026: Packs under Featured; #4259: Today's Deal's tab right under it
-			expect(StoreLogic.railTabs(false)).to.equal(StoreLogic.TABS)
-			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
 		end)
 
 		it("says golden fish in the header line on the switch's Fish side", function()

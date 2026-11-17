@@ -1148,14 +1148,19 @@ return function()
 		end)
 
 		it("says golden fish in the header line on the switch's Fish side", function()
-			expect(StoreLogic.subtitle("featured", true)).to.equal("Prices are in golden fish.")
+			expect(StoreLogic.subtitle("featured", true)).to.equal("Fish prices show where an item has one.")
+			expect(StoreLogic.subtitle("potions", true)).to.equal(
+				"Potions are used from your Bag. These need Robux."
+			)
+			expect(StoreLogic.subtitle("deal", true)).to.equal("A new deal every day. These need Robux.")
+			expect(StoreLogic.subtitle("cafePass", true)).to.equal("Prices are in golden fish.")
 			expect(StoreLogic.subtitle("passes", true)).to.equal(
 				"Passes are yours to keep. Prices are in golden fish."
 			)
 			expect(StoreLogic.subtitle("passes", false)).to.equal(StoreLogic.subtitle("passes"))
 			expect(StoreLogic.subtitle("codes", true)).to.equal(StoreLogic.SUBTITLE_DEFAULT)
 			for _, tab in StoreLogic.TABS do
-				expect(StoreLogic.subtitle(tab.id, true):find("Robux")).to.equal(nil)
+				expect(StoreLogic.subtitle(tab.id, true):find("Prices are in Robux")).to.equal(nil)
 			end
 		end)
 

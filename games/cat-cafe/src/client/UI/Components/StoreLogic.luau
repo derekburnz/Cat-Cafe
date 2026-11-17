@@ -83,6 +83,13 @@ local SUBTITLES: { [string]: string } = {
 	cafePass = "Prices are in Robux.",
 }
 
+-- The header line's last words on the switch's Fish side, for the tabs whose cards are not all fish priced.
+local FISH_LINES: { [string]: string } = {
+	featured = "Fish prices show where an item has one.",
+	deal = "These need Robux.",
+	potions = "These need Robux.",
+}
+
 -- `fish` is the Robux / Fish switch on its Fish side (#4055): the line then says golden fish, as the cards do.
 function StoreLogic.subtitle(tab: string, fish: boolean?): string
 	local line = SUBTITLES[tab]
@@ -90,7 +97,9 @@ function StoreLogic.subtitle(tab: string, fish: boolean?): string
 		return StoreLogic.SUBTITLE_DEFAULT
 	end
 	if fish then
-		return (line:gsub("Prices are in Robux%.", "Prices are in golden fish."))
+		-- a tab with no fish card (every card reads "Robux only") says so; Featured can hold either kind
+		local to = FISH_LINES[tab] or "Prices are in golden fish."
+		return (line:gsub("Prices are in Robux%.", to))
 	end
 	return line
 end

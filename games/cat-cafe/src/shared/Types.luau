@@ -1509,7 +1509,7 @@ export type PlayerProfile = {
 	tickets: TicketSave, -- #4061 (save version 49): the Ticket Booth
 	dragon: DragonSave, -- #4062 (save version 49): the Dragon Keep
 	fusion: FusionSave, -- #4104 (save version 50): the Fusion Observatory
-	-- #4251 (save version 51, shared/HarvestSave): Harvest Hollow's pumpkins, Stall items bought, the arch's last +10
+	-- #4251 (save version 51, shared/HarvestSave): Harvest Hollow's pumpkins, Stall items bought, the arch's last +40
 	-- day and whether the player caught a harvest cat (the Feast Pie's helpers)
 	harvest: {
 		pumpkins: number,

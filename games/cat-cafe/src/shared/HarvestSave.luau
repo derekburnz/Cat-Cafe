@@ -2,14 +2,14 @@
 -- #4251 Harvest Hollow, the save and the rules the server checks (harvest-hollow-spec sections 3 to 5). Pure: no
 -- services, so the cloud specs read it. shared/HarvestHollow (Design-Agent) holds the Stall's items and dates.
 --   fresh() / sanitize(raw)            profile.harvest (save version 51): pumpkins, Stall items bought, the last day
---                                      the arch's +10 was given, whether this player caught a harvest cat (Feast Pie)
+--                                      the arch's +40 was given, whether this player caught a harvest cat (Feast Pie)
 --   areaBlocker(now, tier, flagOn)     why the area is shut for this player, or nil
 --   buyBlocker(save, id, now, tier, flagOn) why a Stall buy is refused, or nil
 --   buy(save, id)                      spends the pumpkins and marks the item bought (after buyBlocker said nil)
 --   give(save, n)                      adds pumpkins, capped at MAX_PUMPKINS; returns what was added
 --   visit(save, now)                   the first visit of the UTC day: +VISIT_PUMPKINS once a day; returns it or 0
 --   catchPumpkins(rarity)              pumpkins for a harvest cat caught (Common 1 to Mythical 10)
---   regrowSeconds(playersNear)         a picked patch spot's regrow time: 90 s, 45 s with BUSY_PLAYERS or more near
+--   regrowSeconds(playersNear)         a picked patch spot's regrow time: 300 s, 150 s with BUSY_PLAYERS or more near
 --   forClient(save)                    PlayerState.harvest
 --   pieGoal(low) / pieSlices(count, goal) the Feast Pie's goal (PIE_GOAL, or PIE_GOAL_LOW with the harvestPieLow switch
 --                                      on) and its slices baked, 0 to PIE_SLICES (spec section 5)
@@ -29,16 +29,16 @@ local HarvestSave = {}
 export type Save = {
 	pumpkins: number,
 	bought: { [string]: boolean },
-	visitDay: number, -- the UTC day (os.time // 86400) of the last arch +10; 0 for never
+	visitDay: number, -- the UTC day (os.time // 86400) of the last arch +40; 0 for never
 	helped: boolean, -- caught at least one harvest cat (the Feast Pie reward goes to everyone who helped)
 	pieReward: boolean, -- #4251 part 6: got the full Feast Pie's reward (the Feast Pie decor and a banked spin)
 }
 
 HarvestSave.FLAG = "harvestHollow" -- a kill switch, on by default; the dates in HarvestHollow open and close the area
 HarvestSave.MAX_PUMPKINS = 100000
-HarvestSave.VISIT_PUMPKINS = 10
-HarvestSave.REGROW_SECONDS = 90
-HarvestSave.BUSY_REGROW_SECONDS = 45
+HarvestSave.VISIT_PUMPKINS = 40 -- Design-Agent 2026-11-17: was 10; 12 days x 40 is a third of the Stall
+HarvestSave.REGROW_SECONDS = 300 -- Design-Agent 2026-11-17: was 90 (a lone player picked about 480 an hour)
+HarvestSave.BUSY_REGROW_SECONDS = 150 -- was 45
 HarvestSave.BUSY_PLAYERS = 6
 HarvestSave.DAY = 86400
 

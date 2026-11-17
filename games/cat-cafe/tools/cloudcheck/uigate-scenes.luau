@@ -208,7 +208,7 @@ local function samplePlayer(now)
 		achievements = achievements,
 		dailyTreat = { stamp = 2, lastDay = day - 1, due = true, nextDay = 3 },
 		-- #4251: a Harvest Hollow player with 65 pumpkins who bought the Acorn Hat and the Hay Bale Sofa
-		harvest = { pumpkins = 65, bought = { acorn_hat = true, hay_bale_sofa = true } },
+		harvest = { pumpkins = 195, bought = { acorn_hat = true, hay_bale_sofa = true } },
 		-- F91: a lawn half done: two pieces out, two more in the bag, a Red Brick path and the White Picket
 		lawnOwned = {
 			tulip_bed = true,

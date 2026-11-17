@@ -46,35 +46,35 @@ return function()
 
 		it("sells each Stall item once, for its price in pumpkins", function()
 			local save = HarvestSave.fresh()
-			save.pumpkins = 45
+			save.pumpkins = 135
 			expect(HarvestSave.buyBlocker(save, "nope", open, 2, true)).to.equal(
 				"That isn't on the Stall"
 			)
 			expect(HarvestSave.buyBlocker(save, "sunflower_hat", open, 2, true)).to.equal(
-				"You need 5 more pumpkins"
+				"You need 15 more pumpkins"
 			)
 			expect(HarvestSave.buyBlocker(save, "acorn_hat", open, 2, true)).to.equal(nil)
 			expect(HarvestSave.buy(save, "acorn_hat")).to.equal(true)
-			expect(save.pumpkins).to.equal(5)
+			expect(save.pumpkins).to.equal(15)
 			expect(save.bought.acorn_hat).to.equal(true)
 			expect(HarvestSave.buyBlocker(save, "acorn_hat", open, 2, true)).to.equal(
 				"You already have it"
 			)
 			expect(HarvestSave.buy(save, "acorn_hat")).to.equal(false)
-			expect(save.pumpkins).to.equal(5)
+			expect(save.pumpkins).to.equal(15)
 			save.pumpkins = 100
 			expect(HarvestSave.buyBlocker(save, "pumpkin_hat", HarvestHollow.CLOSES_AT, 2, true)).to.equal(
 				"Harvest Hollow is closed"
 			)
 		end)
 
-		it("gives the arch's +10 once a UTC day", function()
+		it("gives the arch's +40 once a UTC day", function()
 			local save = HarvestSave.fresh()
-			expect(HarvestSave.visit(save, open)).to.equal(10)
+			expect(HarvestSave.visit(save, open)).to.equal(40)
 			expect(HarvestSave.visit(save, open + 60)).to.equal(0)
 			local nextDay = (math.floor(open / 86400) + 1) * 86400
-			expect(HarvestSave.visit(save, nextDay)).to.equal(10)
-			expect(save.pumpkins).to.equal(20)
+			expect(HarvestSave.visit(save, nextDay)).to.equal(40)
+			expect(save.pumpkins).to.equal(80)
 		end)
 
 		it("pays a harvest cat by rarity and regrows faster in a busy patch", function()
@@ -83,9 +83,9 @@ return function()
 			expect(HarvestSave.catchPumpkins("Epic")).to.equal(3)
 			expect(HarvestSave.catchPumpkins("Legendary")).to.equal(5)
 			expect(HarvestSave.catchPumpkins("Mythical")).to.equal(10)
-			expect(HarvestSave.regrowSeconds(1)).to.equal(90)
-			expect(HarvestSave.regrowSeconds(5)).to.equal(90)
-			expect(HarvestSave.regrowSeconds(6)).to.equal(45)
+			expect(HarvestSave.regrowSeconds(1)).to.equal(300)
+			expect(HarvestSave.regrowSeconds(5)).to.equal(300)
+			expect(HarvestSave.regrowSeconds(6)).to.equal(150)
 		end)
 
 		it("caps pumpkins and hands the client a copy", function()

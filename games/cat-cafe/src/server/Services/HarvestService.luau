@@ -6,10 +6,10 @@
 --     tagged HarvestStall (the window closes past that on the client). Saved in profile.harvest.bought.
 --   The Pumpkin Patch: every BasePart (or Model) tagged HarvestPumpkin is a pickup shared by the whole server. A
 --     player who touches a ready one gets +1 and it regrows after HarvestSave.regrowSeconds (45 s with 6 or more
---     players near it, else 90 s). Attributes for the client: Ready (boolean) and RegrowAt (os.time).
+--     players near it, else 300 s). Attributes for the client: Ready (boolean) and RegrowAt (os.time).
 --   Touches count only with the player's root within TOUCH_STUDS (plus half the part's or model's size) of the spot.
 --   The arrival: a trip that lands in the area (TravelService calls arrived(player)), or a touch on the part tagged
---     HarvestArrival, gives the first visit of the UTC day +10.
+--     HarvestArrival, gives the first visit of the UTC day +40.
 --   HarvestService.caught(player, rarity): pumpkins for a harvest cat caught and marks the player as a Feast Pie
 --     helper (wired once the harvest cats are in the Catalog).
 --   The world (World/HarvestWorld): the arch in the Town Square ARCH_EARLY_SECONDS before the area opens with the
@@ -260,7 +260,7 @@ end
 
 -- The arrival mat's touch. A trip lands on the mat by PivotTo, which fires no Touched (Roblox fires it for physics
 -- movement only), so TravelService also calls arrived() as a trip lands (Sync's Studio rerun: a repeat entry got no
--- +10); the mat stays for a touch that does come.
+-- +40); the mat stays for a touch that does come.
 local function arrive(arrival: Instance, player: Player)
 	if not standsAt(player, arrival) or not touchedOk(player) then
 		return

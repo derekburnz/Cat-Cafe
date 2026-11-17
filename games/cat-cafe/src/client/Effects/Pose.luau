@@ -774,6 +774,22 @@ local function track(rig: Rig, moved: Vector3, now: number)
 	rig.stride += ground / Logic.strideLength(rig.speed)
 end
 
+-- #4601: whether the server moved the cat since it was last drawn, or an ease is still running (Cats redraws such a
+-- cat on the frames its animHz throttle skips).
+function Pose.pending(rig: Rig): boolean
+	if rig.usesMotors or rig.bodyIndex == 0 then
+		return false
+	end
+	if rig.easing then
+		return true
+	end
+	if rig.bodyIndex > #rig.parts then
+		return false
+	end
+	local body = rig.parts[rig.bodyIndex]
+	return body.Parent ~= nil and body.CFrame ~= rig.written[rig.bodyIndex]
+end
+
 -- Reads where the server has the cat this frame: re-reads any part the server moved and updates the speed and
 -- stride. False once the cat has gone or lost a part (Cats then drops the rig and binds the cat afresh).
 -- `ease` (seconds, #4601 strayWalkSlow): a server step is not snapped to but eased into over that long, the whole cat

@@ -363,7 +363,9 @@ local function makeSprout(ground: Vector3, total: number): Sprout
 	fill.CFrame = flat * CFrame.new(0.06, 0, 0)
 	fill.Parent = model
 	local mound = Context.effectPart("Mound", p.sproutMound, p.sproutSoil)
-	mound.Shape = Enum.PartType.Ball
+	local dome = Instance.new("SpecialMesh") -- a Ball part is always round; a sphere mesh fills the flat box
+	dome.MeshType = Enum.MeshType.Sphere
+	dome.Parent = mound
 	mound.CFrame = CFrame.new(ground)
 	mound.Parent = model
 	local shoot = Context.effectPart("Shoot", p.sproutShoot, p.regrowColour)

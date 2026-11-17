@@ -11,7 +11,7 @@
 --   reached(caught, visited) -> boolean       the first steps are done, up to the Park (#3893)
 --   phase(area) -> "visit" | "catch"          by where the player is
 --   goal(phase) -> string                     the goal card's line
---   rest() -> Rest, step(rest, dt, moving) -> boolean   the trail's rest and return; true while it may show
+--   rest() -> Rest, step(rest, dt, moving, back?) -> boolean   the trail's rest and return; true while it may show
 --   restart(rest)                              the phase changed: the trail gets its full time again
 
 local ParkTrailLogic = {}
@@ -23,6 +23,12 @@ ParkTrailLogic.VISIT = "Visit the Park 🐾"
 ParkTrailLogic.CATCH = "Catch a Park cat 🐾"
 ParkTrailLogic.REST_AFTER = 120
 ParkTrailLogic.IDLE_BACK = 20
+-- #5045 (v8 read Nov 17: 12% of Tier 2 players never reach the Park, and most who do take 3 to 10 minutes): a player
+-- who keeps walking never stands still for IDLE_BACK seconds, so after REST_AFTER the trail was gone for good. Behind
+-- the `parkTrailBack` switch (off by default) a rest also ends after BACK_AFTER seconds, walking or not.
+ParkTrailLogic.BACK_FLAG = "parkTrailBack"
+ParkTrailLogic.BACK_AFTER = 30
+ParkTrailLogic.BACK = "back" -- TelemetryReport park_trail value: the trail came back after a rest, once a session
 ParkTrailLogic.STRAY_RANGE = 400 -- studs: any free stray in the Park, the nearest first
 ParkTrailLogic.TELEMETRY = "park_trail" -- TelemetryReport values: SHOWN, ENTERED, CAUGHT, each once a session
 ParkTrailLogic.SHOWN = "shown"
@@ -30,7 +36,7 @@ ParkTrailLogic.ENTERED = "entered"
 ParkTrailLogic.CAUGHT = "caught"
 
 export type Phase = "visit" | "catch"
-export type Rest = { active: number, idle: number, resting: boolean }
+export type Rest = { active: number, idle: number, resting: boolean, off: number }
 
 -- `on` is the switch, `tier` the cafe's tier, `caught` whether a Park cat is in the collection, `visited` whether the
 -- player has been in the Park this join. #3893 (Derek 2026-11-13: "remove the getting first cat at park have that just
@@ -59,18 +65,23 @@ function ParkTrailLogic.goal(phase: Phase): string
 end
 
 function ParkTrailLogic.rest(): Rest
-	return { active = 0, idle = 0, resting = false }
+	return { active = 0, idle = 0, resting = false, off = 0 }
 end
 
 function ParkTrailLogic.restart(rest: Rest)
-	rest.active, rest.idle, rest.resting = 0, 0, false
+	rest.active, rest.idle, rest.resting, rest.off = 0, 0, false, 0
 end
 
--- `dt` seconds on, `moving` whether the character is walking. Returns whether the trail may show.
-function ParkTrailLogic.step(rest: Rest, dt: number, moving: boolean): boolean
+-- `dt` seconds on, `moving` whether the character is walking, `back` the parkTrailBack switch. Returns whether the
+-- trail may show.
+function ParkTrailLogic.step(rest: Rest, dt: number, moving: boolean, back: boolean?): boolean
 	if rest.resting then
 		rest.idle = if moving then 0 else rest.idle + dt
-		if rest.idle >= ParkTrailLogic.IDLE_BACK then
+		rest.off += dt
+		if
+			rest.idle >= ParkTrailLogic.IDLE_BACK
+			or (back == true and rest.off >= ParkTrailLogic.BACK_AFTER)
+		then
 			ParkTrailLogic.restart(rest)
 		end
 	else
@@ -78,6 +89,7 @@ function ParkTrailLogic.step(rest: Rest, dt: number, moving: boolean): boolean
 		if rest.active >= ParkTrailLogic.REST_AFTER then
 			rest.resting = true
 			rest.idle = 0
+			rest.off = 0
 		end
 	end
 	return not rest.resting

@@ -5992,6 +5992,21 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 			end
 			return { title = title, lines = lines, chip = title }
 		end
+		-- #5038 (switch tier3Path, shared/Tier3Path): at Tier 2 the one next thing toward Tier 3, "Catch 2 more new
+		-- kinds" ("Catch 2 new kinds" on a phone) then "Catch 1 more Rare", with what it opens and the coins line
+		local tier3: unknown = if state ~= nil then state.tier3Goal else nil
+		if state ~= nil and type(tier3) == "table" and state.carrying == nil then
+			local line = tier3 :: { wide: string, narrow: string }
+			local title = if TOUCH then line.narrow else line.wide
+			local opens = GoalLines.opens(self._nextTierName, TOUCH)
+			local lines: { string } = if opens then { opens } else {}
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
+		end
 		-- #3529 (shared/NewKind): "Catch new kinds of cat 3/5" while five different cats is the goal
 		local newKind = if state ~= nil then state.newKindGoal else nil
 		if state ~= nil and type(newKind) == "number" and state.carrying == nil then

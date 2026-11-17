@@ -240,6 +240,13 @@ def _ground():
 
 
 # -------------------------------------------------------------------------------------------------- walls --
+# The light build (#5026: fewer instances for a phone to load on landing). Off by default, so the camp and the nook
+# that borrow from this file keep the old look; build_set turns it on for the set only. A cone exports as three
+# stacked bands, so a palisade stake's point is a flat cut block (as the Woods palisade, Review-QA 2026-11-17: reads
+# fine at landing distance) and a haystack keeps two loose straws of five.
+LIGHT = False
+
+
 def _seg_palisade(b, d, L, k):
     """A timber palisade 10 high: pointed stakes in two woods, two rails across."""
     n = max(4, round(L / 1.8))
@@ -248,7 +255,10 @@ def _seg_palisade(b, d, L, k):
         x = -L / 2 + (i + 0.5) * w
         h = 9.0 + 0.5 * ((i + k) % 3)
         b.box_base((x, 1.0, 0), (w + 0.02, 1.3 + 0.03 * (i % 2), h), (WOOD, "fur_brown")[i % 2], bevel=False)
-        b.cyl_base((x, 1.0, h), w * 0.62, 1.2, (WOOD, "fur_brown")[i % 2], segments=4, radius2=0.05, bevel=False)
+        if LIGHT:
+            b.box_base((x, 1.0, h), (w * 0.6, 0.8, 0.5), ("fur_brown", WOOD)[i % 2], bevel=False)
+        else:
+            b.cyl_base((x, 1.0, h), w * 0.62, 1.2, (WOOD, "fur_brown")[i % 2], segments=4, radius2=0.05, bevel=False)
     for z in (3.0, 7.0):
         b.box_base((0, 0.2, z), (L, 0.4, 0.6), WOOD_DARK, bevel=False)
     b.box_base((0, 2.2, 0), (L, 1.2, 5.0), WOOD_DARK, bevel=False)
@@ -412,7 +422,7 @@ def haystack(mat, s=1.0):
     b = Builder()
     b.cyl_base((0, 0, 0), 2.6 * s, 1.6 * s, STRAW, segments=10, bevel=False)
     b.cyl_base((0, 0, 1.6 * s), 2.6 * s, 1.8 * s, "fur_sand", segments=10, radius2=0.5 * s, bevel=False)
-    for k in range(5):
+    for k in ((0, 2) if LIGHT else range(5)):
         a = 2 * PI * k / 5
         b.box((2.5 * s * math.cos(a), 2.5 * s * math.sin(a), 0.5 * s), (0.1, 0.9, 0.1), "pastel_butter", bevel=False,
               rot=(a + 0.5, "Z"))
@@ -1117,6 +1127,17 @@ def _field_corners(s, mat, put, keep):
 
 
 def build_set(mat):
+    """The set, in the light build (LIGHT): the old look stays the default for every other builder."""
+    global LIGHT
+    old = LIGHT
+    LIGHT = True
+    try:
+        return _build_set(mat)
+    finally:
+        LIGHT = old
+
+
+def _build_set(mat):
     check_layout()
     s = Set(NAME)
     keep = []

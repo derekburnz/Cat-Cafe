@@ -213,6 +213,9 @@ def build_camp(area):
         bb, drop = build_basket(mat, trim)
         bx, bz = BASKET_X, G - PAD_IN
         basket = bb.finalize("CatCafe_Camp_Basket", mat)
+        # its Model's pivot goes onto its own base centre (Set.put, as for a _Swing's hinge), not the set's origin a
+        # whole area away: IntroController finds the basket by GetPivot (Sync, 2026-11-17)
+        basket["hinge"] = (0.0, 0.0, 0.0)
         s.put([basket], bx, bz, -90)
         R = rot_y(-90)
         ATTACHMENTS[name] = [("_Basket", "Drop", Vector((bx, 0, bz)) + R @ drop, R)]

@@ -1508,6 +1508,7 @@ local function applyState(s: Types.PlayerState)
 			then s.rankUpShort
 			else false,
 		rankUpTitle = rankUpTitle(s),
+		tier3Goal = if s.tier3Goal ~= nil then s.tier3Goal else false, -- #5038
 		stuckGoal = stuckGoalActive(s), -- #2912: the goal card's "Free a stuck cat" while the pointer may show
 		-- #3529: the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal; false otherwise
 		newKindGoal = if newKindGoal(s) then kindsOf(s) else false,

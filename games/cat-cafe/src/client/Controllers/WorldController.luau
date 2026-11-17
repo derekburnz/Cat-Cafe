@@ -18,6 +18,7 @@ local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
 local DayLight = require(Shared:WaitForChild("DayLight"))
 local Effects = require(script.Parent.Parent.Effects)
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local NightLights = require(Shared:WaitForChild("NightLights"))
@@ -399,9 +400,71 @@ local function setBloom(night: boolean)
 	end
 end
 
+-- #5164 (players: "the game lags every night and day"): with the `nightSlice` switch on, the change walks the World
+-- and puts on each part's look a slice at a time, SLICE_SECONDS of work a frame, instead of all in one frame. The
+-- walk goes folder by folder (GetChildren), so it never builds one list of the whole World either. A newer change
+-- stops a walk still going.
+local SLICE_FLAG = "nightSlice"
+local SLICE_SECONDS = 0.002
+local nightChange = 0 -- bumped by each setNight, so an older sliced walk sees it is stale
+
+local function sliced(): boolean
+	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SLICE_FLAG) == true
+end
+
+local function setNightSliced(change: number)
+	local started = os.clock()
+	local function pause(): boolean
+		if os.clock() - started < SLICE_SECONDS then
+			return true
+		end
+		task.wait()
+		started = os.clock()
+		return change == nightChange
+	end
+	local world = Workspace:FindFirstChild("World")
+	if isNight and world ~= nil then
+		local stack: { Instance } = { world }
+		while #stack > 0 do
+			local node = table.remove(stack) :: Instance
+			if node.Parent == nil and node ~= world then
+				continue -- streamed out or removed while the walk waited
+			end
+			for _, child in node:GetChildren() do
+				track(child)
+				table.insert(stack, child)
+				if not pause() then
+					return
+				end
+			end
+		end
+	end
+	-- the parts tracked before this change (dusk's walk, or streamed in at night) get this phase's look
+	local parts: { BasePart } = {}
+	for part in dayLooks do
+		table.insert(parts, part)
+	end
+	for _, part in parts do
+		local look = dayLooks[part]
+		if look ~= nil and part.Parent ~= nil then
+			setGlow(part, look)
+		end
+		if not pause() then
+			return
+		end
+	end
+	pickNearLights()
+end
+
 local function setNight(night: boolean)
 	isNight = night
+	nightChange += 1
 	setBloom(night)
+	if sliced() then
+		local change = nightChange
+		task.spawn(setNightSliced, change)
+		return
+	end
 	local world = Workspace:FindFirstChild("World")
 	if world ~= nil then
 		for _, descendant in world:GetDescendants() do

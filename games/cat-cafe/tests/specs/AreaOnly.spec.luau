@@ -1,5 +1,5 @@
 --!strict
--- #5026: far areas' night fences stream with the areaOnly switch on (shared/AreaOnly).
+-- #5026: far areas' night fences and camp cannons stream with the areaOnly switch on (shared/AreaOnly).
 
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -17,6 +17,13 @@ return function()
 			expect(AreaOnly.fenceMode(true)).to.equal(Enum.ModelStreamingMode.Atomic)
 			expect(AreaOnly.fenceMode(false)).to.equal(Enum.ModelStreamingMode.Persistent)
 			expect(AreaOnly.STEP > 0).to.equal(true)
+		end)
+
+		it("streams every camp cannon and never the Town Square's", function()
+			expect(AreaOnly.cannonStreams("alley")).to.equal(true)
+			expect(AreaOnly.cannonStreams("castle")).to.equal(true)
+			expect(AreaOnly.cannonStreams("town")).to.equal(false)
+			expect(AreaOnly.cannonStreams(nil)).to.equal(false)
 		end)
 	end)
 end

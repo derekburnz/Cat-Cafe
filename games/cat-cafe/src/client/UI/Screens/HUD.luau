@@ -1218,6 +1218,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	self._tradeTile.instance.Visible = false
 	table.insert(self._buttons, self._tradeTile)
+	-- #5086 (Review-QA's QoL pass, small phone): a clean tile's word may run 14 px past each side of its square, and
+	-- "Rewards" and "Feedback" did, into the next tile across the row's gap. Here each word keeps to its square's width
+	-- (its outline then fills the gap's edge) and shrinks a notch (never under FitText.MIN) rather than touch its
+	-- neighbour.
+	local FitText = require(script.Parent.Parent.Components.FitText)
+	for _, tile in icons:GetChildren() do
+		local found = tile:FindFirstChild("Label")
+		if found ~= nil and found:IsA("TextLabel") then
+			local word = found :: TextLabel
+			word.Size = UDim2.new(1, 0, 0, word.Size.Y.Offset)
+			FitText.shrink(word)
+		end
+	end
 	-- The short list the Rewards and Menu tiles open under the icon row (_openPop): a dark card of full-width rows.
 	local pop = hudPanel("Pop", {
 		AnchorPoint = Vector2.new(1, 0),

@@ -6444,10 +6444,14 @@ do
 		if card ~= nil and card:isVisible() then
 			card:setClear(if bar ~= nil then bar:top() else nil)
 		end
-		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen
+		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen, or while an
+		-- admin event's countdown, splash or end card has the middle (Sync's phone look on #5041: a first visit card
+		-- popped up over the Money Storm splash; new cards already wait through it, this covers one already up)
 		local ask = askCard
-		if ask ~= nil and popups ~= nil then
-			ask.screenGui.Enabled = not popups:isShowing()
+		if ask ~= nil then
+			ask.screenGui.Enabled = not (
+				(popups ~= nil and popups:isShowing()) or UI.cutscene.quiet.adminFlash == true
+			)
 		end
 		if ask ~= nil then
 			ask:follow()

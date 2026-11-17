@@ -40,9 +40,6 @@
 -- - `parkGateTrail` (#3554): after Tier 2 the goal card reads "Visit the Park" and a trail of paw prints leads to the
 --   nearest Cat Cannon, then to the first Park stray (UI/Components/ParkTrailLogic). It starts OFF (OFF_BY_DEFAULT);
 --   off, nothing shows.
--- - `storeRework` (#3572): the Store as in Model-Agent's OK'd mock: Cats above Passes on the rail, each tab cheapest
---   first, two columns of cards with the picture at the left and the price button under the words
---   (client/UI/Screens/Store). It starts OFF (OFF_BY_DEFAULT); read by the client alone, once when the Store is built.
 -- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
 --   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
 --   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
@@ -80,7 +77,6 @@ LiveFlags.KEYS = {
 	"luckyCharm",
 	"introSplit",
 	"parkGateTrail",
-	"storeRework", -- #3572: the reworked Store layout
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
@@ -147,7 +143,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	backdropsNear = true, -- #4857
 	firstFlightQuick = true, -- #4920: on once the effects scale by CannonFlightScale
 	parkGateTrail = true,
-	storeRework = true,
 	fishStore = true,
 	ticketBooth = true,
 	dragonKeep = true,
@@ -191,7 +186,7 @@ LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribu
 -- #4607, #4613: a fresh server copies the defaults out at once and the store's switches only after its first read, a
 -- few seconds later. It sets this ReplicatedStorage attribute true once that first read has been tried (or at once
 -- where nothing is read), and the client waits for it before it builds anything that takes a switch once (the menu
--- family look, the Store's rework), so nobody who joins a new server keeps an old look.
+-- family look), so nobody who joins a new server keeps an old look.
 LiveFlags.READY_ATTRIBUTE = "LiveFlagsReady"
 LiveFlags.CLIENT_WAIT_SECONDS = 8 -- #4613: Main.client's wait, before any UI module latches a switch
 LiveFlags.READY_WAIT = 6 -- #4607: UIController's own wait, which ends at once after Main.client's

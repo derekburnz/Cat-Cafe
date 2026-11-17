@@ -10809,7 +10809,7 @@ do
 			local list = if up or next(unseen) ~= nil then rows() else nil
 			screen:setNew(if list then StoreLogic.newTabs(unseen, list) else {})
 			if up and list then
-				-- #3572: the Potions tab's bag strip (rework only)
+				-- #3572: the Potions tab's bag strip
 				screen:setBag(StoreLogic.bag(view()))
 				-- #4055: the Robux / Fish switch, while the fishStore switch is on
 				screen:setFish((state :: any).fishStore, state.goldenFish or 0)
@@ -10923,7 +10923,7 @@ do
 			onOpen = function()
 				shop.reported = {} -- #1888: a new Store visit, a new funnel session
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
-				-- #3572: the Potions tab's bag strip (rework only)
+				-- #3572: the Potions tab's bag strip
 				screen:setBag(StoreLogic.bag(view()))
 				screen:setFish((state :: any).fishStore, state.goldenFish or 0) -- #4055
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238

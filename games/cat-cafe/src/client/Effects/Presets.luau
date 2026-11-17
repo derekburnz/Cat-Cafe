@@ -1959,7 +1959,10 @@ Presets.purchase = {
 -- Cat motion. Angles in degrees, distances in studs, times in seconds.
 Presets.motion = {
 	-- #4601 strayWalkSlow (Model-Agent's server step of a stray walk at 10 Hz): Cats eases each server step in over
-	-- this long instead of snapping to it (Pose.read's `ease`); read straight off the switch, off by default
+	-- this long instead of snapping to it (Pose.read's `ease`); read straight off the switch, off by default.
+	-- While the server's walk is set on the model (WalkFrom, WalkTo, WalkSpeed, WalkAt, Model-Agent's #5139) the cat is
+	-- drawn exactly where that walk has it now, and only a write's small miss, or the walk starting and ending, is eased
+	-- (Sync's Alley runs: an ease that trailed the writes, and then a guess at the speed, both wobbled)
 	stepEase = { flag = "strayWalkSlow", seconds = 0.1 },
 	breathe = { studs = 0.03, seconds = 2.6 },
 	-- The shape of one breath while asleep or resting (Logic.breath): the belly fills over `inhale` of the cycle,

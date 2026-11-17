@@ -4616,4 +4616,19 @@ function Logic.easeShare(since: number, seconds: number): number
 	return math.clamp(since / seconds, 0, 1)
 end
 
+-- #4601: where on the ground a straight walk from `from` along `way` (flat, `length` studs long) is `since` seconds
+-- after it set off at `speed` studs a second; it stops at the end. Pure.
+function Logic.walkAlong(
+	from: Vector3,
+	way: Vector3,
+	length: number,
+	speed: number,
+	since: number
+): Vector3
+	if length < 1e-3 then
+		return from
+	end
+	return from + way.Unit * math.clamp(speed * since, 0, length)
+end
+
 return Logic

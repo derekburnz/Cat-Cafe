@@ -1290,7 +1290,7 @@ do
 			Second.step(player, profile, SecondCat.FOLLOWED)
 			if
 				M.Onboarding.cleanWants(
-					profile.telemetry.cleanV8Step or 0,
+					profile.telemetry.cleanV9Step or 0,
 					M.Onboarding.CLEAN_EVENTS.nearStray
 				)
 			then

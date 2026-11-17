@@ -215,7 +215,7 @@ introFunnel=onboarding_v4_intro
 # and first_hour_v3 stopped being sent with them and keep their labels for a window that starts before.
 cleanFunnel=
 cleanSteps=()
-# #4504: onboarding_v8 is the clean funnel while the walk-through runs bowl first (catchFirst false, #4518), and
+# onboarding_v9 (Derek 2026-11-17, replaced v8 of #4504) is the clean funnel while the walk-through runs bowl first (catchFirst false, #4518), and
 # onboarding_v7 while it runs today's order; v7's rows keep their labels through V7_CLEAN_STEPS
 cleanV7Funnel=onboarding_v7
 cleanV7Steps=()

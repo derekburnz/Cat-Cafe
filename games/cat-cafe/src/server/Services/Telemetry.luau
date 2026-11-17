@@ -1116,9 +1116,9 @@ local function logClean(player: Player, profile: Profile, event: string?)
 		return
 	end
 	local state = profile.telemetry
-	local logged = state.cleanV8Step or 0
+	local logged = state.cleanV9Step or 0
 	if logged == 0 and Onboarding.reached(state, "first_catch") then
-		state.cleanV8Step = Onboarding.CLEAN_COUNT -- #4504: began on v7 before the switch: out of v8
+		state.cleanV9Step = Onboarding.CLEAN_COUNT -- #4504: began before the funnel: out of it
 		return
 	end
 	if logged >= Onboarding.CLEAN_COUNT then
@@ -1138,9 +1138,13 @@ local function logClean(player: Player, profile: Profile, event: string?)
 		handCats = if type(caught) == "number"
 			then caught - (if type(tamed) == "number" then tamed else 0)
 			else 0,
+		tamed = if type(tamed) == "number" then tamed else 0, -- onboarding_v9
+		ownedCats = ProfileSchema.catCount(profile),
+		-- (only asked between Tier 2 and Tier 3, the one ready step after the walk-through)
+		nextReady = Economy.tier(profile) == 2 and Economy.rankUpBlocker(profile) == nil,
 	}
 	for _, step in Onboarding.cleanDue(state, logged, facts, event) do
-		state.cleanV8Step = step
+		state.cleanV9Step = step
 		sendClean(player, profile, Onboarding.CLEAN_FUNNEL, step, Onboarding.CLEAN_STEPS[step])
 	end
 end
@@ -1433,6 +1437,14 @@ function Telemetry.custom(player: Player, name: CustomEvent, value: number, valu
 	send(player, "custom " .. name, function()
 		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))
 	end)
+	-- onboarding_v9: some of its moments are these events (Onboarding.cleanFromCustom)
+	local moment = Onboarding.cleanFromCustom(name, fields)
+	if moment ~= nil then
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			logClean(player, profile, moment)
+		end
+	end
 end
 
 -- Logs the net swings counted since the last roll up, one net_swing event per result, net level and device.

@@ -366,6 +366,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			firstHourV3Step = 0,
 			cleanStep = 0,
 			cleanV8Step = 0, -- #4504
+			cleanV9Step = 0, -- onboarding_v9
 			playtimeStep = 0,
 		},
 		tipsSeen = {},
@@ -856,6 +857,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		firstHourV3Step = 0,
 		cleanStep = 0,
 		cleanV8Step = 0,
+		cleanV9Step = 0,
 		playtimeStep = 0,
 	}
 	if type(value) ~= "table" then
@@ -917,7 +919,13 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	-- #4504: onboarding_v8 (cleanV8Step, logged while the walk-through runs bowl first) the same way
 	local cleanV8Step = value.cleanV8Step
 	telemetry.cleanV8Step = if type(cleanV8Step) == "number"
-		then math.clamp(asInt(cleanV8Step, 0), 0, Onboarding.CLEAN_COUNT)
+		then math.clamp(asInt(cleanV8Step, 0), 0, Onboarding.V8_CLEAN_COUNT)
+		elseif Onboarding.cleanStart(telemetry) > 0 then Onboarding.V8_CLEAN_COUNT
+		else 0 -- (v8 is no longer logged: onboarding_v9 took its place)
+	-- onboarding_v9 (cleanV9Step), as v8 was
+	local cleanV9Step = value.cleanV9Step
+	telemetry.cleanV9Step = if type(cleanV9Step) == "number"
+		then math.clamp(asInt(cleanV9Step, 0), 0, Onboarding.CLEAN_COUNT)
 		else Onboarding.cleanStart(telemetry)
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"

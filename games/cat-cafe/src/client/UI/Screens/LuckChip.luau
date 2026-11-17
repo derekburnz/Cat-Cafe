@@ -22,6 +22,7 @@ local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -51,6 +52,8 @@ local TITLE_ICON = 22 -- the card title's circle
 local TITLE_GAP = 6
 local PILL_H = 22 -- #1776: a rarity pill
 local PILL_GAP = 4
+
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 local LuckChip = {}
 
@@ -303,6 +306,20 @@ function LuckChip.new(
 		})
 		self._pills[index] = pill
 	end
+	-- The Town Square pity sign's lines ("Legendary cat in 12:30", "Mythical cat in 1:42:10", "Now in the Woods!"),
+	-- ticking while the card is open. Their old way in on a plain day, the day line under the clock, is gone (#4990).
+	self._pity = label({
+		Name = "Pity",
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		LayoutOrder = 6,
+		Parent = list,
+	})
+	self._pityLoop = nil :: RBXScriptConnection?
 	self._hint = label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -433,6 +450,7 @@ function LuckChip.toggle(self: any)
 	self._said = nil
 	self._onOpen()
 	self:_renderCard()
+	self:_paintPity() -- before the card is placed, so its height counts the lines
 	self:_place()
 	self._hint.Text = if GamepadNav.on() and GamepadNav.isGamepad()
 		then "Press B to close"
@@ -440,6 +458,15 @@ function LuckChip.toggle(self: any)
 	self.card.Visible = true
 	Tween.popIn(self.card, 0.9)
 	Sound.play("uiClick")
+	self:_stopPity()
+	local pityClock = 0
+	self._pityLoop = RunService.Heartbeat:Connect(function(dt: number)
+		pityClock += dt
+		if pityClock >= 1 then
+			pityClock = 0
+			self:_paintPity()
+		end
+	end)
 	-- #4224: a controller lands on the card and B closes it
 	self._padDone = GamepadNav.card("luckCard", self.card, function()
 		self:hide()
@@ -488,10 +515,24 @@ end
 
 function LuckChip.hide(self: any)
 	self.card.Visible = false
+	self:_stopPity()
 	local done: (() -> ())? = self._padDone
 	self._padDone = nil
 	if done ~= nil then
 		done()
+	end
+end
+
+function LuckChip._paintPity(self: any)
+	local t = Workspace:GetServerTimeNow() - Config.ClockEpoch
+	self._pity.Text = table.concat(PityLogic.lines(PityLogic.view(t, PityLogic.current())), "\n")
+end
+
+function LuckChip._stopPity(self: any)
+	local loop: RBXScriptConnection? = self._pityLoop
+	if loop then
+		loop:Disconnect()
+		self._pityLoop = nil
 	end
 end
 
@@ -572,6 +613,7 @@ function LuckChip.setDay(self: any, view: LuckLogic.DayView?)
 end
 
 function LuckChip.destroy(self: any)
+	self:_stopPity()
 	local loop: RBXScriptConnection? = self._loop
 	if loop then
 		loop:Disconnect()

@@ -11151,6 +11151,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			assert(found, "uigate: the Luck card does not list " .. want .. " (#4990)")
 		end
+		-- #1572 (1h): the pity sign's two lines, on the Luck card since the day line went
+		local pity = (card :: GuiObject):FindFirstChild("Pity", true) :: TextLabel
+		assert(pity and pity.Visible and string.find(pity.Text, "Legendary cat", 1, true), "uigate: the Luck card has no pity lines (#1572)")
+		assert(string.find(pity.Text, "Mythical cat", 1, true), "uigate: the Luck card has no Mythical pity line (#1572)")
+		assert(pity.TextFits, "uigate: the Luck card's pity lines are cut: " .. pity.Text)
+		local foot = (card :: GuiObject).AbsolutePosition.Y + (card :: GuiObject).AbsoluteSize.Y
+		assert(foot <= hud.AbsoluteSize.Y + 1, ("uigate: the Luck card runs %d px off the bottom of the screen"):format(foot - hud.AbsoluteSize.Y))
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)

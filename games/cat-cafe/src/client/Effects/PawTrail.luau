@@ -12,10 +12,12 @@
 --
 -- Design 2026-11-17 (the top Effects cost in the Alleyway, with one 14 ms frame when a trail first showed):
 -- each print is a part, a SurfaceGui and ten frames, so building a whole trail's worth in one frame was the spike.
--- Prints are now built ahead, one a frame after start up to `pool` (GuideTrail's most dots), kept switched off when
--- a dot goes away and handed to the next dot instead of destroyed; past the pool no more than `buildsPerFrame` are
--- built in a frame (a dot still waiting shows as GuideTrail's own dot for that frame). A print is only moved when its
--- dot or the dot it faces moved. What shows is the same.
+-- Prints are now built ahead up to `pool` (GuideTrail's most dots), kept switched off when a dot goes away and handed
+-- to the next dot instead of destroyed, and no more than `buildsPerFrame` are built in a frame. A print is only moved
+-- when its dot or the dot it faces moved.
+-- #4601 (Review-QA: 48 prints, about 600 instances, on every client from start, even for players who never see a
+-- trail): the building ahead starts with the first trail, `buildsPerFrame` a frame, and a dot whose print is not
+-- built yet is hidden like the rest, so its print shows up a frame or two later instead of a gold dot first.
 --
 -- Roblox terms: a SurfaceGui is 2D UI drawn on one face of a part, here an invisible flat part lying on the ground.
 -- A CanvasGroup is a frame whose children fade together with one number.
@@ -44,7 +46,8 @@ local prints: { [BasePart]: Paw } = {}
 local home: Folder? = nil
 local spare: { Paw } = {} -- built and switched off, for the next dot
 local built = 0 -- prints built this frame
-local warm = 0 -- prints built ahead so far
+local warm = 0 -- prints built so far, ahead or for a dot
+local trailSeen = false -- a trail has shown on this client: build the pool ahead from then on
 
 -- Which side of the line the paw at `index` (from 1) falls on: 1 right, -1 left, in turn.
 function PawTrail.side(index: number): number
@@ -157,6 +160,7 @@ local function take(): Paw?
 		return nil
 	end
 	built += 1
+	warm += 1
 	local paw = make()
 	paw.gui.Enabled = false
 	return paw
@@ -200,7 +204,8 @@ local function draw(folder: Instance)
 			found = take()
 			if found == nil then
 				last = here
-				continue -- built next frame; GuideTrail's dot shows till then
+				dot.LocalTransparencyModifier = 1 -- its print comes in a frame or two
+				continue
 			end
 		end
 		local paw = found :: Paw
@@ -245,6 +250,7 @@ end
 local function consider(child: Instance)
 	if child:IsA("Folder") and child.Name == Presets.trailSparkle.folder then
 		folders[child] = true
+		trailSeen = true
 	end
 end
 
@@ -259,14 +265,6 @@ function PawTrail.start()
 	Workspace.ChildAdded:Connect(consider)
 	RunService.Heartbeat:Connect(function()
 		built = 0
-		-- one print a frame built ahead, so a trail that shows later finds its prints ready
-		if warm < Presets.pawTrail.pool then
-			warm += 1
-			built = 1
-			local paw = make()
-			paw.gui.Enabled = false
-			table.insert(spare, paw)
-		end
 		for folder in folders do
 			if folder.Parent == nil then
 				clear(folder)
@@ -274,6 +272,15 @@ function PawTrail.start()
 			else
 				draw(folder)
 			end
+		end
+		-- once a trail has shown, the rest of the pool is built ahead with what is left of this frame's builds
+		local p = Presets.pawTrail
+		while trailSeen and warm < p.pool and built < p.buildsPerFrame do
+			built += 1
+			warm += 1
+			local paw = make()
+			paw.gui.Enabled = false
+			table.insert(spare, paw)
 		end
 	end)
 end

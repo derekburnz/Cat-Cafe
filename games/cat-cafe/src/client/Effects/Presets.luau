@@ -7004,8 +7004,8 @@ Presets.pawTrail = {
 	faintest = 0.4, -- the comet's tail fades a print no further than this (GuideTrail's tail is 0.75)
 	rim = { colour = Color3.fromRGB(92, 58, 34), pixels = 2, transparency = 0.45 }, -- cocoa, for pale floors
 	turn = 0,
-	pool = 48, -- Design 2026-11-17: prints built ahead, one a frame (GuideTrail's MAX_DOTS), and kept for reuse
-	buildsPerFrame = 4, -- past the pool, at most this many new prints in one frame
+	pool = 48, -- Design 2026-11-17: prints built ahead from the first trail (GuideTrail's MAX_DOTS), kept for reuse
+	buildsPerFrame = 4, -- at most this many new prints in one frame, for a dot or ahead
 	toes = {
 		{ 0.2, 0.36, 0.2, 0.26 },
 		{ 0.39, 0.2, 0.2, 0.28 },

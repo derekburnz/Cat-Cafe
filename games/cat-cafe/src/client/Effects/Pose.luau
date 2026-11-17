@@ -910,7 +910,15 @@ function Pose.read(rig: Rig, ease: number?): boolean
 	end
 	local walking = shift ~= nil
 	local shifted = if shift ~= nil then shift else IDENTITY
-	if seconds > 0 and (moved or walking ~= rig.walking or walkAt ~= rig.walkAt) then
+	-- A write in the middle of the walk already drawn needs no ease: the walk's line, not the write, says where the
+	-- cat is, so easing onto it only cost a frame (Sync's run on #5150: a lurch then a hold at each 10 Hz write).
+	-- An ease already running carries on.
+	local sameWalk = walking and rig.walking and walkAt == rig.walkAt
+	if
+		seconds > 0
+		and not sameWalk
+		and (moved or walking ~= rig.walking or walkAt ~= rig.walkAt)
+	then
 		local landed = shifted * server[rig.bodyIndex]
 		if (landed.Position - from.Position).Magnitude <= Presets.motion.hiss.jumpStuds then
 			rig.easeFrom = landed:ToObjectSpace(from)
@@ -919,7 +927,7 @@ function Pose.read(rig: Rig, ease: number?): boolean
 		else
 			rig.easing = false
 		end
-	elseif moved then
+	elseif moved and not sameWalk then
 		rig.easing = false
 	end
 	rig.walking = walking

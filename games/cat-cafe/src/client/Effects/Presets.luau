@@ -6469,11 +6469,13 @@ Presets.stationCut = {
 			tag = "ArcadeCabinet",
 			name = "The Cat Arcade",
 			line = "Play Mouse Dash for daily prizes",
+			locked = true, -- StationTiers: hidden below its tier, shown in full after the cut
 		},
 		[4] = {
 			tag = "MysticPool",
 			name = "The Mystic Pool",
 			line = "Give each cat a trait that helps it",
+			locked = true,
 		},
 		[8] = {
 			tag = "FusionObservatory",
@@ -6490,7 +6492,7 @@ Presets.stationCut = {
 			name = "Dragon Keep",
 			line = "Grow Cinder the dragon for bonus cards",
 		},
-	} :: { [number]: { tag: string, name: string, line: string } },
+	} :: { [number]: { tag: string, name: string, line: string, locked: boolean? } },
 	fade = 0.2,
 	appearAt = 0.4,
 	grow = 0.6,
@@ -6506,6 +6508,11 @@ Presets.stationCut = {
 	farthest = 70,
 	rise = 0.35,
 	yaw = 35,
+	-- Sync's run: the camp stations' area gates stood in the way, so these turns from the front are tried in order and
+	-- the first with the camera's whole distance clear wins
+	views = { 35, -35, 0, 70, -70, 110, -110, 180 },
+	clearance = 2, -- studs the camera keeps short of what is in the way when no view is clear
+	closest = 8, -- never nearer than this
 	faceSign = 1,
 	lookUp = 0.1,
 	displayOrder = 11, -- over ContextCut's 10

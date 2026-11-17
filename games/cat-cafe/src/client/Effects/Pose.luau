@@ -72,6 +72,12 @@ export type Rig = {
 	bellyRise: { [Group]: number }, -- of the rise each piece rides, 0 at the bottom of the body to 1 at the top
 	swell: number, -- the swell last drawn, as a share of bellyHeight; 0 at rest
 	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
+	-- #4601 strayWalkSlow (Model-Agent: the server steps a stray's walk at 10 Hz): where the server last put each
+	-- part, and the whole cat's lag behind it being eased away (Pose.read's `ease`)
+	server: { CFrame },
+	easeFrom: CFrame, -- where the body was drawn when the server's new frames came, in the new body's own space
+	easeAt: number,
+	easing: boolean,
 	frames: { CFrame },
 	scale: number, -- the cat's size against the manifest's (its Scale attribute times the model's scale)
 }
@@ -307,6 +313,10 @@ local function newRig(model: Model, body: BasePart): Rig
 		moves = {},
 		frames = {},
 		scale = 1,
+		server = {},
+		easeFrom = CFrame.identity,
+		easeAt = 0,
+		easing = false,
 	}
 end
 
@@ -501,6 +511,7 @@ function Pose.bind(model: Model): Rig?
 			table.insert(rig.groups, group)
 			table.insert(rig.base, part.CFrame)
 			table.insert(rig.written, part.CFrame)
+			table.insert(rig.server, part.CFrame)
 			if part == body then
 				rig.bodyIndex = #rig.parts
 			end
@@ -765,7 +776,10 @@ end
 
 -- Reads where the server has the cat this frame: re-reads any part the server moved and updates the speed and
 -- stride. False once the cat has gone or lost a part (Cats then drops the rig and binds the cat afresh).
-function Pose.read(rig: Rig): boolean
+-- `ease` (seconds, #4601 strayWalkSlow): a server step is not snapped to but eased into over that long, the whole cat
+-- sliding from where it was drawn onto the server's new frames, so a walk the server steps 10 times a second still
+-- looks smooth. A step longer than motion.hiss.jumpStuds (a teleport) still snaps. Nil or 0 reads as before.
+function Pose.read(rig: Rig, ease: number?): boolean
 	if rig.model.Parent == nil or rig.body.Parent == nil then
 		return false
 	end
@@ -778,6 +792,9 @@ function Pose.read(rig: Rig): boolean
 	end
 	local base = rig.base
 	local written = rig.written
+	local server = rig.server
+	local before = base[rig.bodyIndex]
+	local moved = false
 	for i, part in rig.parts do
 		if part.Parent == nil then
 			return false -- a part streamed out or was removed
@@ -785,6 +802,33 @@ function Pose.read(rig: Rig): boolean
 		local frame = part.CFrame
 		if frame ~= written[i] then
 			base[i] = frame
+			server[i] = frame
+			moved = true
+		end
+	end
+	local seconds = ease or 0
+	if moved and seconds > 0 and before ~= nil then
+		local landed = base[rig.bodyIndex]
+		if (landed.Position - before.Position).Magnitude <= Presets.motion.hiss.jumpStuds then
+			rig.easeFrom = landed:ToObjectSpace(before)
+			rig.easeAt = now
+			rig.easing = true
+		else
+			rig.easing = false
+		end
+	elseif moved then
+		rig.easing = false
+	end
+	if rig.easing then
+		local k = Logic.easeShare(now - rig.easeAt, seconds)
+		if k >= 1 then
+			rig.easing = false
+		end
+		-- the lag is eased in the body's own space, so a turn swings about the cat and not the world's origin
+		local body = server[rig.bodyIndex]
+		local lag = body * IDENTITY:Lerp(rig.easeFrom, 1 - k) * body:Inverse()
+		for i, frame in server do
+			base[i] = lag * frame
 		end
 	end
 	local position = base[rig.bodyIndex].Position

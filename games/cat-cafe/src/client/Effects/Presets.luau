@@ -1958,6 +1958,9 @@ Presets.purchase = {
 
 -- Cat motion. Angles in degrees, distances in studs, times in seconds.
 Presets.motion = {
+	-- #4601 strayWalkSlow (Model-Agent's server step of a stray walk at 10 Hz): Cats eases each server step in over
+	-- this long instead of snapping to it (Pose.read's `ease`); read straight off the switch, off by default
+	stepEase = { flag = "strayWalkSlow", seconds = 0.1 },
 	breathe = { studs = 0.03, seconds = 2.6 },
 	-- The shape of one breath while asleep or resting (Logic.breath): the belly fills over `inhale` of the cycle,
 	-- lets out over `exhale`, and rests for the rest. The nap, loaf and doze give the length and the rise.

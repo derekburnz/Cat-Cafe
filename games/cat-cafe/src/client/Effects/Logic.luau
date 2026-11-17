@@ -4607,4 +4607,13 @@ function Logic.tradeUnlock(t: number, p: TradeUnlockSpec, still: boolean): Trade
 	return frame
 end
 
+-- How far along an ease of `seconds` is after `since` seconds: 0 at the start, 1 done (#4601, Pose.read's server
+-- step ease).
+function Logic.easeShare(since: number, seconds: number): number
+	if seconds <= 0 then
+		return 1
+	end
+	return math.clamp(since / seconds, 0, 1)
+end
+
 return Logic

@@ -2458,9 +2458,12 @@ local function flee(stray: Stray, player: Player, selfRetry: number)
 	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
 	stray.jumping = true
 	stray.home = target -- it wanders from where it stopped, not back toward whoever missed (reviewer N52)
+	-- #4601: the sprint takes over from any walk still running, so two walks never move the cat at once
+	stray.walk += 1
+	local walk = stray.walk
 	task.spawn(function()
 		Mover.walkTo(stray.model, target, M.Config.StrayFleeSpeed, function()
-			return stray.alive and stray.lockedBy == 0
+			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
 		end)
 		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
 		stray.jumping = false

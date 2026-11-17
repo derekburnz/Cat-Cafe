@@ -164,6 +164,7 @@ CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags
 require(script.Parent.Services.LeaveCleanupService).start() -- server memory: old characters and leavers destroyed
+require(script.Parent.Services.AreaOnlyService).start() -- #5026: fences, camp cannons and other cafes stream (areaOnly switch)
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes

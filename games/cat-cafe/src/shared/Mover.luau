@@ -66,15 +66,21 @@ function Mover.walkTo(
 	local elapsed = 0
 	local slowed = draw == nil and slow()
 	local start = model:GetPivot().Position
-	local track = if slowed then tracks[model] else nil
+	local prior = if slowed then tracks[model] else nil
 	if
-		track ~= nil
-		and track.placed ~= nil
-		and model:GetPivot().Position:FuzzyEq(track.placed.Position, 1e-3)
+		prior ~= nil
+		and prior.placed ~= nil
+		and model:GetPivot().Position:FuzzyEq(prior.placed.Position, 1e-3)
 	then
-		start = track.ground -- nobody else moved it since that walk's last write
+		start = prior.ground -- nobody else moved it since that walk's last write
 	end
 	local ground = Vector3.new(start.X, target.Y, start.Z)
+	-- This walk's own track, updated in place each step (no new table a Heartbeat). A newer walk swaps in its own,
+	-- so this one's later writes stop counting.
+	local track: Track? = if slowed then { ground = ground, placed = nil } else nil
+	if track ~= nil then
+		tracks[model] = track
+	end
 	local placed: CFrame? = nil -- where the last plain step put the model, bob and all
 	local sinceWrite = math.huge -- seconds since the last write, under strayWalkSlow
 	local startedAt = workspace:GetServerTimeNow()
@@ -98,6 +104,9 @@ function Mover.walkTo(
 	end
 	while alive() and model.Parent ~= nil do
 		local dt = RunService.Heartbeat:Wait()
+		if not alive() or model.Parent == nil then
+			break -- cancelled during the wait: take no more steps, so a newer walk's track and pivot stay its own
+		end
 		elapsed += dt
 		local delta = target - ground
 		local distance = delta.Magnitude
@@ -115,8 +124,8 @@ function Mover.walkTo(
 		end
 		local moved = math.min(speed * dt, distance)
 		ground += delta.Unit * moved
-		if slowed then
-			tracks[model] = { ground = ground, placed = placed }
+		if track ~= nil then
+			track.ground = ground
 		end
 		local facing = flat(delta)
 		if draw ~= nil then
@@ -141,8 +150,8 @@ function Mover.walkTo(
 			else CFrame.lookAt(shown, shown + facing.Unit)
 		model:PivotTo(frame)
 		placed = frame
-		if slowed then
-			tracks[model] = { ground = ground, placed = frame }
+		if track ~= nil then
+			track.placed = frame
 		end
 	end
 	local last = placed

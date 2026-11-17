@@ -104,7 +104,6 @@ local function cloudHop(player: Player, landing: CFrame, arrived: (() -> ())?)
 	local startedAt = Workspace:GetServerTimeNow()
 	character:SetAttribute("CloudHopAt", startedAt)
 	character:SetAttribute("CloudHopTo", "home")
-	StreamAround.start(player, landing.Position) -- #4788: streamed in by the time the clouds move it there
 	local function current(): boolean
 		return player.Character == character
 			and character.Parent ~= nil
@@ -112,6 +111,10 @@ local function cloudHop(player: Player, landing: CFrame, arrived: (() -> ())?)
 	end
 	task.delay(Config.CloudHopMoveAtSeconds, function()
 		if current() then
+			-- #4788, #4857: home streams in as the clouds move the body there, not at the hop's start. Asked from an
+			-- area more than StreamingTargetRadius away, Opportunistic stream-out dropped it before the move and it
+			-- all came a second time (Sync's Park reads on the cannon, 2026-11-17)
+			StreamAround.start(player, landing.Position)
 			character:PivotTo(landing)
 			Cannon.noteMove(player, landing)
 			if arrived ~= nil then

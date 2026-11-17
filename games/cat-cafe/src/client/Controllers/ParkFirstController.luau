@@ -7,6 +7,8 @@
 --   tutorial's flashing ring (UI/Components/StepTarget: a gold Highlight round the cat, and an arrow at the screen's
 --   edge while it is off screen) for RING_SECONDS, or until it is caught or leaves; once a session. Telemetry
 --   park_first_hint "ring".
+--   #5034, switch `parkRingEarly` (off unless the store says true): the ring comes EARLY_NUDGE_AFTER seconds into a
+--   visit, stays EARLY_RING_SECONDS, and comes back on each Park visit until the first Park cat.
 -- Roblox terms: the Highlight is made on this client, so only this player sees the ring.
 
 local Players = game:GetService("Players")
@@ -15,6 +17,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Net = require(script.Parent.Parent.Net)
 local ParkFirstLogic = require(script.Parent.Parent.UI.Components.ParkFirstLogic)
 local StepTarget = require(script.Parent.Parent.UI.Components.StepTarget)
@@ -29,6 +32,13 @@ local TICK_SECONDS = 1
 local toasted = false -- this session, so a slow sync never shows it twice
 local rung = false
 local ring: StepTarget.StepTarget? = nil
+
+-- #5034: read straight, so the switch stays off until the store says true (a key LiveFlags does not list yet would
+-- read as on through LiveFlags.shown)
+local function early(): boolean
+	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. ParkFirstLogic.EARLY_FLAG)
+		== true
+end
 
 local function areaOf(catId: string): string?
 	local def = Catalog.getCat(catId)
@@ -126,7 +136,7 @@ local function nudge(): boolean
 	local shown = ring :: StepTarget.StepTarget
 	shown:show(target)
 	Net.fire("TelemetryReport", ParkFirstLogic.TELEMETRY, "ring")
-	local endsAt = os.clock() + ParkFirstLogic.RING_SECONDS
+	local endsAt = os.clock() + ParkFirstLogic.ringSeconds(early())
 	task.spawn(function()
 		-- StepTarget hides by itself when the cat's part leaves (caught or gone)
 		while os.clock() < endsAt and target.Parent ~= nil and not caughtPark() do
@@ -148,11 +158,14 @@ function ParkFirstController.start()
 		while true do
 			task.wait(TICK_SECONDS)
 			if UI.cannon.area ~= ParkFirstLogic.AREA then
+				if inPark > 0 and early() then
+					rung = false -- #5034: each Park visit may ring again until the first Park cat
+				end
 				inPark = 0
 				continue
 			end
 			inPark += TICK_SECONDS
-			if ParkFirstLogic.nudgeDue(inPark, caughtPark(), rung) then
+			if ParkFirstLogic.nudgeDue(inPark, caughtPark(), rung, early()) then
 				-- no free stray in range yet: look again next second, the visit's clock keeps running
 				rung = nudge()
 			end

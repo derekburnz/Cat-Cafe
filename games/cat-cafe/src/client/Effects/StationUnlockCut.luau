@@ -14,6 +14,13 @@
 -- camera or a cut is already playing. Then the caller shows the Unlocked card ("fallback"). Otherwise done(outcome)
 -- comes once, "watched" or "skipped". StationUnlockCut.onReveal(listener) tells Sound the moment the station appears.
 -- This client only; no remotes.
+--
+-- Sync's Studio run (2026-11-17): the camp stations' three quarters view looked into their area gates, so the view is
+-- tried at each of `views` (degrees from the front, best first) with a ray from the station to the camera, and the
+-- first clear one wins; with none clear, the one that sees furthest, pulled in to just short of what is in the way.
+-- A station StationLockController hid below its tier (`locked`) comes back fully shown, never as it was hidden. The
+-- HUD, toasts and cards are the caller's to put away (UI.tips.clearStage, as ContextCut's caller does): nothing here
+-- touches another ScreenGui (Review-QA, #5127).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -35,7 +42,22 @@ local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
 local running = false
 local revealListeners: { (tier: number) -> () } = {}
 
-export type Station = { tag: string, name: string, line: string }
+export type Station = { tag: string, name: string, line: string, locked: boolean? }
+export type View = { yaw: number, free: number } -- studs the camera can stand back at that turn before a hit
+
+-- The view to film from: the first in `views` order with `want` studs free, else the one with the most room. Pure.
+function StationUnlockCut.bestView(views: { View }, want: number): View?
+	local best: View? = nil
+	for _, view in views do
+		if view.free >= want then
+			return view
+		end
+		if best == nil or view.free > (best :: View).free then
+			best = view
+		end
+	end
+	return best
+end
 
 -- The station a rank up to `tier` unlocks, nil for a tier with no cut.
 function StationUnlockCut.stationFor(tier: unknown): Station?
@@ -260,19 +282,20 @@ end
 
 type Hidden = { [Instance]: number }
 
--- Hides every part and decal of `model` on this client (LocalTransparencyModifier), remembering what each had.
-local function hide(model: Model, saved: Hidden)
+-- Hides every part and decal of `model` on this client (LocalTransparencyModifier), remembering what each had; a
+-- `locked` station is remembered as shown (its lock opened with this rank up).
+local function hide(model: Model, saved: Hidden, locked: boolean)
 	for _, item in model:GetDescendants() do
 		if item:IsA("BasePart") then
 			local part = item :: BasePart
 			if saved[part] == nil then
-				saved[part] = part.LocalTransparencyModifier
+				saved[part] = if locked then 0 else part.LocalTransparencyModifier
 			end
 			part.LocalTransparencyModifier = 1
 		elseif item:IsA("Decal") then
 			local decal = item :: Decal
 			if saved[decal] == nil then
-				saved[decal] = decal.LocalTransparencyModifier
+				saved[decal] = if locked then 0 else decal.LocalTransparencyModifier
 			end
 			decal.LocalTransparencyModifier = 1
 		end
@@ -292,6 +315,40 @@ local function show(saved: Hidden, share: number)
 			(item :: Decal).LocalTransparencyModifier = value
 		end
 	end
+end
+
+-- How far the camera can stand back from `look` along `dir` (rising `rise` per stud) before something seen is in the
+-- way: the station itself, characters and see-through or ray-proof parts do not count.
+local function freeAlong(
+	look: Vector3,
+	dir: Vector3,
+	rise: number,
+	distance: number,
+	model: Model
+): number
+	local skip: { Instance } = { model }
+	for _, player in Players:GetPlayers() do
+		if player.Character ~= nil then
+			table.insert(skip, player.Character)
+		end
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local way = (dir + Vector3.new(0, rise, 0)).Unit
+	local reach = distance * (dir + Vector3.new(0, rise, 0)).Magnitude
+	for _ = 1, 6 do
+		params.FilterDescendantsInstances = skip
+		local hit = Workspace:Raycast(look, way * reach, params)
+		if hit == nil then
+			return distance
+		end
+		local part = hit.Instance
+		if part.Transparency < 0.8 then
+			return (hit.Position - look).Magnitude / reach * distance
+		end
+		table.insert(skip, part)
+	end
+	return 0
 end
 
 -- Plays the cut for a rank up to `tier`; true when it took the camera (see the top). `done(outcome)` once at the end.
@@ -317,11 +374,24 @@ function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boo
 	local look = frame.Position + Vector3.new(0, size.Y * p.lookUp, 0)
 	local extent = math.max(size.X, size.Y, size.Z)
 	-- three quarters front: the model's front turned `yaw` degrees, flat
-	local front = (pivot * CFrame.Angles(0, math.rad(p.yaw), 0)).LookVector * p.faceSign
-	local flat = Vector3.new(front.X, 0, front.Z)
-	local dir = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, 1)
 	local far = math.clamp(extent * p.far, p.nearest, p.farthest)
 	local near = math.clamp(extent * p.near, p.nearest, p.farthest)
+	local function dirAt(yaw: number): Vector3
+		local front = (pivot * CFrame.Angles(0, math.rad(yaw), 0)).LookVector * p.faceSign
+		local flat = Vector3.new(front.X, 0, front.Z)
+		return if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, 1)
+	end
+	local tried: { View } = {}
+	for _, yaw in p.views do
+		table.insert(tried, { yaw = yaw, free = freeAlong(look, dirAt(yaw), p.rise, far, model) })
+	end
+	local view = StationUnlockCut.bestView(tried, far)
+	local dir = dirAt(if view ~= nil then view.yaw else p.yaw)
+	if view ~= nil and view.free < far then
+		-- nothing clear all the way: stand just short of what is in the way, pushing in from there
+		far = math.max(view.free - p.clearance, p.closest)
+		near = math.min(near, far * p.near / p.far)
+	end
 	local baseScale = model:GetScale()
 
 	running = true
@@ -434,7 +504,7 @@ function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boo
 			local eye = look + dir * distance + Vector3.new(0, distance * p.rise, 0)
 			cam.CFrame = CFrame.lookAt(eye, look)
 			if grow == nil then
-				hide(model, saved)
+				hide(model, saved, station.locked == true)
 				if not reduced then
 					setScale(p.fromScale)
 					grownTo = p.fromScale

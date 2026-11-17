@@ -57,5 +57,23 @@ return function()
 			expect(p.scaleHz <= 30).to.equal(true)
 			expect(p.burst.sparkles > Presets.stationReveal.sparkles).to.equal(true)
 		end)
+
+		it("films from the first clear view, else the roomiest (Sync's gate run)", function()
+			local views = {
+				{ yaw = 35, free = 10 },
+				{ yaw = -35, free = 50 },
+				{ yaw = 0, free = 60 },
+			}
+			expect(Cut.bestView(views, 40).yaw).to.equal(-35)
+			expect(Cut.bestView(views, 80).yaw).to.equal(0)
+			expect(Cut.bestView({}, 40)).never.to.be.ok()
+			local p = Presets.stationCut
+			expect(p.views[1]).to.equal(p.yaw)
+			expect(p.closest < p.nearest).to.equal(true)
+			-- the Town Square's tier stations come back shown, not as their lock hid them
+			expect(p.stations[3].locked).to.equal(true)
+			expect(p.stations[4].locked).to.equal(true)
+			expect(p.stations[8].locked).never.to.be.ok()
+		end)
 	end)
 end

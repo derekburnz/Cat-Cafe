@@ -41,36 +41,15 @@ StoreLogic.TABS = {
 	-- Store shows it from PlayerState.dailyDeal, not from a row, so StoreLogic.tabs never lists it)
 	{ id = StoreLogic.DEAL_TAB, name = "Deal", icon = "🏷️" },
 	{ id = "packs", name = "Packs", icon = "🎁" }, -- #4026: the outfit packs, under Featured
-	{ id = "passes", name = "Passes", icon = "🎟️" },
+	-- #3572 (Derek's OK of Model-Agent's mock, 2026-11-12 13:10 UTC): Cats above Passes
 	{ id = "cats", name = "Cats", icon = "🐱" },
+	{ id = "passes", name = "Passes", icon = "🎟️" },
 	{ id = "potions", name = "Potions", icon = "🧪" },
 	{ id = "cafePass", name = "Cafe Pass", icon = "🏅" }, -- the medal, as its picture (#1982)
 	{ id = "codes", name = "Codes", icon = "🔑", always = true },
 } :: { Tab }
 
--- #3572 (Derek's OK of Model-Agent's mock, 2026-11-12 13:10 UTC): the reworked Store, behind the `storeRework`
--- switch, puts Cats above Passes on the rail.
-StoreLogic.REWORK_FLAG = "storeRework"
-StoreLogic.REWORK_RAIL =
-	{ "featured", StoreLogic.DEAL_TAB, "packs", "cats", "passes", "potions", "cafePass", "codes" }
-
--- The rail's tabs in their order: TABS, or with the rework on REWORK_RAIL's order.
-function StoreLogic.railTabs(rework: boolean): { Tab }
-	if not rework then
-		return StoreLogic.TABS
-	end
-	local out: { Tab } = {}
-	for _, id in StoreLogic.REWORK_RAIL do
-		for _, tab in StoreLogic.TABS do
-			if tab.id == id then
-				table.insert(out, tab)
-			end
-		end
-	end
-	return out
-end
-
--- #3572: the reworked Store's header line under its title, by tab (the mock's words): what a tab's items are and
+-- #3572: the Store's header line under its title, by tab (the mock's words): what a tab's items are and
 -- that prices are in Robux. The Codes tab keeps the window's own line.
 StoreLogic.SUBTITLE_DEFAULT = "Help your cafe grow"
 local SUBTITLES: { [string]: string } = {

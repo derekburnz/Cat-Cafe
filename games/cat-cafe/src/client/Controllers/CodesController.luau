@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Codes = require(Shared:WaitForChild("Codes"))
 local Net = require(script.Parent.Parent.Net)
+local StationLockController = require(script.Parent.StationLockController)
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 
@@ -57,6 +58,10 @@ local function nearestCircle(): number?
 	end
 	local position = (root :: BasePart).Position
 	local best: number? = nil
+	-- the stand is shut below its tier (shared/StationTiers): its circle opens nothing there
+	if StationLockController.locked(Codes.TAG) then
+		return nil
+	end
 	for _, station in CollectionService:GetTagged(Codes.TAG) do
 		local centre = if station:IsDescendantOf(Workspace) then circleCentre(station) else nil
 		if centre ~= nil then

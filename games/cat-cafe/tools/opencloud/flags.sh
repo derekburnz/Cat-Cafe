@@ -24,8 +24,6 @@
 #                 their funnel steps intro_on or intro_off (#3666); false or no entry is no test
 #   parkGateTrail true shows the "Visit the Park" goal and the paw trail after Tier 2, until the first Park catch
 #                 (#3554); false or no entry shows nothing
-#   storeRework   true shows the reworked Store (#3572): Cats above Passes, cheapest first, two columns of cards
-#                 with the picture at the left; client only, read when the Store is built at join
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
@@ -134,7 +132,6 @@ show_key() {
 	luckyCharm) if [ "$raw" = true ]; then meaning="Lucky Charm perk ON in every server"; else meaning="Lucky Charm perk off (its default)"; fi ;;
 	introSplit) if [ "$raw" = true ]; then meaning="intro scene test ON: half of new players get the scene"; else meaning="intro scene test off (its default)"; fi ;;
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
-	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			meaning="live minimum tier $(jq -n "[[$raw | floor, 0] | max, 99] | min")"

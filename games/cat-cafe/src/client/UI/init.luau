@@ -6376,7 +6376,13 @@ do
 		if not tipKnown("stuck_cat") and taggedNear("StuckCat", from, TIP.STUCK_RANGE) then
 			UI.tips.show("stuck_cat")
 		end
-		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
+		if
+			not tipKnown("codes_cat")
+			and (state.tier or 1) >= ((require(
+				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+			) :: any).tierOf(TIP.CODES_TAG) or 1)
+			and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE)
+		then -- (none while the stand is shut below its tier, shared/StationTiers)
 			UI.tips.show("codes_cat")
 		end
 		-- #2302: after the tackling lesson, the first time a tackle could land on someone carrying a cat
@@ -10803,7 +10809,7 @@ do
 			local list = if up or next(unseen) ~= nil then rows() else nil
 			screen:setNew(if list then StoreLogic.newTabs(unseen, list) else {})
 			if up and list then
-				-- #3572: the Potions tab's bag strip (rework only)
+				-- #3572: the Potions tab's bag strip
 				screen:setBag(StoreLogic.bag(view()))
 				-- #4055: the Robux / Fish switch, while the fishStore switch is on
 				screen:setFish((state :: any).fishStore, state.goldenFish or 0)
@@ -10917,7 +10923,7 @@ do
 			onOpen = function()
 				shop.reported = {} -- #1888: a new Store visit, a new funnel session
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
-				-- #3572: the Potions tab's bag strip (rework only)
+				-- #3572: the Potions tab's bag strip
 				screen:setBag(StoreLogic.bag(view()))
 				screen:setFish((state :: any).fishStore, state.goldenFish or 0) -- #4055
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
@@ -11270,32 +11276,48 @@ do
 		if (Config :: any).CatBubblesEnabled ~= true then
 			return
 		end
-		bubbles =
-			CatBubbles.new(parent, {
-				blocked = function(): boolean
-					return not visible
-						or (modal ~= nil and modal:current() ~= nil)
-						or (popups ~= nil and popups:isShowing())
-						or (baitCard ~= nil and baitCard:isShowing())
-						or (askCard ~= nil and askCard:isShowing())
-						or (hud ~= nil and hud:isCarrying())
-						or UI.catch.circlesActive()
-						or UI.rescue.isActive()
-						or UI.intro.playing()
-				end,
-				claimed = function(): boolean?
-					local claimed = (state :: any).starterCatClaimed
-					-- the stand is shut below Tier 2 (shared/StarterCat.locked): no line over it there
-					if
-						(require(
+		bubbles = CatBubbles.new(parent, {
+			blocked = function(): boolean
+				return not visible
+					or (modal ~= nil and modal:current() ~= nil)
+					or (popups ~= nil and popups:isShowing())
+					or (baitCard ~= nil and baitCard:isShowing())
+					or (askCard ~= nil and askCard:isShowing())
+					or (hud ~= nil and hud:isCarrying())
+					or UI.catch.circlesActive()
+					or UI.rescue.isActive()
+					or UI.intro.playing()
+			end,
+			claimed = function(): boolean?
+				local claimed = (state :: any).starterCatClaimed
+				-- the stand is shut below Tier 2 (shared/StarterCat.locked): no line over it there
+				if
+					(
+						require(
 							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")
-						) :: any).locked(state.tier)
-					then
-						return nil
-					end
-					return if type(claimed) == "boolean" then claimed else nil
-				end,
-			})
+						) :: any
+					).locked(state.tier)
+				then
+					return nil
+				end
+				return if type(claimed) == "boolean" then claimed else nil
+			end,
+			locked = function(
+				tag: string
+			): boolean -- shared/StationTiers, as StationLockController hides them
+				local StationTiers = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+				) :: any
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local on = LiveFlags.shown(
+					StationTiers.FLAG,
+					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationTiers.FLAG)
+				)
+				return StationTiers.locked(tag, (state :: any).tier, on)
+			end,
+		})
 	end
 
 	-- UI.destroy.

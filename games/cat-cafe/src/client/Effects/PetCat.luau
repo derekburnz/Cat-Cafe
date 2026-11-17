@@ -121,6 +121,12 @@ local function hearts(at: Vector3, count: number, colour: Color3)
 	end)
 end
 
+-- #4913: the same heart puff for other moments (PalDayFx): budget-scaled, in `colour` or the pet heart's pink.
+function PetCat.heartsAt(at: Vector3, colour: Color3?)
+	local p = Presets.petCat
+	hearts(at, math.max(1, math.ceil(p.hearts * Context.budget.burstScale)), colour or p.colour)
+end
+
 local function puff(cat: Model)
 	local p = Presets.petCat
 	local at = over(cat)

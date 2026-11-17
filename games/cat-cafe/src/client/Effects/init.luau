@@ -78,6 +78,7 @@ local Mystery = require(script.Mystery)
 local NetPin = require(script.NetPin)
 local NetTrail = require(script.NetTrail)
 local Orders = require(script.Orders)
+local PalDayFx = require(script.PalDayFx)
 local PalWave = require(script.PalWave)
 local PassThanks = require(script.PassThanks)
 local PawTrail = require(script.PawTrail)
@@ -151,6 +152,7 @@ function Effects.start()
 		PullHop.start,
 		CampExtras.start,
 		PalWave.start,
+		PalDayFx.start, -- #4913: the Pal Day gift's waves and hearts
 		PetCat.start,
 		Signature.start,
 		Catch.start,

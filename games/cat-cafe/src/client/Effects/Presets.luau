@@ -6854,6 +6854,18 @@ Presets.petCat = {
 	range = 120,
 }
 
+-- #4913 Pal Day (Effects/PalDayFx): when today's gift is paid, this player waves with a heart puff (PetCat's hearts)
+-- `overHead` studs over the head (`up` over the root without one), and each pal within `range` studs waves back
+-- `palDelay` seconds later; at most `most` pals are kept from PalsChanged.
+Presets.palDay = {
+	overHead = 0.8,
+	up = 3,
+	range = 120,
+	palDelay = 0.45,
+	most = 12,
+	colour = Presets.palette.nosePink,
+}
+
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
 -- dot is drawn as a paw print `size` studs across on a `pixels` square canvas, `offset` studs left and right of the
 -- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).

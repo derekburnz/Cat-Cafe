@@ -70,6 +70,34 @@ return function()
 			end
 		end)
 
+		it(
+			"adds Pal Day's tomorrow line only with the palDay switch on and today's gift paid (#4913)",
+			function()
+				local Spin = require(Shared.Spin)
+				local before = ReturnGoals.palDayOn
+				local on = false
+				ReturnGoals.palDayOn = function()
+					return on
+				end
+				local profile = withCats(1)
+				profile.palDay = { day = Spin.day(NOW) }
+				expect(before()).to.equal(false) -- off by default
+				expect(table.find(kinds(ReturnGoals.pick(profile, NOW)), "palDay")).to.equal(nil)
+				on = true
+				local goals = ReturnGoals.pick(profile, NOW)
+				expect(#goals <= ReturnGoals.MAX).to.equal(true)
+				local at = table.find(kinds(goals), "palDay")
+				expect(at).never.to.equal(nil)
+				if goals[#goals].kind == "away" then
+					expect(at).to.equal(#goals - 1)
+				end
+				expect(ReturnGoals.done(goals[at :: number], profile)).to.equal(false)
+				profile.palDay = { day = Spin.day(NOW) - 1 }
+				expect(table.find(kinds(ReturnGoals.pick(profile, NOW)), "palDay")).to.equal(nil)
+				ReturnGoals.palDayOn = before
+			end
+		)
+
 		it("gives a player at the last Tier no Tier goals", function()
 			local profile = withCats(1)
 			profile.tier = Catalog.maxTier

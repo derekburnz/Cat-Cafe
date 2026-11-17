@@ -6,6 +6,7 @@
 --       "cats"     the next Tier wants more different cats: have, need, tier, area (the area that Tier opens)
 --       "rarity"   it wants cats of a rarity or better: have, need, tier, rarity
 --       "coins"    its rank up cost: have (coins now), need (the cost), tier
+--       "palDay"   #4913, with the palDay switch on: today's Pal Day gift was paid, so tomorrow has another (no bar)
 --       "away"     what the cafe earns while the player is away, at most the offline cap: amount (coins), hours
 -- A goal that is met is left out; a player at the last Tier gets only "away". No timers, no "you'll lose" and
 -- nothing paid: it only shows progress already made.
@@ -14,19 +15,29 @@ local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Economy = require(script.Parent.Economy)
 local LateTiers = require(script.Parent.LateTiers)
+local LiveFlags = require(script.Parent.LiveFlags)
+local Pals = require(script.Parent.Pals)
 local Types = require(script.Parent.Types)
 
 local ReturnGoals = {}
 
 ReturnGoals.MAX = 3
-ReturnGoals.KINDS = table.freeze({ "cats", "rarity", "coins", "away" }) :: { string }
+ReturnGoals.KINDS = table.freeze({ "cats", "rarity", "coins", "palDay", "away" }) :: { string }
+
+-- #4913: the palDay switch as the server copied it to ReplicatedStorage (LiveFlagService); off until it reads true.
+-- A field, so the specs can stand in for the attribute.
+function ReturnGoals.palDayOn(): boolean
+	local attribute = game:GetService("ReplicatedStorage")
+		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Pals.PAL_DAY_FLAG)
+	return LiveFlags.shown(Pals.PAL_DAY_FLAG, attribute)
+end
 
 export type Goal = Types.ReturnGoalView
 
 -- Whether goal `goal` (one pick made earlier) is met by `profile` now: the Tier it was for is reached, or for a
 -- "cats", "rarity" or "coins" goal its own need is. "away" is never done this way (it pays by itself).
 function ReturnGoals.done(goal: Goal, profile: Types.PlayerProfile): boolean
-	if goal.kind == "away" then
+	if goal.kind == "away" or goal.kind == "palDay" then
 		return false
 	end
 	if goal.tier ~= nil and Economy.tier(profile) >= goal.tier then
@@ -85,8 +96,16 @@ function ReturnGoals.pick(profile: Types.PlayerProfile, now: number): { Goal }
 			})
 		end
 	end
-	while #goals >= ReturnGoals.MAX do
+	-- #4913: a player who had today's Pal Day gift hears tomorrow has another; the progress goals make room for it
+	local palDay = profile.palDay ~= nil
+		and ReturnGoals.palDayOn()
+		and Pals.palDayToday(profile.palDay, now)
+	local room = if palDay then ReturnGoals.MAX - 1 else ReturnGoals.MAX
+	while #goals >= room do
 		table.remove(goals)
+	end
+	if palDay then
+		table.insert(goals, { kind = "palDay" })
 	end
 	-- the day rate as the save keeps it at logout (DataService), the Long Nap pass's longer cap when owned
 	local longNap = Economy.passes(profile).longNap == true

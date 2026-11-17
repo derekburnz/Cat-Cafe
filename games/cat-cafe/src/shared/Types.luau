@@ -1453,6 +1453,9 @@ export type SessionRecapView = {
 	goals: { ReturnGoalView }?, -- #2916: the next goals with their progress (shared/ReturnGoals)
 }
 
+-- #4913 (shared/Pals): the Pal Day gift's last UTC day; no version bump, the palDay switch goes on only after a restart.
+export type PalDaySave = { day: number }
+
 -- #3651 (shared/Pet): the cat petted last and when its heart ends (os.time).
 export type PetSave = { uid: string, untilAt: number }
 
@@ -1520,6 +1523,7 @@ export type PlayerProfile = {
 	quests: QuestState, -- F73
 	achievements: { [string]: boolean }, -- F73: achievementId -> claimed
 	dailyTreat: DailyTreatState, -- F70
+	palDay: PalDaySave, -- #4913: the UTC day (Spin.day) of the last Pal Day gift, 0 for never
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,

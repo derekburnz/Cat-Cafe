@@ -117,6 +117,17 @@ function PalService.arePals(a: Player, b: Player): boolean
 	return mine ~= nil and mine[b] ~= nil
 end
 
+-- #4913 (PalDayService): the seconds this session with at least one pal on the server, the clock running now
+-- included, and how the first pal was linked; 0 and nil before any pal.
+function PalService.palSeconds(player: Player): (number, Pals.Link?)
+	local time = palTime[player]
+	if time == nil then
+		return 0, nil
+	end
+	local running = if time.since ~= nil then os.clock() - (time.since :: number) else 0
+	return time.seconds + running, time.first
+end
+
 -- Starts or stops the player's pal clock for pal_time and remembers how the first pal was linked.
 local function clock(player: Player, count: number)
 	local time = palTime[player]

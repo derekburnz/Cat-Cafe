@@ -1751,11 +1751,15 @@ local function buildArea(
 		)
 	end
 
-	-- #4788: a Persistent Model, not a Folder, so the few invisible anchors are on every client with streaming on:
-	-- the tutorial trail points at the Alleyway's from the town (UIController.tutorialStrayPoint)
+	-- #4788: a Persistent Model, not a Folder, so the invisible anchors are on every client with streaming on:
+	-- the tutorial trail points at the Alleyway's from the town (UIController.tutorialStrayPoint). #5026: only the
+	-- Alleyway's. No client reads another area's, and the ten areas' anchors were 959 instances on every device
+	-- wherever it stood (Sync's census), so those stream with their area.
 	local spawnFolder = Instance.new("Model")
 	spawnFolder.Name = "SpawnPoints"
-	spawnFolder.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	spawnFolder.ModelStreamingMode = if id == "alley"
+		then Enum.ModelStreamingMode.Persistent
+		else Enum.ModelStreamingMode.Default
 	spawnFolder.Parent = model
 	local spawnPoints: { BasePart } = {}
 	for i, point in spec.spawnPoints do

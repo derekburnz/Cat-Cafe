@@ -161,7 +161,8 @@ FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags
-require(script.Parent.Services.AreaOnlyService).start() -- #5026: far areas' night fences stream (areaOnly switch)
+require(script.Parent.Services.LeaveCleanupService).start() -- server memory: old characters and leavers destroyed
+require(script.Parent.Services.AreaOnlyService).start() -- #5026: fences, camp cannons and other cafes stream (areaOnly switch)
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes
@@ -179,6 +180,7 @@ VipTagService.start() -- #4235: the gold VIP tag over a VIP owner's head
 ProductService.start() -- #1182: developer product receipts (ProcessReceipt)
 OwnerTestService.start() -- #1770: owner test mode (OwnerGrant, the OwnerTest attribute)
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
+require(script.Parent.Services.PalDayService).start() -- #4913: Pal Day, the daily gift for 5 minutes with a pal
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 LateStationService.start() -- #2651 part 4: the Oasis Spa and Relic Museum, before DataService (onLoaded)

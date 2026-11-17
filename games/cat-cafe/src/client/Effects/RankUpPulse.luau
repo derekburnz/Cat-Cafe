@@ -7,10 +7,16 @@
 --     then a few sparkles. Reduce Motion: one glow, no sparkles.
 --   * When the tutorial strip's count moves on (the attribute `TutorialCount`, "1/2" and so on), a small tick of
 --     sparkles off the strip's `Tutorial` label and one ring. None with Reduce Motion.
+--   * #5031 (Design-Agent's checkin-to-rankup.md item 4, switch `rankUpRightAway`, off unless the store
+--     says true): the moment Tier 2's last need is met (RankUpReady turns 1), the goal card (`TierGoal`) gets one
+--     gold glow, and listeners hear it (RankUpPulse.onGoalReady: Audio's soft chime). Once a session, no loop.
 -- Listening only: no remotes, no game state.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -21,6 +27,10 @@ local RankUpPulse = {}
 
 local started = false
 local GUI = "EffectsRankUpPulse"
+local GOAL_FLAG = "rankUpRightAway"
+local GOAL_TIER = 1 -- RankUpReady names the cafe's tier now, so 1 is Tier 2 ready
+local goalListeners: { () -> () } = {}
+local goalDone = false
 
 -- Whether a UI object of this name is a RANK UP button: the tutorial strip's (HUD) or the Rank Up window's.
 function RankUpPulse.isRankButton(name: string): boolean
@@ -187,6 +197,39 @@ local function counted(text: unknown)
 	ScreenFx.ring(gui, right, p.ringFrom, p.ringTo, Presets.rankUpPulse.colour, p.ringSeconds)
 end
 
+-- Whether the goal card's ready moment plays: the switch is exactly true (it is off until the store says so; read
+-- straight, so a switch key not yet in LiveFlags can never read as on), it is Tier 2's rank up, and it has not
+-- played this session.
+function RankUpPulse.goalDue(switch: unknown, tier: unknown, done: boolean): boolean
+	return switch == true and tier == GOAL_TIER and not done
+end
+
+function RankUpPulse.onGoalReady(listener: () -> ())
+	table.insert(goalListeners, listener)
+end
+
+-- Tier 2's last need met: one glow on the goal card and the chime.
+local function goalReady(tier: unknown)
+	local switch = ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. GOAL_FLAG)
+	if not RankUpPulse.goalDue(switch, tier, goalDone) then
+		return
+	end
+	goalDone = true
+	for _, listener in goalListeners do
+		task.spawn(listener)
+	end
+	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	local hud = if playerGui ~= nil then playerGui:FindFirstChild("CatCafeHUD") else nil
+	local card = if hud ~= nil then hud:FindFirstChild("TierGoal", true) else nil
+	if card == nil or not card:IsA("GuiObject") or not ScreenFx.shown(card :: GuiObject) then
+		return
+	end
+	local gui = ScreenFx.gui(GUI, Presets.rankUpPulse.displayOrder)
+	if gui ~= nil then
+		glow(gui, card :: GuiObject, Presets.rankUpPulse)
+	end
+end
+
 function RankUpPulse.start()
 	if started then
 		return
@@ -195,6 +238,7 @@ function RankUpPulse.start()
 	local player = Players.LocalPlayer
 	player:GetAttributeChangedSignal("RankUpReady"):Connect(function()
 		ready(player:GetAttribute("RankUpReady"))
+		goalReady(player:GetAttribute("RankUpReady"))
 	end)
 	player:GetAttributeChangedSignal("TutorialCount"):Connect(function()
 		counted(player:GetAttribute("TutorialCount"))

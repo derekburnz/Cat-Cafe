@@ -14,8 +14,8 @@
 #                        experience and user.user-notification:write. The workflow passes the repo secret OWNER_KEY.
 #   UNIVERSE_ID          the experience (not secret; default below)
 #   AWAY_MESSAGE_ID      the notification text's asset id from Creator Hub (Engagement > Notifications > the string
-#                        "Your cats earned {amount} while you were away!" > Copy Asset ID). Not secret. Default below;
-#                        empty means the text does not exist yet, and send does nothing.
+#                        "Your cats earned {amount} while you were away!" > Copy Asset ID). Not secret. Default below
+#                        (the string AwayEarnings). To stop the messages, disable the workflow.
 #
 # Usage:  tools/opencloud/away-notify.sh count   how many notes there are in all and how many are due; sends nothing
 #         tools/opencloud/away-notify.sh send    send the due ones
@@ -27,7 +27,7 @@ set -euo pipefail
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
 MAP=CatCafe_AwayNotify # AwayNotify.MAP
 LAUNCH_DATA=notify_away # JoinSource.NOTIFY: session_start's source for a join from the message
-MESSAGE_ID=${AWAY_MESSAGE_ID:-}
+MESSAGE_ID=${AWAY_MESSAGE_ID:-832f69ae-4f4e-aa43-a325-a1c0523dde16} # the string AwayEarnings, made 2026-11-10
 MAX_PAGES=50 # 100 notes a page; a page with nothing due ends the read (the map is sorted by due time)
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY}"
 

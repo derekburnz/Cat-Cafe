@@ -3337,8 +3337,8 @@ end
 -- the arms: checked in as at a door, if it is still the cat in the arms (or the Backpack) by then.
 M.homeFromCampless = function(player: Player, areaId: string)
 	local area = world.areas[areaId]
-	if area == nil or area.camp ~= nil then
-		return
+	if area == nil or area.camp ~= nil or M.areaGates[areaId] == nil then
+		return -- only an added area (CatService.addArea), never one of the ten
 	end
 	local carry = carrying[player] or packed[player]
 	if carry == nil then

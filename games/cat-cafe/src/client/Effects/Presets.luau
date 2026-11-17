@@ -4045,6 +4045,12 @@ Presets.harvestFx = {
 	pieBeamWidth = 1.2,
 	pieBeamHeight = 14,
 	pieBeamSeconds = 1.2,
+	-- a note pinned on the Thankful Board while you are in the area: `pinCount` leaves `pinLift` studs over the board,
+	-- and `pinSparkles` gold sparkles when the pin is yours
+	notesAttribute = "HarvestNotes",
+	pinLift = 4,
+	pinCount = 6,
+	pinSparkles = 5,
 	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
 	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
 	-- sparkles; not again within `arriveGap` seconds

@@ -878,6 +878,19 @@ local Cues: { [string]: Cue } = {
 		range = 45,
 		voices = 2,
 	},
+	-- #4251 (Effects/HarvestFx.onPin): a note pinned on Harvest Hollow's Thankful Board near you. The reward card's
+	-- turn-over, lighter and quicker: a paper flick. No upload (sheetKeep).
+	harvestPin = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 9.450, 9.670 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 1.18, 1.3 },
+		minGap = 0.5,
+		range = 40,
+		voices = 2,
+	},
 	adminCrateLand = {
 		ids = { "rbxassetid://103029343434588" },
 		group = "Sfx",

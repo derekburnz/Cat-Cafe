@@ -30,8 +30,9 @@ local Rally = {}
 type Pennant = {
 	target: Instance, -- the part or Model that swings
 	bound: boolean,
-	base: CFrame, -- where it was modelled (a Model's pivot)
-	written: CFrame?, -- where this client last put it
+	parts: { BasePart }, -- its parts (the part itself, or a Model's), moved in one BulkMoveTo with the rest
+	bases: { CFrame }, -- where each was modelled
+	written: CFrame?, -- where this client last put its first part
 	top: Vector3, -- the middle of its top edge, at `base`
 	along: Vector3, -- the axis along its string, at `base`
 	phase: number,
@@ -50,6 +51,9 @@ local barLookedAt = -math.huge
 local flying = 0
 local pennants: { [Instance]: Pennant } = {}
 local moving: { Pennant } = {}
+-- flutter's lists for one BulkMoveTo a step, kept between steps (cleared, not rebuilt)
+local stepParts: { BasePart } = {}
+local stepFrames: { CFrame } = {}
 local lastStep = 0
 local rng = Random.new()
 local started = false
@@ -319,13 +323,6 @@ local function anchored(target: Instance): boolean
 	return any
 end
 
-local function cframeOf(target: Instance): CFrame
-	if target:IsA("BasePart") then
-		return (target :: BasePart).CFrame
-	end
-	return (target :: Model):GetPivot()
-end
-
 local function wind(): Vector3
 	local blowing = Workspace.GlobalWind
 	return if blowing.Magnitude > 0.05 then blowing else Presets.sky.wind
@@ -346,7 +343,24 @@ local function bind(p: Pennant): boolean
 	end
 	local along, up, half = Logic.pennantHinge(box.RightVector, box.UpVector, -box.LookVector, size)
 	local blowing = wind()
-	p.base = cframeOf(target)
+	local parts: { BasePart } = {}
+	if target:IsA("BasePart") then
+		table.insert(parts, target :: BasePart)
+	else
+		for _, descendant in target:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				table.insert(parts, descendant :: BasePart)
+			end
+		end
+	end
+	if #parts == 0 then
+		return false
+	end
+	local bases = table.create(#parts) :: { CFrame }
+	for i, part in parts do
+		bases[i] = part.CFrame
+	end
+	p.parts, p.bases = parts, bases
 	p.top = box.Position + up * half
 	p.along = along
 	p.phase = Logic.windPhase(box.Position, blowing, Presets.bunting.wavelength)
@@ -356,23 +370,38 @@ local function bind(p: Pennant): boolean
 	return true
 end
 
-local function place(p: Pennant, cframe: CFrame)
-	local target = p.target
-	if target:IsA("BasePart") then
-		(target :: BasePart).CFrame = cframe
-	else
-		(target :: Model):PivotTo(cframe)
+-- Queues the pennant turned by `turn` (CFrame.identity puts it back as modelled) for the step's BulkMoveTo.
+local function queue(p: Pennant, turn: CFrame)
+	local bases = p.bases
+	for i, part in p.parts do
+		local at = turn * bases[i]
+		if i == 1 then
+			p.written = at
+		end
+		if part.Parent ~= nil then -- a part taken out of the bunting is left alone
+			table.insert(stepParts, part)
+			table.insert(stepFrames, at)
+		end
 	end
-	p.written = cframe
 end
 
--- Whether something else moved the pennant since this client last put it.
+-- Moves everything queued in one call (a Model's own WorldPivot is left where it was, which nothing here reads).
+local function flush()
+	if #stepParts > 0 then
+		Workspace:BulkMoveTo(stepParts, stepFrames, Enum.BulkMoveMode.FireCFrameChanged)
+		table.clear(stepParts)
+		table.clear(stepFrames)
+	end
+end
+
+-- Whether something else moved the pennant since this client last put it (its first part is enough to tell).
 local function movedOff(p: Pennant): boolean
 	local written = p.written
-	if written == nil then
+	local first = p.parts[1]
+	if written == nil or first == nil then
 		return false
 	end
-	local now = cframeOf(p.target)
+	local now = first.CFrame
 	return (now.Position - written.Position).Magnitude > 0.01
 		or now.LookVector:Dot(written.LookVector) < 0.9999
 end
@@ -381,7 +410,7 @@ local function rest(p: Pennant)
 	if p.moving then
 		p.moving = false
 		if p.target.Parent ~= nil and not movedOff(p) then
-			place(p, p.base)
+			queue(p, CFrame.identity)
 		else
 			p.bound = false -- moved off: read it again where it is next time
 		end
@@ -423,7 +452,8 @@ local function considerPennant(instance: Instance)
 	pennants[instance] = {
 		target = instance,
 		bound = false,
-		base = CFrame.new(),
+		parts = {},
+		bases = {},
 		written = nil,
 		top = Vector3.zero,
 		along = Vector3.xAxis,
@@ -470,6 +500,7 @@ local function pickPennants()
 			rest(p)
 		end
 	end
+	flush()
 	moving = now
 end
 
@@ -486,9 +517,10 @@ local function flutter()
 			local turn = CFrame.new(p.top)
 				* CFrame.fromAxisAngle(p.along, angle)
 				* CFrame.new(-p.top)
-			place(p, turn * p.base)
+			queue(p, turn)
 		end
 	end
+	flush()
 end
 
 function Rally.start()

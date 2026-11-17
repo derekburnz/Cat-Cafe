@@ -788,14 +788,20 @@ local function catsDistinct(profile: Profile): string
 end
 
 -- #5031: the Tier 1 Rank Up window open now ended (shared/RankUpRightAway): one rank_up_window, at most WINDOWS_MAX
-local function rankWindowEnd(player: Player, session: Session, outcome: string)
+local function rankWindowEnd(player: Player, session: Session, outcome: string, via: string?)
 	local how = session.rankWindow
 	session.rankWindow = nil
 	if how == nil or session.rankWindows >= RankUpRightAway.WINDOWS_MAX then
 		return
 	end
 	session.rankWindows += 1
-	Telemetry.custom(player, "rank_up_window", 1, { how, outcome, session.device or "unknown" })
+	-- the 4th field: how a close happened (RankUpRightAway.CLOSE_VIAS), "" for a press, a leave or an older client
+	Telemetry.custom(
+		player,
+		"rank_up_window",
+		1,
+		{ how, outcome, session.device or "unknown", via or "" }
+	)
 end
 
 local function tierText(profile: Profile): string
@@ -2749,9 +2755,9 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.rankWindow = how
 		end
 	elseif name == "rank_up_end" then
-		local outcome = Guard.oneOf(rawValue, { "pressed", "closed" })
+		local outcome, via = RankUpRightAway.parseEnd(rawValue)
 		if outcome ~= nil and session.rankWindow ~= nil then
-			rankWindowEnd(player, session, outcome)
+			rankWindowEnd(player, session, outcome, via)
 		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then

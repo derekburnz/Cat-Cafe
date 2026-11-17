@@ -171,7 +171,33 @@ function HarvestStall.new(callbacks: Callbacks): HarvestStall
 			self:_row(def.tab, row, order, buyH)
 		end
 	end
+	-- #5025 (QoL 1): a small phone shows 3 of a tab's rows; a "More below" pill (as the Ticket Booth's) sits over the
+	-- list's bottom while rows are hidden under it, a tap scrolls one row down, and it goes once the bottom is in view
+	local list: ScrollingFrame = self._list
+	local more = Button.new({
+		name = "MoreBelow",
+		text = "▼ More below",
+		style = "secondary",
+		size = UDim2.fromOffset(130, 28),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -6),
+		textSize = Theme.sizes.textSmall,
+		parent = content,
+		onClick = function()
+			list.CanvasPosition = Vector2.new(0, list.CanvasPosition.Y + ROW_H + GAP)
+		end,
+	})
+	more.instance.ZIndex = 5
+	local function moreShown()
+		local hidden = list.AbsoluteCanvasSize.Y
+			- (list.CanvasPosition.Y + list.AbsoluteWindowSize.Y)
+		more.instance.Visible = hidden > 8
+	end
+	list:GetPropertyChangedSignal("CanvasPosition"):Connect(moreShown)
+	list:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(moreShown)
+	list:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(moreShown)
 	self:showTab("outfit")
+	moreShown()
 	return self :: HarvestStall
 end
 

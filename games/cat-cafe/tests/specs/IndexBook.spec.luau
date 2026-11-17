@@ -44,6 +44,23 @@ return function()
 	end
 
 	describe("IndexBook.sections", function()
+		it("gives the harvest cats their own page after the areas, on every tab, counted toward nothing (#5025)", function()
+			local WITH = table.clone(CATALOG)
+			WITH.cats = table.clone(CATALOG.cats)
+			table.insert(WITH.cats, { id = "hay_bale", area = "harvest", rarity = "Common" })
+			table.insert(WITH.cats, { id = "harvest_moon", area = "harvest", rarity = "Mythical" })
+			local s = state({ collection = { hay_bale = 1 }, goldCollection = { harvest_moon = 1 } })
+			for _, tab in { "normal", "gold" } do
+				local sections = IndexBook.sections(WITH, s, tab)
+				expect(ids(sections)).to.equal("alley,park,harvest")
+				local page = sections[3]
+				expect(page.name).to.equal("Harvest Hollow")
+				expect(page.exclusive).to.equal(true)
+				expect(page.note).to.equal(IndexBook.HARVEST_NOTE)
+				expect(page.total).to.equal(2)
+				expect(IndexBook.count(page)).to.equal("1 / 2")
+			end
+		end)
 		it("lists the areas in tier order with their cats rarest last", function()
 			local sections = IndexBook.sections(CATALOG, state({}), "normal")
 			expect(ids(sections)).to.equal("alley,park")

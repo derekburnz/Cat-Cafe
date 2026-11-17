@@ -43,6 +43,7 @@ local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
+local HarvestLogic = require(script.Parent.Parent.Components.HarvestLogic)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
@@ -560,6 +561,15 @@ function Potions.setCatalog(self: any, catalog: Types.Catalog)
 end
 
 function Potions.render(self: any, state: Types.PlayerState)
+	-- #5025 (harvest-hollow-spec 3): pumpkins are kept after Harvest Hollow closes and show here, not on the HUD
+	local pumpkins = HarvestLogic.pumpkins(state)
+	local subtitle = if pumpkins > 0
+		then ("Potions, food and bait · %s %d"):format(HarvestLogic.PUMPKIN, pumpkins)
+		else "Potions, cat food and bait"
+	if subtitle ~= self._subtitle then
+		self._subtitle = subtitle
+		self._panel:setTitle("Bag", subtitle)
+	end
 	-- a count that dropped is the server taking a UsePotion: the drink sound (sound list 5.11)
 	local counts: { [string]: number } = state.potions or {}
 	local before: { [string]: number }? = self._counts

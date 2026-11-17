@@ -2663,6 +2663,16 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
 			return
 		end
+		-- #5025 (harvest-hollow-spec 3b, Derek): a harvest cat's card says it is kept and what it earns like, on the
+		-- cards that show anyway (a new kind, Legendary or better, a coat), so a repeat Common adds no card
+		if (def :: any).area == "harvest" and info.line == nil then
+			local HarvestLogic = require(script.Components.HarvestLogic) :: any
+			local catalog: any = currentCatalog
+			info.line = HarvestLogic.keepLine(
+				def.rarity,
+				HarvestLogic.newestArea(catalog and catalog.areas, state.tier)
+			)
+		end
 		-- #4266 (Derek 2026-11-14: "an option to toggle off new cat pop ups"): with the Bowl window's New cat pop-ups
 		-- switch off (settings.bowlNewCatCard), a cat tamed at the bowl is a toast in place of the big card
 		local settings: { [string]: boolean | number | string } = state.settings or {}

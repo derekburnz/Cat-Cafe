@@ -29,6 +29,7 @@ export type Section = {
 	tier: number,
 	locked: boolean, -- the player's tier has not opened the area and nothing in it is found yet
 	exclusive: boolean, -- the Exclusive page (EXCLUSIVE), not an area: it counts toward nothing
+	note: string?, -- #5025: the page's own line in place of EXCLUSIVE_NOTE (Harvest Hollow's)
 	have: number,
 	total: number,
 	cats: { Types.CatDef }, -- rarest last, catalog order within a rarity
@@ -50,6 +51,11 @@ IndexBook.EXCLUSIVE_NOTE = "Not counted in the Index"
 -- #3470: the Secret page, shown only to a player who has found a Secret cat, and only with the ones found
 IndexBook.SECRET = IndexRewards.SECRET_AREA
 IndexBook.SECRET_NAME = "Secret"
+-- #5025 (harvest-hollow-spec 3b): the harvest cats' own page after the areas, on every tab (they have gold and rainbow
+-- coats), counting toward nothing like the Exclusive page, with the keep line as its note
+IndexBook.HARVEST = "harvest"
+IndexBook.HARVEST_NAME = "Harvest Hollow"
+IndexBook.HARVEST_NOTE = "Yours to keep · not counted in the Index"
 IndexBook.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 local SPARE = IndexRewards.SPARE_AREA
@@ -123,12 +129,25 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		total = 0,
 		cats = {},
 	}
+	local harvest: Section = {
+		id = IndexBook.HARVEST,
+		name = IndexBook.HARVEST_NAME,
+		tier = 0,
+		locked = false,
+		exclusive = true,
+		note = IndexBook.HARVEST_NOTE,
+		have = 0,
+		total = 0,
+		cats = {},
+	}
 	for index, def in catalog.cats do
 		order[def.id] = index
 		local areaId: string = def.area or IndexBook.FALLBACK_AREA
 		local section: Section
 		if areaId == SPARE or areaId == SECRET then
 			continue -- #3470: a Secret cat leaves no trace in the book
+		elseif areaId == IndexBook.HARVEST then
+			section = harvest
 		elseif def.exclusive == true or areaId == IndexBook.EXCLUSIVE then
 			if tab ~= "normal" then
 				continue -- never gold or rainbow
@@ -145,6 +164,9 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		if found[def.id] then
 			section.have += 1
 		end
+	end
+	if harvest.total > 0 then
+		table.insert(list, harvest) -- #5025: after every area, before the Exclusive page
 	end
 	if exclusive.total > 0 then
 		table.insert(list, exclusive) -- after every area

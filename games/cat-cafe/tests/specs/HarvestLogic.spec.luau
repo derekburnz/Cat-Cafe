@@ -113,4 +113,23 @@ return function()
 			end
 		)
 	end)
+
+	describe("the keep line's area (#5025)", function()
+		it("names the best area opened by the tier, as CatStats.areaMultiplier picks it", function()
+			local AREAS = {
+				{ id = "alley", name = "Alleyway", tier = 1, incomeMultiplier = 1 },
+				{ id = "park", name = "Park", tier = 2, incomeMultiplier = 2 },
+				{ id = "woods", name = "Woods", tier = 4, incomeMultiplier = 4 },
+			}
+			expect(Logic.newestArea(AREAS, 1)).to.equal("Alleyway")
+			expect(Logic.newestArea(AREAS, 3)).to.equal("Park")
+			expect(Logic.newestArea(AREAS, 9)).to.equal("Woods")
+			expect(Logic.newestArea(AREAS, nil)).to.equal(nil)
+			expect(Logic.newestArea(nil, 3)).to.equal(nil)
+			expect(Logic.keepLine("Mythical", Logic.newestArea(AREAS, 9))).to.equal(
+				"Yours to keep · earns like a Woods Epic"
+			)
+			expect(#Logic.CARD_LINE <= 26).to.equal(true)
+		end)
+	end)
 end

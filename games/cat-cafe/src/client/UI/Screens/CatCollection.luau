@@ -1055,7 +1055,8 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 		)
 		section.title.Text = area.name
 		if area.exclusive then
-			section.hint.Text = IndexBook.EXCLUSIVE_NOTE -- F96: it counts toward nothing and has no rewards
+			-- F96: it counts toward nothing and has no rewards; #5025: Harvest Hollow's page says so its own way
+			section.hint.Text = area.note or IndexBook.EXCLUSIVE_NOTE
 		end
 	end
 	-- #3470: the Secret page only for a player who has found one, with nothing to claim and no total

@@ -37,7 +37,7 @@
 		"config": "VipPassId",
 		"price": 12,
 		"regionalPricing": true,
-		"description": "+50% cafe money, a VIP tag over your head and in chat, and a gold VIP plate on your cafe sign. Yours to keep."
+		"description": "VIP: +50% cafe money, a VIP tag in chat (and over your head, turn it on in Settings), and a gold VIP plate on your cafe sign. Yours to keep."
 	},
 	{
 		"name": "Cat Accessories",

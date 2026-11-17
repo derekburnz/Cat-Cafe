@@ -47,7 +47,9 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local BaitService = {}
 
-local CHOICES = { "tame", "letgo" }
+-- Derek 2026-11-16 and 2026-11-17 15:23 UTC: "remove let go from the entire game for food bowl". The card lost its Let
+-- go button in #4849; the server now takes Tame only, so no client (an old build, an exploit) can still let one go.
+local CHOICES = { "tame" }
 
 local rng = Random.new()
 -- placedAt of the bait whose arrival this player has been sent, by bowl

@@ -122,7 +122,7 @@ def _ivy(b, x0, x1, top, seed):
 def _seg_hedge(b, L, shade):
     sw = ("leaf_dark", "leaf_green")[shade % 2]
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 9.4), sw)
-    n = max(2, round(L / 3.0))
+    n = max(2, round(L / (5.0 if LIGHT else 3.0)))
     for i in range(n):
         x = -L / 2 + (i + 0.5) * L / n
         b.ico((x, WALL_D / 2, 9.3 + 0.15 * (i % 2)), 1.6, sw, subdivisions=1, scale=(L / n / 2.8, 0.85, 0.55))
@@ -140,7 +140,8 @@ def _seg_brick(b, L, shade):
 
 RAIL_GAP = 1.0     # studs between a hedge railing's bars; parkf85 builds with 2.0 (#4857: each bar is 2 parts)
 LIGHT = False      # parkf85 builds with True (#4857): no pillar plinth and neck, no lamp tip, no stone coursing,
-                   # fewer bench slats, spring rider coils, bandstand trims and rose bed kerb pieces, no urn rim
+                   # fewer bench slats, spring rider coils, bandstand trims and rose bed kerb pieces, no urn rim,
+                   # no gold tips on the hedge railing, wider hedge tops, two roses a bush, glasshouse trims
 
 
 def _seg_rail(b, L, shade):
@@ -151,7 +152,8 @@ def _seg_rail(b, L, shade):
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 0.45, 1.6), (0.16, 0.16, 3.5), "fur_black", bevel=False)
-        b.sphere((x, 0.45, 5.22), 0.14, "gold_mid", segments=8, rings=5)   # gilded tips: one Ball each, not 3 blocks (#3743)
+        if not LIGHT:
+            b.sphere((x, 0.45, 5.22), 0.14, "gold_mid", segments=8, rings=5)   # gilded tips: one Ball each (#3743)
     for z in (2.2, 4.6):
         b.box((0, 0.45, z), (L - 0.4, 0.14, 0.2), "fur_black", bevel=False)
 
@@ -686,7 +688,7 @@ def rose_bed(mat, seed=0):
         a = 2 * PI * (k + 0.3 * seed) / 6
         x, y = 1.15 * math.cos(a), 1.15 * math.sin(a)
         fl.ico((x, y, 0.95), 0.4, "leaf_dark", subdivisions=1, scale=(1, 1, 0.8))
-        for j in range(3):
+        for j in range(2 if LIGHT else 3):
             fl.ico((x + 0.25 * math.cos(j * 2.1), y + 0.25 * math.sin(j * 2.1), 1.25), 0.15,
                    ("shirt_red", "blush", "offwhite")[(k + j + seed) % 3], subdivisions=1)
     return [b.finalize(N + "RoseBed", mat), fl.finalize(N + "RoseBed_Flowers", mat)]

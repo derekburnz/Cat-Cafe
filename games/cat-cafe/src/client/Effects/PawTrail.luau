@@ -195,16 +195,16 @@ local function draw(folder: Instance)
 	local last: Vector3? = nil
 	for index, dot in dots do
 		local here = dot.Position
-		local found = prints[dot]
+		local found: Paw? = prints[dot]
 		if found == nil then
 			found = take()
 			if found == nil then
 				last = here
 				continue -- built next frame; GuideTrail's dot shows till then
 			end
-			prints[dot] = found
 		end
 		local paw = found :: Paw
+		prints[dot] = paw
 		local nextDot: BasePart? = dots[index + 1]
 		local toward = if nextDot ~= nil
 			then nextDot.Position

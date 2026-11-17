@@ -1216,3 +1216,36 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
   - Pace (10-run medians): Tier 5 goes from 1 h 08 to 1 h 00, Tier 6 from 2 h 51 to 2 h 18 (1 h 02 after Tier 5) and Tier 7 from 3 h 40 to 3 h 37. Tiers 8 to 10 stay in band.
   - Rewards and odds are unchanged.
 - **Read:** compare Tier 3 to 4 and Tier 5 to 6 loss, and quit_have's t4_kinds and t6_coins shares, a full day before and after it goes live.
+
+## 2026-11-17 Come back tomorrow card (#3951, Design-Agent)
+- **Why:** First day return (D1) fell under the 6% line: Nov 12 6.54%, Nov 13 4.70%, Nov 14 2.74%. The minute 6 return line (#4626) is easy to miss.
+- **What:** A slide-in card on the player's first UTC day: "Golden crate tomorrow!", "Come back tomorrow and it is yours.", the Classic gold crate picture, OK and X. It shows only when the tomorrow pick is the gift kind, 30 s or more into the session, after the first cat holds end, inside the one pop-up per 5 minutes pace, and never for a player who closed the Tutorial tile. When it shows, the minute 6 line is skipped that session. Switch `tomorrowCard`, off by default (#5079). Telemetry `tomorrow_card` (shown, ok, closed, hidden, by device).
+- **Switch-on:** only after the D1 read of the Nov 16 and Nov 17 cohorts (the minute 6 line has been on since 04:58 UTC Nov 16). Proposed Sun Nov 22 12:05 UTC, a day with no other funnel switch. Read: D1 of players who saw the card against those who saw the minute 6 line.
+
+## 2026-11-17 Park funnel switches get their own UTC days (Design-Agent)
+- **Why:** Switches turned on together cannot be read apart.
+- **What:** `parkRingEarly` Thu Nov 19, `tier3Path` Sat Nov 21, `parkTrailBack` with `parkGateTrail` Mon Nov 23, all at 12:05 UTC. Each is read on its next clean UTC day. A switch goes off the same day if any device gets more than 5 points worse on its step.
+
+## 2026-11-17 Harvest Hollow prices and pumpkin pace (#4251, Design-Agent)
+- **Why:** At the old numbers a lone player could buy all 11 Harvest items in about 45 minutes (the patch gave about 480 pumpkins an hour). The area runs Nov 25 to Dec 6, so it would be finished on day one.
+- **What:** Stall prices x3 (all 11 items now 1,440 pumpkins). Patch regrow 300 s (150 s when busy). Daily visit gift +40 pumpkins. Catch pumpkins unchanged, so no reward is cut. Rides the Wed Nov 18 Harvest fold.
+- **Read:** Thu Nov 26. If more than 25% of players own all 11 by Sat Nov 28, raise the week two prices.
+
+## 2026-11-17 Cherry Blossom Grove moves to spring; a Christmas slot (#5098, Design-Agent)
+- **Why:** Derek (14:29 UTC): "move the cherry blossom event to wayy later after christmas because I am thinking about drafting a christmas update between thanks giving and cherry blossom". The old dates (Dec 5 to Dec 12) also overlapped Harvest Hollow's last two days.
+- **What:**
+  - Harvest Hollow stays Wed Nov 25 to Sun Dec 6.
+  - A Christmas update is proposed for Sat Dec 12 20:00 UTC to Sun Jan 3 20:00 UTC. It opens six days after Harvest closes and covers the school break, Christmas and New Year. Derek drafts its content.
+  - Cherry Blossom Grove is proposed for Sat Mar 27 2027 20:00 UTC to Sat Apr 3 2027 20:00 UTC, at bloom season. It is still one week, opens at Tier 2 and gets no group post.
+- **Follow-ups:**
+  - The Cherry Blossom entry leaves `Config.UpdateEvents` before the Nov 25 publish, so nothing in game teases Dec 5.
+  - The Christmas Roblox Event gets added there once it exists.
+  - The Cherry Blossom Event page moves or is cancelled.
+  - The closed Cherry PRs keep their branches until about Mar 1 2027.
+
+## 2026-11-17 First 5 minutes and tutorial switches go on now; Rank Up pointer is dim and arrow (Design-Agent)
+- **Why:** Derek (15:00 UTC): "put all the first 5 min/turorial step and tutorial changes into game asap also no need for extra rankup button above the bottom middle tutorial step its just ugly make I think a dim screen and arrow point to rank menu is fine then a dim and arrow to rankup button".
+- **What:**
+  - This overrides the staggered dates in the 2026-11-17 Park switch entry and the tomorrowCard plan. `parkRingEarly`, `parkTrailBack`, `parkGateTrail`, `tier3Path`, `tomorrowCard` and `cannonCue` go on as soon as each passes review.
+  - The strip's extra RANK UP button is removed. The rank up walk-through (RankSpot) dims the screen and points at the goal card, then dims and points at the window's RANK UP. It shows in safe zones only, and the window's X stays visible.
+- **Read:** one combined before and after for the first 5 minutes and Tier 2 to 3. Each on-minute goes in Growth's timeline.

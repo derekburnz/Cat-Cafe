@@ -175,6 +175,7 @@ UI.events = {
 	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn
 	buyLawn = Signal.new(), -- (id, spotId?)  a piece or style; a piece onto spotId, else the first free spot
 	buyHarvest = Signal.new(), -- (id)  a Harvest Stall item, paid in pumpkins (#4251)
+	pinHarvestNote = Signal.new(), -- (note)  a Thankful Board note, 1 to 6 (#4251)
 	-- #1751 (back with #1758): the Lawn cards' Use and Remove
 	setLawnSpot = Signal.new(), -- (spotId, pieceId)  forward as SetLawnSpot; pieceId "" takes the spot's piece in
 	setLawnStyle = Signal.new(), -- (kind, id)  forward as SetLawnStyle; id "" for Grey Slabs or no fence
@@ -288,6 +289,7 @@ UI.events = {
 	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
 	returnHookEarly = Signal.new(), -- (kind)   #4626: the minute 6 "come back tomorrow" line showed: forward as TelemetryReport("return_hook_early", kind)
+	tomorrowCard = Signal.new(), -- (outcome)   #3951: the come back tomorrow card: forward as TelemetryReport("tomorrow_card", outcome)
 	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
 	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
@@ -1901,6 +1903,11 @@ function UI.init(config: Types.InitConfig)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
 	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
 	require(script.Screens.PitySign).new(parent) -- #1572: the pity cat sign's countdowns (no local, as above)
+	-- #4251: the Thankful Board's Feast Pie and notes in Harvest Hollow (no local, as above)
+	require(script.Screens.ThankfulBoard).new(parent, function(): boolean?
+		local harvest = (UI.getState() :: any).harvest
+		return if type(harvest) == "table" then harvest.helped == true else nil
+	end)
 	require(script.Screens.UpdatePoster).new(parent) -- #4362: the next update's poster stand (no local, as above)
 	require(script.Screens.HarvestSign).new(
 		parent,
@@ -2884,6 +2891,16 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
 			return
+		end
+		-- #5025 (harvest-hollow-spec 3b, Derek): a harvest cat's card says it is kept and what it earns like, on the
+		-- cards that show anyway (a new kind, Legendary or better, a coat), so a repeat Common adds no card
+		if (def :: any).area == "harvest" and info.line == nil then
+			local HarvestLogic = require(script.Components.HarvestLogic) :: any
+			local catalog: any = currentCatalog
+			info.line = HarvestLogic.keepLine(
+				def.rarity,
+				HarvestLogic.newestArea(catalog and catalog.areas, state.tier)
+			)
 		end
 		-- #4266 (Derek 2026-11-14: "an option to toggle off new cat pop ups"): with the Bowl window's New cat pop-ups
 		-- switch off (settings.bowlNewCatCard), a cat tamed at the bowl is a toast in place of the big card
@@ -6359,7 +6376,13 @@ do
 		if not tipKnown("stuck_cat") and taggedNear("StuckCat", from, TIP.STUCK_RANGE) then
 			UI.tips.show("stuck_cat")
 		end
-		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
+		if
+			not tipKnown("codes_cat")
+			and (state.tier or 1) >= ((require(
+				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+			) :: any).tierOf(TIP.CODES_TAG) or 1)
+			and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE)
+		then -- (none while the stand is shut below its tier, shared/StationTiers)
 			UI.tips.show("codes_cat")
 		end
 		-- #2302: after the tackling lesson, the first time a tackle could land on someone carrying a cat
@@ -6443,10 +6466,14 @@ do
 		if card ~= nil and card:isVisible() then
 			card:setClear(if bar ~= nil then bar:top() else nil)
 		end
-		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen
+		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen, or while an
+		-- admin event's countdown, splash or end card has the middle (Sync's phone look on #5041: a first visit card
+		-- popped up over the Money Storm splash; new cards already wait through it, this covers one already up)
 		local ask = askCard
-		if ask ~= nil and popups ~= nil then
-			ask.screenGui.Enabled = not popups:isShowing()
+		if ask ~= nil then
+			ask.screenGui.Enabled = not (
+				(popups ~= nil and popups:isShowing()) or UI.cutscene.quiet.adminFlash == true
+			)
 		end
 		if ask ~= nil then
 			ask:follow()
@@ -8492,20 +8519,28 @@ do
 		camp.spin = spinBang
 		-- #2501 (Derek2: "put an exclamation mark above the free group cat station to help entice people to go join
 		-- group to take the cat"): the stand's "!" until the cat is taken; only once the sync says it isn't
-		local starterBang = MarketBang.new(into, {
-			tag = "BellhopStand", -- shared/StarterCat.TAG
-			name = "CatCafeStarterBang",
-			line = function(claimed: any): string?
-				-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
-				-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
-				if claimed ~= false or UI.firstCat.tutorial then
-					return nil
-				end
-				return if (SharedConfig.GroupId or 0) ~= 0
-					then "🐱 Free cat: join the group!"
-					else "🐱 A free cat waits here!"
-			end,
-		})
+		local starterBang =
+			MarketBang.new(into, {
+				tag = "BellhopStand", -- shared/StarterCat.TAG
+				name = "CatCafeStarterBang",
+				line = function(claimed: any): string?
+					-- #4854 follow-up (#4919, Sync's run of #4902: the "join the group" bubble at 9.3 s): a social ask, so none
+					-- in the walk-through or the account's first 5 minutes (UI.firstCat.tutorial)
+					if claimed ~= false or UI.firstCat.tutorial then
+						return nil
+					end
+					if
+						(require(
+							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")
+						) :: any).locked(state.tier)
+					then
+						return nil -- shut below Tier 2
+					end
+					return if (SharedConfig.GroupId or 0) ~= 0
+						then "🐱 Free cat: join the group!"
+						else "🐱 A free cat waits here!"
+				end,
+			})
 		starterBang:update((state :: any).starterCatClaimed)
 		camp.starter = starterBang
 		UI.firstCat.onHold = function() -- #4854: the bubble comes back as the hold ends, with no state update
@@ -10418,25 +10453,30 @@ end
 -- Tier 2, pumpkins, standing at the stall). Until the server side ships nothing carries the tag, so nothing opens.
 do
 	local HarvestStall = require(script.Screens.HarvestStall)
+	local ThankfulNotes = require(script.Screens.ThankfulNotes)
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local STALL_TAG = "HarvestStall"
 	local PROMPT_NAME = "HarvestStallPrompt"
 	local FAR_STUDS: number = (SharedConfig.HarvestStallRange or 14) + 4
+	local BOARD_TAG = "HarvestBoard"
+	local BOARD_PROMPT = "HarvestBoardPrompt"
 	local harvest = {
 		window = nil :: HarvestStall.HarvestStall?,
+		notes = nil :: ThankfulNotes.ThankfulNotes?, -- #4251: the Thankful Board's note picker
 		connections = {} :: { RBXScriptConnection },
 		prompts = {} :: { [ProximityPrompt]: boolean },
 	}
 
-	local function stallDistance(): number?
+	-- how far the player stands from the nearest model tagged `tag` (the stall unless named), or nil
+	local function stallDistance(tag: string?): number?
 		local character = Players.LocalPlayer.Character
 		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 		if root == nil or not root:IsA("BasePart") then
 			return nil
 		end
 		local best: number? = nil
-		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+		for _, stall in CollectionService:GetTagged(tag or STALL_TAG) do
 			if stall:IsA("Model") and stall:IsDescendantOf(Workspace) then
 				local distance = (
 					(stall :: Model):GetPivot().Position - (root :: BasePart).Position
@@ -10459,17 +10499,29 @@ do
 		modalView:open("HarvestStall")
 	end
 
-	local function track(stall: Instance)
+	-- #4251: the board's prompt opens the note picker
+	local function openNotes()
+		local notes = harvest.notes
+		local modalView = modal
+		if notes == nil or modalView == nil then
+			return
+		end
+		modalView:open("ThankfulNotes")
+	end
+
+	-- a stall's (or with `promptName`, the board's) prompt, waited for if it streams in later
+	local function track(stall: Instance, promptName: string?, onOpen: (() -> ())?)
 		if not stall:IsDescendantOf(Workspace) then
 			return
 		end
-		local found = stall:FindFirstChild(PROMPT_NAME, true)
+		local name = promptName or PROMPT_NAME
+		local found = stall:FindFirstChild(name, true)
 		if found == nil or not found:IsA("ProximityPrompt") then
 			local waiting: RBXScriptConnection
 			waiting = stall.DescendantAdded:Connect(function(child: Instance)
-				if child.Name == PROMPT_NAME and child:IsA("ProximityPrompt") then
+				if child.Name == name and child:IsA("ProximityPrompt") then
 					waiting:Disconnect()
-					track(stall)
+					track(stall, promptName, onOpen)
 				end
 			end)
 			table.insert(harvest.connections, waiting)
@@ -10480,7 +10532,13 @@ do
 			return
 		end
 		harvest.prompts[prompt] = true
-		table.insert(harvest.connections, prompt.Triggered:Connect(open))
+		local run: () -> () = onOpen or open
+		table.insert(
+			harvest.connections,
+			prompt.Triggered:Connect(function()
+				run()
+			end)
+		)
 		table.insert(
 			harvest.connections,
 			prompt.AncestryChanged:Connect(function()
@@ -10527,8 +10585,50 @@ do
 		end
 		table.insert(
 			harvest.connections,
-			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(track)
+			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(function(stall: Instance)
+				track(stall)
+			end)
 		)
+		-- #4251: the Thankful Board's note picker, from the board's own prompt
+		local notes = ThankfulNotes.new({
+			pin = function(note: number)
+				UI.events.pinHarvestNote:Fire(note)
+				UI.toast("Your note is on the Thankful Board!", "good")
+			end,
+			close = function()
+				if modalView:current() == "ThankfulNotes" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = stallDistance(BOARD_TAG)
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		harvest.notes = notes
+		modalView:register("ThankfulNotes", {
+			frame = notes.frame,
+			onOpen = function()
+				notes:opened()
+			end,
+			onClose = function()
+				notes:closed()
+			end,
+		})
+		for _, board in CollectionService:GetTagged(BOARD_TAG) do
+			track(board, BOARD_PROMPT, openNotes)
+		end
+		table.insert(
+			harvest.connections,
+			CollectionService:GetInstanceAddedSignal(BOARD_TAG):Connect(function(board: Instance)
+				track(board, BOARD_PROMPT, openNotes)
+			end)
+		)
+	end
+
+	-- #4251: the note picker, as the board's prompt opens it; the UI gate's scenes call this too
+	function UI.harvest.openNotes()
+		openNotes()
 	end
 
 	-- The window on one tab ("outfit" by default), as the stall's prompt opens it; the UI gate's scenes call this too.
@@ -10558,6 +10658,11 @@ do
 			window:destroy()
 		end
 		harvest.window = nil
+		local notes = harvest.notes
+		if notes then
+			notes:destroy()
+		end
+		harvest.notes = nil
 	end
 end
 
@@ -11185,7 +11290,32 @@ do
 			end,
 			claimed = function(): boolean?
 				local claimed = (state :: any).starterCatClaimed
+				-- the stand is shut below Tier 2 (shared/StarterCat.locked): no line over it there
+				if
+					(
+						require(
+							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")
+						) :: any
+					).locked(state.tier)
+				then
+					return nil
+				end
 				return if type(claimed) == "boolean" then claimed else nil
+			end,
+			locked = function(
+				tag: string
+			): boolean -- shared/StationTiers, as StationLockController hides them
+				local StationTiers = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+				) :: any
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local on = LiveFlags.shown(
+					StationTiers.FLAG,
+					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationTiers.FLAG)
+				)
+				return StationTiers.locked(tag, (state :: any).tier, on)
 			end,
 		})
 	end
@@ -11354,6 +11484,11 @@ function UI.returnHook.try(): boolean
 	if hook.shown then
 		return true
 	end
+	-- #3951: on a new account's first day the come back tomorrow card comes first, and takes the line's place
+	if UI.tomorrowCard.try() then
+		hook.shown = true
+		return true
+	end
 	local ReturnHookLine = require(script.Components.ReturnHookLine)
 	local RoadmapLogic = require(script.Components.RoadmapLogic) :: any
 	local tier = state.tier or 1
@@ -11368,20 +11503,7 @@ function UI.returnHook.try(): boolean
 	if words == nil then
 		return false -- nothing to name yet (today's Daily Treat stamp is still unclaimed), or the switch is off
 	end
-	local busy = (modal ~= nil and modal:current() ~= nil)
-		or (baitCard ~= nil and baitCard:isShowing())
-		or (tipCard ~= nil and tipCard:isShowing())
-		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
-		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
-		or not visible
-		or (hud ~= nil and hud:isCatching())
-		or state.carrying ~= nil
-		or UI.cutscene.held()
-		or UI.firstCat.held -- #4821
-		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC
-		or UI.rollBusy.held()
-		or not UI.popPace.free() -- #4946
-	if busy then
+	if UI.returnHook.busy() or UI.firstCat.held or UI.firstCat.tutorial then
 		return false
 	end
 	hook.shown = true
@@ -11389,6 +11511,122 @@ function UI.returnHook.try(): boolean
 	UI.toast(words, "info", ReturnHookLine.SHOW_SECONDS)
 	UI.events.returnHookEarly:Fire(ReturnHookLine.kind((state :: any).tomorrowHook))
 	return true
+end
+
+-- Whether anything is over the screen for the minute 6 line and the come back tomorrow card: a window or card, a
+-- catch, something carried, a cutscene or roll, the UI hidden, or the 5 minute pop-up pace used (#4946). The first
+-- cat and walk-through holds (#4821, Derek 2026-11-16 15:22 UTC) are checked by each caller.
+function UI.returnHook.busy(): boolean
+	return (modal ~= nil and modal:current() ~= nil)
+		or (baitCard ~= nil and baitCard:isShowing())
+		or (tipCard ~= nil and tipCard:isShowing())
+		or (askCard ~= nil and askCard:isShowing())
+		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
+		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
+		or not visible
+		or (hud ~= nil and hud:isCatching())
+		or state.carrying ~= nil
+		or UI.cutscene.held()
+		or UI.rollBusy.held()
+		or not UI.popPace.free()
+end
+
+-- #3951 (Components/TomorrowCard): the come back tomorrow card, once a session on a new account's first UTC day,
+-- behind the tomorrowCard switch. UI.returnHook.try asks it first, once a second, so it rides the line's watcher.
+UI.tomorrowCard = { shown = false }
+
+-- true when the card showed now
+function UI.tomorrowCard.try(): boolean
+	local card = askCard
+	if UI.tomorrowCard.shown or card == nil then
+		return false
+	end
+	-- #4483 (Derek 2026-11-15): a player who X'd the Tutorial tile gets no pop-ups like this
+	if not tutorialButtonOn then
+		return false
+	end
+	local TomorrowCard = require(script.Components.TomorrowCard)
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local on = LiveFlags.shown(
+		TomorrowCard.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. TomorrowCard.FLAG)
+	)
+	if not on then
+		return false
+	end
+	-- Derek 2026-11-17 15:24 UTC: the tomorrowCard 50/50 (shared/ReturnAB): the off group never sees the card
+	if
+		not (require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ReturnAB")) :: any).allows(
+			"tomorrowCard",
+			Players.LocalPlayer.UserId,
+			Players.LocalPlayer:GetAttribute("QuietFirstDay") -- shared/QuietStart.DAY_ATTRIBUTE
+		)
+	then
+		return false
+	end
+	local ReturnHookLine = require(script.Components.ReturnHookLine)
+	local QuietStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+	local due = TomorrowCard.due({
+		on = on,
+		shown = UI.tomorrowCard.shown,
+		kind = ReturnHookLine.kind((state :: any).tomorrowHook),
+		firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE),
+		now = Workspace:GetServerTimeNow(),
+		played = os.clock() - UI.returnHook.startedAt,
+		held = UI.firstCat.held or UI.firstCat.tutorial,
+		busy = UI.returnHook.busy(),
+	})
+	if not due then
+		return false
+	end
+	UI.tomorrowCard.open(card)
+	return true
+end
+
+-- The card on `card` now, whatever the clock, the day and the switch say (UI.tomorrowCard.show: QA in Studio and the
+-- UI gate).
+function UI.tomorrowCard.open(card: AskCard.AskCard)
+	local TomorrowCard = require(script.Components.TomorrowCard)
+	UI.tomorrowCard.shown = true
+	local ended = false
+	local function finish(how: string)
+		if ended then
+			return
+		end
+		ended = true
+		UI.events.tomorrowCard:Fire(how)
+	end
+	card:show({
+		title = TomorrowCard.TITLE, -- a phone's narrower card wraps it onto two lines at full size (#4552)
+		picture = TomorrowCard.PICTURE,
+		line = TomorrowCard.LINE,
+		choices = {
+			{ id = "ok", label = TomorrowCard.BUTTON, style = "primary" },
+		},
+		-- no seconds: it stays until OK or the X, with no timer bar
+		answer = function(choice: string?)
+			if choice == "ok" then
+				finish("ok")
+			end
+		end,
+		ended = function(how: string)
+			if how == "closed" or how == "ignored" then
+				finish("closed")
+			elseif how ~= "answered" then
+				finish("hidden")
+			end
+		end,
+	})
+	UI.asks.shown() -- the 5 minute pop-up pace, and the next slide-in ask waits its gap
+	UI.events.tomorrowCard:Fire("shown")
+end
+
+function UI.tomorrowCard.show()
+	if askCard ~= nil then
+		UI.tomorrowCard.open(askCard)
+	end
 end
 
 -- Looks once a second until the line showed; a rebuilt UI (token) starts its own watcher and ends the old one.

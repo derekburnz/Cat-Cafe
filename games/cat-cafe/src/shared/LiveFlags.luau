@@ -92,6 +92,8 @@ LiveFlags.KEYS = {
 	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
 	"mailbox", -- #4249: the Mailbox tile and window (letters from Derek with a gift to claim), Feedback into the Menu list
 	"autoBowl", -- #4266: the Auto Bowl pass's offer card, switches and Store card (Screens/BaitBowl)
+	"harvestHollow", -- #4251: Harvest Hollow (shared/HarvestSave); a kill switch, the area's dates open and close it
+	"harvestPieLow", -- #4251: the Feast Pie's goal drops from 25,000 to 15,000 harvest cats (HarvestSave.pieGoal); off
 	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
 	"deviceFixes", -- the Tue 2026-11-17 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
@@ -124,6 +126,8 @@ LiveFlags.KEYS = {
 	"tier3Path", -- #5038: at Tier 2 a new kind waits by the Park landing, one next goal, a Tier 3 welcome gift (shared/Tier3Path); off by default
 	"cafeGrows", -- #4543: the cafe's room grows every two tiers (shared/CafeRoom, Model-Agent's _WxD shells); off by default
 	"fxAfterLoad", -- #5068: client Effects and Audio start-up waits until the loading screen ends (Effects/LoadGate); off by default
+	"tomorrowCard", -- #3951: the come back tomorrow card on a new account's first day (UI/Components/TomorrowCard); off by default
+	"cannonCue", -- the HUD Cannon button glows while Tier 2 is short of cats in the hometown (Effects/CannonCue, #5097); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -143,6 +147,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	ticketBooth = true,
 	dragonKeep = true,
 	tier8 = true,
+	harvestPieLow = true,
 	tier9 = true,
 	tier10 = true,
 	rareCustomers = true,
@@ -173,6 +178,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	-- shrinks every grown room at its next cafe refresh, and the cats, decor, tables and bait are built again in it.
 	cafeGrows = true,
 	fxAfterLoad = true, -- #5068: on after Review-QA and a phone read of client_load with it on
+	tomorrowCard = true, -- #3951: on after the Nov 16 and 17 day 1 read of the minute 6 line, a UTC day apart from the funnel switches
+	cannonCue = true, -- #5097: on with Derek's Nov 17 15:00 UTC "all tutorial switches on now"
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

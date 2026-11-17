@@ -215,7 +215,7 @@ introFunnel=onboarding_v4_intro
 # and first_hour_v3 stopped being sent with them and keep their labels for a window that starts before.
 cleanFunnel=
 cleanSteps=()
-# #4504: onboarding_v8 is the clean funnel while the walk-through runs bowl first (catchFirst false, #4518), and
+# onboarding_v9 (Derek 2026-11-17, replaced v8 of #4504) is the clean funnel while the walk-through runs bowl first (catchFirst false, #4518), and
 # onboarding_v7 while it runs today's order; v7's rows keep their labels through V7_CLEAN_STEPS
 cleanV7Funnel=onboarding_v7
 cleanV7Steps=()
@@ -770,6 +770,7 @@ fieldEvents=(
 	"pal_time|CustomField2|CustomEventCountUser|Players with pal time, by tier when they left (#3995)"
 	"pal_day_claimed|Platform|CustomEventCountUser|Players who got a Pal Day gift, by device (#4913)"
 	"pal_day_claimed|CustomField1|CustomEventCountUser|Players who got a Pal Day gift, by how the pal link started (#4913)"
+	"ab_return|CustomField1,CustomField2|CustomEventCountUser|Players in each return-day 50/50, by test and on/off group (ReturnAB, Derek Nov 17)"
 	"pal_join|CustomField1,CustomField2|CustomEventCountUser|Friend joins: invite or follow, new or returning (#3995, #4141)"
 	"pal_join|CustomField1,CustomField3|CustomEventCountUser|Friend joins: invite or follow, landed next door or not (#3995, #4141)"
 	"pal_join|Platform,CustomField2|CustomEventCountUser|Friend joins by device, new or returning (#3995, #4141)"
@@ -785,6 +786,8 @@ fieldEvents=(
 	"rank_up_spotlight_shown|CustomField1|CustomEventCountUser|Rank up walk-through shown: players by device (#3555)"
 	"rank_up_spotlight_closed|CustomField1|CustomEventCountUser|Rank up walk-through closed: players by device (#3555)"
 	"starter_suggest|CustomField1|CustomEventCountUser|Starter Bundle card: players by outcome (#4174)"
+	"tomorrow_card|CustomField1|CustomEventCountUser|Come back tomorrow card: players by outcome (#3951)"
+	"tomorrow_card|CustomField2,CustomField1|CustomEventCountUser|Come back tomorrow card: players by device and outcome (#3951)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
 	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"
@@ -862,6 +865,8 @@ fieldEvents=(
 	"robux_purchase|CustomField1|CustomEventCount|Robux purchases by sku"
 	"robux_purchase|CustomField1|CustomEventAvgValue|Average Robux per purchase, by sku (x count = revenue)"
 	"store_cancelled|CustomField1|CustomEventCount|Purchase prompts closed without buying, by sku"
+	"paid_item|CustomField1|CustomEventCount|Robux purchases by sku, robux_purchase's twin name (#4438)"
+	"paid_item|CustomField1|CustomEventAvgValue|Average Robux per purchase by sku, twin name (#4438; x count = revenue)"
 	"step_ready|CustomField1|CustomEventCountUser|First five minutes (#3098): players ready for each step"
 	"step_ready|CustomField1|CustomEventAvgValue|First five minutes: average account seconds when each step became ready"
 	"step_stall|CustomField1,CustomField2|CustomEventCountUser|First five minutes: players stalled by awaited step and 30/60/120 s"
@@ -873,6 +878,7 @@ fieldEvents=(
 	"health_check|Platform,CustomField1|CustomEventCountUser|Health check (#3101): players by device and ping"
 	"health_check|Platform,CustomField2|CustomEventCountUser|Health check: players by device and memory"
 	"health_check|Platform|CustomEventAvgValue|Health check: average fps by device"
+	"health_check|Platform,CustomField3|CustomEventAvgValue|Health check: average fps by device and where the player stood (cafe, town, area id; field 3 was the device before Nov 17)"
 	"quick_return|CustomField1,CustomField2|CustomEventCountUser|Quick returns by furthest step and minutes away"
 	"quick_return|CustomField3|CustomEventCountUser|Quick returns by session number"
 	"quit_cafe|CustomField1|CustomEventCountUser|Leavers by cats working"
@@ -881,6 +887,9 @@ fieldEvents=(
 	"quit_scene|CustomField1|CustomEventCountUser|Leavers below Tier 2 by scene (#3101)"
 	"quit_scene|CustomField2,CustomField1|CustomEventCountUser|Leavers below Tier 2 by device and scene"
 	"quit_scene|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by scene and seconds bucket"
+	"park_left|CustomField1,CustomField2|CustomEventCountUser|Park leavers with no Park cat (#5034): by device and closest free stray (none, lt15, 15_40, 40_100, 100plus)"
+	"park_left|CustomField1|CustomEventAvgValue|Park leavers with no Park cat (#5034): average seconds in the Park, by device"
+	"park_left|CustomField1,CustomField3|CustomEventCountUser|Park leavers with no Park cat (#5034): by device and seconds in the Park"
 	"first_scene|CustomField1|CustomEventAvgValue|Average seconds from join to the first intro shot, by device (minus step_time loaded = still wait)"
 	"first_scene|CustomField1,CustomField3|CustomEventCountUser|Players by device and wait before the first intro shot"
 	"ab_loading|CustomField3,CustomField1,CustomField2|CustomEventCountUser|Loading screen test (#4314): players by device, arm and playtime step up to 5 min (churn = drop between steps)"

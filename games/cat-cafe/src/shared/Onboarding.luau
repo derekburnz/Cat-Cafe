@@ -531,7 +531,8 @@ end
 -- player must do, in the order the game asks for it. Out of it on purpose: the optional rescue, the cards and windows
 -- a client reports, coming back the next day, the Store, the Cafe Pass and Robux. Its place is its own telemetry
 -- field (cleanStep), so a server still on v6 during a rollout never reads it.
-Onboarding.CLEAN_FUNNEL = "onboarding_v8"
+Onboarding.CLEAN_FUNNEL = "onboarding_v9"
+Onboarding.V8_CLEAN_COUNT = 43 -- onboarding_v8's steps, for the field a save still carries (cleanV8Step)
 
 -- v7's 27 steps in v7's order, kept for the report's labels of onboarding_v7 and for the v7 field (cleanStep) a save
 -- still carries for a server on v7 during the rollout (#4504).
@@ -635,6 +636,11 @@ type CleanRule = {
 	tutorialStep: number?,
 	handCats: number?,
 	event: string?,
+	-- onboarding_v9: `tamed` that many bowl cats tamed (stats.baitsTamed), `ownedCats` that many cats owned (with
+	-- `tamed`, both), `readyTier` that tier reached or its rank up ready from the tier below (Economy.rankUpBlocker)
+	tamed: number?,
+	ownedCats: number?,
+	readyTier: number?,
 }
 
 -- The moments an event step listens for (Telemetry.cleanEvent's `event`).
@@ -648,7 +654,44 @@ Onboarding.CLEAN_EVENTS = {
 	netCatch = "net_catch", -- a cat caught with the net (CatService)
 	rankUpPressed = "rank_up_pressed", -- RankUp pressed at Tier 1, met or not (CafeService)
 	rankUpShown = "rank_up_shown", -- the Rank Up card opened at Tier 1 (the client's screen report)
+	-- onboarding_v9 (Derek 2026-11-17 15:18 UTC: "even more in depth especially for first 5 minutes tutorial steps
+	-- and tier1/2"; Growth-Agent's list funnel-v9-2026-11-17/onboarding-v9-steps.md): moments already logged as
+	-- custom events, read off them as they are sent (Onboarding.cleanFromCustom)
+	worldReady = "world_ready", -- client_load: the world ready on the client
+	introStart = "intro_start", -- first_scene: the intro's first shot
+	introDone = "intro_done", -- intro_cutscene, first play: finished or skipped
+	bowlHint = "bowl_hint", -- step_time tut_bowl_food: the strip asks for food in the bowl
+	tameAsk = "tame_ask", -- step_time tut_bowl_arrived: the cat is at the bowl and the strip asks for Tame
+	strayMarked = "stray_marked", -- step_time second_cat_trail_shown: the stray that waits is marked
+	catchPrompt = "catch_prompt", -- catch_prompt_shown_first: the catch card on screen
+	rankReady = "rank_ready", -- rank_up_ready_first: Tier 2's every need met
+	rankCue = "rank_cue", -- step_time tut_rank_cue: the strip and the ring point at YOUR GOAL (#5108)
+	parkRing = "park_ring", -- park_first_hint ring: the Park's first ring shown
 }
+
+-- The v9 moment a custom event carries (Telemetry.custom calls this for every event it sends), nil for none. Pure.
+local FROM_CUSTOM: { [string]: string } = {
+	client_load = Onboarding.CLEAN_EVENTS.worldReady,
+	first_scene = Onboarding.CLEAN_EVENTS.introStart,
+	catch_prompt_shown_first = Onboarding.CLEAN_EVENTS.catchPrompt,
+	rank_up_ready_first = Onboarding.CLEAN_EVENTS.rankReady,
+}
+local FROM_STEP_TIME: { [string]: string } = {
+	tut_bowl_food = Onboarding.CLEAN_EVENTS.bowlHint,
+	tut_bowl_arrived = Onboarding.CLEAN_EVENTS.tameAsk,
+	second_cat_trail_shown = Onboarding.CLEAN_EVENTS.strayMarked,
+	tut_rank_cue = Onboarding.CLEAN_EVENTS.rankCue,
+}
+function Onboarding.cleanFromCustom(name: string, fields: { string }): string?
+	if name == "step_time" then
+		return FROM_STEP_TIME[fields[1] or ""]
+	elseif name == "intro_cutscene" then
+		return if fields[3] == "first" then Onboarding.CLEAN_EVENTS.introDone else nil
+	elseif name == "park_first_hint" then
+		return if fields[1] == "ring" then Onboarding.CLEAN_EVENTS.parkRing else nil
+	end
+	return FROM_CUSTOM[name]
+end
 -- The landing in `area` by cannon (CannonService).
 function Onboarding.arrivedEvent(area: string): string
 	return "arrived_" .. area
@@ -659,25 +702,44 @@ local EV = Onboarding.CLEAN_EVENTS
 local LATER_AREAS =
 	{ "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "snowy", "waterpark", "castle" }
 local CLEAN_RULES: { CleanRule } = {
+	-- join and intro
 	{ name = "joined", ledger = "joined" },
 	{ name = "loaded", ledger = "loaded" },
+	{ name = "world_ready", event = EV.worldReady },
+	{ name = "intro_started", event = EV.introStart },
+	{ name = "intro_done", event = EV.introDone },
 	{ name = "first_move", ledger = "first_move" }, -- the intro scene over, the character walks
+	-- the bowl cat
+	{ name = "bowl_hint_seen", event = EV.bowlHint },
 	{ name = "bowl_opened", event = EV.bowlOpen }, -- the Bait bowl window open
 	{ name = "first_bowl", ledger = "first_bait" }, -- food in the bowl
 	{ name = "bowl_cat_here", event = EV.bowlArrived }, -- the bowl cat arrived
-	{ name = "bowl_cat_tamed", ledger = "first_bait_resolved" }, -- tamed (or let go)
+	{ name = "tame_ask_shown", event = EV.tameAsk },
+	{ name = "bowl_cat_tamed", tamed = 1 }, -- tamed, never let go
+	{ name = "starter_cats_2", ownedCats = 2, tamed = 1 }, -- the starter Tabby and the bowl cat: proves the starter
+	-- to the Alleyway
 	{ name = "in_cannon", event = EV.cannonOpen },
-	{ name = "alley_picked", ledger = "first_cannon" }, -- the first launch, to the Alleyway
+	{ name = "alley_picked", event = EV.launch }, -- the first launch, to the Alleyway
 	{ name = "alley_arrived", event = Onboarding.arrivedEvent("alley") }, -- landed in the Alleyway
-	{ name = "near_stray", ledger = "near_stray" },
-	{ name = "catch_started", ledger = "catch_started" }, -- the net swung
-	{ name = "first_catch", ledger = "first_catch" },
-	{ name = "first_checkin", ledger = "first_checkin" }, -- saved at camp
+	-- the first hand catch
+	{ name = "stray_marked", event = EV.strayMarked },
+	{ name = "near_stray", event = EV.nearStray }, -- came near the stray that waits for them
+	{ name = "catch_prompt_shown", event = EV.catchPrompt },
+	{ name = "catch_started", event = EV.catchStart }, -- the net swung
+	{ name = "first_catch", event = EV.netCatch }, -- won: the cat is in hand ("Carry it to camp")
+	{ name = "first_checkin", handCats = 1 }, -- a cat caught by hand saved at camp (the bowl cat does not count)
+	-- the Rank Up
+	{ name = "rank_up_ready", event = EV.rankReady },
+	{ name = "rank_up_cue_seen", event = EV.rankCue },
 	{ name = "rank_up_ready_shown", event = EV.rankUpShown },
 	{ name = "rank_up_pressed", event = EV.rankUpPressed },
 	{ name = "tier_2", tier = 2 },
+	-- the Park
 	{ name = "park_arrived", event = Onboarding.arrivedEvent("park") }, -- the Rank Up moves the player in (#4674): the walk-through's end
+	{ name = "park_ring_seen", event = EV.parkRing },
+	{ name = "park_catch_started", event = EV.catchStart },
 	{ name = "park_catch", area = "park", tier = 2 },
+	{ name = "tier_3_ready", readyTier = 3 },
 }
 for index, area in LATER_AREAS do
 	if index > 1 then
@@ -695,23 +757,36 @@ end
 Onboarding.CLEAN_STEPS = {
 	"joined",
 	"loaded",
+	"world_ready",
+	"intro_started",
+	"intro_done",
 	"first_move",
+	"bowl_hint_seen",
 	"bowl_opened",
 	"first_bowl",
 	"bowl_cat_here",
+	"tame_ask_shown",
 	"bowl_cat_tamed",
+	"starter_cats_2",
 	"in_cannon",
 	"alley_picked",
 	"alley_arrived",
+	"stray_marked",
 	"near_stray",
+	"catch_prompt_shown",
 	"catch_started",
 	"first_catch",
 	"first_checkin",
+	"rank_up_ready",
+	"rank_up_cue_seen",
 	"rank_up_ready_shown",
 	"rank_up_pressed",
 	"tier_2",
 	"park_arrived",
+	"park_ring_seen",
+	"park_catch_started",
 	"park_catch",
+	"tier_3_ready",
 	"tier_3",
 	"neighbourhood_arrived",
 	"neighbourhood_catch",
@@ -738,7 +813,7 @@ Onboarding.CLEAN_STEPS = {
 	"castle_catch",
 } :: { string }
 Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
-Onboarding.CLEAN_TUTORIAL = 18 -- park_arrived, the walk-through's end: the areas come after
+Onboarding.CLEAN_TUTORIAL = 28 -- park_arrived, the walk-through's end: the areas come after
 Onboarding.CLEAN_RULE_NAMES = table.create(#CLEAN_RULES) :: { string } -- for the spec
 for index, rule in CLEAN_RULES do
 	Onboarding.CLEAN_RULE_NAMES[index] = rule.name
@@ -754,6 +829,9 @@ export type CleanFacts = {
 	areas: { [string]: boolean },
 	tutorialStep: number?,
 	handCats: number?,
+	tamed: number?, -- onboarding_v9: stats.baitsTamed
+	ownedCats: number?, -- the cats owned now
+	nextReady: boolean?, -- the next tier's rank up is ready now (Economy.rankUpBlocker nil)
 }
 
 -- Whether a rule that is not an event step is done.
@@ -769,6 +847,13 @@ local function cleanDone(state: Types.TelemetryState, rule: CleanRule, facts: Cl
 		return (facts.tutorialStep or 0) >= rule.tutorialStep
 	elseif rule.handCats ~= nil then
 		return (facts.handCats or 0) >= rule.handCats
+	elseif rule.ownedCats ~= nil then
+		return (facts.ownedCats or 0) >= rule.ownedCats and (facts.tamed or 0) >= (rule.tamed or 0)
+	elseif rule.tamed ~= nil then
+		return (facts.tamed or 0) >= rule.tamed
+	elseif rule.readyTier ~= nil then
+		return facts.tier >= rule.readyTier
+			or (facts.tier == rule.readyTier - 1 and facts.nextReady == true)
 	end
 	return false
 end
@@ -833,7 +918,7 @@ function Onboarding.cleanFurthest(state: Types.TelemetryState, v8: boolean?): st
 	if not (if v8 == nil then TutorialOrder.bowlFirst() else v8) then
 		return v7Furthest(state)
 	end
-	local step = state.cleanV8Step or 0
+	local step = state.cleanV9Step or 0
 	if step >= Onboarding.CLEAN_COUNT then
 		return "done"
 	end

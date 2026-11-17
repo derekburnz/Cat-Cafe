@@ -550,6 +550,7 @@ return function()
 				TicketBoothTier = true, -- #4061: checked in TicketBooth.spec (the Water Park taken as Tier 9)
 				CatchPressStampSeconds = true, -- #4609: checked in Circles.spec (the late tap stamp window)
 				SecretNextMythicTimes = true, -- #4618: checked in SecretCats.spec (a Secret earns 10x the next area's Mythic)
+				HarvestStallRange = true, -- #4251: the Harvest Stall prompt and BuyHarvest range
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				TutorialNetExtraStuds = true, -- #4815: the walk-through net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor

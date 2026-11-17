@@ -360,6 +360,7 @@ function Quests.measure(profile: Types.PlayerProfile, measure: string): number
 				def ~= nil
 				and (Catalog.rarityRank[def.rarity] or 0) >= Catalog.rarityRank.Mythical
 				and def.exclusive ~= true
+				and def.area ~= "harvest" -- #4251: an event cat clears no rare quest (Design spec 3b)
 			then
 				n += 1
 			end

@@ -208,7 +208,7 @@ local function samplePlayer(now)
 		achievements = achievements,
 		dailyTreat = { stamp = 2, lastDay = day - 1, due = true, nextDay = 3 },
 		-- #4251: a Harvest Hollow player with 65 pumpkins who bought the Acorn Hat and the Hay Bale Sofa
-		harvest = { pumpkins = 65, bought = { acorn_hat = true, hay_bale_sofa = true } },
+		harvest = { pumpkins = 195, bought = { acorn_hat = true, hay_bale_sofa = true } },
 		-- F91: a lawn half done: two pieces out, two more in the bag, a Red Brick path and the White Picket
 		lawnOwned = {
 			tulip_bed = true,
@@ -10204,25 +10204,35 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(strip ~= nil and strip.Visible, "uigate: the rank up line is not on the strip")
-		assert(buy ~= nil and buy.Visible, "uigate: no RANK UP button beside the rank up line")
-		local text: TextLabel? = nil
-		for _, piece in (buy :: GuiObject):GetDescendants() do
-			if piece:IsA("TextLabel") and piece.Text == RankFirst.BUTTON then
-				text = piece
+		-- Derek 2026-11-17 ("no need for extra rankup button above the bottom middle tutorial step"): no button over
+		-- the strip; the ring goes on the goal card (YOUR GOAL), with no dim off the walk-through
+		assert(buy == nil or not buy.Visible, "uigate: a RANK UP button still shows over the strip")
+		local goal: GuiObject? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == "🏆 YOUR GOAL" and piece.Visible then
+				goal = piece
 			end
 		end
-		assert(text ~= nil, "uigate: the strip's button does not say " .. RankFirst.BUTTON)
-		assert((text :: TextLabel).TextFits ~= false, "uigate: RANK UP does not fit its button")
-		assert((buy :: GuiObject):FindFirstChild("TutorialGlow") ~= nil, "uigate: the RANK UP button has no ring (Derek 2026-11-16)")
-		assert(tutorialSpotlight() == nil, "uigate: the RANK UP button dims the screen (the dim is the safe side's walk-through)")
-		local b, st = (buy :: GuiObject), (strip :: GuiObject)
-		local screen = hud.AbsoluteSize
-		assert(b.AbsolutePosition.X >= 0 and b.AbsolutePosition.X + b.AbsoluteSize.X <= screen.X and b.AbsolutePosition.Y >= 0, "uigate: the RANK UP button runs off screen")
-		assert(b.AbsolutePosition.Y + b.AbsoluteSize.Y <= st.AbsolutePosition.Y + 1, "uigate: the RANK UP button overlaps the strip")
+		assert(goal ~= nil, "uigate: no goal card beside the rank up line")
+		local ringed = false
+		local at: Instance? = goal
+		while at ~= nil and at ~= hud do
+			if at:FindFirstChild("TutorialGlow") ~= nil then
+				ringed = true
+			end
+			at = at.Parent
+		end
+		assert(ringed, "uigate: the goal card has no ring beside the rank up line")
+		assert(tutorialSpotlight() == nil, "uigate: the rank up line dims the screen (the dim is the safe side's walk-through)")
+		local st = strip :: GuiObject
+		assert(st.AbsolutePosition.X >= 0 and st.AbsolutePosition.X + st.AbsoluteSize.X <= hud.AbsoluteSize.X, "uigate: the rank up line runs off screen")
 		UI.tutorial.hide()
 		task.wait(0.1)
-		assert(not b.Visible, "uigate: the RANK UP button stays after the line goes")
-		assert(b:FindFirstChild("TutorialGlow") == nil, "uigate: the RANK UP ring stays on the strip's button after the line goes")
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "TutorialGlow" and goal ~= nil and (goal :: Instance):IsDescendantOf(piece.Parent :: Instance) then
+				error("uigate: the goal card keeps its ring after the rank up line goes")
+			end
+		end
 	end },
 	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
 	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
@@ -11818,6 +11828,122 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.nursery.open("fence")
 	end },
 	-- #4251: the Harvest Stall with 65 pumpkins: the Acorn Hat Owned, 50 and 60 gold, 70 and 80 greyed; then its Decor tab
+	-- #4251: the Thankful Board's face at 3/8 with twelve notes: the pie's three gold slices, its lines and every note
+	-- fit on the 10 x 5.6 stud Screen; the face is moved onto a frame for the shot
+	{ "ThankfulBoard", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local ThankfulBoard = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.ThankfulBoard") :: any
+		local Logic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ThankfulLogic") :: any
+		local decode = Logic.decode
+		local model = Instance.new("Model")
+		model.Name = "CatCafe_Harvest_Board"
+		local screen = Instance.new("Part")
+		screen.Name = "Screen"
+		screen.Parent = model
+		model.Parent = workspace
+		model:AddTag("HarvestBoard")
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "ThankfulBoardGate"
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.DisplayOrder = 100 -- over the HUD, so the shot shows the face
+		gui.Parent = UIShim.playerGui
+		local rows = {}
+		for index = 1, 12 do
+			table.insert(rows, { userId = index, note = ((index - 1) % 6) + 1 })
+		end
+		Logic.decode = function()
+			return rows
+		end
+		ReplicatedStorage:SetAttribute("HarvestPieCount", 12345)
+		ReplicatedStorage:SetAttribute("HarvestPieGoal", 25000)
+		ReplicatedStorage:SetAttribute("HarvestPieSlices", 3)
+		model:SetAttribute("HarvestNotes", "[rows]")
+		local board = ThankfulBoard.new(gui, function()
+			return true
+		end)
+		local ok, problem = pcall(function()
+			UIShim.advance(0.2)
+			local surface = gui:FindFirstChild("ThankfulBoardFace") :: SurfaceGui
+			assert(surface ~= nil and surface:IsA("SurfaceGui"), "uigate: the tagged board got no face (#4251)")
+			local title = surface:FindFirstChild("Title") :: TextLabel
+			assert(title.Text == "Feast Pie 3/8 baked", "uigate: the board's title reads " .. title.Text .. " (#4251)")
+			local count = surface:FindFirstChild("Count") :: TextLabel
+			assert(count.Text == "12,345 / 25,000 harvest cats", "uigate: the board's count reads " .. count.Text .. " (#4251)")
+			local helped = surface:FindFirstChild("Helped") :: TextLabel
+			assert(string.find(helped.Text, "You helped", 1, true) ~= nil, "uigate: the helped line reads " .. helped.Text .. " (#4251)")
+			local pie = surface:FindFirstChild("Pie") :: Frame
+			local gold = pie:FindFirstChild("Slice3") :: Frame
+			local tin = pie:FindFirstChild("Slice4") :: Frame
+			assert(gold.BackgroundColor3 ~= tin.BackgroundColor3, "uigate: the third slice is not baked and the fourth is (#4251)")
+			local shown = 0
+			for index = 1, 12 do
+				local card = surface:FindFirstChild("Note" .. index) :: Frame
+				if card.Visible then
+					shown += 1
+					local words = card:FindFirstChild("Words") :: TextLabel
+					assert(words.Text ~= "" and words.TextFits, "uigate: note " .. index .. " is cut off: " .. words.Text .. " (#4251)")
+				end
+			end
+			assert(shown == 12, "uigate: " .. shown .. " notes on the board, wanted 12 (#4251)")
+			assert(not (surface:FindFirstChild("Empty") :: GuiObject).Visible, "uigate: the empty line shows over the notes (#4251)")
+			-- the face at 1000 x 560 on a frame the shot can show
+			local face = Instance.new("Frame")
+			face.Name = "Face"
+			face.BackgroundColor3 = Color3.fromHex("1F2A44")
+			-- at the bottom, clear of Roblox's menu buttons at the top left
+			face.AnchorPoint = Vector2.new(0.5, 1)
+			face.Position = UDim2.new(0.5, 0, 1, -8)
+			local view = workspace.CurrentCamera.ViewportSize
+			local width = math.min(600, view.X - 32, (view.Y - 80) * 1000 / 560)
+			face.Parent = gui
+			local scale = Instance.new("UIScale")
+			scale.Scale = width / 1000
+			for _, child in surface:GetChildren() do
+				child.Parent = face
+			end
+			face.Size = UDim2.fromOffset(1000, 560)
+			scale.Parent = face
+			UIShim.advance(0.2)
+		end)
+		Logic.decode = decode
+		Scenes._thankfulReset = function()
+			board:destroy()
+			gui:Destroy()
+			model:Destroy()
+			ReplicatedStorage:SetAttribute("HarvestPieCount", nil)
+			ReplicatedStorage:SetAttribute("HarvestPieGoal", nil)
+			ReplicatedStorage:SetAttribute("HarvestPieSlices", nil)
+		end
+		assert(ok, problem)
+	end },
+	-- #4251: the note picker from the board's prompt: six fixed notes that fit, a tap pins one and closes it, and
+	-- opened again within the server's 10 s gap the notes are grey with "Pinned! Pick again in 10 s"
+	{ "ThankfulNotes", function()
+		local sent = {}
+		local link = UI.events.pinHarvestNote:Connect(function(note)
+			table.insert(sent, note)
+		end)
+		local ok, problem = pcall(function()
+			UI.harvest.openNotes()
+			assert(UI.isOpen() == "ThankfulNotes", "uigate: the note picker did not open (#4251)")
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("ThankfulNotes", true) :: GuiObject
+			for index = 1, 6 do
+				local button = window:FindFirstChild("Note" .. index, true) :: Instance
+				local label = button:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+				assert(label.Text ~= "" and label.TextFits, "uigate: note " .. index .. " does not fit: " .. label.Text .. " (#4251)")
+			end
+			press("ThankfulNotes", "Note2")
+			assert(#sent == 1 and sent[1] == 2, "uigate: tapping note 2 sent no PinHarvestNote 2 (#4251)")
+			assert(UI.isOpen() ~= "ThankfulNotes", "uigate: the picker stayed open after a pin (#4251)")
+			UI.harvest.openNotes()
+			local line = window:FindFirstChild("Line", true) :: TextLabel
+			assert(string.sub(line.Text, 1, 7) == "Pinned!", "uigate: right after a pin the line reads " .. line.Text .. " (#4251)")
+			press("ThankfulNotes", "Note3")
+			assert(#sent == 1, "uigate: a second pin went out inside the 10 s gap (#4251)")
+		end)
+		link:Disconnect()
+		assert(ok, problem)
+	end },
 	{ "HarvestStall", function()
 		UI.harvest.open("outfit")
 	end },
@@ -13861,11 +13987,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local card = page:FindFirstChild("Pack_packWinter") :: GuiObject
 			local buy = card:FindFirstChild("Buy", true) :: GuiObject
 			local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
-			assert(string.find(label.Text, "4,950", 1, true), "uigate: the Winter Pack reads " .. label.Text .. " in fish mode (#4055)")
+			assert(string.find(label.Text, "2,500", 1, true), "uigate: the Winter Pack reads " .. label.Text .. " in fish mode (#4055)")
 			local bar = buy:FindFirstChild("FishBar") :: Frame
 			assert(bar and bar.Visible, "uigate: no bar of fish saved over the Winter Pack's button (#4055)")
 			local fill = bar:FindFirstChild("Fill") :: Frame
-			assert(math.abs(fill.Size.X.Scale - 2310 / 4950) < 0.01, "uigate: the fish bar is at " .. fill.Size.X.Scale .. " (#4055)")
+			assert(math.abs(fill.Size.X.Scale - 2310 / 2500) < 0.01, "uigate: the fish bar is at " .. fill.Size.X.Scale .. " (#4055)")
 			local effect = card:FindFirstChild("Effect") :: GuiObject
 			assert(bar.AbsolutePosition.Y >= buy.AbsolutePosition.Y and bar.AbsolutePosition.Y + bar.AbsoluteSize.Y <= buy.AbsolutePosition.Y + buy.AbsoluteSize.Y, "uigate: the fish bar is not inside the Winter Pack's button (#4055)")
 			-- the money ladder is Robux only, and a tap on it goes back to Robux prices
@@ -13885,7 +14011,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(#sent == 0 and string.find(label.Text, "Buy?", 1, true), "uigate: the first tap did not ask, it reads " .. label.Text .. " (#4055)")
 			assert(label.TextFits, "uigate: " .. label.Text .. " does not fit its button (#4055)")
 			press("Store", "Pack_packWinter.Buy")
-			assert(#sent == 1 and sent[1].key == "winterPack" and sent[1].fish == 4950, "uigate: the second tap sent no BuyWithFish winterPack 4950 (#4055)")
+			assert(#sent == 1 and sent[1].key == "winterPack" and sent[1].fish == 2500, "uigate: the second tap sent no BuyWithFish winterPack 2500 (#4055)")
 			UI.update({ fishStore = view({ winterPack = true }), goldenFish = 4050 } :: any)
 			local owned = card:FindFirstChild("Owned", true) :: GuiObject
 			assert(owned and owned.Visible and not buy.Visible, "uigate: the Winter Pack bought with fish does not show as yours (#4055)")
@@ -14810,6 +14936,29 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		assert(ask:FindFirstChild("Title", true).TextFits, "uigate: the Starter card's title does not fit (#4174)")
 	end },
+	-- #3951: the come back tomorrow card: the golden crate, the reason in a two line title that fits, one OK button,
+	-- the X, no draining bar, and it reports shown. Left on screen so the gate's pictures show it on every device.
+	{ "TomorrowCardShown", function()
+		local said = {}
+		local connection = UI.events.tomorrowCard:Connect(function(outcome)
+			table.insert(said, outcome)
+		end)
+		UIShim.advance(2.5)
+		UI.tomorrowCard.show()
+		UIShim.advance(0.6)
+		connection:Disconnect()
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask:FindFirstChild("Title", true)
+		assert(title.Text == "Golden crate tomorrow!", "uigate: the tomorrow card reads " .. title.Text .. " (#3951)")
+		assert(title.TextFits, "uigate: the tomorrow card's title does not fit (#3951)")
+		local ok = ask:FindFirstChild("Choice_ok", true)
+		assert(ok, "uigate: the tomorrow card has no OK button (#3951)")
+		local label = ok:FindFirstChildWhichIsA("TextLabel", true)
+		assert(label == nil or label.TextFits, "uigate: the tomorrow card's OK does not fit (#3951)")
+		local track = ask:FindFirstChild("Track", true) :: GuiObject
+		assert(track and not track.Visible, "uigate: the tomorrow card shows a draining bar (#3951)")
+		assert(said[1] == "shown", "uigate: the tomorrow card did not report shown (#3951)")
+	end },
 	-- #4437: the HUD Money button's boost card: the pass picture, the cafe's money a minute now and with 2x (from
 	-- prizeRate), Buy with the price, the X; every line fits, no timer, and the X reports closed
 	{ "MoneyCard", function()
@@ -14887,6 +15036,10 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if Scenes._thankfulReset ~= nil then
+		Scenes._thankfulReset() -- #4251's Thankful Board scene: its made-up board and pie numbers
+		Scenes._thankfulReset = nil
+	end
 	if Scenes._mailbox then
 		-- #4249's scenes: the switch off and the box empty again
 		Scenes._mailbox = nil

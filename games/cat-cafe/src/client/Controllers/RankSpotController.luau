@@ -44,7 +44,16 @@ local function show(next: any)
 		phase = "none"
 		return
 	end
-	local shown: boolean = rankSpot.set(next, (RankSpot.WORDS :: any)[next], function()
+	local UserInputService = game:GetService("UserInputService")
+	local last = UserInputService:GetLastInputType().Name
+	local device = if last:sub(1, 7) == "Gamepad"
+		then "gamepad"
+		elseif
+			last == "Touch"
+			or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+		then "touch"
+		else "keyboard"
+	local shown: boolean = rankSpot.set(next, RankSpot.words(next, device), function()
 		-- a press anywhere on the dim closes it. After KEEP_SECONDS on screen it does not come back as a dim; a
 		-- sooner one (a thumb already on the stick) only hides it until the next free moment
 		-- and never for good while another card is up: that press was for the card (its Close)

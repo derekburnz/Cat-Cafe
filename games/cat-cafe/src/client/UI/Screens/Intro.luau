@@ -1045,6 +1045,35 @@ function Intro._newsShow(self: any, index: number)
 			})
 		end
 	end
+	-- #5114: a real picture of the update over the tiles, once it has loaded (the tiles show until then, so the
+	-- loading screen never waits on it). It sits on the card beside the picture box, outside its list layout.
+	local art = self._newsArt
+	if art ~= nil then
+		art:Destroy()
+		self._newsArt = nil
+	end
+	if entry.image ~= nil then
+		local label: ImageLabel = Create("ImageLabel", {
+			Name = "PictureArt",
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Image = entry.image,
+			ImageTransparency = 1,
+			ScaleType = Enum.ScaleType.Crop,
+			Position = pic.Position,
+			Size = pic.Size,
+			ZIndex = pic.ZIndex + 1,
+			Parent = pic.Parent,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, 14) }) })
+		local function shown()
+			if label.IsLoaded then
+				label.ImageTransparency = 0
+			end
+		end
+		label:GetPropertyChangedSignal("IsLoaded"):Connect(shown)
+		shown()
+		self._newsArt = label
+	end
 	self._newsTitle.Text = entry.title
 	self._newsLine.Text = entry.line
 	local live = LoadingNews.live(entry, function(key: string): boolean

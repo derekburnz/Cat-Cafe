@@ -18,6 +18,7 @@ local FishStore = require(script.Parent.FishStore)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Fusion = require(script.Parent.Fusion)
 local GrandOpening = require(script.Parent.GrandOpening)
+local HarvestSave = require(script.Parent.HarvestSave)
 local IntroSplit = require(script.Parent.IntroSplit)
 local Invites = require(script.Parent.Invites)
 local Jukebox = require(script.Parent.Jukebox)
@@ -185,7 +186,11 @@ local ProfileSchema = {}
 -- Version 50 (#4104, shared/Fusion) adds fusion, the Fusion Observatory's dome: an older server would drop a fusion
 -- under way, and with it the five cats that went in. It ships with the Snowy Mountain update's restart; the `fusion`
 -- switch opens the dome after it. A save from before it has an empty dome.
-ProfileSchema.VERSION = 50
+-- harvest (#4251, shared/HarvestSave: Harvest Hollow's pumpkins and Stall items) rides version 50 for now (Derek
+-- 2026-11-17: "merge all harvest prs today ... behind a switch"; Review-QA's pick A): it is sanitized on every load and
+-- stays empty until the area opens on 2026-11-25, so an older server that drops it loses nothing. Version 51 (an older
+-- server would drop pumpkins and items) goes in its own small PR with a restart before the area opens.
+ProfileSchema.VERSION = 50 -- the Fusion Observatory's (#4104); 51 comes with Harvest's restart
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -340,6 +345,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		mysterySeen = false,
 		fishBought = {}, -- #4055
 		tickets = TicketBooth.fresh(), -- #4061
+		harvest = HarvestSave.fresh(), -- #4251
 		dragon = DragonKeep.fresh(), -- #4062
 		fusion = Fusion.fresh(), -- #4104
 		firstVisits = {},
@@ -366,6 +372,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			firstHourV3Step = 0,
 			cleanStep = 0,
 			cleanV8Step = 0, -- #4504
+			cleanV9Step = 0, -- onboarding_v9
 			playtimeStep = 0,
 		},
 		tipsSeen = {},
@@ -856,6 +863,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		firstHourV3Step = 0,
 		cleanStep = 0,
 		cleanV8Step = 0,
+		cleanV9Step = 0,
 		playtimeStep = 0,
 	}
 	if type(value) ~= "table" then
@@ -917,7 +925,13 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	-- #4504: onboarding_v8 (cleanV8Step, logged while the walk-through runs bowl first) the same way
 	local cleanV8Step = value.cleanV8Step
 	telemetry.cleanV8Step = if type(cleanV8Step) == "number"
-		then math.clamp(asInt(cleanV8Step, 0), 0, Onboarding.CLEAN_COUNT)
+		then math.clamp(asInt(cleanV8Step, 0), 0, Onboarding.V8_CLEAN_COUNT)
+		elseif Onboarding.cleanStart(telemetry) > 0 then Onboarding.V8_CLEAN_COUNT
+		else 0 -- (v8 is no longer logged: onboarding_v9 took its place)
+	-- onboarding_v9 (cleanV9Step), as v8 was
+	local cleanV9Step = value.cleanV9Step
+	telemetry.cleanV9Step = if type(cleanV9Step) == "number"
+		then math.clamp(asInt(cleanV9Step, 0), 0, Onboarding.CLEAN_COUNT)
 		else Onboarding.cleanStart(telemetry)
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"
@@ -1063,6 +1077,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.dragon = DragonKeep.sanitize(raw.dragon)
 	-- #4104 (version 50): the Fusion Observatory; an older save has an empty dome
 	profile.fusion = Fusion.sanitize(raw.fusion, sanitizeName)
+	-- #4251 (version 51): Harvest Hollow; an older save has no pumpkins
+	profile.harvest = HarvestSave.sanitize(raw.harvest)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
 	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)

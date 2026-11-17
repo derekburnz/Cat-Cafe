@@ -155,6 +155,14 @@ return function()
 				expect(RestartNotice.text(0, devices)).to.equal(
 					"Updating now. Join again for better controls and ADMIN EVENTS! Your cafe is saved."
 				)
+				local palDay = RestartNotice.ADMIN_LAUNCHES[8]
+				expect(os.date("!%Y-%m-%d %H:%M", palDay)).to.equal("2026-11-18 20:00")
+				expect(RestartNotice.text(600, palDay - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then PAL DAY and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, palDay)).to.equal(
+					"Updating now. Join again for PAL DAY and ADMIN EVENTS! Your cafe is saved."
+				)
 				-- Derek 2026-11-14 17:59 UTC: Rift Run tonight and the Golden Fish Store on Sunday afternoon
 				local rift, fish = RestartNotice.ADMIN_LAUNCHES[5], RestartNotice.ADMIN_LAUNCHES[6]
 				expect(os.date("!%Y-%m-%d %H:%M", rift)).to.equal("2026-11-15 01:00")

@@ -56,6 +56,7 @@ local NewKind = require(ReplicatedStorage.Shared.NewKind)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
+local ParkLeft = require(ReplicatedStorage.Shared.ParkLeft)
 local PassService = require(script.Parent.PassService)
 local PerfSuggest = require(ReplicatedStorage.Shared.PerfSuggest)
 local PerfWatch = require(ReplicatedStorage.Shared.PerfWatch)
@@ -277,6 +278,9 @@ export type CustomEvent =
 	| "quit_cafe"
 	-- #3098 P1b: beside quit_state, value the session's seconds; the scene (FirstFive.SCENES), device, seconds bucket
 	| "quit_scene"
+	-- #5034 (shared/ParkLeft): a player with no Park cat yet who stood in the Park this session left, value the seconds
+	-- in the Park; device, the closest a free Park stray came (bucket), seconds bucket
+	| "park_left"
 	-- #3098 P1b: the session's first intro shot, value the seconds since the join; device, "intro", bucket
 	| "first_scene"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
@@ -295,6 +299,7 @@ export type CustomEvent =
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "return_hook_early_shown" -- #4626
+	| "tomorrow_card" -- #3951: the come back tomorrow card, value 1; its outcome (ReturnHook.CARD_OUTCOMES), the device
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
@@ -413,6 +418,10 @@ export type CustomEvent =
 	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
 	-- "first" for the account's first spend here or "repeat"
 	| "robux_purchase"
+	-- #4438: robux_purchase's twin under a second name, the same value and fields. robux_purchase has never shown a
+	-- row in Roblox Analytics (Nov 13 to 16, against group log sales), while store_cancelled and pal_join from the
+	-- same send path did, so the name itself is the suspect
+	| "paid_item"
 	-- #1888: Roblox's purchase prompt closed without buying, value 1; the sku, tier
 	| "store_cancelled"
 	-- #1888: every fifth Cafe Pass level, value the level; the season, the paid track ("paid" or "free"), tier
@@ -558,6 +567,7 @@ local REPORTS = {
 	"catch_reach", -- #3556: first time near a stray, first in-reach glow: near or shown (CATCH_REACH)
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"return_hook_early", -- #4626: the minute 6 "come back tomorrow" line showed, its kind (ReturnHook.EARLY_KINDS)
+	"tomorrow_card", -- #3951: the come back tomorrow card's outcome (ReturnHook.CARD_OUTCOMES)
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
@@ -671,6 +681,9 @@ type Session = {
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
+	parkSeconds: number, -- #5034: seconds stood in the Park this session with no Park cat yet (park_left)
+	parkClosest: number?, -- #5034: the closest a free Park stray came meanwhile, in studs
+	parkOwned: boolean?, -- #5034: the save has a Park cat (worked out once, then latched by first_park_catch)
 	catchReach: { [string]: boolean }, -- #3556: catch_reach logged this session, by kind
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
 	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
@@ -2108,6 +2121,12 @@ function Telemetry.robuxPurchase(
 		math.max(0, math.floor(robux)),
 		{ sku, dayText(profile), if first then "first" else "repeat" }
 	)
+	Telemetry.custom(
+		player,
+		"paid_item",
+		math.max(0, math.floor(robux)),
+		{ sku, dayText(profile), if first then "first" else "repeat" }
+	)
 	promptClosed(player, sku, "bought") -- a receipt can come before the prompt says it closed
 	storeStep(player, "completed", { sku, tostring(math.floor(robux)) })
 	purchaseSource(player, sku)
@@ -2452,6 +2471,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.nudges["return_hook_early"] = true
 			Telemetry.custom(player, "return_hook_early_shown", 1, { kind })
 		end
+	elseif name == "tomorrow_card" then
+		-- #3951: each outcome once a session, with the switch on
+		local outcome = Guard.oneOf(rawValue, ReturnHook.CARD_OUTCOMES)
+		if
+			outcome ~= nil
+			and LiveFlagService.on(ReturnHook.CARD_FLAG)
+			and not session.nudges["tomorrow_card:" .. outcome]
+		then
+			session.nudges["tomorrow_card:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
+			Telemetry.custom(player, "tomorrow_card", 1, { outcome, session.device or "unknown" })
+		end
 	elseif name == "event_rsvp" then
 		local kind = Guard.oneOf(rawValue, RSVP_KINDS)
 		if kind ~= nil and not session.nudges["rsvp:" .. kind] then
@@ -2643,10 +2673,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and Economy.tier(profile) < 2
 		then
 			session.healthLogged = true
+			-- Design's phone FPS read (2026-11-17): field 3 is where the player stands (cafe, town, an area id or
+			-- none). The device was field 3 before; Roblox's own Platform dimension gives it. whereOf sits further
+			-- down this file, so it is reached through the module table (no new top-level local).
+			local zoneOf: ((Player) -> string)? = (Telemetry :: any)._whereOf
 			Telemetry.custom(player, "health_check", math.floor(rawValue :: number), {
 				FirstFive.pingBucket(player:GetNetworkPing() * 1000),
 				session.healthMem or "unknown",
-				session.device or "unknown",
+				if zoneOf ~= nil then zoneOf(player) else "none",
 			})
 		end
 	elseif name == "screen_short" then
@@ -2980,6 +3014,9 @@ local function onLoaded(player: Player, profile: Profile)
 		tutorialClosed = false,
 		parkHints = {},
 		parkTrail = {},
+		parkSeconds = 0,
+		parkClosest = nil,
+		parkOwned = nil,
 		catchReach = {},
 		rankSpot = {},
 		rankWindow = nil,
@@ -3205,6 +3242,7 @@ local function whereOf(player: Player): string
 	end
 	return lastWhere[player] or "none"
 end
+(Telemetry :: any)._whereOf = whereOf -- health_check's zone field (onReport sits above this)
 
 -- #2774: the account's first bait cat came `seconds` after the food went in; where the player was (cafe, an area id or
 -- none), to see whether the cannon trip has them away when it lands.
@@ -3219,6 +3257,29 @@ function Telemetry.firstBaitArrived(player: Player, seconds: number)
 	if profile ~= nil then
 		logClean(player, profile, Onboarding.CLEAN_EVENTS.bowlArrived) -- #4504: bowl_cat_here
 	end
+end
+
+-- Whether the save has a Park cat: the first_park_catch marker, or (for a save from before CatService wrote it,
+-- Nov 15) a cat from the Park in the collection, as logJoined counts them. Latched on the session once true.
+local function ownsParkCat(session: Session, profile: Profile): boolean
+	if session.parkOwned == true or Onboarding.reached(profile.telemetry, "first_park_catch") then
+		session.parkOwned = true
+		return true
+	end
+	local known = session.parkOwned
+	if known ~= nil then
+		return known
+	end
+	local owned = false
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil and (def.area == "park" or def.incomeArea == "park") then
+			owned = true
+			break
+		end
+	end
+	session.parkOwned = owned
+	return owned
 end
 
 -- Runs after the other services' leave work (Telemetry starts last), so a carried cat saved on leave or a rich tip
@@ -3302,6 +3363,15 @@ local function onRelease(player: Player, profile: Profile)
 				session,
 				bucket(played, { 60, 180, 600 }, { "0-60s", "61-180s", "3-10m", "10m+" })
 			)
+		)
+	end
+	-- #5034: a leaver who stood in the Park this session with no Park cat yet
+	if session.parkSeconds > 0 and not ownsParkCat(session, profile) then
+		Telemetry.custom(
+			player,
+			"park_left", -- ParkLeft.EVENT
+			session.parkSeconds,
+			ParkLeft.fields(session.device or "unknown", session.parkClosest, session.parkSeconds)
 		)
 	end
 	-- #4189: past Tier 1, what a leaver still lacked for the next tier: kinds short, coins, the first need missing
@@ -3485,6 +3555,38 @@ end
 -- the ground from where it was first seen this session; first_customer_served (#1273) once a cafe with a cat in a role
 -- has earned its first tips; rank_up_ready once a Tier 1 cafe meets Tier 2's needs (Economy.rankUpBlocker), which
 -- coins earned in the background can do between syncs.
+-- #5034: each WATCH_SECONDS, a player without a Park cat who stands in the Park adds to parkSeconds, and the nearest
+-- free Park stray (tag Stray, Area "park", LockedBy 0) to parkClosest.
+local function watchPark(player: Player, session: Session, profile: Profile)
+	if
+		not ParkLeft.counts(Economy.tier(profile), ownsParkCat(session, profile))
+		or whereNow(player) ~= ParkLeft.AREA
+	then
+		return
+	end
+	session.parkSeconds += WATCH_SECONDS
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return
+	end
+	local at = (root :: BasePart).Position
+	local best = session.parkClosest or ParkLeft.STRAY_RANGE
+	for _, stray in CollectionService:GetTagged("Stray") do
+		if
+			stray:IsA("Model")
+			and stray:GetAttribute("Area") == ParkLeft.AREA
+			and stray:GetAttribute("LockedBy") == 0
+		then
+			local distance = ((stray :: Model):GetPivot().Position - at).Magnitude
+			if distance < best then
+				best = distance
+				session.parkClosest = distance
+			end
+		end
+	end
+end
+
 local function watchOnboarding(player: Player, session: Session)
 	local profile = DataService.get(player)
 	if profile == nil then
@@ -3495,6 +3597,7 @@ local function watchOnboarding(player: Player, session: Session)
 		logRarity(player, profile) -- #3876: a cat from a trade or a switch turned on mid session
 	end
 	watchFirstFive(player, session, profile)
+	watchPark(player, session, profile)
 	if not Onboarding.reached(profile.telemetry, "first_move") then
 		local character = player.Character
 		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil

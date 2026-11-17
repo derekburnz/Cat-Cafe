@@ -2235,6 +2235,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "return_hook_early", kind)
 		end)
 	end
+	-- #3951: the come back tomorrow card's shown, ok, closed or hidden (each once a session; the server checks)
+	if events.tomorrowCard ~= nil then
+		events.tomorrowCard:Connect(function(outcome: string)
+			Net.fire("TelemetryReport", "tomorrow_card", outcome)
+		end)
+	end
 	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both
 	if events.sessionRecap ~= nil then
 		events.sessionRecap:Connect(function()

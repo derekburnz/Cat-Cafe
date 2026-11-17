@@ -26,7 +26,6 @@ Model layout (rbx_export), all modelled shut, nothing solid (CafeService turns c
     _Back_Leaf                            the leaf, pivot on the cafe's own hinge (plot -10.88, 0, 14.72), so -90
                                           about Y swings it out into the yard; a CatFlap Attachment as on the cafe's
       _Back_Leaf_Glass                    its glass
-      _Back_Sign, _Back_Sign_Bulb         the CLOSED UNTIL SUNRISE sign for the night, as on the cafe's own door
   CatCafe_CatFlap_<Name>                  the flap's frame on both faces of the leaf and a lining through the hole
     _Flap                                 the panel, pivot on its top hinge (0, 2.13, 0.15): turn it about X
       _Flap_Bulb                          the Neon Paw's outline (_Bulb: Neon at night)
@@ -753,14 +752,12 @@ def build_back(style, mat):
     for s in (-1, 1):                                                          # the inside architrave over the
         root.span((min(s * 2.98, s * 3.45), 0.0, 0.5), (max(s * 2.98, s * 3.45), 7.95, 0.82), style.TRIM)   # wainscot
     root.span((-2.98, 7.51, 0.5), (2.98, 7.95, 0.82), style.TRIM)
-    b, g, sign, glow = RB(), RB(), RB(), RB()
+    b, g = RB(), RB()
     style.leaf(Leaf(1, B_W, B_Y0, B_Y1, B_T, 0.0, True), b, g)
-    doors._sign(sign, glow, **style.SIGN)
     objs = [root.finalize(name, mat), _place(b.finalize(name + "_Leaf", mat), B_HINGE)]
     if _used(g):
         objs.append(_place(g.finalize(name + "_Leaf_Glass", mat), B_HINGE))
-    objs += [_place(sign.finalize(name + "_Sign", mat), B_HINGE), _place(glow.finalize(name + "_Sign_Bulb", mat), B_HINGE)]
-    return objs
+    return objs                                 # #4788: no night sign (style.SIGN), the game took it off every door
 
 
 def back_cat_flap_attachment(name):

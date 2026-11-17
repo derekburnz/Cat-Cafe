@@ -86,6 +86,8 @@ export type Budget = {
 	rallyPops: number, -- "+1" pops and paws flying into the Rally bar at once (F101)
 	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
 	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
+	rides: number, -- #5065: Water Park rides turning at once (Effects/Rides)
+	rideHz: number, -- #5065: their turns a second
 	netTrails: number, -- nets drawing a whoosh trail at once (F93)
 	luckyShimmers: number, -- jade Lucky Cat statues shimmering at once (F88), a Highlight each
 	campDrips: number, -- camp pipes dripping at once (F100), a drop part each
@@ -150,6 +152,8 @@ Presets.budget = {
 		rallyPops = 5,
 		pennants = 20, -- #4857: 40 before
 		decorMotion = 6, -- #4857: 12 before
+		rides = 1, -- #5065 (Sync's phone read: 2 rides at 30 Hz were half of Effects' time in the Water Park): 3 before
+		rideHz = 15, -- #5065: 30 before
 		netTrails = 3,
 		luckyShimmers = 2,
 		campDrips = 1,
@@ -188,6 +192,8 @@ Presets.budget = {
 		rallyPops = 8,
 		pennants = 90,
 		decorMotion = 24,
+		rides = 3,
+		rideHz = 30,
 		netTrails = 6,
 		luckyShimmers = 4,
 		campDrips = 2,
@@ -226,6 +232,8 @@ Presets.budget = {
 		rallyPops = 6,
 		pennants = 60,
 		decorMotion = 16,
+		rides = 3,
+		rideHz = 30,
 		netTrails = 4,
 		luckyShimmers = 3,
 		campDrips = 1,
@@ -264,6 +272,8 @@ Presets.budget = {
 		rallyPops = 4,
 		pennants = 0,
 		decorMotion = 0,
+		rides = 1, -- #5065: the lite budget turns one ride (rides.mostLite before)
+		rideHz = 15,
 		netTrails = 2,
 		luckyShimmers = 1,
 		campDrips = 1,
@@ -302,6 +312,8 @@ Presets.budget = {
 		rallyPops = 3,
 		pennants = 0,
 		decorMotion = 0,
+		rides = 0, -- Low performance leaves every ride still
+		rideHz = 15,
 		netTrails = 1,
 		luckyShimmers = 0,
 		campDrips = 1,
@@ -4589,8 +4601,8 @@ Presets.decorMotion = {
 -- #4070 the Water Park's rides (Effects/Rides): each turning piece of the area set is a Model named ending with a key
 -- of `kinds`, and turns once every `seconds` about the middle of its own box: `axis` "up" straight up (the carousel,
 -- the teacups), "thin" along the box's thin side (the Ferris wheel, about its hub). All slow: the fastest rim, the
--- carousel's, moves about 3.5 studs a second. The nearest `most` within `radius` studs turn (`mostLite` where the
--- budget has no decor motion), chosen every `pick` seconds, stepped at the budget's rate but never above `hz`;
+-- carousel's, moves about 3.5 studs a second. The nearest budget.rides within `radius` studs turn (#5065: one on a
+-- phone), chosen every `pick` seconds, stepped budget.rideHz times a second but never above `hz`;
 -- a step never covers more than `longest` seconds. Reduce Motion and Low performance hold them all still.
 export type Ride = { axis: "up" | "thin", seconds: number }
 Presets.rides = {
@@ -4599,10 +4611,8 @@ Presets.rides = {
 		TeacupsTurn = { axis = "up", seconds = 16 },
 		FerrisTurn = { axis = "thin", seconds = 60 },
 	} :: { [string]: Ride },
-	radius = 260,
-	most = 3,
-	mostLite = 1,
-	hz = 30,
+	radius = 260, -- how many turn and how often: the budget's `rides` and `rideHz` (#5065)
+	hz = 30, -- never faster than this
 	longest = 0.25,
 	pick = 1,
 }
@@ -5314,6 +5324,17 @@ Presets.rarityMark = {
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
+	-- #5034 Park phone leak (phones 37% never catch a cat in the Park, mostly from not finding one): with the switch
+	-- `flag` on and no `area` cat in the player's Index yet, the gems of that area's strays (their `Area`) show out to
+	-- `maxDistance` studs, `pixels` wide at the least, and draw over hedges and walls (AlwaysOnTop) past `onTopBeyond`
+	-- studs, so a stray across the Park reads on a phone. Everywhere else, and once a Park cat is caught, as before.
+	finder = {
+		flag = "parkFinder",
+		area = "park",
+		maxDistance = 160,
+		pixels = 40,
+		onTopBeyond = 30,
+	},
 	-- #2258 (Derek2 2026-11-07: "show new tag if it's a cat you don't own yet for people index hunting"): a NEW pill
 	-- over the gem of a cat not in your Index yet, in leaf green (no rarity uses it), `width` by `height` of the
 	-- gem's square, its foot `overlap` down over the gem's top corner (it pokes a little over the billboard's top)
@@ -5891,13 +5912,16 @@ Presets.firstBaitCut = {
 	pitch = 30,
 	happy = 10,
 	happyUp = 2,
-	waitCat = 2.0, -- room for a laggy phone while the server still puts the cat out at food + 1 s
+	-- #5074: the server puts the cat out at catOutAt (placedAt + 1 on whole os.time seconds, checked by a 1 s loop),
+	-- so it lands 1 to 2 s after the food, plus streaming on a phone. 2.0 left too little and the cut ended "none"
+	-- with no cat. A cat on time plays the same 2.2 s cut; only a late one gets the extra second.
+	waitCat = 3.0,
 	skipAfter = 0.3,
 	skipOut = 0.25,
 	skipSize = 18,
 	skipFade = 0.4,
 	displayOrder = 10,
-	cap = 4.5,
+	cap = 5.5, -- #5074: waitCat + walkMax + eat + swingOut (5.0) and a little room
 	maxDistance = 120,
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 }
@@ -6432,6 +6456,82 @@ Presets.stationReveal = {
 	ringSeconds = 1,
 }
 
+-- #5112 Effects/StationUnlockCut (Design-Agent's station-unlock-cutscene.md): the cut to a big station a rank up
+-- unlocks. Times in seconds from the start: a `fade` to black and back, the station appears at `appearAt` (scales up
+-- from `fromScale` over `grow`, drawn at `scaleHz`), the label at `labelAt` (in over `labelIn`), the fade back at
+-- `endAt`. The camera stands `far` then `near` times the station's size out (clamped to `nearest`..`farthest` studs),
+-- `rise` of that up, `yaw` degrees off the model's front (`faceSign` -1 if a model faces its back), looking `lookUp`
+-- of its height up. `smallScreen` px tall or less shrinks the label by `smallScale`.
+Presets.stationCut = {
+	stations = {
+		-- #5112 15:40 UTC: the Town Square's StationTiers stations, a short pan (no stream)
+		[3] = {
+			tag = "ArcadeCabinet",
+			name = "The Cat Arcade",
+			line = "Play Mouse Dash for daily prizes",
+		},
+		[4] = {
+			tag = "MysticPool",
+			name = "The Mystic Pool",
+			line = "Give each cat a trait that helps it",
+		},
+		[8] = {
+			tag = "FusionObservatory",
+			name = "Fusion Observatory",
+			line = "Fuse 5 of one cat into a better coat",
+		},
+		[9] = {
+			tag = "TicketBooth",
+			name = "Ticket Booth",
+			line = "Catches give tickets for prizes",
+		},
+		[10] = {
+			tag = "DragonKeep",
+			name = "Dragon Keep",
+			line = "Grow Cinder the dragon for bonus cards",
+		},
+	} :: { [number]: { tag: string, name: string, line: string } },
+	fade = 0.2,
+	appearAt = 0.4,
+	grow = 0.6,
+	fromScale = 0.85,
+	scaleHz = 20,
+	labelAt = 1.2,
+	labelIn = 0.25,
+	endAt = 4.0,
+	skipAfter = 0.3,
+	far = 1.9,
+	near = 1.45,
+	nearest = 18,
+	farthest = 70,
+	rise = 0.35,
+	yaw = 35,
+	faceSign = 1,
+	lookUp = 0.1,
+	displayOrder = 11, -- over ContextCut's 10
+	titleSize = 64,
+	nameSize = 34,
+	lineSize = 22,
+	titleY = 0.2,
+	nameY = 0.31,
+	lineY = 0.38,
+	smallScreen = 420,
+	smallScale = 0.7,
+	-- StationReveal's burst, made bigger
+	burst = {
+		lift = 1,
+		sparkles = 40,
+		confetti = 60,
+		beamWidth = 4.5,
+		beamHeight = 32,
+		beamSeconds = 2.2,
+		rings = 2,
+		ringPad = 3,
+		ringGap = 0.3,
+		ringSeconds = 1.2,
+	},
+}
+
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle
 -- of head turns, ear flicks and a swaying tail, and a greet (head turned to you, a paw lifted and waved) as you come
 -- near. Off with Reduce Motion.
@@ -6561,6 +6661,15 @@ Presets.rankUpPulse = {
 		ringTo = 44,
 		ringSeconds = 0.4,
 	},
+}
+
+-- Effects/CannonCue (Design-Agent 2026-11-17, the phone drop between the bowl cat's tame and Tier 2's rank up): one
+-- gold glow (rankUpPulse's look) on the HUD's Cannon button every `every` seconds while Tier 2 is short of cats and
+-- the player is in the hometown, until the button is pressed. Behind `flag`, off.
+Presets.cannonCue = {
+	flag = "cannonCue",
+	every = 4,
+	calmEvery = 8, -- with Reduce Motion
 }
 
 -- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)
@@ -6842,6 +6951,32 @@ Presets.petCat = {
 	edge = Color3.fromRGB(94, 70, 52), -- palette 2, the UI's outline colour
 	move = { seconds = 0.6, height = 3, size = 0.9 },
 	range = 120,
+}
+
+-- #4913 Pal Day (Effects/PalDayFx): when today's gift is paid, this player waves with a heart puff (PetCat's hearts)
+-- `overHead` studs over the head (`up` over the root without one), and each pal within `range` studs waves back
+-- `palDelay` seconds later; at most `most` pals are kept from PalsChanged.
+Presets.palDay = {
+	overHead = 0.8,
+	up = 3,
+	range = 120,
+	palDelay = 0.45,
+	most = 12,
+	colour = Presets.palette.nosePink,
+	-- #4913 (Design-Agent, Wed Nov 18): while today's gift can still be earned (the server's `due` attribute on this
+	-- player and the palDay switch on), a small still pink heart over the nearest `most` pals within `range` studs, so
+	-- a player sees who to play beside. One BillboardGui each, `size` studs plus `pixels`, `up` studs over the head;
+	-- checked every `every` seconds. Gone once the gift is paid, the switch is off or the pal walks away.
+	heart = {
+		due = "PalDayDue",
+		most = 4,
+		range = 120,
+		every = 0.5,
+		size = 1.1,
+		pixels = 16,
+		up = 2.2,
+		glyph = "\u{2665}",
+	},
 }
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each

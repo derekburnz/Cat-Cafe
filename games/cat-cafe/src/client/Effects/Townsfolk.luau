@@ -50,6 +50,7 @@ type Cat = {
 	yaw: number, -- the head's turn as last drawn, degrees
 	pitch: number,
 	resting: boolean, -- drawn at rest (out of range or Reduce Motion)
+	drawnAt: number, -- the last pose, so a cat drawn at budget.animHz eases by the time since
 }
 
 local cats: { [Model]: Cat } = {}
@@ -142,6 +143,7 @@ local function add(instance: Instance)
 		yaw = 0,
 		pitch = 0,
 		resting = true,
+		drawnAt = now,
 	}
 	model.Destroying:Connect(function()
 		cats[model] = nil
@@ -174,12 +176,11 @@ local function turnOf(pitch: number, yaw: number, roll: number): CFrame
 	return CFrame.Angles(0, math.rad(yaw), 0) * CFrame.Angles(math.rad(pitch), 0, math.rad(roll))
 end
 
-local function draw(cat: Cat, now: number, dt: number, focus: Vector3?, calm: boolean)
+-- `live` is false for a cat out of range, past the budget's animatedCats or with Reduce Motion: it is put at rest.
+local function draw(cat: Cat, now: number, dt: number, focus: Vector3?, live: boolean)
 	local c = Presets.townsfolk
 	local body = cat.body.CFrame
-	local inRange = focus ~= nil
-		and (body.Position - focus).Magnitude <= Context.budget.ambientRadius
-	if calm or not inRange then
+	if not live or focus == nil then
 		if not cat.resting then
 			cat.resting = true
 			cat.yaw, cat.pitch, cat.greetAt, cat.near = 0, 0, nil, false
@@ -280,15 +281,41 @@ local function draw(cat: Cat, now: number, dt: number, focus: Vector3?, calm: bo
 	end
 end
 
-local function step(dt: number)
+type Near = { cat: Cat, distance: number }
+
+-- Park phone cost (#5034, Sync's Nov 17 read: 0.22 ms a frame at the Park landing, worst 0.87): only the nearest
+-- budget.animatedCats townsfolk move, and an idle one is posed at budget.animHz. A cat greeting you or turning to
+-- follow you is posed every frame so the wave stays smooth.
+local function step()
 	local now = os.clock()
 	local focus = Context.focus()
 	local calm = Context.reducedMotion()
+	local budget = Context.budget
+	local near: { Near } = {}
 	for _, cat in cats do
 		if cat.model.Parent == nil or cat.body.Parent == nil then
 			continue
 		end
-		draw(cat, now, dt, focus, calm)
+		local distance = if focus ~= nil then (cat.body.Position - focus).Magnitude else math.huge
+		if calm or distance > budget.ambientRadius then
+			draw(cat, now, 0, focus, false)
+		else
+			table.insert(near, { cat = cat, distance = distance })
+		end
+	end
+	table.sort(near, function(a: Near, b: Near): boolean
+		return a.distance < b.distance
+	end)
+	local every = 1 / budget.animHz
+	for i, entry in near do
+		local cat = entry.cat
+		local live = i <= budget.animatedCats
+		local elapsed = now - cat.drawnAt
+		if live and not cat.resting and not cat.near and cat.greetAt == nil and elapsed < every then
+			continue
+		end
+		cat.drawnAt = now
+		draw(cat, now, math.min(elapsed, 0.25), focus, live)
 	end
 end
 

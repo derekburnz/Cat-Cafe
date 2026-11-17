@@ -709,6 +709,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		})
 	end
 	local money = counter("Money", 1, "TextButton") :: TextButton
+	money.Selectable = false -- #5103 (#4224 item 6): the D-pad passes over the counter; a tap still opens the boosts card
 	-- the gold coin picture (Icon_Clean_CoinGold, #1253), then the amount. The rate per second shows only in the
 	-- boosts card a tap opens (Derek 2026-11-02: "how much per second should be hidden until clicked also"). If the
 	-- picture fails to load, the gold "$" shows instead.
@@ -1218,6 +1219,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	self._tradeTile.instance.Visible = false
 	table.insert(self._buttons, self._tradeTile)
+	-- #5086 (Review-QA's QoL pass, small phone): a clean tile's word may run 14 px past each side of its square, and
+	-- "Rewards" and "Feedback" did, into the next tile across the row's gap. Here each word keeps to its square's width
+	-- (its outline then fills the gap's edge) and shrinks a notch (never under FitText.MIN) rather than touch its
+	-- neighbour.
+	local FitText = require(script.Parent.Parent.Components.FitText)
+	for _, tile in icons:GetChildren() do
+		local found = tile:FindFirstChild("Label")
+		if found ~= nil and found:IsA("TextLabel") then
+			local word = found :: TextLabel
+			word.Size = UDim2.new(1, 0, 0, word.Size.Y.Offset)
+			FitText.shrink(word)
+		end
+	end
 	-- The short list the Rewards and Menu tiles open under the icon row (_openPop): a dark card of full-width rows.
 	local pop = hudPanel("Pop", {
 		AnchorPoint = Vector2.new(1, 0),
@@ -1382,6 +1396,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Position = UDim2.new(0, -(LUCKY_CLOVER + LUCKY_GAP), 0.5, 0),
 		Size = UDim2.new(1, LUCKY_CLOVER + LUCKY_GAP, 0, Scale.tapHeight(Theme.sizes.touchMin)),
 		ZIndex = luckyLine.ZIndex + 1,
+		Selectable = false, -- #5103 (#4224 item 6): the D-pad passes over the day line; a tap still opens its card
 		Parent = luckyLine,
 	})
 	self._dayCard = Create("Frame", {
@@ -2007,6 +2022,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, menuFold)
 	self._menuFold = menuFold
+	-- #5103 (Sync's controller pass, #4224 item 6): the D-pad passes over the fold arrows; a tap still folds
+	for _, part in menuFold.instance:GetDescendants() do
+		if part:IsA("GuiButton") then
+			(part :: GuiButton).Selectable = false
+		end
+	end
 	self._menuTop = MARGIN
 	self._gridTop = MARGIN
 	self._foldBeside = false
@@ -2228,6 +2249,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, travelFold)
 	self._travelFold = travelFold
+	for _, part in travelFold.instance:GetDescendants() do -- #5103: as the MenuFold arrow
+		if part:IsA("GuiButton") then
+			(part :: GuiButton).Selectable = false
+		end
+	end
 
 	-- Carry banner (bottom centre, above the bottom row): the cat you carry and a red Drop button (G)
 	local carry = hudPanel("Carry", {
@@ -3600,24 +3626,18 @@ function HUD._renderStripBuy(self: any)
 		return
 	end
 	local offer = self._stripOffer
-	-- the drop-off read of Nov 16 (Nov 15 data): a third of the players whose Tier 2 was ready never pressed it, and
-	-- the walk-through's spotlight only shows on the safe side of the gates, so the rank up line (shared/RankFirst)
-	-- brings its own button wherever the strip shows (required here: the main chunk is at Luau's 200 local limit)
+	-- Derek 2026-11-17 ("no need for extra rankup button above the bottom middle tutorial step its just ugly"): the
+	-- rank up line brings no button of its own any more (it had since the Nov 16 drop-off read). The dimmed
+	-- walk-through (RankSpot) points at the tier card, then at the window's RANK UP.
+	self._stripRank = false
+	local shown = offer ~= nil and self._tutorial.Visible
+	TutorialGlow.set(button.instance, false, nil, true)
+	-- the ring and arrow go on the goal card instead (the Rank menu), with no dim: in a catching area this is the
+	-- only pointer; on the safe side the walk-through's dim lights the same card (required here: 200 local limit)
 	local rankFirst = require(Shared:WaitForChild("RankFirst")) :: any
 	local rank = self._tutorial.Visible and rankFirst.isLine(self._tutorial.Text)
-	self._stripRank = rank
-	local shown = rank or (offer ~= nil and self._tutorial.Visible)
-	-- Derek 2026-11-16 ("point to rank-up after its ready"): the RANK UP button gets the tutorial's ring and arrow,
-	-- with no dim (the dimmed walk-through stays on the safe side of the gates, RankSpot)
-	-- #4847 (Sync's audit): not while a window is open; under the rank up window the ring sat on this button, not on
-	-- the window's own (RankUp lights that one)
-	TutorialGlow.set(button.instance, rank and self._openScreen == nil, nil, true)
-	if rank then
-		button:setText(rankFirst.BUTTON)
-		if not button.instance.Visible then
-			Tween.popIn(button.instance, 0.92)
-		end
-	elseif shown and offer ~= nil then
+	TutorialGlow.set(self._goal.frame, rank and self._openScreen == nil, true, true)
+	if shown and offer ~= nil then
 		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
 		if not button.instance.Visible then
 			Tween.popIn(button.instance, 0.92)
@@ -4163,15 +4183,7 @@ end
 -- #4909 (Sync's Studio run: the strip said "Tap RANK UP" while the walk-through's arrow moved to YOUR GOAL): the
 -- strip's RANK UP button first while it shows, so the arrow stays on the button the words name
 function HUD.goalButton(self: any): GuiObject?
-	local buy = self._stripBuy
-	if
-		buy ~= nil
-		and buy.instance.Visible
-		and self._tutorial.Visible
-		and self.screenGui.Enabled
-	then
-		return buy.instance
-	end
+	-- Derek 2026-11-17: the strip has no RANK UP button now, so the walk-through always lights the goal card
 	local frame: GuiObject = self._goal.frame
 	if frame.Visible and self.screenGui.Enabled then
 		return frame

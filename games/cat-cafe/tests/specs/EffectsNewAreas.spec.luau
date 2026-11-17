@@ -216,7 +216,14 @@ return function()
 			end
 			expect(p.kinds.FerrisTurn.axis).to.equal("thin")
 			expect(p.kinds.FerrisTurn.seconds > p.kinds.CarouselTurn.seconds).to.equal(true)
-			expect(p.mostLite <= 1 and p.most <= 3).to.equal(true)
+			-- #5065: one ride at 15 Hz on a phone (low and lite), at most three at 30 Hz elsewhere, none in Low performance
+			local budgets = Presets.budget
+			expect(budgets.low.rides).to.equal(1)
+			expect(budgets.low.rideHz <= 15).to.equal(true)
+			expect(budgets.lite.rides <= 1).to.equal(true)
+			expect(budgets.lowPerformance.rides).to.equal(0)
+			expect(budgets.high.rides <= 3 and budgets.high.rideHz <= p.hz).to.equal(true)
+			expect(budgets.console.rides <= 3 and budgets.console.rideHz <= p.hz).to.equal(true)
 			-- a wheel on its edge, 43 across and 4 thick: the axle is its thin side, whichever way it faces
 			local right, look = Vector3.xAxis, Vector3.zAxis
 			expect(Logic.rideAxis("thin", Vector3.new(43, 43, 4), right, look)).to.equal(look)

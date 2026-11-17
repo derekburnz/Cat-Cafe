@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeName = require(ReplicatedStorage.Shared.CafeName)
+local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local ClockService = require(script.Parent.ClockService)
 local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
 local Net = require(script.Parent.Net)
@@ -153,6 +154,8 @@ function PlotService.release(player: Player)
 		WorldBuilder.setExpansionOpen(expansion, false)
 	end
 	WorldBuilder.setBackDoorOpen(plot, false)
+	-- #4543: an empty plot stands at the first room's size (its For Rent set is that size)
+	WorldBuilder.setRoom(plot, CafeRoom.BASE_WIDTH, CafeRoom.BASE_DEPTH)
 	WorldBuilder.setDressing(plot, 0)
 	WorldBuilder.setDoorSign(plot, false)
 end

@@ -38,6 +38,7 @@ local CampGrowth = require(script.CampGrowth)
 local CampWater = require(script.CampWater)
 local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
+local CannonCue = require(script.CannonCue)
 local CannonGlide = require(script.CannonGlide)
 local Catch = require(script.Catch)
 local CatchReact = require(script.CatchReact)
@@ -67,6 +68,7 @@ local KeepSets = require(script.KeepSets)
 local LateStationFx = require(script.LateStationFx)
 local Lawn = require(script.Lawn)
 local Levels = require(script.Levels)
+local LoadGate = require(script.LoadGate)
 local LuckyCat = require(script.LuckyCat)
 local LuckyPaw = require(script.LuckyPaw)
 local Market = require(script.Market)
@@ -77,6 +79,7 @@ local Mystery = require(script.Mystery)
 local NetPin = require(script.NetPin)
 local NetTrail = require(script.NetTrail)
 local Orders = require(script.Orders)
+local PalDayFx = require(script.PalDayFx)
 local PalWave = require(script.PalWave)
 local PassThanks = require(script.PassThanks)
 local PawTrail = require(script.PawTrail)
@@ -137,6 +140,10 @@ function Effects.start()
 	Context.init()
 	-- #2632 (live "Script has run for over 15 seconds"): about 55 starts, many scanning the whole map, ran back to
 	-- back with no yield; they now run a few at a time, yielding a frame whenever one slice passes START_SLICE
+	local function cannonStart()
+		Cannon.setGlide(CannonGlide)
+		Cannon.start()
+	end
 	local starts: { () -> () } = {
 		Cats.start,
 		CafeWalk.start,
@@ -146,6 +153,7 @@ function Effects.start()
 		PullHop.start,
 		CampExtras.start,
 		PalWave.start,
+		PalDayFx.start, -- #4913: the Pal Day gift's waves and hearts
 		PetCat.start,
 		Signature.start,
 		Catch.start,
@@ -176,10 +184,7 @@ function Effects.start()
 		StuckCall.start,
 		Intro.start,
 		IntroCut.start,
-		function()
-			Cannon.setGlide(CannonGlide)
-			Cannon.start()
-		end,
+		cannonStart,
 		Campfire.start,
 		Sky.start,
 		Rainbow.start,
@@ -213,6 +218,7 @@ function Effects.start()
 		Rides.start,
 		HoldPulse.start,
 		RankUpPulse.start, -- #4920: RANK UP glows when ready, the tutorial strip's count tick
+		CannonCue.start, -- the Cannon button's glow while Tier 2 is short of cats (switch cannonCue, off)
 		FirstMinuteFx.start, -- first minute: the first bowl cat card's sparkle and jingle, the first net catch's cheer
 		BaitCrumbs.start,
 		WaitingCat.start,
@@ -241,19 +247,46 @@ function Effects.start()
 		Townsfolk.start,
 		Trampoline.start,
 	}
-	task.spawn(function()
+	-- #5068 (fxAfterLoad): the few starts the loading screen hands over to (the intro's shots, the cannon, the sky)
+	-- run now; the rest wait until the loading screen has gone, so a phone's start-up and the parts streaming in under
+	-- the screen do not share frames with ~95 map scans nobody sees yet. Switch off: one list, in this order, as before.
+	local early: { [() -> ()]: true } = {
+		[Intro.start] = true,
+		[IntroCut.start] = true,
+		[cannonStart] = true,
+		[Sky.start] = true,
+	}
+	local function run(list: { () -> () })
 		local slice = os.clock()
-		for _, start in starts do
+		for _, start in list do
 			start()
 			if os.clock() - slice > START_SLICE then
 				task.wait()
 				slice = os.clock()
 			end
 		end
+	end
+	local function cuts()
 		-- the context tips' camera cuts (#976): the UI calls them once they are handed over
 		ContextCut.start(require(script.Parent.UI) :: any)
 		-- #2946: the first bait's cutscene; the UI's bait cards wait for it
 		FirstBaitCut.start(require(script.Parent.UI) :: any)
+	end
+	task.spawn(function()
+		if not LoadGate.holds() then
+			run(starts)
+			cuts()
+			return
+		end
+		local now: { () -> () }, later: { () -> () } = {}, {}
+		for _, start in starts do
+			table.insert(if early[start] then now else later, start)
+		end
+		run(now)
+		LoadGate.whenLoaded(function()
+			run(later)
+			cuts()
+		end)
 	end)
 end
 

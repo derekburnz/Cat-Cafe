@@ -687,20 +687,30 @@ return function()
 			play(state, { "first_bait_resolved" })
 			expect(Onboarding.cleanDue(state, 6, facts) :: any).to.deepEqual({ 7 })
 			expect(Onboarding.cleanDue(state, 7, facts, EV.cannonOpen) :: any).to.deepEqual({ 8 })
-			-- the first launch is the ledger's alley_picked, never park_launch
-			expect(#Onboarding.cleanDue(state, 8, facts, EV.launch)).to.equal(0)
-			play(state, { "first_cannon" })
-			expect(Onboarding.cleanDue(state, 8, facts) :: any).to.deepEqual({ 9 })
+			-- #5034 follow-up: the bowl cat's tame and role pass the ledger's first_cannon to first_checkin, which must
+			-- not move the Alleyway steps
+			play(state, { "first_checkin", "first_role_assigned" })
+			expect(#Onboarding.cleanDue(state, 8, facts)).to.equal(0)
+			-- the first launch is alley_picked
+			expect(Onboarding.cleanDue(state, 8, facts, EV.launch) :: any).to.deepEqual({ 9 })
 			expect(Onboarding.cleanDue(state, 9, facts, Onboarding.arrivedEvent("alley")) :: any).to.deepEqual({
 				10,
 			})
-			-- the first catch's start and win are the ledger's, never the second cat's
-			play(state, { "near_stray" })
-			expect(Onboarding.cleanDue(state, 10, facts) :: any).to.deepEqual({ 11 })
-			expect(#Onboarding.cleanDue(state, 11, facts, EV.catchStart)).to.equal(0)
-			expect(#Onboarding.cleanDue(state, 11, facts, EV.netCatch)).to.equal(0)
-			play(state, { "first_catch", "first_checkin" })
-			expect(Onboarding.cleanDue(state, 11, facts) :: any).to.deepEqual({ 12, 13, 14 })
+			expect(Onboarding.cleanDue(state, 10, facts, EV.nearStray) :: any).to.deepEqual({ 11 })
+			expect(Onboarding.cleanDue(state, 11, facts, EV.catchStart) :: any).to.deepEqual({ 12 })
+			-- a catch started away from the waiting stray still counts
+			expect(Onboarding.cleanDue(state, 10, facts, EV.catchStart) :: any).to.deepEqual({
+				11,
+				12,
+			})
+			expect(Onboarding.cleanDue(state, 12, facts, EV.netCatch) :: any).to.deepEqual({ 13 })
+			-- the hand catch saved at camp; the bowl cat alone is handCats 0
+			facts.handCats = 0
+			expect(#Onboarding.cleanDue(state, 13, facts)).to.equal(0)
+			facts.handCats = 1
+			expect(Onboarding.cleanDue(state, 13, facts) :: any).to.deepEqual({ 14 })
+			-- a check-in proves the moments before it (a rescue, or a client too old to report them)
+			expect(Onboarding.cleanDue(state, 9, facts) :: any).to.deepEqual({ 10, 11, 12, 13, 14 })
 			-- one Alleyway catch is the walk-through's only hand catch (#4674): the Rank Up shows after it
 			expect(Onboarding.cleanDue(state, 14, facts, EV.rankUpShown) :: any).to.deepEqual({ 15 })
 			expect(Onboarding.cleanDue(state, 15, facts, EV.rankUpPressed) :: any).to.deepEqual({

@@ -275,7 +275,7 @@ event_body() {
 		+ (if $start != "" then {startTime: $start} else {} end)
 		+ (if $end != "" then {endTime: $end} else {} end)
 		+ (if $cat != "" then {categories: [{category: $cat, rank: 0}]} else {} end)
-		+ (if $img != "" then {thumbnails: [{mediaId: ($img | tonumber), rank: 1}]} else {} end)'
+		+ (if $img != "" then {thumbnails: [{mediaId: ($img | tonumber), rank: 0}]} else {} end)'
 }
 
 event_fail() {

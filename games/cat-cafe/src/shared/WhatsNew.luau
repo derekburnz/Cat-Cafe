@@ -45,6 +45,106 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE6",
 	},
+	-- #2718 refresh (Motion-FX-Agent, 2026-11-17 14:55 UTC): live since the 09:20 UTC rows, 31 merges (most docs or
+	-- behind off switches). Park townsfolk #5088; Water Park rides #5066; join pass lookups #5070; first bait cut #5075;
+	-- ask cards under an admin splash #5091; small phone HUD words #5087
+	{
+		id = "park_smoother_phones",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Smoother Park on phones",
+	},
+	{
+		id = "water_rides_phones",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Smoother Water Park rides",
+	},
+	{
+		id = "quicker_join",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Quicker joining",
+	},
+	{
+		id = "first_bait_cut_fixed",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "First bait cutscene fixed",
+	},
+	{
+		id = "popups_wait_events",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "Pop-ups wait for events",
+	},
+	{
+		id = "hud_words_small_phones",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "HUD words fit small phones",
+	},
+	-- #2718 (Motion-FX-Agent, 2026-11-17 14:05 UTC): storeRework (#3572) and fxAfterLoad (#5068) on at 14:01 UTC
+	{
+		id = "store_rework",
+		date = "2026-11-17",
+		icon = "look",
+		text = "Tidier Store, cheapest first",
+	},
+	{
+		id = "fx_after_load",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Faster start on phones",
+	},
+	-- #2718 (Motion-FX-Agent, 2026-11-17 12:40 UTC): rankUpRightAway on since 12:22 UTC (#5031, #5039, #5044)
+	{
+		id = "rank_up_right_away",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Rank Up opens when ready",
+	},
+	-- #2718 refresh (Motion-FX-Agent, 2026-11-17 09:20 UTC): the changes live since the 01:20 UTC rows (#5016), about 37
+	-- merges. Tier ladder #5056; lighter area sets and landing hitch #5011 #5019 #5023 #5024 #5033 #5036 #5037 #5042
+	-- #5043 #5052 #5046 #5048 #5028 #5030; carry marker and bait wait #5051; Park cannon marker #5057; small phone
+	-- event strip #5041. Rows for switches still off (rankUpRightAway, parkRingEarly, parkTrailBack, tier3Path, palDay,
+	-- areaOnly) wait for their switches.
+	{
+		id = "tier_ladder_easier",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Tiers 4 to 6 need less",
+	},
+	{
+		id = "areas_load_faster",
+		date = "2026-11-17",
+		icon = "faster",
+		text = "Areas load faster",
+	},
+	{
+		id = "carry_to_camp_marker",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "Clear way back to camp",
+	},
+	{
+		id = "park_cannon_marker",
+		date = "2026-11-17",
+		icon = "look",
+		text = "Marker on the Park cannon",
+	},
+	{
+		id = "first_bait_wait",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "Bait bowl shows right wait",
+	},
+	{
+		id = "event_strip_phones",
+		date = "2026-11-17",
+		icon = "fix",
+		text = "Event strip fits phones",
+	},
 	-- #2718 refresh (Design-Agent, 2026-11-17 01:20 UTC): the changes live since the full Nov 16 rows (#4981). Luck card
 	-- day kinds #4990 #4998; VIP tag switch #4991 #5012; Rummage Bin from the cannon #4961; chat titles #4882; Rank Up
 	-- button #5005; Auto Roll fix #4898; load time trims; Ticket Booth Moon Milk.

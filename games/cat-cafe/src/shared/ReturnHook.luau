@@ -38,6 +38,12 @@ ReturnHook.KINDS = table.freeze({ "gift", "bait", "treat", "quests" }) :: { stri
 ReturnHook.EARLY_FLAG = "returnHookEarly"
 ReturnHook.EARLY_MAX_TIER = 2
 ReturnHook.EARLY_KINDS = table.freeze({ "gift", "treat" }) :: { string }
+-- #3951 (Design-Agent's spec, Growth's Nov 17 read: day 1 return 2.7 to 6.5% on Nov 12 to 14, under the 6% line): the
+-- come back tomorrow card (UI/Components/TomorrowCard), on a new account's first UTC day once the walk-through and
+-- first 5 minutes hold ends, in place of the minute 6 line. Its switch (LiveFlags.OFF_BY_DEFAULT) and the
+-- tomorrow_card report's values: shown, then ok (its button), closed (the X) or hidden (something took the card).
+ReturnHook.CARD_FLAG = "tomorrowCard"
+ReturnHook.CARD_OUTCOMES = table.freeze({ "shown", "ok", "closed", "hidden" }) :: { string }
 
 -- When the bowl's cat comes (a save from before readyAt waits LureWaitSeconds from placedAt).
 local function readyAt(bait: Types.BaitState): number

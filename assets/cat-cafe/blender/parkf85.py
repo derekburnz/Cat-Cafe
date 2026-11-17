@@ -398,7 +398,7 @@ def flower_patch(mat, seed=0, r=3.2):
     """A patch of wildflowers in longer grass, flat on the lawn (walk through it: _Flowers never collide)."""
     b, fl = Builder(), Builder()
     b.cyl_base((0, 0, 0), r, 0.08, "leaf_dark", segments=12, bevel=False)
-    n = 9 + seed % 3
+    n = 7 + seed % 3                                  # 9 until #4857: each cluster is 3 parts
     for k in range(n):
         a = 2 * PI * k / n + seed
         rr = r * (0.3 + 0.55 * ((k * 5 + seed) % 4) / 3)
@@ -423,12 +423,12 @@ def beehives(mat):
 def build_set(mat):
     # The Park lands as one piece, so every part counts toward the landing stall (#4857): flowers go in
     # without stems and the hedge railings carry half the bars. Other sets that share these builders keep theirs.
-    was = (areakit.STEMS, parkset.RAIL_GAP)
-    areakit.STEMS, parkset.RAIL_GAP = False, 2.0
+    was = (areakit.STEMS, parkset.RAIL_GAP, parkset.LIGHT)
+    areakit.STEMS, parkset.RAIL_GAP, parkset.LIGHT = False, 2.0, True
     try:
         return _build_set(mat)
     finally:
-        areakit.STEMS, parkset.RAIL_GAP = was
+        areakit.STEMS, parkset.RAIL_GAP, parkset.LIGHT = was
 
 
 def _build_set(mat):

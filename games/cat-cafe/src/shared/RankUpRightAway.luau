@@ -36,6 +36,24 @@ RankUpRightAway.END_REPORT = "rank_up_end"
 RankUpRightAway.WINDOW_EVENT = "rank_up_window" -- the custom event; fields how, outcome
 RankUpRightAway.HOWS = { "auto", "button" }
 RankUpRightAway.OUTCOMES = { "pressed", "closed", "left" }
+-- How a window closed without a press (the client's END_REPORT "closed_<via>"; Growth 2026-11-17): its X, B on a
+-- gamepad, another window opened over it, or anything else
+RankUpRightAway.CLOSE_VIAS = { "x", "back", "switch", "other" }
+
+-- The outcome and the close's via from an END_REPORT value ("pressed", "closed", "closed_x" ...), or nil for any
+-- other value. A plain "closed" (an older client) has the via "".
+function RankUpRightAway.parseEnd(raw: unknown): (string?, string)
+	if raw == "pressed" or raw == "closed" then
+		return raw :: string, ""
+	end
+	if type(raw) == "string" and string.sub(raw, 1, 7) == "closed_" then
+		local via = string.sub(raw, 8)
+		if table.find(RankUpRightAway.CLOSE_VIAS, via) ~= nil then
+			return "closed", via
+		end
+	end
+	return nil, ""
+end
 RankUpRightAway.WINDOWS_MAX = 8 -- rank_up_window events a session at most
 
 function RankUpRightAway.catsShort(profile: Types.PlayerProfile): number

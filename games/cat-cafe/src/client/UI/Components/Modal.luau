@@ -31,7 +31,8 @@ export type Modal = {
 	closed: Signal.Signal, -- #4835: fires (name: string, from: string?) as a window closes, with the window it opened from
 	register: (self: Modal, name: string, screen: Screen) -> (),
 	open: (self: Modal, name: string) -> (),
-	close: (self: Modal) -> (),
+	close: (self: Modal, via: string?) -> (),
+	lastVia: (self: Modal) -> string,
 	back: (self: Modal) -> (),
 	toggle: (self: Modal, name: string) -> (),
 	current: (self: Modal) -> string?,
@@ -207,11 +208,13 @@ function Modal.open(self: any, name: string)
 	end)
 end
 
-function Modal.close(self: any)
+-- `via` says how the window was closed, for telemetry (#5031 Growth read): "x" (its X), "back" (B), else "other".
+function Modal.close(self: any, via: string?)
 	local name = self._current
 	if not name then
 		return
 	end
+	self._lastVia = via or "other"
 	local screen: Screen = self._screens[name]
 	local frame = screen.frame
 	local from: string? = self._from
@@ -260,7 +263,12 @@ function Modal.back(self: any)
 		self._from = nil
 		return
 	end
-	self:close()
+	self:close("back")
+end
+
+-- How the last window closed (Modal.close's `via`), "other" before any close.
+function Modal.lastVia(self: any): string
+	return self._lastVia or "other"
 end
 
 -- #3702: tucks the open window and the dim away for a moment (the Mystic Pool's animation plays in the world behind

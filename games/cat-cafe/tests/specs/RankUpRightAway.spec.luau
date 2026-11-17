@@ -89,5 +89,24 @@ return function()
 			expect(RankUpRightAway.READY_TITLE).to.equal("Your cafe is ready!")
 			expect(RankUpRightAway.READY_NARROW).to.equal("Cafe ready!")
 		end)
+
+		it("reads how a window ended, with how a close happened", function()
+			local function parse(raw: unknown): { any }
+				return { RankUpRightAway.parseEnd(raw) }
+			end
+			expect(parse("pressed")[1]).to.equal("pressed")
+			expect(parse("pressed")[2]).to.equal("")
+			expect(parse("closed")[1]).to.equal("closed") -- an older client
+			expect(parse("closed")[2]).to.equal("")
+			for _, via in RankUpRightAway.CLOSE_VIAS do
+				expect(parse("closed_" .. via)[1]).to.equal("closed")
+				expect(parse("closed_" .. via)[2]).to.equal(via)
+			end
+			expect(parse("closed_away")[1]).to.equal(nil)
+			expect(parse("closed_")[1]).to.equal(nil)
+			expect(parse("left")[1]).to.equal(nil) -- the server's own outcome, never the client's
+			expect(parse(5)[1]).to.equal(nil)
+			expect(parse(nil)[1]).to.equal(nil)
+		end)
 	end)
 end

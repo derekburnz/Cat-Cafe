@@ -7,13 +7,14 @@
 --     "left" when the player leaves with it open.
 --   Switch `rankUpRightAway` (LiveFlags.OFF_BY_DEFAULT):
 --     ready: the window opens by itself until it is pressed. Closed, it opens again the next time the player lands
---       in Town or their cafe, at most REOPENS times (againDue), and the goal card reads READY_TITLE;
+--       in Town or their cafe, at most REOPENS times (againDue), and the goal card reads READY_TITLE (READY_NARROW
+--       on a phone) beside its "Rank up!" sticker;
 --     not ready (the bowl cat was let go, so Tier 2's cats are short): the goal card reads shortTitle(n) and a stray
 --       waits near the Alleyway camp's landing, like SecondCat's, until Tier 2's cat need is met (catsShort).
 --   catsShort(profile) -> number        Tier 2's cats still to get, at Tier 1 after the first check-in, else 0
 --   strayWaits(profile, on) -> boolean  whether a stray waits for the player for that
 --   againDue(o) -> boolean              whether a closed Rank Up window opens again now
---   shortTitle(n) -> string             "Catch 1 more cat to rank up"
+--   shortTitle(n, narrow?) -> string    "Catch 1 more cat to rank up"; "Catch 1 more cat" on a phone's card
 
 local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
@@ -25,7 +26,10 @@ local RankUpRightAway = {}
 RankUpRightAway.FLAG = "rankUpRightAway"
 RankUpRightAway.REOPENS = 2 -- a closed window opens again at most this many times a session
 RankUpRightAway.TIER = 1 -- the tier it helps (to Tier 2)
-RankUpRightAway.READY_TITLE = "Rank up now! Your cafe is ready"
+-- Design's "Rank up now! Your cafe is ready" did not fit beside the card's "Rank up!" sticker on any screen (uigate
+-- GoalCardReadyTitle), so the sticker says the rank up and the title says why
+RankUpRightAway.READY_TITLE = "Your cafe is ready!"
+RankUpRightAway.READY_NARROW = "Cafe ready!" -- a phone's card (73 px for the title)
 -- TelemetryReport names: the window opened (value a HOWS entry) and how it ended (value an OUTCOMES entry)
 RankUpRightAway.OPEN_REPORT = "rank_up_open"
 RankUpRightAway.END_REPORT = "rank_up_end"
@@ -53,11 +57,11 @@ function RankUpRightAway.strayWaits(profile: Types.PlayerProfile, on: boolean): 
 	return on and RankUpRightAway.catsShort(profile) > 0
 end
 
-function RankUpRightAway.shortTitle(n: number): string
-	if n <= 1 then
-		return "Catch 1 more cat to rank up"
-	end
-	return string.format("Catch %d more cats to rank up", n)
+-- (Sync's 667 x 317 phone: the long line clipped on the goal card, so a phone's card drops "to rank up"; the
+-- "Opens Cozy Cafe" line under it says what the cat is for)
+function RankUpRightAway.shortTitle(n: number, narrow: boolean?): string
+	local cats = if n <= 1 then "Catch 1 more cat" else string.format("Catch %d more cats", n)
+	return if narrow then cats else cats .. " to rank up"
 end
 
 export type Again = {

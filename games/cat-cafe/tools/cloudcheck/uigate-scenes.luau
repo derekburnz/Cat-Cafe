@@ -10428,6 +10428,49 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assertArrowAt(goal, "the goal card after the Luck card closed (#5009)")
 		UI.update({ luck = luckBefore.luck, luckSources = luckBefore.luckSources } :: any)
 	end },
+	-- #5039 (switch rankUpRightAway): a Tier 1 save a cat short after its first check-in: the goal card reads "Catch 1
+	-- more cat to rank up" ("Catch 1 more cat" on a phone, Sync's 667 x 317 run) and it fits
+	{ "GoalCardShort", function()
+		UI.update({
+			tier = 1,
+			tutorialStep = 9,
+			money = 0,
+			secondCat = false,
+			stuckGoal = false,
+			newKindGoal = false,
+			rankUpShort = 1,
+		} :: any)
+		task.wait(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		assert(
+			title.Text == "Catch 1 more cat to rank up" or title.Text == "Catch 1 more cat",
+			"uigate: the goal card does not name the cat still short (#5039): " .. title.Text
+		)
+		assert(title.Visible and title.TextFits, "uigate: the cat still short line does not fit (#5039)")
+		UI.update({ rankUpShort = false } :: any)
+		task.wait(0.1)
+	end },
+	-- #5039 (switch rankUpRightAway): the ready card's title reads "Your cafe is ready!" ("Cafe ready!" on a phone) in
+	-- place of the tier's name (UIController sends it as rankUpTitle at Tier 1); Review-QA: it must fit beside the sticker
+	{ "GoalCardReadyTitle", function()
+		UI.update({ tier = 3, tutorialStep = 9, money = 2e9, rankUpTitle = "Your cafe is ready!" } :: any)
+		task.wait(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal:FindFirstChild("RankReady").Visible, "uigate: the sample cafe's rank up is not ready (#5039)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		assert(
+			title.Text == "Your cafe is ready!" or title.Text == "Cafe ready!",
+			"uigate: the ready title did not show (#5039)"
+		)
+		assert(title.Visible and title.TextFits, "uigate: the ready title does not fit beside the sticker (#5039)")
+		UI.update({ rankUpTitle = false } :: any)
+		task.wait(0.1)
+		assert(
+			title.Text ~= "Your cafe is ready!" and title.Text ~= "Cafe ready!",
+			"uigate: the ready title stayed with it off (#5039)"
+		)
+	end },
 	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch the ▶ button folds the
 	-- goal card into one finger-tall chip and saves goalFolded; a tap on the chip opens it again. Desktop has no tab.
 	{ "GoalFolded", function()

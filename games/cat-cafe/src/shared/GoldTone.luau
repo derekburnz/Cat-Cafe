@@ -13,10 +13,10 @@ local GoldTone = {}
 GoldTone.TONES = table.freeze({
 	-- #5199: mid and deep a step brighter than the Blender swatches (#F2C14E, #C98F2A, which goldtone.py matches the
 	-- twins by) at the same or more saturation, so a gold cat reads gold in the cafe's warm light and stays orange gold
-	-- in the sun (a paler lift went khaki outdoors). The light tone is the swatch.
+	-- in the sun (a paler lift went khaki outdoors, a darker deep went amber in the cafe). The light tone is the swatch.
 	Color3.new(0.9843, 0.8941, 0.6039), -- 1 light #FBE49A
-	Color3.new(1, 0.8, 0.302), -- 2 mid #FFCC4D
-	Color3.new(0.8784, 0.6235, 0.1765), -- 3 deep #E09F2D
+	Color3.new(1, 0.7593, 0.24), -- 2 mid #FFC23D
+	Color3.new(0.93, 0.7022, 0.279), -- 3 deep #EDB347
 })
 GoldTone.SHADOW_SIZE = 0.5
 

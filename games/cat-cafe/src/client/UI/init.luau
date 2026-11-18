@@ -160,6 +160,7 @@ end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
+UI.giftStall = {} -- the Christmas Event's Gift Stall window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
 
@@ -841,6 +842,7 @@ local function render()
 	UI.mailbox.render(state)
 	UI.nursery.render(state)
 	UI.harvest.render(state)
+	UI.giftStall.render(state)
 	UI.store.render()
 	UI.pass.render()
 	if cannonHint() ~= hintShown then
@@ -2061,6 +2063,7 @@ function UI.init(config: Types.InitConfig)
 	UI.mailbox.start() -- the Mailbox window, behind the `mailbox` switch (#4249)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.harvest.start() -- the Harvest Stall window, opened from its stall's prompt (#4251)
+	UI.giftStall.start() -- the Christmas Event's Gift Stall window, from its stall's prompt (christmasEvent)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
 	worldTags = WorldTags.new(UI.settings.value("catIncome")) -- #2551: the Cat income switch as it stands now
@@ -2327,6 +2330,7 @@ function UI.destroy()
 	UI.mailbox.reset()
 	UI.nursery.reset()
 	UI.harvest.reset()
+	UI.giftStall.reset()
 	UI.store.reset()
 	UI.pass.reset()
 	UI.bubbles.reset()
@@ -10940,6 +10944,194 @@ do
 			notes:destroy()
 		end
 		harvest.notes = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Gift Stall (the Christmas Event, snowglobe-village-spec section 5)
+--
+-- The stall in Snowglobe Village (tag SnowglobeStall, World/SnowglobeWorld) carries a ProximityPrompt named
+-- SnowglobeStallPrompt; while the christmasEvent switch is on, triggering it opens the Gift Stall window in the modal,
+-- and walking more than FAR_STUDS from the stall closes it. The window reads a view (Components/GiftStallLogic): the
+-- one the event row sets with UI.giftStall.setView, else PlayerState.snowflakes with nothing owned. A Buy calls the
+-- handler UI.giftStall.setBuy installs (the event row's remote); with none yet it only says the stall opens soon.
+do
+	local GiftStall = require(script.Screens.GiftStall)
+	local GiftStallLogic = require(script.Components.GiftStallLogic)
+	local LiveFlagsGift =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local STALL_TAG = "SnowglobeStall"
+	local PROMPT_NAME = "SnowglobeStallPrompt"
+	local FLAG = "christmasEvent"
+	local FAR_STUDS = 18
+	local gift = {
+		window = nil :: GiftStall.GiftStall?,
+		view = nil :: GiftStallLogic.View?, -- the event row's view, nil until it sets one
+		buy = nil :: ((id: string) -> ())?,
+		connections = {} :: { RBXScriptConnection },
+		prompts = {} :: { [ProximityPrompt]: boolean },
+	}
+
+	local function switchOn(): boolean
+		return ReplicatedStorage:GetAttribute(LiveFlagsGift.ATTRIBUTE_PREFIX .. FLAG) == true
+	end
+
+	local function currentView(): GiftStallLogic.View
+		return gift.view or GiftStallLogic.defaultView(state)
+	end
+
+	local function stallDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			if stall:IsA("Model") and stall:IsDescendantOf(Workspace) then
+				local distance = (
+					(stall :: Model):GetPivot().Position - (root :: BasePart).Position
+				).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	local function open()
+		local window = gift.window
+		local modalView = modal
+		if window == nil or modalView == nil or not switchOn() then
+			return
+		end
+		window:render(currentView())
+		modalView:open("GiftStall")
+	end
+
+	-- the stall's prompt, waited for if it streams in later
+	local function track(stall: Instance)
+		if not stall:IsDescendantOf(Workspace) then
+			return
+		end
+		local found = stall:FindFirstChild(PROMPT_NAME, true)
+		if found == nil or not found:IsA("ProximityPrompt") then
+			local waiting: RBXScriptConnection
+			waiting = stall.DescendantAdded:Connect(function(child: Instance)
+				if child.Name == PROMPT_NAME and child:IsA("ProximityPrompt") then
+					waiting:Disconnect()
+					track(stall)
+				end
+			end)
+			table.insert(gift.connections, waiting)
+			return
+		end
+		local prompt = found :: ProximityPrompt
+		if gift.prompts[prompt] then
+			return
+		end
+		gift.prompts[prompt] = true
+		table.insert(gift.connections, prompt.Triggered:Connect(open))
+		table.insert(
+			gift.connections,
+			prompt.AncestryChanged:Connect(function()
+				if not prompt:IsDescendantOf(Workspace) then
+					gift.prompts[prompt] = nil
+				end
+			end)
+		)
+	end
+
+	function UI.giftStall.start()
+		UI.giftStall.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local window = GiftStall.new({
+			buy = function(id: string)
+				local handler = gift.buy
+				if handler ~= nil then
+					handler(id)
+				else
+					UI.toast("The Gift Stall opens soon!", "info")
+				end
+			end,
+			close = function()
+				if modalView:current() == "GiftStall" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = stallDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		gift.window = window
+		modalView:register("GiftStall", {
+			frame = window.frame,
+			onOpen = function()
+				window:render(currentView())
+				window:opened()
+			end,
+			onClose = function()
+				window:closed()
+			end,
+		})
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			track(stall)
+		end
+		table.insert(
+			gift.connections,
+			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(function(stall: Instance)
+				track(stall)
+			end)
+		)
+	end
+
+	-- The window, as the stall's prompt opens it (still only while christmasEvent is on); the UI gate's scenes call
+	-- this too.
+	function UI.giftStall.open(tab: string?)
+		local window = gift.window
+		if window and (tab == "outfit" or tab == "decor") then
+			window:showTab(tab :: any)
+		end
+		open()
+	end
+
+	-- The event row's view of the stall (nil goes back to PlayerState.snowflakes with nothing owned).
+	function UI.giftStall.setView(view: GiftStallLogic.View?)
+		gift.view = view
+		local window = gift.window
+		if window then
+			window:render(currentView())
+		end
+	end
+
+	-- The event row's buy (its remote); nil takes it away.
+	function UI.giftStall.setBuy(handler: ((id: string) -> ())?)
+		gift.buy = handler
+	end
+
+	function UI.giftStall.render(_playerState: Types.PlayerState)
+		local window = gift.window
+		if window and gift.view == nil then
+			window:render(currentView())
+		end
+	end
+
+	function UI.giftStall.reset()
+		for _, connection in gift.connections do
+			connection:Disconnect()
+		end
+		table.clear(gift.connections)
+		table.clear(gift.prompts)
+		local window = gift.window
+		if window then
+			window:destroy()
+		end
+		gift.window = nil
 	end
 end
 

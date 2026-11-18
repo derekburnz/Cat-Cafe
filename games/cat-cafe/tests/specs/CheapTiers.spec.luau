@@ -50,6 +50,46 @@ return function()
 
 		it("is off by default", function()
 			expect(CheapTiers.on()).to.equal(false)
+			expect(CheapTiers.easyFour()).to.equal(false)
+			expect(CheapTiers.needs()).to.equal(nil)
+		end)
+	end)
+
+	describe("tier4Easy (#5285 E)", function()
+		it(
+			"asks 250,000 and an Epic at Tier 4 on either row, and puts the plain ones back",
+			function()
+				local plain = Catalog.PLAIN_TIER_NEEDS
+				expect(plain[4].needsRarity).to.equal("Legendary")
+				expect(plain[5].needsRarity).to.equal("Legendary")
+				for _, cheap in { false, true } do
+					Catalog.setTierNeeds(CheapTiers.needsFor(cheap, true))
+					expect(Catalog.getTier(4).cost).to.equal(250000)
+					expect(Catalog.getTier(4).needsRarity).to.equal("Epic")
+					expect(Catalog.getTier(4).distinctCats).to.equal(plain[4].distinctCats)
+					expect(Catalog.getTier(5).needsRarity).to.equal("Legendary")
+					expect(Catalog.getTier(3).cost).to.equal(if cheap then 25000 else plain[3].cost)
+					expect(Catalog.getTier(5).cost).to.equal(
+						if cheap then 5000000 else plain[5].cost
+					)
+				end
+				Catalog.setTierNeeds(CheapTiers.needsFor(true, false))
+				expect(Catalog.getTier(4).cost).to.equal(400000)
+				expect(Catalog.getTier(4).needsRarity).to.equal("Legendary")
+				Catalog.setTierNeeds(nil)
+				expect(Catalog.getTier(4).cost).to.equal(plain[4].cost)
+				expect(Catalog.getTier(4).needsRarity).to.equal("Legendary")
+				expect(CheapTiers.NEEDS[4].needsRarity).to.equal(nil) -- the cheapTiers row itself is untouched
+			end
+		)
+
+		it("keeps the ladder rising: Tier 4 still costs more than Tier 3 on both rows", function()
+			for _, cheap in { false, true } do
+				Catalog.setTierNeeds(CheapTiers.needsFor(cheap, true))
+				expect(Catalog.getTier(4).cost > Catalog.getTier(3).cost).to.equal(true)
+				expect(Catalog.getTier(5).cost > Catalog.getTier(4).cost).to.equal(true)
+			end
+			Catalog.setTierNeeds(nil)
 		end)
 	end)
 end

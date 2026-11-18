@@ -52,8 +52,9 @@ COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "Ca
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_",
                     "CatCafe_Town_", "CatCafe_Lawn_", "CatCafe_Cafe_", "CatCafe_Desert_", "CatCafe_Ruins_",
                     # Derek 2026-11-14: "some of the new areas a lot of the models can just be walked through so fix that"
-                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_", "CatCafe_Harvest_")
+                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_", "CatCafe_Harvest_", "CatCafe_Snowglobe_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
+                      "_Snowfall",
                       "_Wheel", "_Wheel9", "_Pointer", "_RimLight", "_Flowers", "_Pennant", "Balloons", "_Canopy",
                       "_BannerPole_Swing", "_SummitFlag_Swing", "_PennantTower_Swing", "_BalloonBunch_Swing",
                       # #5165: the Water Park's turning pieces; they turn on each client only (Effects/Rides, which
@@ -61,7 +62,7 @@ NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights",
                       "CarouselTurn", "TeacupsTurn", "FerrisTurn")
 # _Canopy: tree crowns a player climbs up under (the Great Oak, #2262). Roblox's camera only pops in front of parts
 # that collide, so walk-through leaves let it pass instead of pushing it into the climber's head.
-INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier")   # volumes never drawn: where fireflies drift, ladders'
+INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier", "_Snowfall")   # volumes never drawn: where fireflies drift, ladders'
 # climbing trusses, the walls round a pond that keep players and cats out of the water
 BARRIER_OBJECTS = ("_Barrier",)       # invisible and always solid
 # Barriers the camera and clicks pass through: the alley blockers, and the slabs over the leaderboard boards (#4073).
@@ -71,7 +72,7 @@ CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's r
 # rails and pickets collide too, down to THIN_COLLIDE thick when at least THIN_LONG long.
 OUTDOOR_PREFIXES = ("CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Street_", "CatCafe_Neighbourhood_", "CatCafe_Woods_",
                     "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_", "CatCafe_Town_", "CatCafe_Lawn_",
-                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_", "CatCafe_Harvest_")
+                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_", "CatCafe_Harvest_", "CatCafe_Snowglobe_")
 THIN_COLLIDE, THIN_LONG = 0.12, 0.9
 THIN_SKIP = ("StringLights",)       # overhead cables stay walk-through
 ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share of the box round it (the mesh is scaled
@@ -346,6 +347,8 @@ def _props(p, asset, uid):
         props["Transparency"] = transparency
     if BACKDROP in asset or (asset.startswith(NO_QUERY_BARRIERS) and p["name"].endswith("_Barrier")):
         props["CanQuery"] = False                 # blocker barriers: the camera and clicks pass through
+    if p["name"].endswith(("_Snowfall", "_Sky_Glass")):   # the snow volume and the globe's glass: rays, taps and
+        props["CanQuery"] = False                 # clicks pass through to the floor and the props
     if p["name"].endswith("_RingIcon_Decor"):     # #2449: flat pictures in the walk-up rings, never in the way
         props["CanQuery"] = False
         props["CastShadow"] = False

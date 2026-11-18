@@ -171,6 +171,7 @@ LiveFlags.KEYS = {
 	"quickFirstRings", -- #5232: a player's held first-catch rings shrink in 0.7 s, not 1.6 (shared/Circles.tutorialSchedule); off by default
 	"firstCatchWow", -- #5285 E2: the account's first net catch gets slow motion, a push in, a big pop, coins and a FIRST CATCH! banner (Effects/FirstCatchWow); off by default
 	"gemsShrink", -- Derek 2026-11-18: a stray's rarity gem gets smaller with distance so it stops covering far cats (Effects/Rarity, Logic.gemPixels); off by default
+	"christmasEvent", -- Snowglobe Village, Dec 1 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
 	"bangRelayout", -- #5261: a "!" bubble showing with words but laid out blank lays its text out again (UI/Components/MarketBang); on by default
 	"phoneSmooth", -- #5285 A1: a new account on a touch screen starts in Smooth mode, no ask (shared/PerfSuggest.autoStart); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
@@ -261,6 +262,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	phoneSmooth = true, -- #5285 A1: on after Review-QA and a phone look at the first minute
 	firstCatchWow = true, -- #5285 E2: first-session change; on after Review-QA and Sync's look at a first catch
 	gemsShrink = true, -- Derek 2026-11-18: on after Review-QA and Sync's phone and PC look at far gems
+	christmasEvent = true, -- snowglobe-village-spec: on Nov 29 after Sync's look; the event dates still hold the portal shut until Dec 1
 	nextGoalBeat = true, -- #5202: on after Review-QA and Sync's pass, at a minute with no other switch within 2 hours
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

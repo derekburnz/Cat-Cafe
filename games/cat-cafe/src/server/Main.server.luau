@@ -84,6 +84,7 @@ local RichTipService = require(script.Parent.Services.RichTipService)
 local SessionRecapService = require(script.Parent.Services.SessionRecapService)
 local ShopCatService = require(script.Parent.Services.ShopCatService)
 local ShoveService = require(script.Parent.Services.ShoveService)
+local SnowglobeService = require(script.Parent.Services.SnowglobeService)
 local SpinService = require(script.Parent.Services.SpinService)
 local StarterCatService = require(script.Parent.Services.StarterCatService)
 local StuckGoalService = require(script.Parent.Services.StuckGoalService)
@@ -163,6 +164,7 @@ MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket'
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 FishStoreService.start() -- #4055: Store passes for golden fish
 HarvestService.start() -- #4251: Harvest Hollow's Stall, Pumpkin Patch and arrival
+SnowglobeService.start() -- the Christmas Event's globe and village, once christmasEvent is on
 TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
 DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory

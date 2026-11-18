@@ -832,10 +832,15 @@ function Dealer._renderAll(self: any)
 		local group: DealerRows.Row = row.group
 		local left = group.left
 		local none = group.amount == 0
+		-- #5230: a food under its tier (the Eclipse Treat before Tier 8) shows, greyed, with the tier it opens at
+		local lure: any = self._lureById[group.lureId]
+		local needs: number? = if lure ~= nil then lure.needsTier else nil
+		local locked = needs ~= nil and (state.tier or 1) < needs
 		local pendingUntil: number? = self._pending[group.lureId]
 		local pending = pendingUntil ~= nil and os.clock() < pendingUntil
-		row.stock.Text = if none
-			then "None this time"
+		row.stock.Text = if locked
+			then ("Opens at Tier %d"):format(needs :: number)
+			elseif none then "None this time"
 			elseif left > 0 then ("x%d Stock"):format(left)
 			else "Sold out"
 		row.stock.TextColor3 = if none
@@ -847,6 +852,7 @@ function Dealer._renderAll(self: any)
 		row.buy:setText(
 			if pending
 				then "Buying..."
+				elseif locked then ("%s Tier %d"):format(Theme.icons.lock, needs :: number)
 				elseif none then "None"
 				elseif left == 0 then "Sold out"
 				else Format.money(group.cost)

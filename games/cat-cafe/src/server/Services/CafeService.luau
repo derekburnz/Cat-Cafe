@@ -330,11 +330,11 @@ local function followerViewOf(player: Player, profile: Profile): Types.FollowerV
 		return nil
 	end
 	local cat = Follower.cat(profile)
-	local boost = Follower.boost(profile)
+	local boost: Follower.Boost = Follower.boost(profile)
 	local def = if cat ~= nil then Catalog.getCat(cat.catId) else nil
 	local switchedAt = player:GetAttribute("FollowerSwitchAt")
 	local since = if type(switchedAt) == "number" then os.time() - switchedAt else math.huge
-	return {
+	local view: Types.FollowerView = {
 		open = (profile.tier or 1) >= Follower.OPEN_TIER,
 		uid = if cat ~= nil then cat.uid else nil,
 		boost = boost,
@@ -345,6 +345,7 @@ local function followerViewOf(player: Player, profile: Profile): Types.FollowerV
 		),
 		switchIn = math.max(0, Follower.SWITCH_SECONDS - since),
 	}
+	return view
 end
 
 local function cardLuckOf(profile: Profile): { crate: number, trait: number, spin: number }

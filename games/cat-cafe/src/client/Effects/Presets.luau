@@ -5448,7 +5448,7 @@ Presets.rarityMark = {
 	shrink = {
 		flag = "gemsShrink",
 		near = 20,
-		far = 110,
+		far = 80, -- Sync 2026-11-18: 110 left gems at 60 to 100 studs covering 38 to 51% of the cat
 		least = 4,
 		finderLeast = 14,
 	},

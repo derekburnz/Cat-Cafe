@@ -254,6 +254,18 @@ local function walled(self: any, target: Target, start: Vector3, finish: Vector3
 	return hit ~= nil and (hit.Position - finish).Magnitude > NEAR_END
 end
 
+-- Sync on #5211: a walk-up circle as the target (it carries its Radius) keeps its trail until the player is on it,
+-- where its window opens; anything else hides at ARRIVED.
+local function arrivedAt(target: Target): number
+	if typeof(target) == "Instance" and (target :: Instance):IsA("BasePart") then
+		local radius = (target :: Instance):GetAttribute("Radius")
+		if type(radius) == "number" then
+			return math.min(ARRIVED, radius)
+		end
+	end
+	return ARRIVED
+end
+
 function GuideTrail._step(self: any)
 	local target: Target? = self._target
 	local finish = if target ~= nil then targetPosition(target) else nil
@@ -262,7 +274,7 @@ function GuideTrail._step(self: any)
 		finish == nil
 		or start == nil
 		or (
-			(finish - start).Magnitude < ARRIVED
+			(finish - start).Magnitude < arrivedAt(target :: Target)
 			and not walled(self, target :: Target, start :: Vector3, finish :: Vector3)
 		)
 	then

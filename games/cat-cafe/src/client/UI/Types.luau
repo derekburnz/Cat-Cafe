@@ -144,7 +144,8 @@ export type FishShopRow = SharedTypes.FishShopRow
 -- One Spin Wheel slice (F49): the Tip Jar row's prize plus a weight; the weights add up to 100.
 export type SpinRow = {
 	slice: number,
-	kind: string, -- "coins", "lure", F54 "fish" (golden fish) or "crate"
+	kind: string, -- "coins", "lure", F54 "fish" (golden fish), "crate" or #5171 "cat"
+	catId: string?, -- #5171: the cat a "cat" slice gives (SpinCat)
 	seconds: number?,
 	minCoins: number?,
 	lureId: string?,

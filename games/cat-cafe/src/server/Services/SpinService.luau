@@ -11,15 +11,20 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Net = require(script.Parent.Net)
 local Prizes = require(ReplicatedStorage.Shared.Prizes)
+local RareMomentService = require(script.Parent.RareMomentService)
+local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Spin = require(ReplicatedStorage.Shared.Spin)
+local SpinCat = require(ReplicatedStorage.Shared.SpinCat)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -51,6 +56,27 @@ local function stationNear(player: Player): Model?
 	return nil
 end
 
+-- #5171 (switch spinCat, shared/SpinCat): the cat slice adds its cat like a tamed bait cat (method "bait", so the
+-- save needs no new method and it earns no rescue bonus), and once the wheel has stopped the winner gets the new cat
+-- card and the server the shout-out, as at a bowl. Returns 1, or 0 for an unknown cat.
+local function payCat(player: Player, profile: Types.PlayerProfile, row: Types.SpinSlice): number
+	local def = if row.catId ~= nil then Catalog.getCat(row.catId) else nil
+	if def == nil then
+		return 0
+	end
+	local cat = def :: Types.CatDef
+	local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection)
+	local instance, isNew = CafeService.addCaughtCat(player, cat, false, profile, nil, "bait", nil)
+	task.delay(Config.SpinCooldownSeconds, function()
+		if player.Parent ~= Players then
+			return
+		end
+		Net.fire(player, "CatCaught", cat.id, isNew, instance.variant, "spin")
+		RareMomentService.secured(player, cat, nil, "bait", hadEpicOrBetter)
+	end)
+	return 1
+end
+
 -- Pays the slice: coins, golden fish, a crate (banked for the Golden Fish Market; "highest" is the crate of the
 -- player's highest open zone, F54, "highest_golden" its golden crate, #1500) or foods. Returns the amount. A jackpot
 -- (#1500) also toasts the winner once the wheel has had time to stop (SpinCooldownSeconds, the spin animation); only
@@ -58,7 +84,9 @@ end
 local function pay(player: Player, profile: Types.PlayerProfile, row: Types.SpinSlice): number
 	local amount = Spin.amount(row, Economy.incomePerSecond(profile))
 	local crateId: string? = nil
-	if row.kind == "coins" then
+	if row.kind == "cat" then
+		amount = payCat(player, profile, row)
+	elseif row.kind == "coins" then
 		Economy.credit(profile, amount)
 		Telemetry.source(player, profile, amount, "Gameplay", "spin_wheel")
 	elseif row.kind == "fish" then
@@ -104,7 +132,7 @@ local function onSpinWheel(player: Player)
 	forcedSlice[player] = nil
 	-- the Dragon Keep's Lucky Spin lifts the rare slices (Spin.rows); the wheel's Odds list shows the same
 	local row = if forced ~= nil
-		then Catalog.spinWheel[forced]
+		then Spin.slice(forced) or Catalog.spinWheel[1]
 		else Spin.pick(random:NextNumber(), Economy.dragonEffects(profile).spinLuck)
 	local amount = pay(player, profile, row)
 	profile.stats.spins += 1
@@ -155,7 +183,80 @@ local function onSpinAll(player: Player)
 	station:SetAttribute("LastSpinAt", Workspace:GetServerTimeNow())
 end
 
+-- #5171 (switch spinCat): the station's eight-wedge Wheel swaps for Model-Agent's nine-wedge one (#5187, its own
+-- SliceSpans "48,48,48,48,48,48,24,24,24") while the switch is on, and back when it goes off. The nine takes the eight's
+-- name and pivot, so Effects/Wheel finds it ("_Wheel") and binds it afresh (its old wheel left the tree), reading the
+-- nine spans and resting on slice 9 when the cat wins. The eight is kept aside, not destroyed.
+SpinService.WHEEL9 = "CatCafe_Street_SpinWheel_Wheel9"
+type Wheels = { eight: Model, nine: Model?, parent: Instance }
+local wheelsOf: { [Model]: Wheels } = {}
+
+local function isWheel(instance: Instance): boolean
+	local name = instance.Name
+	return instance:IsA("Model") and (name == "Wheel" or (#name > 6 and name:sub(-6) == "_Wheel"))
+end
+
+local function setWheel(station: Model, nine: boolean)
+	local wheels = wheelsOf[station]
+	if wheels == nil then
+		local eight: Instance? = nil
+		for _, descendant in station:GetDescendants() do
+			if isWheel(descendant) then
+				eight = descendant
+				break
+			end
+		end
+		if eight == nil or eight.Parent == nil then
+			return
+		end
+		local fresh: Wheels =
+			{ eight = eight :: Model, parent = (eight :: Model).Parent :: Instance }
+		wheels = fresh
+		wheelsOf[station] = fresh
+	end
+	local w = wheels :: Wheels
+	if nine then
+		if w.nine == nil then
+			if not AssetRegistry.has(SpinService.WHEEL9) then
+				return -- no nine-wedge model in this build: the eight stays and a cat win rests anywhere
+			end
+			local made = AssetRegistry.clone(SpinService.WHEEL9)
+			made.Name = w.eight.Name
+			made:PivotTo(w.eight:GetPivot())
+			w.nine = made
+		end
+		local made = w.nine :: Model
+		if made.Parent ~= w.parent then
+			made.Parent = w.parent
+			w.eight.Parent = nil
+		end
+	elseif w.eight.Parent ~= w.parent then
+		w.eight.Parent = w.parent
+		local made = w.nine
+		if made ~= nil then
+			made.Parent = nil
+		end
+	end
+end
+
+local function followWheels()
+	local nine = SpinCat.on()
+	for _, instance in CollectionService:GetTagged(SpinService.TAG) do
+		if instance:IsA("Model") then
+			setWheel(instance :: Model, nine)
+		end
+	end
+end
+
 function SpinService.start()
+	followWheels()
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. SpinCat.FLAG)
+		:Connect(followWheels)
+	CollectionService:GetInstanceAddedSignal(SpinService.TAG):Connect(function(instance: Instance)
+		if instance:IsA("Model") then
+			setWheel(instance :: Model, SpinCat.on())
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		lastSpinAt[player] = nil
 		forcedSlice[player] = nil
@@ -182,13 +283,13 @@ function SpinService.debugSet(
 end
 
 -- Studio-only test hook (Debug.spinSlice, QA S63): this player's next spin lands on `slice` (1 to #Catalog.spinWheel)
--- and pays it, with every other check as normal; nil goes back to the random pick. Returns the slice set.
+-- (9 is the cat slice while spinCat is on, #5171) and pays it, with every other check as normal; nil goes back to the random pick. Returns the slice set.
 function SpinService.debugForceSlice(player: Player, slice: number?): number?
 	if slice == nil then
 		forcedSlice[player] = nil
 		return nil
 	end
-	assert(Catalog.spinWheel[slice] ~= nil, "no such slice")
+	assert(Spin.slice(slice) ~= nil, "no such slice")
 	forcedSlice[player] = slice
 	return slice
 end

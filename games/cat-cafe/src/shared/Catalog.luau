@@ -2073,6 +2073,7 @@ Catalog.upgrades = {
 		maxLevel = 3,
 		-- F95: the Master Net four times; #3204: Net 2 at Tier 3 for 200,000 and Net 3 at Tier 5 for 60,000,000 (were
 		-- 25,000 and 800,000, which would be pocket change that late)
+		-- #5170 (netTiers): Net 4 and Net 5's costs are added only with the switch on (Catalog.setNetTiers)
 		costs = { 2500, 200000, 60000000 },
 		startLevel = 0,
 	},
@@ -2149,6 +2150,49 @@ function Catalog.setTablesSpread(on: boolean): boolean
 	end
 	for _, def in Catalog.upgrades do
 		if def.id == "tables" then
+			local perLevel: { [number]: number } = {}
+			for level = 1, def.maxLevel do
+				local tier = Catalog.tierForLevel(def.id, level)
+				if tier ~= nil and tier > 1 then
+					perLevel[level] = tier
+				end
+			end
+			def.requiresTierAtLevel = perLevel
+		end
+	end
+	return changed
+end
+
+-- #5170 (switch netTiers, shared/NetTiers): the net's caps at Tiers 7 to 10 and its maxLevel. Off, Net 3 is the top
+-- from Tier 5 as before; on, Net 4 opens at Tier 7 and Net 5 at Tier 9. A level owned above the cap is kept.
+Catalog.NET_TIERS = table.freeze({ [7] = 4, [8] = 4, [9] = 5, [10] = 5 })
+Catalog.NET_PLAIN = table.freeze({ [7] = 3, [8] = 3, [9] = 3, [10] = 3 })
+Catalog.NET_MAX_PLAIN = 3
+Catalog.NET_MAX_TIERS = 5
+-- Net 4 at Tier 7 and Net 5 at Tier 9, about five times their tier's Rank Up, as Net 3 is at Tier 5 (Design)
+Catalog.NET_TIER_COSTS = table.freeze({ [4] = 15000000000, [5] = 1500000000000 })
+
+function Catalog.setNetTiers(on: boolean): boolean
+	local caps: { [number]: number } = if on then Catalog.NET_TIERS else Catalog.NET_PLAIN
+	local changed = false
+	for tier, cap in caps do
+		local def = Catalog.tiers[tier]
+		if def ~= nil and (def.caps :: any).net ~= cap then
+			(def.caps :: any).net = cap
+			changed = true
+		end
+	end
+	for _, def in Catalog.upgrades do
+		if def.id == "net" then
+			local top = if on then Catalog.NET_MAX_TIERS else Catalog.NET_MAX_PLAIN
+			if def.maxLevel ~= top then
+				def.maxLevel = top
+				changed = true
+			end
+			local costs: any = def.costs -- a level past maxLevel is taken away (nil) with the switch off
+			for level, cost in Catalog.NET_TIER_COSTS do
+				costs[level] = if on then cost else nil
+			end
 			local perLevel: { [number]: number } = {}
 			for level = 1, def.maxLevel do
 				local tier = Catalog.tierForLevel(def.id, level)

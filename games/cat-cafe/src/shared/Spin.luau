@@ -64,16 +64,59 @@ Spin.LUCKY_SLICES = { [6] = true, [7] = true, [8] = true } :: { [number]: boolea
 Spin.GIVER_SLICE = 1
 Spin.LUCK_MAX = 0.30 -- spin luck at most (DragonKeep.LUCK_KIND_CAP)
 
--- The wheel's slices with spin luck `luck` (0.10 is +10%) in their weights: Catalog.spinWheel itself with none, else
--- copies. The server picks with these and the wheel's Odds list shows them (SpinLogic.share and chance).
+-- #5171 (switch spinCat, shared/SpinCat): the cat slice while SpinCat.follow has put one on the wheel, else nil.
+Spin.catRow = nil :: Types.SpinSlice?
+local withCat: { Types.SpinSlice }? = nil
+
+-- Puts the cat slice `row` on the wheel after the eight, with slice 1 (GIVER_SLICE) giving up its weight so every
+-- other prize keeps its chance; nil takes it off again (the wheel is Catalog.spinWheel exactly).
+function Spin.setCat(row: Types.SpinSlice?)
+	Spin.catRow = row
+	if row == nil then
+		withCat = nil
+		return
+	end
+	local list = table.clone(Catalog.spinWheel)
+	for index, each in list do
+		if each.slice == Spin.GIVER_SLICE then
+			local giver: Types.SpinSlice = table.clone(each)
+			giver.weight = math.max(0, giver.weight - row.weight)
+			table.freeze(giver :: any)
+			list[index] = giver
+		end
+	end
+	table.insert(list, row)
+	withCat = table.freeze(list)
+end
+
+-- The wheel's slices in order round it: Catalog.spinWheel, or with the cat slice on it (Spin.setCat) a frozen copy
+-- with a ninth. The same table until the cat changes, so the window can tell when to draw again.
+function Spin.wheel(): { Types.SpinSlice }
+	return withCat or Catalog.spinWheel
+end
+
+-- The slice numbered `slice` on the wheel now, or nil.
+function Spin.slice(slice: number): Types.SpinSlice?
+	for _, row in Spin.wheel() do
+		if row.slice == slice then
+			return row
+		end
+	end
+	return nil
+end
+
+-- The wheel's slices with spin luck `luck` (0.10 is +10%) in their weights: Spin.wheel() itself with none, else
+-- copies. The server picks with these and the wheel's Odds list shows them (SpinLogic.share and chance). The cat
+-- slice (#5171) is not a lucky slice: its chance is the same for everyone.
 function Spin.rows(luck: number?): { Types.SpinSlice }
+	local wheel = Spin.wheel()
 	if type(luck) ~= "number" or luck <= 0 then
-		return Catalog.spinWheel
+		return wheel
 	end
 	local boost = 1 + math.min(luck, Spin.LUCK_MAX)
 	local out: { Types.SpinSlice } = {}
 	local added = 0
-	for _, row in Catalog.spinWheel do
+	for _, row in wheel do
 		local copy = table.clone(row)
 		if Spin.LUCKY_SLICES[copy.slice] then
 			local weight = copy.weight * boost
@@ -101,14 +144,14 @@ function Spin.pick(roll: number, luck: number?): Types.SpinSlice
 	for _, row in rows do
 		target -= row.weight
 		if target < 0 then
-			return Catalog.spinWheel[row.slice] or row
+			return Spin.slice(row.slice) or row
 		end
 	end
 	return Catalog.spinWheel[#Catalog.spinWheel]
 end
 
 -- What a slice pays at `dayRate` (the day income per second at spin time): coins for a coins slice, else the
--- number of foods, golden fish or crates.
+-- number of foods, golden fish, crates or (#5171) cats.
 function Spin.amount(row: Types.SpinSlice, dayRate: number): number
 	if row.kind == "coins" then
 		return Prizes.coins(row.minCoins, row.seconds, dayRate)
@@ -124,6 +167,11 @@ function Spin.jackpotText(row: Types.SpinSlice, amount: number, crateId: string?
 	end
 	if row.kind == "fish" then
 		return string.format("Jackpot! %d golden fish", amount)
+	elseif row.kind == "cat" then
+		local cat = if row.catId ~= nil then Catalog.getCat(row.catId) else nil
+		return if cat ~= nil
+			then string.format("Jackpot! %s joins your cafe", cat.name)
+			else "Jackpot! A Secret cat"
 	end
 	local crate = if crateId ~= nil then Catalog.getCrate(crateId) else nil
 	if crate ~= nil then
@@ -142,13 +190,14 @@ function Spin.summarize(rolls: { SpinRoll }): { SpinTotal }
 	local totals: { SpinTotal } = {}
 	local byKey: { [string]: SpinTotal } = {}
 	for _, roll in rolls do
-		local row = Catalog.spinWheel[roll.slice]
+		local row = Spin.slice(roll.slice)
 		if row == nil then
 			continue
 		end
 		local id: string? = if row.kind == "lure"
 			then row.lureId
 			elseif row.kind == "crate" then row.crate
+			elseif row.kind == "cat" then row.catId
 			else nil
 		local key = row.kind .. ":" .. (id or "")
 		local total = byKey[key]

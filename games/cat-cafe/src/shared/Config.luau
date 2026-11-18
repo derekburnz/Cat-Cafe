@@ -297,6 +297,9 @@ local Config = {
 		[1] = { perfect = 0.055, good = 0.13 },
 		[2] = { perfect = 0.065, good = 0.155 },
 		[3] = { perfect = 0.08, good = 0.18 },
+		-- #5170 (netTiers): Net 4 and Net 5, reached only with the switch on (Circles clamps to the net's maxLevel)
+		[4] = { perfect = 0.09, good = 0.20 },
+		[5] = { perfect = 0.10, good = 0.22 },
 	} :: { [number]: { perfect: number, good: number } },
 	CircleJitter = 0.10,
 	-- #2913 follow-up (Nov 10 read: after the sure first catch, phones still miss more, 37 of 186 new players missed

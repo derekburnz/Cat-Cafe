@@ -25,7 +25,11 @@
 -- right end (#3744; it sat over the bar, under the bag's Drop pill) or just over the round button, counting down.
 -- #4499 (Derek2 2026-11-15: shielded players "shouldn't be able to tackle back also and it helps with net vs tackle
 -- button confusion"): while the shield runs there is no Tackle at all, no bar, no round button, no key cap and no
--- cue. Only the chip shows, where the bar or the button would be, so the player knows they are safe and for how long.
+-- cue. Only the chip shows, so the player knows they are safe and for how long.
+-- #5233 (Derek 2026-11-18: "the safe shield on all devices should hover above the cannon/cafe buttons in bottom
+-- middle not randomly in your screen"): on every device the chip sits in its own ScreenGui at the bottom centre, just
+-- over the bottom row (HUD.shieldTop), and the HUD keeps a slot there for it (HUD.setShieldSlot) so a Drop or the
+-- tutorial strip stacks above it instead of on it. It no longer follows the round touch button or the bar's stack.
 --
 --   setEnabled(on)          inside a catching area this player has unlocked, and tackles are switched on
 --   result(ok, outcome?)    the server refused (false) or took (true) the tackle; a hit outcome holds the bar
@@ -55,6 +59,7 @@ local WIDTH = 240 -- design pixels
 local HEIGHT = 36 -- #2510: a click target the UI gate accepts (it was 30)
 local INSET = 4 -- the fill sits this far inside the bar's dark edge
 local ICON = "💨"
+local SHIELD_HEIGHT = 24 -- #3342: the safe chip, design pixels
 
 export type Callbacks = {
 	tackle: () -> (),
@@ -63,6 +68,10 @@ export type Callbacks = {
 	-- the bar's bottom, in design pixels from the screen's bottom edge (negative): above the HUD's bottom row,
 	-- carry banner and tutorial strip, whichever show
 	lift: () -> number,
+	-- #5233: the safe chip's bottom, in design pixels from the screen's bottom edge (negative): just over the bottom row
+	shieldTop: (() -> number)?,
+	-- #5233: tells the HUD whether the chip shows, so it keeps the chip's slot over the bottom row
+	shieldSlot: ((on: boolean) -> ())?,
 }
 
 export type TackleBar = {
@@ -82,6 +91,7 @@ TackleBar.__index = TackleBar
 
 -- #3119: the bar's height and width in design pixels, for the HUD, which keeps the bar's place under the Drop off touch
 TackleBar.HEIGHT = HEIGHT
+TackleBar.SHIELD_HEIGHT = SHIELD_HEIGHT -- #5233: the HUD keeps a slot this tall for the safe chip
 TackleBar.WIDTH = WIDTH
 
 local function character(): (Model?, BasePart?, Humanoid?)
@@ -134,6 +144,26 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 		Enabled = false,
 	})
 	self.screenGui = screenGui
+	-- #5233: the safe chip, the same on every device: its own gui like the HUD's, bottom centre over the bottom row
+	local shieldGui: ScreenGui = Create("ScreenGui", {
+		Name = "CatCafeSafe",
+		ResetOnSpawn = false,
+		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 14,
+		Enabled = false,
+	})
+	local shieldRoot: Frame = Create("Frame", {
+		Name = "Root",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Parent = shieldGui,
+	})
+	self._shieldScale = Scale.bind(shieldRoot)
+	self._shieldGui = shieldGui
+	self._shieldOn = false
+	self._shield = self:_buildShield(shieldRoot, UDim2.new(0.5, 0, 1, -16)) -- placed as it shows
+	shieldGui.Parent = parent
 	if self._touch then
 		self:_buildButton(screenGui)
 		screenGui.Parent = parent
@@ -192,12 +222,6 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	})
 	Outline.text(word, 2)
 	self._word = word
-	-- #3342: the join shield's chip. #3744 (Studio 11-12: with a cat in the bag the red "Drop cat" pill stands right
-	-- over the bar, and the chip over the bar covered its words): beside the bar's right end, level with it, where
-	-- nothing else sits, whether or not a Drop is up
-	-- #4499: the bar is hidden while the shield runs, so the chip is its sibling now and stands in the bar's place
-	self._shield = self:_buildShield(root, bar.Position, Vector2.new(0.5, 1))
-
 	do
 		local key: TextLabel = Create("TextLabel", {
 			Name = "Key",
@@ -326,8 +350,6 @@ function TackleBar._buildButton(self: any, screenGui: ScreenGui)
 	})
 	Outline.text(word, 2)
 	self._word = word
-	-- #3342: the join shield's chip, a sibling over the round button (the button clips its children)
-	self._shield = self:_buildShield(screenGui, UDim2.new())
 	self:_place()
 	table.insert(
 		self._connections,
@@ -369,28 +391,46 @@ function TackleBar._place(self: any)
 	local at, size = NetButtonPlace.tackle(viewport, JumpButton.read(viewport))
 	self._bar.Position = UDim2.fromOffset(at.X, at.Y)
 	self._bar.Size = UDim2.fromOffset(size, size)
-	local shield: TextLabel? = self._shield
-	if shield ~= nil then
-		shield.Position = UDim2.fromOffset(at.X + size / 2, at.Y - 4)
+end
+
+-- #5233: where the chip's bottom sits, in design pixels from the screen's bottom edge.
+function TackleBar._shieldTop(self: any): number
+	local callbacks: Callbacks = self._callbacks
+	local top = callbacks.shieldTop
+	if top ~= nil then
+		return top()
+	end
+	return callbacks.lift()
+end
+
+-- #5233: shows or hides the chip's gui and tells the HUD, only when that changes.
+function TackleBar._showShield(self: any, on: boolean)
+	self._shieldGui.Enabled = on
+	if on then
+		self._shield.Position = UDim2.new(0.5, 0, 1, self:_shieldTop())
+	end
+	if self._shieldOn == on then
+		return
+	end
+	self._shieldOn = on
+	local callbacks: Callbacks = self._callbacks
+	local slot = callbacks.shieldSlot
+	if slot ~= nil then
+		slot(on)
+		self._shield.Position = UDim2.new(0.5, 0, 1, self:_shieldTop())
 	end
 end
 
--- #3342: the join shield's chip, hidden until _drawShield has a time to show. Its bottom centre sits at `position`,
--- or the point `anchor` names (#3744).
-function TackleBar._buildShield(
-	_self: any,
-	parent: Instance,
-	position: UDim2,
-	anchor: Vector2?
-): TextLabel
+-- #3342: the join shield's chip, hidden until _drawShield has a time to show. Its bottom centre sits at `position`.
+function TackleBar._buildShield(_self: any, parent: Instance, position: UDim2): TextLabel
 	local chip: TextLabel = Create("TextLabel", {
 		Name = "Shield",
 		BackgroundColor3 = Theme.hud.panel,
 		BorderSizePixel = 0,
-		AnchorPoint = anchor or Vector2.new(0.5, 1),
+		AnchorPoint = Vector2.new(0.5, 1),
 		Position = position,
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 24),
+		Size = UDim2.fromOffset(0, SHIELD_HEIGHT),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.white,
@@ -464,16 +504,14 @@ function TackleBar._tick(self: any)
 	if not show then
 		self._state = nil
 		self:_placeCue(false)
+		self:_showShield(false) -- #5233
 		return
 	end
 	local shielded = self:_drawShield() -- #3342
+	self:_showShield(shielded) -- #5233: bottom centre over the bottom row on every device
 	self._bar.Visible = not shielded -- #4499: no Tackle while the shield runs, only the chip
 	if not self._touch then
 		self._bar.Position = UDim2.new(0.5, 0, 1, self._callbacks.lift())
-		local chip: TextLabel? = self._shield
-		if chip ~= nil then
-			chip.Position = self._bar.Position
-		end
 	end
 	if shielded then
 		self._state = nil
@@ -624,6 +662,8 @@ function TackleBar.destroy(self: any)
 	if self._uiScale then
 		Scale.unbind(self._uiScale)
 	end
+	Scale.unbind(self._shieldScale)
+	self._shieldGui:Destroy()
 	local cue: TackleCue.TackleCue? = self._cue
 	if cue ~= nil then
 		cue:destroy()

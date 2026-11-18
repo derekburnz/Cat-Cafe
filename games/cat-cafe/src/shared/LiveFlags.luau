@@ -150,6 +150,7 @@ LiveFlags.KEYS = {
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
+	"easyKeep", -- #5311: the Dragon Keep's Warmth goals 50, 100, 250, 500, 1,000 and Rekindle 500 (shared/EasyKeep); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"cardFollow", -- #5296: Follow and the boost square on the cat card (Screens/CatRoom); off by default, Derek wants the old row
 	"catFollower", -- #5172: one of your cats follows you for Money or Luck (shared/Follower); off by default
@@ -236,6 +237,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
+	easyKeep = true, -- #5311: on after Review-QA, with a restart
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	cardFollow = true, -- #5296: stays off; the Companion button replaces it
 	catFollower = true, -- #5172: on after the walk and the Cats menu slot land, a Pace read and a restart (save field)

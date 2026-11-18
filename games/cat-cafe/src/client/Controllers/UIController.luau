@@ -1498,6 +1498,7 @@ local function applyState(s: Types.PlayerState)
 		lures = s.lures,
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
+		follower = s.follower, -- #5172: the Cats menu's Follow button and boost square (nil with catFollower off)
 		goldCollection = s.goldCollection,
 		rainbowCollection = s.rainbowCollection, -- F99: the Index's Rainbow tab
 		rainbowLuck = s.rainbowLuck, -- F99: the food card's "Rainbow 0.5%" line, capped

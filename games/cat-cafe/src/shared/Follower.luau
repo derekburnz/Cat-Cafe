@@ -80,9 +80,9 @@ end
 -- Why `uid` cannot follow now, or nil: the switch, the tier, owning the cat, a running trade.
 function Follower.blocker(profile: Types.PlayerProfile, uid: string, trading: boolean): string?
 	if not Follower.on() then
-		return "Followers are not open yet"
+		return "Cat Companions are not open yet"
 	elseif (profile.tier or 1) < Follower.OPEN_TIER then
-		return "Followers open at Tier " .. Follower.OPEN_TIER
+		return "Cat Companions open at Tier " .. Follower.OPEN_TIER
 	elseif profile.cats[uid] == nil then
 		return "That cat is not yours"
 	elseif trading then

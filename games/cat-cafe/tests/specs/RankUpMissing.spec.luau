@@ -36,7 +36,9 @@ return function()
 			expect(RankUpNeeds.missing(KINDS, needs({ catsHave = 4, coinsHave = 0 }), money)).to.equal(
 				"Need 2 more kinds"
 			)
-			expect(RankUpNeeds.missing(KINDS, needs({ catsHave = 5 }), money)).to.equal("Need 1 more kind")
+			expect(RankUpNeeds.missing(KINDS, needs({ catsHave = 5 }), money)).to.equal(
+				"Need 1 more kind"
+			)
 		end)
 
 		it("says cats where any cats count (Tier 2, #4809)", function()
@@ -53,7 +55,9 @@ return function()
 			expect(RankUpNeeds.missing(KINDS, rare, money)).to.equal("Need 2 more Rare+")
 			local one = needs({ rarity = "Legendary", rarityHave = 0, rarityNeed = 1 })
 			expect(RankUpNeeds.missing(KINDS, one, money)).to.equal("Need a Legendary+ cat")
-			expect(RankUpNeeds.missing(KINDS, needs({ coinsHave = 40 }), money)).to.equal("Need $60 more")
+			expect(RankUpNeeds.missing(KINDS, needs({ coinsHave = 40 }), money)).to.equal(
+				"Need $60 more"
+			)
 		end)
 
 		it("is nil when nothing is missing", function()

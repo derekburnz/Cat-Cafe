@@ -95,7 +95,8 @@ local function onBoost(player: Player, rawBoost: unknown)
 	lastSwitch[player] = now
 	player:SetAttribute(FollowerService.SWITCH_AT, os.time())
 	Economy.settle(profile, os.time(), ClockService.epoch())
-	profile.follower.boost = if boost == "luck" then "luck" else "money"
+	local picked: Follower.Boost = if boost == "luck" then "luck" else "money"
+	profile.follower.boost = picked
 	CafeService.sync(player)
 end
 

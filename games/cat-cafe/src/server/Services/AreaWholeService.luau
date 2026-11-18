@@ -7,6 +7,7 @@
 -- seconds after they left it for the street or a cafe. A cannon flight calls AreaWholeService.heading at launch, so
 -- the area streams in during the flight, starting at the landing pad.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -30,8 +31,10 @@ type Hold = {
 local CUT = { "Set", "Backdrop", "Props", "Camp" }
 -- Children kept whole as one chunk each (the Nook popped in at 450 studs).
 local WHOLE = { "Nook", "SpawnPoints" }
--- A child Model bigger than this is cut too, one level down: a kit set's pieces (the Camp's CampSet) are one Model.
-local SPLIT = 800
+-- A child Model bigger than this is cut too, down to MAX_DEPTH levels: a kit set's pieces (the Camp's CampSet) are one
+-- Model, and one Park Set piece of 1,154 instances spans the whole set (Sync's round 3).
+local SPLIT = 400
+local MAX_DEPTH = 4
 
 local switchOn = false
 local chunks: { [string]: { Chunk } } = {} -- area id: its chunks
@@ -56,19 +59,25 @@ local function sizeOf(item: Instance): number
 end
 
 -- Cuts `container`'s direct children into one Default Model per ground cell and adds the chunks to `into`. A child
--- Model over SPLIT instances (and not Atomic or Persistent, whose wholeness something relies on) is cut in turn.
+-- Model over SPLIT instances is cut in turn, unless something may rely on it staying whole: Atomic or Persistent, a
+-- PrimaryPart, a tag, or a Motion _Swing piece.
 local function cut(container: Instance, into: { Chunk }, depth: number?)
+	local level = depth or 0
 	local groups: { [string]: { Instance } } = {}
 	for _, child in container:GetChildren() do
 		local at = pieceAt(child)
 		if
 			at ~= nil
-			and (depth or 0) == 0
+			and level < MAX_DEPTH
 			and child:IsA("Model")
 			and (child :: Model).ModelStreamingMode == Enum.ModelStreamingMode.Default
+			and #child:GetChildren() > 1
+			and (child :: Model).PrimaryPart == nil
+			and #CollectionService:GetTags(child) == 0
+			and not string.find(child.Name, "_Swing", 1, true)
 			and sizeOf(child) > SPLIT
 		then
-			cut(child, into, 1)
+			cut(child, into, level + 1)
 		elseif at ~= nil then
 			local key = AreaWhole.cell(at)
 			local group = groups[key]
@@ -79,22 +88,41 @@ local function cut(container: Instance, into: { Chunk }, depth: number?)
 			table.insert(group, child)
 		end
 	end
+	-- Sync's round 3: one cell of the Alleyway's Props held 1,918 instances, so a cell's pieces are shared out
+	-- between chunks of about BUDGET each.
 	for _, group in groups do
-		local model = Instance.new("Model")
-		model.Name = AreaWhole.CHUNK
-		model.ModelStreamingMode = Enum.ModelStreamingMode.Default
-		local size = 1
-		for _, child in group do
-			child.Parent = model
-			size += sizeOf(child)
+		local model: Model? = nil
+		local size = 0
+		local function close()
+			if model ~= nil then
+				local done = model :: Model
+				done.Parent = container
+				table.insert(into, {
+					model = done,
+					at = done:GetBoundingBox().Position,
+					size = size,
+					mode = Enum.ModelStreamingMode.Default,
+				})
+			end
+			model = nil
+			size = 0
 		end
-		model.Parent = container
-		table.insert(into, {
-			model = model,
-			at = model:GetBoundingBox().Position,
-			size = size,
-			mode = Enum.ModelStreamingMode.Default,
-		})
+		for _, child in group do
+			local piece = sizeOf(child)
+			if model ~= nil and size + piece > AreaWhole.BUDGET then
+				close()
+			end
+			if model == nil then
+				local made = Instance.new("Model")
+				made.Name = AreaWhole.CHUNK
+				made.ModelStreamingMode = Enum.ModelStreamingMode.Default
+				model = made
+				size = 1
+			end
+			child.Parent = model
+			size += piece
+		end
+		close()
 	end
 end
 
@@ -327,14 +355,17 @@ local function step()
 end
 
 -- A cannon flight to `areaId` has started (CannonService): the device gets that area during the flight, from the
--- landing pad out. The town and anything that is not a catching area are left alone.
-function AreaWholeService.heading(player: Player, areaId: string)
+-- landing pad out. The town and anything that is not a catching area are left alone. True when it took the flight:
+-- the caller then skips its launch stream-around, which pulled every chunk near the pad at once (Sync's round 3:
+-- chunks are Atomic for a player not yet on their list).
+function AreaWholeService.heading(player: Player, areaId: string): boolean
 	if not switchOn or chunks[areaId] == nil then
-		return
+		return false
 	end
 	flying[player] = { area = areaId, untilAt = os.clock() + AreaWhole.FLIGHT_HOLD }
 	outSince[player] = nil
 	keep(player, areaId)
+	return true
 end
 
 -- The area this player's device is keeping whole (or getting), or nil (Debug and specs).

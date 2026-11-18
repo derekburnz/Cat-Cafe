@@ -142,6 +142,7 @@ LiveFlags.KEYS = {
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
 	"areaWhole", -- Derek 2026-11-18: the area a player is in (or flying to) loads whole on their device (shared/AreaWhole); off by default
 	"nextGoalBeat", -- #5202: a "What next?" card once after the first Park catch (shared/NextGoal); off by default
+	"nightBright", -- #5240: a slightly lighter night sky and shade (shared/DayLight.BRIGHT_NIGHT); off by default
 	"ringSolid", -- #5256: a double's second half and a paw catch ring drop the dark rim that read as a gap (UI CatchCircles); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
@@ -208,6 +209,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkRankPoint = true, -- #5163: on after Review-QA and Sync's Studio pass
 	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device
 	areaWhole = true, -- Derek 2026-11-18: on after Review-QA and Sync's tablet and phone memory read in a long area
+	nightBright = true, -- #5240: on after Review-QA and a phone look at night
 	ringSolid = true, -- #5256: on after Review-QA and a Studio look at a double and a paw ring
 	nextGoalBeat = true, -- #5202: on after Review-QA and Sync's pass, at a minute with no other switch within 2 hours
 } :: { [string]: boolean }

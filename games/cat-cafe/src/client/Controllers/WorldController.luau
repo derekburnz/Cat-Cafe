@@ -549,7 +549,10 @@ local function targetLook(clock: Instance): DayLight.Look
 	local progress = if type(endsAt) == "number"
 		then DayLight.progress(name, endsAt, Workspace:GetServerTimeNow())
 		else 0.45
-	return DayLight.at(name, progress)
+	-- #5240: the slightly lighter night while the nightBright switch is on (read straight, off by default)
+	local bright = ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "nightBright")
+		== true
+	return DayLight.at(name, progress, bright)
 end
 
 local function stepSky(clock: Instance)

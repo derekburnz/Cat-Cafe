@@ -37,6 +37,33 @@ local UPDATE_NOV_17 = 1794945600 -- 2026-11-17 20:00 UTC: Better on Every Device
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
 
 WhatsNew.rows = table.freeze({
+	-- Nov 18 night (Gameplay-Engineer): switches on 02:42 to 03:51 UTC on publish v922 and the 03:49 UTC restart.
+	-- catFollower #5172 (idea credit c19); spinCat #5171; netTiers #5170; nightSlice and nightSpread #5164
+	{
+		id = "cat_follower",
+		date = "2026-11-18",
+		icon = "cat",
+		text = "A cat can follow you",
+		creditId = "c19",
+	},
+	{
+		id = "spin_secret_cat",
+		date = "2026-11-18",
+		icon = "cat",
+		text = "Secret cat on the Spin Wheel",
+	},
+	{
+		id = "net_tiers",
+		date = "2026-11-18",
+		icon = "new",
+		text = "Stronger nets: Net 4 and 5",
+	},
+	{
+		id = "smooth_day_night",
+		date = "2026-11-18",
+		icon = "faster",
+		text = "Smoother sunset and sunrise",
+	},
 	-- The update code still opens with Tuesday's update (Catalog codes.update6 startsAt)
 	{
 		id = "code_update6",

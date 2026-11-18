@@ -64,7 +64,7 @@ export type Callbacks = {
 	close: () -> (),
 	perks: (() -> ())?, -- #2687: the title bar's Perks button
 	fly: (() -> ())?, -- #2915: the button while it reads "Fly to the Park" (setFly)
-	go: ((kind: string) -> ())?, -- #5218: a step's Go: "cats" and "rarity" to the Cannon, "coins" to the Upgrades
+	go: ((kind: string) -> ())?, -- #5218: a step's Go (UI.init: the Cannon, to catch and earn)
 }
 
 export type RankUp = {

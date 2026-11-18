@@ -136,6 +136,7 @@ LiveFlags.KEYS = {
 	"tradeSpot", -- #5158: after "Trading unlocked!" the Trade tile is ringed with the dim and arrow for a moment (UI.tradeSpot); off by default
 	"nightSlice", -- #5164: the client's day and night change spreads its World walk and night look over frames (WorldController); off by default
 	"spinCat", -- #5171: the Spin Wheel's ninth slice, a Secret cat at 0.25% (shared/SpinCat); off by default
+	"nightSpread", -- #5164: dusk's strays leaving and sunrise's stuck cats spread over frames (shared/NightSpread); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -196,6 +197,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tradeSpot = true, -- #5158: on after Review-QA and Sync's Studio pass
 	nightSlice = true, -- #5164: on after Review-QA and Sync's frame-time read across a phase change
 	spinCat = true, -- #5171: on once the window's ninth wedge and the Odds list pass Review-QA and Sync's Studio look
+	nightSpread = true, -- #5164: on after Review-QA and Sync's phase change timing
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

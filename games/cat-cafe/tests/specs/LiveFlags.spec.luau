@@ -219,6 +219,7 @@ return function()
 							or key == "ringSolid" -- #5256
 							or key == "phoneSmooth" -- #5285
 							or key == "quickFirstRings" -- #5232
+							or key == "firstCatchWow" -- #5285
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

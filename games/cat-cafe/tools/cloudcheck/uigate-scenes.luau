@@ -3637,6 +3637,37 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		-- #4836: and the tutorial's big arrow points at the waiting ring (its ScreenGui ignores the top bar inset)
 		assertArrowAt(ring, "the held catch ring")
 	end },
+	-- #5285 E2: the wow first catch's "FIRST CATCH!" banner (Effects/FirstCatchWow) sits in the catch strip's spot at
+	-- the top middle, whole on screen, and its words fit
+	{ "FirstCatchWow", function()
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.2, shrinkSeconds = 1.2, x = 0.5, y = 0.55 } }
+		UI.catch.show({ strayId = "gate_wow", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common" })
+		UI.catch.showCircles("gate_wow", list :: any, { perfect = 0.074, good = 0.18 })
+		UIShim.advance(0.3)
+		local Wow = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.FirstCatchWow")
+		local ScreenFx = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.ScreenFx")
+		local Presets = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.Presets")
+		local gui = ScreenFx.gui(Wow.GUI, Presets.firstCatchWow.displayOrder)
+		local banner = Wow.banner(gui)
+		Wow.show(banner, 1, true)
+		UIShim.advance(0.05)
+		local text = banner:FindFirstChild("Text") :: TextLabel
+		assert(text.Text == "FIRST CATCH!", "uigate: the wow banner reads " .. text.Text .. " (#5285)")
+		assert(text.TextFits ~= false, "uigate: FIRST CATCH! does not fit its banner (#5285)")
+		-- in the effects ScreenGui's own pixels (it ignores the top bar inset; ScreenFx's Origin measures that)
+		local screen = gui.AbsoluteSize
+		local at, size = ScreenFx.toGui(gui, banner.AbsolutePosition), banner.AbsoluteSize
+		assert(at.X >= 0 and at.Y >= 0 and at.X + size.X <= screen.X and at.Y + size.Y <= screen.Y,
+			"uigate: the FIRST CATCH! banner runs off the screen (#5285)")
+		assert(math.abs(at.X + size.X / 2 - screen.X / 2) <= 4, "uigate: the FIRST CATCH! banner is not centred (#5285)")
+		-- the catch strip's spot: its middle level with the strip's
+		local strip = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles"):FindFirstChild("Strip", true) :: Frame
+		local stripMid = ScreenFx.toGui(gui, strip.AbsolutePosition).Y + strip.AbsoluteSize.Y / 2
+		assert(math.abs(at.Y + size.Y / 2 - stripMid) <= 4, "uigate: the FIRST CATCH! banner is not in the catch strip's spot (#5285)")
+		assert(size.Y >= 30, "uigate: the FIRST CATCH! banner is under 30 px tall (#5285)")
+		banner:Destroy()
+	end },
 	-- #2871 (console): on a gamepad the catch line under the cat's name names A or R2
 	{ "GamepadCatchWords", function()
 		UIShim.setLastInput(Enum.UserInputType.Gamepad1)

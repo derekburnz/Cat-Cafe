@@ -88,6 +88,9 @@ COASTER_POSTS = (-62.0, -38.0, -14.0, 14.0, 38.0, 62.0)
 TILE_Z = 20.0                            # blue tiles from here to the far wall
 RIVER = (0.0, 80.0)
 RIVER_RX, RIVER_RZ, RIVER_W = 52.0, 50.0, 9.0
+TOWER_POST = 7.5          # #5165: a slide tower's deck to its roof or top rail, over a player's head (about 5)
+SLIDE_TURNS = 1.75        # the big tower's spiral slides: the other slide passes 7.6 over you
+SLIDE_IN = 5.0            # their inner edge, against the drum
 KERB_H = 0.7
 BRIDGE_L = RIVER_W + 4.0                 # the bridge's flat deck, along the spine
 POOL = (26.0, 80.0, 28.0, 22.0)          # the wave pool: x, z, width (x), depth (z)
@@ -917,8 +920,8 @@ def lifeguard_tower(mat):
     b.box_base((0, 0.6, 5.0), (4.4, 3.6, 3.4), MILK, bevel=False)
     b.box((0, -1.22, 6.9), (2.4, 0.1, 1.4), "pastel_sky", bevel=False)
     b.box((0, -1.3, 7.9), (1.8, 0.1, 0.5), RED, bevel=False)
-    b.box_base((0, 0.3, 8.4), (6.4, 5.4, 0.4), RED, bevel=False)
-    b.box_base((0, 0.3, 8.8), (4.4, 3.6, 0.5), RED, bevel=False)
+    b.box_base((0, 0.6, 8.4), (4.8, 4.0, 0.4), RED, bevel=False)      # #5165: no overhang to wedge a player under
+    b.box_base((0, 0.6, 8.8), (4.0, 3.2, 0.5), RED, bevel=False)
     b.box((0, -2.8, 6.2), (6.0, 0.2, 0.2), RED, bevel=False)
     for i in range(6):
         b.box_base((0, 3.6 + 0.9 * i, 0), (2.4, 0.92, 4.2 - 0.7 * i), WOOD, bevel=False)
@@ -936,16 +939,21 @@ def slide_tower(mat):
         b.cyl_base((0, 0, 1.0 + j * (H - 1.0) / 6), 5.0, (H - 1.0) / 6 + 0.02 * (j % 2), (BLUE, MILK)[j % 2],
                    segments=14, bevel=False)
     b.cyl_base((0, 0, H), 7.6, 0.6, WOOD, segments=16, bevel=False)
-    b.ring((0, 0, H + 3.0), 7.6, 0.3, 0.3, GOLD, segments=16, bevel=False)
+    # #5165: the rail ring and the roof sit over head height (TOWER_POST), so a player walks from the slides onto the
+    # deck and back without bumping into them
+    P = TOWER_POST
+    b.ring((0, 0, H + P), 7.6, 0.3, 0.3, GOLD, segments=16, bevel=False)
     for k in range(8):
         a = 2 * PI * k / 8
-        b.cyl_base((7.3 * math.cos(a), 7.3 * math.sin(a), H + 0.6), 0.16, 5.0, MILK, segments=6, bevel=False)
-    b.cyl_base((0, 0, H + 5.6), 8.6, 5.0, RED, segments=12, radius2=0.3, bevel=False)
-    b.cyl_base((0, 0, H + 5.4), 8.7, 0.3, MILK, segments=12, bevel=False)
-    b.ico((0, 0, H + 10.8), 0.6, GOLD, subdivisions=1)
-    b.cyl_base((0, 0, H + 11.2), 0.08, 2.6, METAL, segments=5, bevel=False)
-    b.box((0.9, 0, H + 13.3), (1.8, 0.06, 0.9), BUTTER, bevel=False)
-    n, turns, r = 32, 2.25, 8.2
+        b.cyl_base((7.3 * math.cos(a), 7.3 * math.sin(a), H + 0.6), 0.16, P, MILK, segments=6, bevel=False)
+    b.cyl_base((0, 0, H + P + 0.6), 8.6, 5.0, RED, segments=12, radius2=0.3, bevel=False)
+    b.cyl_base((0, 0, H + P + 0.4), 8.7, 0.3, MILK, segments=12, bevel=False)
+    b.ico((0, 0, H + P + 5.8), 0.6, GOLD, subdivisions=1)
+    b.cyl_base((0, 0, H + P + 6.2), 0.08, 2.6, METAL, segments=5, bevel=False)
+    b.box((0.9, 0, H + P + 8.3), (1.8, 0.06, 0.9), BUTTER, bevel=False)
+    # #5165: 1.75 turns, not 2.25, so the other slide passes 7.6 over you, not 5.9 (a player is about 5 tall); each
+    # slide runs in from the drum (SLIDE_IN) so there is no gap between them to fall into
+    n, turns, r = 32, SLIDE_TURNS, 8.2
     seg = r * 2 * PI * turns / n
     dz = (H - 3.4) / n
     tilt = Matrix.Rotation(math.atan2(dz, seg), 3, "Y")
@@ -954,13 +962,11 @@ def slide_tower(mat):
             a = a0 + 2 * PI * turns * (i + 0.5) / n
             z = H - 0.6 - dz * (i + 0.5)
             R = Matrix.Rotation(a + PI / 2, 3, "Z") @ tilt
-            b.box((r * math.cos(a), r * math.sin(a), z), (seg * 1.16, 2.3, 0.3 + 0.02 * (i % 2)), col, bevel=False,
-                  rot=R)
+            rm = (SLIDE_IN + r + 1.15) / 2                                  # from the drum out to the rail
+            b.box((rm * math.cos(a), rm * math.sin(a), z), (seg * 1.16, r + 1.15 - SLIDE_IN, 0.3 + 0.02 * (i % 2)), col,
+                  bevel=False, rot=R)
             b.box(((r + 1.15) * math.cos(a), (r + 1.15) * math.sin(a), z + 0.5), (seg * 1.14, 0.25, 1.0), MILK,
                   bevel=False, rot=R)
-            if i % 3 == 0:
-                b.box(((r - 2.0) * math.cos(a), (r - 2.0) * math.sin(a), z - 0.3), (3.6, 0.3, 0.3), METAL, bevel=False,
-                      rot=(a, "Z"))
         a = a0 + 2 * PI * turns + 0.22
         x, y = r * math.cos(a), r * math.sin(a)
         b.ring((x, y, 0.4), 2.3, 0.4, 0.8, col, segments=10, bevel=False)
@@ -975,10 +981,11 @@ def small_slide_tower(mat, k=0):
     c = (GREEN, "neon_pink")[k % 2]
     for sx in (-1, 1):
         for sy in (-1, 1):
-            b.cyl_base((sx * 2.2, sy * 2.2, 0), 0.36, 14.0, MILK, segments=8, bevel=False)
+            b.cyl_base((sx * 2.2, sy * 2.2, 0), 0.36, 10.5 + TOWER_POST, MILK, segments=8, bevel=False)
     b.box_base((0, 0, 10.0), (5.6, 5.6, 0.5), WOOD, bevel=False)
-    b.cyl_base((0, 0, 14.0), 4.6, 3.4, (BLUE, RED)[k % 2], segments=8, radius2=0.2, bevel=False)
-    b.ico((0, 0, 17.6), 0.4, GOLD, subdivisions=1)
+    roof = 10.5 + TOWER_POST                                    # #5165: was 14, 3.5 over the deck; a player is about 5
+    b.cyl_base((0, 0, roof), 4.6, 3.4, (BLUE, RED)[k % 2], segments=8, radius2=0.2, bevel=False)
+    b.ico((0, 0, roof + 3.6), 0.4, GOLD, subdivisions=1)
     for i in range(7):
         b.box_base((0, 3.3 + 0.9 * i, 0), (2.6, 0.92, 9.8 - 1.4 * i), WOOD, bevel=False)
     L = math.hypot(10.0, 9.2)

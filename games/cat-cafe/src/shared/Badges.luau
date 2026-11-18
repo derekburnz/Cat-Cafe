@@ -1,5 +1,5 @@
 --!strict
--- Roblox badges (#1934, release.md section 1), pure: the 28 badges in their order (#3618; 5 a day are made free), what
+-- Roblox badges (#1934, release.md section 1), pure: the badges in their order (#3618; 5 a day are made free; #5160 retired six and added five), what
 -- earns each, read from the profile alone, and which are due. The server's BadgeAwardService awards them; nothing
 -- here is sent to the client. A badge is earned by playing only: never for liking, favouriting, buying or inviting
 -- (a shop-only cat counts toward none), and nothing has a streak that can be lost once earned.
@@ -22,12 +22,13 @@ local Badges = {}
 Badges.WELCOME_STEP = 5 -- tutorialStep once the first loop ends
 Badges.COLLECTOR_CATS = 25
 Badges.EXPERT_CATS = 50
+Badges.MASTER_CATS = 100 -- #5160
 Badges.PURRFECT_RUN = 5
 -- #4775 (Derek 2026-11-16: "way too many pop up badges in the first bit of game ... no more then 2 until tier 3"):
 -- below QUIET_BELOW_TIER only these two award; every other badge earned meanwhile waits for Tier 3, then comes out
 -- one at a time (BadgeAwardService's AWARD_GAP_SECONDS).
 Badges.QUIET_BELOW_TIER = 3
-Badges.EARLY = table.freeze({ firstCatch = true, cozyCafe = true }) :: { [string]: boolean }
+Badges.EARLY = table.freeze({ cozyCafe = true }) :: { [string]: boolean } -- #5160: First Catch retired
 -- Derek 2026-11-16 15:22 UTC ("no unnecessary pop ups until tutorial steps done"): below TUTORIAL_TIER (the
 -- walk-through ends at the Tier 2 rank up) none award, the EARLY two included; they come out at Tier 2.
 Badges.TUTORIAL_TIER = 2
@@ -77,23 +78,6 @@ for _, def in Catalog.cats do
 	end
 end
 
--- #3618: any upgrade bought past where a new cafe starts (the first table is open from the start, #3660).
-local function boughtUpgrade(profile: Profile): boolean
-	for upgradeId, level in profile.upgradeLevels do
-		local def = Catalog.getUpgrade(upgradeId)
-		local start = if def ~= nil then def.startLevel else 0
-		if upgradeId == "tables" then
-			start = math.max(start, Config.StartTables)
-		elseif upgradeId == "lure_bowl" then
-			start = math.max(start, Config.StartBowls) -- #4097: the Bait bowl is open from the start too
-		end
-		if level > start then
-			return true
-		end
-	end
-	return false
-end
-
 local function pageComplete(profile: Profile): boolean
 	for areaId, size in pageSize do
 		if size > 0 and IndexRewards.progress(profile.collection, areaId) >= size then
@@ -106,55 +90,9 @@ end
 -- #3618 (Derek 2026-11-12: "tier 1,2,3,4,5,6,7 badges ... first badges should be like finished tutorial steps"):
 -- badges-order.md's 28, in the order they are awarded and listed. The 22 made before keep their ids and rules.
 local LIST: { Badge } = {
-	-- First steps
-	{
-		key = "firstCatch",
-		name = "First Catch",
-		description = "Catch your first stray cat.",
-		earned = function(profile)
-			return profile.stats.grabsSucceeded >= 1
-		end,
-	},
-	-- #3618 (badges-order.md): the six new badges read only from the save, so a player who passed the step or tier
-	-- before gets it on their next join
-	{
-		key = "firstHome",
-		name = "Home Sweet Home",
-		description = "Carry your first cat home to your cafe.",
-		earned = function(profile)
-			return profile.stats.catsCaught >= 1
-		end,
-	},
-	{
-		key = "firstUpgrade",
-		name = "Fixing Up",
-		description = "Upgrade your cafe for the first time.",
-		earned = boughtUpgrade,
-	},
-	{
-		key = "firstFlight",
-		name = "Liftoff",
-		description = "Fly from the cannon for the first time.",
-		earned = function(profile)
-			return (profile.stats.cannonFlights or 0) >= 1
-		end,
-	},
-	{
-		key = "welcome",
-		name = "Welcome to the Cafe",
-		description = "Finish the first day at your cafe.",
-		earned = function(profile)
-			return profile.tutorialStep >= Badges.WELCOME_STEP
-		end,
-	},
-	{
-		key = "grandOpening",
-		name = "Grand Opening",
-		description = "Finish every step of the Grand Opening.",
-		earned = function(profile)
-			return profile.grandOpening.finished == true
-		end,
-	},
+	-- #5160 (Derek 2026-11-17: "remove old ones not really needed ... take away some of the badge bloat"): the six
+	-- first-step badges (First Catch, Home Sweet Home, Fixing Up, Liftoff, Welcome to the Cafe, Grand Opening) are
+	-- retired: no longer awarded, disabled on Roblox. Their ids stay in Config.Badges' notes.
 	-- Cafe tiers, named after the tiers in the game
 	-- given once the tutorial is finished, so it never pops over the tutorial
 	{
@@ -201,6 +139,25 @@ local LIST: { Badge } = {
 		description = "Rank your cafe up to Tier 7.",
 		earned = atTier(7),
 	},
+	-- #5160: the last three tiers, made free (5 a day) once Model-Agent's icons are in
+	{
+		key = "summitCafe",
+		name = "Summit Cafe",
+		description = "Rank your cafe up to Tier 8.",
+		earned = atTier(8),
+	},
+	{
+		key = "funfairCafe",
+		name = "Funfair Cafe",
+		description = "Rank your cafe up to Tier 9.",
+		earned = atTier(9),
+	},
+	{
+		key = "royalCafe",
+		name = "Royal Cafe",
+		description = "Rank your cafe up to Tier 10.",
+		earned = atTier(10),
+	},
 	-- Catching
 	{
 		key = "purrfect",
@@ -244,6 +201,12 @@ local LIST: { Badge } = {
 		description = "Find a Mythical cat.",
 		earned = owns("Mythical"),
 	},
+	{
+		key = "secretFind", -- #5160
+		name = "Secret Finder",
+		description = "Find a Secret cat.",
+		earned = owns("Secret"),
+	},
 	-- Collecting
 	{
 		key = "catCollector",
@@ -259,6 +222,14 @@ local LIST: { Badge } = {
 		description = "Find 50 different cats.",
 		earned = function(profile)
 			return Economy.distinctCats(profile) >= Badges.EXPERT_CATS
+		end,
+	},
+	{
+		key = "catMaster", -- #5160
+		name = "Cat Master",
+		description = "Find 100 different cats.",
+		earned = function(profile)
+			return Economy.distinctCats(profile) >= Badges.MASTER_CATS
 		end,
 	},
 	{

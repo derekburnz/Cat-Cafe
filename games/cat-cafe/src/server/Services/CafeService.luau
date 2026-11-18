@@ -1725,6 +1725,7 @@ function CafeService.addCaughtCat(
 		if profile.stats.catsCaught >= 2 and not firstTame then
 			TipService.show(player, "second_cat")
 		end
+		TipService.caught(player, def) -- #5152: the early like ask's moment (likeAskEarly)
 		-- #4384 (Derek 2026-11-15 "still the drop off at second cat"): one ask at a time at the first check-in, so the
 		-- new cat and its job come as one toast ("Your first cat! Mochi is your Barista (+$50)")
 		local spotHere = if instance.spotId ~= nil

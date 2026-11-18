@@ -300084,6 +300084,441 @@
           "centered": "footprint center x=0.00 y=0.00"
         }
       }
+    },
+    {
+      "name": "CatCafe_Snowglobe_Set",
+      "category": "Snowglobe",
+      "module": "snowglobeset",
+      "objects": [
+        "CatCafe_Snowglobe_Set",
+        "CatCafe_Snowglobe_Set_001_Sky_Glass",
+        "CatCafe_Snowglobe_Set_002_Edge_Barrier",
+        "CatCafe_Snowglobe_Set_003_TreeLights_Glow",
+        "CatCafe_Snowglobe_Set_004_Pond_Water",
+        "CatCafe_Snowglobe_Set_005_Marks_Decor",
+        "CatCafe_Snowglobe_Set_006_TreeStar_Glow",
+        "CatCafe_Snowglobe_Set_007_Snowfall"
+      ],
+      "triangles": 20260,
+      "budget": 150000,
+      "size_studs": {
+        "x": 128.0,
+        "y": 128.0,
+        "z": 68.43
+      },
+      "size_roblox": [
+        128.0,
+        68.43,
+        128.0
+      ],
+      "bounds_min": [
+        -64.0,
+        -64.0,
+        -0.0
+      ],
+      "bounds_max": [
+        64.0,
+        64.0,
+        68.43
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Snowglobe_Set_006_TreeStar_Glow": [
+          0.0,
+          4.0,
+          20.43
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Snowglobe_Set_006_TreeStar_Glow": [
+          0.0,
+          20.43,
+          4.0
+        ]
+      },
+      "points_roblox": {
+        "player_spawn": [
+          [
+            0,
+            0.0,
+            -50.0,
+            0
+          ]
+        ],
+        "spawn": [
+          [
+            14,
+            0.0,
+            -30
+          ],
+          [
+            -16,
+            0.0,
+            -30
+          ],
+          [
+            30,
+            0.0,
+            -6
+          ],
+          [
+            -31.5,
+            0.0,
+            -36.0
+          ],
+          [
+            44,
+            0.0,
+            2
+          ],
+          [
+            18,
+            0.0,
+            28
+          ],
+          [
+            -20,
+            0.0,
+            8
+          ],
+          [
+            38,
+            0.0,
+            -36
+          ],
+          [
+            -12,
+            0.0,
+            36
+          ],
+          [
+            2,
+            0.0,
+            42
+          ],
+          [
+            -24,
+            0.0,
+            -4
+          ],
+          [
+            -36.0,
+            0.0,
+            38.0
+          ],
+          [
+            36.0,
+            0.0,
+            24.0
+          ],
+          [
+            28.05,
+            0.0,
+            -42.57
+          ]
+        ],
+        "nook": [
+          [
+            26.9,
+            0.0,
+            38.76
+          ]
+        ],
+        "snowflake": [
+          [
+            -27.0,
+            0.12,
+            18.0
+          ],
+          [
+            -33.0,
+            0.12,
+            18.0
+          ],
+          [
+            -39.0,
+            0.12,
+            18.0
+          ],
+          [
+            -45.0,
+            0.12,
+            18.0
+          ],
+          [
+            -27.0,
+            0.12,
+            24.0
+          ],
+          [
+            -33.0,
+            0.12,
+            24.0
+          ],
+          [
+            -39.0,
+            0.12,
+            24.0
+          ],
+          [
+            -48.66,
+            0.0,
+            16.33
+          ],
+          [
+            -27.0,
+            0.12,
+            30.0
+          ],
+          [
+            -33.0,
+            0.12,
+            30.0
+          ],
+          [
+            -39.0,
+            0.12,
+            30.0
+          ],
+          [
+            -42.67,
+            0.0,
+            31.88
+          ]
+        ],
+        "stall": [
+          [
+            -15,
+            0.0,
+            -22,
+            90
+          ]
+        ],
+        "fireplace": [
+          [
+            39.0,
+            0.15,
+            31.6,
+            0
+          ]
+        ],
+        "rug": [
+          [
+            39.0,
+            0.15,
+            27.6,
+            0
+          ]
+        ]
+      },
+      "studio": "Snowglobe Village, the Christmas Event area (Dec 1 2026 to Jan 3 2027, snowglobe-village-spec.md). Place it at the area's centre on its floor; players arrive by teleport at points_roblox player_spawn. It is round: the curved _Sky_Glass (no collision) stands at radius 60, and the only _Barrier is the 30 high ring just inside it. _Snowfall is an invisible volume with no collision where the snow falls. The lodge is hollow with a 7 wide door. points_roblox: spawn (14 stray spots), nook (behind the lodge), snowflake (12 pickup spots for CatCafe_Snowglobe_Snowflake), stall (CatCafe_Snowglobe_Stall), fireplace and rug (CatCafe_Decor_StoneFireplace and CatCafe_Decor_FiresideRug inside the lodge), each with a turn. The tree's bulbs are _TreeLights_Glow and its star _TreeStar_Glow, a child Model pivoted at the star's middle.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowglobe_Set.model.json",
+      "rbx_parts": 1066,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "20260/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "10315 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00",
+          "cat_spots": "31 cat spots clear of every collidable part"
+        }
+      },
+      "preview": "../../../tmp/claude-0/-home-user/e2d75650-f71a-5211-9166-39fe9043e0ee/scratchpad/sg/docs/previews/CatCafe_Snowglobe_Set.png"
+    },
+    {
+      "name": "CatCafe_Snowglobe_Portal",
+      "category": "Snowglobe",
+      "module": "snowglobeset",
+      "objects": [
+        "CatCafe_Snowglobe_Portal",
+        "CatCafe_Snowglobe_Portal_Glass",
+        "CatCafe_Snowglobe_Portal_Glow",
+        "CatCafe_Snowglobe_Portal_Screen",
+        "CatCafe_Snowglobe_Portal_Portal_Glow",
+        "CatCafe_Snowglobe_Portal_Spin"
+      ],
+      "triangles": 2728,
+      "budget": 6000,
+      "size_studs": {
+        "x": 26.24,
+        "y": 19.4,
+        "z": 18.8
+      },
+      "size_roblox": [
+        26.24,
+        18.8,
+        19.4
+      ],
+      "bounds_min": [
+        -13.12,
+        -6.6,
+        -0.01
+      ],
+      "bounds_max": [
+        13.12,
+        12.8,
+        18.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Snowglobe_Portal_Spin": [
+          -0.0,
+          4.0,
+          10.8
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Snowglobe_Portal_Spin": [
+          0.0,
+          10.8,
+          4.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowglobe_Portal.model.json",
+      "rbx_parts": 164,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Portal.fbx",
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Portal.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2728/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1612 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=3.10"
+        }
+      },
+      "preview": "../../../tmp/claude-0/-home-user/e2d75650-f71a-5211-9166-39fe9043e0ee/scratchpad/sg/docs/previews/CatCafe_Snowglobe_Portal.png"
+    },
+    {
+      "name": "CatCafe_Snowglobe_Stall",
+      "category": "Snowglobe",
+      "module": "snowglobeset",
+      "objects": [
+        "CatCafe_Snowglobe_Stall",
+        "CatCafe_Snowglobe_Stall_Glow"
+      ],
+      "triangles": 2116,
+      "budget": 4500,
+      "size_studs": {
+        "x": 16.89,
+        "y": 5.46,
+        "z": 11.5
+      },
+      "size_roblox": [
+        16.89,
+        11.5,
+        5.46
+      ],
+      "bounds_min": [
+        -8.91,
+        -2.78,
+        0.0
+      ],
+      "bounds_max": [
+        7.97,
+        2.68,
+        11.5
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowglobe_Stall.model.json",
+      "rbx_parts": 144,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Stall.fbx",
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Stall.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2116/4500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1414 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.47 y=-0.05"
+        }
+      },
+      "preview": "../../../tmp/claude-0/-home-user/e2d75650-f71a-5211-9166-39fe9043e0ee/scratchpad/sg/docs/previews/CatCafe_Snowglobe_Stall.png"
+    },
+    {
+      "name": "CatCafe_Snowglobe_Snowflake",
+      "category": "Snowglobe",
+      "module": "snowglobeset",
+      "objects": [
+        "CatCafe_Snowglobe_Snowflake",
+        "CatCafe_Snowglobe_Snowflake_Glow"
+      ],
+      "triangles": 168,
+      "budget": 600,
+      "size_studs": {
+        "x": 1.97,
+        "y": 1.87,
+        "z": 2.03
+      },
+      "size_roblox": [
+        1.97,
+        2.03,
+        1.87
+      ],
+      "bounds_min": [
+        -0.98,
+        -0.94,
+        0.0
+      ],
+      "bounds_max": [
+        0.98,
+        0.94,
+        2.03
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowglobe_Snowflake.model.json",
+      "rbx_parts": 12,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Snowflake.fbx",
+        "assets/cat-cafe/exports/CatCafe_Snowglobe_Snowflake.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "168/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "114 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "../../../tmp/claude-0/-home-user/e2d75650-f71a-5211-9166-39fe9043e0ee/scratchpad/sg/docs/previews/CatCafe_Snowglobe_Snowflake.png"
     }
   ]
 }

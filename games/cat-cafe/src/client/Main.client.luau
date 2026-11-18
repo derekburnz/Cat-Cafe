@@ -70,6 +70,7 @@ require(ReplicatedStorage.Shared.TablesSpread).follow()
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
+require(ReplicatedStorage.Shared.EasyKeep).follow() -- #5311: the Dragon Keep stage Warmths follow the easyKeep switch
 do
 	-- #5264: food lists sort by rarity first while foodByRarity is on (read before the UI builds its lists; a list
 	-- already built keeps its order until it is built again)

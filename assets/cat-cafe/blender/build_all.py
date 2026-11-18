@@ -927,6 +927,8 @@ def main():
             extra = {"attributes": {"Area": boards.AREA_OF[name]}}
         if name == "CatCafe_Street_CodesCat":     # the prompt's spot, and the cap rides the cat's Head
             extra = {"attachments": [stations.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Street_SpinWheel_Wheel9":   # #5171 spinCat: nine slices, the ninth a Secret cat
+            extra = {"attributes": {"SliceSpans": spinwheel.SLICE_SPANS9}}
         if name == "CatCafe_Street_SpinWheel":    # the Spin prompt's spot; the host's hat rides its Head, its outfit its Body
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"},
                      "model_attributes": {"_Wheel": {"SliceSpans": spinwheel.SLICE_SPANS}}}   # #1411: 8 slices

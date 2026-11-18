@@ -16,6 +16,7 @@
 
 local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -47,6 +48,7 @@ local FLASH = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Ou
 export type Links = {
 	openCatRoom: () -> (), -- a free slot's "+" and Add cat
 	openRankUp: () -> (), -- the rank up card's button
+	isOpen: (() -> boolean)?, -- #5253 follow-up: whether the modal shows Upgrades now, so the warm-up never hides it
 }
 
 export type Tab = "Cafe" | "Staff"
@@ -558,9 +560,48 @@ function UpgradeShop.setCatalog(self: any, catalog: Types.Catalog)
 	self._lateBuild = self._lateBuild
 		or LateBuild.new(UpgradeShop.BUILD_AFTER, function()
 			self:_buildRows()
+			self:_warm()
 		end)
 	self._lateBuild:queue()
 	self._dirty = true
+end
+
+-- #5253 follow-up (Sync 2026-11-18: the first open has one 136 to 164 ms frame, the first layout and draw of the
+-- never-shown list): once the rows are built, the window lays out once far off screen for two frames, so the first
+-- real open is as quick as the later ones. Never while it is open, and the rows forget the levels they saw so the
+-- first real open shows no level-up flourish. The upgradesWarm switch, on unless set false, turns this off.
+UpgradeShop.WARM_FRAMES = 2
+function UpgradeShop._warm(self: any)
+	if ReplicatedStorage:GetAttribute("LiveFlag_upgradesWarm") == false then
+		return
+	end
+	local links: Links? = self._links
+	local isOpen = if links ~= nil then links.isOpen else nil
+	local frame: Frame = self.frame
+	if frame.Visible or isOpen == nil then
+		return
+	end
+	local home = frame.Position
+	local away = home + UDim2.fromScale(4, 0)
+	frame.Position = away
+	frame.Visible = true
+	local state: Types.PlayerState? = self._lastState
+	if state ~= nil then
+		self:render(state)
+	end
+	for _ = 1, UpgradeShop.WARM_FRAMES do
+		RunService.RenderStepped:Wait()
+	end
+	if frame.Position == away then
+		frame.Position = home
+	end
+	if not (isOpen :: () -> boolean)() then
+		frame.Visible = false
+		self._dirty = true
+	end
+	for _, row in self._rows do
+		row.level = nil
+	end
 end
 
 function UpgradeShop.render(self: any, state: Types.PlayerState)

@@ -1146,6 +1146,9 @@ function UI.init(config: Types.InitConfig)
 			openRankUp = function()
 				modalInstance:open("RankUp")
 			end,
+			isOpen = function(): boolean
+				return modalInstance:current() == "Upgrades"
+			end,
 		}
 	)
 	decor = DecorShop.new({
@@ -3287,7 +3290,12 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	bowls.cats[index] = cat
 	-- Derek 2026-11-14 ("mute all pop ups while in store"): whichever way the card is asked for while the Store is
 	-- open (Review-QA on #4260 saw one get past UI.bait.arrived), it waits for the Store to close, like arrived
-	if modal ~= nil and modal:current() == "Store" then
+	-- Derek 2026-11-18 ("the cat still coming to bowl over tutorial is not fixed yet?"): nor over the intro or any
+	-- other cutscene, whichever way it is asked for (a walk-up ring the character stands in, a sync); it waits for
+	-- calm like arrived. The bowlCardHold switch, on unless set false, turns this off.
+	local held = (UI.cutscene.held() or (introScreen ~= nil and introScreen:playing()))
+		and ReplicatedStorage:GetAttribute("LiveFlag_bowlCardHold") ~= false
+	if held or (modal ~= nil and modal:current() == "Store") then
 		renderBait()
 		UI.bait.whenCalm(function()
 			return bowls.cats[index] == cat
@@ -3349,6 +3357,12 @@ function UI.bait.busy(): boolean
 		or UI.bait.away() -- #4035: out catching in an area
 		or UI.cutscene.held() -- #4018: any cutscene (UI.setCutscene) or quiet key (UI.setQuiet)
 		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
+		-- Derek 2026-11-18: nor over the intro (bowlCardHold, on unless set false)
+		or (
+			introScreen ~= nil
+			and introScreen:playing()
+			and ReplicatedStorage:GetAttribute("LiveFlag_bowlCardHold") ~= false
+		)
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying

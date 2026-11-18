@@ -64,6 +64,7 @@ LiveFlags.KEYS = {
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
 	"walkUpSettle", -- Sync 2026-11-18: a walk-up ring stepped into while busy (the intro, a flight) or in the 2 s after waits until the player steps out and back in (WalkUpController); on by default
+	"lockedAreaQuiet", -- #5265: no rainbow, pity or Secret spawn beam, mark or toast from an area this player's tier has not opened (CatService RainbowSpawned, Effects Context.areaShut); on by default
 	"stationTiers", -- #4539: Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers)
 	"tradeCrates",
 	"tradeFish",
@@ -82,9 +83,11 @@ LiveFlags.KEYS = {
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
 	"tier8", -- #3997: Tier 8 and the Snowy Mountain (shared/LateTiers); on once the area is built, after a restart
+	"bowlCardHold", -- Derek 2026-11-18: a bowl cat's card never shows over the intro or another cutscene, it waits for calm (UI.bait.showReady); on by default
 	"tier9", -- #4070: Tier 9 and the Water Park (shared/LateTiers); on once the area is built, after a restart, never before tier8
 	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
+	"upgradesWarm", -- Sync 2026-11-18: the Upgrades window lays out once off screen after its rows are built, so the first open has no long frame (Screens/UpgradeShop._warm); on by default
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"starterSuggest", -- #4174: the Starter Bundle's one slide-in card a session after 10 to 15 minutes (shared/StarterSuggest)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)

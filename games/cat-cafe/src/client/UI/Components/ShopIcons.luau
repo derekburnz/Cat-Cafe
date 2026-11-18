@@ -344,6 +344,12 @@ local IDS: { [string]: string } = {
 	Icon_Store_PackChefArt = "rbxassetid://106238097844684",
 	Icon_Store_PackSpaceArt = "rbxassetid://138749834605596",
 	Icon_Store_Money2x = "rbxassetid://106785644491188",
+	-- #5225: the XP cat foods on their mint XP plate (Model-Agent, xpsnacks.py, 256, group owned)
+	Icon_XpFood_SmallSnack = "rbxassetid://105963914520145",
+	Icon_XpFood_CatSnack = "rbxassetid://71636028716764",
+	Icon_XpFood_BigSnack = "rbxassetid://138587640099666",
+	Icon_XpFood_CatFeast = "rbxassetid://85120198290442",
+	Icon_XpFood_RoyalFeast = "rbxassetid://132550470089627",
 	-- #4246: Today's Deal pictures (Model-Agent, Nov 15): golden fish, Trait Tokens, golden crates, the Golden Haul
 	-- #5120: re-uploaded group owned (Creampuff Games) on Nov 17; the Nov 15 copies were on Derek's own account, not the group's
 	Icon_Deal_Fish = "rbxassetid://77754066053264",
@@ -700,7 +706,14 @@ function ShopIcons.snackGlyph(foodId: string?): string
 end
 
 -- #4900: a cat food with a drawn picture of its own shows it everywhere its glyph would go
-local CAT_FOOD_PICTURES: { [string]: string } = { royal_feast = "Icon_Clean_RoyalFeast" }
+-- #5225: all five on the XP plate; the glyphs above stay as the fallback until a picture loads
+local CAT_FOOD_PICTURES: { [string]: string } = {
+	small_cat_snack = "Icon_XpFood_SmallSnack",
+	cat_snack = "Icon_XpFood_CatSnack",
+	big_cat_snack = "Icon_XpFood_BigSnack",
+	cat_feast = "Icon_XpFood_CatFeast",
+	royal_feast = "Icon_XpFood_RoyalFeast",
+}
 
 -- Cat food's uploaded picture (#1181): its own drawn one (#4900), else the clean star treat, now only for a food
 -- without its own glyph (#1616)

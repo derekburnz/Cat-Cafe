@@ -67,13 +67,21 @@ from alleyway import _arch, flower_clump, label, lantern
 from common import RB
 from plot import SQUARE_EDGE_X, SQUARE_HALF_D, rot_x, rot_y, rot_z
 
-SQ_W, SQ_D = 60.0, SQUARE_HALF_D               # the square's half width (x) and half depth (z): 48 x 32 until #2707,
-                                               # 48 x 44 until #3001 (Derek2 11-10)
+# #5224 (Derek 2026-11-18: "shrink the town square but have it more formatted like this for stalls"): 108 x 165, the
+# stations on an oval ring round the cannon (RING_A x RING_B), inside the same town ground (SQUARE_HALF_D, the street's
+# start, and SQUARE_EDGE_X, the garden wall), so no cafe or street moves: the gardens grow to fill the sides and a bed
+# either side of the street fills each end (APRON). 120 x 180 until #5224.
+SQ_W, SQ_D = 54.0, 82.5                        # the square's half width (x) and half depth (z): 48 x 32 until #2707,
+                                               # 48 x 44 until #3001 (Derek2 11-10), 60 x 90 until #5224
+TOWN_D = SQUARE_HALF_D                         # where the street's sidewalks start, z +-90
+SIDEWALK = 2.0                                 # the street's sidewalk, x 8 to 10 either side (plot.py)
+RING_A, RING_B, RING_N = 45.0, 74.0, 2.6       # #5224: the stations' oval (a superellipse), half width, half depth
+RING_IN, RING_OUT = 9.5, 4.5                   # the walk ring in front of them: this far in from the stations' oval
 LANE, CROSS = 8.0, 6.0                         # half widths of the street's line and the east to west lane
 # The gardens' middle, x, between the square and the garden wall (WorldBuilder: 1 thick, centred on |x| TownEdgeX - 1):
 # #3001: the square grew to |x| 60 inside the same town edge (69), so the beds are 7 deep and stand against the wall's
 # inner face (67.5), x 60.5 to 67.5, centred on 64; 58.5 with 12 deep beds before.
-GARDEN_D = 7.0
+GARDEN_D = SQUARE_EDGE_X - 1.5 - SQ_W           # #5224: 13.5, from the square's edge to the wall (7 before)
 GARDEN_CX = SQUARE_EDGE_X - 1.5 - GARDEN_D / 2
 BORDER, KERB = 2.0, 0.6
 TILE_X, TILE_Z, JOINT = 4.2, 4.4, 0.14         # #4532: 3.8 x 4.0 until the 180 deep square (the triangle budget)
@@ -285,9 +293,69 @@ def paving_textures(out_dir, px=1024):
     return out
 
 
+def ring_point(t, a=RING_A, b=RING_B):
+    """The stations' oval at angle t (0 east, pi/2 north), Roblox (x, z)."""
+    c, s = math.cos(t), math.sin(t)
+    return a * math.copysign(abs(c) ** (2 / RING_N), c), b * math.copysign(abs(s) ** (2 / RING_N), s)
+
+
+def _walk_ring(b, step=4.5):
+    """#5224: a latte walk round the oval in front of the stations, where their walk-up circles sit, from boxes (as
+    _ring) about `step` long, even along the curve, so it costs one part a box. It stops at the street's kerbs. Every
+    other box stands 0.01 proud top and bottom so neighbours never share a face, and all clear the quarters and the
+    lane's walks (top STONE)."""
+    width, mid = RING_IN - RING_OUT, (RING_IN + RING_OUT) / 2
+    pts = [ring_point(2 * math.pi * k / 4000, RING_A - mid, RING_B - mid) for k in range(4001)]
+    seg = [0.0]
+    for p0, p1 in zip(pts, pts[1:]):
+        seg.append(seg[-1] + math.hypot(p1[0] - p0[0], p1[1] - p0[1]))
+    n = round(seg[-1] / step)
+    marks, j = [], 0
+    for k in range(n + 1):
+        d = seg[-1] * k / n
+        while j < len(seg) - 2 and seg[j + 1] < d:
+            j += 1
+        marks.append(pts[j])
+    for k, (p0, p1) in enumerate(zip(marks, marks[1:])):
+        if max(abs(p0[0]), abs(p1[0])) < LANE or p0[0] * p1[0] < 0:
+            continue
+        if min(abs(p0[0]), abs(p1[0])) < LANE:                                  # trim it to the street's kerb
+            (a, c) = (p0, p1) if abs(p0[0]) < LANE else (p1, p0)
+            f = (math.copysign(LANE, c[0]) - c[0]) / (a[0] - c[0])
+            a = (c[0] + (a[0] - c[0]) * f, c[1] + (a[1] - c[1]) * f)
+            p0, p1 = (a, c) if abs(p0[0]) < LANE else (c, a)
+        cx, cz = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+        length = math.hypot(p1[0] - p0[0], p1[1] - p0[1]) + 0.3 * (min(abs(p0[0]), abs(p1[0])) > LANE + 0.01)
+        ang = math.degrees(math.atan2(p1[1] - p0[1], p1[0] - p0[0]))
+        e = 0.01 if k % 2 else 0.0
+        b.box((cx, STONE + 0.014, cz), (length, 0.016 + 2 * e, width), "fur_latte", rot=rot_y(-ang))
+
+
+def _apron(b, z0, z1, sz):
+    """#5224: the ground between the square's end and the street's sidewalks, either side of the lane: the sidewalk's
+    line in light paving, then a raised bed (brick kerb, grass, flowers) out to the square's side."""
+    for sx in (-1, 1):
+        x0, x1 = sorted((sx * LANE, sx * (LANE + SIDEWALK)))
+        b.span((x0, 0, z0), (x1, STONE, z1), "paving_light")
+        bx0, bx1 = sorted((sx * (LANE + SIDEWALK), sx * SQ_W))
+        k_ = 0.5
+        b.span((bx0, 0, z0), (bx1, 0.65, z0 + k_), "brick")
+        b.span((bx0, 0, z1 - k_), (bx1, 0.65, z1), "brick")
+        b.span((bx0, 0, z0 + k_), (bx0 + k_, 0.65, z1 - k_), "brick")
+        b.span((bx1 - k_, 0, z0 + k_), (bx1, 0.65, z1 - k_), "brick")
+        b.span((bx0 + k_, 0, z0 + k_), (bx1 - k_, 0.5, z1 - k_), "leaf_green")
+        n = 6
+        for k in range(n):
+            x = bx0 + 3.0 + k * (bx1 - bx0 - 6.0) / (n - 1)
+            flower_clump(b, x, 0.5, (z0 + z1) / 2 - sz * 1.4, n=3, spread=0.5)
+        for x in (bx0 + 6, (bx0 + bx1) / 2, bx1 - 6):
+            b.ball((x, 1.0, (z0 + z1) / 2 + sz * 1.2), 0.9, "leaf_dark")
+
+
 def build_paving(mat):
     b, slab = RB(), RB()
-    slab.span((-SQ_W, -0.4, -SQ_D), (SQ_W, 0, SQ_D), "paving_grout")               # players stand on its top
+    slab.span((-SQ_W, -0.4, -TOWN_D), (SQ_W, 0, TOWN_D), "paving_grout")           # players stand on its top (#5224:
+                                                                                  # on to the sidewalks)
     _border(b)
     iz = SQ_D - BORDER
     quarters, lane, walks = _paving_runs()
@@ -303,6 +371,12 @@ def build_paving(mat):
     # #1130: the lane stops at the brick border; the paths that carried it on through the gardens to their wall are
     # gone, and the middle garden bed (CatCafe_Square_GardenMid) fills that ground between the two beds each side
     _compass(b)
+    _walk_ring(b)
+    for sz in (-1, 1):                                                            # #5224: the ends, to the street
+        z0, z1 = sorted((sz * SQ_D, sz * TOWN_D))
+        lane_p.span((lane[0], 0, z0), (lane[1], STONE, z1), "paving_light")
+        _kerbs(b, -LANE, LANE, z0, z1, "z")
+        _apron(b, z0, z1, sz)
     return [b.finalize("CatCafe_Square_Paving", mat), slab.finalize("CatCafe_Square_Paving_Slab", mat),
             checker.finalize(CHECKER, mat), lane_p.finalize(LANE_PAVERS, mat), walk_p.finalize(WALK_PAVERS, mat)]
 
@@ -661,7 +735,7 @@ def build_garden_mid(mat):
 
 
 GARDEN_Z = GARDEN_MID_W / 2 + GARDEN_W / 2            # 21.5: the gardens' middles, z either side of the lane
-GARDEN_END_W = SQ_D - 1.5 - (GARDEN_Z + GARDEN_W / 2)  # #2707: the bed past each garden to the square's corner, 19
+GARDEN_END_W = TOWN_D - 1.5 - (GARDEN_Z + GARDEN_W / 2)  # #2707: the bed past each garden to the square's corner, 19
 GARDEN_END_Z = GARDEN_Z + GARDEN_W / 2 + GARDEN_END_W / 2     # 44: from the garden's end kerb, 1.5 short of the edge
 
 

@@ -239,6 +239,12 @@ local function withinRange(player: Player, position: Vector3, range: number): bo
 	return root ~= nil and (root - position).Magnitude <= range
 end
 
+-- How far a catch may start from and stay within: GrabRangeStuds and 2 for lag, plus #5309's BIG_REACH while bigNet
+-- is on (Sync's run: a 12 stud swing the client allows was refused "Too far away" at the start of the circles).
+local function catchRange(): number
+	return M.Config.GrabRangeStuds + 2 + (if NetSwing.big() then NetSwing.BIG_REACH else 0)
+end
+
 -- F84: true while the player's character is in a Cat Cannon flight or a cloud hop (CannonService, TravelService set
 -- these): no catch, pick up, rescue or tackle starts, and tackles pass through them.
 local function inFlight(player: Player): boolean
@@ -2620,7 +2626,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	local forfeit: string? = nil
 	if carrying[player] ~= nil then
 		forfeit = "Check in the cat you are carrying first"
-	elseif not withinRange(player, stray.body.Position, M.Config.GrabRangeStuds + 2) then
+	elseif not withinRange(player, stray.body.Position, catchRange()) then
 		forfeit = "Too far away"
 	end
 	local succeeded = forfeit == nil and Circles.succeeded(attempt)
@@ -2840,7 +2846,7 @@ function startCatch(
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
 	end
-	if not withinRange(player, stray.body.Position, M.Config.GrabRangeStuds + 2) then
+	if not withinRange(player, stray.body.Position, catchRange()) then
 		return "Too far away"
 	end
 	local now = serverNow()
@@ -2971,7 +2977,7 @@ function startCatch(
 			sendJudged(player, stray.id, attempt, before)
 			if
 				Circles.isDone(attempt)
-				or not withinRange(player, stray.body.Position, M.Config.GrabRangeStuds + 2)
+				or not withinRange(player, stray.body.Position, catchRange())
 			then
 				finishCatch(player, stray, attempt)
 				return

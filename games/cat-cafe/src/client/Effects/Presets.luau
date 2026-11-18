@@ -4043,6 +4043,32 @@ Presets.adminDrops = {
 -- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
 -- Snowglobe Village's world effects (Effects/SnowglobeFx, Christmas Event Dec 1). Tag names are placeholders until
 -- Model-Agent's village and Gameplay-Engineer's event row land; change them here only.
+-- Christmas Event (Effects/SnowglobeFlakes): the Snowflake patch. Ready flakes bob `height` studs over `period`
+-- seconds (each `phaseStep` seconds behind the one before) and turn once every `spin` seconds within `bobWithin`
+-- studs; a pick within `within` studs bursts `pickCount` icy sparkles `lift` studs up and a `pickRing` stud ring, a
+-- regrow `regrowCount`; a rise in your Snowflakes pops "+N Snowflakes" over your head for `popSeconds`.
+Presets.snowglobeFlakes = {
+	flag = "christmasEvent",
+	tag = "SnowglobeFlake",
+	touchName = "Touch",
+	readyAttribute = "Ready",
+	bobWithin = 90,
+	height = 0.35,
+	period = 2.4,
+	phaseStep = 0.37,
+	spin = 6,
+	within = 120,
+	lift = 1.2,
+	sparkle = "catchSparkle",
+	pickCount = 10,
+	pickRing = 5,
+	colour = Color3.fromRGB(143, 211, 255), -- icy blue, the Gift Stall's
+	regrowCount = 5,
+	regrowColour = Color3.fromRGB(255, 255, 255),
+	popColour = Color3.fromRGB(143, 211, 255),
+	popSeconds = 1.4,
+}
+
 Presets.snowglobeFx = {
 	centreTag = "SnowglobeCentre",
 	portalTag = "SnowglobePortal",
@@ -4055,6 +4081,28 @@ Presets.snowglobeFx = {
 	swirl = "globeSwirl",
 	portalWithin = 120,
 	portalLift = 6,
+	-- part 2 (#5326's names): the spin, the star and the night lights
+	parts = {
+		prefix = "CatCafe_Snowglobe_",
+		spin = "CatCafe_Snowglobe_Portal_Spin",
+		star = "CatCafe_Snowglobe_Set_006_TreeStar_Glow",
+		lights = {
+			"CatCafe_Snowglobe_Set_003_TreeLights_Glow",
+			"CatCafe_Snowglobe_Stall_Glow",
+			"CatCafe_Snowglobe_Portal_Portal_Glow",
+			"CatCafe_Snowglobe_Portal_Glow",
+		},
+	},
+	spinSeconds = 18, -- when Portal_Spin has no Seconds attribute
+	starSeconds = 10,
+	spinWithin = 160,
+	lightEvery = 4, -- of `every`: the lights are picked again every 2 s
+	lightWithin = 90,
+	lightGap = 9,
+	lightsMost = 10,
+	lightsLow = 5,
+	lightBrightness = 0.7,
+	lightRange = 10,
 }
 
 Presets.harvestFx = {
@@ -4718,6 +4766,23 @@ Presets.netTrail = {
 	colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
 }
 
+-- The Christmas cats' beats (snowglobe-village-spec section 4, Effects/ChristmasCats): which cats, the glow parts'
+-- name endings, and whether it wears a bell. Jingle's bell swings `degrees` either way, `swings` times over `seconds`,
+-- every `every` seconds (the first `firstMin` or more after it appears). A glow part shows `dayDim` of the way to
+-- clear by day; at night it twinkles between 0 and `nightDim` once every `twinkleSeconds`. Reduce Motion: no bell,
+-- steady glow.
+Presets.christmasCats = {
+	cats = {
+		jingle = { bell = true, glows = {} },
+		star_topper = { bell = false, glows = { "_Star_Glow", "_Bulbs_Glow" } },
+		sugar_plum = { bell = false, glows = { "_Gem_Glow", "_Wings_Glow" } },
+	} :: { [string]: { bell: boolean, glows: { string } } },
+	jingle = { seconds = 0.9, degrees = 22, swings = 3, every = { 7, 12 }, firstMin = 2 },
+	dayDim = 0.45,
+	nightDim = 0.25,
+	twinkleSeconds = 1.6,
+}
+
 -- The catch's result word (F93 section 3): as UI-Engineer's word slams in, sparkles burst off it in its colour and
 -- rings grow round it, the biggest for PURRFECT!; "So close!" gets none. The word is the first of `targets` found in
 -- CatCafeCatchCircles that shows within `wait` seconds of CatchResult. Sparkles are `size` pixels and fly up to
@@ -4742,6 +4807,16 @@ Presets.catchWord = {
 		great = { sparkles = 7, rings = 1, colour = Presets.palette.mint },
 		nice = { sparkles = 5, rings = 1, colour = Presets.palette.cream }, -- v3 (#1884 7d)
 	} :: { [string]: { sparkles: number, rings: number, colour: Color3 } },
+	-- #5300 Perfect catch (switch perfectCatch): when PURRFECT! turns to `text`, a sky blue burst (the "+50%" colour,
+	-- shared/PerfectCatch.COLOR #8FD3FF) with one more ring than PURRFECT!'s. Watched for `watch` seconds.
+	perfectPlus = {
+		flag = "perfectCatch",
+		text = "+50%",
+		watch = 2.5,
+		sparkles = 16,
+		rings = 3,
+		colour = Color3.fromRGB(143, 211, 255),
+	},
 }
 
 -- Catch v3 (#1884, catch-rework.md 7b to 7d; Effects/Catch). Each ring the server judges (CatchJudged) pops at the
@@ -5426,7 +5501,7 @@ Presets.rarityMark = {
 	shrink = {
 		flag = "gemsShrink",
 		near = 20,
-		far = 110,
+		far = 80, -- Sync 2026-11-18: 110 left gems at 60 to 100 studs covering 38 to 51% of the cat
 		least = 4,
 		finderLeast = 14,
 	},

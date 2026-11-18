@@ -30,5 +30,32 @@ return function()
 			expect(Presets.emitters[p.swirl] ~= nil).to.equal(true)
 			expect(Presets.emitters[p.snow] ~= nil).to.equal(true)
 		end)
+
+		it("part 2: knows the village's spin, star and glow parts by name", function()
+			local parts = Presets.snowglobeFx.parts
+			expect(Fx.role(parts.spin, parts)).to.equal("spin")
+			expect(Fx.role(parts.star, parts)).to.equal("star")
+			expect(Fx.role("CatCafe_Snowglobe_Stall_Glow", parts)).to.equal("light")
+			expect(Fx.role("CatCafe_Snowglobe_Set_001_Sky_Glass", parts)).to.equal(nil)
+		end)
+
+		it(
+			"part 2: night lights go to the star first, then the nearest, spread apart and capped",
+			function()
+				local spots = {
+					{ at = Vector3.new(0, 0, 0), rank = 2, distance = 5 },
+					{ at = Vector3.new(2, 0, 0), rank = 2, distance = 6 }, -- too close to the first
+					{ at = Vector3.new(50, 0, 0), rank = 1, distance = 40 }, -- the star
+					{ at = Vector3.new(20, 0, 0), rank = 2, distance = 20 },
+					{ at = Vector3.new(500, 0, 0), rank = 2, distance = 500 }, -- too far
+				}
+				local picked = Fx.pickLights(spots, 90, 9, 10)
+				expect(#picked).to.equal(3)
+				expect(picked[1]).to.equal(3)
+				expect(picked[2]).to.equal(1)
+				expect(picked[3]).to.equal(4)
+				expect(#Fx.pickLights(spots, 90, 9, 2)).to.equal(2)
+			end
+		)
 	end)
 end

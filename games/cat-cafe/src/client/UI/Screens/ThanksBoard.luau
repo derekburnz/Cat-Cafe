@@ -32,6 +32,13 @@ export type ThanksBoard = {
 
 local TAG = "ThanksBoard"
 local PIXELS_PER_STUD = 64 -- the 7.6 x 5.2 stud Screen is 486 x 333
+-- #5228: a bigger board (Model-Agent) keeps this layout and grows its words: the page is always drawn as wide as
+-- the 7.6 stud Screen at 64 px a stud, so PixelsPerStud falls as the part grows
+local DESIGN_WIDTH = 7.6 * PIXELS_PER_STUD
+
+local function pixelsFor(part: BasePart): number
+	return if part.Size.X > 0 then DESIGN_WIDTH / part.Size.X else PIXELS_PER_STUD
+end
 -- #5228 (Derek 2026-11-18: "make it so feedback board is always rendered in and text is a bit bigger so people can
 -- acc read if not on pc"): drawn from across the square (was 80), with bigger words, four cards a page and six
 -- What's new lines (were six and eight)
@@ -434,6 +441,7 @@ function ThanksBoard._hang(self: any, model: Instance)
 		return
 	end
 	self._gui.Adornee = screen
+	self._gui.PixelsPerStud = pixelsFor(screen)
 	self._gui.Face = Enum.NormalId.Front
 	self._gui.Enabled = true
 	-- What's new on its own panel, once the board has it (#1216); a board without one just has no panel
@@ -441,6 +449,7 @@ function ThanksBoard._hang(self: any, model: Instance)
 	local newGui: SurfaceGui? = self._newGui
 	if panel and newGui then
 		newGui.Adornee = panel
+		newGui.PixelsPerStud = pixelsFor(panel)
 		newGui.Face = Enum.NormalId.Front
 		newGui.Enabled = true
 	elseif newGui and not self._panelWait[model] then

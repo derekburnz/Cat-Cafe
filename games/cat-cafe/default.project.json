@@ -35,7 +35,7 @@
         "FilteringEnabled": true,
         "StreamingEnabled": true,
         "StreamingTargetRadius": 384,
-        "StreamingMinRadius": 128,
+        "StreamingMinRadius": 64,
         "StreamingIntegrityMode": "MinimumRadiusPause",
         "StreamOutBehavior": "Opportunistic"
       }

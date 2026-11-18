@@ -8429,8 +8429,24 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.3)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
 		local button = gui:FindFirstChild("Tackle", true) :: TextButton
-		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
-		assert(chip and chip.Visible, "uigate: no shield chip while the join shield runs (#3342)")
+		-- #5233: the chip has its own gui, bottom centre just over the bottom row on every device
+		local safe = UIShim.playerGui:FindFirstChild("CatCafeSafe") :: ScreenGui
+		local chip = safe:FindFirstChild("Shield", true) :: TextLabel
+		assert(safe.Enabled and chip and chip.Visible, "uigate: no shield chip while the join shield runs (#3342)")
+		do
+			local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+			local row = hud:FindFirstChild("Travel", true) :: GuiObject
+			if row ~= nil and row.Visible then
+				local mid = chip.AbsolutePosition.X + chip.AbsoluteSize.X / 2
+				local rowMid = row.AbsolutePosition.X + row.AbsoluteSize.X / 2
+				local foot = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+				assert(math.abs(mid - rowMid) <= 2, "uigate: the shield chip is not centred over the bottom row (#5233)")
+				assert(
+					foot <= row.AbsolutePosition.Y + 0.5 and foot >= row.AbsolutePosition.Y - 40,
+					string.format("uigate: the shield chip's foot (%d) is not just over the bottom row (%d) (#5233)", foot, row.AbsolutePosition.Y)
+				)
+			end
+		end
 		assert(chip.Text:find("Safe 4:3") ~= nil, "uigate: the shield chip reads " .. chip.Text .. " (#3342)")
 		-- #4499 (Derek2 2026-11-15: shielded players "shouldn't be able to tackle back also and it helps with net vs
 		-- tackle button confusion"): no Tackle while the shield runs, only the chip, whole and on the screen
@@ -8496,7 +8512,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		local pill = hud:FindFirstChild("PackDrop", true) :: GuiObject
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
-		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
+		local safe = UIShim.playerGui:FindFirstChild("CatCafeSafe") :: ScreenGui -- #5233
+		local chip = safe:FindFirstChild("Shield", true) :: TextLabel
 		local tackle = gui:FindFirstChild("Tackle", true) :: GuiObject
 		assert(pill and pill.Visible, "uigate: no Drop pill with a cat in the bag (#3744)")
 		assert(chip and chip.Visible, "uigate: no Safe chip while the join shield runs (#3744)")

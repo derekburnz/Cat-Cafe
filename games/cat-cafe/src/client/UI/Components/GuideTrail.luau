@@ -32,6 +32,7 @@ local START_GAP = 3 -- the first dot sits this far ahead of the player
 local ARRIVED = 10 -- studs from the target where the trail hides, once nothing solid stands between (#5206)
 local EYE = 3 -- studs above the feet the clear-view check starts from
 local NEAR_END = 2 -- studs: a ray that stops this close to the target counts as reaching it
+local SMALL_PIECE = 300 -- instances: a Model this small round the target is its own piece, not a whole cafe or area
 local REPATH_MOVE = 5 -- studs the player moves before the route is worked out again
 local REPATH_SECONDS = 0.75 -- and no more often than this
 local RETRY_SECONDS = 2 -- after a failed route, standing still or not
@@ -205,8 +206,25 @@ local function walled(self: any, target: Target, start: Vector3, finish: Vector3
 	end
 	if typeof(target) == "Instance" then
 		local instance = target :: Instance
-		local holder = instance:FindFirstAncestorOfClass("Model")
-		table.insert(skip, if holder ~= nil then holder else instance)
+		table.insert(skip, instance)
+		local part = if instance:IsA("Attachment") then instance.Parent else nil
+		if part ~= nil then
+			table.insert(skip, part)
+		end
+		-- Review-QA on #5211: the bowl's anchor sits straight in the cafe's plot and the Park pad's in its area, so
+		-- the nearest Model can be the whole cafe or area, back wall and all. Only a small one (a stray's body, a
+		-- cannon) is the target's own piece. Counted once per target.
+		if self._holderFor ~= target then
+			self._holderFor = target
+			local holder = instance:FindFirstAncestorOfClass("Model")
+			self._holder = if holder ~= nil and #holder:GetDescendants() <= SMALL_PIECE
+				then holder
+				else nil
+		end
+		local holder: Instance? = self._holder
+		if holder ~= nil then
+			table.insert(skip, holder)
+		end
 	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude

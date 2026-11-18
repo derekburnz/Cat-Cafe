@@ -158,6 +158,7 @@ LiveFlags.KEYS = {
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
 	"upgradesInstant", -- #5253: an Upgrades buy shows in the window at once and the server syncs before the plot rebuild (Screens/UpgradeShop, CafeService); off by default
 	"nightBright", -- #5240: a slightly lighter night sky and shade (shared/DayLight.BRIGHT_NIGHT); off by default
+	"ringSolid", -- #5256: a double's second half and a paw catch ring drop the dark rim that read as a gap (UI CatchCircles); off by default
 	"bangRelayout", -- #5261: a "!" bubble showing with words but laid out blank lays its text out again (UI/Components/MarketBang); on by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
@@ -236,6 +237,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device
 	areaWhole = true, -- Derek 2026-11-18: on after Review-QA and Sync's tablet and phone memory read in a long area
 	nightBright = true, -- #5240: on after Review-QA and a phone look at night
+	ringSolid = true, -- #5256: on after Review-QA and a Studio look at a double and a paw ring
 	nextGoalBeat = true, -- #5202: on after Review-QA and Sync's pass, at a minute with no other switch within 2 hours
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

@@ -668,6 +668,8 @@ function applyTutorial()
 				and not (popups ~= nil and popups:isShowing())
 				and (baitCard == nil or not baitCard:isShowing())
 				and not UI.cutscene.on
+				-- Sync on v947: not behind the open picker, whose ringed Launch has the dim then
+				and not (modal ~= nil and modal:current() == "Cannon")
 		end
 		local board: any = hud
 		board:pointCannon(first == true)

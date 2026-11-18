@@ -94,11 +94,11 @@ return function()
 				expect((EventRsvp.next(Config.UpdateEvents, 1794799800 + 600))).to.equal(
 					"6810389993696133776"
 				)
-				-- Derek 2026-11-15 17:13 UTC: it rolls on to Harvest Hollow, then Cherry Blossom Grove
+				-- #5174 (Derek 2026-11-17: all the hype on Christmas): it rolls straight on to the Christmas Event, past
+				-- Harvest Hollow (no entry), then Cherry Blossom Grove
 				expect((EventRsvp.next(Config.UpdateEvents, 1794945600 + 600))).to.equal(
-					"2956295611862876771"
+					"3056428113926947439"
 				)
-				-- Derek 2026-11-17: the Christmas Event (Dec 12) comes next, then Cherry Blossom Grove
 				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(
 					"3056428113926947439"
 				)

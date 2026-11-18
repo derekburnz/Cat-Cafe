@@ -120,6 +120,7 @@ require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
 require(ReplicatedStorage.Shared.BigTreats).follow() -- Derek 2026-11-18: the Daily Treat rows follow bigTreats
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
+require(ReplicatedStorage.Shared.EasyKeep).follow() -- #5311: the Dragon Keep's Warmth marks follow easyKeep
 local world = WorldBuilder.build()
 
 Net.start()

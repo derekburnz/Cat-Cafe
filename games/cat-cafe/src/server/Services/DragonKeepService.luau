@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
+local EasyKeep = require(ReplicatedStorage.Shared.EasyKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
@@ -309,6 +310,24 @@ function DragonKeepService.start()
 				end
 			end
 		end)
+	-- #5311: when easyKeep flips, a save whose Warmth now reaches a stage gets it and its hand at once, not at its
+	-- next gift or rejoin (sanitize does the same at join)
+	EasyKeep.onChange(function()
+		for _, player in DataService.loadedPlayers() do
+			local profile = DataService.get(player)
+			if profile == nil then
+				continue
+			end
+			local before = #profile.dragon.queue
+			DragonKeep.regrow(profile.dragon)
+			if LiveFlagService.on(DragonKeep.FLAG) and #profile.dragon.hand == 0 then
+				deal(player, profile)
+			end
+			if #profile.dragon.queue ~= before or #profile.dragon.hand > 0 then
+				CafeService.sync(player)
+			end
+		end
+	end)
 	task.spawn(function()
 		while true do
 			task.wait(BREATH_TICK)

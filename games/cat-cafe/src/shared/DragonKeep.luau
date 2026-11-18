@@ -814,6 +814,11 @@ function grow(save: Types.DragonSave)
 	end
 end
 
+-- #5311: the stage and Rekindle hands the Warmth reaches after the numbers change (shared/EasyKeep), with no gift.
+function DragonKeep.regrow(save: Types.DragonSave)
+	grow(save)
+end
+
 -- Moves the cats in (the caller checked giveBlocker): each leaves the save, its Warmth added. Returns the Warmth
 -- and the stages it raised.
 function DragonKeep.give(profile: Types.PlayerProfile, uids: { string }): (number, number)

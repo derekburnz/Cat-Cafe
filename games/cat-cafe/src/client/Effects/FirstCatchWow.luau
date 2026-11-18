@@ -300,11 +300,18 @@ local function slowAnimations(p: typeof(Presets.firstCatchWow))
 		return
 	end
 	local was: { [AnimationTrack]: number } = {}
+	local slowed = 0
 	for _, track in (animator :: Animator):GetPlayingAnimationTracks() do
 		was[track] = track.Speed
 		track:AdjustSpeed(track.Speed * p.slowSpeed)
+		slowed += 1
 	end
+	-- for Sync's Studio check: how many of your character's playing tracks were slowed, and while it lasts, the speed
+	local who = character :: Model
+	who:SetAttribute("FirstCatchSlowTracks", slowed)
+	who:SetAttribute("FirstCatchSlowSpeed", p.slowSpeed)
 	task.delay(p.slowSeconds, function()
+		who:SetAttribute("FirstCatchSlowSpeed", nil)
 		for track, speed in was do
 			if track.IsPlaying then
 				track:AdjustSpeed(speed)
@@ -365,7 +372,13 @@ function FirstCatchWow.play(strayId: string?, rarity: string?): boolean
 			if not reduced and cat ~= nil and ground ~= nil then
 				local colour = Logic.glowColour(rarity or "Common")
 				local ring = Logic.catchPop(rarity or "Common")
-				Particles.ring(ground :: Vector3, colour, ring * p.ringScale, p.ringSeconds)
+				local part =
+					Particles.ring(ground :: Vector3, colour, ring * p.ringScale, p.ringSeconds)
+				if part ~= nil then
+					-- named and sized for Sync's Studio check (ClientEffects.FirstCatchRing, its Diameter attribute)
+					part.Name = "FirstCatchRing"
+					part:SetAttribute("Diameter", ring * p.ringScale)
+				end
 				Particles.confetti(
 					cat :: Vector3,
 					FirstCatchWow.confetti(

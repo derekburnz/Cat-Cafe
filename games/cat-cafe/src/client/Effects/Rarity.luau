@@ -10,6 +10,8 @@
 -- (`Rarity.buildGem`). Since #2258 (Derek2 2026-11-07: "show new tag if it's a cat you don't own yet for people
 -- index hunting") a green NEW pill sits on top of the gem of a cat that would be new to your Index (Logic.newToIndex),
 -- in the gem's own billboard, so it costs nothing more and bobs, hides and stays still with it.
+-- Since #5201 (Derek 2026-11-18: "make gems viewable if in view not distance") every stray on screen out to
+-- Presets.rarityMark.inView.reach studs has its gem, the slots going to Rare and up first, then the nearest.
 --
 -- Source: the Stray tag CatService puts on each stray model, and its `Rarity`, `LockedBy`, `CatId` and `Variant`;
 -- this player's own ProfileSync `collection`, `goldCollection` and `rainbowCollection` for NEW. The gem rides the
@@ -243,7 +245,7 @@ local function makeMark(model: Model, rarity: string): Mark?
 	gui.Size = UDim2.new(r.size, r.pixels, r.size, r.pixels)
 	gui.LightInfluence = 0
 	-- the check hides it first; this only stops a stale one drawing
-	gui.MaxDistance = math.max(r.maxDistance, r.finder.maxDistance) * 1.2
+	gui.MaxDistance = math.max(r.maxDistance, r.finder.maxDistance, r.inView.reach) * 1.2
 	gui.Enabled = false
 	gui.ClipsDescendants = false -- the NEW pill stands a little over the top
 	local built, glint, halo = Rarity.buildGem(gui, rarity)
@@ -346,12 +348,28 @@ local function setFinder(mark: Mark, on: boolean, distance: number)
 	mark.gui.AlwaysOnTop = on and distance > f.onTopBeyond
 end
 
+-- #5201: whether a point is on screen (in front of the camera, inside the view and a `margin` share past its edges).
+local function onScreen(camera: Camera, at: Vector3, margin: number): boolean
+	local point, front = camera:WorldToViewportPoint(at)
+	if not front or point.Z <= 0 then
+		return false
+	end
+	local view = camera.ViewportSize
+	local padX, padY = view.X * margin, view.Y * margin
+	return point.X >= -padX
+		and point.X <= view.X + padX
+		and point.Y >= -padY
+		and point.Y <= view.Y + padY
+end
+
 local function check()
 	local focus = Context.focus()
 	if focus == nil then
 		return
 	end
 	local r = Presets.rarityMark
+	local v = r.inView
+	local camera = Workspace.CurrentCamera
 	local finderOn = ReplicatedStorage:GetAttribute("LiveFlag_" .. r.finder.flag) == true
 	local candidates: { Logic.Candidate<Model> } = {}
 	local commons: { Logic.Candidate<Model> } = {} -- behind the rest for the `most` slots, so a Rare still shows
@@ -363,13 +381,18 @@ local function check()
 			local distance = (model:GetPivot().Position - focus).Magnitude
 			local rarity = model:GetAttribute("Rarity")
 			local finder = Logic.rarityFinder(finderOn, model:GetAttribute("Area"), caughtThere)
+			-- #5201: any stray on screen within reach, the Park finder's or not; one off screen shows none
+			local inView = camera ~= nil
+				and distance <= v.reach
+				and onScreen(camera, model:GetPivot().Position, v.margin)
 			if
-				Logic.rarityMarkShows(
+				inView
+				and Logic.rarityMarkShows(
 					rarity,
 					model:GetAttribute("LockedBy"),
 					distance,
 					mark ~= nil and mark.shown,
-					if finder then r.finder.maxDistance else nil
+					math.max(v.reach, if finder then r.finder.maxDistance else 0)
 				)
 			then
 				if finder then
@@ -383,8 +406,9 @@ local function check()
 		end
 	end
 	local wanted: { [Model]: boolean } = {}
-	local reach = math.max(r.maxDistance, r.finder.maxDistance) -- each stray's own reach was checked above
-	for _, model in Logic.nearestFirst(candidates, commons, reach, r.most) do
+	local reach = math.max(r.maxDistance, r.finder.maxDistance, v.reach) -- each stray's own reach was checked above
+	local most = if Context.tier == "low" then v.lowMost else v.most
+	for _, model in Logic.nearestFirst(candidates, commons, reach, most) do
 		wanted[model] = true
 	end
 	for model, mark in marks do

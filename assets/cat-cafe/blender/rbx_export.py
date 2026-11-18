@@ -347,6 +347,8 @@ def _props(p, asset, uid):
         props["Transparency"] = transparency
     if BACKDROP in asset or (asset.startswith(NO_QUERY_BARRIERS) and p["name"].endswith("_Barrier")):
         props["CanQuery"] = False                 # blocker barriers: the camera and clicks pass through
+    if p["name"].endswith(("_Snowfall", "_Sky_Glass")):   # the snow volume and the globe's glass: rays, taps and
+        props["CanQuery"] = False                 # clicks pass through to the floor and the props
     if p["name"].endswith("_RingIcon_Decor"):     # #2449: flat pictures in the walk-up rings, never in the way
         props["CanQuery"] = False
         props["CastShadow"] = False

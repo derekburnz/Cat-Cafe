@@ -30639,6 +30639,7 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Transparency": 0.6,
+      "CanQuery": false,
       "PivotOffset": {
        "CFrame": {
         "position": [
@@ -30717,7 +30718,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -30767,7 +30769,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -30817,7 +30820,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -30867,7 +30871,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -30917,7 +30922,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -30967,7 +30973,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31017,7 +31024,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31067,7 +31075,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31117,7 +31126,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31167,7 +31177,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31217,7 +31228,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31267,7 +31279,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31317,7 +31330,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31367,7 +31381,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31417,7 +31432,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31467,7 +31483,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31517,7 +31534,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31567,7 +31585,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31617,7 +31636,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31667,7 +31687,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31717,7 +31738,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31767,7 +31789,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31817,7 +31840,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31867,7 +31891,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31917,7 +31942,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -31967,7 +31993,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32017,7 +32044,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32067,7 +32095,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32117,7 +32146,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32167,7 +32197,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32217,7 +32248,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32267,7 +32299,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32317,7 +32350,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32367,7 +32401,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32417,7 +32452,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32467,7 +32503,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32517,7 +32554,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32567,7 +32605,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32617,7 +32656,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32667,7 +32707,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32717,7 +32758,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32767,7 +32809,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32817,7 +32860,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32867,7 +32911,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32917,7 +32962,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -32967,7 +33013,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33017,7 +33064,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33067,7 +33115,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33117,7 +33166,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33167,7 +33217,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33217,7 +33268,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33267,7 +33319,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33317,7 +33370,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33367,7 +33421,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33417,7 +33472,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33467,7 +33523,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33517,7 +33574,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33567,7 +33625,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33617,7 +33676,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33667,7 +33727,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33717,7 +33778,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33767,7 +33829,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33817,7 +33880,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33867,7 +33931,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33917,7 +33982,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -33967,7 +34033,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34017,7 +34084,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34067,7 +34135,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34117,7 +34186,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34167,7 +34237,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34217,7 +34288,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34267,7 +34339,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34317,7 +34390,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34367,7 +34441,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34417,7 +34492,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34467,7 +34543,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34517,7 +34594,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34567,7 +34645,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34617,7 +34696,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34667,7 +34747,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34717,7 +34798,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34767,7 +34849,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34817,7 +34900,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34867,7 +34951,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34917,7 +35002,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -34967,7 +35053,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35017,7 +35104,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35067,7 +35155,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35117,7 +35206,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35167,7 +35257,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35217,7 +35308,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35267,7 +35359,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35317,7 +35410,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35367,7 +35461,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35417,7 +35512,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35467,7 +35563,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35517,7 +35614,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35567,7 +35665,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35617,7 +35716,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35667,7 +35767,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35717,7 +35818,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35767,7 +35869,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35817,7 +35920,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35867,7 +35971,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35917,7 +36022,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -35967,7 +36073,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36017,7 +36124,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36067,7 +36175,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36117,7 +36226,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36167,7 +36277,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36217,7 +36328,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36267,7 +36379,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36317,7 +36430,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36367,7 +36481,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36417,7 +36532,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36467,7 +36583,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36517,7 +36634,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36567,7 +36685,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36617,7 +36736,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36667,7 +36787,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36717,7 +36838,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36767,7 +36889,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36817,7 +36940,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36867,7 +36991,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36917,7 +37042,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -36967,7 +37093,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37017,7 +37144,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37067,7 +37195,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37117,7 +37246,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37167,7 +37297,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37217,7 +37348,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37267,7 +37399,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37317,7 +37450,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37367,7 +37501,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37417,7 +37552,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37467,7 +37603,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37517,7 +37654,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37567,7 +37705,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37617,7 +37756,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37667,7 +37807,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37717,7 +37858,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37767,7 +37909,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37817,7 +37960,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37867,7 +38011,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37917,7 +38062,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -37967,7 +38113,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38017,7 +38164,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38067,7 +38215,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38117,7 +38266,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38167,7 +38317,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38217,7 +38368,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38267,7 +38419,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38317,7 +38470,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38367,7 +38521,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38417,7 +38572,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38467,7 +38623,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38517,7 +38674,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38567,7 +38725,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38617,7 +38776,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38667,7 +38827,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38717,7 +38878,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38767,7 +38929,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38817,7 +38980,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38867,7 +39031,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38917,7 +39082,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -38967,7 +39133,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39017,7 +39184,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39067,7 +39235,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39117,7 +39286,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39167,7 +39337,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39217,7 +39388,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39267,7 +39439,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39317,7 +39490,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39367,7 +39541,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39417,7 +39592,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39467,7 +39643,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39517,7 +39694,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39567,7 +39745,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39617,7 +39796,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39667,7 +39847,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39717,7 +39898,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39767,7 +39949,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39817,7 +40000,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39867,7 +40051,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39917,7 +40102,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -39967,7 +40153,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40017,7 +40204,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40067,7 +40255,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40117,7 +40306,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40167,7 +40357,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40217,7 +40408,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40267,7 +40459,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40317,7 +40510,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40367,7 +40561,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40417,7 +40612,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40467,7 +40663,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40517,7 +40714,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40567,7 +40765,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40617,7 +40816,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40667,7 +40867,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40717,7 +40918,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40767,7 +40969,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40817,7 +41020,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40867,7 +41071,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40917,7 +41122,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -40967,7 +41173,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41017,7 +41224,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41067,7 +41275,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41117,7 +41326,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41167,7 +41377,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41217,7 +41428,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41267,7 +41479,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41317,7 +41530,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41367,7 +41581,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41417,7 +41632,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41467,7 +41683,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41517,7 +41734,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41567,7 +41785,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41617,7 +41836,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41667,7 +41887,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41717,7 +41938,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41767,7 +41989,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41817,7 +42040,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41867,7 +42091,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41917,7 +42142,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -41967,7 +42193,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42017,7 +42244,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42067,7 +42295,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42117,7 +42346,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42167,7 +42397,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42217,7 +42448,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42267,7 +42499,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42317,7 +42550,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42367,7 +42601,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42417,7 +42652,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42467,7 +42703,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42517,7 +42754,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42567,7 +42805,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42617,7 +42856,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42667,7 +42907,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42717,7 +42958,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42767,7 +43009,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42817,7 +43060,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42867,7 +43111,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42917,7 +43162,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -42967,7 +43213,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43017,7 +43264,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43067,7 +43315,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43117,7 +43366,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43167,7 +43417,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43217,7 +43468,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43267,7 +43519,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43317,7 +43570,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43367,7 +43621,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43417,7 +43672,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43467,7 +43723,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43517,7 +43774,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43567,7 +43825,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43617,7 +43876,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43667,7 +43927,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43717,7 +43978,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43767,7 +44029,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43817,7 +44080,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43867,7 +44131,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43917,7 +44182,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -43967,7 +44233,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44017,7 +44284,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44067,7 +44335,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44117,7 +44386,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44167,7 +44437,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44217,7 +44488,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44267,7 +44539,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44317,7 +44590,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44367,7 +44641,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44417,7 +44692,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44467,7 +44743,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44517,7 +44794,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44567,7 +44845,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     },
     {
@@ -44617,7 +44896,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.6
+      "Transparency": 0.6,
+      "CanQuery": false
      }
     }
    ],
@@ -54210,6 +54490,7 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Transparency": 1.0,
+      "CanQuery": false,
       "PivotOffset": {
        "CFrame": {
         "position": [

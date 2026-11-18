@@ -34,6 +34,7 @@ return function()
 			}, money)
 			expect(card.first).to.equal("cats")
 			expect(card.line).to.equal("Tier 3 needs a Rare or better cat.")
+			expect(card.rarity).to.equal("Rare")
 			card = NextGoal.card({
 				catsHave = 6,
 				catsNeed = 5,

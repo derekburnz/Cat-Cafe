@@ -36,6 +36,7 @@ export type Card = {
 	variant: string, -- "A" or "B"
 	line: string, -- the two goals in short words, over the buttons
 	first: string, -- "cats" or "cafe": the choice that blocks first (the primary button)
+	rarity: string?, -- the rarity Tier 3 still needs when the kinds are done (Collect cats trails to one), else nil
 }
 
 -- The report value for a shown variant or a tap target, or nil when it is neither.
@@ -97,6 +98,7 @@ function NextGoal.card(needs: Needs?, money: (number) -> string): Card
 	return {
 		variant = "A",
 		line = line,
+		rarity = if catsShort <= 0 and rareShort > 0 then needs.rarity else nil,
 		first = if catsShort > 0 or rareShort > 0 then "cats" else "cafe",
 	}
 end

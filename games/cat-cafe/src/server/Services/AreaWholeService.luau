@@ -179,14 +179,20 @@ local function keep(player: Player, areaId: string?)
 		return
 	end
 	-- A chunk of this area still waiting to come off (a quick trip out and back) stays on, and is not sent again.
+	local all: { Chunk } = list :: { Chunk }
 	local mine: { [Model]: boolean } = {}
-	for _, chunk in list do
+	for _, chunk in all do
 		mine[chunk.model] = true
 	end
 	local kept: { Chunk } = {}
 	local still: { Chunk } = {}
-	for _, chunk in dropping[player] or {} do
-		table.insert(if mine[chunk.model] then kept else still, chunk)
+	local queue: { Chunk } = dropping[player] or {}
+	for _, chunk in queue do
+		if mine[chunk.model] then
+			table.insert(kept, chunk)
+		else
+			table.insert(still, chunk)
+		end
 	end
 	dropping[player] = if #still > 0 then still else nil
 	local have: { [Model]: boolean } = {}
@@ -194,7 +200,7 @@ local function keep(player: Player, areaId: string?)
 		have[chunk.model] = true
 	end
 	local waiting: { Chunk } = {}
-	for _, chunk in list do
+	for _, chunk in all do
 		if not have[chunk.model] then
 			table.insert(waiting, chunk)
 		end

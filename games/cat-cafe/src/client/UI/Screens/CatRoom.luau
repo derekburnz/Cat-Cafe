@@ -412,6 +412,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 			end,
 		})
 		choice.instance.LayoutOrder = index
+		choice.instance.Visible = sort ~= "Boost" -- #5172: shown by _refresh while the follower slot is open
 		self._sortChoices[sort] = choice
 	end
 	-- Unequip All: every working cat rests (the UnequipAll remote, one sync), on a second tap within CONFIRM_SECONDS
@@ -1571,6 +1572,15 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		chip:setText(("%s %d"):format(filter, countOf[filter] or 0))
 		chip:setStyle(if filter == self._filter then "gold" else "ghost")
 	end
+	-- #5172: the Boost sort only while the follower slot is open; with it shut a Boost pick goes back to Best
+	local followView = self:_followerView()
+	if followView == nil and self._sort == "Boost" then
+		self._sort = "Best"
+	end
+	local boostChoice = self._sortChoices.Boost
+	if boostChoice then
+		boostChoice.instance.Visible = followView ~= nil
+	end
 	self._sortButton:setText("Sort: " .. self._sort .. " ▼")
 	self._sortButton:setStyle(if self._sort == "Best" then "ghost" else "gold")
 	for sort, choice in self._sortChoices do
@@ -1600,8 +1610,23 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	self:_paintAuto()
 
 	-- grid
-	local shown =
-		CatRoomList.list(cats, self._catById, rarityRank, self._filter, self._query, self._sort)
+	local boostOf: ((instance: Types.CatInstance) -> number)? = nil
+	if followView ~= nil then
+		local boost = if followView.boost == "luck" then "luck" else "money"
+		boostOf = function(instance: Types.CatInstance): number
+			local def = self._catById[instance.catId]
+			return Follower.amount(if def then def.rarity else nil, boost, instance.variant)
+		end
+	end
+	local shown = CatRoomList.list(
+		cats,
+		self._catById,
+		rarityRank,
+		self._filter,
+		self._query,
+		self._sort,
+		boostOf
+	)
 	local order: { [string]: number } = {}
 	for index, instance in shown do
 		order[instance.uid] = index

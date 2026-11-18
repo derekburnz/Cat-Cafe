@@ -76,10 +76,28 @@ return function()
 			)
 		end)
 
-		it("the Sort button steps round the three orders", function()
+		it("the Sort button steps round the four orders", function()
 			expect(CatRoomList.nextSort("Best")).to.equal("Rarity")
 			expect(CatRoomList.nextSort("Rarity")).to.equal("Level")
-			expect(CatRoomList.nextSort("Level")).to.equal("Best")
+			expect(CatRoomList.nextSort("Level")).to.equal("Boost")
+			expect(CatRoomList.nextSort("Boost")).to.equal("Best")
+		end)
+
+		-- #5172: the follower's best boost first, then the Rarity order
+		it("Boost is the best follower first, then the Rarity order", function()
+			local given: { [string]: number } = { a = 0.1, b = 0.3, e = 0.2 }
+			local function boostOf(instance: any): number
+				return given[instance.uid] or 0
+			end
+			expect(uids(CatRoomList.list(leveled, defs, rank, "All", "", "Boost", boostOf))).to.equal(
+				"b,e,a,c,d"
+			)
+		end)
+
+		it("Boost without a boost reader is the Best order", function()
+			expect(uids(CatRoomList.list(leveled, defs, rank, "All", "", "Boost"))).to.equal(
+				"d,c,b,e,a"
+			)
 		end)
 	end)
 

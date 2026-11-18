@@ -170209,24 +170209,24 @@
       "triangles": 2732,
       "budget": 6000,
       "size_studs": {
-        "x": 12.01,
-        "y": 1.5,
-        "z": 15.74
+        "x": 24.02,
+        "y": 3.0,
+        "z": 31.48
       },
       "size_roblox": [
-        12.01,
-        15.74,
-        1.5
+        24.02,
+        31.48,
+        3.0
       ],
       "bounds_min": [
-        -6.02,
-        -0.75,
+        -12.04,
+        -1.5,
         0.0
       ],
       "bounds_max": [
-        5.99,
-        0.75,
-        15.74
+        11.98,
+        1.5,
+        31.48
       ],
       "pivot": "base centre; the Screen's Front (-Z) face looks at the players",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -170248,7 +170248,7 @@
           "uv": "1496 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.01 y=0.00"
+          "centered": "footprint center x=-0.03 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_ThanksBoard.png",

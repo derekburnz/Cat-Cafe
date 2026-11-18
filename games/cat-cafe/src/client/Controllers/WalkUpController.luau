@@ -449,6 +449,24 @@ local function blocked(): boolean
 		or ui.intro.playing()
 end
 
+-- Review-QA and Sync on #5244 (touch): a station's one-time cut (MysticIntroCut, StationUnlockCut) turns the prompts off
+-- for its length, and the settle then kept that station's ring shut on the first walk-up, so a new player met it with
+-- no window. The settle starts only from the busy states it was made for (the intro, a flight, a carry, a catch or a
+-- rescue), never from the prompts being off on their own. The settleCutFree switch, on unless set false, turns this
+-- off (the prompts count again).
+local function settleBusy(): boolean
+	if ReplicatedStorage:GetAttribute("LiveFlag_settleCutFree") == false then
+		return blocked()
+	end
+	local ui: any = UI
+	local state = UIController.state
+	return (state ~= nil and state.carrying ~= nil)
+		or flying()
+		or ui.catch.circlesActive()
+		or ui.rescue.isActive()
+		or ui.intro.playing()
+end
+
 -- Sync 2026-11-18: the intro ended with a new player standing 1 stud from the bowl's ring, and its Bait window opened
 -- 0.1 s later with no tap. A ring the player is put into while busy (the intro, a flight, a catch) or in the
 -- SETTLE_SECONDS after counts as off, so it opens only once the player steps out and back in (WalkUp.step starts a
@@ -480,7 +498,7 @@ function WalkUpController.start()
 			task.wait(POLL_SECONDS)
 			local at = rootPosition()
 			local busy = blocked()
-			if busy then
+			if settleBusy() then
 				settleUntil = os.clock() + SETTLE_SECONDS
 			end
 			local settling = os.clock() < settleUntil

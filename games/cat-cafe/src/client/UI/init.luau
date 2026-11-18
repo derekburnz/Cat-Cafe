@@ -11108,9 +11108,17 @@ do
 		gift.buy = handler
 	end
 
+	-- Repaints only while the window shows (Review-QA on #5348): defaultView is a new table each sync, and opening it
+	-- paints it fresh anyway.
 	function UI.giftStall.render(_playerState: Types.PlayerState)
 		local window = gift.window
-		if window and gift.view == nil then
+		local modalView = modal
+		if
+			window
+			and gift.view == nil
+			and modalView ~= nil
+			and modalView:current() == "GiftStall"
+		then
 			window:render(currentView())
 		end
 	end

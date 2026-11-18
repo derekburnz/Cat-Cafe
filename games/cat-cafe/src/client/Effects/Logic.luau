@@ -1680,6 +1680,31 @@ function Logic.bellRing(o: Offsets, alpha: number)
 	end
 end
 
+-- Jingle's bell jiggle (Presets.christmasCats.jingle), `alpha` 0 to 1: the collar bell swings and settles. The head
+-- stays still (a smaller beat than the Bellhop's ring).
+function Logic.jingleBell(o: Offsets, alpha: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local j = Presets.christmasCats.jingle
+	local fade = (1 - alpha) * (1 - alpha)
+	o.bell += math.rad(j.degrees) * math.sin(alpha * j.swings * 2 * math.pi) * fade
+end
+
+-- A Christmas cat's glow part's LocalTransparencyModifier at `now` (Presets.christmasCats): `dayDim` by day; at night
+-- a twinkle between 0 and `nightDim` (offset by the cat's own `phase`); with Reduce Motion a steady 0 at night.
+function Logic.christmasGlow(now: number, night: boolean, phase: number, reduced: boolean): number
+	local c = Presets.christmasCats
+	if not night then
+		return c.dayDim
+	end
+	if reduced then
+		return 0
+	end
+	local wave = 0.5 + 0.5 * math.sin(now * 2 * math.pi / c.twinkleSeconds + phase)
+	return c.nightDim * wave
+end
+
 -- The Bellhop Cat tipping its cap (Presets.bellhop.tip), `alpha` 0 to 1: the cap lifts at the front with a small nod,
 -- holds a moment and settles back.
 function Logic.capTip(o: Offsets, alpha: number)

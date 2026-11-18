@@ -4740,6 +4740,23 @@ Presets.netTrail = {
 	colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
 }
 
+-- The Christmas cats' beats (snowglobe-village-spec section 4, Effects/ChristmasCats): which cats, the glow parts'
+-- name endings, and whether it wears a bell. Jingle's bell swings `degrees` either way, `swings` times over `seconds`,
+-- every `every` seconds (the first `firstMin` or more after it appears). A glow part shows `dayDim` of the way to
+-- clear by day; at night it twinkles between 0 and `nightDim` once every `twinkleSeconds`. Reduce Motion: no bell,
+-- steady glow.
+Presets.christmasCats = {
+	cats = {
+		jingle = { bell = true, glows = {} },
+		star_topper = { bell = false, glows = { "_Star_Glow", "_Bulbs_Glow" } },
+		sugar_plum = { bell = false, glows = { "_Gem_Glow", "_Wings_Glow" } },
+	} :: { [string]: { bell: boolean, glows: { string } } },
+	jingle = { seconds = 0.9, degrees = 22, swings = 3, every = { 7, 12 }, firstMin = 2 },
+	dayDim = 0.45,
+	nightDim = 0.25,
+	twinkleSeconds = 1.6,
+}
+
 -- The catch's result word (F93 section 3): as UI-Engineer's word slams in, sparkles burst off it in its colour and
 -- rings grow round it, the biggest for PURRFECT!; "So close!" gets none. The word is the first of `targets` found in
 -- CatCafeCatchCircles that shows within `wait` seconds of CatchResult. Sparkles are `size` pixels and fly up to

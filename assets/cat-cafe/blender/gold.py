@@ -54,7 +54,11 @@ def build_gold(name, mat, body="walk"):
     return cats.build_cat(name, mat, spec=gold_spec(name), base=f"CatCafe_Cat_{name}_Gold{cats.SUFFIX[body]}", body=body)
 
 
-# every roster cat but the exclusives (cats.has_gold: the Bellhop Cat, F96, is never gold)
-ASSETS = {f"CatCafe_Cat_{n}_Gold{cats.SUFFIX[bd]}": (lambda mat, n=n, bd=bd: build_gold(n, mat, bd),
-                                                     2400 if bd == "work" else 1500)
-          for n in cats.ROSTER if cats.has_gold(n) for bd in cats.BODIES}
+# #4656: the gold tone is always on (goldTone retired, PR #5196), so every gold cat is its base model toned in game
+# (shared/GoldTone) and the _Gold twins are no longer shipped: ASSETS is empty. TWINS keeps the builders, every roster
+# cat but the exclusives (cats.has_gold: the Bellhop Cat, F96, is never gold): build_all builds a cat's twin in memory
+# each time it writes the base cat, only so goldtone.stamp can read the gold look into the base's GoldTone attributes.
+TWINS = {f"CatCafe_Cat_{n}_Gold{cats.SUFFIX[bd]}": (lambda mat, n=n, bd=bd: build_gold(n, mat, bd),
+                                                    2400 if bd == "work" else 1500)
+         for n in cats.ROSTER if cats.has_gold(n) for bd in cats.BODIES}
+ASSETS = {}

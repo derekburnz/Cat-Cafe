@@ -19,6 +19,7 @@ import argparse
 import json
 import math
 import os
+import tempfile
 import sys
 import time
 
@@ -429,9 +430,6 @@ STUDIO_NOTES = {
                                  "the cat's role and remove the others (the greeter holds nothing). Turn the arms "
                                  "with the role's pose (manifest cat_poses work_<role>), which holds the thing upright."
        for n in cats.ROSTER},
-    **{f"CatCafe_Cat_{n}_Gold{sfx}": f"F42: clone this instead of CatCafe_Cat_{n}{sfx} when the cat is gold. Same "
-                                      "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
-       for n in cats.ROSTER if cats.has_gold(n) for sfx in cats.SUFFIX.values()},
     "CatCafe_Street_FishMarket": "F53: the Golden Fish Market in the street plaza (x -8.5, z 64, rotY -90); WorldBuilder "
                                  "tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter "
                                  "front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is "
@@ -754,8 +752,7 @@ for _fl in doorsets.FLAPS:                      # F80 cat flaps: on a back leaf'
 
 for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): Neon eye parts in Studio
     if _spec.get("glow_eyes"):
-        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") if g == "" or cats.has_gold(_n)
-                   for sfx in cats.SUFFIX.values()):
+        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("",) for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + " Glowing eyes: set the parts of the Eye1 and Eye2 Models "
                                 "to Neon.").strip()
     if props.slot(_n):                          # themed cats (data-model 3): the prop is part of the model
@@ -768,14 +765,20 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
         for _piece, _host in props.PIECES.get(_n, {}).items():
             _two += (f" The child Model <name>_{_piece} hangs inside <name>_{_host}, pivoted where it hangs, and rides "
                      + ("the Tail (Follows Tail)." if _host == "Tail" else "what that prop rides."))
-        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") if g == "" or cats.has_gold(_n)
-                   for sfx in cats.SUFFIX.values()):
+        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("",) for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + f" Prop: the {props.slot(_n)} prop is the child Model "
                                 f"<name>_Prop (and <name>_Prop_Glass, Glass) and rides {_rides}; PropSlot = "
                                 f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off." + _two).strip()
 
 
 BUBBLE_LIFT = 0.75                          # a shop cat's BubbleAnchor this far over its ear tips (Carry), unscaled
+
+
+def gold_twin_name(name):
+    """The _Gold twin's name for a base cat model with a gold look (#4656), else None."""
+    cat, is_gold, body = cats.parse(name)
+    twin = f"CatCafe_Cat_{cat}_Gold{cats.SUFFIX[body]}"
+    return None if is_gold or twin not in gold.TWINS else twin
 
 
 def cat_rbx_extras(name):
@@ -1018,9 +1021,15 @@ def main():
         rbx_path, rbx_parts = ((None, 0) if args.no_rbx or name in NO_RBX
                                else rbx_export.write_model(objs, name, rbx_dir, **extra))
         if rbx_path and name.startswith("CatCafe_Cat_"):      # #3918: the base cat's parts say how its gold twin differs
-            pair = goldtone.twin_paths(rbx_path)
-            if pair:
-                goldtone.stamp(*pair)
+            twin = gold_twin_name(name)
+            if twin:                                  # #4656: the twin is built in memory and never shipped
+                tobjs = gold.TWINS[twin][0](mat)
+                with tempfile.TemporaryDirectory() as tmp:
+                    tpath, _ = rbx_export.write_model(tobjs, twin, tmp, **cat_rbx_extras(twin))
+                    if tpath:
+                        goldtone.stamp(rbx_path, tpath)
+                for o in tobjs:
+                    bpy.data.objects.remove(o, do_unlink=True)
         spots_ok = None
         if rbx_path and name in spot_clear.SETTLE and name in areakit.POINTS:   # cat spots out of solid props
             blo, bhi = common.bounds(objs)

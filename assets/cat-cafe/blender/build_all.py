@@ -196,7 +196,7 @@ PIVOT_NOTES = {
     "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
     "CatCafe_Decor_StringLights": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
     "CatCafe_Alley_ShopWindow": "wall: back-bottom center",
-    **{f"CatCafe_Item_Net_L{n}": "grip end of the pole; the pole runs forward (Roblox -Z)" for n in (1, 2, 3, 4)},
+    **{f"CatCafe_Item_Net_L{n}": "grip end of the pole; the pole runs forward (Roblox -Z)" for n in (1, 2, 3, 4, 5, 6)},
     "CatCafe_Accessory_Glasses": "attachment point (see attach)",
     "CatCafe_Accessory_BowTie": "attachment point (see attach)",
     "CatCafe_Accessory_Apron": "attachment point (see attach)",
@@ -371,7 +371,7 @@ STUDIO_NOTES = {
                                  "Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child "
                                  "Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (open "
                                  "diamond-mesh netting, no see-through lining since 2026-11-03)."
-       for n in (1, 2, 3, 4)},
+       for n in (1, 2, 3, 4, 5, 6)},
     **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
                                  "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "
                                  "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "
@@ -927,6 +927,8 @@ def main():
             extra = {"attributes": {"Area": boards.AREA_OF[name]}}
         if name == "CatCafe_Street_CodesCat":     # the prompt's spot, and the cap rides the cat's Head
             extra = {"attachments": [stations.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Street_SpinWheel_Wheel9":   # #5171 spinCat: nine slices, the ninth a Secret cat
+            extra = {"attributes": {"SliceSpans": spinwheel.SLICE_SPANS9}}
         if name == "CatCafe_Street_SpinWheel":    # the Spin prompt's spot; the host's hat rides its Head, its outfit its Body
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"},
                      "model_attributes": {"_Wheel": {"SliceSpans": spinwheel.SLICE_SPANS}}}   # #1411: 8 slices

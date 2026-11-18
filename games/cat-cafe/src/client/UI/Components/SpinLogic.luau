@@ -95,9 +95,15 @@ function SpinLogic.share(rows: { Row }, row: Row): number
 	return math.max(0, row.weight) / total * 100
 end
 
--- The row's chance in percent, from its weight over all the weights: "30%", "2.5%".
+-- The row's chance in percent, from its weight over all the weights: "30%", "2.5%"; under 1% to two places, so
+-- #5171's 0.25% cat slice reads as it is ("0.25%", "0.5%").
 function SpinLogic.chance(rows: { Row }, row: Row): string
 	local percent = SpinLogic.share(rows, row)
+	if percent > 0 and percent < 1 then
+		local small = ("%.2f"):format(math.floor(percent * 100 + 0.5) / 100)
+		small = string.gsub(string.gsub(small, "0+$", ""), "%.$", "")
+		return small .. "%"
+	end
 	local rounded = math.floor(percent * 10 + 0.5) / 10
 	if rounded == math.floor(rounded) then
 		return ("%d%%"):format(rounded)

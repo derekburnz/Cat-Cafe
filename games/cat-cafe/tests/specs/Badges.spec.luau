@@ -65,51 +65,53 @@ return function()
 	end
 
 	describe("the list (section 1)", function()
-		it("is the 28 badges in badges-order.md's order, each with a Config key (#3618)", function()
-			local keys = {
-				"firstCatch",
-				"firstHome",
-				"firstUpgrade",
-				"firstFlight",
-				"welcome",
-				"grandOpening",
-				"cornerCafe",
-				"cozyCafe",
-				"busyCafe",
-				"famousCafe",
-				"grandCafe",
-				"sunstoneCafe",
-				"wonderCafe",
-				"purrfect",
-				"purrfectStreak",
-				"baitCat",
-				"rareFind",
-				"legendaryFind",
-				"mythicalFind",
-				"catCollector",
-				"catExpert",
-				"goldenCoat",
-				"rainbowCoat",
-				"pageComplete",
-				"helpingPaw",
-				"firstTrade",
-				"metOwner",
-			}
-			expect(#Badges.LIST).to.equal(#keys)
-			for i, key in keys do
-				local badge = Badges.LIST[i]
-				expect(badge.key).to.equal(key)
-				expect(Config.Badges[key]).to.be.a("number")
-				expect(#badge.name > 0).to.equal(true)
-				expect(#badge.description > 0).to.equal(true)
-				expect(Badges.get(key)).to.equal(badge)
+		it(
+			"is the badges in badges-order.md's order, each with a Config key (#3618, #5160)",
+			function()
+				local keys = {
+					"cornerCafe",
+					"cozyCafe",
+					"busyCafe",
+					"famousCafe",
+					"grandCafe",
+					"sunstoneCafe",
+					"wonderCafe",
+					"summitCafe",
+					"funfairCafe",
+					"royalCafe",
+					"purrfect",
+					"purrfectStreak",
+					"baitCat",
+					"rareFind",
+					"legendaryFind",
+					"mythicalFind",
+					"secretFind",
+					"catCollector",
+					"catExpert",
+					"catMaster",
+					"goldenCoat",
+					"rainbowCoat",
+					"pageComplete",
+					"helpingPaw",
+					"firstTrade",
+					"metOwner",
+				}
+				expect(#Badges.LIST).to.equal(#keys)
+				for i, key in keys do
+					local badge = Badges.LIST[i]
+					expect(badge.key).to.equal(key)
+					expect(Config.Badges[key]).to.be.a("number")
+					expect(#badge.name > 0).to.equal(true)
+					expect(#badge.description > 0).to.equal(true)
+					expect(Badges.get(key)).to.equal(badge)
+				end
+				local configKeys = 0
+				for _ in Config.Badges do
+					configKeys += 1
+				end
+				expect(configKeys).to.equal(#keys)
 			end
-			local configKeys = 0
-			for _ in Config.Badges do
-				configKeys += 1
-			end
-			expect(configKeys).to.equal(#keys)
-		end)
+		)
 
 		it("has one plain line per badge, never about buying, liking or inviting", function()
 			for _, badge in Badges.LIST do
@@ -124,11 +126,11 @@ return function()
 		end)
 
 		it("reads a 0, a fraction or a negative id as not made", function()
-			withIds({ welcome = 0, firstCatch = 1.5, cozyCafe = -4, grandOpening = 123 }, function()
-				expect(Badges.id("welcome")).to.equal(0)
-				expect(Badges.id("firstCatch")).to.equal(0)
+			withIds({ busyCafe = 0, famousCafe = 1.5, cozyCafe = -4, grandCafe = 123 }, function()
+				expect(Badges.id("busyCafe")).to.equal(0)
+				expect(Badges.id("famousCafe")).to.equal(0)
 				expect(Badges.id("cozyCafe")).to.equal(0)
-				expect(Badges.id("grandOpening")).to.equal(123)
+				expect(Badges.id("grandCafe")).to.equal(123)
 				expect(Badges.id("unknown")).to.equal(0)
 			end)
 		end)
@@ -140,20 +142,33 @@ return function()
 		end)
 
 		it(
-			"gives the first-hour badges: tutorial, first catch, Tier 2, roadmap, PURRFECT",
+			"gives the first-hour badges: Corner Cafe, Tier 2, PURRFECT, Bait Cat; none for the retired first steps (#5160)",
 			function()
 				local profile = fresh()
 				profile.tutorialStep = 4
-				expect(has(profile, "welcome")).to.equal(false)
+				expect(has(profile, "cornerCafe")).to.equal(false)
 				profile.tutorialStep = Badges.WELCOME_STEP
-				expect(has(profile, "welcome")).to.equal(true)
+				expect(has(profile, "cornerCafe")).to.equal(true)
 				profile.stats.grabsSucceeded = 1
-				expect(has(profile, "firstCatch")).to.equal(true)
+				profile.stats.catsCaught = 1
+				profile.stats.cannonFlights = 1
+				profile.grandOpening.finished = true
+				for _, retired in
+					{
+						"firstCatch",
+						"firstHome",
+						"firstUpgrade",
+						"firstFlight",
+						"welcome",
+						"grandOpening",
+					}
+				do
+					expect(Badges.get(retired)).to.equal(nil)
+					expect(has(profile, retired)).to.equal(false)
+				end
 				profile.tier = 2
 				expect(has(profile, "cozyCafe")).to.equal(true)
 				expect(has(profile, "busyCafe")).to.equal(false)
-				profile.grandOpening.finished = true
-				expect(has(profile, "grandOpening")).to.equal(true)
 				Badges.noteFinish(profile.stats, true)
 				expect(has(profile, "purrfect")).to.equal(true)
 				profile.stats.baitsTamed = 1
@@ -284,20 +299,9 @@ return function()
 		end)
 	end)
 
-	describe("the six new badges (#3618)", function()
+	describe("the tier ladder and the new badges (#3618, #5160)", function()
 		it("each reads only from the save", function()
 			local profile = fresh()
-			profile.stats.catsCaught = 1
-			expect(has(profile, "firstHome")).to.equal(true)
-			expect(has(profile, "firstUpgrade")).to.equal(false)
-			profile.upgradeLevels.tables = math.max(
-				profile.upgradeLevels.tables or 0,
-				Config.StartTables
-			) + 1
-			expect(has(profile, "firstUpgrade")).to.equal(true)
-			expect(has(profile, "firstFlight")).to.equal(false)
-			profile.stats.cannonFlights = 1
-			expect(has(profile, "firstFlight")).to.equal(true)
 			expect(has(profile, "cornerCafe")).to.equal(false)
 			profile.tutorialStep = Badges.WELCOME_STEP
 			expect(has(profile, "cornerCafe")).to.equal(true)
@@ -306,6 +310,19 @@ return function()
 			expect(has(profile, "wonderCafe")).to.equal(false)
 			profile.tier = 7
 			expect(has(profile, "wonderCafe")).to.equal(true)
+			expect(has(profile, "summitCafe")).to.equal(false)
+			profile.tier = 10
+			for _, key in { "summitCafe", "funfairCafe", "royalCafe" } do
+				expect(has(profile, key)).to.equal(true)
+			end
+			expect(has(profile, "secretFind")).to.equal(false)
+			profile.collection[catOf("Secret").id] = NOW
+			expect(has(profile, "secretFind")).to.equal(true)
+			local many = fresh()
+			collect(many, Badges.MASTER_CATS - 1 - Economy.distinctCats(many)) -- a fresh save may hold a starter cat
+			expect(has(many, "catMaster")).to.equal(false)
+			collect(many, 1)
+			expect(has(many, "catMaster")).to.equal(true)
 		end)
 	end)
 
@@ -315,13 +332,14 @@ return function()
 			profile.tutorialStep = 5
 			profile.stats.grabsSucceeded = 1
 			profile.tier = 3
-			withIds({ welcome = 11, firstCatch = 12, cozyCafe = 0, busyCafe = 14 }, function()
+			withIds({ cornerCafe = 11, cozyCafe = 0, busyCafe = 14, purrfect = 12 }, function()
+				profile.stats.purrfectCatches = 1
 				local due = Badges.due(profile, {}, {}, 100)
-				expect(table.concat(due, ",")).to.equal("firstCatch,welcome,busyCafe")
+				expect(table.concat(due, ",")).to.equal("cornerCafe,busyCafe,purrfect")
 				due = Badges.due(profile, { [12] = true }, { busyCafe = 160 }, 100)
-				expect(table.concat(due, ",")).to.equal("welcome")
+				expect(table.concat(due, ",")).to.equal("cornerCafe")
 				due = Badges.due(profile, { [12] = true }, { busyCafe = 160 }, 160)
-				expect(table.concat(due, ",")).to.equal("welcome,busyCafe")
+				expect(table.concat(due, ",")).to.equal("cornerCafe,busyCafe")
 			end)
 		end)
 
@@ -348,7 +366,7 @@ return function()
 		)
 
 		it(
-			"awards nothing before Tier 2, only First Catch and Cozy Cafe before Tier 3, everything from Tier 3 (#4775)",
+			"awards nothing before Tier 2, only Cozy Cafe before Tier 3, everything from Tier 3 (#4775, #5160)",
 			function()
 				local profile = fresh()
 				-- the bowl-first walk-through's whole run up to the Tier 2 rank up
@@ -367,16 +385,16 @@ return function()
 				withIds(ids, function()
 					-- Derek 2026-11-16 15:22 UTC: none at all in the walk-through, which ends at the Tier 2 rank up
 					expect(#Badges.due(profile, {}, {}, 0, { metOwner = true })).to.equal(0)
-					expect(Badges.allowed(profile, "firstCatch")).to.equal(false)
+					expect(Badges.allowed(profile, "cozyCafe")).to.equal(false)
 					profile.tier = 2
-					expect(#Badges.earned(profile) >= 8).to.equal(true)
+					expect(#Badges.earned(profile) >= 4).to.equal(true)
 					local due = Badges.due(profile, {}, {}, 0, { metOwner = true })
-					expect(table.concat(due, ",")).to.equal("firstCatch,cozyCafe")
-					expect(Badges.allowed(profile, "welcome")).to.equal(false)
+					expect(table.concat(due, ",")).to.equal("cozyCafe")
+					expect(Badges.allowed(profile, "cornerCafe")).to.equal(false)
 					expect(Badges.allowed(profile, "metOwner")).to.equal(false)
 					profile.tier = 3
 					due = Badges.due(profile, {}, {}, 0)
-					expect(table.find(due, "welcome") ~= nil).to.equal(true)
+					expect(table.find(due, "cornerCafe") ~= nil).to.equal(true)
 					expect(table.find(due, "baitCat") ~= nil).to.equal(true)
 					expect(table.find(due, "busyCafe") ~= nil).to.equal(true)
 					expect(Badges.allowed(profile, "metOwner")).to.equal(true)

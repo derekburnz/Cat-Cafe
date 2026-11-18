@@ -6,6 +6,8 @@
 #                                  players hold it and got it in the last day, description
 #   badges.sh create key[,key...]  creates each listed badge from the table below, at most 5 a run, with its icon from
 #                                  assets/cat-cafe/exports/icons/, enabled
+#   badges.sh disable id[,id...]   turns each listed badge off (#5160 badge cleanup), at most 10 a run; it stays on
+#                                  the universe and players who hold it keep it, it just leaves the game page
 #
 # Free only: every create sends expectedCost=0, so once the day's free badges are used up Roblox refuses the create
 # (error 18, "expected cost mismatch") instead of charging (R$100 each). Nothing here can spend Robux. A key whose
@@ -31,15 +33,17 @@ firstTrade|First Trade|Finish your first trade with another player.|CatCafe_Icon
 purrfectStreak|Purrfect Streak|Land 5 PURRFECT catches in a row.|CatCafe_Icon_Badge_PurrfectStreak.png
 partyGuest|Cafe Party Guest|Catch a cat during a Cafe Event.|CatCafe_Icon_Badge_PartyGuest.png
 metOwner|Met the Owner|Be in a server while the game'\''s owner is playing.|CatCafe_Icon_Badge_MetOwner.png
-firstHome|Home Sweet Home|Carry your first cat home to your cafe.|CatCafe_Icon_Badge_HomeSweetHome.png
-firstUpgrade|Fixing Up|Upgrade your cafe for the first time.|CatCafe_Icon_Badge_FixingUp.png
-firstFlight|Liftoff|Fly from the cannon for the first time.|CatCafe_Icon_Badge_Liftoff.png
 cornerCafe|Corner Cafe|Open your Tier 1 cafe.|CatCafe_Icon_Badge_CornerCafe.png
 sunstoneCafe|Sunstone Cafe|Rank your cafe up to Tier 6.|CatCafe_Icon_Badge_SunstoneCafe.png
-wonderCafe|Wonder Cafe|Rank your cafe up to Tier 7.|CatCafe_Icon_Badge_WonderCafe.png'
+wonderCafe|Wonder Cafe|Rank your cafe up to Tier 7.|CatCafe_Icon_Badge_WonderCafe.png
+summitCafe|Summit Cafe|Rank your cafe up to Tier 8.|CatCafe_Icon_Badge_SummitCafe.png
+funfairCafe|Funfair Cafe|Rank your cafe up to Tier 9.|CatCafe_Icon_Badge_FunfairCafe.png
+royalCafe|Royal Cafe|Rank your cafe up to Tier 10.|CatCafe_Icon_Badge_RoyalCafe.png
+secretFind|Secret Finder|Find a Secret cat.|CatCafe_Icon_Badge_SecretFind.png
+catMaster|Cat Master|Find 100 different cats.|CatCafe_Icon_Badge_CatMaster.png'
 
 usage() {
-	echo "usage: badges.sh list | create key[,key...] (at most 5; keys: $(cut -d'|' -f1 <<<"$TABLE" | paste -sd, -))" >&2
+	echo "usage: badges.sh list | disable id[,id...] | create key[,key...] (at most 5; keys: $(cut -d'|' -f1 <<<"$TABLE" | paste -sd, -))" >&2
 	exit 2
 }
 
@@ -119,8 +123,36 @@ create() {
 	[ "$failed" -eq 0 ]
 }
 
+disable() {
+	: "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (the workflow passes OWNER_KEY)}"
+	local ids=$1 done_=0 failed=0 status reply
+	[[ $ids =~ ^[0-9]+(,[0-9]+){0,9}$ ]] || {
+		echo "Give 1 to 10 badge ids, comma separated." >&2
+		exit 2
+	}
+	reply=$(mktemp)
+	IFS=, read -ra list_ids <<<"$ids"
+	for id in "${list_ids[@]}"; do
+		status=$(curl -sS -o "$reply" -w '%{http_code}' -X PATCH \
+			"https://apis.roblox.com/legacy-badges/v1/badges/$id" \
+			-H "x-api-key: $ROBLOX_PUBLISH_KEY" -H "Content-Type: application/json" \
+			-d '{"enabled":false}') || status=000
+		if [ "$status" = 200 ]; then
+			echo "$id: off"
+			done_=$((done_ + 1))
+		else
+			echo "$id: HTTP $status $(jq -c '.errors // .' "$reply" 2>/dev/null | head -c 300)" >&2
+			failed=$((failed + 1))
+		fi
+	done
+	rm -f "$reply"
+	echo "turned off $done_, failed $failed"
+	[ "$failed" -eq 0 ]
+}
+
 case "${1:-}" in
 list) list ;;
+disable) [ $# -eq 2 ] || usage; disable "$2" ;;
 create) [ $# -eq 2 ] || usage; create "$2" ;;
 *) usage ;;
 esac

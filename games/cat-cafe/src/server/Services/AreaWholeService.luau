@@ -172,7 +172,12 @@ local function cutAll()
 				continue
 			end
 			local model = child :: Model
-			if model.ModelStreamingMode ~= Enum.ModelStreamingMode.Default then
+			-- Review-QA: never an area or a plot that sits near the square
+			if
+				model.ModelStreamingMode ~= Enum.ModelStreamingMode.Default
+				or model:GetAttribute("Area") ~= nil
+				or CollectionService:HasTag(model, "Plot")
+			then
 				continue
 			end
 			local at = model:GetBoundingBox().Position

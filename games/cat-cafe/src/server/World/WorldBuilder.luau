@@ -2973,6 +2973,11 @@ function WorldBuilder.setRally(on: boolean)
 	local holder = rallyHolder()
 	for _, swap in rallySwaps do
 		local plain = swap.plain
+		-- Review-QA on #5229: areaWhole cuts the square into Chunk Models, so the swap goes back to where the plain
+		-- prop stands now, not the TownSquare folder
+		if on and plain ~= nil and plain.Parent ~= nil and plain.Parent ~= (holder :: Instance) then
+			swap.home = plain.Parent :: Instance
+		end
 		if plain ~= nil then
 			plain.Parent = if on then holder else swap.home
 		end

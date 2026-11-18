@@ -250,6 +250,11 @@ end
 -- #4845 (Derek 2026-11-16: "make it 3 circles so people understand the minigame"): how many rings a held tutorial
 -- catch runs, each stopping on its ring until the press
 Circles.GUIDED_RINGS = 3
+-- #5232 (Derek 2026-11-18: "make the circles closing faster for the first cat since they get stopped on the circle
+-- anyways"): with the quickFirstRings switch on, a held ring shrinks this fast (TutorialShrinkSeconds, 1.6, before).
+-- It still stops on its ring and waits for the press, so the speed never decides the catch.
+Circles.QUICK_FIRST_FLAG = "quickFirstRings"
+Circles.HELD_SHRINK_SECONDS = 0.7
 
 -- F87 (easy-start.md section 2b): a beginner's own tutorial stray, a Common, is caught on one circle that shrinks
 -- for TutorialShrinkSeconds with no jitter, judged with the Common's bands for `netLevel` made TutorialWindowScale
@@ -263,12 +268,18 @@ end
 -- `hold` (#2920): the ring stops on its target and waits for the press (a player's very first catch). #4845: a held
 -- catch runs GUIDED_RINGS rings on the usual beat, each held the same way; a ring after a held one starts as much
 -- later as the press on that one came after its target (Circles.shiftAfter), so each waits its turn.
+-- `quick` (#5232, the quickFirstRings switch): held rings shrink in HELD_SHRINK_SECONDS; a ring that is not held is
+-- unchanged.
 function Circles.tutorialSchedule(
 	now: number,
 	roll: () -> number,
-	hold: boolean?
+	hold: boolean?,
+	quick: boolean?
 ): { Types.CatchCircle }
 	local held = hold == true
+	local shrink = if held and quick == true
+		then Circles.HELD_SHRINK_SECONDS
+		else Config.TutorialShrinkSeconds
 	local circles: { Types.CatchCircle } = {}
 	for ring = 1, if held then Circles.GUIDED_RINGS else 1 do
 		local previous = circles[ring - 1]
@@ -276,7 +287,7 @@ function Circles.tutorialSchedule(
 			startsAt = if previous ~= nil
 				then previous.startsAt + previous.shrinkSeconds + Config.CircleGapMin
 				else now + Config.CircleLeadInSeconds,
-			shrinkSeconds = Config.TutorialShrinkSeconds,
+			shrinkSeconds = shrink,
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
 			kind = "single" :: Types.CircleKind,

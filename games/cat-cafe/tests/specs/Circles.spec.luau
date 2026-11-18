@@ -571,6 +571,27 @@ return function()
 				Circles.target(circles[1])
 		end
 
+		-- #5232: with quickFirstRings a held ring shrinks in HELD_SHRINK_SECONDS; a ring that is not held, and the switch
+		-- off, keep TutorialShrinkSeconds
+		it("shrinks held rings in 0.7 s with quickFirstRings", function()
+			expect(Circles.HELD_SHRINK_SECONDS).to.equal(0.7)
+			local quick = Circles.tutorialSchedule(NOW, constant(0.5), true, true)
+			expect(#quick).to.equal(Circles.GUIDED_RINGS)
+			for index, circle in quick do
+				expect(circle.shrinkSeconds).to.equal(0.7)
+				expect(circle.hold).to.equal(true)
+				if index > 1 then
+					local before = quick[index - 1]
+					expect(circle.startsAt).to.equal(before.startsAt + 0.7 + Config.CircleGapMin)
+				end
+			end
+			local slow = Circles.tutorialSchedule(NOW, constant(0.5), true, false)
+			expect(slow[1].shrinkSeconds).to.equal(Config.TutorialShrinkSeconds)
+			local plain = Circles.tutorialSchedule(NOW, constant(0.5), false, true)
+			expect(#plain).to.equal(1)
+			expect(plain[1].shrinkSeconds).to.equal(Config.TutorialShrinkSeconds)
+		end)
+
 		it("marks the ring and sends how long it waits", function()
 			local circles = Circles.tutorialSchedule(NOW, constant(0.5), true)
 			expect(circles[1].hold).to.equal(true)

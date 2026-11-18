@@ -2876,7 +2876,12 @@ function startCatch(
 		and M.Config.CatchHoldFirstRing
 		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
 	local circles: { Types.CatchCircle } = if tutorial -- typed: luau-lsp cannot iterate the if's union (#4814)
-		then Circles.tutorialSchedule(now, roll, hold)
+		then Circles.tutorialSchedule(
+			now,
+			roll,
+			hold,
+			M.LiveFlagService.on(Circles.QUICK_FIRST_FLAG) -- #5232: held rings shrink in 0.7 s
+		)
 		else Circles.schedule(
 			stray.def.rarity,
 			netLevel,

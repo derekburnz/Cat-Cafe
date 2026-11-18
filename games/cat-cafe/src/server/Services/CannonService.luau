@@ -22,6 +22,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
+local AreaWholeService = require(script.Parent.AreaWholeService)
 local CafeRoom = require(ReplicatedStorage.Shared.CafeRoom)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatService = require(script.Parent.CatService)
@@ -232,6 +233,8 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonTo", destination)
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
+	-- Derek 2026-11-18 (areaWhole): the destination area starts streaming in whole now, during the flight
+	AreaWholeService.heading(player, destination)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
 	if area ~= nil then
 		Telemetry.tripPicked(player, profile, destination, false) -- #4544: the AreaVisit journey

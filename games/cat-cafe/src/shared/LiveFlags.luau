@@ -132,6 +132,7 @@ LiveFlags.KEYS = {
 	"tablesSpread", -- #3867/#4763: one more table a tier, 3, 4 and 5 at Tiers 2 to 4 (shared/TablesSpread); off by default
 	"strayWalkSlow", -- #4601: a server stray walk writes its model at 10 Hz, not 60, and the client eases between (shared/Mover); off by default
 	"firstRankLock", -- Derek 2026-11-17: the first Rank Up window stays up while ready, dimmed, arrow on RANK UP (shared/RankUpRightAway.locked); off by default
+	"likeAskEarly", -- #5152: the like ask on the first UTC day at the first Park or Rare catch, as a card (shared/Tips.likeEarly); off by default
 	"tradeSpot", -- #5158: after "Trading unlocked!" the Trade tile is ringed with the dim and arrow for a moment (UI.tradeSpot); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
@@ -189,6 +190,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tablesSpread = true, -- #4763: on about 06:00 UTC Thu Nov 19, a UTC day apart from the funnel switches; Growth reads it
 	strayWalkSlow = true, -- #4601: on once Effects/Pose eases between the writes and a Studio walk looks the same
 	firstRankLock = true, -- Derek 2026-11-17 20:12 UTC: on after Review-QA and Sync's Studio pass
+	likeAskEarly = true, -- #5152: on after Review-QA's QoL and phone sizing checks
 	tradeSpot = true, -- #5158: on after Review-QA and Sync's Studio pass
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

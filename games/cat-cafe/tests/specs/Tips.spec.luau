@@ -539,6 +539,50 @@ return function()
 		end)
 	end)
 
+	describe("the early like ask (#5152, likeAskEarly)", function()
+		local DAY_NO = 20774
+		local function day1(tier: number, played: number): any
+			local profile = fresh()
+			profile.telemetry.firstDay = DAY_NO
+			profile.tier = tier
+			profile.stats.playtimeSeconds = played
+			return profile
+		end
+		local parkCommon: any = { area = "park", rarity = "Common" }
+		local alleyCommon: any = { area = "alley", rarity = "Common" }
+		local alleyRare: any = { area = "alley", rarity = "Rare" }
+		local alleyEpic: any = { area = "alley", rarity = "Epic" }
+
+		it("names the moment: a Park catch after the rank up, else a Rare or better", function()
+			local ten = Tips.LIKE_EARLY_SECONDS
+			expect(ten).to.equal(600)
+			expect(Tips.likeEarly(day1(2, ten), DAY_NO, nil, parkCommon)).to.equal("park_catch")
+			expect(Tips.likeEarly(day1(2, ten), DAY_NO, nil, alleyRare)).to.equal("rare_catch")
+			expect(Tips.likeEarly(day1(1, ten), DAY_NO, nil, alleyEpic)).to.equal("rare_catch")
+			expect(Tips.likeEarly(day1(2, ten), DAY_NO, nil, alleyCommon)).to.equal(nil)
+			-- a Park cat before the rank up is not the Park moment
+			expect(Tips.likeEarly(day1(1, ten), DAY_NO, nil, parkCommon)).to.equal(nil)
+		end)
+
+		it("only on the first UTC day, after 10 minutes of play, while the like ask has not shown", function()
+			local ten = Tips.LIKE_EARLY_SECONDS
+			expect(Tips.likeEarly(day1(2, ten - 1), DAY_NO, nil, alleyRare)).to.equal(nil)
+			expect(Tips.likeEarly(day1(2, 0), DAY_NO, ten, alleyRare)).to.equal("rare_catch") -- this session's play
+			expect(Tips.likeEarly(day1(2, ten), DAY_NO + 1, nil, alleyRare)).to.equal(nil)
+			local seen = day1(2, ten)
+			seen.tipsSeen[Tips.LIKE_ASK] = true
+			expect(Tips.likeEarly(seen, DAY_NO, nil, parkCommon)).to.equal(nil)
+		end)
+
+		it("keeps the recap line's mark like an ask", function()
+			expect(Tips.seenId(Tips.LIKE_RECAP)).to.equal(true)
+			expect(Tips.isAsk(Tips.LIKE_RECAP)).to.equal(false) -- never a dueAsk ask
+			local kept = Tips.sanitizeSeen({ [Tips.LIKE_RECAP] = true }, false)
+			expect(kept[Tips.LIKE_RECAP]).to.equal(true)
+			expect(Tips.cleared({ [Tips.LIKE_RECAP] = true })[Tips.LIKE_RECAP]).to.equal(true)
+		end)
+	end)
+
 	describe("constants (section 6)", function()
 		it("matches the design's timings", function()
 			expect(Config.StuckNudgeSeconds).to.equal(40)

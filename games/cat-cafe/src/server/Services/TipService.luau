@@ -30,6 +30,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Net = require(script.Parent.Net)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
@@ -52,6 +53,8 @@ type Session = {
 	logged: number, -- tip_shown events logged this session (review S103: ClearTips must not refill the budget)
 	asked: boolean, -- F96: this session's one ask went out
 	introAt: number?, -- #3430: os.clock() the Mystic Pool cutscene started this session, until its end is logged
+	likeMoment: string?, -- #5152: the early like ask's moment (park_catch or rare_catch), once sent this session
+	likeEarly: boolean?, -- #5152: the early like card showed this session, so its recap line may follow once
 }
 
 -- tip_shown events a session: every tip once. Past it tips are still saved, just not logged.
@@ -139,7 +142,40 @@ local function askSeen(
 		{ string.sub(id, 1, #id - #"_ask"), tostring(profile.stats.sessions) }
 	)
 	if id == Tips.LIKE_ASK then
-		Telemetry.likeAskShown(player, profile) -- #2681
+		-- #2681; #5152: with the early ask's moment, or "standard" for dueAsk's (a Legendary or a later day)
+		local early = session.likeMoment
+		session.likeEarly = early ~= nil
+		Telemetry.likeAskShown(player, profile, early or "standard")
+	end
+end
+
+-- #5152: the likeAskEarly switch as LiveFlagService copied it to ReplicatedStorage; off until it reads true.
+local function likeEarlyOn(): boolean
+	local key = Tips.LIKE_EARLY_FLAG
+	return LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
+end
+
+-- #5152 (likeAskEarly): a cat `player` just caught. On the account's first UTC day, past LIKE_EARLY_SECONDS of
+-- play, the first Park catch after the rank up or the first Rare or better sends the like ask (Tips.likeEarly), once
+-- a session. It does not wait for or take the session's one dueAsk ask: the client paces the two apart.
+function TipService.caught(player: Player, def: Types.CatDef)
+	local session = sessionOf(player)
+	local profile = DataService.get(player)
+	if session == nil or profile == nil or session.likeMoment ~= nil or not likeEarlyOn() then
+		return
+	end
+	local moment =
+		Tips.likeEarly(profile, os.time() // 86400, PlayTime.seconds(player, profile), def)
+	if moment == nil then
+		return
+	end
+	if session.sent[Tips.LIKE_ASK] then
+		session.likeMoment = moment -- dueAsk's like ask is already on its way; this catch names its moment
+		return
+	end
+	session.likeMoment = moment
+	if not TipService.show(player, Tips.LIKE_ASK) then
+		session.likeMoment = nil
 	end
 end
 
@@ -190,6 +226,15 @@ local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown, ra
 	end
 	local wasSent = session.sent[id] == true
 	session.sent[id] = nil
+	-- #5152: the exit recap card's like line, once an account, only after this session's early like card
+	if id == Tips.LIKE_RECAP then
+		if session.likeEarly == true and profile.tipsSeen[Tips.LIKE_RECAP] ~= true then
+			session.likeEarly = false
+			profile.tipsSeen[Tips.LIKE_RECAP] = true
+			Telemetry.likeAskShown(player, profile, "recap")
+		end
+		return
+	end
 	if Tips.isAsk(id) then
 		-- only an ask this session sent, so a client cannot log or put one away at will
 		if wasSent and profile.tipsSeen[id] ~= true then

@@ -2821,7 +2821,7 @@ Layout.dayCart = ringSpot(-22.31, 69.13, -18.1) -- #5224 v5; sideStation(SIDE_X,
 -- with the night dealer's cart parked in front of it. Model-Agent's spot: it runs from about (34, -25) to (40, -15),
 -- clear of the row's corner by 2.5 studs, the east bench behind it by 5, the south bench by 3.1 and the lane by 8.4.
 -- #4667: on the south edge between two lamps, facing straight in along the street; (47, -79) before
-Layout.thanksBoard = ringSpot(-20.5, -77.0, 180) -- #5224 v5; endStation(33.125, -82)
+Layout.thanksBoard = ringSpot(-20.5, -76.3, 180) -- #5224 v5; endStation(33.125, -82)
 
 -- #3070: two spots the bigger square keeps free, mirrored either side of the street north of the lane, each facing
 -- the cannon: the feedback stand's (#3066, CatCafe_Town_FeedbackStand, a mailbox that opens the feedback box) and
@@ -2830,7 +2830,7 @@ Layout.thanksBoard = ringSpot(-20.5, -77.0, 180) -- #5224 v5; endStation(33.125,
 -- the stand leaves (34, 18) for the east side south of the lane, on the Thanks board's right as you face the board,
 -- between the night cart and the leaderboard row (9.3 off every body, 4.7 off the lamps and benches). The arcade's
 -- spot north of the lane stayed until #3359 (below).
-Layout.feedbackStand = ringSpot(-34.51, -56.61, -148.6) -- #5224 v5; sideStation(SIDE_X, -SLOT_Z[3]) -- #4667; (26, -56) before
+Layout.feedbackStand = ringSpot(-33.51, -58.19, -150.1) -- #5224 v5; sideStation(SIDE_X, -SLOT_Z[3]) -- #4667; (26, -56) before
 -- #3359 (Derek2 2026-11-11: "the arcade is too close to spin and the circle is on top of it"): at (-34, 18) the
 -- cabinet's walk-in ring lay over the cabinet and 0.4 studs into the Spin Wheel's ring. It stands 9 studs further
 -- west now, between the wheel and the Bellhop stand: its ring (touching its front, Arcade.RING_RANGE) is 3 studs off

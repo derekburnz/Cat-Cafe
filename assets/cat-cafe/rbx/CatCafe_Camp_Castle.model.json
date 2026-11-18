@@ -9927,7 +9927,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         55.0,
+         55.14,
          13.3,
          -302.0
         ],
@@ -10027,7 +10027,7 @@
         "position": [
          58.6,
          2.4,
-         -294.4
+         -294.33
         ],
         "orientation": [
          [
@@ -10076,7 +10076,7 @@
         "position": [
          58.6,
          2.4,
-         -294.26
+         -294.19
         ],
         "orientation": [
          [
@@ -15815,7 +15815,7 @@
         "position": [
          70.0,
          10.72,
-         -306.15
+         -306.55
         ],
         "orientation": [
          [
@@ -15839,7 +15839,7 @@
       "Size": [
        0.14,
        0.14,
-       0.36
+       1.1
       ],
       "Color": [
        0.3686,
@@ -15848,9 +15848,9 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": false,
+      "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -15907,7 +15907,7 @@
         "position": [
          70.0,
          8.4,
-         -306.24
+         -306.94
         ],
         "orientation": [
          [
@@ -15985,7 +15985,7 @@
         "position": [
          70.0,
          10.72,
-         -306.22
+         -306.92
         ],
         "orientation": [
          [
@@ -16034,7 +16034,7 @@
         "position": [
          70.0,
          8.928,
-         -306.18
+         -306.88
         ],
         "orientation": [
          [
@@ -16083,7 +16083,7 @@
         "position": [
          69.35,
          5.9,
-         -306.24
+         -306.94
         ],
         "orientation": [
          [
@@ -16132,7 +16132,7 @@
         "position": [
          70.65,
          5.9,
-         -306.24
+         -306.94
         ],
         "orientation": [
          [
@@ -16179,7 +16179,7 @@
       "position": [
        70.0,
        10.72,
-       -306.3
+       -307.0
       ],
       "orientation": [
        [
@@ -16398,7 +16398,7 @@
         "position": [
          44.0,
          10.72,
-         -300.15
+         -300.55
         ],
         "orientation": [
          [
@@ -16422,7 +16422,7 @@
       "Size": [
        0.14,
        0.14,
-       0.36
+       1.1
       ],
       "Color": [
        0.3686,
@@ -16431,9 +16431,9 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": false,
+      "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -16490,7 +16490,7 @@
         "position": [
          44.0,
          8.4,
-         -300.24
+         -300.94
         ],
         "orientation": [
          [
@@ -16568,7 +16568,7 @@
         "position": [
          44.0,
          10.72,
-         -300.22
+         -300.92
         ],
         "orientation": [
          [
@@ -16617,7 +16617,7 @@
         "position": [
          44.0,
          8.928,
-         -300.18
+         -300.88
         ],
         "orientation": [
          [
@@ -16666,7 +16666,7 @@
         "position": [
          43.35,
          5.9,
-         -300.24
+         -300.94
         ],
         "orientation": [
          [
@@ -16715,7 +16715,7 @@
         "position": [
          44.65,
          5.9,
-         -300.24
+         -300.94
         ],
         "orientation": [
          [
@@ -16762,7 +16762,7 @@
       "position": [
        44.0,
        10.72,
-       -300.3
+       -301.0
       ],
       "orientation": [
        [
@@ -18241,7 +18241,7 @@
         "position": [
          -70.0,
          10.72,
-         -306.15
+         -306.55
         ],
         "orientation": [
          [
@@ -18265,7 +18265,7 @@
       "Size": [
        0.14,
        0.14,
-       0.36
+       1.1
       ],
       "Color": [
        0.3686,
@@ -18274,9 +18274,9 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": false,
+      "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -18333,7 +18333,7 @@
         "position": [
          -70.0,
          8.4,
-         -306.24
+         -306.94
         ],
         "orientation": [
          [
@@ -18411,7 +18411,7 @@
         "position": [
          -70.0,
          10.72,
-         -306.22
+         -306.92
         ],
         "orientation": [
          [
@@ -18460,7 +18460,7 @@
         "position": [
          -70.0,
          8.928,
-         -306.18
+         -306.88
         ],
         "orientation": [
          [
@@ -18509,7 +18509,7 @@
         "position": [
          -70.65,
          5.9,
-         -306.24
+         -306.94
         ],
         "orientation": [
          [
@@ -18558,7 +18558,7 @@
         "position": [
          -69.35,
          5.9,
-         -306.24
+         -306.94
         ],
         "orientation": [
          [
@@ -18605,7 +18605,7 @@
       "position": [
        -70.0,
        10.72,
-       -306.3
+       -307.0
       ],
       "orientation": [
        [
@@ -18824,7 +18824,7 @@
         "position": [
          -30.0,
          10.72,
-         -293.15
+         -293.55
         ],
         "orientation": [
          [
@@ -18848,7 +18848,7 @@
       "Size": [
        0.14,
        0.14,
-       0.36
+       1.1
       ],
       "Color": [
        0.3686,
@@ -18857,9 +18857,9 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
-      "CastShadow": false,
+      "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
@@ -18916,7 +18916,7 @@
         "position": [
          -30.0,
          8.4,
-         -293.24
+         -293.94
         ],
         "orientation": [
          [
@@ -18994,7 +18994,7 @@
         "position": [
          -30.0,
          10.72,
-         -293.22
+         -293.92
         ],
         "orientation": [
          [
@@ -19043,7 +19043,7 @@
         "position": [
          -30.0,
          8.928,
-         -293.18
+         -293.88
         ],
         "orientation": [
          [
@@ -19092,7 +19092,7 @@
         "position": [
          -30.65,
          5.9,
-         -293.24
+         -293.94
         ],
         "orientation": [
          [
@@ -19141,7 +19141,7 @@
         "position": [
          -29.35,
          5.9,
-         -293.24
+         -293.94
         ],
         "orientation": [
          [
@@ -19188,7 +19188,7 @@
       "position": [
        -30.0,
        10.72,
-       -293.3
+       -294.0
       ],
       "orientation": [
        [

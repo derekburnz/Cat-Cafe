@@ -303,7 +303,7 @@ def wall_turret(mat, h=16.0, k=0):
         b.cyl_base((0, WALL_D / 2, h - 4.0), 2.3, 0.8, STONE_DARK, segments=10, bevel=False)
         b.cyl_base((0, WALL_D / 2, h - 3.2), 2.5, 3.2, (RED, NAVY)[k % 2], segments=10, radius2=0.15, bevel=False)
         b.cyl_base((0, WALL_D / 2, h), 0.08, 2.2, IRON, segments=6, bevel=False)
-        b.box((0.8, WALL_D / 2, h + 1.6), (1.6, 0.06, 0.9), GOLD, bevel=False)
+        b.box((0.9, WALL_D / 2, h + 1.6), (1.6, 0.06, 0.9), GOLD, bevel=False)   # #5207: starts at the mast's edge
     return [b.finalize(N + "WallTurret", mat)]
 
 
@@ -595,10 +595,10 @@ def pavilion(mat, k=0):
     b.cyl_base((0, 0, 6.7), 6.4, 4.4, MILK, segments=n, radius2=0.4, bevel=False)
     b.cyl_base((0, 0, 9.0), 3.3, 2.2, c, segments=n, radius2=0.5, bevel=False)
     b.cyl_base((0, 0, 11.0), 0.12, 3.0, IRON, segments=6, bevel=False)
-    b.box((1.0, 0, 13.3), (2.0, 0.08, 1.1), GOLD, bevel=False)
+    b.box((1.14, 0, 13.3), (2.0, 0.08, 1.1), GOLD, bevel=False)                  # #5207: starts at the mast's edge
     b.box_base((4.6, -7.4, 0), (0.3, 0.3, 3.0), WOOD_DARK, bevel=False)
-    b.box((4.6, -7.6, 2.4), (1.8, 0.2, 2.2), c, bevel=False)
-    b.box((4.6, -7.74, 2.4), (0.7, 0.1, 0.7), GOLD, bevel=False, rot=(PI / 4, "Y"))
+    b.box((4.6, -7.67, 2.4), (1.8, 0.2, 2.2), c, bevel=False)                    # #5207: in front of its post
+    b.box((4.6, -7.81, 2.4), (0.7, 0.1, 0.7), GOLD, bevel=False, rot=(PI / 4, "Y"))
     return [b.finalize(N + "Pavilion", mat)]
 
 
@@ -651,10 +651,12 @@ def banner_pole(mat, k=0, h=11.0):
     b.cyl_base((0, 0, 0), 0.9, 0.5, STONE_DARK, segments=8, bevel=False)
     b.cyl_base((0, 0, 0.5), 0.18, h, WOOD_DARK, segments=6, bevel=False)
     b.ico((0, 0, h + 0.7), 0.3, GOLD, subdivisions=1)
-    b.box((0, 0.15, h - 0.28), (0.14, 0.36, 0.14), WOOD_DARK, bevel=False)      # the arm the banner hangs from
+    # #5207: the arm reaches 1.1 out so the cloth (its back 0.9 from the pole's axis) clears the pole all through its
+    # 6 degree sway; the bottom of the tails moves about 0.54 toward the pole, leaving 0.18 to the pole's side
+    b.box((0, 0.55, h - 0.28), (0.14, 1.1, 0.14), WOOD_DARK, bevel=False)       # the arm the banner hangs from
     c = Builder()                    # the cloth and its bar sway on the arm: the child Model ..._BannerPole_Swing
-    _banner(c, 0, 0.3, h - 2.6, 2.6, 4.4, BANNERS[k % 4])
-    return [b.finalize(N + "BannerPole", mat), hinge(c.finalize(N + "BannerPole_Swing", mat), (0, 0.3, h - 0.28))]
+    _banner(c, 0, 1.0, h - 2.6, 2.6, 4.4, BANNERS[k % 4])
+    return [b.finalize(N + "BannerPole", mat), hinge(c.finalize(N + "BannerPole_Swing", mat), (0, 1.0, h - 0.28))]
 
 
 def moat(mat):
@@ -795,7 +797,7 @@ def round_tower(mat, r=7.0, h=30.0, k=0):
                    rot=(a + PI / 2, "Z"))
     b.cyl_base((0, 0, h - 2.4), r - 0.6, 6.5, (RED, NAVY)[k % 2], segments=14, radius2=0.2, bevel=False)
     b.cyl_base((0, 0, h + 4.0), 0.1, 3.0, IRON, segments=6, bevel=False)
-    b.box((1.1, 0, h + 6.2), (2.2, 0.08, 1.2), GOLD, bevel=False)
+    b.box((1.22, 0, h + 6.2), (2.2, 0.08, 1.2), GOLD, bevel=False)               # #5207: starts at the mast's edge
     for i in range(3):
         a = -PI / 2 + (i - 1) * 0.9
         b.box(((r + 0.02) * math.cos(a), (r + 0.02) * math.sin(a), h * 0.45), (0.5, 0.12, 2.4), IRON, bevel=False,
@@ -1002,7 +1004,7 @@ def trap_banner_pole(mat):
     b.cyl_base((0, 0, 0.4), 1.0, TRAP_POLE_Y - 0.4, STONE, segments=10, bevel=False)
     b.cyl_base((0, 0.75, 0), 0.2, 5.4, WOOD_DARK, segments=6, bevel=False)
     b.ico((0, 0.75, 5.6), 0.3, GOLD, subdivisions=1)
-    b.box((0.9, 0.75, 4.6), (1.6, 0.08, 1.4), RED, bevel=False)
+    b.box((1.02, 0.75, 4.6), (1.6, 0.08, 1.4), RED, bevel=False)                 # #5207: beside the pole, not through it
     return [b.finalize(N + "TrapBannerPole", mat)]
 
 

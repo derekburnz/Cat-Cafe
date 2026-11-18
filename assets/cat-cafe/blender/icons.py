@@ -32,6 +32,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_Badge_<Name>  the Roblox badges (#1934, badge_icons.py): a round gold-rimmed medal with one picture
   CatCafe_Icon_Lawn_<Name>  the Garden Nursery's lawn pieces, paths and fences (#2836 pass 2, lawn.py), named after
                             the model (CatCafe_Lawn_<Name>)
+  CatCafe_Icon_XpFood_<Food>  the five XP cat foods on the mint XP plate (#5225, xpsnacks.py)
   CatCafe_Icon_Menu_<Id>    the F90 order bubble pictures (#950): each of the 12 menu dishes on its plate (menu.py),
                             Coffee, Milk, CakeSlice, PawCookie, Tea, FishBiscuit, KittyCupcake, HotCocoa,
                             PancakeStack, Sundae, StrawberryRoll and RainbowCake, from the front and a little above
@@ -56,6 +57,7 @@ import crates  # noqa: E402
 import dragon  # noqa: E402
 import dragon_icons  # noqa: E402
 import foodbowls  # noqa: E402
+import xpsnacks  # noqa: E402
 import icon_art  # noqa: E402
 import harvest_icons  # noqa: E402
 import hud_icons  # noqa: E402
@@ -150,6 +152,9 @@ ICONS = {
     # #5219: the matching food set, each heaped in the same cat bowl, same view and size (foodbowls.py)
     **{f"CatCafe_Icon_FoodBowl_{n}": (fn, GOLD_INK if n == "RoyalFeast" else INK, 14, FOODBOWL_VIEW, 0.02)
        for n, fn in foodbowls.FOODS.items()},
+    # #5225: the XP cat foods, each on the mint XP plate, same view and frame as the bait set (xpsnacks.py)
+    **{f"CatCafe_Icon_XpFood_{n}": (fn, GOLD_INK if n == "RoyalFeast" else INK, 14, FOODBOWL_VIEW, 0.02)
+       for n, fn in xpsnacks.FOODS.items()},
     "CatCafe_Icon_Perk_GoldenEspresso": (icon_art.golden_espresso, GOLD_INK, 10, (-20.0, 34.0)),
     "CatCafe_Icon_Perk_BigBowl": (icon_art.big_bowl, INK, 10, (-18.0, 26.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (icon_art.extra_decor_spot, INK, 10, (-26.0, 40.0)),

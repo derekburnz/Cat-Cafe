@@ -4128,8 +4128,9 @@ function UIController.tradeUnlock(from: number, to: number)
 			elseif calmSince == nil then
 				calmSince = os.clock()
 			elseif os.clock() - (calmSince :: number) >= TRADE_UNLOCK.CALM then
-				-- #5158: the tile's brief spotlight once the icon has landed on it (tradeSpot)
-				if TradeUnlock.play(ui.tradeTile(), ui.tradeSpot) then
+				-- Derek 2026-11-18 13:05 UTC ("remove the pointing and dimming for trade unlocked asap"): no spotlight on
+				-- the tile after the moment (#5158's tradeSpot is gone)
+				if TradeUnlock.play(ui.tradeTile(), nil) then
 					return
 				end
 				calmSince = nil

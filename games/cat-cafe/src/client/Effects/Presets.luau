@@ -4742,6 +4742,16 @@ Presets.catchWord = {
 		great = { sparkles = 7, rings = 1, colour = Presets.palette.mint },
 		nice = { sparkles = 5, rings = 1, colour = Presets.palette.cream }, -- v3 (#1884 7d)
 	} :: { [string]: { sparkles: number, rings: number, colour: Color3 } },
+	-- #5300 Perfect catch (switch perfectCatch): when PURRFECT! turns to `text`, a sky blue burst (the "+50%" colour,
+	-- shared/PerfectCatch.COLOR #8FD3FF) with one more ring than PURRFECT!'s. Watched for `watch` seconds.
+	perfectPlus = {
+		flag = "perfectCatch",
+		text = "+50%",
+		watch = 2.5,
+		sparkles = 16,
+		rings = 3,
+		colour = Color3.fromRGB(143, 211, 255),
+	},
 }
 
 -- Catch v3 (#1884, catch-rework.md 7b to 7d; Effects/Catch). Each ring the server judges (CatchJudged) pops at the

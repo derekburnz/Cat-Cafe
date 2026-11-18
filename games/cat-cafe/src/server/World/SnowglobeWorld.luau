@@ -20,6 +20,7 @@
 local CollectionService = game:GetService("CollectionService")
 
 local AssetRegistry = require(script.Parent.AssetRegistry)
+local HarvestWorld = require(script.Parent.HarvestWorld)
 
 local SnowglobeWorld = {}
 
@@ -44,10 +45,10 @@ SnowglobeWorld.CENTER = Vector3.new(-2400, 0, 2400)
 -- The set is 128 x 128 (Model-Agent), ground paint only, so the area gets its own Floor slab, its top at CENTER.Y.
 SnowglobeWorld.FLOOR_SIZE = Vector3.new(128, 4, 128)
 SnowglobeWorld.BARRIER_RADIUS = 57.8 -- the barrier ring's middle (CatCafe_Snowglobe_Set_002_Edge_Barrier, 1.6 thick)
--- The globe stands where Harvest Hollow's arch stood (HarvestWorld.ARCH_AT; Harvest is vaulted, so the arch is never
--- built): the Town Square's open north-west middle, 30 studs from the Spin Wheel and the Rally board, facing the
--- cannon. The globe is 26.2 wide, its way in 5.2 in front of its pivot and its back 12.8 behind.
-SnowglobeWorld.PORTAL_AT = Vector3.new(-21, 0.1, 55)
+-- The globe stands on Harvest Hollow's arch spot (HarvestWorld.ARCH_AT; Harvest is vaulted, so the arch is never
+-- built), facing the cannon, and follows it when the Town Square layout moves it (#5224 v5 put it at (-24, 35), clear
+-- of the Day Cart). The globe is 26.2 wide, its way in 5.2 in front of its pivot and its back 12.8 behind.
+SnowglobeWorld.PORTAL_AT = HarvestWorld.ARCH_AT
 SnowglobeWorld.PORTAL_WAY_IN = Vector3.new(0, 4.45, -5.2) -- CatCafe_Snowglobe_Portal_Portal_Glow, globe space
 
 -- CatCafe_Snowglobe_Set points_roblox (set space, front -Z): x, y, z, and for the stall, fireplace and rug a fourth

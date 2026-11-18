@@ -275,6 +275,21 @@ function PassService.owns(player: Player, id: number): boolean
 	return id ~= 0 and set ~= nil and set[id] == true
 end
 
+-- #5263: whether `player` gets auto claim and auto refill: the Auto Bowl pass, or the 2nd Bowl pass while the
+-- bowlTicks switch is on (AutoBowl.owner). LiveFlagService is looked up here, not at the top, to keep the require
+-- order as it was.
+function PassService.ownsAutoBowl(player: Player): boolean
+	local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags) :: any
+	local LiveFlagService = require(script.Parent.LiveFlagService) :: any
+	local known = table.find(LiveFlags.KEYS, AutoBowl.TICKS_FLAG) ~= nil
+	return AutoBowl.owner(
+		PassService.owns(player, AutoBowl.passId()),
+		PassService.owns(player, Config.SecondBowlPassId),
+		known,
+		known and LiveFlagService.on(AutoBowl.TICKS_FLAG)
+	)
+end
+
 local function onPurchaseFinished(player: Player, passId: number, purchased: boolean)
 	if not purchased or type(passId) ~= "number" or passId == 0 then
 		return

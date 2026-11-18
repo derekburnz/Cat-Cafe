@@ -17,6 +17,19 @@ local AutoBowl = {}
 AutoBowl.FLAG = "autoBowl"
 AutoBowl.PASS_KEY = "AutoBowlPassId"
 AutoBowl.KEYS = { claim = "autoBowlClaim", refill = "autoBowlRefill" } :: { [string]: string }
+-- #5263 (Derek 2026-11-18, OK 14:48 UTC): with the bowlTicks switch on, auto claim and auto refill come with the 2nd
+-- Bowl pass too, not only the Auto Bowl pass. Off until the store holds true; a key LiveFlags does not know reads off.
+AutoBowl.TICKS_FLAG = "bowlTicks"
+
+-- Whether the player counts as an Auto Bowl owner: the Auto Bowl pass, or the 2nd Bowl pass with bowlTicks on. Pure.
+function AutoBowl.owner(
+	ownsAuto: boolean,
+	ownsSecond: boolean,
+	ticksKnown: boolean,
+	ticksOn: boolean
+): boolean
+	return ownsAuto or (ticksKnown and ticksOn and ownsSecond)
+end
 
 function AutoBowl.passId(): number
 	local id = (Config :: any)[AutoBowl.PASS_KEY]

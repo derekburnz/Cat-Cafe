@@ -29,7 +29,9 @@ export type GuideTrail = {
 local SPACING = 3.5 -- studs between dots
 local MAX_DOTS = 48 -- about 170 studs of trail; the marker's distance covers the rest of a longer trip
 local START_GAP = 3 -- the first dot sits this far ahead of the player
-local ARRIVED = 10 -- studs from the target where the trail hides
+local ARRIVED = 10 -- studs from the target where the trail hides, once nothing solid stands between (#5206)
+local EYE = 3 -- studs above the feet the clear-view check starts from
+local NEAR_END = 2 -- studs: a ray that stops this close to the target counts as reaching it
 local REPATH_MOVE = 5 -- studs the player moves before the route is worked out again
 local REPATH_SECONDS = 0.75 -- and no more often than this
 local RETRY_SECONDS = 2 -- after a failed route, standing still or not
@@ -192,11 +194,41 @@ function GuideTrail._repath(self: any, start: Vector3, finish: Vector3)
 	end)
 end
 
+-- #5206 (Sync 2026-11-18: the bowl's trail hid at the cafe's back wall, the bowl 4.5 studs behind it, and nothing
+-- showed the last few studs out the back door): true while a solid part stands between the player and the target,
+-- so a trail near its end still leads round the wall. The target's own model, and anything at its end, never count.
+local function walled(self: any, target: Target, start: Vector3, finish: Vector3): boolean
+	local skip: { Instance } = { self._folder }
+	local character = Players.LocalPlayer.Character
+	if character ~= nil then
+		table.insert(skip, character)
+	end
+	if typeof(target) == "Instance" then
+		local instance = target :: Instance
+		local holder = instance:FindFirstAncestorOfClass("Model")
+		table.insert(skip, if holder ~= nil then holder else instance)
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = skip
+	params.RespectCanCollide = true
+	local origin = start + Vector3.new(0, EYE, 0)
+	local hit = Workspace:Raycast(origin, finish - origin, params)
+	return hit ~= nil and (hit.Position - finish).Magnitude > NEAR_END
+end
+
 function GuideTrail._step(self: any)
 	local target: Target? = self._target
 	local finish = if target ~= nil then targetPosition(target) else nil
 	local start = feet()
-	if finish == nil or start == nil or (finish - start).Magnitude < ARRIVED then
+	if
+		finish == nil
+		or start == nil
+		or (
+			(finish - start).Magnitude < ARRIVED
+			and not walled(self, target :: Target, start :: Vector3, finish :: Vector3)
+		)
+	then
 		self:_lay({})
 		self._lastStart = nil
 		return

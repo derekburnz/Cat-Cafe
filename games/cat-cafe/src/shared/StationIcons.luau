@@ -10,7 +10,7 @@ local StationIcons = table.freeze({
 	museum = "rbxassetid://106957137610323",
 	picnic = "rbxassetid://92455587075019",
 	pond = "rbxassetid://116298242454261",
-	spa = "rbxassetid://90117647745743",
+	spa = "rbxassetid://90711706325777",
 	yardSale = "rbxassetid://132170661858712",
 })
 

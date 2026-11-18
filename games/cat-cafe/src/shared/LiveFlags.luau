@@ -132,6 +132,7 @@ LiveFlags.KEYS = {
 	"strayWalkSlow", -- #4601: a server stray walk writes its model at 10 Hz, not 60, and the client eases between (shared/Mover); off by default
 	"firstRankLock", -- Derek 2026-11-17: the first Rank Up window stays up while ready, dimmed, arrow on RANK UP (shared/RankUpRightAway.locked); off by default
 	"rankSpotPlain", -- Derek 2026-11-18: the first Rank Up walk-through has no words, only the dim and arrow, the dim in the window too (UI.rankSpot.set); off by default
+	"townRings", -- Derek 2026-11-18 (#5224): Town Square walk-up rings always show, smaller; none in the areas (shared/WalkUp.ringLook); off by default
 	"likeAskEarly", -- #5152: the like ask on the first UTC day at the first Park or Rare catch, as a card (shared/Tips.likeEarly); off by default
 	"nightSlice", -- #5164: the client's day and night change spreads its World walk and night look over frames (WorldController); off by default
 	"spinCat", -- #5171: the Spin Wheel's ninth slice, a Secret cat at 0.25% (shared/SpinCat); off by default
@@ -142,12 +143,20 @@ LiveFlags.KEYS = {
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
 	"areaWhole", -- Derek 2026-11-18: the area a player is in (or flying to) loads whole on their device (shared/AreaWhole); off by default
 	"nextGoalBeat", -- #5202: a "What next?" card once after the first Park catch (shared/NextGoal); off by default
+	"tameCannonPoint", -- #5245: after the first bowl cat's card the Cannon button is dimmed and pointed at until pressed, and the picker's ringed Launch too (UI applyTutorial, Screens/Cannon); off by default
+	"parkLead", -- #5248: after the Tier 2 rank up no Alleyway new kind line, the picker's Park Launch dimmed and pointed at until pressed, no marker in a flight (Screens/Cannon); off by default
+	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
+	"upgradesInstant", -- #5253: an Upgrades buy shows in the window at once and the server syncs before the plot rebuild (Screens/UpgradeShop, CafeService); off by default
 	"nightBright", -- #5240: a slightly lighter night sky and shade (shared/DayLight.BRIGHT_NIGHT); off by default
 	"ringSolid", -- #5256: a double's second half and a paw catch ring drop the dark rim that read as a gap (UI CatchCircles); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
+	tameCannonPoint = true, -- #5245
+	parkLead = true, -- #5248
+	promptsAfter5 = true, -- #5251
+	upgradesInstant = true, -- #5253
 	giftCard = true, -- #4527
 	tradeFish = true,
 	nightCatch = true,
@@ -200,6 +209,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	strayWalkSlow = true, -- #4601: on once Effects/Pose eases between the writes and a Studio walk looks the same
 	firstRankLock = true, -- Derek 2026-11-17 20:12 UTC: on after Review-QA and Sync's Studio pass
 	rankSpotPlain = true, -- Derek 2026-11-18 13:37 UTC: on once Review-QA passes (tutorial switches on ASAP)
+	townRings = true, -- Derek 2026-11-18: on once Review-QA passes
 	likeAskEarly = true, -- #5152: on after Review-QA's QoL and phone sizing checks
 	nightSlice = true, -- #5164: on after Review-QA and Sync's frame-time read across a phase change
 	spinCat = true, -- #5171: on once the window's ninth wedge and the Odds list pass Review-QA and Sync's Studio look

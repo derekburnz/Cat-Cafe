@@ -294,9 +294,10 @@ Theme.areaPictures = {
 	sewer = "rbxassetid://139316344682802", -- the THE SEWER sign
 	desert = "rbxassetid://78191788809166", -- the sunstone pyramid (#2666 render; dormant until the Desert opens)
 	ruins = "rbxassetid://76447908818587", -- the Golem Courtyard and its cat-head throne (Ruins set render; dormant until the Ruins open)
-	snowy = "rbxassetid://78221826396063", -- #4364: the Snowy Mountain gate and lodge
-	waterpark = "rbxassetid://99110201209726", -- #4364: the Water Park lazy river and wave pool
-	castle = "rbxassetid://101068487529770", -- #4364: the Medieval Castle gate and keep
+	snowy = "rbxassetid://104828732421649", -- #4364: the Snowy Mountain gate and lodge
+	waterpark = "rbxassetid://85072898707519", -- #4364: the Water Park lazy river and wave pool
+	castle = "rbxassetid://135433305849134", -- #4364: the Medieval Castle gate and keep
+	harvest = "rbxassetid://99559086501127", -- the Harvest Hollow barn, windmill and big pumpkin (group owned, Nov 18)
 } :: { [string]: string }
 
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).

@@ -179,6 +179,23 @@ local QUIET_SECONDS = 2.5 -- a card's picture this long to load before its emoji
 local Store = {}
 Store.__index = Store
 
+-- #5263: a switch by name, read at each use
+local function shownFlag(key: string): boolean
+	return LiveFlags.shown(
+		key,
+		game:GetService("ReplicatedStorage"):GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+	)
+end
+
+-- #5260: whether the Cat King Pack says how King Croissant earns (StoreLogic.KING_INFO), read at each use
+local function kingInfo(): boolean
+	return LiveFlags.shown(
+		StoreLogic.KING_FLAG,
+		game:GetService("ReplicatedStorage")
+			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.KING_FLAG)
+	)
+end
+
 local function text(props: { [string]: any }): TextLabel
 	local merged: { [string]: any } = {
 		BackgroundTransparency = 1,
@@ -1247,7 +1264,10 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?, line: string?)
 	entry.effect.Text = entry.fullText
 	-- #2147: the gold chip, placed before the words are fitted under it
 	local was = StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
-	local perkText = if line ~= nil and was ~= nil then line else row.perk or ""
+	-- #5260: with kingCatInfo on, the Cat King Pack's gold chip says how King Croissant earns
+	local perk = row.perk
+		or (if row.key == "kingPack" and kingInfo() then StoreLogic.KING_PERK else nil)
+	local perkText = if line ~= nil and was ~= nil then line else perk or ""
 	local perkShown = perkText ~= "" and not entry.compact
 	if entry.perk.Text ~= perkText or entry.perk.Visible ~= perkShown then
 		entry.perk.Text = perkText
@@ -1914,7 +1934,9 @@ function Store._showInfo(self: any, row: StoreLogic.Row?)
 	if info == nil then
 		return
 	end
-	local lines: { StoreLogic.PackLine } = if row then StoreLogic.infoLines(row) else {}
+	local lines: { StoreLogic.PackLine } = if row
+		then StoreLogic.infoLines(row, kingInfo(), shownFlag("bowlTicks"))
+		else {}
 	local shown = row ~= nil and #lines > 0
 	info.shade.Visible = shown
 	self._packShown = if shown and row then row.key else nil

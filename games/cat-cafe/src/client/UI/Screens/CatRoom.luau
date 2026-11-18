@@ -1585,6 +1585,7 @@ end
 function CatRoom.reset(self: any)
 	self:_showSortMenu(false)
 	self._placing = false
+	self._partnerPick = false -- a pick left open when the menu closed must not turn the next tap into a follow
 	self._feedOpen = false
 	self._notice = nil
 	self._rename:close()

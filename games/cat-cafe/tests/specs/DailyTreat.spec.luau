@@ -79,6 +79,43 @@ return function()
 		end)
 	end)
 
+	-- Daily Treat v2 (Derek 2026-11-18, switch bigTreats): big prizes only, swapped in place and back
+	describe("bigTreats (Catalog.setBigTreats)", function()
+		it("pays no food or bait, day 2 pays 500 fish and the switch swaps back", function()
+			local plain = Catalog.dailyTreat[2]
+			expect(Catalog.setBigTreats(true)).to.equal(true)
+			local ok, err = pcall(function()
+				expect(DailyTreat.DAYS).to.equal(7)
+				for n, row in Catalog.dailyTreat do
+					expect(row.day).to.equal(n)
+					expect(row.prize.catFood).to.equal(nil)
+					expect(row.prize.lures).to.equal(nil)
+					expect((row.prize :: any).foods).to.equal(nil)
+					for crateId in row.prize.crates or {} do
+						expect(crateId).to.equal("highest_golden")
+					end
+				end
+				expect(DailyTreat.prize(2) :: any).to.deepEqual({ fish = 500, spins = 5 })
+				expect(DailyTreat.prize(1) :: any).to.deepEqual({
+					coins = 5000,
+					coinSeconds = 3600,
+					spins = 3,
+				})
+				expect(DailyTreat.prize(4) :: any).to.deepEqual({ crates = { highest_golden = 3 } })
+				expect(DailyTreat.prize(7) :: any).to.deepEqual({
+					crates = { highest_golden = 5 },
+					fish = 1000,
+				})
+				expect(Catalog.setBigTreats(true)).to.equal(false)
+			end)
+			Catalog.setBigTreats(false)
+			expect(Catalog.dailyTreat[2]).to.equal(plain)
+			if not ok then
+				error(err)
+			end
+		end)
+	end)
+
 	describe("stamping the card", function()
 		it("has a stamp due on a fresh card and pays day 1 first", function()
 			local card = fresh()

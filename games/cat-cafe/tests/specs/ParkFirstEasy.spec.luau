@@ -1,5 +1,5 @@
 --!strict
--- shared/ParkFirstEasy.luau (#5181): the Park keeps the Alleyway's wider bands until the first Park catch.
+-- shared/ParkFirstEasy.luau (#5182): the Park keeps the Alleyway's wider bands until the first Park catch.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)

@@ -67,7 +67,7 @@ local M = {
 	LiveFlagService = require(script.Parent.LiveFlagService),
 	Moods = require(ReplicatedStorage.Shared.Moods),
 	Onboarding = require(ReplicatedStorage.Shared.Onboarding),
-	ParkFirstEasy = require(ReplicatedStorage.Shared.ParkFirstEasy), -- #5181
+	ParkFirstEasy = require(ReplicatedStorage.Shared.ParkFirstEasy), -- #5182
 	Payout = require(script.Parent.Payout),
 	Pity = require(ReplicatedStorage.Shared.Pity),
 	PlotService = require(script.Parent.PlotService),
@@ -2860,7 +2860,7 @@ function startCatch(
 				Circles.earlyScale(SecondCat.caught(profile.stats)),
 				Circles.touchScale(Telemetry.device(player), true) -- #4654: touchCatchReach shipped
 			)
-				-- #5181 (parkFirstEasy): the Park keeps the Alleyway's width until the first Park catch
+				-- #5182 (parkFirstEasy): the Park keeps the Alleyway's width until the first Park catch
 				* M.ParkFirstEasy.scale(
 					stray.area,
 					M.Onboarding.reached(profile.telemetry, "first_park_catch"), -- ParkFirstEasy.STEP

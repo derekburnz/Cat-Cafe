@@ -153,7 +153,9 @@ function UpdatePoster._attach(self: any, model: Instance)
 		Adornee = screen,
 		Face = Enum.NormalId.Front,
 		SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud,
-		PixelsPerStud = PIXELS_PER_STUD,
+		-- #5356: the poster stands at half size (Model:ScaleTo), so the face keeps its pixel canvas and its words fit
+		PixelsPerStud = PIXELS_PER_STUD
+			/ math.max(if model:IsA("Model") then (model :: Model):GetScale() else 1, 0.1),
 		MaxDistance = MAX_DISTANCE,
 		LightInfluence = 0,
 		ResetOnSpawn = false,

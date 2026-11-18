@@ -154,6 +154,25 @@ local function noteArrival(player: Player)
 	local ok, data = pcall(function()
 		return player:GetJoinData()
 	end)
+	-- #5322: a restart's hop: on to a fresh public server, still in AFK mode, retried until it goes
+	local reserved = game.PrivateServerId ~= "" and game.PrivateServerOwnerId == 0
+	if ok and data ~= nil and AfkCafe.arrivedHop(data.TeleportData, reserved) then
+		task.spawn(function()
+			task.wait(AfkCafe.HOP_SECONDS)
+			while player.Parent == Players do
+				local options = Instance.new("TeleportOptions")
+				options:SetTeleportData(AfkCafe.teleportData(true) :: any)
+				local sent, problem = pcall(function()
+					TeleportService:TeleportAsync(game.PlaceId, { player }, options)
+				end)
+				if not sent then
+					warn("[AfkCafeService] hop back failed: " .. tostring(problem))
+				end
+				task.wait(AfkCafe.HOP_RETRY_SECONDS)
+			end
+		end)
+		return
+	end
 	if
 		ok
 		and data ~= nil
@@ -173,9 +192,24 @@ local function noteArrival(player: Player)
 	end
 end
 
+-- #5322: the saved AFK mode mark (settings.afkMode), kept while the afkStay switch is on
+local function save(player: Player, on: boolean)
+	if not LiveFlagService.on(AfkCafe.STAY_FLAG) then
+		return
+	end
+	local profile = DataService.get(player)
+	if profile ~= nil and profile.settings.afkMode ~= on then
+		profile.settings.afkMode = on
+		CafeService.sync(player)
+	end
+end
+
 -- #4346: AFK mode on or off. Off ends the rest it held (input ends a rest in the usual way from then on).
-local function setMode(player: Player, watch: Watch, on: boolean)
+-- #5322: on is saved; off is saved when the player turned it off (`keep` false: the button, or walking off after it
+-- rested), not when a mode that never got to rest lapses (a join that landed away from the cafe).
+local function setMode(player: Player, watch: Watch, on: boolean, keep: boolean?)
 	if on then
+		save(player, true)
 		watch.modeSince = os.clock()
 		watch.modeRested = false
 		watch.modeRestAt = nil
@@ -186,6 +220,9 @@ local function setMode(player: Player, watch: Watch, on: boolean)
 	end
 	if watch.modeSince == nil then
 		return
+	end
+	if keep ~= true then
+		save(player, false)
 	end
 	watch.modeSince = nil
 	watch.modeRested = false
@@ -268,7 +305,7 @@ local function check(player: Player, now: number)
 				restAt ~= nil and watch.stillSince > restAt + AfkCafe.QUICK_SETTLE_SECONDS
 			)
 		if AfkCafe.modeEnds(watch.modeRested, modeResting, now - modeSince) then
-			setMode(player, watch, false)
+			setMode(player, watch, false, not watch.modeRested) -- #5322: a lapse keeps the saved mark
 		else
 			resting = resting or modeResting
 			if modeResting then
@@ -346,6 +383,65 @@ function AfkCafeService.start()
 			stop(player, watch) -- settled at the rest's rate before the save
 		end
 		watches[player] = nil
+	end)
+	-- #5322: AFK mode saved on: a join (past the tutorial, not a hop) takes it up again once the character is in
+	DataService.onLoaded:Connect(function(player: Player, profile: any)
+		if
+			not LiveFlagService.on(AfkCafe.STAY_FLAG)
+			or not modeOn()
+			or profile.settings.afkMode ~= true
+			or profile.tutorialStep < TUTORIAL_DONE
+			or game.PrivateServerId ~= "" and game.PrivateServerOwnerId == 0
+		then
+			return
+		end
+		task.spawn(function()
+			if player.Character == nil then
+				player.CharacterAdded:Wait()
+			end
+			task.wait(AfkCafe.HOP_SECONDS) -- the landing at the front door settles first
+			local watch = watches[player]
+			if player.Parent ~= Players or (watch ~= nil and watch.modeSince ~= nil) then
+				return -- left, or a rejoin's arrival already took the mode up
+			end
+			watch = watchOf(player)
+			setMode(player, watch, true)
+			watch.at = nil
+			watch.stillSince = os.clock()
+			Net.toast(player, AfkCafe.MODE_ON_TEXT, "good")
+		end)
+	end)
+	-- #5322: a restart shuts this server: players in AFK mode hop through a reserved server to a fresh public one
+	game:BindToClose(function()
+		if
+			RunService:IsStudio()
+			or game.PrivateServerId ~= ""
+			or not LiveFlagService.on(AfkCafe.STAY_FLAG)
+		then
+			return
+		end
+		local hopping: { Player } = {}
+		for _, player in Players:GetPlayers() do
+			local watch = watches[player]
+			if watch ~= nil and watch.modeSince ~= nil then
+				table.insert(hopping, player)
+			end
+		end
+		if #hopping == 0 then
+			return
+		end
+		for _, player in hopping do
+			Telemetry.custom(player, "afk_rejoin", 1, { "restart" })
+		end
+		local options = Instance.new("TeleportOptions")
+		options.ShouldReserveServer = true
+		options:SetTeleportData(AfkCafe.hopData() :: any)
+		local ok, problem = pcall(function()
+			TeleportService:TeleportAsync(game.PlaceId, hopping, options)
+		end)
+		if not ok then
+			warn("[AfkCafeService] restart hop failed: " .. tostring(problem))
+		end
 	end)
 	Players.PlayerAdded:Connect(noteArrival)
 	for _, player in Players:GetPlayers() do

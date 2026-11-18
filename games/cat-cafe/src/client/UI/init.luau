@@ -1824,6 +1824,27 @@ function UI.init(config: Types.InitConfig)
 	-- then too, HUD._applyFocus)
 	hudInstance.catchingChanged:Connect(function(active: boolean)
 		CatchDim.set(active) -- #4842: the world dims while the catch runs, and clears at once when it ends
+		-- Derek 2026-11-18 ("people get stuck in minigame with screen dimmed even if they fail it"): should the HUD stay
+		-- in catching mode with no circle and no rescue on screen (a result or a held tutorial Miss's retry that never
+		-- came), it comes back by itself after UI.catch.STUCK seconds, and the world's dim with it.
+		if active then
+			task.spawn(function()
+				local idleSince: number? = nil
+				while hudInstance:isCatching() do
+					task.wait(0.5)
+					local views: any = UI
+					if views.catch.circlesActive() or views.rescue.isActive() then
+						idleSince = nil
+					elseif idleSince == nil then
+						idleSince = os.clock()
+					elseif os.clock() - (idleSince :: number) >= views.catch.STUCK then
+						warn("[CatCafeUI] catching mode with no circle or rescue: cleared")
+						hudInstance:setCatching(false)
+						return
+					end
+				end
+			end)
+		end
 		toastsInstance:setFocus(active)
 		local pills = actionPills -- #3861: and the action pills step away from the bar
 		if pills then
@@ -4831,6 +4852,7 @@ UI.catch = {}
 -- #4973: a tutorial Miss keeps the HUD aside until its circle comes back (finishCatch); `starts` counts the circles
 -- shown, `token` the results, and GRACE is the wait past TutorialRetrySeconds before it gives up on a new circle
 UI.catch.retry = { token = 0, starts = 0, GRACE = 1.0, stripUntil = 0, STRIP_BEAT = 0.6 }
+UI.catch.STUCK = 4 -- seconds in catching mode with nothing on screen before the HUD comes back (Derek 2026-11-18)
 -- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
@@ -11934,6 +11956,16 @@ function UI.parkRankPoint(catId: string)
 	then
 		return
 	end
+	-- Derek 2026-11-18: once per account (Tips.PARK_POINT), not once a session; nothing until the save says what was seen
+	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+	local seen: { [string]: boolean }? = state.tipsSeen
+	if seen == nil then
+		return
+	end
+	if seen[Tips.PARK_POINT] == true then
+		point.done = true
+		return
+	end
 	point.done = true
 	-- Sync on nextGoalBeat: the dim held the "What next?" card for 11 s. With that card due as variant A (Rank Up not
 	-- ready), it says what Tier 3 needs itself, so the dim stands down; variant B still follows the dim.
@@ -11949,12 +11981,12 @@ function UI.parkRankPoint(catId: string)
 			if (state.tier or 1) ~= 2 then
 				return
 			end
-			if not UI.calmForMoment() then
+			local view: any = hud
+			if not UI.calmForMoment() or (view ~= nil and view:isCatching()) then
 				calmSince = -1
 			elseif calmSince < 0 then
 				calmSince = os.clock()
 			elseif os.clock() - calmSince >= point.CALM then
-				local view: any = hud
 				target = if view ~= nil then view:goalButton() else nil
 				if target ~= nil then
 					break
@@ -11975,11 +12007,18 @@ function UI.parkRankPoint(catId: string)
 			shut()
 		end
 		point.close = SpotlightGuide.show(target, "See what Tier 3 needs", done, true)
+		UI.events.tipSeen:Fire(Tips.PARK_POINT)
 		local shownAt = os.clock()
 		while not over and os.clock() - shownAt < point.SECONDS do
 			task.wait(point.STEP)
 			local open: any = modal
-			if (open ~= nil and open:current() ~= nil) or (state.tier or 1) ~= 2 then
+			local view: any = hud
+			-- Derek 2026-11-18: a catch or rescue starting takes the dim away at once
+			if
+				(open ~= nil and open:current() ~= nil)
+				or (state.tier or 1) ~= 2
+				or (view ~= nil and view:isCatching())
+			then
 				break
 			end
 		end

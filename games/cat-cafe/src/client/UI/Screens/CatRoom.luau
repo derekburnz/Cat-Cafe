@@ -342,6 +342,13 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	})
 	self._partnerCat = nil :: string?
 	self._partnerPick = false
+	self._followOpen = false
+	table.insert(
+		self._connections,
+		toolbar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_placeSearch()
+		end)
+	)
 	table.insert(
 		self._connections,
 		partner.Activated:Connect(function()
@@ -1348,6 +1355,31 @@ function CatRoom._layout(self: any)
 end
 
 -- The partner square (Derek 2026-11-18): asks for a cat to follow, or stops asking.
+-- The partner square sits left of the search while the follower slot is open. Sync 2026-11-18: on most touch bars
+-- (795 design px at 1218 x 841) the search's SEARCH_MIN then ran 16 px into the All / Working / Resting switch, so
+-- when the bar has no room for both the search steps aside and the square takes its slot.
+function CatRoom._placeSearch(self: any)
+	local search: TextBox = self._search
+	if not self._followOpen then
+		search.Visible = true
+		search.Position = UDim2.fromOffset(0, 0)
+		search.Size = UDim2.new(1, -self._searchFixedW, 0, TOOL_H)
+		return
+	end
+	local room = TOOL_H + GAP
+	local barW = (self._toolbar :: Frame).AbsoluteSize.X / math.max(Scale.get(), 0.01)
+	local fits = barW - self._searchFixedW - room >= SEARCH_MIN
+	search.Visible = fits
+	search.Position = UDim2.fromOffset(room, 0)
+	search.Size = UDim2.new(1, -self._searchFixedW - room, 0, TOOL_H)
+	if not fits then
+		if search:IsFocused() then
+			search:ReleaseFocus()
+		end
+		search.Text = "" -- a hidden search must not keep filtering the cats
+	end
+end
+
 function CatRoom._pressPartner(self: any)
 	if self:_followerView() == nil then
 		return
@@ -1641,9 +1673,8 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	-- the partner square, while the follower slot is open; the search makes room for it
 	local partner: TextButton = self._partner
 	partner.Visible = followView ~= nil
-	local room = if followView ~= nil then TOOL_H + GAP else 0
-	self._search.Position = UDim2.fromOffset(room, 0)
-	self._search.Size = UDim2.new(1, -self._searchFixedW - room, 0, TOOL_H)
+	self._followOpen = followView ~= nil
+	self:_placeSearch()
 	if followView == nil then
 		self._partnerPick = false
 	else

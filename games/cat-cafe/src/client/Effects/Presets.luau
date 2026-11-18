@@ -7896,7 +7896,7 @@ Presets.tradeUnlock = {
 	gold = Presets.palette.golden,
 	tradeImage = "rbxassetid://83738164568639", -- Icon_Clean_Trade (the UI's ShopIcons)
 	lockImage = "rbxassetid://126676730576646", -- Icon_Clean_Lock
-	openImage = "rbxassetid://96025123745905", -- Icon_Clean_Unlock
+	openImage = "rbxassetid://129908896970192", -- Icon_Clean_Unlock
 }
 
 return Presets

@@ -309,17 +309,12 @@ return function()
 
 	describe("MarketLogic.layoutOrder (#5221)", function()
 		it("puts Classic first, then golden crates, then zone crates", function()
-			local classic = { area = "classic", golden = false }
-			local classicGold = { area = "classic", golden = true }
-			local alley = { area = "alley", golden = false }
-			local alleyGold = { area = "alley", golden = true }
-			local park = { area = "park", golden = false }
 			local order = {
-				MarketLogic.layoutOrder(classic, 21),
-				MarketLogic.layoutOrder(classicGold, 22),
-				MarketLogic.layoutOrder(alleyGold, 2),
-				MarketLogic.layoutOrder(alley, 1),
-				MarketLogic.layoutOrder(park, 3),
+				MarketLogic.layoutOrder("classic", false, 21),
+				MarketLogic.layoutOrder("classic", true, 22),
+				MarketLogic.layoutOrder("alley", true, 2),
+				MarketLogic.layoutOrder("alley", false, 1),
+				MarketLogic.layoutOrder("park", false, 3),
 			}
 			for n = 2, #order do
 				expect(order[n - 1] < order[n]).to.equal(true)

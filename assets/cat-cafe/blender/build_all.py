@@ -127,6 +127,7 @@ import harvestset  # noqa: E402
 import d1props  # noqa: E402
 import snowglobeset  # noqa: E402
 import cherryset  # noqa: E402
+import cherryitems  # noqa: E402
 import christmasitems  # noqa: E402
 import waterparkshelf  # noqa: E402
 import wallperch  # noqa: E402
@@ -149,7 +150,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, snowglobeset, christmasitems, cherryset, dragon,
+           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, snowglobeset, christmasitems, cherryset, cherryitems, dragon,
            updateposter, decorstand, mysterysign,
            waterparkshelf, wallperch, plotsizes, d1props]
 
@@ -635,7 +636,13 @@ STUDIO_NOTES[cherryset.NAME] = (
     "points_roblox player_spawn. The only _Barrier is the 30 high ring in the wall band. The pond and the three "
     "waterfalls are _Water (flat, no kerb); petals, koi and lily pads are _Decor. The pagoda is solid; the tea house "
     "deck is 2.5 up with steps at its -X end. points_roblox: spawn (14 stray spots), nook (the pond's far shore) and "
-    "station (the Wishing Tree's walk-up spot by its wish box, facing the tree).")
+    "station (the Wishing Tree's walk-up spot by its wish box, facing the tree), petal (12 pickup spots on the Petal "
+    "patch for CatCafe_Cherry_Petals) and stall (where CatCafe_Cherry_Stall stands, with its turn).")
+STUDIO_NOTES[cherryset.STALL] = (
+    "The Blossom Stall (spec v2 section 4), front -Z, 12 wide: it shows the six items. Lanterns are _Glow, the "
+    "little pond _Water. Stand it at points_roblox stall of CatCafe_Cherry_Set.")
+STUDIO_NOTES[cherryset.PETALS] = (
+    "One Petal pile to pick up at a patch spot (base centre at the pivot, 2 across); its blossom is _Glow.")
 STUDIO_NOTES[cherryset.PORTAL] = (
     "The Grove's Town Square portal: a red torii under two cherry trees, front -Z, 30 wide. _Portal_Glow is the way "
     "in (7 x 8.25); the sign's face is _Screen (8.0 x 2.6, the same as the Snowglobe portal's) for the UI text.")

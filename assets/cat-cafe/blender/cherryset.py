@@ -29,7 +29,7 @@ from common import RB, Builder
 from plot import rot_z
 
 NAME = "CatCafe_Cherry_Set"
-PORTAL = "CatCafe_Cherry_Portal"
+PORTAL, STALL, PETALS = "CatCafe_Cherry_Portal", "CatCafe_Cherry_Stall", "CatCafe_Cherry_Petals"
 HALF_X, HALF_Z = 75.0, 60.0
 G = 0.03                                    # the ground slab's top
 BARRIER_H = 30.0
@@ -41,12 +41,14 @@ RED, ROOF, WOODD, STONE = "bowl_red", "fur_slate", "dark_wood", "fur_pewter"
 POND = (-34.0, 22.0)
 PAGODA = (6.0, 40.0)
 TEA = (46.0, 22.0)
-SAND = (42.0, -22.0)
+SAND = (42.0, -22.0)                        # the Petal patch (spec v2 section 2), once the sand garden
+STALL_AT = (44.0, 4.0)                      # the Blossom Stall, front to -Y (Roblox -Z), turn 0
 WISH = (-40.0, -24.0)
 FALLS = ((-53.0, 6.0, 17.0), (-36.0, 8.0, 18.5), (-19.0, 5.0, 16.0))       # x, width, height
-SPAWNS = ((-16, -46), (16, -46), (-24, -6), (-58, -36), (-40, -44), (-62, 2), (32, -4), (40, -28), (64, -28),
+SPAWNS = ((-16, -46), (16, -46), (-24, -6), (-58, -36), (-40, -44), (-62, 2), (32, -4), (50, -44), (64, -28),
           (62, 6), (22, 12), (-12, -2), (32, 38), (-66, 18))
 NOOK = (-27.5, 42.0)
+PATCH_SPOTS = tuple((SAND[0] - 9 + 6 * c, SAND[1] - 6 + 6 * r) for r in range(3) for c in range(4))
 
 
 def rz(d):
@@ -373,18 +375,20 @@ def _tea_house(b, g):
     b.box((tx + 9.2, ty + 1, 6.3), (0.1, 0.2, 3.4), WOODD, bevel=False)
 
 
-def _sand_garden(b):
+def _petal_patch(b, g, d):
+    """The Petal patch: a soft pink lawn in a low fence, its 12 pickup spots on pale rings (where the glowing
+    CatCafe_Cherry_Petals piles stand), fallen petals round them."""
     zx, zy = SAND
-    b.box_base((zx, zy, G), (34, 24, 0.12), "fur_vanilla", bevel=False)
-    for k in range(11):                                                                     # the rake lines
-        b.box_base((zx, zy - 10.5 + k * 2.1, G + 0.12), (32, 0.35, 0.04), "fur_oat", bevel=False)
-    for (x, y, r) in ((zx - 8, zy + 3, 2.6), (zx + 6, zy - 4, 2.0), (zx + 10, zy + 6, 1.5)):
-        b.cyl_base((x, y, G + 0.12), r * 1.9, 0.05, "fur_oat", segments=16, bevel=False)
-        b.cyl_base((x, y, G + 0.17), r * 1.45, 0.04, "fur_vanilla", segments=16, bevel=False)
-        b.ico((x, y, 0.9), r, "fur_slate", scale=(1, 0.85, 0.9))
-        b.box_base((x, y, 0.9 + r * 0.7), (r * 0.9, r * 0.8, 0.2), "fur_moss", bevel=False)
+    b.box_base((zx, zy, G), (34, 24, 0.12), "blush", bevel=False)
+    for (x, y) in PATCH_SPOTS:
+        b.cyl_base((x, y, G + 0.12), 1.5, 0.03, "fur_rose", segments=12, bevel=False)
+    for k in range(60):
+        x, y = zx - 16 + (k * 7.3) % 32, zy - 11 + (k * 4.9) % 22
+        d.box((x, y, G + 0.14), (0.6, 0.6, 0.04), PINK[k % len(PINK)], bevel=False, rot=rz(k * 37))
     for (sx, sy, wd, dd) in ((0, -12.3, 34.6, 0.5), (0, 12.3, 34.6, 0.5), (17.3, 0, 0.5, 24.1)):
         b.box_base((zx + sx, zy + sy, G), (wd, dd, 0.5), WOODD, bevel=False)
+    for (x, y) in ((zx + 17.3, zy - 12.3), (zx + 17.3, zy + 12.3)):                         # corner lanterns
+        _lantern(b, g, x - 1.5, y + (1.5 if y < zy else -1.5))
 
 
 def _wishing_tree(b, g, d):
@@ -437,7 +441,7 @@ def _dressing(b, g, d, rnd):
     for (x, y) in ((60, 50), (66, 42), (-70, 30), (-66, 38), (70, -44), (64, -50)):
         _bamboo(b, rnd, x, y)
     for (x, y) in ((-6, -34), (6, -34), (-6, -10), (6, -10), (-14, 6), (18, 2), (30, 14), (-12, 34), (24, 30),
-                   (-52, -12), (-28, -16), (26, -22)):
+                   (-52, -12), (-28, -16), (22, -22)):
         _lantern(b, g, x, y)
     for (x, y) in ((-9, -22), (9, -22)):
         _lantern(b, g, x, y, 1.5)
@@ -463,7 +467,7 @@ def _props(b, g, w):
         if k < 8:
             b.box((x + 1.3, ty - 10.2, 1.5), (2.6, 0.2, 0.22), "fur_fern", bevel=False)
             b.box((x + 1.3, ty - 10.2, 0.8), (2.6, 0.2, 0.22), "fur_fern", bevel=False)
-    for (x, y) in ((-5.5, -2), (5.5, -2), (-5.5, 8), (5.5, 8), (-36, 6), (38, 4)):       # path markers
+    for (x, y) in ((-5.5, -2), (5.5, -2), (-5.5, 8), (5.5, 8), (-36, 6), (34, 4)):       # path markers
         b.box_base((x, y, G), (0.6, 0.6, 1.4), STONE, bevel=False)
         g.box_base((x, y, G + 1.4), (0.5, 0.5, 0.3), "lamp_warm", bevel=False)
 
@@ -474,12 +478,18 @@ def _points():
         return [round(-x, 2), round(h, 2), round(y, 2), *more]
     wx, wy = WISH
     pts = {"player_spawn": [rb(0, -55.2, 0.0, 0)], "spawn": [rb(x, y) for (x, y) in SPAWNS], "nook": [rb(*NOOK)],
-           "station": [rb(wx, wy - 7.8, 0.0, 0)]}           # the Wishing Tree's walk-up spot, by the wish box
+           "station": [rb(wx, wy - 7.8, 0.0, 0)],          # the Wishing Tree's walk-up spot, by the wish box
+           "petal": [rb(x, y, G + 0.15) for (x, y) in PATCH_SPOTS], "stall": [rb(*STALL_AT, 0.0, 0)]}
     spots = pts["spawn"] + pts["nook"]
     for i, a in enumerate(spots):
         for c in spots[i + 1:]:
             assert math.hypot(a[0] - c[0], a[2] - c[2]) >= 12.0, (a, c)
-    assert len(pts["spawn"]) == 14
+    for a in spots:                                     # strays stand clear of the patch and the stall
+        for c in pts["petal"]:
+            assert math.hypot(a[0] - c[0], a[2] - c[2]) >= 6.0, (a, c)
+        for c in pts["stall"]:
+            assert math.hypot(a[0] - c[0], a[2] - c[2]) >= 9.0, (a, c)
+    assert len(pts["spawn"]) == 14 and len(pts["petal"]) == 12
     return pts
 
 
@@ -493,7 +503,7 @@ def build_cherry_set(mat):
     _gate_walk(b)
     _pagoda(b, g)
     _tea_house(b, g)
-    _sand_garden(b)
+    _petal_patch(b, g, d)
     _wishing_tree(b, g, d)
     _dressing(b, g, d, rnd)
     _props(b, g, w)
@@ -501,6 +511,82 @@ def build_cherry_set(mat):
     return [b.finalize(NAME, mat), _barrier(mat), g.finalize(NAME + "_002_Lights_Glow", mat),
             w.finalize(NAME + "_003_Pond_Water", mat), d.finalize(NAME + "_004_Petals_Decor", mat),
             f.finalize(NAME + "_005_Waterfall_Water", mat)]
+
+
+def build_petals(mat):
+    """One Petal pile to pick up at a patch spot: a soft mound of pink petals with a glowing blossom on top."""
+    b, glow = RB(), RB()
+    b.ball((0, 0.3, 0), 1.0, "fur_rose", scale=(1.0, 0.3, 1.0))
+    b.ball((0.3, 0.22, 0.25), 0.55, "blush", scale=(1.0, 0.4, 1.0))
+    b.ball((-0.35, 0.2, -0.2), 0.5, "apron_pink", scale=(1.0, 0.4, 1.0))
+    for k in range(5):                                                                    # the glowing blossom
+        a = math.radians(90 + 72 * k)
+        glow.ball((0.38 * math.cos(a), 1.2 + 0.38 * math.sin(a), 0), 0.3, "blush", scale=(1.0, 1.0, 0.4))
+    glow.ball((0, 1.2, -0.05), 0.17, "pastel_butter")
+    return [b.finalize(PETALS, mat), glow.finalize(PETALS + "_Glow", mat)]
+
+
+def build_stall(mat):
+    """The Blossom Stall: a wooden stall with a red curved roof and a string of lit paper lanterns, the two hats on
+    stands and the four decor pieces on show, a BLOSSOM STALL board. Front -Z, 12 wide."""
+    b, glow, water = RB(), RB(), RB()
+    b.span((-5.5, 0, -1.6), (5.5, 3.2, 1.6), "caramel_wood")                                # the counter
+    b.span((-5.8, 3.2, -1.9), (5.8, 3.5, 1.9), WOODD)
+    for k in range(4):
+        b.span((-5.4, 0.3 + 0.75 * k, -1.66), (5.4, 0.36 + 0.75 * k, -1.6), "fur_toffee")
+    for sx in (-1, 1):
+        b.span((sx * 5.4 - 0.3, 3.5, 1.2), (sx * 5.4 + 0.3, 9.0, 1.8), RED)                   # red posts
+        b.span((sx * 5.4 - 0.25, 3.5, -1.75), (sx * 5.4 + 0.25, 8.0, -1.25), RED)
+    for k in range(9):                                                                     # the roof, ends turned up
+        t = (k - 4) / 4.0
+        x = t * 6.3
+        y = 8.7 + 0.5 * t * t
+        b.box((x, y, 0.0), (1.5, 0.35, 4.4), ROOF, rot=rot_z(-12 * t))
+        b.box((x, y + 0.3, 0.0), (1.5, 0.25, 3.2), "fur_gunmetal", rot=rot_z(-12 * t))
+    for k in range(5):                                                                     # paper lanterns, lit
+        x = -4.4 + 2.2 * k
+        b.box((x, 7.95, -1.9), (0.04, 0.5, 0.04), "choco")
+        glow.ball((x, 7.35, -1.9), 0.32, (RED, "fur_strawberry", "gold_mid")[k % 3], scale=(1.0, 1.2, 1.0))
+    b.span((-4.2, 9.9, 1.4), (4.2, 11.6, 1.7), WOODD)                                       # the board
+    b.span((-3.9, 10.1, 1.34), (3.9, 11.4, 1.4), "cream")
+    b.text("BLOSSOM STALL", (3.0, 10.45, 1.34), 0.09, 0.04, RED, right=(-1, 0, 0))
+    for k, x in enumerate((-4.3, -2.6)):                                                    # the two hats on stands
+        b.cyl((x, 4.1, 0.2), 0.12, 1.2, WOODD, segments=6)
+        b.ball((x, 4.9, 0.2), 0.5, "cream")
+        if k == 0:                                                                          # Flower Crown
+            for j in range(8):
+                a = 2 * math.pi * j / 8
+                b.ball((x + 0.48 * math.cos(a), 5.3, 0.2 + 0.48 * math.sin(a)), 0.15, PINK[j % len(PINK)])
+        else:                                                                               # Lantern Hat
+            glow.cyl((x, 5.6, 0.2), 0.45, 0.6, RED, segments=10)
+            b.cyl((x, 5.27, 0.2), 0.38, 0.08, "gold_mid", segments=10)
+            b.cyl((x, 5.94, 0.2), 0.32, 0.08, "gold_mid", segments=10)
+    for k in range(10):                                                                     # a little koi pond
+        a = 2 * math.pi * k / 10
+        b.ball((-0.6 + 0.75 * math.cos(a), 3.6, 0.0 + 0.55 * math.sin(a)), 0.16, STONE)
+    water.cyl((-0.6, 3.56, 0.0), 0.65, 0.04, "fish_blue", segments=10)
+    b.ball((-0.75, 3.6, 0.1), 0.1, "fur_orange", scale=(2.0, 0.6, 0.8))
+    b.cyl((1.2, 4.1, 0.0), 0.08, 1.2, "fur_bramble", segments=6)                           # a blossom tree
+    for (dx, dy, r, sw) in ((0, 1.0, 0.45, "blush"), (-0.3, 0.8, 0.32, "fur_rose"), (0.3, 0.85, 0.32, "apron_pink")):
+        b.ball((1.2 + dx, 4.1 + dy, 0.0), r, sw)
+    b.span((2.2, 3.5, -0.4), (3.4, 3.7, 0.4), WOODD)                                        # a tea set
+    b.cyl((2.55, 3.85, 0.0), 0.16, 0.3, "fur_sand", segments=8)
+    for x in (3.0, 3.25):
+        b.cyl((x, 3.78, -0.15), 0.07, 0.12, "milk", segments=6)
+    for sx in (3.9, 5.1):                                                                   # a lantern string
+        b.cyl((sx, 4.4, 0.2), 0.05, 1.8, WOODD, segments=6)
+    for k in range(3):
+        glow.ball((4.1 + 0.4 * k, 4.95 - 0.12 * (k == 1), 0.2), 0.14, (RED, "gold_mid", RED)[k])
+    for sx in (-1, 1):                                                                      # cherry trees beside it
+        _rb_tree(b, sx * 8.0, 0.5, 7.5)
+    return [b.finalize(STALL, mat), glow.finalize(STALL + "_Glow", mat), water.finalize(STALL + "_Water", mat)]
+
+
+def _rb_tree(b, x, z, h):
+    b.cyl((x, h * 0.3, z), 0.4, h * 0.6, "fur_bramble", r2=0.3, segments=8)
+    for (dx, dy, dz, r, sw) in ((0, 0.75, 0, 0.34, "blush"), (-0.3, 0.62, 0.2, 0.25, "fur_rose"),
+                                (0.32, 0.64, -0.15, 0.26, "apron_pink")):
+        b.ball((x + dx * h, dy * h, z + dz * h), r * h, sw)
 
 
 def _rb_blossom(b, x, z, h, rnd):
@@ -563,4 +649,6 @@ def build_portal(mat):
 ASSETS = {
     NAME: (build_cherry_set, 150000),
     PORTAL: (build_portal, 6000),
+    STALL: (build_stall, 4500),
+    PETALS: (build_petals, 600),
 }

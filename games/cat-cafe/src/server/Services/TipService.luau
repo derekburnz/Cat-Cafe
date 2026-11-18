@@ -100,7 +100,12 @@ local function watch()
 				TipService.show(player, id)
 			end
 			-- F96: at most one ask a session, when its moment has come
-			if not session.asked then
+			-- #5251: with promptsAfter5 on, no ask before Tips.promptOk's floor (account play and this session)
+			local floorOk = not LiveFlags.shown(
+				Tips.PROMPTS_FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Tips.PROMPTS_FLAG)
+			) or Tips.promptOk(PlayTime.seconds(player, profile), now - session.loadedAt)
+			if not session.asked and floorOk then
 				local ask = Tips.dueAsk(
 					profile,
 					clock,

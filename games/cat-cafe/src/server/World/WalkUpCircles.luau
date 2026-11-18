@@ -23,6 +23,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.AssetRegistry)
+local Layout = require(script.Parent.Layout)
 local WalkUp = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("WalkUp"))
 
 local WalkUpCircles = {}
@@ -182,6 +183,16 @@ local function ring(
 	part.CanTouch = false
 	part.CastShadow = false
 	part:SetAttribute("Radius", radius)
+	-- Derek 2026-11-18 (#5224, townRings switch, Effects/StationCircles): whether the ring is on the Town Square (or
+	-- within TOWN_MARGIN of it), so the client shows it always and smaller there, and never out in the areas
+	local square = Layout.townSquare.floor
+	part:SetAttribute(
+		WalkUp.TOWN_ATTRIBUTE,
+		centre.X >= square.x1 - WalkUp.TOWN_MARGIN
+			and centre.X <= square.x2 + WalkUp.TOWN_MARGIN
+			and centre.Z >= square.z1 - WalkUp.TOWN_MARGIN
+			and centre.Z <= square.z2 + WalkUp.TOWN_MARGIN
+	)
 
 	local gui = Instance.new("SurfaceGui")
 	gui.Name = "Ring"
@@ -337,6 +348,15 @@ function WalkUpCircles.toward(
 	local way = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, 1)
 	local at = model:GetPivot().Position + way * WalkUp.frontOffset(half, radius, range)
 	ring(model, Vector3.new(at.X, bottom + LIFT, at.Z), radius, color, into, icon)
+	-- the cafe's bowl ring keeps the Station circles setting (townRings)
+	local laidRing = model:FindFirstChild(WalkUp.CIRCLE)
+	if
+		laidRing ~= nil
+		and laidRing:IsA("ObjectValue")
+		and (laidRing :: ObjectValue).Value ~= nil
+	then
+		((laidRing :: ObjectValue).Value :: Instance):SetAttribute(WalkUp.TOWN_ATTRIBUTE, nil)
+	end
 end
 
 -- The flat points, from `centre`, where something other than the station stands on the floor within `reach`.

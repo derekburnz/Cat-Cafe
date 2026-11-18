@@ -813,7 +813,7 @@ local Config = {
 			-- #4362: the Town Square update poster's name and picture (UI/Screens/UpdatePoster); an entry with
 			-- neither reads "NEW UPDATE" on a plain face
 			name = "3 NEW WORLDS",
-			poster = "rbxassetid://136446394707169",
+			poster = "rbxassetid://108368762916635",
 		},
 		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
 		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
@@ -827,14 +827,14 @@ local Config = {
 			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
 			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
 			name = "GOLDEN FISH STORE",
-			poster = "rbxassetid://78033321655386",
+			poster = "rbxassetid://111729924291267",
 		},
 		{
 			id = "6810389993696133776",
 			startsAt = 1794945600, -- "Better on Every Device", Tuesday 2026-11-17 20:00 UTC
 			title = "🔔 Next update Tuesday: better controls on every device! Want a reminder?",
 			name = "BETTER ON EVERY DEVICE",
-			poster = "rbxassetid://138232412903853",
+			poster = "rbxassetid://106761198374065",
 		},
 		-- Derek 2026-11-15 17:13 UTC ("are we still prompting people ... we should be"): the two after Better on Every
 		-- Device, so the ask keeps rolling to the next update with no gap. Cherry Blossom Grove's Roblox Event was
@@ -852,14 +852,14 @@ local Config = {
 			startsAt = 1795006800, -- 2026-11-18 13:00 UTC
 			liveUntil = 1795291200, -- 2026-11-21 20:00 UTC
 			name = "CAT FOLLOWER",
-			poster = "rbxassetid://98774231410598", -- Model-Agent's v2 poster (#5213, 1024x576)
+			poster = "rbxassetid://140613402107560", -- Model-Agent's v2 poster (#5213, 1024x576)
 		},
 		{
 			id = "3056428113926947439",
 			startsAt = 1797105600, -- "Christmas Event", Saturday 2026-12-12 20:00 UTC
 			title = "🔔 Next update Sat Dec 12: the CHRISTMAS EVENT! Want a reminder when it lands?",
 			name = "CHRISTMAS EVENT",
-			poster = "rbxassetid://94241918927083", -- #5153: the Christmas banner (1024x576, Model-Agent)
+			poster = "rbxassetid://121570332796448", -- #5153: the Christmas banner (1024x576, Model-Agent)
 		},
 		{
 			id = "6693355219203523122",
@@ -873,7 +873,7 @@ local Config = {
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
 			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
 			name = "10 SECRET CATS",
-			poster = "rbxassetid://119053796760824",
+			poster = "rbxassetid://71877960958553",
 		},
 	} :: {
 		{

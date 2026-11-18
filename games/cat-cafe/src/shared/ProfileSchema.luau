@@ -941,6 +941,14 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		else 0
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
+	-- #5291: milestones_v1's mask (MilestoneFunnel.sanitize, kept here as a number check so this module needs no
+	-- Economy): a whole number from -1 (out) to 4095 (all 12 steps), nil for none
+	local milestoneMask = value.milestoneMask
+	if type(milestoneMask) == "number" and milestoneMask == milestoneMask then
+		telemetry.milestoneMask = if milestoneMask < 0
+			then -1
+			else math.min(math.floor(milestoneMask), 4095)
+	end
 	return telemetry
 end
 

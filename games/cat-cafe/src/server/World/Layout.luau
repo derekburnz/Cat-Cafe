@@ -196,7 +196,7 @@ function Layout.plotPlacement(index: number): { x: number, z: number, side: numb
 	local ring = math.floor(pair / 2)
 	local z = north
 		* (
-			W.TownSquareHalfDepth
+			W.TownRowStartZ
 			+ W.PlotRowGap
 			+ W.PlotCapWidth / 2
 			+ ring * (W.PlotCapWidth + W.PlotRowGap)
@@ -217,7 +217,7 @@ function Layout.sidePassages(): { number }
 		end
 	end
 	table.sort(north)
-	local edge = W.TownSquareHalfDepth -- the gardens' edge, then each cafe's far side in turn
+	local edge = W.TownRowStartZ -- the old gardens' edge, then each cafe's far side in turn
 	for _, z in north do
 		local passage = (edge + z - W.PlotCapWidth / 2) / 2
 		table.insert(passages, -passage)
@@ -2556,29 +2556,13 @@ Layout.castle = {
 -- cannon is never blocked.
 local TSW, TSD = W.TownSquareHalfWidth, W.TownSquareHalfDepth
 
--- rotY (degrees) that turns a model's front (-Z) from (x, z) toward (tx, tz): CFrame.Angles(0, rad(rotY), 0) has the
--- LookVector (-sin, 0, -cos).
-local function facing(x: number, z: number, tx: number, tz: number): number
-	return math.deg(math.atan2(-(tx - x), -(tz - z)))
+-- #5224 (Derek 2026-11-18 13:50 UTC, v5): the stations stand in an oval ring round the cannon on the 108 x 165
+-- square, each turned to the cannon (the leaderboards straight across, the Fish Market and Decor Stand 40 percent
+-- toward straight). Model-Agent's spots (SPOTS_roblox_v5.md in Model-Agent/town-square-ring-2026-11-18): standing
+-- at the spawn looking north (+z), +x is on the left.
+local function ringSpot(x: number, z: number, rotY: number): Point
+	return { x = x, y = 0.1, z = z, rotY = rotY }
 end
-
-local function station(x: number, z: number): Point
-	return { x = x, y = 0.1, z = z, rotY = facing(x, z, 0, 0) }
-end
-
--- #4667 (Derek2 2026-11-15: the stations "more on the edges facing straight inside and not infront of eachother"):
--- a station on the square's east or west edge, facing straight in across the square, and one on its north or south
--- edge, facing straight in along the street.
-local function sideStation(x: number, z: number): Point
-	return { x = x, y = 0.1, z = z, rotY = facing(x, z, 0, z) }
-end
-local function endStation(x: number, z: number): Point
-	return { x = x, y = 0.1, z = z, rotY = facing(x, z, x, 0) }
-end
--- The edge spots: SIDE_X in from the east and west borders, at the three lamps of each quarter (SLOT_Z), so a bench
--- stands between every two stations and nothing stands in front of anything else.
-local SIDE_X = 50
-local SLOT_Z = { 28.625, 48.75, 68.875 }
 
 Layout.townSquare = {
 	floor = { x1 = -TSW, z1 = -TSD, x2 = TSW, z2 = TSD } :: Rect,
@@ -2612,23 +2596,20 @@ Layout.townSquare = {
 	-- spawn and the Golden Fish Market, to a pair either side of the street's path at its north end, just inside the
 	-- north sign arch, each turned to face the spawn. #2367 (Derek2 11-07, "only 1 is needed 2 juts adds clutter")
 	-- keeps the left one, off the Fish Market's side. WorldBuilder.setRally shows it while a Rally runs.
-	rallyBoards = {
-		-- #3070: out from behind the cannon, so the spawn sees the whole board
-		-- #3454: the north-west corner, behind the Spin Wheel's spot, still facing the spawn; (-26, 54) before
-		-- #4667: the north-west quarter's far edge spot, facing straight in
-		{ asset = "CatCafe_Square_RallyBoard", x = -SIDE_X, y = 0.1, z = SLOT_Z[3], rotY = -90 },
-	} :: { Prop },
+	-- #5224 (v5): the Rally board came out of the square; the list stays so a Rally still runs with no board
+	rallyBoards = {} :: { Prop },
 	-- The pity cat's sign (#1572, luck-and-rare-moments.md 1h; Model-Agent #1592: `CatCafe_Square_PitySign`, front
 	-- -Z, its Screen 5.6 x 2.8): the manifest's suggested spot across the street from the Day Cart, turned to face the
 	-- player spawn (#1753: it was never placed). WorldBuilder tags it PitySign for the countdown on its Screen.
 	-- #3454: to the south-west, on the Day Cart's old spot, facing the spawn; (19, -53.5) before (#3070)
 	-- #4667: the west edge spot nearest the spawn, facing straight in
+	-- #5224 (v5): the north-east of the ring, by the Day Cart's side of the street
 	pitySign = {
 		asset = "CatCafe_Square_PitySign",
-		x = -SIDE_X,
+		x = 21.18,
 		y = 0.1,
-		z = -SLOT_Z[1],
-		rotY = -90,
+		z = 69.80,
+		rotY = 16.9,
 	} :: Prop,
 	-- The update poster (#4362, Derek 2026-11-15: nudge players to Notify Me for the next update, "including
 	-- posters"; Model-Agent's `CatCafe_Square_UpdatePoster`, front -Z, its Screen 8.0 x 4.5, about 9.3 wide): east of
@@ -2638,12 +2619,13 @@ Layout.townSquare = {
 	-- bit"): at (20, -40) it stood on the line from the spawn, and from the cannon, to the Feedback stand at (28, -54).
 	-- It stands beside the street now, 8 studs west of both lines, still facing the spawn.
 	-- #4667: the east edge spot nearest the spawn, across from the pity sign, facing straight in
+	-- #5224 (v5): the south-west of the ring, near the spawn
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
-		x = SIDE_X,
+		x = -37.99,
 		y = 0.1,
-		z = -SLOT_Z[1],
-		rotY = 90,
+		z = -49.80,
+		rotY = -142.7,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
@@ -2654,108 +2636,95 @@ Layout.townSquare = {
 	-- (v4, placed by WorldBuilder) and its pad, and the quarters only the stations. The finger signpost south-west of
 	-- the cannon came out 2026-11-03 (Derek: its tier arms no longer matched the areas). A short bunting skips until
 	-- its model is in (AssetRegistry.known).
+	-- #5224 (v5): the 108 x 165 set, Model-Agent's square.PLACEMENTS (PROPS_rows_layout.luau): the paving, the two sign
+	-- arches at z +-82.5, the lamps, buntings, benches and gardens round the edge, then the Decor Stand and the
+	-- Mystery sign at their ring spots.
 	props = {
 		{ asset = "CatCafe_Square_Paving", x = 0, y = 0.1, z = 0 },
-		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -90 },
-		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 90, rotY = 180 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -89, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = -41.75, y = 0.1, z = -89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = -89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -28.625 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -48.75 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -68.875 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = -8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 89, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = -41.75, y = 0.1, z = 89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = 89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 28.625 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 48.75 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 68.875 },
-		{ asset = "CatCafe_Square_Lamp", x = -59, y = 0.1, z = 8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -89, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 41.75, y = 0.1, z = -89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = -89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -28.625 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -48.75 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -68.875 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = -8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 89, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 41.75, y = 0.1, z = 89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = 89, rotY = 90 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 28.625 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 48.75 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 68.875 },
-		{ asset = "CatCafe_Square_Lamp", x = 59, y = 0.1, z = 8.5 },
-		{ asset = "CatCafe_Square_Bunting", x = -33.125, y = 0.1, z = -89 },
-		{ asset = "CatCafe_Square_Bunting", x = -50.375, y = 0.1, z = -89 },
-		{ asset = "CatCafe_Square_Bunting", x = -33.125, y = 0.1, z = 89 },
-		{ asset = "CatCafe_Square_Bunting", x = -50.375, y = 0.1, z = 89 },
-		{ asset = "CatCafe_Square_Bunting", x = 33.125, y = 0.1, z = -89 },
-		{ asset = "CatCafe_Square_Bunting", x = 50.375, y = 0.1, z = -89 },
-		{ asset = "CatCafe_Square_Bunting", x = 33.125, y = 0.1, z = 89 },
-		{ asset = "CatCafe_Square_Bunting", x = 50.375, y = 0.1, z = 89 },
-		{ asset = "CatCafe_Square_BuntingShort", x = -59, y = 0.1, z = 0, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingShort", x = 59, y = 0.1, z = 0, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = -18.562, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = -38.688, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = -58.812, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = -78.938, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = 18.562, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = 38.688, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = 58.812, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = -59, y = 0.1, z = 78.938, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = -18.562, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = -38.688, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = -58.812, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = -78.938, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = 18.562, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = 38.688, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = 58.812, rotY = 90 },
-		{ asset = "CatCafe_Square_BuntingSide", x = 59, y = 0.1, z = 78.938, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = -50.375, y = 0.1, z = -87.4, rotY = 180 },
-		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = -38.688, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = -58.812, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = -78.938, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = -50.375, y = 0.1, z = 87.4 },
-		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = 38.688, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = 58.812, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = -57.4, y = 0.1, z = 78.938, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = 50.375, y = 0.1, z = -87.4, rotY = 180 },
-		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = -38.688, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = -58.812, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = -78.938, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = 50.375, y = 0.1, z = 87.4 },
-		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = 38.688, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = 58.812, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = 57.4, y = 0.1, z = 78.938, rotY = 90 },
-		{ asset = "CatCafe_Square_Garden", x = -64, y = 0.1, z = -21.5, rotY = -90 },
-		{ asset = "CatCafe_Square_Garden", x = -64, y = 0.1, z = 21.5, rotY = -90 },
-		{ asset = "CatCafe_Square_Garden", x = 64, y = 0.1, z = -21.5, rotY = 90 },
-		{ asset = "CatCafe_Square_Garden", x = 64, y = 0.1, z = 21.5, rotY = 90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = -64, y = 0.1, z = -61.5, rotY = -90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = -64, y = 0.1, z = 61.5, rotY = -90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = -61.5, rotY = 90 },
-		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = 61.5, rotY = 90 },
-		{ asset = "CatCafe_Square_GardenMid", x = -64, y = 0.1, z = 0, rotY = -90 },
-		{ asset = "CatCafe_Square_GardenMid", x = 64, y = 0.1, z = 0, rotY = 90 },
-		-- #4516 (Derek2 2026-11-15: "add a little decor stand beside the fish market so people know thats where to
-		-- get decor"): Model-Agent's `CatCafe_Square_DecorStand` (front -Z, about 4.9 x 2.9), just past the market's
-		-- end on the Day Cart's side (Layout.fishMarket), turned to face the spawn. Its arrow points at the market
-		-- from here. 1 stud clear of the market, 7 of its walk-up ring and 8 of everything else (world scan).
-		-- Skipped until its model is in (AssetRegistry.known).
-		-- #4532: with the square 180 deep the market stands at (47, 79); the stand keeps its place off the market's
-		-- end on the Coin Cart's side, where its arrow points at the market.
-		-- #4667: the market stands on the east edge; the stand stays off its north end, facing straight in
-		{ asset = "CatCafe_Square_DecorStand", x = SIDE_X, y = 0.1, z = 79, rotY = 90 },
-		-- #4508 (Derek2 2026-11-15: "make a signboard beside the mystery market ... that shows the new items like
-		-- backpack/shoes on it so people know where that is"): Model-Agent's `CatCafe_Square_MysterySign` (front -Z,
-		-- about 5.3 x 2.9), just past the wagon's easel end (Layout.mysteryCart), turned to face the spawn. Its arrow
-		-- points at the wagon from here. 1 stud clear of the wagon, 5 of its walk-up ring and 6 of everything else
-		-- (world scan). Skipped until its model is in (AssetRegistry.known).
-		-- #4532: with the square 180 deep the wagon stands at (-46, -78); the sign keeps its place off the wagon's
-		-- easel end, where its arrow points at the wagon.
-		-- #4667: the wagon stands on the west edge; the sign stays off its easel end, facing straight in
-		{ asset = "CatCafe_Square_MysterySign", x = -SIDE_X, y = 0.1, z = -79, rotY = -90 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -82.5 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 82.5, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = -45.875, y = 0.1, z = -79.9, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = -51.4, y = 0.1, z = -35.875, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -51.4, y = 0.1, z = -54.125, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -51.4, y = 0.1, z = -72.375, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -45.875, y = 0.1, z = 79.9 },
+		{ asset = "CatCafe_Square_Bench", x = -51.4, y = 0.1, z = 35.875, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -51.4, y = 0.1, z = 54.125, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -51.4, y = 0.1, z = 72.375, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = 45.875, y = 0.1, z = -79.9, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = 51.4, y = 0.1, z = -35.875, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 51.4, y = 0.1, z = -54.125, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 51.4, y = 0.1, z = -72.375, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 45.875, y = 0.1, z = 79.9 },
+		{ asset = "CatCafe_Square_Bench", x = 51.4, y = 0.1, z = 35.875, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 51.4, y = 0.1, z = 54.125, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 51.4, y = 0.1, z = 72.375, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = -81.5, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -38.75, y = 0.1, z = -81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = -81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = -26.75 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = -45 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = -63.25 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = -8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = 81.5, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -38.75, y = 0.1, z = 81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = 81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = 26.75 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = 63.25 },
+		{ asset = "CatCafe_Square_Lamp", x = -53, y = 0.1, z = 8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = -81.5, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 38.75, y = 0.1, z = -81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = -81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = -26.75 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = -45 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = -63.25 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = -8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = 81.5, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 38.75, y = 0.1, z = 81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = 81.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = 26.75 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = 63.25 },
+		{ asset = "CatCafe_Square_Lamp", x = 53, y = 0.1, z = 8.5 },
+		{ asset = "CatCafe_Square_Bunting", x = -31.625, y = 0.1, z = -81.5 },
+		{ asset = "CatCafe_Square_Bunting", x = -45.875, y = 0.1, z = -81.5 },
+		{ asset = "CatCafe_Square_Bunting", x = -31.625, y = 0.1, z = 81.5 },
+		{ asset = "CatCafe_Square_Bunting", x = -45.875, y = 0.1, z = 81.5 },
+		{ asset = "CatCafe_Square_Bunting", x = 31.625, y = 0.1, z = -81.5 },
+		{ asset = "CatCafe_Square_Bunting", x = 45.875, y = 0.1, z = -81.5 },
+		{ asset = "CatCafe_Square_Bunting", x = 31.625, y = 0.1, z = 81.5 },
+		{ asset = "CatCafe_Square_Bunting", x = 45.875, y = 0.1, z = 81.5 },
+		{ asset = "CatCafe_Square_BuntingShort", x = -53, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingShort", x = 53, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = -17.625, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = -35.875, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = -54.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = -72.375, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = 17.625, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = 35.875, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = 54.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -53, y = 0.1, z = 72.375, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = -17.625, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = -35.875, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = -54.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = -72.375, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = 17.625, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = 35.875, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = 54.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 53, y = 0.1, z = 72.375, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = -60.75, y = 0.1, z = -21.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = -60.75, y = 0.1, z = 21.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = 60.75, y = 0.1, z = -21.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = 60.75, y = 0.1, z = 21.5, rotY = 90 },
+		{ asset = "CatCafe_Square_GardenMid", x = -60.75, y = 0.1, z = 0, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenMid", x = 60.75, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = -60.75, y = 0.1, z = -61.5, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = -60.75, y = 0.1, z = 61.5, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = 60.75, y = 0.1, z = -61.5, rotY = 90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = 60.75, y = 0.1, z = 61.5, rotY = 90 },
+		{ asset = "CatCafe_Square_DecorStand", x = -41.74, y = 0.1, z = 39.58, rotY = -63.8 },
+		{ asset = "CatCafe_Square_MysterySign", x = 20.73, y = 0.1, z = -71.01, rotY = 163.7 },
 	} :: { Prop },
 }
 
@@ -2796,42 +2765,42 @@ Layout.townSquare = {
 -- (SIDE_X), facing straight in, at the three lamps of its quarter (SLOT_Z, 20 apart, a bench between each two); the
 -- Thank You board takes the south edge. The quarters keep their themes. The middle is open paving from the street to
 -- the walk-up rings. The Bellhop stand, the leaderboards, the cannon, its pad and the spawn stay.
-Layout.spinWheel = sideStation(-SIDE_X, SLOT_Z[2]) -- #4667; (-26, 56) before
+Layout.spinWheel = ringSpot(40.32, -44.35, 137.7) -- #5224 v5; sideStation(-SIDE_X, SLOT_Z[2]) -- #4667; (-26, 56) before
 -- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it/notice the update"): the Mystic Pool
 -- stands in the Town Square. It stood on the Park camp's picnic spot before; the Picnic Basket has that spot back.
 -- #3770 (Derek 2026-11-13: "not have it blocking anything and move it to the sides and not close to middle of map"):
 -- on the market corner's free spot at the east side, (44, 22), the mirror of the Arcade cabinet's (-44, 22) and
 -- fitted for a station with a radius 8 ring in #3454. It faces the cannon like every corner station. Its first
 -- Town Square spot, (26, 28), was 38 studs from the cannon, in the open quarter between the lanes.
-Layout.mysticPool = sideStation(SIDE_X, SLOT_Z[1]) -- #4667; (45, 30) before
-Layout.fishMarket = sideStation(SIDE_X, SLOT_Z[3]) -- #4667; (47, 79) before
+Layout.mysticPool = ringSpot(44.58, 12.02, 74.9) -- #5224 v5; sideStation(SIDE_X, SLOT_Z[1]) -- #4667; (45, 30) before
+Layout.fishMarket = ringSpot(-38.13, 50.32, -58.0) -- #5224 v5; sideStation(SIDE_X, SLOT_Z[3]) -- #4667; (47, 79) before
 -- #3000 (Derek2 2026-11-10: "push the codes back between mystery market and codes cat", option A): the whole Codes
 -- stand stands back from the middle, in the gap between the Mystery Market and the Bellhop Cat (#3070: at
 -- (-45, -25.5) on the deeper square, (-45, -20) before).
 -- #3454: (-45, -25.5) before. One stud south of Design's (-44, -22), so the radius 8 circle and the Bellhop stand's
 -- reach never overlap (Layout.spec).
-Layout.codesCat = sideStation(-SIDE_X, -SLOT_Z[2]) -- #4667; (-45, -30) before
+Layout.codesCat = ringSpot(46.67, 46.49, 45.1) -- #5224 v5; sideStation(-SIDE_X, -SLOT_Z[2]) -- #4667; (-45, -30) before
 -- #1388: the night market parked in front of the Thank You board (below), on its line to the cannon. #3070: the
 -- board stands south of the cart now, clear of it from the spawn and from the cannon.
 -- #3189 (Derek2 2026-11-10: "move the night market slightly to the left so more space for feedback stand on right"):
 -- 4 studs toward the street and 4 toward the lane, from (37, -35); the Thanks board stays clear of it from the spawn
 -- and the cannon (fit70.py, Animation-Engineer/tasks/stand3189).
-Layout.dealerCart = sideStation(SIDE_X, -SLOT_Z[2]) -- #4667; (45, -30) before
+Layout.dealerCart = ringSpot(44.91, -12.64, 105.1) -- #5224 v5; sideStation(SIDE_X, -SLOT_Z[2]) -- #4667; (45, -30) before
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
 -- of the Codes circle, and its 9.2 stud dais leaves the lane open from the street to x -33. Its sign faces the cannon.
-Layout.bellhopStand = station(-48, 0)
+Layout.bellhopStand = ringSpot(-44.71, 15.27, -71.1) -- #5224 v5; station(-48, 0)
 -- #2565 (mystery-market.md section 1): Juniper's Mystery Market cart, facing the cannon, in the south-west corner
 -- between the Codes Cat and the Day Cart (Model-Agent's spot, 2026-11-09; the two south-west benches came out). For
 -- its 12 x 7 wagon with the r4 walk-in circle 1 stud in front: the Codes circle is 2.6 studs off, the Day Cart 3.2
 -- and the lane 2.5. Design's (-24, -14) put the circle 0.3 into the lane.
-Layout.mysteryCart = sideStation(-SIDE_X, -SLOT_Z[3]) -- #4667; (-46, -78) before
+Layout.mysteryCart = ringSpot(28.69, -65.08, 156.2) -- #5224 v5; sideStation(-SIDE_X, -SLOT_Z[3]) -- #4667; (-46, -78) before
 
 -- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow, three chalkboards
 -- in a row 23.8 long and 2.7 deep, at the lane's east end, mirroring the Bellhop stand, facing the cannon. Turned, the
 -- row runs z -11.9 to 11.9 and x 38.6 to 41.4, clear of the edge lamps at x 47.
-Layout.leaderboards = station(50, 0)
+Layout.leaderboards = ringSpot(-44.0, -17.0, -90.0) -- #5224 v5; station(50, 0)
 
 -- The Corner Shop (#1052, corner-shop.md section 4): beside the Golden Fish Market toward the north-east corner,
 -- facing the cannon. Model-Agent's spot for CatCafe_Street_CornerShop (10.9 x 4.3, #1215; was 15, 23): clear of the
@@ -2839,20 +2808,20 @@ Layout.leaderboards = station(50, 0)
 -- street by 7.1.
 -- #1577 (day-cart.md section 3): the shop's old building, built only until the Day Cart's model arrives.
 -- #3454: the Day Cart stands on this corner now, so the fallback building shares its spot (only one is ever built).
-Layout.cornerShop = sideStation(SIDE_X, SLOT_Z[2]) -- #4667
+Layout.cornerShop = ringSpot(-22.31, 69.13, -18.1) -- #5224 v5; sideStation(SIDE_X, SLOT_Z[2]) -- #4667
 
 -- The Day Cart (#1577, day-cart.md section 3): the Corner Shop on CatCafe_Town_DayCart, in the square's south-west
 -- quarter opposite the Golden Fish Market. Model-Agent's spot (#1592) keeps the walk lines and the cannon clear.
 -- #2565: nudged from (-17, -24) for the Mystery Market corner; 2.6 studs from the street and 4.2 from the arch post.
 -- #3454: across the square to the north-east, beside the street and the Golden Fish Market; (-21, -56) before.
-Layout.dayCart = sideStation(SIDE_X, SLOT_Z[2]) -- #4667; (25, 57) before
+Layout.dayCart = ringSpot(-22.31, 69.13, -18.1) -- #5224 v5; sideStation(SIDE_X, SLOT_Z[2]) -- #4667; (25, 57) before
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
 -- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),
 -- with the night dealer's cart parked in front of it. Model-Agent's spot: it runs from about (34, -25) to (40, -15),
 -- clear of the row's corner by 2.5 studs, the east bench behind it by 5, the south bench by 3.1 and the lane by 8.4.
 -- #4667: on the south edge between two lamps, facing straight in along the street; (47, -79) before
-Layout.thanksBoard = endStation(33.125, -82)
+Layout.thanksBoard = ringSpot(-20.5, -76.3, 180) -- #5224 v5; endStation(33.125, -82)
 
 -- #3070: two spots the bigger square keeps free, mirrored either side of the street north of the lane, each facing
 -- the cannon: the feedback stand's (#3066, CatCafe_Town_FeedbackStand, a mailbox that opens the feedback box) and
@@ -2861,12 +2830,12 @@ Layout.thanksBoard = endStation(33.125, -82)
 -- the stand leaves (34, 18) for the east side south of the lane, on the Thanks board's right as you face the board,
 -- between the night cart and the leaderboard row (9.3 off every body, 4.7 off the lamps and benches). The arcade's
 -- spot north of the lane stayed until #3359 (below).
-Layout.feedbackStand = sideStation(SIDE_X, -SLOT_Z[3]) -- #4667; (26, -56) before
+Layout.feedbackStand = ringSpot(-33.51, -58.19, -150.1) -- #5224 v5; sideStation(SIDE_X, -SLOT_Z[3]) -- #4667; (26, -56) before
 -- #3359 (Derek2 2026-11-11: "the arcade is too close to spin and the circle is on top of it"): at (-34, 18) the
 -- cabinet's walk-in ring lay over the cabinet and 0.4 studs into the Spin Wheel's ring. It stands 9 studs further
 -- west now, between the wheel and the Bellhop stand: its ring (touching its front, Arcade.RING_RANGE) is 3 studs off
 -- the wheel's ring and 2.9 off the lane, and the cabinet is 18 studs from both stations (Layout.spec).
-Layout.arcadeCabinet = sideStation(-SIDE_X, SLOT_Z[1]) -- #4667; (-45, 30) before
+Layout.arcadeCabinet = ringSpot(32.85, 59.78, 28.8) -- #5224 v5; sideStation(-SIDE_X, SLOT_Z[1]) -- #4667; (-45, 30) before
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.

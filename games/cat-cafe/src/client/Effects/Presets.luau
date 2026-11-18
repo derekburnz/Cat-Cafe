@@ -676,6 +676,24 @@ Presets.emitters = {
 		lightEmission = 1,
 		rotSpeed = { -90, 90 },
 	},
+	-- Snowglobe Village (Effects/SnowglobeFx): the Town Square globe's icy swirl, the Rift's swirl in snow colours
+	globeSwirl = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 255, 255),
+			Color3.fromRGB(190, 225, 255),
+			Color3.fromRGB(140, 190, 255),
+		},
+		size = { 0.9, 0 },
+		transparency = { 0.15, 1 },
+		lifetime = { 1.2, 2 },
+		speed = { 1.5, 3.5 },
+		spread = 180,
+		rate = 24,
+		drag = 1.5,
+		lightEmission = 1,
+		rotSpeed = { -60, 60 },
+	},
 	riftStreak = {
 		texture = Presets.textures.sparkle,
 		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(210, 190, 255) },
@@ -4023,6 +4041,70 @@ Presets.adminDrops = {
 -- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
 -- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
 -- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
+-- Snowglobe Village's world effects (Effects/SnowglobeFx, Christmas Event Dec 1). Tag names are placeholders until
+-- Model-Agent's village and Gameplay-Engineer's event row land; change them here only.
+-- Christmas Event (Effects/SnowglobeFlakes): the Snowflake patch. Ready flakes bob `height` studs over `period`
+-- seconds (each `phaseStep` seconds behind the one before) and turn once every `spin` seconds within `bobWithin`
+-- studs; a pick within `within` studs bursts `pickCount` icy sparkles `lift` studs up and a `pickRing` stud ring, a
+-- regrow `regrowCount`; a rise in your Snowflakes pops "+N Snowflakes" over your head for `popSeconds`.
+Presets.snowglobeFlakes = {
+	flag = "christmasEvent",
+	tag = "SnowglobeFlake",
+	touchName = "Touch",
+	readyAttribute = "Ready",
+	bobWithin = 90,
+	height = 0.35,
+	period = 2.4,
+	phaseStep = 0.37,
+	spin = 6,
+	within = 120,
+	lift = 1.2,
+	sparkle = "catchSparkle",
+	pickCount = 10,
+	pickRing = 5,
+	colour = Color3.fromRGB(143, 211, 255), -- icy blue, the Gift Stall's
+	regrowCount = 5,
+	regrowColour = Color3.fromRGB(255, 255, 255),
+	popColour = Color3.fromRGB(143, 211, 255),
+	popSeconds = 1.4,
+}
+
+Presets.snowglobeFx = {
+	centreTag = "SnowglobeCentre",
+	portalTag = "SnowglobePortal",
+	every = 0.5,
+	airWithin = 140,
+	snow = "snowfall",
+	box = Vector3.new(60, 1, 60),
+	height = 18,
+	calmRate = 0.2,
+	swirl = "globeSwirl",
+	portalWithin = 120,
+	portalLift = 6,
+	-- part 2 (#5326's names): the spin, the star and the night lights
+	parts = {
+		prefix = "CatCafe_Snowglobe_",
+		spin = "CatCafe_Snowglobe_Portal_Spin",
+		star = "CatCafe_Snowglobe_Set_006_TreeStar_Glow",
+		lights = {
+			"CatCafe_Snowglobe_Set_003_TreeLights_Glow",
+			"CatCafe_Snowglobe_Stall_Glow",
+			"CatCafe_Snowglobe_Portal_Portal_Glow",
+			"CatCafe_Snowglobe_Portal_Glow",
+		},
+	},
+	spinSeconds = 18, -- when Portal_Spin has no Seconds attribute
+	starSeconds = 10,
+	spinWithin = 160,
+	lightEvery = 4, -- of `every`: the lights are picked again every 2 s
+	lightWithin = 90,
+	lightGap = 9,
+	lightsMost = 10,
+	lightsLow = 5,
+	lightBrightness = 0.7,
+	lightRange = 10,
+}
+
 Presets.harvestFx = {
 	pumpkinTag = "HarvestPumpkin",
 	boardTag = "HarvestBoard",
@@ -4460,6 +4542,46 @@ Presets.arcadeGlow = {
 	},
 }
 
+-- The Cat Arcade's attract screen (Derek 2026-11-18; Effects/ArcadeScreen): a SurfaceGui on the cabinet's `part`
+-- at `pixelsPerStud`, a mouse up every `beat` seconds, the paw bopping every `bopEvery`-th, a golden mouse every
+-- `goldEvery`-th. `sheet` and `backdrop` are Mouse Dash's uploaded pictures (UI/Components/MouseDashLogic).
+Presets.arcadeScreen = {
+	part = "Screen",
+	pixelsPerStud = 100,
+	brightness = 1.4,
+	maxDistance = 160,
+	within = 90,
+	beat = 0.9,
+	up = 0.18,
+	down = 0.12,
+	wait = 0.15,
+	bop = 0.12,
+	dust = 0.35,
+	bopEvery = 3,
+	goldEvery = 7,
+	holes = 3,
+	holeSize = 0.28,
+	holeY = 0.62,
+	sheet = "rbxassetid://106053188764774",
+	backdrop = "rbxassetid://116753136904678",
+	cell = 256,
+	cells = {
+		Mouse = { 0, 0 },
+		MouseHit = { 256, 0 },
+		GoldMouse = { 512, 0 },
+		GoldMouseHit = { 768, 0 },
+		Hole = { 512, 256 },
+		Dust = { 0, 512 },
+		Paw = { 256, 512 },
+		PawBop = { 512, 512 },
+	} :: { [string]: { number } },
+	night = Color3.fromRGB(31, 42, 68), -- the screen part's own night blue
+	floorTint = Color3.fromRGB(200, 190, 210),
+	text = "PRESS PLAY",
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(74, 46, 30),
+}
+
 -- A Golden find (#3222; Effects/GoldenFind): the toast line starting `prefix` (LawnService.giveDrop's) plays a gold
 -- `beamWidth` by `beamHeight` stud beam off the player for `beamSeconds`, `sparkles` catchSparkle and `confetti` pieces
 -- `lift` studs over their middle, and `rings` gold rings `ringGap` seconds apart, `ring` studs wider each, at their
@@ -4644,6 +4766,23 @@ Presets.netTrail = {
 	colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
 }
 
+-- The Christmas cats' beats (snowglobe-village-spec section 4, Effects/ChristmasCats): which cats, the glow parts'
+-- name endings, and whether it wears a bell. Jingle's bell swings `degrees` either way, `swings` times over `seconds`,
+-- every `every` seconds (the first `firstMin` or more after it appears). A glow part shows `dayDim` of the way to
+-- clear by day; at night it twinkles between 0 and `nightDim` once every `twinkleSeconds`. Reduce Motion: no bell,
+-- steady glow.
+Presets.christmasCats = {
+	cats = {
+		jingle = { bell = true, glows = {} },
+		star_topper = { bell = false, glows = { "_Star_Glow", "_Bulbs_Glow" } },
+		sugar_plum = { bell = false, glows = { "_Gem_Glow", "_Wings_Glow" } },
+	} :: { [string]: { bell: boolean, glows: { string } } },
+	jingle = { seconds = 0.9, degrees = 22, swings = 3, every = { 7, 12 }, firstMin = 2 },
+	dayDim = 0.45,
+	nightDim = 0.25,
+	twinkleSeconds = 1.6,
+}
+
 -- The catch's result word (F93 section 3): as UI-Engineer's word slams in, sparkles burst off it in its colour and
 -- rings grow round it, the biggest for PURRFECT!; "So close!" gets none. The word is the first of `targets` found in
 -- CatCafeCatchCircles that shows within `wait` seconds of CatchResult. Sparkles are `size` pixels and fly up to
@@ -4668,6 +4807,16 @@ Presets.catchWord = {
 		great = { sparkles = 7, rings = 1, colour = Presets.palette.mint },
 		nice = { sparkles = 5, rings = 1, colour = Presets.palette.cream }, -- v3 (#1884 7d)
 	} :: { [string]: { sparkles: number, rings: number, colour: Color3 } },
+	-- #5300 Perfect catch (switch perfectCatch): when PURRFECT! turns to `text`, a sky blue burst (the "+50%" colour,
+	-- shared/PerfectCatch.COLOR #8FD3FF) with one more ring than PURRFECT!'s. Watched for `watch` seconds.
+	perfectPlus = {
+		flag = "perfectCatch",
+		text = "+50%",
+		watch = 2.5,
+		sparkles = 16,
+		rings = 3,
+		colour = Color3.fromRGB(143, 211, 255),
+	},
 }
 
 -- Catch v3 (#1884, catch-rework.md 7b to 7d; Effects/Catch). Each ring the server judges (CatchJudged) pops at the
@@ -5352,7 +5501,7 @@ Presets.rarityMark = {
 	shrink = {
 		flag = "gemsShrink",
 		near = 20,
-		far = 110,
+		far = 80, -- Sync 2026-11-18: 110 left gems at 60 to 100 studs covering 38 to 51% of the cat
 		least = 4,
 		finderLeast = 14,
 	},
@@ -6583,6 +6732,42 @@ Presets.stationCut = {
 		ringGap = 0.3,
 		ringSeconds = 1.2,
 	},
+}
+
+-- #5284 Cat Companion unlock scene (Effects/CompanionUnlockCut), about 8 s: fade in, the camera `far` studs in front
+-- of the player rising `rise` a stud, pushing in to `near`; the cat trots in from `walkFrom` studs to the player's right
+-- (and `walkIn` toward the camera) to `beside` studs beside them, from `walkAt` over `walkSeconds`; hearts `heartsUp`
+-- over it as it stops; the label from `labelAt`; the fade out at `endAt`. Skippable after `skipAfter`.
+Presets.companionCut = {
+	fade = 0.25,
+	walkAt = 0.6,
+	walkSeconds = 2.8,
+	labelAt = 3.7,
+	labelIn = 0.3,
+	endAt = 7.4,
+	skipAfter = 0.4,
+	far = 12,
+	near = 9,
+	rise = 0.22,
+	lookUp = 1.6, -- studs over the feet the camera looks at, between the player and the cat
+	clearance = 1.5,
+	closest = 5,
+	beside = 3,
+	walkFrom = 11,
+	walkIn = 2,
+	heartsUp = 0.6,
+	title = "CAT COMPANION UNLOCKED!",
+	line = "%s will follow you. Pick Money or Luck in Cats.",
+	lineNoName = "Your cat will follow you. Pick Money or Luck in Cats.",
+	displayOrder = 11, -- over ContextCut's 10, as the station cut
+	titleSize = 56,
+	nameSize = 34,
+	lineSize = 22,
+	titleY = 0.2,
+	nameY = 0.31,
+	lineY = 0.38,
+	smallScreen = 420,
+	smallScale = 0.7,
 }
 
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle

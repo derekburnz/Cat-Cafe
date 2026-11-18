@@ -16,7 +16,7 @@ all of that on the Screen).
     _Bulb                             the idea bulb on the crest above the header: lit at night
     _Flowers                          the planters' flowers
 
-Pivot at the base centre on the paving, the face (-Z) toward the players. Footprint about 10.6 x 2.4 studs, 15.7 tall (10.6 before the What's new panel, #1216).
+Pivot at the base centre on the paving, the face (-Z) toward the players. Footprint about 10.6 x 2.4 studs, 15.7 tall at 1x (10.6 before the What's new panel, #1216); built at SCALE 2 since #5224.
 The root Model streams Atomic (rbx_export.MODEL_PROPS) so the Screen is there whenever the board is, and it carries the
 ThanksBoard tag (rbx_export.TAGS). WorldBuilder places it at Layout.thanksBoard; the suggested spot is station(-15, -23)
 (turned to face the cannon), the Corner Shop's mirror in the Codes Cat's quarter: it clears the Codes Cat and its circle
@@ -26,9 +26,14 @@ by 2.8 studs, the south sign arch by 3.5 and the street lane by 1.6.
 import math
 
 from alleyway import flower_clump, label
-from common import RB, text_width
+from common import RB, scale_mesh, text_width
 
 NAME = "CatCafe_Street_ThanksBoard"
+# #5224 (Derek 2026-11-18: read the board from farther away on phones; Design: bigger text alone is not enough at 76 to
+# 88 studs): the whole board is built at this size and scaled about its pivot, so every number below stays the 1x
+# board's. Its Screen is 15.2 x 10.4 and its What's new panel 15.2 x 9.6; the UI's SurfaceGuis at half the pixels
+# a stud (32) draw the same canvas, every word twice as big. Footprint about 22.6 x 4.8, 31.4 tall.
+SCALE = 2.0
 W, H = 7.6, 5.2                 # the Screen
 Y0 = 2.2                        # its bottom, so its middle sits a little over a standing player's eye line
 FZ = -0.15                      # its front face
@@ -153,9 +158,13 @@ def build_thanks_board(mat):
     _crest(b, bulb)
     _ledge(b)
     _planters(b, flowers)
-    return [b.finalize(NAME, mat), screen.finalize(NAME + "_Screen", mat),
+    objs = [b.finalize(NAME, mat), screen.finalize(NAME + "_Screen", mat),
             whatsnew.finalize(NAME + "_WhatsNewPanel", mat), bulb.finalize(NAME + "_Bulb", mat),
             flowers.finalize(NAME + "_Flowers", mat)]
+    for ob in objs:                                                                        # #5224: 2x, about the pivot
+        ob.location = ob.location * SCALE
+        scale_mesh(ob, SCALE)
+    return objs
 
 
 ASSETS = {

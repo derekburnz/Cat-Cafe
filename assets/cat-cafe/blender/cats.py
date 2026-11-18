@@ -43,7 +43,7 @@ from common import Builder, scale_mesh
 # model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze); #2584: ear_k (ears that much bigger), glyphs (rows of carved glyphs in the second colour between bands of the
 # third along the flanks) and tiles (mosaic tiles in the second and third colours and cream on the flanks, back and
 # crown), both built as geometry so they hold in gold; #2739 (the Cat Makeovers): mark ((shape, colour or colours)): a
-# forehead mark from MARKS; Tier 8: rosettes (each spot a ring round a third-colour middle), cuff (a fur band round each
+# forehead mark from MARKS; Christmas: inner_ear (the colour inside the ears, pink by default); Tier 8: rosettes (each spot a ring round a third-colour middle), cuff (a fur band round each
 # leg above the paw, a snow boot's top). Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
@@ -430,6 +430,28 @@ ROSTER["HarvestMoon"] = dict(rarity="Mythical", fur="night_sky", second="eye_amb
                              pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True, socks="eye_amber",
                              tip="rarity_legend", nose="nose_dark", eye_k=1.08, mane=("eye_amber", "rarity_legend"))
 
+# Snowglobe Village, the Christmas Event (Tue Dec 1 2026 to Sun Jan 3 2027; snowglobe-village-spec section 4): eight
+# Christmas cats, kept forever. Main coats no other cat uses where the palette has one (it is full, 128 of 128).
+ROSTER["Gingerbread"] = dict(rarity="Common", fur="fur_croissant_dark", second="fur_toffee", eyes="eye_green",
+                             pattern="stripes", muzzle="fur_caramel", socks="milk", tip="milk", nose="milk")
+ROSTER["Snowball"] = dict(rarity="Common", fur="milk", second="fish_belly", eyes="eye_blue", pattern="solid",
+                          ruff="milk", fluffy=True, tail_thick=0.3, body_scale=(1.12, 1.0, 1.1), inner_ear="pastel_sky")
+ROSTER["CandyCane"] = dict(rarity="Rare", fur="shirt_red", second="milk", eyes="eye_green", pattern="stripes",
+                           muzzle="milk", socks="milk", tip="milk", curl=True, eye_k=1.05)
+ROSTER["Tinsel"] = dict(rarity="Rare", fur="fur_silver", second="sparkle", third="milk", eyes="fish_blue",
+                        pattern="spots", muzzle="milk", socks="milk", tip="sparkle", sparkle=True, eye_k=1.05)
+ROSTER["Jingle"] = dict(rarity="Rare", fur="leaf_dark", second="fur_cream", eyes="eye_amber", pattern="patches",
+                        muzzle="fur_cream", socks="fur_cream", tip="fur_cream", eye_k=1.05)
+ROSTER["Mistletoe"] = dict(rarity="Epic", fur="shirt_green", second="milk", eyes="eye_amber", pattern="spots",
+                           muzzle="milk", socks="milk", tip="milk", ruff="milk", nose="nose_dark", eye_k=1.08)
+ROSTER["SugarPlum"] = dict(rarity="Legendary", fur="velvet_lilac", second="fur_strawberry", third="apron_pink",
+                           eyes="eye_violet", pattern="gradient", muzzle=None, sparkle=True, socks="apron_pink",
+                           tip="sparkle", nose="nose_pink", eye_k=1.08, ear_tufts=True)
+ROSTER["StarTopper"] = dict(rarity="Mythical", fur="rarity_legend", second="galaxy_blue", third="night_sky",
+                            eyes="fish_blue", pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True,
+                            socks="night_sky", tip="rarity_legend", nose="nose_dark", eye_k=1.08,
+                            mark=("star", "milk"))
+
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze", "cuff")
 
 
@@ -792,7 +814,8 @@ def _ear(spec, c, h, side):
     tilt = _rot(side * 12, "Y")
     b.pyramid((0, 0, 0), ew, eh, c["ear"], rot=tilt)
     lean = math.sin(math.radians(12)) * side
-    b.box((lean * eh * 0.3, -ew * 0.36, eh * 0.3), (ew * 0.36, 0.03, eh * 0.38), "nose_pink", bevel=False, rot=tilt)
+    b.box((lean * eh * 0.3, -ew * 0.36, eh * 0.3), (ew * 0.36, 0.03, eh * 0.38), spec.get("inner_ear", "nose_pink"),
+          bevel=False, rot=tilt)
     if spec.get("ear_tufts"):
         b.pyramid((lean * eh, 0, eh * math.cos(math.radians(12)) - 0.04), 0.08, 0.16, c["second"], rot=tilt)
     return b

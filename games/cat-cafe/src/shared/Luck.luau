@@ -13,8 +13,10 @@
 --   apply(odds, luck) -> LureOdds                    the odds a roll uses at that Luck
 --   text(luck) -> string                             "Luck x1.3", as the HUD chip shows it
 
+local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local DragonKeep = require(script.Parent.DragonKeep)
+local Follower = require(script.Parent.Follower)
 local LuckyCharm = require(script.Parent.LuckyCharm)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
@@ -28,7 +30,12 @@ Luck.DAY_WARNING = "A Lucky Day starts at sunrise!"
 Luck.DAY_BANNER = "Lucky Day! Rare cats are twice as likely until night"
 
 -- A source of Luck: "statue", "charm" (#3298), "potion", "lucky_day" or "event" (#2486), and what it adds.
-export type SourceId = "statue" | "charm" | "potion" | "lucky_day" | "event" | "dragon" -- dragon #4447
+export type SourceId = "statue" | "charm" | "potion" | "lucky_day" | "event" | "dragon" | "follower" -- dragon #4447, follower #5172
+
+local function rarityOf(catId: string): string?
+	local def = Catalog.getCat(catId)
+	return if def ~= nil then def.rarity else nil
+end
 export type Source = { id: SourceId, value: number }
 
 local function statueLevel(profile: Types.PlayerProfile): number
@@ -69,6 +76,10 @@ function Luck.sources(
 	local dragon = DragonKeep.of(profile).luck -- #4447: the Dragon Keep's Lucky Scale, only while its switch is on
 	if dragon > 0 then
 		add("dragon", dragon)
+	end
+	local follower = Follower.luck(profile, rarityOf) -- #5172: the following cat's Luck boost, only while its switch is on
+	if follower > 0 then
+		add("follower", follower)
 	end
 	return out
 end

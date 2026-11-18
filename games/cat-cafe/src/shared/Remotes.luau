@@ -273,6 +273,9 @@ Remotes.ClientToServer = {
 	"PetCat", -- (catUid: string)  #3651 (shared/Pet, switch `petCats`): pet one of the player's own working cats from
 	-- within Config.PetRangeStuds of it; it is the happy cat for Config.PetSeconds. 2 a second and one pet each
 	-- Config.PetCooldownSeconds; answered with CatPetted to everyone, nothing when refused
+	"SetFollower", -- (uid: string)  #5172 (switch catFollower): "" sends the follower home, else one of the player's own
+	-- cats follows them (Follower.blocker: Tier 2, owned, no running trade); 2 a second
+	"SetFollowerBoost", -- (boost: "money" | "luck")  #5172: one switch each Follower.SWITCH_SECONDS; 2 a second
 }
 
 -- Server -> client.

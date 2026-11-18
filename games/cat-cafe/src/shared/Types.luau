@@ -504,14 +504,15 @@ export type TipJarStep = {
 -- add up to 100, so each is the slice's chance in percent.
 export type SpinSlice = {
 	slice: number,
-	kind: "coins" | "lure" | "fish" | "crate", -- F54: golden fish and a crate
+	kind: "coins" | "lure" | "fish" | "crate" | "cat", -- F54: golden fish and a crate; #5171: a cat (SpinCat)
+	catId: string?, -- #5171: the cat a "cat" slice gives
 	seconds: number?,
 	minCoins: number?,
 	lureId: string?,
 	count: number?, -- foods, golden fish or crates
 	crate: string?, -- F54: the crate id, "highest" or (#1500) "highest_golden"
 	weight: number,
-	jackpot: boolean?, -- #1500: one of the two 0.5% slices, with the big win effect and a toast
+	jackpot: boolean?, -- #1500: one of the two 0.5% slices (and #5171's cat slice), with the big win effect and a toast
 }
 
 -- The player's spins (F49): `lastFreeDay` is the UTC day number (os.time() // 86400) of the last free spin, so the
@@ -1463,6 +1464,18 @@ export type SessionRecapView = {
 -- #4913 (shared/Pals): the Pal Day gift's last UTC day; no version bump, the palDay switch goes on only after a restart.
 export type PalDaySave = { day: number }
 
+-- #5172 (shared/Follower): the follower slot in the Cats menu; nil while the catFollower switch is off.
+export type FollowerView = {
+	open: boolean, -- Tier 2 or up
+	uid: string?, -- the following cat, nil for none
+	boost: "money" | "luck",
+	amount: number, -- what the following cat gives with that boost now, coat included (0.12 is +12% or +0.12 Luck)
+	switchIn: number, -- seconds until the boost can be switched again
+}
+
+-- #5172 (shared/Follower): the following cat's uid ("" for none) and the boost picked; no version bump.
+export type FollowerSave = { uid: string, boost: "money" | "luck" }
+
 -- #3651 (shared/Pet): the cat petted last and when its heart ends (os.time).
 export type PetSave = { uid: string, untilAt: number }
 
@@ -1540,6 +1553,7 @@ export type PlayerProfile = {
 	achievements: { [string]: boolean }, -- F73: achievementId -> claimed
 	dailyTreat: DailyTreatState, -- F70
 	palDay: PalDaySave, -- #4913: the UTC day (Spin.day) of the last Pal Day gift, 0 for never
+	follower: FollowerSave, -- #5172 (shared/Follower): the cat that follows the player ("" for none) and its boost
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -1728,6 +1742,7 @@ export type PlayerState = {
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
 	-- Derek 2026-11-15: the Dragon Keep's crate, trait and spin luck (0.15 is +15%), for the odds lists; nil before
 	cardLuck: { crate: number, trait: number, spin: number }?,
+	follower: FollowerView?, -- #5172
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,

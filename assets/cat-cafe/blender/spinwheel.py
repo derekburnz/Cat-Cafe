@@ -53,21 +53,30 @@ SLICES = (
 SPANS = [span for _, _, span in SLICES]
 assert sum(SPANS) == 360
 SLICE_SPANS = ",".join(str(span) for span in SPANS)     # the Wheel Model's SliceSpans attribute, for Effects/Wheel
+# #5171 spinCat: the same wheel with a ninth narrow wedge after slice 8, a Secret cat (the dark shape and a "?", the
+# secret cats dark shape rule). The six regular slices give up 4 degrees each. Its own asset,
+# CatCafe_Street_SpinWheel_Wheel9, pivoted at the hub like the station's _Wheel, swapped in while the switch is on.
+SLICES9 = tuple((sw, pic, 48 if span == 52 else span) for sw, pic, span in SLICES) + (
+    ("aurora_violet", "secret_cat", 24),)
+SPANS9 = [span for _, _, span in SLICES9]
+assert sum(SPANS9) == 360
+SLICE_SPANS9 = ",".join(str(span) for span in SPANS9)
+QUESTION = ("111", "001", "011", "000", "010")
 HOST = dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_amber", pattern="patches",
             muzzle="fur_white", tuxedo=True, scale=1.5)
 JACKET, LAPEL, BOW = "aurora_violet", "rarity_legend", "neon_pink"
 
 
-def _slice_at(k):
+def _slice_at(k, spans=SPANS):
     """Slice k's middle (1-based), degrees about +Z from the top, with slice 1's middle at the top (under the
     pointer at rest) and the rest following round, each its own SPANS wide; its middle is at (-sin, cos) times the
     radius, clockwise seen from the front (-Z)."""
-    return sum(SPANS[:k - 1]) + SPANS[k - 1] / 2 - SPANS[0] / 2
+    return sum(spans[:k - 1]) + spans[k - 1] / 2 - spans[0] / 2
 
 
-def _edge_at(k):
+def _edge_at(k, spans=SPANS):
     """The edge before slice k (1-based), degrees as _slice_at."""
-    return sum(SPANS[:k - 1]) - SPANS[0] / 2
+    return sum(spans[:k - 1]) - spans[0] / 2
 
 
 class _Icon:
@@ -131,21 +140,39 @@ def _vring(b, cy, z0, z1, r_in, r_out, sw, n=48):
               rot=rot_z(math.degrees(a)))
 
 
-def _wheel(w):
+def _secret_cat(icon, w, zi):
+    """A Secret cat as its dark shape, sitting, with a pale "?" over its head (secret cats dark shape rule)."""
+    ink = "fur_ink"
+    icon.box(0, -0.42, zi, (0.5, 0.56, 0.1), ink)                               # body
+    icon.box(0, -0.08, zi - 0.01, (0.48, 0.4, 0.1), ink)                        # head
+    for s in (-1, 1):                                                           # ears: squares on end, their
+        icon.box(s * 0.15, 0.12, zi + 0.01, (0.2, 0.2, 0.1), ink, deg=45)       # top halves above the head
+    icon.box(0.33, -0.62, zi, (0.42, 0.12, 0.1), ink, deg=-20)                  # tail curled round the paws
+    px = 0.1
+    for r, bits in enumerate(QUESTION):                                         # the "?" above it
+        for c, bit in enumerate(bits):
+            if bit == "1":
+                icon.box((c - 1) * px, 0.62 + (4 - r) * px, zi - 0.02, (px, px, 0.06), "offwhite")
+
+
+def _wheel(w, slices=SLICES):
     """The turning wheel, hub at the origin, its face toward -Z."""
+    spans = [span for _, _, span in slices]
     w.cyl((0, 0, 0), R_DISC, 0.3, "galaxy_blue", axis="Z", segments=40)          # the disc, z -0.15 to 0.15
     zf = -0.15                                                                   # the disc's face
-    for k, (sw, pic, span) in enumerate(SLICES, start=1):
-        mid = _slice_at(k)
+    for k, (sw, pic, span) in enumerate(slices, start=1):
+        mid = _slice_at(k, spans)
         steps = max(2, round(span / 10))
         pts = []
         for j in range(steps + 1):                                               # the slice's arc
             a = math.radians(mid - span / 2 + span * j / steps)
             pts.append((-math.sin(a) * R_SLICE, math.cos(a) * R_SLICE))
         w.fan_z(zf - 0.03, (0.0, 0.0), pts, 0.06, sw)                            # z -0.15 to -0.21
-        icon = _Icon(w, mid, 2.55 if span > 30 else 3.0)
+        icon = _Icon(w, mid, 2.55 if span > 30 else 2.7 if pic == "secret_cat" else 3.0)
         zi = zf - 0.1                                                            # pictures on the slice
-        if pic == "coin":
+        if pic == "secret_cat":
+            _secret_cat(icon, w, zi)
+        elif pic == "coin":
             icon.coin(0, 0, zi, 0.68)
         elif pic == "coins":
             for (u, v, r) in ((-0.42, -0.25, 0.43), (0.42, -0.25, 0.43), (0.0, 0.38, 0.5)):
@@ -183,8 +210,8 @@ def _wheel(w):
             _sparkle(icon, 0.95, 0.95, zi - 0.03, 0.42, "rarity_legend")
             _sparkle(icon, -0.95, 0.8, zi - 0.03, 0.3, "rarity_legend")
             _sparkle(icon, 0.55, -0.8, zi - 0.03, 0.24, "offwhite")
-    for k in range(1, len(SLICES) + 1):                                          # spokes on the slice edges
-        a = math.radians(_edge_at(k))
+    for k in range(1, len(slices) + 1):                                          # spokes on the slice edges
+        a = math.radians(_edge_at(k, spans))
         ux, uy = -math.sin(a), math.cos(a)
         r0, r1 = 0.9, R_SLICE
         c = (r0 + r1) / 2
@@ -387,6 +414,14 @@ def prompt_attachment():
     return ("CatCafe_Street_SpinWheel", "PromptAnchor", Matrix.Translation(Vector(RB.p(*PROMPT_ROBLOX))))
 
 
+def build_wheel9(mat):
+    """#5171: the nine-slice wheel alone, pivot at the hub, axes as the station's _Wheel (face toward -Z)."""
+    w = RB()
+    _wheel(w, SLICES9)
+    return [w.finalize("CatCafe_Street_SpinWheel_Wheel9", mat)]
+
+
 ASSETS = {
     "CatCafe_Street_SpinWheel": (build_spin_wheel, 9000),
+    "CatCafe_Street_SpinWheel_Wheel9": (build_wheel9, 5000),
 }

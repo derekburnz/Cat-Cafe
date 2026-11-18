@@ -6255,6 +6255,20 @@ Presets.slotWalk = {
 
 Presets.bedWalk = { fade = 0.25 }
 
+-- #5172 the cat follower (Effects/Follower): how fast the drawn speed and climb follow the floor (a second's share
+-- a frame times dt), the most speed the legs show, the climb (studs a second) that reads as a full hop, the hop's
+-- nose-up pitch and legs out (degrees), and the puff where it pops in (smokePuff particles, studs over its feet).
+Presets.follower = {
+	speedEase = 10,
+	speedMax = 30,
+	hopClimb = 12,
+	hopPitch = 12,
+	hopReach = 35,
+	hopTrail = 30,
+	puff = 6,
+	puffHeight = 0.8,
+}
+
 -- The Desert and the Ruins (Tier 6 and 7, #2657; tier6-7-areas.md sections 4 and 5). While you are inside an area's
 -- box (Config.World's Desert* and Ruins* centre and size, #2655, plus `pad` studs) its `air` emitter fills a `box` of air round you
 -- (`Presets.emitters`, the budget's rateScale; a fifth of the rate with Reduce Motion, none in Low performance).

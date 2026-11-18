@@ -48,6 +48,7 @@ return function()
 	local CatStats = require(Shared.CatStats)
 	local Catching = require(Shared.Catching)
 	local Circles = require(Shared.Circles)
+	local NetTiers = require(Shared.NetTiers) -- #5170
 	local Clock = require(Shared.Clock)
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
@@ -116,6 +117,11 @@ return function()
 		pals: number?, -- pals on the server (Economy.setPals, #1165): tips, piles and rich visitors earn the pal bonus
 		event: { from: number, to: number }?, -- #2486: a Cafe Event's money (EventMoneyMax) over these seconds of play
 		tier2Band: { number }?, -- #2557: this case's Tier 2 band in minutes, { low, high }, when not 10 to 20
+		netTiers: boolean?, -- #5170: the netTiers switch on (fewer hits per net level, Net 4 and 5); the caller sets the caps
+		-- #5172: a Legendary of this coat ("base", "gold", "rainbow") in the cats from the start; `follows` makes it the
+		-- Money follower (catFollower on), so a case with and without differs only by the boost
+		follower: string?,
+		follows: boolean?,
 	}
 	-- The daytime top-ups (#1159, shared/StrayTopUp) as the one catcher sees them. `players` sets the floor of live
 	-- strays (StrayTopUp.floor); `wait` fixes the seconds between top-ups (60 is StrayTopUpMinSeconds, the most a
@@ -213,6 +219,12 @@ return function()
 		if options.pals ~= nil then
 			Economy.setPals(profile, options.pals)
 		end
+		if options.follower ~= nil then
+			local pet = CatStats.newInstance("pace_follower", "void", base, 1)
+			pet.variant = options.follower
+			profile.cats[pet.uid] = pet
+			profile.follower = { uid = if options.follows then pet.uid else "", boost = "money" }
+		end
 		Economy.setEventMoney(1)
 		local eventOn = false
 		-- the pals' share on top of tip piles and rich visitors (TipPileService and RichTipService use
@@ -258,7 +270,11 @@ return function()
 				run.tries += 1
 				-- #1884 (catch-rework.md 7b): the trust bar decides the try, ring by ring as the server judges it
 				local circles = Circles.schedule(rarity, netLevel, startsAt, pressRng)
-				local attempt = Circles.newAttempt(circles, windows, Circles.trustFor(rarity))
+				local trust = Circles.trustFor(rarity)
+				if options.netTiers then
+					trust.start += NetTiers.trustBonus(netLevel, trust.start, trust.need) -- #5170, as CatService
+				end
+				local attempt = Circles.newAttempt(circles, windows, trust)
 				local endedAt = startsAt
 				for i, circle in circles do
 					local at = Circles.target(circle) + pressError()
@@ -998,6 +1014,47 @@ return function()
 		return list, text
 	end
 
+	-- #5170 (Design-Agent): the same runs with netTiers off and on. A tier that lands more than 15% sooner with it on
+	-- needs its Net 2 or Net 3 cost raised (then its Rank Up cost only if that is not enough). The line in the error
+	-- or the log gives each tier's medians.
+	describe("netTiers pace (#5170)", function()
+		it("lands no tier from 2 to 6 more than 15% sooner with the switch on", function()
+			local options: Options = { catches = 4, target = 6, limit = 16 * HOUR, long = true }
+			Catalog.setNetTiers(false)
+			local offList, offText = toTier5(options)
+			Catalog.setNetTiers(true)
+			local onOptions: Options = table.clone(options)
+			onOptions.netTiers = true
+			local ok, onList, onText = pcall(toTier5, onOptions)
+			Catalog.setNetTiers(false)
+			if not ok then
+				error(onList)
+			end
+			local lines = { "off: " .. offText, "on: " .. onText }
+			local worst = 1
+			for tier = 2, 6 do
+				local off = quantile(offList, tierAt(tier), 0.5, 16 * HOUR)
+				local on = quantile(onList :: any, tierAt(tier), 0.5, 16 * HOUR)
+				local ratio = if off > 0 then on / off else 1
+				worst = math.min(worst, ratio)
+				table.insert(
+					lines,
+					string.format(
+						"Tier %d %s to %s (%.0f%%)",
+						tier,
+						clock(off),
+						clock(on),
+						ratio * 100
+					)
+				)
+			end
+			print("[Pace netTiers] " .. table.concat(lines, "; "))
+			if worst < 0.85 then
+				error("netTiers lands a tier more than 15% sooner: " .. table.concat(lines, "; "))
+			end
+		end)
+	end)
+
 	describe("Tier 2 right after the tutorial (#4188)", function()
 		it(
 			"costs what the focused player holds 30 s after the bait cat, and the bait cat is a new kind",
@@ -1250,6 +1307,56 @@ return function()
 	-- were about halved, so Tiers 8 to 10 follow at 21B, 250B and 1.5T, asking 36, 45 and 54 kinds (the step of 9 on
 	-- Tier 7's 27): 2 h 27, 3 h 40 and 6 h 09 between tiers, Tier 10 at 21 h 36.
 	-- Two runs only, since one run to Tier 10 is about 22 hours of play.
+	-- #5172 (Design, Derek 2026-11-18): a rainbow Legendary following with Money (+18%, the coat x1.5) against the same
+	-- cat not following. Design's rule: if a tier comes more than about 10% sooner, that tier's cost goes up.
+	describe("cat follower pace (#5172)", function()
+		it("a rainbow Legendary Money follower brings no tier more than 10% sooner", function()
+			local Follower = require(Shared.Follower)
+			local limit = 40 * HOUR
+			local function timesFor(follows: boolean): { Run }
+				Follower.setOn(true)
+				local options: Options = {
+					catches = 4,
+					target = 6,
+					limit = limit,
+					long = true,
+					follower = "rainbow",
+					follows = follows,
+				}
+				local ok, list = pcall(runs, options, 2)
+				Follower.setOn(nil)
+				if not ok then
+					error(list)
+				end
+				return list :: { Run }
+			end
+			local without, with = timesFor(false), timesFor(true)
+			local parts, bad = {}, {}
+			-- the time from the start to each tier, the player's own pace; a few seconds on a short reach is noise, so a
+			-- tier only counts as sooner by more than 10% and 2 minutes
+			for tier = 3, 6 do
+				local off = quantile(without, tierAt(tier), 0.5, limit)
+				local on = quantile(with, tierAt(tier), 0.5, limit)
+				local sooner = if off > 0 then 1 - on / off else 0
+				local text = string.format(
+					"T%d at %s off, %s on (%d%% sooner)",
+					tier,
+					clock(off),
+					clock(on),
+					math.floor(sooner * 100 + 0.5)
+				)
+				table.insert(parts, text)
+				if sooner > 0.10 and off - on > 120 then
+					table.insert(bad, text)
+				end
+			end
+			print("[Pace #5172] " .. table.concat(parts, ", "))
+			if #bad > 0 then
+				error("follower makes a tier more than 10% sooner: " .. table.concat(bad, ", "))
+			end
+		end)
+	end)
+
 	describe("Tiers 8 to 10 on the money ladder (#4192)", function()
 		it(
 			"takes 1.5 to 4 hours from Tier 7 to Tier 8, 2.5 to 18 on to Tier 9 and up to 14 on to Tier 10 (#4515 and +25%: was 2.5 to 6 and 4 to 9; #4320: was 2.5 to 5.5, 4.5 to 9 and 5.5 to 11; #4192: the draft was 12 to 15 for Tier 8, untested)",

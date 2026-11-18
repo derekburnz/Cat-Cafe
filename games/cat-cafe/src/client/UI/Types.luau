@@ -144,7 +144,8 @@ export type FishShopRow = SharedTypes.FishShopRow
 -- One Spin Wheel slice (F49): the Tip Jar row's prize plus a weight; the weights add up to 100.
 export type SpinRow = {
 	slice: number,
-	kind: string, -- "coins", "lure", F54 "fish" (golden fish) or "crate"
+	kind: string, -- "coins", "lure", F54 "fish" (golden fish), "crate" or #5171 "cat"
+	catId: string?, -- #5171: the cat a "cat" slice gives (SpinCat)
 	seconds: number?,
 	minCoins: number?,
 	lureId: string?,
@@ -322,6 +323,7 @@ export type PlayerState = {
 	luck: number?,
 	luckSources: { LuckSource }?,
 	cardLuck: { crate: number, trait: number, spin: number }?, -- the Dragon Keep's crate, trait and spin luck
+	follower: SharedTypes.FollowerView?, -- #5172: the Cats menu's Follower slot; nil with catFollower off
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	introAuto: boolean?, -- #3666: the intro plays itself for this player; nil reads as Config.IntroAutoPlay
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag

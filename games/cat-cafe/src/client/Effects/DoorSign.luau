@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Context = require(script.Parent.Context)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
 
@@ -78,14 +79,32 @@ local function target(): number
 	return if night then math.pi else 0
 end
 
+-- #5164 (Sync's phase change read: DoorSign.place was 30 to 61 ms of the change frame, every sign's parts set one by
+-- one): with the `nightSlice` switch on, each sign's parts move in one Workspace:BulkMoveTo. The lists are reused
+-- and emptied after each move.
+local BULK_FLAG = "nightSlice"
+local bulkParts: { BasePart } = {}
+local bulkFrames: { CFrame } = {}
+
 local function place(turn: Turn, angle: number)
 	local at = turn.base * CFrame.Angles(0, angle, 0)
+	local bulk = ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. BULK_FLAG) == true
+	local count = 0
 	for part, offset in turn.parts do
 		if part.Parent == nil then
 			turn.parts[part] = nil
+		elseif bulk then
+			count += 1
+			bulkParts[count] = part
+			bulkFrames[count] = at * offset
 		else
 			part.CFrame = at * offset
 		end
+	end
+	if count > 0 then
+		Workspace:BulkMoveTo(bulkParts, bulkFrames, Enum.BulkMoveMode.FireCFrameChanged)
+		table.clear(bulkParts)
+		table.clear(bulkFrames)
 	end
 end
 

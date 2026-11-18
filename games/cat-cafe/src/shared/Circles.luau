@@ -51,10 +51,16 @@ Circles.AUTO_PRESS_WINDOW = 50
 Circles.AUTO_PRESS_RATE = Config.AutoPressFlagRate
 Circles.AUTO_PRESS_CLEAR_RATE = Config.AutoPressClearRate
 
+-- #5170: never past the net upgrade's maxLevel (3, or 5 with netTiers on), so a level 4 or 5 save with the switch
+-- off, or a Steady Paw Potion on Net 3, plays Net 3's windows as before
 local function clampNetLevel(netLevel: number): number
 	local highest = 0
 	for level in Config.NetWindows do
 		highest = math.max(highest, level)
+	end
+	local net = Catalog.getUpgrade("net")
+	if net ~= nil then
+		highest = math.min(highest, net.maxLevel)
 	end
 	return math.clamp(math.floor(netLevel), 0, highest)
 end

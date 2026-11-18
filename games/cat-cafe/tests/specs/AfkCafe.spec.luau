@@ -180,6 +180,12 @@ return function()
 			expect(AfkCafe.modeRests(0, false, false, true)).to.equal(false)
 			expect(AfkCafe.modeRests(0, true, true, true)).to.equal(false)
 			expect(AfkCafe.modeRests(0, true, false, false)).to.equal(false)
+			-- a step after the quick rest began ends it, so modeEnds ends the mode (Review-QA)
+			expect(AfkCafe.modeRests(0, true, false, true, true)).to.equal(false)
+			expect(AfkCafe.modeRests(5, true, false, true, false)).to.equal(true)
+			expect(AfkCafe.modeEnds(true, AfkCafe.modeRests(0, true, false, true, true), 10)).to.equal(
+				true
+			)
 			expect(#AfkCafe.QUICK_WORDS <= 26).to.equal(true) -- RestBannerLogic.MAX_CHARS
 			expect(AfkCafe.modeRests(60, true, true)).to.equal(false)
 		end)

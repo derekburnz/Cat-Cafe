@@ -17,6 +17,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Follower = require(ReplicatedStorage.Shared.Follower)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local TradeService = require(script.Parent.TradeService)
 
@@ -84,7 +85,11 @@ local function onBoost(player: Player, rawBoost: unknown)
 	end
 	local now = os.clock()
 	local last = lastSwitch[player]
-	if last ~= nil and now - last < Follower.SWITCH_SECONDS then
+	if
+		not LiveFlagService.on(Follower.FREE_FLAG)
+		and last ~= nil
+		and now - last < Follower.SWITCH_SECONDS
+	then
 		Net.toast(
 			player,
 			string.format("Switch again in %ds", math.ceil(Follower.SWITCH_SECONDS - (now - last))),

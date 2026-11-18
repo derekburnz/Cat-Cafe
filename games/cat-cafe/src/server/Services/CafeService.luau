@@ -343,7 +343,9 @@ local function followerViewOf(player: Player, profile: Profile): Types.FollowerV
 			boost,
 			if cat ~= nil then cat.variant else nil
 		),
-		switchIn = math.max(0, Follower.SWITCH_SECONDS - since),
+		switchIn = if LiveFlagService.on(Follower.FREE_FLAG)
+			then 0
+			else math.max(0, Follower.SWITCH_SECONDS - since),
 	}
 	return view
 end

@@ -1535,7 +1535,7 @@ function CatRoom._pressFollow(self: any)
 	self:_say(if home then "Sent home to the cafe." else "Now following you!", true)
 end
 
--- The follower's square: Money ($) or Luck (the clover), one switch each 10 seconds (the server holds it too).
+-- The follower's square: Money ($) or Luck (the clover), one switch each 10 seconds (the server holds it too), or any time with followerSwitchFree (#5273).
 function CatRoom._pressBoost(self: any)
 	local view = self:_followerView()
 	local setBoost: ((boost: string) -> ())? = self._callbacks.setFollowerBoost

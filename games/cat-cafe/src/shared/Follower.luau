@@ -13,6 +13,9 @@ local Follower = {}
 Follower.FLAG = "catFollower"
 Follower.OPEN_TIER = 2 -- after the first Rank Up
 Follower.SWITCH_SECONDS = 10 -- between boost switches
+-- #5273 (Derek 2026-11-18: "let follower switch between money and luck no cooldown"): with this switch (on unless set
+-- false) there is no wait between boost switches; the remote's 2 a second still holds.
+Follower.FREE_FLAG = "followerSwitchFree"
 Follower.HOME = "" -- the saved uid with no follower
 
 export type Boost = "money" | "luck"

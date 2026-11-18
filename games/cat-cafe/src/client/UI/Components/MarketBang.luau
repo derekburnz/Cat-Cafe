@@ -271,9 +271,24 @@ function MarketBang._apply(self: any)
 			gui.Enabled = on
 			if words ~= nil and bang.line.Text ~= words then
 				bang.line.Text = words
-			elseif on and not was and words ~= nil then
+			elseif
+				on
+				and words ~= nil
+				and (
+					not was
+					or (
+						bang.line.TextBounds.X < 1
+						and game:GetService("ReplicatedStorage")
+								:GetAttribute("LiveFlag_bangRelayout")
+							~= false
+					)
+				)
+			then
 				-- #4328 (Derek 2026-11-14: "sometimes banner text above fish market goes blank"): a billboard that
-				-- comes back (its stall streamed in again) lays its scaled text out afresh
+				-- comes back (its stall streamed in again) lays its scaled text out afresh.
+				-- #5261 (Derek 2026-11-18: "this text bug above fish market for players is still there"): a bubble
+				-- that is showing with its words but laid out to nothing (zero TextBounds) lays them out again at the
+				-- next look; the bangRelayout switch, on unless set false, turns that part off
 				MarketBang.relayout(bang.line, words)
 			end
 			if not on then

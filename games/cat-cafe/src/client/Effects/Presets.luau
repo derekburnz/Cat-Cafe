@@ -5341,6 +5341,16 @@ Presets.rarityMark = {
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
+	-- #5201 (Derek 2026-11-18: "make gems viewable if in view not distance"): a gem shows on every stray on screen out
+	-- to `reach` studs (about as far as strays stream in), not only the `maxDistance` nearest; Rare and up take the
+	-- slots first, then the nearest. At most `most` at once, `lowMost` on a phone or in Low performance. `margin`
+	-- (share of the screen) lets one just off the edge keep its gem as the camera turns.
+	inView = {
+		reach = 300,
+		most = 24,
+		lowMost = 16,
+		margin = 0.08,
+	},
 	-- #5034 Park phone leak (phones 37% never catch a cat in the Park, mostly from not finding one): with the switch
 	-- `flag` on and no `area` cat in the player's Index yet, the gems of that area's strays (their `Area`) show out to
 	-- `maxDistance` studs, `pixels` wide at the least, and draw over hedges and walls (AlwaysOnTop) past `onTopBeyond`

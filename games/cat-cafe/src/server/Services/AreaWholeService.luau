@@ -134,10 +134,9 @@ function AreaWholeService.start()
 				apply(on)
 			end
 			if on then
-				local ok, err = pcall(step)
-				if not ok then
+				xpcall(step, function(err: unknown)
 					warn("[AreaWholeService] " .. tostring(err))
-				end
+				end)
 			end
 			task.wait(AreaWhole.STEP)
 		end

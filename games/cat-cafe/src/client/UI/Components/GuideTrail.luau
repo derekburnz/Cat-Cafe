@@ -260,7 +260,7 @@ local function arrivedAt(target: Target): number
 	if typeof(target) == "Instance" and (target :: Instance):IsA("BasePart") then
 		local radius = (target :: Instance):GetAttribute("Radius")
 		if type(radius) == "number" then
-			return math.min(ARRIVED, radius)
+			return math.min(ARRIVED, math.max(1, radius - 0.2)) -- a little inside the edge, where its window opens
 		end
 	end
 	return ARRIVED

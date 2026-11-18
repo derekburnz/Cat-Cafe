@@ -142,10 +142,12 @@ LiveFlags.KEYS = {
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
 	"areaWhole", -- Derek 2026-11-18: the area a player is in (or flying to) loads whole on their device (shared/AreaWhole); off by default
 	"nextGoalBeat", -- #5202: a "What next?" card once after the first Park catch (shared/NextGoal); off by default
+	"upgradesInstant", -- #5253: an Upgrades buy shows in the window at once and the server syncs before the plot rebuild (Screens/UpgradeShop, CafeService); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
+	upgradesInstant = true, -- #5253
 	giftCard = true, -- #4527
 	tradeFish = true,
 	nightCatch = true,

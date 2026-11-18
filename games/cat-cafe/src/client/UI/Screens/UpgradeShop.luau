@@ -15,6 +15,7 @@
 -- (Components/LuckLogic.statueLines).
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -411,6 +412,7 @@ function UpgradeShop._buildRows(self: any)
 			textSize = Theme.sizes.textBody + 1,
 			parent = row,
 			onClick = function()
+				self:_predictBuy(upgrade.id)
 				self._onBuy(upgrade.id)
 			end,
 		})
@@ -662,6 +664,36 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		end
 		row.kind = status.kind
 	end
+end
+
+-- #5253 (Derek 2026-11-18: "the upgrades menu has long delays and should feel instant and responsive"; switch
+-- upgradesInstant): a press on a price the player can pay shows the bought level, the stars and the money at once,
+-- from the last state, while the server's sync (a moment later) confirms it or puts it back. Only this window paints
+-- the guess: the HUD and the rest wait for the server.
+function UpgradeShop._predictBuy(self: any, upgradeId: string)
+	if ReplicatedStorage:GetAttribute("LiveFlag_upgradesInstant") ~= true then
+		return
+	end
+	local state: Types.PlayerState? = self._lastState
+	local row = self._rows[upgradeId]
+	if state == nil or row == nil or row.kind ~= "buy" or self._tab == "Staff" then
+		return
+	end
+	local status = UpgradeReady.status(
+		row.def,
+		UpgradeReady.level(row.def, state.upgradeLevels),
+		state.tier,
+		state.money
+	)
+	if status.kind ~= "buy" or type(status.cost) ~= "number" then
+		return
+	end
+	local levels = table.clone(state.upgradeLevels)
+	levels[upgradeId] = (levels[upgradeId] or 0) + 1
+	local guess = table.clone(state :: any)
+	guess.upgradeLevels = levels
+	guess.money = state.money - (status.cost :: number)
+	self:render(guess :: Types.PlayerState)
 end
 
 -- A level bought: the price button pops, the stars from `before` + 1 to `level` pop in mint and settle gold, and

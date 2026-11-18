@@ -2231,8 +2231,14 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		return
 	end
 	local cost = Economy.nextUpgradeCost(profile, upgradeId) :: number
+	-- #5253 (switch upgradesInstant): the client shows a buy at once, so a refusal syncs to put it back, and the
+	-- sync goes before the plot's rebuild so the window's answer does not wait on the models
+	local instant = LiveFlagService.on("upgradesInstant")
 	if not Economy.trySpend(profile, cost) then
 		Net.toast(player, "Not enough coins", "warn")
+		if instant then
+			CafeService.sync(player)
+		end
 		return
 	end
 	Telemetry.sink(player, profile, cost, "Shop", upgradeId)
@@ -2260,6 +2266,11 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		string.format("%s is now level %d", def.name, profile.upgradeLevels[upgradeId]),
 		"good"
 	)
+	if instant then
+		CafeService.sync(player)
+		CafeService.refreshPlot(player)
+		return
+	end
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end

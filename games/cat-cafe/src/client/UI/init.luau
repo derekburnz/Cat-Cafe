@@ -11851,47 +11851,6 @@ function UI.tradeTile(): GuiObject?
 	return if tile ~= nil then tile.instance else nil
 end
 
--- #5158 (Derek 2026-11-17: "much less people trading ... show it maybe just briefly when its unlocked"): with the
--- tradeSpot switch on, after "Trading unlocked!" lands the Trade tile keeps the tutorial ring, its arrow and the dim
--- round it for TRADE_SPOT_SECONDS, or until the tile is pressed. Once, as the unlock itself plays once an account.
-local TRADE_SPOT_SECONDS = 8
-function UI.tradeSpot()
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	if
-		not LiveFlags.shown(
-			"tradeSpot",
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "tradeSpot")
-		)
-	then
-		return
-	end
-	local tile = UI.tradeTile()
-	if tile == nil or not tile.Visible or not UI.calmForMoment() then
-		return
-	end
-	local TutorialGlow = require(script.Components.TutorialGlow) :: any
-	TutorialGlow.set(tile, true)
-	local over = false
-	local pressed: RBXScriptConnection? = nil
-	local function done()
-		if over then
-			return
-		end
-		over = true
-		local link: RBXScriptConnection? = pressed
-		if link ~= nil then
-			link:Disconnect()
-		end
-		TutorialGlow.set(tile, false)
-	end
-	local face = tile:FindFirstChild("Face", true)
-	if face ~= nil and face:IsA("GuiButton") then
-		pressed = (face :: GuiButton).Activated:Connect(done)
-	end
-	task.delay(TRADE_SPOT_SECONDS, done)
-end
-
 function UI.calmForMoment(): boolean
 	local card: any = UI.perks.card
 	return (modal == nil or modal:current() == nil)

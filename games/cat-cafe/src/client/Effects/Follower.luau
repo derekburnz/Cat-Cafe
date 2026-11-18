@@ -59,7 +59,7 @@ local function bind(model: Model): Entry?
 		lastFloor = nil,
 		climb = 0,
 		phase = Logic.phaseOf(model.Name) * 100,
-		style = "stray",
+		style = "stray" :: Logic.Style,
 		from = nil,
 		changedAt = 0,
 		settleFor = Presets.motion.settle,
@@ -69,10 +69,11 @@ end
 
 -- The style it should take now: walking, or once Moving is false a loaf with a paw wash now and then.
 local function styleOf(model: Model, now: number, phase: number): Logic.Style
-	if model:GetAttribute("Moving") ~= false then
-		return "stray"
+	local style: Logic.Style = "stray"
+	if model:GetAttribute("Moving") == false then
+		style = if Logic.licking(now, phase) then "lick" :: Logic.Style else "loaf" :: Logic.Style
 	end
-	return if Logic.licking(now, phase) then "lick" else "loaf"
+	return style
 end
 
 local function draw(model: Model, entry: Entry, now: number, dt: number): boolean
@@ -83,9 +84,8 @@ local function draw(model: Model, entry: Entry, now: number, dt: number): boolea
 	end
 	-- Where the controller has the cat: its body as the controller's PivotTo put it. A frame with no PivotTo since
 	-- the last draw would read the drawn pose back, so it keeps last frame's floor.
-	local body = rig.parts[rig.bodyIndex]
 	local floor = entry.floor
-	if body ~= nil and body.CFrame ~= rig.written[rig.bodyIndex] then
+	if Pose.rewritten(rig) then
 		floor = model:GetPivot() * entry.toFloor
 	end
 	entry.floor = floor
@@ -101,7 +101,7 @@ local function draw(model: Model, entry: Entry, now: number, dt: number): boolea
 	entry.stride += entry.speed * dt / Logic.strideLength(math.max(entry.speed, 0.1))
 	Pose.holdRest(rig, entry.rest, floor)
 
-	local style = styleOf(model, now, entry.phase)
+	local style: Logic.Style = styleOf(model, now, entry.phase)
 	if style ~= entry.style then
 		entry.from = entry.style
 		entry.settleFor = Logic.settleSeconds(entry.style, style)
@@ -110,7 +110,7 @@ local function draw(model: Model, entry: Entry, now: number, dt: number): boolea
 	end
 	local t = now + entry.phase
 	local o = Logic.idle(entry.style, t, rig.kind)
-	local from = entry.from
+	local from: Logic.Style? = entry.from
 	if from ~= nil then
 		local k = (now - entry.changedAt) / entry.settleFor
 		if k >= 1 then

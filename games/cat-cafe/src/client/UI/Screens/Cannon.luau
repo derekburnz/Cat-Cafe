@@ -50,6 +50,7 @@ local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
+local SpotlightGuide = require(script.Parent.Parent.Components.SpotlightGuide)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local TicketBoothLogic = require(script.Parent.Parent.Components.TicketBoothLogic)
@@ -192,6 +193,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._ring = nil :: string? -- #2915: the area whose Launch wears the ring
+	self._spot = nil :: { id: string, close: () -> () }? -- #5245 / #5248: the dim and arrow on the ringed Launch
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -616,6 +618,24 @@ function Cannon._collect(self: any, id: string)
 	collect(line.extraId)
 end
 
+-- #5245 (Derek 2026-11-18: after the tame card's Nice "point towards cannon button so people click cannon button then
+-- jump into it", switch tameCannonPoint, Tier 1) and #5248 (Derek 2026-11-18: after the Tier 2 rank up "dim screen
+-- with an arrow at park. as soon as they click park drop the dim screen and arrow", switch parkLead, Tier 2 and up):
+-- the ringed Launch gets the dim and the arrow too, and they go the moment any Launch is pressed or the window shuts.
+function Cannon.spotOn(state: Types.PlayerState?): boolean
+	local tier = if state ~= nil and type(state.tier) == "number" then state.tier else 1
+	local key = if tier <= 1 then "tameCannonPoint" else "parkLead"
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. key) == true
+end
+
+function Cannon._dropSpot(self: any)
+	local spot = self._spot
+	if spot ~= nil then
+		self._spot = nil
+		spot.close()
+	end
+end
+
 -- #2915: the ring on `areaId`'s Launch, or none.
 function Cannon.setRing(self: any, areaId: string?)
 	if self._ring == areaId then
@@ -703,6 +723,7 @@ function Cannon._press(self: any, destination: string)
 		return
 	end
 	self._pendingUntil = os.clock() + PENDING_SECONDS
+	self:_dropSpot() -- #5248: the press ends the dim and the arrow at once, before the flight
 	self:_rerender()
 	task.delay(PENDING_SECONDS, function()
 		if os.clock() >= self._pendingUntil then
@@ -852,7 +873,21 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.enabled = enabled
 			card.launch:setEnabled(enabled)
 		end
-		StepTarget.ui(card.launch.instance, enabled and id == self._ring) -- #2915
+		local ringed = enabled and id == self._ring
+		local dimmed = ringed
+			and self._open == true
+			and os.clock() >= self._pendingUntil -- not again in the beat after a press
+			and Cannon.spotOn(self._state)
+		StepTarget.ui(card.launch.instance, ringed and not dimmed) -- #2915
+		if dimmed and (self._spot == nil or self._spot.id ~= id) then
+			self:_dropSpot()
+			self._spot = {
+				id = id,
+				close = SpotlightGuide.show(card.launch.instance, "", nil, false, false),
+			}
+		elseif not ringed and self._spot ~= nil and self._spot.id == id then
+			self:_dropSpot()
+		end
 	end
 	if tall ~= self._tall then
 		self._tall = tall
@@ -993,6 +1028,7 @@ end
 
 function Cannon.closed(self: any)
 	self._open = false
+	self:_dropSpot()
 	self._tick += 1
 end
 

@@ -214,5 +214,24 @@ return function()
 			expect(table.find(LiveFlags.KEYS, AfkCafe.BUTTON_FLAG) ~= nil).to.equal(true)
 			expect(LiveFlags.OFF_BY_DEFAULT[AfkCafe.BUTTON_FLAG]).to.equal(true)
 		end)
+		it(
+			"#5322: saves AFK mode as a server-only setting and hops a restart only in a reserved server",
+			function()
+				local Settings = require(Shared.Settings)
+				local LiveFlags = require(Shared.LiveFlags)
+				expect(LiveFlags.OFF_BY_DEFAULT[AfkCafe.STAY_FLAG]).to.equal(true)
+				expect(table.find(LiveFlags.KEYS, AfkCafe.STAY_FLAG) ~= nil).to.equal(true)
+				expect(Settings.defaults().afkMode).to.equal(false)
+				expect(Settings.sanitize({ afkMode = true }).afkMode).to.equal(true)
+				expect(Settings.sanitize({}).afkMode).to.equal(false)
+				local hop = AfkCafe.hopData()
+				expect(hop.afkHop).to.equal(true)
+				expect(AfkCafe.arrivedInMode(hop)).to.equal(true)
+				expect(AfkCafe.arrivedHop(hop, true)).to.equal(true)
+				expect(AfkCafe.arrivedHop(hop, false)).to.equal(false) -- forged data in a public server does nothing
+				expect(AfkCafe.arrivedHop(AfkCafe.teleportData(true), true)).to.equal(false)
+				expect(AfkCafe.arrivedHop(nil, true)).to.equal(false)
+			end
+		)
 	end)
 end

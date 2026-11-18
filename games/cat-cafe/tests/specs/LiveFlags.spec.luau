@@ -201,6 +201,7 @@ return function()
 							or key == "perfectCatch" -- #5300
 							or key == "easyKeep" -- #5311
 							or key == "afkQuick" -- #5310
+							or key == "afkStay" -- #5322
 							or key == "bigTreats" -- Derek 2026-11-18
 							or key == "bigNet" -- #5309
 							or key == "cannonReturn" -- #5304

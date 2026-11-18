@@ -119,6 +119,17 @@ function AfkCafe.teleportData(mode: boolean?): { [string]: boolean }
 	return { cafeRest = true, afkMode = if mode == true then true else nil }
 end
 
+-- #5322: a restart's hop into a reserved server, which sends the player on to a public one (arrivedHop)
+function AfkCafe.hopData(): { [string]: boolean }
+	return { cafeRest = true, afkMode = true, afkHop = true }
+end
+
+-- #5322: whether this join is a restart's hop, waiting to go back to a public server. Only in a reserved server
+-- (`reserved`), so forged data in a public server does nothing.
+function AfkCafe.arrivedHop(teleportData: unknown, reserved: boolean): boolean
+	return reserved and type(teleportData) == "table" and (teleportData :: any).afkHop == true
+end
+
 -- #3602: whether a join is a rest's rejoin: it came from this same place carrying teleportData's mark.
 -- `teleportData` and `sourcePlaceId` are Player:GetJoinData()'s, of any shape.
 function AfkCafe.arrivedResting(
@@ -142,6 +153,14 @@ end
 -- #5310 (Derek 2026-11-18: "have it start showing your getting 2x money within 1 seconds of turning on afk"), switch
 -- QUICK_FLAG (off by default): `quick` rests the moment the player is in the zone, and the server checks at once.
 AfkCafe.QUICK_FLAG = "afkQuick"
+-- #5322 (Derek 2026-11-18: "keep afk mode on until toggled off so that even on server restart it teleports them back
+-- to cafe with afk on that auto rejoins them before roblox idle kicks"), switch STAY_FLAG (off by default): AFK mode
+-- is saved (settings.afkMode) and a join takes it up again; as a server shuts down (a restart) players in AFK mode
+-- hop through a reserved server back into a fresh public one, still in AFK mode. The rejoin before Roblox's idle
+-- kick is #3602's. Walking off or the AFK button turns it off, saved.
+AfkCafe.STAY_FLAG = "afkStay"
+AfkCafe.HOP_SECONDS = 3 -- seconds a hop waits in the reserved server before going back to a public one
+AfkCafe.HOP_RETRY_SECONDS = 10
 AfkCafe.QUICK_SETTLE_SECONDS = 1 -- a shift this soon after the quick rest began is the landing settling, not a step
 AfkCafe.QUICK_WORDS = "Turn on AFK for 2x money" -- the rest banner's line in place of "Stand still for 2x money"
 

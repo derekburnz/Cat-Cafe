@@ -35,6 +35,7 @@ return function()
 					bowlNewCatCard = true,
 					stationCircles = false, -- #4668
 					vipTag = false, -- #4991
+					afkMode = false, -- #5322
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -132,6 +133,7 @@ return function()
 				bowlNewCatCard = true,
 				stationCircles = false, -- #4668
 				vipTag = false, -- #4991
+				afkMode = false, -- #5322
 			})
 		end)
 

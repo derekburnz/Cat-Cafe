@@ -2666,6 +2666,10 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	if profile == nil or value == nil then
 		return
 	end
+	-- #5322: AFK mode's saved mark is the server's (the AfkMode remote sets it)
+	if rawKey == "afkMode" then
+		return
+	end
 	-- #4266: the Auto Bowl switches change only for a pass owner
 	if
 		(rawKey == AutoBowl.KEYS.claim or rawKey == AutoBowl.KEYS.refill)

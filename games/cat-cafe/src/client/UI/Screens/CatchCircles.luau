@@ -66,6 +66,7 @@ local Types = require(script.Parent.Parent.Types)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 
 export type Header = {
 	catName: string?,
@@ -138,6 +139,7 @@ type CircleView = {
 	ring: Frame,
 	ringStroke: UIStroke,
 	ringRim: UIStroke, -- #4842: the dark rim under the ring's stroke
+	noRim: boolean, -- #5256: the ring's rim stays hidden (a plain ring, or any ring with ringSolid on)
 	plain: boolean, -- #4966: a plain ring's target is drawn in the Perfect gold with no rim
 	number: TextLabel,
 	hint: Types.CircleGrade?, -- the grade drawn: this device's guess, then the server's
@@ -510,6 +512,12 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 	-- a solid green Good band (0.45 see-through before, which read dark green at night) and a solid gold Perfect band;
 	-- on a plain ring the target line is that same gold with no dark rim, so there is no cream ring between them
 	local plain = not paw and not second
+	-- #5256 (Derek 2026-11-18: "the double circle and dont swing part of minigame have a little gap in the rings"):
+	-- the dark rim outside a double's second half or a paw ring cut a dark line through its bands, so with the
+	-- ringSolid switch on (read straight, off by default) those rings drop it too, like a plain ring. The closer
+	-- keeps its rim.
+	local noRim = plain
+		or ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "ringSolid") == true
 	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, goodColor, 0.15, art)
 	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, perfectColor, 0, art)
 	-- #4842: each frame's own stroke is the dark rim; a same-size child ("Edge") carries the coloured stroke over it,
@@ -518,7 +526,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 	local ringRim: UIStroke = Create("UIStroke", {
 		Color = Theme.colors.ink,
 		Thickness = RING_THICKNESS + RIM,
-		Transparency = if plain then 1 else RIM_TRANSPARENCY,
+		Transparency = if noRim then 1 else RIM_TRANSPARENCY,
 		Parent = ring,
 	})
 	local ringEdge = circleFrame("Edge", 0, ring)
@@ -629,6 +637,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		ring = ring,
 		ringStroke = ringStroke,
 		ringRim = ringRim,
+		noRim = noRim,
 		plain = plain,
 		number = number,
 		hint = nil,
@@ -810,7 +819,7 @@ function CatchCircles._step(self: any, t: number)
 		local started = t >= circle.startsAt
 		view.closer.Visible = started
 		view.ringStroke.Transparency = if started then 0 else 0.6
-		view.ringRim.Transparency = if view.plain
+		view.ringRim.Transparency = if view.noRim
 			then 1
 			elseif started then RIM_TRANSPARENCY
 			else 0.8

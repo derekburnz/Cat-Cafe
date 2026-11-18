@@ -10,6 +10,7 @@
 --   banner:destroy()
 -- The caller decides when: this never asks whether the player is resting.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextService = game:GetService("TextService")
 local TweenService = game:GetService("TweenService")
 
@@ -149,7 +150,12 @@ function RestBanner.set(
 )
 	local frame: CanvasGroup = self.frame
 	if state ~= nil then
-		local big, small, badge = RestBannerLogic.words(state, doubled ~= false, remaining or 0)
+		local big, small, badge = RestBannerLogic.words(
+			state,
+			doubled ~= false,
+			remaining or 0,
+			ReplicatedStorage:GetAttribute("LiveFlag_afkQuick") == true -- #5310
+		)
 		local top = fit(self._big, big, BIG, Enum.Font.FredokaOne)
 		local under = fit(self._small, small, SMALL, Enum.Font.Nunito)
 		local wide = math.max(top.X, under.X)

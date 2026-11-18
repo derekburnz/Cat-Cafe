@@ -175,6 +175,12 @@ return function()
 				false
 			)
 			expect(AfkCafe.modeRests(60, false, false)).to.equal(false)
+			-- #5310: afkQuick rests at once in the zone, never out of it or busy
+			expect(AfkCafe.modeRests(0, true, false, true)).to.equal(true)
+			expect(AfkCafe.modeRests(0, false, false, true)).to.equal(false)
+			expect(AfkCafe.modeRests(0, true, true, true)).to.equal(false)
+			expect(AfkCafe.modeRests(0, true, false, false)).to.equal(false)
+			expect(#AfkCafe.QUICK_WORDS <= 26).to.equal(true) -- RestBannerLogic.MAX_CHARS
 			expect(AfkCafe.modeRests(60, true, true)).to.equal(false)
 		end)
 

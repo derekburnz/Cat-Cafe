@@ -254,7 +254,12 @@ local function check(player: Player, now: number)
 	local modeSince = watch.modeSince
 	if modeSince ~= nil then
 		local modeResting = LiveFlagService.on(AfkCafe.BUTTON_FLAG)
-			and AfkCafe.modeRests(now - watch.stillSince, inZone, busy(player))
+			and AfkCafe.modeRests(
+				now - watch.stillSince,
+				inZone,
+				busy(player),
+				LiveFlagService.on(AfkCafe.QUICK_FLAG) -- #5310
+			)
 		if AfkCafe.modeEnds(watch.modeRested, modeResting, now - modeSince) then
 			setMode(player, watch, false)
 		else
@@ -304,6 +309,15 @@ function AfkCafeService.start()
 		watch.stillSince = os.clock()
 		Telemetry.custom(player, "afk_mode", 1)
 		Net.toast(player, AfkCafe.MODE_ON_TEXT, "good")
+		-- #5310: look now and again just after the trip home settles, not at the next tick and 3 s of standing
+		if LiveFlagService.on(AfkCafe.QUICK_FLAG) then
+			check(player, os.clock())
+			task.delay(0.3, function()
+				if player.Parent ~= nil and watch.modeSince ~= nil then
+					check(player, os.clock())
+				end
+			end)
+		end
 	end)
 	Net.on("AfkIdle", function(player: Player, raw: unknown)
 		if type(raw) ~= "boolean" then

@@ -161,6 +161,13 @@ UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end o
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
 UI.giftStall = {} -- the Christmas Event's Gift Stall window, filled at the end of the file
+-- Sync's clip recordings (Nov 18): in Studio only, Workspace's RecordMode attribute (set from the command bar) holds
+-- the "Thanks for playing!" gift card and shows a bowl cat's card `RECORD_BOWL_DELAY` s late, so the walk-in reads.
+-- Never true in a live server.
+function UI.recordMode(): boolean
+	return RunService:IsStudio() and Workspace:GetAttribute("RecordMode") == true
+end
+UI.RECORD_BOWL_DELAY = 2
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
 
@@ -3060,7 +3067,16 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
-		popups:showCatFound(def, isNew, info)
+		if extra and extra.source == "bowl" and UI.recordMode() then
+			local shown = popups
+			task.delay(UI.RECORD_BOWL_DELAY, function()
+				if shown ~= nil then
+					shown:showCatFound(def, isNew, info)
+				end
+			end)
+		else
+			popups:showCatFound(def, isNew, info)
+		end
 	else
 		UI.toast("Caught a cat!", "good")
 	end
@@ -12723,6 +12739,9 @@ local function giftTry(): boolean
 	if not tutorialButtonOn then
 		table.remove(UI.gift.queue, 1) -- #4483: the Tutorial tile X'd: the gift is paid, its thank-you card is not shown
 		return #UI.gift.queue == 0
+	end
+	if UI.recordMode() then
+		return false -- Studio recording: the thank-you card waits until RecordMode is off
 	end
 	local GiftCardLogic = require(script.Components.GiftCardLogic)
 	local busy = (modal ~= nil and modal:current() ~= nil)

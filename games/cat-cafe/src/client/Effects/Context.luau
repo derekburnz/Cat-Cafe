@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
@@ -129,6 +130,30 @@ end
 function Context.distance(position: Vector3): number
 	local focus = Context.focus()
 	return if focus ~= nil then (position - focus).Magnitude else math.huge
+end
+
+-- #5265 (Derek 2026-11-18: "make it no spawns that I can see from areas not unlocked yet"): true when area `areaId`
+-- is one this player's tier has not opened (the Player's Tier attribute, TradeService), so a spawn's beam, mark or
+-- glow there stays away. False for an unknown area, before the tier is known, or with the lockedAreaQuiet switch
+-- set false.
+function Context.areaShut(areaId: unknown): boolean
+	if type(areaId) ~= "string" then
+		return false
+	end
+	if
+		not LiveFlags.shown(
+			"lockedAreaQuiet",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "lockedAreaQuiet")
+		)
+	then
+		return false
+	end
+	local area = Catalog.getArea(areaId)
+	local tier = Players.LocalPlayer:GetAttribute("Tier")
+	if area == nil or type(tier) ~= "number" then
+		return false
+	end
+	return tier < area.tier
 end
 
 -- ReplicatedStorage.Clock Phase (data-model section 9), the same attribute WorldController follows.

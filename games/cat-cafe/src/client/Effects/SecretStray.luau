@@ -56,6 +56,7 @@ local function isSecret(instance: Instance): boolean
 	return instance:IsA("Model")
 		and instance:IsDescendantOf(Workspace)
 		and instance:GetAttribute("Rarity") == "Secret"
+		and not Context.areaShut(instance:GetAttribute("Area")) -- #5265
 end
 
 -- The key a stray's beam goes by: its StrayId, which is also its beacon's name.
@@ -184,7 +185,7 @@ local function check()
 	local folder = ReplicatedStorage:FindFirstChild(s.beacons)
 	if folder ~= nil then
 		for _, child in folder:GetChildren() do
-			if child:IsA("Vector3Value") then
+			if child:IsA("Vector3Value") and not Context.areaShut(child:GetAttribute("Area")) then -- #5265
 				local value = child :: Vector3Value
 				beacons[value.Name] = value
 				local here: Model? = models[value.Name]

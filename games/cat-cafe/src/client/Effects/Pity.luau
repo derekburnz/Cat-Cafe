@@ -43,6 +43,9 @@ local stepping: RBXScriptConnection? = nil
 
 local function kindOf(model: Model): string?
 	local kind = model:GetAttribute("PityCat")
+	if Context.areaShut(model:GetAttribute("Area")) then
+		return nil -- #5265: nothing for a pity cat in an area this player's tier has not opened
+	end
 	return if type(kind) == "string" and kind ~= "" then kind else nil
 end
 

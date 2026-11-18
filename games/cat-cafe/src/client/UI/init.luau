@@ -11842,6 +11842,47 @@ function UI.tradeTile(): GuiObject?
 	return if tile ~= nil then tile.instance else nil
 end
 
+-- #5158 (Derek 2026-11-17: "much less people trading ... show it maybe just briefly when its unlocked"): with the
+-- tradeSpot switch on, after "Trading unlocked!" lands the Trade tile keeps the tutorial ring, its arrow and the dim
+-- round it for TRADE_SPOT_SECONDS, or until the tile is pressed. Once, as the unlock itself plays once an account.
+local TRADE_SPOT_SECONDS = 8
+function UI.tradeSpot()
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	if
+		not LiveFlags.shown(
+			"tradeSpot",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "tradeSpot")
+		)
+	then
+		return
+	end
+	local tile = UI.tradeTile()
+	if tile == nil or not tile.Visible or not UI.calmForMoment() then
+		return
+	end
+	local TutorialGlow = require(script.Components.TutorialGlow) :: any
+	TutorialGlow.set(tile, true)
+	local over = false
+	local pressed: RBXScriptConnection? = nil
+	local function done()
+		if over then
+			return
+		end
+		over = true
+		local link: RBXScriptConnection? = pressed
+		if link ~= nil then
+			link:Disconnect()
+		end
+		TutorialGlow.set(tile, false)
+	end
+	local face = tile:FindFirstChild("Face", true)
+	if face ~= nil and face:IsA("GuiButton") then
+		pressed = (face :: GuiButton).Activated:Connect(done)
+	end
+	task.delay(TRADE_SPOT_SECONDS, done)
+end
+
 function UI.calmForMoment(): boolean
 	local card: any = UI.perks.card
 	return (modal == nil or modal:current() == nil)
@@ -11849,6 +11890,87 @@ function UI.calmForMoment(): boolean
 		and not UI.cutscene.on
 		and not UI.bait.busy()
 		and not (card ~= nil and card:isShowing())
+end
+
+-- #5163 (Growth's Nov 17 read: 53% of players who catch in the Park never reach Tier 3): with the parkRankPoint
+-- switch on, the first Park cat checked in at Tier 2 this session dims the screen round the goal card (the Rank Up
+-- card) with the arrow and "See what Tier 3 needs", once the screen is calm (the Cat found card closed). It goes
+-- when any window opens (the goal card's own press opens Rank Up), on a press on the dim, or after SECONDS.
+local function parkPointIdle() end
+UI.parkPoint = {
+	done = false,
+	close = parkPointIdle :: () -> (),
+	SECONDS = 12,
+	WAIT = 60,
+	STEP = 0.25,
+	CALM = 1,
+}
+function UI.parkRankPoint(catId: string)
+	local point = UI.parkPoint
+	if point.done or (state.tier or 1) ~= 2 then
+		return
+	end
+	local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+	local def = Catalog.getCat(catId)
+	if def == nil or def.area ~= "park" then
+		return
+	end
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	if
+		not LiveFlags.shown(
+			"parkRankPoint",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "parkRankPoint")
+		)
+	then
+		return
+	end
+	point.done = true
+	task.spawn(function()
+		local started = os.clock()
+		local calmSince = -1 -- os.clock() since the screen has been calm, -1 while it is not
+		local target: any = nil
+		while os.clock() - started < point.WAIT do
+			task.wait(point.STEP)
+			if (state.tier or 1) ~= 2 then
+				return
+			end
+			if not UI.calmForMoment() then
+				calmSince = -1
+			elseif calmSince < 0 then
+				calmSince = os.clock()
+			elseif os.clock() - calmSince >= point.CALM then
+				local view: any = hud
+				target = if view ~= nil then view:goalButton() else nil
+				if target ~= nil then
+					break
+				end
+			end
+		end
+		if target == nil then
+			return
+		end
+		local over = false
+		local function done()
+			if over then
+				return
+			end
+			over = true
+			local shut: () -> () = point.close
+			point.close = parkPointIdle
+			shut()
+		end
+		point.close = SpotlightGuide.show(target, "See what Tier 3 needs", done, true)
+		local shownAt = os.clock()
+		while not over and os.clock() - shownAt < point.SECONDS do
+			task.wait(point.STEP)
+			local open: any = modal
+			if (open ~= nil and open:current() ~= nil) or (state.tier or 1) ~= 2 then
+				break
+			end
+		end
+		done()
+	end)
 end
 
 -- #4924 (Derek 2026-11-16: "when its ready pull the rankup screen into their screen to click"): the Rank Up window

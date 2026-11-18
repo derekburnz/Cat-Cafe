@@ -186,11 +186,13 @@ def _ear(b, base, out, width, height, thick, swatch):
         b.wedge(tuple(c), (thick, width / 2, height), swatch, bevel=False, rot=rot)
 
 
-NET_NAMES = ("Basic", "Sturdy", "Pro", "Master")     # CatCafe_Item_Net_L1 to L4 (catch-rework.md, F93)
+NET_NAMES = ("Basic", "Sturdy", "Pro", "Master", "Crystal", "Star")   # CatCafe_Item_Net_L1 to L6 (F93, #5170)
 # Per level (Derek 2026-11-03: "The net designs should be improved also as they are seen all the time"): pole,
 # grip wrap and its rings, metal fittings, rim and netting. L1 Basic is a bamboo garden net with a
 # twine grip, L2 Sturdy a mint pole with steel fittings and a steel rim, L3 Pro a blue pole with brass fittings and
-# a brass paw badge, L4 Master dark wood and shining gold with cat ears, gems and a little bell.
+# a brass paw badge, L4 Master dark wood and shining gold with cat ears, gems and a little bell. #5170 (Net 4 and
+# Net 5, behind netTiers): L5 Crystal a pearl pole with pale gold, sky blue netting and blue crystals round a bigger
+# rim, L6 Star a night blue pole with pale gold, a softly glowing inner ring, star pommel and star bell (_Glow, Neon).
 NET_LOOK = (
     dict(pole="fur_sand", wrap="fur_oat", wrap_ring="fur_toffee", fit="fur_caramel", rim="caramel_wood",
          strand="fur_vanilla"),
@@ -198,6 +200,10 @@ NET_LOOK = (
     dict(pole="shirt_blue", wrap="pants_navy", wrap_ring="brass", fit="brass", rim="shirt_blue", strand="pastel_sky"),
     dict(pole="dark_wood", wrap="fur_black", wrap_ring="gold_mid", fit="gold_mid", rim="gold_mid",
          strand="pastel_lilac"),
+    dict(pole="pearl", wrap="galaxy_blue", wrap_ring="gold_light", fit="gold_light", rim="gold_light",
+         strand="pastel_sky"),
+    dict(pole="night_sky", wrap="aurora_violet", wrap_ring="gold_light", fit="gold_light", rim="gold_light",
+         strand="sparkle"),
 )
 
 
@@ -208,7 +214,7 @@ def net_knots(level):
     pole, r = 3.0 + 0.3 * k, 0.9 + 0.15 * k
     rho = 0.07 + 0.01 * k
     hy = -pole - r
-    n = 6 if k < 2 else 7
+    n = 6 if k < 2 else 7 if k < 4 else 8
     depth = 1.25 * r                                     # deeper than the 2026-10 bag (1.0 + 0.1 a level)
     rb = r - 2 * rho + 0.02                              # just inside the rim's centre line
     rows = []
@@ -254,7 +260,8 @@ def build_net(level, mat):
         for y in (neck_y + 0.06, neck_y + 0.18):
             h.cyl((0, y, 0), 0.142, 0.04, "fur_toffee", segments=10, rot=(math.radians(90), "X"))
     else:                                     # metal bands up the pole
-        bands = ((-1.3, -2.1), (-1.25, -2.0, -2.75), (-1.3, -2.2, -3.1))[k - 1]
+        bands = ((-1.3, -2.1), (-1.25, -2.0, -2.75), (-1.3, -2.2, -3.1), (-1.3, -2.1, -2.9, -3.7),
+                 (-1.3, -2.15, -3.0, -3.85))[k - 1]
         for y in bands:
             h.cyl((0, y, 0), 0.118, 0.08, L["fit"], segments=10, rot=(math.radians(90), "X"))
     if k == 2:                                # Pro: a brass paw badge on top of the ferrule
@@ -262,9 +269,19 @@ def build_net(level, mat):
         h.cyl((0, neck_y + 0.12, bz + 0.01), 0.07, 0.03, L["fit"], segments=10)
         for dx, dy in ((-0.075, -0.07), (-0.03, -0.1), (0.03, -0.1), (0.075, -0.07)):
             h.cyl((dx, neck_y + 0.12 + dy, bz + 0.005), 0.025, 0.03, L["fit"], segments=8)
+    glow = Builder()                          # L6 Star only: the parts that glow (Neon, `_Glow`)
     if k == 3:                                # Master: gold pommel with a pink gem
         h.sphere((0, 0.14, 0), 0.15, L["fit"], segments=10, rings=6)
         h.box((0, -GRIP, 0.13), (0.09, 0.18, 0.04), "neon_pink", bevel=False)
+    if k == 4:                                # Crystal: a blue crystal pommel in a gold cup, a crystal on the wrap
+        h.cyl((0, 0.08, 0), 0.15, 0.08, L["fit"], segments=10, rot=(math.radians(90), "X"))
+        h.ico((0, 0.24, 0), 0.17, "rarity_rare", subdivisions=1, scale=(1, 1.35, 1))
+        h.ico((0, -GRIP, 0.135), 0.06, "rarity_rare", subdivisions=1, scale=(1, 1.6, 0.7))
+    if k == 5:                                # Star: a glowing star pommel, a gold star on the ferrule
+        h.cyl((0, 0.08, 0), 0.15, 0.08, L["fit"], segments=10, rot=(math.radians(90), "X"))
+        glow.ico((0, 0.25, 0), 0.17, "sparkle", subdivisions=1)
+        h.fan((0, neck_y + 0.12, 0.15), (0, 0), _star(0.16), 0.04, L["fit"])
+        h.ico((0, -GRIP, 0.135), 0.06, "aurora_violet", subdivisions=1, scale=(1, 1.6, 0.7))
     # the rim
     _tube_ring(hoop, hy, rc, rho, L["rim"])
     if k == 1:                                # Sturdy: steel rivets round the rim
@@ -272,7 +289,7 @@ def build_net(level, mat):
             ar = math.radians(a)
             hoop.sphere((rc * math.cos(ar), hy + rc * math.sin(ar), rho * 0.9), rho * 0.55, "concrete_dark",
                         segments=8, rings=4)
-    if k == 3:                                # Master: cat ears on the far rim, pink inside, gems at the sides
+    if k >= 3:                                # Master and up: cat ears on the far rim, gems at the sides
         for sx in (-1, 1):
             a = math.radians(-90 + sx * 45)      # at 45 degrees the ears stay nearer the grip than the rim's far end
             u = Vector((math.cos(a), math.sin(a), 0))
@@ -282,9 +299,14 @@ def build_net(level, mat):
             tri = [base + u * 0.08 + t * 0.1, base + u * 0.27, base + u * 0.08 - t * 0.1]
             c = sum(tri, Vector()) / 3
             rr = [((v - c).x, (v - c).y) for v in tri]   # pink inside the ear on its open face, proud of the gold
-            hoop.fan((c.x, c.y, rho - 0.01 + 0.003), rr[0], rr[1:], 0.016, "nose_pink")
-            ag = math.radians(90 + sx * 90)
-            hoop.ico((rc * math.cos(ag), hy + rc * math.sin(ag), rho * 0.85), rho * 0.75, "rarity_epic", subdivisions=1)
+            inner = ("nose_pink", "pastel_sky", "aurora_violet")[k - 3]
+            hoop.fan((c.x, c.y, rho - 0.01 + 0.003), rr[0], rr[1:], 0.016, inner)
+            gem = ("rarity_epic", "rarity_rare", "sparkle")[k - 3]
+            for ad in ((90 + sx * 90,) if k == 3 else (90 + sx * 90, 90 + sx * 135, 90 + sx * 45)):
+                ag = math.radians(ad)
+                hoop.ico((rc * math.cos(ag), hy + rc * math.sin(ag), rho * 0.85), rho * 0.75, gem, subdivisions=1)
+    if k == 5:                                # Star: a thin glowing ring just inside the gold rim
+        _tube_ring(glow, hy, rc - rho * 1.7, rho * 0.45, "sparkle", n=16)
     # the netting: diamond mesh strands from knot row to knot row, then to the tip knot
     rows, tip = net_knots(level)
     n = len(rows[0])
@@ -300,12 +322,27 @@ def build_net(level, mat):
         a = rows[-1][j]
         mid = Vector(((a[0]) / 2, (a[1] - hy) / 2, 0))
         _bar(bag, a, tip, w, w, L["strand"], up=tuple(mid.normalized()))
-    if k == 3:                                # Master: a little gold bell at the tip
-        bag.sphere((0, hy, tip[2] - 0.1), 0.13, L["fit"], segments=10, rings=6)
+    if k in (3, 4):                           # Master and Crystal: a little gold bell at the tip
+        bag.sphere((0, hy, tip[2] - 0.1), 0.13 + 0.02 * (k - 3), L["fit"], segments=10, rings=6)
+    elif k == 5:                              # Star: a glowing star bead at the tip
+        glow.ico((0, hy, tip[2] - 0.12), 0.15, "sparkle", subdivisions=1)
     else:
         bag.sphere((0, hy, tip[2]), 0.06, L["strand"], segments=8, rings=4)
     name = f"CatCafe_Item_Net_L{level}"
-    return [h.finalize(name + "_Handle", mat), hoop.finalize(name + "_Hoop", mat), bag.finalize(name + "_Bag", mat)]
+    out = [h.finalize(name + "_Handle", mat), hoop.finalize(name + "_Hoop", mat), bag.finalize(name + "_Bag", mat)]
+    if k == 5:
+        out.append(glow.finalize(name + "_Glow", mat))
+    return out
+
+
+def _star(r, points=5, inner=0.45):
+    """A flat star's outline round (0, 0), `r` to its tips, first tip toward -Y (the net's far end), closed."""
+    ring = []
+    for i in range(2 * points + 1):
+        a = -math.pi / 2 + math.pi * i / points
+        rr = r if i % 2 == 0 else r * inner
+        ring.append((rr * math.cos(a), rr * math.sin(a)))
+    return ring
 
 
 def grip_attachment():
@@ -471,6 +508,9 @@ ASSETS = {
     "CatCafe_Item_Net_L2": (lambda m: build_net(2, m), 2200),
     "CatCafe_Item_Net_L3": (lambda m: build_net(3, m), 2600),
     "CatCafe_Item_Net_L4": (lambda m: build_net(4, m), 2600),
+    "CatCafe_Item_Net_L5": (lambda m: build_net(5, m), 3000),     # #5170 Net 4 (Crystal), behind netTiers
+    "CatCafe_Item_Net_L6": (lambda m: build_net(6, m), 3200),     # #5170 Net 5 (Star), glowing
+
     "CatCafe_Item_Sardines": (build_sardines, 1600),
     "CatCafe_Item_Caviar": (build_caviar, 1400),
     "CatCafe_Item_MoonMilk": (build_moon_milk, 900),

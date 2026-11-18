@@ -3171,6 +3171,7 @@ local function wireServerEvents()
 		-- check-in sound.
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
+		UI.parkRankPoint(catId) -- #5163: the first Park check-in at Tier 2 points at the goal card (parkRankPoint)
 	end)
 	-- The Cafe Pass (#1645, #1646): the season, level, XP and claims, at join, after each claim and at a season roll.
 	Net.on("CafePassState", function(view: Types.CafePassView)
@@ -4006,7 +4007,8 @@ function UIController.tradeUnlock(from: number, to: number)
 			elseif calmSince == nil then
 				calmSince = os.clock()
 			elseif os.clock() - (calmSince :: number) >= TRADE_UNLOCK.CALM then
-				if TradeUnlock.play(ui.tradeTile()) then
+				-- #5158: the tile's brief spotlight once the icon has landed on it (tradeSpot)
+				if TradeUnlock.play(ui.tradeTile(), ui.tradeSpot) then
 					return
 				end
 				calmSince = nil

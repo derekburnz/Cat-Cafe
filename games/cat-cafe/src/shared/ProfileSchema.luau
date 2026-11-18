@@ -15,6 +15,7 @@ local DragonKeep = require(script.Parent.DragonKeep)
 local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
 local FishStore = require(script.Parent.FishStore)
+local Follower = require(script.Parent.Follower)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Fusion = require(script.Parent.Fusion)
 local GrandOpening = require(script.Parent.GrandOpening)
@@ -412,6 +413,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		eventRewards = {},
 		eventLast = "",
 		palDay = { day = 0 }, -- #4913, no version
+		follower = { uid = "", boost = "money" }, -- #5172, no version
 	}
 end
 
@@ -1240,6 +1242,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #4913: no version bump; an older server would drop it, so the palDay switch goes on only after a restart
 	local palDay = if type(raw.palDay) == "table" then raw.palDay else {}
 	profile.palDay = { day = math.max(0, asInt(palDay.day, 0)) }
+	-- #5172: no version bump either; an older server would drop it, so catFollower goes on only after a restart
+	profile.follower = Follower.sanitize(raw.follower)
 	profile.version = ProfileSchema.VERSION
 	return profile
 end

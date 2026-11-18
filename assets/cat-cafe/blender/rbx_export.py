@@ -54,8 +54,11 @@ COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "Ca
                     # Derek 2026-11-14: "some of the new areas a lot of the models can just be walked through so fix that"
                     "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_", "CatCafe_Harvest_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
-                      "_Wheel", "_Pointer", "_RimLight", "_Flowers", "_Pennant", "Balloons", "_Canopy",
-                      "_BannerPole_Swing", "_SummitFlag_Swing", "_PennantTower_Swing", "_BalloonBunch_Swing")
+                      "_Wheel", "_Wheel9", "_Pointer", "_RimLight", "_Flowers", "_Pennant", "Balloons", "_Canopy",
+                      "_BannerPole_Swing", "_SummitFlag_Swing", "_PennantTower_Swing", "_BalloonBunch_Swing",
+                      # #5165: the Water Park's turning pieces; they turn on each client only (Effects/Rides, which
+                      # also turns their collision off there), so they can never carry or trap a player
+                      "CarouselTurn", "TeacupsTurn", "FerrisTurn")
 # _Canopy: tree crowns a player climbs up under (the Great Oak, #2262). Roblox's camera only pops in front of parts
 # that collide, so walk-through leaves let it pass instead of pushing it into the climber's head.
 INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier")   # volumes never drawn: where fireflies drift, ladders'

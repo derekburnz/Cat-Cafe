@@ -133,6 +133,13 @@ LiveFlags.KEYS = {
 	"strayWalkSlow", -- #4601: a server stray walk writes its model at 10 Hz, not 60, and the client eases between (shared/Mover); off by default
 	"firstRankLock", -- Derek 2026-11-17: the first Rank Up window stays up while ready, dimmed, arrow on RANK UP (shared/RankUpRightAway.locked); off by default
 	"likeAskEarly", -- #5152: the like ask on the first UTC day at the first Park or Rare catch, as a card (shared/Tips.likeEarly); off by default
+	"tradeSpot", -- #5158: after "Trading unlocked!" the Trade tile is ringed with the dim and arrow for a moment (UI.tradeSpot); off by default
+	"nightSlice", -- #5164: the client's day and night change spreads its World walk and night look over frames (WorldController); off by default
+	"spinCat", -- #5171: the Spin Wheel's ninth slice, a Secret cat at 0.25% (shared/SpinCat); off by default
+	"nightSpread", -- #5164: dusk's strays leaving and sunrise's stuck cats spread over frames (shared/NightSpread); off by default
+	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
+	"catFollower", -- #5172: one of your cats follows you for Money or Luck (shared/Follower); off by default
+	"parkRankPoint", -- #5163: after a Park cat checks in at Tier 2 the screen dims round the goal card, once a session (UI.parkRankPoint); off by default
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
@@ -191,6 +198,13 @@ LiveFlags.OFF_BY_DEFAULT = {
 	strayWalkSlow = true, -- #4601: on once Effects/Pose eases between the writes and a Studio walk looks the same
 	firstRankLock = true, -- Derek 2026-11-17 20:12 UTC: on after Review-QA and Sync's Studio pass
 	likeAskEarly = true, -- #5152: on after Review-QA's QoL and phone sizing checks
+	tradeSpot = true, -- #5158: on after Review-QA and Sync's Studio pass
+	nightSlice = true, -- #5164: on after Review-QA and Sync's frame-time read across a phase change
+	spinCat = true, -- #5171: on once the window's ninth wedge and the Odds list pass Review-QA and Sync's Studio look
+	nightSpread = true, -- #5164: on after Review-QA and Sync's phase change timing
+	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
+	catFollower = true, -- #5172: on after the walk and the Cats menu slot land, a Pace read and a restart (save field)
+	parkRankPoint = true, -- #5163: on after Review-QA and Sync's Studio pass
 	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

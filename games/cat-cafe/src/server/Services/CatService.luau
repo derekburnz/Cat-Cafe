@@ -65,8 +65,10 @@ local M = {
 	IndexRewards = require(ReplicatedStorage.Shared.IndexRewards),
 	Layout = require(script.Parent.Parent.World.Layout),
 	LiveFlagService = require(script.Parent.LiveFlagService),
+	NightSpread = require(ReplicatedStorage.Shared.NightSpread), -- #5164
 	Moods = require(ReplicatedStorage.Shared.Moods),
 	Onboarding = require(ReplicatedStorage.Shared.Onboarding),
+	NetTiers = require(ReplicatedStorage.Shared.NetTiers), -- #5170
 	ParkFirstEasy = require(ReplicatedStorage.Shared.ParkFirstEasy), -- #5182
 	Payout = require(script.Parent.Payout),
 	Pity = require(ReplicatedStorage.Shared.Pity),
@@ -2894,6 +2896,14 @@ function startCatch(
 	local trust = if tutorial
 		then Circles.tutorialTrust(#circles) -- #4845: a held first catch runs 3 rings and lands on the last
 		else Circles.trustFor(stray.def.rarity, M.Moods.trustBonus(stray.curiousAt, now))
+	-- #5170 (netTiers): the owned net level cuts the Perfect hits, never under two (a potion widens windows only)
+	if not tutorial and M.LiveFlagService.on(M.NetTiers.FLAG) then
+		trust.start += M.NetTiers.trustBonus(
+			M.Economy.level(profile, "net"),
+			trust.start,
+			trust.need
+		)
+	end
 	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
@@ -4157,9 +4167,30 @@ function CatService.nightFalls()
 			table.insert(leaving, stray)
 		end
 	end
-	for _, stray in leaving do
-		whenUnlocked(stray, leaveAtDusk)
+	if not M.LiveFlagService.on(M.NightSpread.FLAG) then
+		for _, stray in leaving do
+			whenUnlocked(stray, leaveAtDusk)
+		end
+		return
 	end
+	-- #5164 (nightSpread): PER_STEP strays a frame, so dusk is no one long server frame. A stray caught or gone in
+	-- between is skipped; a sunrise in between (waveNumber moved on) stops the rest, which the day keeps.
+	local wave = waveNumber
+	task.spawn(function()
+		for n, run in M.NightSpread.chunks(leaving, M.NightSpread.PER_STEP) do
+			if n > 1 then
+				task.wait()
+				if waveNumber ~= wave then
+					return
+				end
+			end
+			for _, stray in run do
+				if stray.alive then
+					whenUnlocked(stray, leaveAtDusk)
+				end
+			end
+		end
+	end)
 end
 
 -- Sunrise (v0.9, F66): every area gets its wave of WaveSize strays, whether or not anyone has it unlocked. #3661:

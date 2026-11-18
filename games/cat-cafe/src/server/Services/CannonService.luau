@@ -234,7 +234,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	-- Derek 2026-11-18 (areaWhole): the destination area starts streaming in whole now, during the flight
-	AreaWholeService.heading(player, destination)
+	local wholeTakes = AreaWholeService.heading(player, destination)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
 	if area ~= nil then
 		Telemetry.tripPicked(player, profile, destination, false) -- #4544: the AreaVisit journey
@@ -264,7 +264,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	end
 	task.spawn(function()
 		local pad = Layout.landingPads[destination]
-		if current() and pad ~= nil then
+		if current() and pad ~= nil and not wholeTakes then
 			local centre = pad.centre
 			-- with StreamingEnabled off this has nothing to do; it can also time out, which only means pop-in
 			pcall(function()

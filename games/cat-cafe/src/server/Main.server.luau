@@ -84,6 +84,7 @@ local RichTipService = require(script.Parent.Services.RichTipService)
 local SessionRecapService = require(script.Parent.Services.SessionRecapService)
 local ShopCatService = require(script.Parent.Services.ShopCatService)
 local ShoveService = require(script.Parent.Services.ShoveService)
+local SnowglobeService = require(script.Parent.Services.SnowglobeService)
 local SpinService = require(script.Parent.Services.SpinService)
 local StarterCatService = require(script.Parent.Services.StarterCatService)
 local StuckGoalService = require(script.Parent.Services.StuckGoalService)
@@ -117,6 +118,7 @@ require(ReplicatedStorage.Shared.TablesSpread).follow()
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch (shared/SpinCat)
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
+require(ReplicatedStorage.Shared.BigTreats).follow() -- Derek 2026-11-18: the Daily Treat rows follow bigTreats
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
 local world = WorldBuilder.build()
 
@@ -162,6 +164,7 @@ MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket'
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 FishStoreService.start() -- #4055: Store passes for golden fish
 HarvestService.start() -- #4251: Harvest Hollow's Stall, Pumpkin Patch and arrival
+SnowglobeService.start() -- the Christmas Event's globe and village, once christmasEvent is on
 TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
 DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory

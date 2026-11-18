@@ -4,6 +4,8 @@
 -- the character stands and faces. Pure: positions, times and the stray list are passed in, so the server's judge,
 -- this client's in-reach glow and the specs all use the same rule.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local DragonKeep = require(script.Parent.DragonKeep)
@@ -16,6 +18,30 @@ NetSwing.FEET_STUDS = 1.5
 -- A swing may arrive this much sooner than NetSwingCooldown after the last one, for the ping wobble between two
 -- presses the client spaced a full cooldown apart.
 NetSwing.COOLDOWN_SLACK = 0.1
+
+-- #5309 (Derek 2026-11-18: "improve hitbox for net to pretty much hit anything infront of you since its kind of
+-- broken right now"), switch `bigNet` (LiveFlags.OFF_BY_DEFAULT): the swing takes the whole half circle in front
+-- (BIG_ARC either side of the facing at any distance), BIG_REACH more studs out and BIG_FEET round the feet. #5308
+-- (Derek: cats that run when you come near): with it on a swing that hits nothing makes no cat hop, so a swing
+-- catches or does nothing. Read from the switch's ReplicatedStorage attribute, so the server's judge and this
+-- client's glow agree; specs use setBig.
+NetSwing.BIG_FLAG = "bigNet"
+NetSwing.BIG_REACH = 4
+NetSwing.BIG_ARC = 90
+NetSwing.BIG_FEET = 3
+
+local bigOverride: boolean? = nil
+-- Specs: true or false in place of the switch, nil goes back to it.
+function NetSwing.setBig(on: boolean?)
+	bigOverride = on
+end
+
+function NetSwing.big(): boolean
+	if bigOverride ~= nil then
+		return bigOverride
+	end
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. NetSwing.BIG_FLAG) == true
+end
 
 -- One stray the swing could land on: its id and where its body is.
 export type Target = { id: string, position: Vector3 }
@@ -77,9 +103,10 @@ end
 -- NetFrontArcDegrees of straight ahead the reach is NetFrontExtraStuds longer. The client's glow reads this too.
 function NetSwing.inReach(origin: Vector3, look: Vector3, point: Vector3, extra: number?): boolean
 	local offset = point - origin
-	local reach = NetSwing.reach(extra)
+	local big = NetSwing.big() -- #5309
+	local reach = NetSwing.reach(extra) + (if big then NetSwing.BIG_REACH else 0)
 	local flat = Vector3.new(offset.X, 0, offset.Z)
-	if flat.Magnitude < NetSwing.FEET_STUDS then
+	if flat.Magnitude < (if big then NetSwing.BIG_FEET else NetSwing.FEET_STUDS) then
 		return offset.Magnitude <= reach
 	end
 	local facing = Vector3.new(look.X, 0, look.Z)
@@ -93,8 +120,9 @@ function NetSwing.inReach(origin: Vector3, look: Vector3, point: Vector3, extra:
 	if offset.Magnitude > reach then
 		return false
 	end
-	local arc = if flat.Magnitude <= Config.NetNearStuds
-		then Config.NetNearArcDegrees
+	local arc = if big
+		then NetSwing.BIG_ARC
+		elseif flat.Magnitude <= Config.NetNearStuds then Config.NetNearArcDegrees
 		else Config.NetArcDegrees
 	return cos >= math.cos(math.rad(arc)) - 1e-9
 end
@@ -111,18 +139,13 @@ end
 -- right, NetReachStuds out. NetSlackStuds stays off the marker, so everything it covers lands even on a slow
 -- connection.
 function NetSwing.fanPoints(slices: number): { Vector3 }
-	local arc = math.rad(Config.NetArcDegrees)
+	local big = NetSwing.big() -- #5309: the marker shows the bigger half circle
+	local arc = math.rad(if big then NetSwing.BIG_ARC else Config.NetArcDegrees)
+	local out = Config.NetReachStuds + (if big then NetSwing.BIG_REACH else 0)
 	local points: { Vector3 } = {}
 	for index = 0, slices do
 		local angle = -arc + 2 * arc * index / slices
-		table.insert(
-			points,
-			Vector3.new(
-				Config.NetReachStuds * math.sin(angle),
-				0,
-				-Config.NetReachStuds * math.cos(angle)
-			)
-		)
+		table.insert(points, Vector3.new(out * math.sin(angle), 0, -out * math.cos(angle)))
 	end
 	return points
 end
@@ -174,6 +197,9 @@ end
 -- does, so the first catch stays easy (easy-start.md section 2b; the step the tutorial stray waits for).
 -- #4815: nor does one still in the walk-through (`tier` below CALM_BELOW_TIER), when given.
 function NetSwing.missHops(tutorialStep: number, tier: number?): boolean
+	if NetSwing.big() then
+		return false -- #5308, #5309
+	end
 	return tutorialStep >= Config.TutorialGuaranteedStrayStep
 		and (tier == nil or not NetSwing.calm(tier))
 end

@@ -19,6 +19,10 @@
 -- parts this client has. A part that streams in late, comes back after streaming out or has the server's shut pose
 -- replicated over it joins its leaf instead of standing shut in the doorway (half a door floating), and the hidden
 -- art stays hidden as its parts arrive (the old door showing through a door set).
+-- #5317 (Derek 2026-11-18: the back door left floating in the room on a tier upgrade): when the cafe grows the server
+-- moves the same door art back (WorldBuilder.setRoom). Each leaf keeps a part of the model it hangs in (its frame:
+-- the art's threshold, a door set's frame) and where that part stood; when it has moved, the leaf's shut pose moves
+-- with it, so the leaf is posed in the new doorway instead of being pulled back to the old one.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -43,6 +47,8 @@ type Leaf = {
 	catFlapRest: CFrame?, -- its CatFlap attachment in its own space, where the server puts Decor.CatFlap
 	parts: { [BasePart]: CFrame }, -- each part in the space of `shut` (placeLeaf)
 	skip: Instance?, -- the art's own flap, posed on its own, not with the leaf
+	frame: BasePart?, -- #5317: a part of the model the leaf hangs in, outside the leaf, that only the server moves
+	frameAt: CFrame, -- where `frame` stood when `shut` was read
 }
 
 type Swing = {
@@ -56,6 +62,8 @@ type FrontLeaf = {
 	shut: CFrame,
 	turn: number, -- BackDoor.frontTurn
 	parts: { [BasePart]: CFrame }, -- as Leaf.parts
+	frame: BasePart?, -- as Leaf.frame
+	frameAt: CFrame,
 }
 
 type Door = {
@@ -129,10 +137,25 @@ local function partNamed(parent: Instance, suffix: string): Model?
 	return nil
 end
 
+-- #5317: a part of the model a leaf hangs in that is not in any leaf (a direct child part: leaves are child Models),
+-- so this client never moves it, and where it stands.
+local function frameOf(leafModel: Model): (BasePart?, CFrame)
+	local carrier = leafModel.Parent
+	if carrier ~= nil then
+		for _, child in carrier:GetChildren() do
+			if child:IsA("BasePart") then
+				return child :: BasePart, (child :: BasePart).CFrame
+			end
+		end
+	end
+	return nil, CFrame.identity
+end
+
 -- A leaf as it stands now, shut, and its CatFlap attachment.
 local function leafOf(model: Model): Leaf
 	local shut = model:GetPivot()
 	local attachment = model:FindFirstChild("CatFlap", true)
+	local frame, frameAt = frameOf(model)
 	return {
 		model = model,
 		shut = shut,
@@ -141,7 +164,36 @@ local function leafOf(model: Model): Leaf
 			else nil,
 		parts = {},
 		skip = nil,
+		frame = frame,
+		frameAt = frameAt,
 	}
+end
+
+-- #5317: when the server has moved what a leaf hangs in (the cafe grew), the leaf's shut pose moves the same way.
+-- True when it moved. A frame part that streamed out (no parent) or is not in yet is left for later.
+local function followFrame(
+	leaf: { shut: CFrame, frame: BasePart?, frameAt: CFrame, model: Model }
+): boolean
+	local frame = leaf.frame
+	if frame == nil then
+		local found, at = frameOf(leaf.model)
+		if found == nil then
+			return false
+		end
+		-- first seen now: taken as standing where the shut pose was read
+		leaf.frame, leaf.frameAt = found, at
+		return false
+	end
+	if frame.Parent == nil then
+		return false
+	end
+	local now = frame.CFrame
+	if now:FuzzyEq(leaf.frameAt, 1e-3) then
+		return false
+	end
+	leaf.shut = now * leaf.frameAt:Inverse() * leaf.shut
+	leaf.frameAt = now
+	return true
 end
 
 -- The parts of a leaf, each with its frame in the space of the shut leaf. A part seen for the first time is taken as
@@ -281,6 +333,20 @@ end
 -- #2251: the server's pose of a leaf (built shut) can replicate over the one this client gave it, so a leaf that is
 -- no longer where it was put is put back on the next frame, instead of showing shut while this client thinks open.
 local function checkDrift(door: Door)
+	-- #5317: the door moved with a growing cafe: pose the leaves in the new doorway
+	local own = door.own
+	if followFrame(own :: any) and door.leaf == own then
+		door.shownAngle = math.huge
+	end
+	local inUse = door.leaf
+	if inUse ~= nil and inUse ~= own and followFrame(inUse :: any) then
+		door.shownAngle = math.huge
+	end
+	for _, front in door.frontLeaves do
+		if followFrame(front :: any) then
+			door.shownFront = math.huge
+		end
+	end
 	-- #2386: every part, not just the pivot, so a part the server or streaming put back shut is found too
 	local leaf = door.leaf
 	if leaf ~= nil and door.shownAngle ~= math.huge and leaf.model.Parent ~= nil then
@@ -392,11 +458,14 @@ local function bindFront(door: Door, front: Model?, open: boolean)
 	for model, turn in found do
 		local kept = known[model]
 		local parts: { [BasePart]: CFrame } = if kept ~= nil then kept.parts else {}
+		local frame, frameAt = frameOf(model)
 		local leaf: FrontLeaf = {
 			model = model,
 			shut = if kept ~= nil then kept.shut else model:GetPivot(),
 			turn = turn,
 			parts = parts,
+			frame = if kept ~= nil then kept.frame else frame,
+			frameAt = if kept ~= nil then kept.frameAt else frameAt,
 		}
 		table.insert(leaves, leaf)
 	end

@@ -47,6 +47,7 @@ type Watch = {
 	rejoinTry: number?, -- #3602: os.clock() of the last rejoin teleport since then
 	modeSince: number?, -- #4346: os.clock() AFK mode came on, nil while it is off
 	modeRested: boolean, -- #4346: a rest has started in this AFK mode
+	modeRestAt: number?, -- #5310: os.clock() this AFK mode's first rest began (a step after it ends the mode)
 }
 
 local TUTORIAL_DONE = 5 -- the tutorial's last step (the client's TutorialHints.DONE)
@@ -69,6 +70,7 @@ local function watchOf(player: Player): Watch
 		rejoinTry = nil,
 		modeSince = nil,
 		modeRested = false,
+		modeRestAt = nil,
 	}
 	watches[player] = watch
 	return watch
@@ -176,6 +178,7 @@ local function setMode(player: Player, watch: Watch, on: boolean)
 	if on then
 		watch.modeSince = os.clock()
 		watch.modeRested = false
+		watch.modeRestAt = nil
 		watch.idleSince = os.clock() -- the tap was input: Roblox's idle clock starts now
 		watch.rejoinTry = nil
 		player:SetAttribute(AfkCafe.MODE_ATTRIBUTE, true)
@@ -186,6 +189,7 @@ local function setMode(player: Player, watch: Watch, on: boolean)
 	end
 	watch.modeSince = nil
 	watch.modeRested = false
+	watch.modeRestAt = nil
 	player:SetAttribute(AfkCafe.MODE_ATTRIBUTE, nil)
 	if not watch.idle then
 		stop(player, watch)
@@ -253,14 +257,23 @@ local function check(player: Player, now: number)
 	-- #4346: AFK mode rests without the wait and whatever the input, and ends once its rest does (walked off)
 	local modeSince = watch.modeSince
 	if modeSince ~= nil then
+		-- #5310 (Review-QA): the quick rest has no wait, so a step after it began is what ends the mode
+		local restAt = watch.modeRestAt
 		local modeResting = LiveFlagService.on(AfkCafe.BUTTON_FLAG)
-			and AfkCafe.modeRests(now - watch.stillSince, inZone, busy(player))
+			and AfkCafe.modeRests(
+				now - watch.stillSince,
+				inZone,
+				busy(player),
+				LiveFlagService.on(AfkCafe.QUICK_FLAG),
+				restAt ~= nil and watch.stillSince > restAt + AfkCafe.QUICK_SETTLE_SECONDS
+			)
 		if AfkCafe.modeEnds(watch.modeRested, modeResting, now - modeSince) then
 			setMode(player, watch, false)
 		else
 			resting = resting or modeResting
 			if modeResting then
 				watch.modeRested = true
+				watch.modeRestAt = watch.modeRestAt or now
 			end
 		end
 	end
@@ -304,6 +317,15 @@ function AfkCafeService.start()
 		watch.stillSince = os.clock()
 		Telemetry.custom(player, "afk_mode", 1)
 		Net.toast(player, AfkCafe.MODE_ON_TEXT, "good")
+		-- #5310: look now and again just after the trip home settles, not at the next tick and 3 s of standing
+		if LiveFlagService.on(AfkCafe.QUICK_FLAG) then
+			check(player, os.clock())
+			task.delay(0.3, function()
+				if player.Parent ~= nil and watch.modeSince ~= nil then
+					check(player, os.clock())
+				end
+			end)
+		end
 	end)
 	Net.on("AfkIdle", function(player: Player, raw: unknown)
 		if type(raw) ~= "boolean" then

@@ -90,4 +90,21 @@ function RankUpNeeds.missing(
 	return nil
 end
 
+-- #5218 (switch rankUpSteps, Screens/RankUp): the Rank Up window's needs as steps, in rankUpBlocker's order (cats,
+-- rarity, coins; a need with no kind last), and how many are left. A copy; the list passed in keeps its order.
+local STEP_ORDER: { [string]: number } = { cats = 1, rarity = 2, coins = 3 }
+function RankUpNeeds.steps<T>(requirements: { T }): ({ T }, number)
+	local list = table.clone(requirements)
+	table.sort(list, function(a: T, b: T): boolean
+		return (STEP_ORDER[(a :: any).kind or ""] or 9) < (STEP_ORDER[(b :: any).kind or ""] or 9)
+	end)
+	local left = 0
+	for _, item in list do
+		if not (item :: any).met then
+			left += 1
+		end
+	end
+	return list, left
+end
+
 return RankUpNeeds

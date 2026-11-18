@@ -139,7 +139,24 @@ end
 
 -- #4346: whether a player in AFK mode rests at this check: in the zone, not busy and still ARRIVAL_STILL_SECONDS
 -- (the trip home has settled). Input does not matter: the player asked to rest with the AFK button.
-function AfkCafe.modeRests(stillSeconds: number, inZone: boolean, busy: boolean): boolean
+-- #5310 (Derek 2026-11-18: "have it start showing your getting 2x money within 1 seconds of turning on afk"), switch
+-- QUICK_FLAG (off by default): `quick` rests the moment the player is in the zone, and the server checks at once.
+AfkCafe.QUICK_FLAG = "afkQuick"
+AfkCafe.QUICK_SETTLE_SECONDS = 1 -- a shift this soon after the quick rest began is the landing settling, not a step
+AfkCafe.QUICK_WORDS = "Turn on AFK for 2x money" -- the rest banner's line in place of "Stand still for 2x money"
+
+-- `movedSinceRest` (quick only): the character has moved since this AFK mode's rest began, which ends it, as walking
+-- off does without quick.
+function AfkCafe.modeRests(
+	stillSeconds: number,
+	inZone: boolean,
+	busy: boolean,
+	quick: boolean?,
+	movedSinceRest: boolean?
+): boolean
+	if quick == true then
+		return inZone and not busy and movedSinceRest ~= true
+	end
 	return inZone and not busy and stillSeconds >= AfkCafe.ARRIVAL_STILL_SECONDS
 end
 

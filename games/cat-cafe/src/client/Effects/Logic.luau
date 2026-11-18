@@ -1925,6 +1925,22 @@ function Logic.rarityMarkShows(
 	return not locked and distance > near and distance <= (range or r.maxDistance)
 end
 
+-- A stray gem billboard's pixel part (it is Presets.rarityMark.size studs plus this many pixels): `pixels`, or the
+-- Park finder's bigger one. With `shrink` (switch gemsShrink, Derek 2026-11-18: "make the cats diamonds smaller from
+-- further away as they block the cats") it tapers from that at `near` studs to `least` (the finder's
+-- `finderLeast`) at `far`, so a far gem no longer covers its cat. Whole pixels. Pure.
+function Logic.gemPixels(distance: number, finder: boolean, shrink: boolean): number
+	local r = Presets.rarityMark
+	local base = if finder then math.max(r.pixels, r.finder.pixels) else r.pixels
+	if not shrink then
+		return base
+	end
+	local s = r.shrink
+	local least = if finder then s.finderLeast else s.least
+	local k = math.clamp((distance - s.near) / math.max(s.far - s.near, 1e-6), 0, 1)
+	return math.floor(base + (least - base) * k + 0.5)
+end
+
 -- #5034: whether a stray's gem gets the Park finder's longer reach (Presets.rarityMark.finder): the switch is on, the
 -- stray's `Area` is the finder's area and the player has no cat from it yet. Pure.
 function Logic.rarityFinder(on: boolean, area: unknown, caughtThere: boolean): boolean

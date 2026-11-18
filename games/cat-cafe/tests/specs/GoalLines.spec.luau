@@ -20,6 +20,15 @@ return function()
 			expect(GoalLines.opens(nil, false)).to.equal(nil)
 			expect(GoalLines.opens("", true)).to.equal(nil)
 		end)
+		it(
+			"reads the Rank Up window's noRankOpens switch, off by default (#5218, #5258)",
+			function()
+				local LiveFlags =
+					require(game:GetService("ReplicatedStorage").Shared.LiveFlags) :: any
+				expect(GoalLines.NO_OPENS_FLAG).to.equal("noRankOpens")
+				expect(LiveFlags.OFF_BY_DEFAULT[GoalLines.NO_OPENS_FLAG]).to.equal(true)
+			end
+		)
 	end)
 	describe("GoalLines.coins (#4625)", function()
 		local rows = {

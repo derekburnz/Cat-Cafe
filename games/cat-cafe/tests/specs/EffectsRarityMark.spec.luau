@@ -111,6 +111,25 @@ return function()
 		end)
 
 		it(
+			"gemsShrink: a far gem's pixel part tapers off, and nothing changes with the switch off",
+			function()
+				local r = Presets.rarityMark
+				local s = r.shrink
+				expect(Logic.gemPixels(5, false, false)).to.equal(r.pixels)
+				expect(Logic.gemPixels(300, false, false)).to.equal(r.pixels)
+				expect(Logic.gemPixels(300, true, false)).to.equal(
+					math.max(r.pixels, r.finder.pixels)
+				)
+				expect(Logic.gemPixels(s.near, false, true)).to.equal(r.pixels)
+				expect(Logic.gemPixels(s.far, false, true)).to.equal(s.least)
+				expect(Logic.gemPixels(300, false, true)).to.equal(s.least)
+				expect(Logic.gemPixels(300, true, true)).to.equal(s.finderLeast)
+				local mid = Logic.gemPixels((s.near + s.far) / 2, false, true)
+				expect(mid < r.pixels and mid > s.least).to.equal(true)
+			end
+		)
+
+		it(
 			"#5034: the Park finder reaches further only for Park strays before the first Park cat",
 			function()
 				local r = Presets.rarityMark

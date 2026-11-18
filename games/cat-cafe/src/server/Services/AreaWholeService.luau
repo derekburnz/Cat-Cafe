@@ -17,7 +17,7 @@ local AreaWholeService = {}
 
 local switchOn = false
 local held: { [Player]: string } = {} -- the area each player's device is keeping whole
-local flying: { [Player]: string } = {} -- a cannon flight's destination, until the player stands in an area
+local flying: { [Player]: AreaWhole.Flight } = {} -- a cannon flight's destination, until they stand in it
 
 local function areaModel(areaId: string): Model?
 	local ok, world = pcall(PlotService.world)
@@ -96,11 +96,12 @@ end
 
 local function step()
 	for _, player in Players:GetPlayers() do
-		local here = standingIn(player)
-		if here ~= nil then
+		local area, flightStands =
+			AreaWhole.pick(flying[player], os.clock(), standingIn(player), held[player])
+		if not flightStands then
 			flying[player] = nil
 		end
-		keep(player, AreaWhole.pick(flying[player], here, held[player]))
+		keep(player, area)
 	end
 end
 
@@ -110,7 +111,7 @@ function AreaWholeService.heading(player: Player, areaId: string)
 	if not switchOn or areaModel(areaId) == nil then
 		return
 	end
-	flying[player] = areaId
+	flying[player] = { area = areaId, untilAt = os.clock() + AreaWhole.FLIGHT_HOLD }
 	keep(player, areaId)
 end
 

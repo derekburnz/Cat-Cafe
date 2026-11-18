@@ -68,6 +68,21 @@ require(ReplicatedStorage.Shared.TablesSpread).follow()
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch, like the server's (shared/SpinCat)
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
+require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
+do
+	-- #5264: food lists sort by rarity first while foodByRarity is on (read before the UI builds its lists; a list
+	-- already built keeps its order until it is built again)
+	local FoodOrder = require(script.Parent.UI.Components.FoodOrder)
+	local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
+	local attribute = LiveFlags.ATTRIBUTE_PREFIX .. FoodOrder.FLAG
+	local function apply()
+		FoodOrder.setByRarity(
+			LiveFlags.shown(FoodOrder.FLAG, ReplicatedStorage:GetAttribute(attribute))
+		)
+	end
+	apply()
+	ReplicatedStorage:GetAttributeChangedSignal(attribute):Connect(apply)
+end
 Audio.start()
 Audio.bindMoments(Moments :: any)
 UIController.start()

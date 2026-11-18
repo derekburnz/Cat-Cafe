@@ -5071,14 +5071,30 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				end,
 			})
 		end
-		-- #2791: the ladder's next steps first, each "1:45  +1 spin"; a press only closes the list
-		for index in self._ladder or {} do
-			table.insert(rows, {
-				id = "Ladder" .. index,
-				icon = Theme.icons.gifts,
-				style = "ghost" :: Button.Style,
-				press = function() end,
-			})
+		-- #2791: the ladder's next steps first, each "1:45  +1 spin"; a press only closes the list. #5254 (Derek
+		-- 2026-11-18: "only show one of these and do it below the other gift ares of menu"): with `oneLadderRow` on,
+		-- only the next step, and after Gifts and Daily treat
+		local oneLadder = LiveFlags.shown(
+			GiftLadderLogic.ONE_ROW_FLAG,
+			ReplicatedStorage:GetAttribute(
+				LiveFlags.ATTRIBUTE_PREFIX .. GiftLadderLogic.ONE_ROW_FLAG
+			)
+		)
+		local function addLadder()
+			for index in self._ladder or {} do
+				if oneLadder and index > 1 then
+					break
+				end
+				table.insert(rows, {
+					id = "Ladder" .. index,
+					icon = Theme.icons.gifts,
+					style = "ghost" :: Button.Style,
+					press = function() end,
+				})
+			end
+		end
+		if not oneLadder then
+			addLadder()
 		end
 		if gifts then
 			table.insert(rows, {
@@ -5099,6 +5115,9 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 					callbacks.openScreen("DailyTreat")
 				end,
 			})
+		end
+		if oneLadder then
+			addLadder()
 		end
 	else
 		table.insert(rows, {

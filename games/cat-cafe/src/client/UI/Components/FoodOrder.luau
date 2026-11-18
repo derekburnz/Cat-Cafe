@@ -14,12 +14,22 @@
 --                                     first, each part keeping its order (the Bait bowl's list)
 --   best(foods, have)                 #3008: the first food in a rarest-first list the player has, or nil with none
 --                                     (the Bait bowl's Refill button)
+--   setByRarity(on)                   #5264: rarity before `sortOrder` (the `foodByRarity` switch; Main.client follows it)
 -- Pure, so the cloud spec runner checks it.
 
 local FoodGrade = require(script.Parent.FoodGrade)
 local Types = require(script.Parent.Parent.Types)
 
 local FoodOrder = {}
+
+-- #5264 (Derek 2026-11-18: "reorder bait food to be by rarity"): with the switch `foodByRarity` on, a food's rarity
+-- comes before the catalog's `sortOrder`, so the Coin Cart's Secret, Mythical and Legendary foods sit with the night
+-- dealer's (Eclipse, Comet, Star, Honey Cream, Moon Milk, rarest first). Off: `sortOrder` first, as before.
+FoodOrder.FLAG = "foodByRarity"
+local byRarity = false
+function FoodOrder.setByRarity(on: boolean)
+	byRarity = on
+end
 
 local GRADE_RANK: { [string]: number } =
 	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 } -- Secret: #4977
@@ -51,11 +61,14 @@ local function cost(lure: Types.LureDef?): number
 end
 
 function FoodOrder.less(a: Types.LureDef?, aId: string, b: Types.LureDef?, bId: string): boolean
+	local aGrade, bGrade = grade(a, aId), grade(b, bId)
+	if byRarity and aGrade ~= bGrade then
+		return aGrade < bGrade
+	end
 	local aOrder, bOrder = sortOrder(a), sortOrder(b)
 	if aOrder ~= bOrder then
 		return aOrder < bOrder
 	end
-	local aGrade, bGrade = grade(a, aId), grade(b, bId)
 	if aGrade ~= bGrade then
 		return aGrade < bGrade
 	end

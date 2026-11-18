@@ -94,6 +94,24 @@ return function()
 			expect(ids(FoodOrder.defs(foods :: any))).to.equal("tuna,salmon,kibble")
 		end)
 
+		-- #5264: with foodByRarity on, rarity comes before sortOrder (Derek's bowl list mixed the Coin Cart's foods)
+		it("puts rarity before sortOrder with foodByRarity on", function()
+			local foods = {
+				{ id = "star_treat", cost = 1, rarity = "Mythical", sortOrder = 7 },
+				{ id = "honey_cream", cost = 1, rarity = "Legendary", sortOrder = 8 },
+				{ id = "comet_treat", cost = 1, rarity = "Mythical", sortOrder = 9 },
+				{ id = "eclipse_treat", cost = 1, rarity = "Secret", sortOrder = 10 },
+				{ id = "moon_milk", cost = 1, rarity = "Legendary", sortOrder = 6 },
+			}
+			expect(ids(FoodOrder.defs(foods :: any, true))).to.equal(
+				"eclipse_treat,comet_treat,honey_cream,star_treat,moon_milk"
+			)
+			FoodOrder.setByRarity(true)
+			local sorted = ids(FoodOrder.defs(foods :: any, true))
+			FoodOrder.setByRarity(false)
+			expect(sorted).to.equal("eclipse_treat,comet_treat,star_treat,honey_cream,moon_milk")
+		end)
+
 		it("orders by grade, then price, then the design's list for bare ids", function()
 			local foods = {
 				{ id = "b", cost = 900, rarity = "Rare" },

@@ -846,7 +846,26 @@ local function spawnStray(
 		if toast then
 			lastRainbowToastAt = clock
 		end
-		Net.fireAll("RainbowSpawned", areaId, def.id, id, toast)
+		-- #5265 (Derek 2026-11-18: "make it no spawns that I can see from areas not unlocked yet"): with the
+		-- lockedAreaQuiet switch (on unless set false) only the players whose tier opens the area hear it, so no toast,
+		-- beam or sound for an area they cannot go to yet
+		if M.LiveFlagService.on("lockedAreaQuiet") then
+			local area = M.Catalog.getArea(areaId)
+			for _, player in Players:GetPlayers() do
+				local profile = M.DataService.get(player)
+				if
+					profile ~= nil
+					and Catching.hearsSpawn(
+						M.Economy.tier(profile),
+						if area ~= nil then area.tier else nil
+					)
+				then
+					Net.fire(player, "RainbowSpawned", areaId, def.id, id, toast)
+				end
+			end
+		else
+			Net.fireAll("RainbowSpawned", areaId, def.id, id, toast)
+		end
 	end
 
 	task.spawn(wander, stray)

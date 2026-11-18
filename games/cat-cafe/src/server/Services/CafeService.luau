@@ -1612,7 +1612,8 @@ function CafeService.addCaughtCat(
 	knownProfile: Profile?,
 	charm: number?,
 	method: Types.CatchMethod?,
-	variant: string?
+	variant: string?,
+	perfect: boolean? -- #5300: caught with every ring Perfect while the perfectCatch switch is on
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
@@ -1632,6 +1633,9 @@ function CafeService.addCaughtCat(
 	local howText: string = how -- analytics fields are plain strings
 	if method == "rescue" then
 		instance.rescued = true
+	end
+	if perfect == true then
+		instance.perfect = true
 	end
 	local firstGold = false
 	local firstRainbow = false

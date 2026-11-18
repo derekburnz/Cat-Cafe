@@ -610,6 +610,9 @@ export type CatInstance = {
 	xp: number, -- toward the next level, may hold a fraction; one XP a second working, a quarter resting
 	charm: number, -- 0 to 100, rolled once when caught; 50 is a 1.0x rate
 	rescued: boolean?, -- true when freed from a rescue spot (for the book and analytics); absent otherwise
+	-- #5300 (shared/PerfectCatch): true when caught by net with every ring Perfect (or migrated from charm 80+); x1.5
+	-- pay while the perfectCatch switch is on; nil otherwise. It travels with the cat in a trade.
+	perfect: boolean?,
 	name: string?, -- the player's name for it as typed, filtered again for display; nil shows the catalog name
 	method: CatchMethod?, -- how it was found
 	-- F62 (section 4): true when the player locked it, so it cannot be sold or traded; nil is unlocked. Gold,
@@ -764,6 +767,7 @@ export type CatView = {
 	caughtAt: number,
 	spotId: string?,
 	rescued: boolean?,
+	perfect: boolean?, -- #5300
 	name: string?,
 	method: CatchMethod?,
 	locked: boolean, -- F62: the lock icon on its card

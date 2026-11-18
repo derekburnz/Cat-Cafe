@@ -34,6 +34,10 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 local WelcomeBack = require(script.Parent.Parent.Components.WelcomeBack)
 
+local PerfectCatch = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("PerfectCatch")
+)
+
 -- the dark window palette (#1028), in place of Theme.modal: the popups match the dark windows
 local PAL = MenuFamily.pal
 
@@ -733,9 +737,17 @@ function Popups.showCatFound(
 			.. (if loves then "  ·  " .. Format.lovesRole(loves, PAL.text) else "")
 		local charmGain = info.charmGain or 0
 		local line: string? = info.line
+		local perfectOn = PerfectCatch.on() -- #5300: the Perfect line in sky blue, no charm
 		if line ~= nil or charmGain > 0 then
-			self._catDesc.Text = line or ("Purrfect catch!  Charm +%d"):format(charmGain)
-			self._catDesc.TextColor3 = PAL.gold
+			self._catDesc.Text = line
+				or (
+					if perfectOn
+						then PerfectCatch.CATCH_LINE
+						else ("Purrfect catch!  Charm +%d"):format(charmGain)
+				)
+			self._catDesc.TextColor3 = if line == nil and perfectOn
+				then PerfectCatch.COLOR
+				else PAL.gold
 			self._catDesc.FontFace = Theme.fonts.display
 		else
 			self._catDesc.Text = def.description or ""

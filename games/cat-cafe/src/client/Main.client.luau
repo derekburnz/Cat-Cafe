@@ -65,6 +65,9 @@ do
 end
 -- #4763: the tables caps follow the tablesSpread switch, like the server's (shared/TablesSpread)
 require(ReplicatedStorage.Shared.TablesSpread).follow()
+-- #5171: the Spin Wheel's cat slice follows the spinCat switch, like the server's (shared/SpinCat)
+require(ReplicatedStorage.Shared.SpinCat).follow()
+require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
 Audio.start()
 Audio.bindMoments(Moments :: any)
 UIController.start()

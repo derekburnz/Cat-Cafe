@@ -89,6 +89,8 @@ local IDS: { [string]: string } = {
 	Net_L2 = "rbxassetid://115749849359916", -- Sturdy
 	Net_L3 = "rbxassetid://81977508273905", -- Pro
 	Net_L4 = "rbxassetid://139611963099304", -- Master
+	Net_L5 = "rbxassetid://77049947732046", -- #5170 Net 4, Crystal (Model-Agent #5178)
+	Net_L6 = "rbxassetid://106208429919926", -- #5170 Net 5, Star
 	Potion_Tip = "rbxassetid://78228531662647",
 	Potion_Lucky = "rbxassetid://109956828055851",
 	Potion_Swift = "rbxassetid://106601094256001",
@@ -400,7 +402,6 @@ local TAG_ART: { [string]: string } = {
 	tag_maple = "Icon_Tag_Maple",
 	tag_grand_opener = "Icon_Tag_GrandOpener",
 }
-local NETS = 4
 
 -- "gold_rush" -> "GoldRush", the asset names' way of writing an id
 local function pascal(id: string): string
@@ -753,7 +754,10 @@ end
 
 function ShopIcons.net(level: number?): string?
 	local owned = if type(level) == "number" and level == level then math.floor(level) else 0
-	return IDS["Net_L" .. math.clamp(owned + 2, 1, NETS)] -- level n holds Net_L(n + 1) and offers the next
+	-- #5170: the top is the net's maxLevel (3, or 5 with netTiers on: Net_L5 and Net_L6)
+	local def = Catalog.getUpgrade("net")
+	local nets = (if def ~= nil then def.maxLevel else 3) + 1
+	return IDS["Net_L" .. math.clamp(owned + 2, 1, nets)] -- level n holds Net_L(n + 1) and offers the next
 end
 
 -- #2836 (Derek2 11-09: "make sure all our buttons/icons are high quality"): the drawn pictures Model-Agent made for

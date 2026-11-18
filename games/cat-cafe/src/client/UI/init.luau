@@ -1790,6 +1790,12 @@ function UI.init(config: Types.InitConfig)
 		lift = function()
 			return hudInstance:tackleTop() -- #3119: under the Drop off touch
 		end,
+		shieldTop = function()
+			return hudInstance:shieldTop() -- #5233: just over the bottom row on every device
+		end,
+		shieldSlot = function(on: boolean)
+			hudInstance:setShieldSlot(on)
+		end,
 	})
 	netButton = NetButton.new(parent, {
 		swing = function()

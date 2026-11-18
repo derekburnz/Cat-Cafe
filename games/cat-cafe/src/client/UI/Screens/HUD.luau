@@ -157,6 +157,8 @@ export type HUD = {
 	carryShown: (self: HUD) -> boolean, -- #3145: the carry banner itself is up (UI.carryView)
 	bottomTop: (self: HUD) -> number,
 	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
+	shieldTop: (self: HUD) -> number, -- #5233: where the safe chip's foot sits, just over the bottom row
+	setShieldSlot: (self: HUD, on: boolean) -> (), -- #5233: keep the safe chip's slot over the bottom row
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
@@ -430,6 +432,10 @@ local DROP_LIFT = 8
 -- bar's height clear of the tiles and never jumps as the bar comes and goes. On touch the Tackle is a round button
 -- by the jump button, and #3010's small lift stays.
 local TACKLE_SLOT = if TOUCH then 0 else TackleBar.HEIGHT + Theme.sizes.gap
+-- #5233 (Derek 2026-11-18: the safe shield "should hover above the cannon/cafe buttons in bottom middle"): while the
+-- safe chip shows, the bottom centre keeps its slot right over the bottom row on every device, and a Drop or the
+-- tutorial strip stands on it
+local SHIELD_SLOT = TackleBar.SHIELD_HEIGHT + Theme.sizes.gap
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
@@ -2235,6 +2241,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #4450 (Derek 2026-11-15): the Cannon button carries no Mythical or Secret count; only the picker's cards do (#4227)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
+	self._shieldSlot = false -- #5233
 	local travelFold = Button.new({
 		name = "TravelFold",
 		text = "▼",
@@ -3710,14 +3717,18 @@ function HUD._layoutBottom(self: any)
 		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	y -= self:_chipsLift()
+	local slot = if self._shieldSlot then SHIELD_SLOT else 0 -- #5233
 	if self._carry.Visible then
-		y -= dropLift(overRow) -- #3010: clear of the bottom row's tiles on touch; #3119: over the Tackle bar off touch
+		-- #3010: clear of the bottom row's tiles on touch; #3119: over the Tackle bar off touch; #5233: over the chip
+		y -= math.max(dropLift(overRow), slot)
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
 		y -= CARRY_H + Theme.sizes.gap
 	elseif self._packDrop.instance.Visible then
-		y -= dropLift(overRow)
+		y -= math.max(dropLift(overRow), slot)
 		self._packDrop.instance.Position = UDim2.new(0.5, 0, 1, y)
 		y -= PACK_DROP_H + Theme.sizes.gap
+	else
+		y -= slot
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 	-- #2912: the Buy button stands on the strip
@@ -3737,10 +3748,13 @@ function HUD.bottomTop(self: any): number
 		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	y -= self:_chipsLift()
+	local slot = if self._shieldSlot then SHIELD_SLOT else 0 -- #5233
 	if self._carry.Visible then
-		y -= CARRY_H + Theme.sizes.gap + dropLift(overRow)
+		y -= CARRY_H + Theme.sizes.gap + math.max(dropLift(overRow), slot)
 	elseif self._packDrop.instance.Visible then
-		y -= PACK_DROP_H + Theme.sizes.gap + dropLift(overRow)
+		y -= PACK_DROP_H + Theme.sizes.gap + math.max(dropLift(overRow), slot)
+	else
+		y -= slot
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap
@@ -3763,6 +3777,25 @@ function HUD.tackleTop(self: any): number
 		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	return y
+end
+
+-- #5233: where the safe chip's foot sits, in design pixels from the screen's bottom edge: just over the bottom row
+-- (and over the running potions' chips where they reach the bottom centre on touch), the slot _layoutBottom keeps.
+function HUD.shieldTop(self: any): number
+	local y = -MARGIN
+	if self._travelRow.Visible and not self._travelFolded then
+		y -= TRAVEL_H + Theme.sizes.gap
+	end
+	return y - self:_chipsLift()
+end
+
+-- #5233: whether the safe chip shows (TackleBar), so the bottom centre keeps its slot over the bottom row.
+function HUD.setShieldSlot(self: any, on: boolean)
+	if self._shieldSlot == on then
+		return
+	end
+	self._shieldSlot = on
+	self:_layoutBottom()
 end
 
 -- #2338 (Laptop-Tester, iPhone SE: the Welcome back toast lay over the menu tiles): what the toasts (Screens/Toasts) keep

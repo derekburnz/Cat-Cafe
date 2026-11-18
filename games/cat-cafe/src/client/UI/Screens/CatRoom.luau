@@ -2263,7 +2263,9 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		local line = "Follows "
 			.. Follower.text(amount, follow.boost)
 			.. (if coat then " (" .. coat .. ")" else "")
-		stats.Text = if stats.Text ~= "" then stats.Text .. "  ·  " .. line else line
+		if onCard then -- Review-QA: the old card, so no "Follows" words either while it is off
+			stats.Text = if stats.Text ~= "" then stats.Text .. "  ·  " .. line else line
+		end
 	end
 
 	-- one row: Equip or Unequip (Cancel while a "+" is awaited), Feed (gold while its tiles show), Follow, the squares

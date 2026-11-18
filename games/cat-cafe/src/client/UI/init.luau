@@ -402,6 +402,7 @@ local netButton: NetButton.NetButton? = nil -- the touch Net button inside catch
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
+local cannonPointHooked = false -- the tameCannonPoint cutscene hook is added once (UI.init)
 local carryMarker: WorldMarker.WorldMarker? = nil
 local tutorialMarker: WorldMarker.WorldMarker? = nil
 local tutorialTrail: GuideTrail.GuideTrail? = nil
@@ -1913,6 +1914,27 @@ function UI.init(config: Types.InitConfig)
 		-- #4836: the new cat card points at its "Nice!" in the walk-through alone (#4953: not the first 5 minutes)
 		popups:glowOkWhen(function()
 			return UI.firstCat.walk
+		end)
+		-- Sync on #5277: the Cannon button lit 9 s after "Nice!" on the first bowl cat's card, at the next state
+		-- sync. With tameCannonPoint on, the tutorial is looked at again as the last card goes
+		local cardGui: ScreenGui = (popups :: any).screenGui
+		cardGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+			if
+				not cardGui.Enabled
+				and ReplicatedStorage:GetAttribute("LiveFlag_tameCannonPoint") == true
+			then
+				applyTutorial()
+			end
+		end)
+	end
+	-- the same after a cutscene (the first tame's), which holds the Cannon point too; hooked once however often
+	-- the UI is built
+	if not cannonPointHooked then
+		cannonPointHooked = true
+		table.insert(UI.cutscene.hooks, function(on: boolean)
+			if not on and ReplicatedStorage:GetAttribute("LiveFlag_tameCannonPoint") == true then
+				applyTutorial()
+			end
 		end)
 	end
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;

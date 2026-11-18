@@ -2586,6 +2586,17 @@ function UI.closeCatCard()
 	end
 end
 
+-- #5284 (CompanionSceneController): whether a card is up or waiting in the pop-ups' queue
+function UI.popupsShowing(): boolean
+	return popups ~= nil and popups:isShowing()
+end
+
+-- #5284: the HUD's Cats button, for the Cat Companion's soft arrow; nil while it is not on screen
+function UI.catsButton(): GuiObject?
+	local board: any = hud
+	return if board ~= nil then board:catsButton() else nil
+end
+
 function UI.isOpen(): string?
 	if modal then
 		return modal:current()

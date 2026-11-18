@@ -206,6 +206,7 @@ return function()
 							or key == "rankUpSteps" -- #5218
 							or key == "catFollower" -- #5172
 							or key == "cardFollow" -- #5296
+							or key == "companionScene" -- #5284
 							or key == "parkRankPoint" -- #5163
 							or key == "parkFirstEasy" -- #5182
 							or key == "areaWhole" -- Derek 2026-11-18

@@ -96,6 +96,7 @@ local function autoStart()
 		if state == nil then
 			return
 		end
+		task.wait(1) -- Review-QA: the settings sync from the state a moment later; read them once settled
 		local on = ReplicatedStorage:GetAttribute(
 			LiveFlags.ATTRIBUTE_PREFIX .. PerfSuggest.AUTO_FLAG
 		) == true

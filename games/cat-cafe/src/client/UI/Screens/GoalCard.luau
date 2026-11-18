@@ -27,12 +27,14 @@
 -- bounce() pops the card once (not with Reduce Motion): the HUD calls it as the goal changes and once more later.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
+local GoalNeed = require(script.Parent.Parent.Components.GoalNeed)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
@@ -112,6 +114,11 @@ local FOLD_H = 34
 local FOLD_GAP = 6
 
 type Row = { frame: Frame, fill: Frame, label: TextLabel, status: TextLabel }
+
+-- #5331: the goalNeedLine switch (Components/GoalNeed), off by default
+local function needLineOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. GoalNeed.FLAG) == true
+end
 
 local GoalCard = {}
 GoalCard.__index = GoalCard
@@ -345,6 +352,15 @@ function GoalCard.new(
 	self._foldButton = fold
 	self._fold = fold.instance
 
+	-- #5331: the switch flips the chip and the takeover's need line straight away
+	self._flagConnection = ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. GoalNeed.FLAG)
+		:Connect(function()
+			local last = self._last
+			if last then
+				self:render(last.progress, last.tierText, last.nudge, last.goal)
+			end
+		end)
+
 	self._connection = frame.Activated:Connect(function()
 		if self._folded then
 			self:_toggleFold(false) -- the chip opens again; the next tap opens the rank up
@@ -400,6 +416,16 @@ end
 function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: string?, goal: Goal?)
 	-- #3022: a goal's chip line stands where the nudge's would (a ready rank up still comes first)
 	local words, gold = GoalFold.chip(progress :: any, if goal then goal.chip else nudge)
+	-- #5331 goalNeedLine: the biggest missing need in place of the count ("Famous Cafe: Coins $194K / $250K"), and
+	-- "Ready to Rank Up!" in gold once every need is met; a goal's chip or the nudge still stands where it did
+	local need = if needLineOn()
+			and goal == nil
+			and (nudge == nil or gold)
+		then GoalNeed.chip(progress :: any)
+		else nil
+	if need ~= nil then
+		words = need
+	end
 	self._tier.Visible = false
 	for _, line in self._goalLines do
 		line.Visible = false
@@ -450,11 +476,24 @@ function GoalCard.render(
 	local ready = progress ~= nil and progress.ready
 	-- #3022: a goal takes the card over (a ready rank up still comes first): the gold line, its title, its lines
 	local shown = 0
+	-- #5331 goalNeedLine: a takeover goal keeps the biggest rank up need as one small line under its own lines (in
+	-- the last slot when they fill the card)
+	local lines: { string } = if goal ~= nil then goal.lines else {}
+	local needAt = 0
+	if goal ~= nil and not ready and needLineOn() then
+		local need = GoalNeed.line(progress :: any)
+		if need ~= nil then
+			lines = table.move(goal.lines, 1, math.min(#goal.lines, GOAL_LINES - 1), 1, {})
+			table.insert(lines, need)
+			needAt = #lines
+		end
+	end
 	for index, line: TextLabel in self._goalLines do
-		local words = if goal ~= nil and not ready then goal.lines[index] else nil
+		local words = if goal ~= nil and not ready then lines[index] else nil
 		line.Visible = words ~= nil
 		if words ~= nil then
 			line.Text = words
+			line.TextColor3 = if index == needAt then Theme.hud.subtext else Theme.colors.gold
 			shown = index
 		end
 	end
@@ -609,6 +648,7 @@ end
 function GoalCard.destroy(self: any)
 	self:_alert(nil)
 	self._connection:Disconnect()
+	self._flagConnection:Disconnect()
 	self._foldButton:destroy()
 	self.frame:Destroy()
 end

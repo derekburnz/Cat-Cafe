@@ -75,6 +75,7 @@ export type PartKind =
 	| "potion"
 	| "catFood"
 	| "passXp"
+	| "tokens"
 	| "other"
 export type PrizePart = { kind: PartKind, id: string?, amount: number }
 export type Track = "normal" | "gold" | "rainbow"
@@ -108,6 +109,7 @@ local KNOWN_FIELDS = {
 	potions = true,
 	catFood = true,
 	passXp = true,
+	traitTokens = true,
 }
 
 local IndexRewards = {}
@@ -428,6 +430,11 @@ function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 	local passXp: number? = (prize :: any).passXp
 	if type(passXp) == "number" and passXp > 0 then
 		table.insert(parts, { kind = "passXp" :: PartKind, amount = passXp })
+	end
+	-- Daily Treat v2 (bigTreats): Trait Tokens, the Mystic Pool token's picture
+	local tokens: number? = (prize :: any).traitTokens
+	if type(tokens) == "number" and tokens > 0 then
+		table.insert(parts, { kind = "tokens" :: PartKind, amount = tokens })
 	end
 	local loose = prize :: any
 	local others: { PrizePart } = {}

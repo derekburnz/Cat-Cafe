@@ -76,6 +76,7 @@ type Chip = { frame: Frame, label: TextLabel? }
 
 local COIN_GLYPH = "💰"
 local OTHER_GLYPH = "🎁"
+local TOKEN_GLYPH = "🔮" -- Daily Treat v2: a Trait Token without its picture
 local LINE_GAP = 4 -- between wrapped lines
 local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
 local FIT_DEAD_BAND = 0.03 -- a fitted row ignores scale changes smaller than this
@@ -242,6 +243,8 @@ local function partImage(part: IndexRewards.PrizePart): string?
 		return ShopIcons.potion(part.id)
 	elseif kind == "catFood" then
 		return ShopIcons.catFood(part.id)
+	elseif kind == "tokens" then
+		return ShopIcons.deal("token") -- Daily Treat v2: the Trait Token picture (Today's Deal's)
 	end
 	-- money, golden fish and spins: the clean bag, fish coin and wheel (#1242)
 	return ShopIcons.prize(kind)
@@ -280,6 +283,8 @@ function PrizeChips._partLook(
 		return nil, Theme.icons.potion, "Epic", amount
 	elseif kind == "catFood" then
 		return nil, ShopIcons.snackGlyph(part.id), "Rare", amount -- #1616
+	elseif kind == "tokens" then
+		return nil, TOKEN_GLYPH, "Mythical", amount
 	elseif kind == "tag" then
 		return nil, Theme.icons.tag, "Mythical", part.id or ""
 	elseif kind == "decor" then

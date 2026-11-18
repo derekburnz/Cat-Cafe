@@ -90,6 +90,7 @@ return function()
 					expect(row.day).to.equal(n)
 					expect(row.prize.catFood).to.equal(nil)
 					expect(row.prize.lures).to.equal(nil)
+					expect(row.prize.potions).to.equal(nil) -- Derek 17:22: no potions
 					expect((row.prize :: any).foods).to.equal(nil)
 					for crateId in row.prize.crates or {} do
 						expect(crateId).to.equal("highest_golden")
@@ -102,9 +103,16 @@ return function()
 					spins = 3,
 				})
 				expect(DailyTreat.prize(4) :: any).to.deepEqual({ crates = { highest_golden = 3 } })
+				expect(DailyTreat.prize(5) :: any).to.deepEqual({
+					coins = 20000,
+					coinSeconds = 14400,
+					spins = 10,
+					traitTokens = 5,
+				})
 				expect(DailyTreat.prize(7) :: any).to.deepEqual({
 					crates = { highest_golden = 5 },
 					fish = 1000,
+					traitTokens = 10,
 				})
 				expect(Catalog.setBigTreats(true)).to.equal(false)
 			end)

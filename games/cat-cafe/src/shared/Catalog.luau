@@ -2503,8 +2503,8 @@ Catalog.dailyTreat = {
 } :: { Types.DailyTreatDay }
 
 -- Daily Treat v2 (Derek 2026-11-18: "no bad rewards in the daily treat these are supposed to bring people back no cat
--- food or bowl food"; Design-Agent's daily-treat-v2 spec; switch bigTreats, shared/BigTreats): big prizes only, no
--- food, bait or potions but day 5's two Lucky Potions. Earnings days pay coinSeconds of the day rate at claim time with
+-- food or bowl food", then 17:22 no potions and trait re-rolls; Design-Agent's daily-treat-v2 spec; switch bigTreats,
+-- shared/BigTreats): big prizes only, no food, bait or potions; days 5 and 7 add Trait Tokens (the Mystic Pool's). Earnings days pay coinSeconds of the day rate at claim time with
 -- `coins` as the floor. "highest_golden" is the golden crate of the best open area. Catalog.setBigTreats swaps the
 -- rows into Catalog.dailyTreat in place, so every reader (the card, the payout, the HUD dot) follows the switch.
 Catalog.DAILY_TREAT_PLAIN = table.clone(Catalog.dailyTreat)
@@ -2513,12 +2513,9 @@ Catalog.DAILY_TREAT_BIG = {
 	{ day = 2, prize = { fish = 500, spins = 5 } },
 	{ day = 3, prize = { coins = 10000, coinSeconds = 7200, spins = 10 } },
 	{ day = 4, prize = { crates = { highest_golden = 3 } } },
-	{
-		day = 5,
-		prize = { coins = 20000, coinSeconds = 14400, spins = 10, potions = { lucky_potion = 2 } },
-	},
+	{ day = 5, prize = { coins = 20000, coinSeconds = 14400, spins = 10, traitTokens = 5 } },
 	{ day = 6, prize = { fish = 750, spins = 10 } },
-	{ day = 7, prize = { crates = { highest_golden = 5 }, fish = 1000 } },
+	{ day = 7, prize = { crates = { highest_golden = 5 }, fish = 1000, traitTokens = 10 } },
 } :: { Types.DailyTreatDay }
 
 -- Puts the big rows (on) or the plain ones (off) into Catalog.dailyTreat, keeping the table. True when it changed.

@@ -468,7 +468,7 @@ StoreLogic.INFO = {
 -- Legendary's (Catalog.rarities: 75 against 25), so 3 times Duchess Marzipan, the Royal Cat. The booth is +8% money
 -- in use (shared/KingPack).
 StoreLogic.KING_FLAG = "kingCatInfo"
-StoreLogic.KING_PERK = "Mythical: 3x a Legendary"
+StoreLogic.KING_PERK = "3x Legendary" -- short: on a wide card the chip sits centred on the 76 px picture (Sync on #5274: the long one ran off the card)
 StoreLogic.KING_INFO = {
 	{ left = "King Croissant, a Mythical cat", right = "" },
 	{ left = "Earns like a Mythical from your newest area", right = "" },

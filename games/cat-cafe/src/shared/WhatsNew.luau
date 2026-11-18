@@ -43,7 +43,7 @@ WhatsNew.rows = table.freeze({
 		id = "cat_follower",
 		date = "2026-11-18",
 		icon = "cat",
-		text = "A cat can follow you",
+		text = "A Cat Companion follows you",
 		creditId = "c19",
 	},
 	-- Nov 18 midday (Gameplay-Engineer): areaWhole on 12:37 UTC (#5204, v938); bowl trail #5211; rarity gems #5203;

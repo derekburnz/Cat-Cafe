@@ -14,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 
 local LateTiers = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LateTiers")) :: any
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 
 local GoalLines = {}
 
@@ -29,8 +30,20 @@ function GoalLines.nextTier(tiers: { any }?, tier: number?): any
 	return nil
 end
 
+-- #5218, #5258 (Derek 2026-11-18: "remove the it unlocks from the side of your goal"): with the switch `noRankOpens`
+-- on, the goal card has no "Opens ..." line either, like the Rank Up window (the scenes show what opens once earned)
+GoalLines.NO_OPENS_FLAG = "noRankOpens"
+
 function GoalLines.opens(tierName: string?, narrow: boolean?): string?
 	if type(tierName) ~= "string" or tierName == "" then
+		return nil
+	end
+	if
+		LiveFlags.shown(
+			GoalLines.NO_OPENS_FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. GoalLines.NO_OPENS_FLAG)
+		)
+	then
 		return nil
 	end
 	if narrow then

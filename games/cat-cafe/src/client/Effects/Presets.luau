@@ -676,6 +676,24 @@ Presets.emitters = {
 		lightEmission = 1,
 		rotSpeed = { -90, 90 },
 	},
+	-- Snowglobe Village (Effects/SnowglobeFx): the Town Square globe's icy swirl, the Rift's swirl in snow colours
+	globeSwirl = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 255, 255),
+			Color3.fromRGB(190, 225, 255),
+			Color3.fromRGB(140, 190, 255),
+		},
+		size = { 0.9, 0 },
+		transparency = { 0.15, 1 },
+		lifetime = { 1.2, 2 },
+		speed = { 1.5, 3.5 },
+		spread = 180,
+		rate = 24,
+		drag = 1.5,
+		lightEmission = 1,
+		rotSpeed = { -60, 60 },
+	},
 	riftStreak = {
 		texture = Presets.textures.sparkle,
 		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(210, 190, 255) },
@@ -4023,6 +4041,22 @@ Presets.adminDrops = {
 -- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
 -- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
 -- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
+-- Snowglobe Village's world effects (Effects/SnowglobeFx, Christmas Event Dec 1). Tag names are placeholders until
+-- Model-Agent's village and Gameplay-Engineer's event row land; change them here only.
+Presets.snowglobeFx = {
+	centreTag = "SnowglobeCentre",
+	portalTag = "SnowglobePortal",
+	every = 0.5,
+	airWithin = 140,
+	snow = "snowfall",
+	box = Vector3.new(60, 1, 60),
+	height = 18,
+	calmRate = 0.2,
+	swirl = "globeSwirl",
+	portalWithin = 120,
+	portalLift = 6,
+}
+
 Presets.harvestFx = {
 	pumpkinTag = "HarvestPumpkin",
 	boardTag = "HarvestBoard",
@@ -4458,6 +4492,46 @@ Presets.arcadeGlow = {
 		Presets.palette.mint,
 		Presets.palette.goldLight,
 	},
+}
+
+-- The Cat Arcade's attract screen (Derek 2026-11-18; Effects/ArcadeScreen): a SurfaceGui on the cabinet's `part`
+-- at `pixelsPerStud`, a mouse up every `beat` seconds, the paw bopping every `bopEvery`-th, a golden mouse every
+-- `goldEvery`-th. `sheet` and `backdrop` are Mouse Dash's uploaded pictures (UI/Components/MouseDashLogic).
+Presets.arcadeScreen = {
+	part = "Screen",
+	pixelsPerStud = 100,
+	brightness = 1.4,
+	maxDistance = 160,
+	within = 90,
+	beat = 0.9,
+	up = 0.18,
+	down = 0.12,
+	wait = 0.15,
+	bop = 0.12,
+	dust = 0.35,
+	bopEvery = 3,
+	goldEvery = 7,
+	holes = 3,
+	holeSize = 0.28,
+	holeY = 0.62,
+	sheet = "rbxassetid://106053188764774",
+	backdrop = "rbxassetid://116753136904678",
+	cell = 256,
+	cells = {
+		Mouse = { 0, 0 },
+		MouseHit = { 256, 0 },
+		GoldMouse = { 512, 0 },
+		GoldMouseHit = { 768, 0 },
+		Hole = { 512, 256 },
+		Dust = { 0, 512 },
+		Paw = { 256, 512 },
+		PawBop = { 512, 512 },
+	} :: { [string]: { number } },
+	night = Color3.fromRGB(31, 42, 68), -- the screen part's own night blue
+	floorTint = Color3.fromRGB(200, 190, 210),
+	text = "PRESS PLAY",
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(74, 46, 30),
 }
 
 -- A Golden find (#3222; Effects/GoldenFind): the toast line starting `prefix` (LawnService.giveDrop's) plays a gold
@@ -5345,6 +5419,16 @@ Presets.rarityMark = {
 		most = 24,
 		lowMost = 16,
 		margin = 0.08,
+	},
+	-- Derek 2026-11-18 ("make the cats diamonds smaller from further away as they block the cats"; switch `flag`, off
+	-- by default): the billboard's fixed `pixels` part tapers from full at `near` studs to `least` at `far` (the Park
+	-- finder's to `finderLeast`), so past `far` a gem is 1.6 studs plus a few pixels and shrinks with the cat
+	shrink = {
+		flag = "gemsShrink",
+		near = 20,
+		far = 110,
+		least = 4,
+		finderLeast = 14,
 	},
 	-- #5034 Park phone leak (phones 37% never catch a cat in the Park, mostly from not finding one): with the switch
 	-- `flag` on and no `area` cat in the player's Index yet, the gems of that area's strays (their `Area`) show out to
@@ -6575,6 +6659,42 @@ Presets.stationCut = {
 	},
 }
 
+-- #5284 Cat Companion unlock scene (Effects/CompanionUnlockCut), about 8 s: fade in, the camera `far` studs in front
+-- of the player rising `rise` a stud, pushing in to `near`; the cat trots in from `walkFrom` studs to the player's right
+-- (and `walkIn` toward the camera) to `beside` studs beside them, from `walkAt` over `walkSeconds`; hearts `heartsUp`
+-- over it as it stops; the label from `labelAt`; the fade out at `endAt`. Skippable after `skipAfter`.
+Presets.companionCut = {
+	fade = 0.25,
+	walkAt = 0.6,
+	walkSeconds = 2.8,
+	labelAt = 3.7,
+	labelIn = 0.3,
+	endAt = 7.4,
+	skipAfter = 0.4,
+	far = 12,
+	near = 9,
+	rise = 0.22,
+	lookUp = 1.6, -- studs over the feet the camera looks at, between the player and the cat
+	clearance = 1.5,
+	closest = 5,
+	beside = 3,
+	walkFrom = 11,
+	walkIn = 2,
+	heartsUp = 0.6,
+	title = "CAT COMPANION UNLOCKED!",
+	line = "%s will follow you. Pick Money or Luck in Cats.",
+	lineNoName = "Your cat will follow you. Pick Money or Luck in Cats.",
+	displayOrder = 11, -- over ContextCut's 10, as the station cut
+	titleSize = 56,
+	nameSize = 34,
+	lineSize = 22,
+	titleY = 0.2,
+	nameY = 0.31,
+	lineY = 0.38,
+	smallScreen = 420,
+	smallScale = 0.7,
+}
+
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle
 -- of head turns, ear flicks and a swaying tail, and a greet (head turned to you, a paw lifted and waved) as you come
 -- near. Off with Reduce Motion.
@@ -6680,6 +6800,48 @@ Presets.firstMinute = {
 		up = 3,
 		sparkle = 12,
 	},
+}
+
+-- #5285 E2 Effects/FirstCatchWow: the account's first net catch, under 1.5 s (switch firstCatchWow). Times in seconds
+-- from the catch landing; `push` is the share of the way the camera moves toward the cat.
+Presets.firstCatchWow = {
+	slowSeconds = 0.25,
+	slowSpeed = 0.3, -- your animations at 30% speed for the slow motion
+	push = 0.15,
+	pushIn = 0.25,
+	popAt = 0.25,
+	ringScale = 2, -- times the rarity's catch ring (Presets.catchPop.ring)
+	ringSeconds = 0.6,
+	confetti = 1, -- of the budget's confetti; half on a phone or the low tier
+	colours = {
+		Presets.palette.golden,
+		Presets.palette.sparkle,
+		Presets.palette.offwhite,
+		Presets.palette.blush,
+	},
+	coins = 30, -- about three times a normal pay out's coins
+	coinSeconds = 0.7,
+	coinStagger = 0.012,
+	coinSpread = 90, -- pixels the coins fly out from the cat before they turn to the counter
+	coinLift = 40,
+	coinMin = 22,
+	bannerAt = 0.3,
+	bannerIn = 0.15,
+	bannerOut = 0.25,
+	bannerEnd = 1.3,
+	bannerTop = 40, -- pixels from the top when the catch strip is not there
+	popFrom = 0.6,
+	text = "FIRST CATCH!",
+	textShare = 0.065, -- of the screen's height
+	textMin = 26,
+	textMax = 52,
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(74, 46, 30), -- the menus' cocoa brown, for the outline
+	panel = Color3.fromRGB(74, 46, 30),
+	panelTransparency = 0.2,
+	backAt = 1.3,
+	backSeconds = 0.18,
+	displayOrder = 26, -- over the catch screen (25), under toasts (30)
 }
 
 -- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.

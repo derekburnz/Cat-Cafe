@@ -286,6 +286,7 @@ export type IndexPrize = {
 	baitSpeed: number?,
 	tag: string?,
 	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
+	traitTokens: number?, -- Daily Treat v2 (bigTreats): Trait Tokens into the Mystic Pool's bank (Traits.give)
 }
 
 -- #2798: the Cozy Cafe bags given on `day` (a UTC day number)

@@ -48,6 +48,7 @@ return function()
 	local CatStats = require(Shared.CatStats)
 	local Catching = require(Shared.Catching)
 	local Circles = require(Shared.Circles)
+	local NetTiers = require(Shared.NetTiers) -- #5170
 	local Clock = require(Shared.Clock)
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
@@ -116,6 +117,7 @@ return function()
 		pals: number?, -- pals on the server (Economy.setPals, #1165): tips, piles and rich visitors earn the pal bonus
 		event: { from: number, to: number }?, -- #2486: a Cafe Event's money (EventMoneyMax) over these seconds of play
 		tier2Band: { number }?, -- #2557: this case's Tier 2 band in minutes, { low, high }, when not 10 to 20
+		netTiers: boolean?, -- #5170: the netTiers switch on (fewer hits per net level, Net 4 and 5); the caller sets the caps
 	}
 	-- The daytime top-ups (#1159, shared/StrayTopUp) as the one catcher sees them. `players` sets the floor of live
 	-- strays (StrayTopUp.floor); `wait` fixes the seconds between top-ups (60 is StrayTopUpMinSeconds, the most a
@@ -258,7 +260,11 @@ return function()
 				run.tries += 1
 				-- #1884 (catch-rework.md 7b): the trust bar decides the try, ring by ring as the server judges it
 				local circles = Circles.schedule(rarity, netLevel, startsAt, pressRng)
-				local attempt = Circles.newAttempt(circles, windows, Circles.trustFor(rarity))
+				local trust = Circles.trustFor(rarity)
+				if options.netTiers then
+					trust.start += NetTiers.trustBonus(netLevel, trust.start, trust.need) -- #5170, as CatService
+				end
+				local attempt = Circles.newAttempt(circles, windows, trust)
 				local endedAt = startsAt
 				for i, circle in circles do
 					local at = Circles.target(circle) + pressError()
@@ -997,6 +1003,45 @@ return function()
 		)
 		return list, text
 	end
+
+	-- #5170 (Design-Agent): the same runs with netTiers off and on. A tier that lands more than 15% sooner with it on
+	-- needs its Net 2 or Net 3 cost raised (then its Rank Up cost only if that is not enough). The line in the error
+	-- or the log gives each tier's medians.
+	describe("netTiers pace (#5170)", function()
+		it("lands no tier from 2 to 6 more than 15% sooner with the switch on", function()
+			local options = { catches = 4, target = 6, limit = 16 * HOUR, long = true }
+			Catalog.setNetTiers(false)
+			local offList, offText = toTier5(options)
+			Catalog.setNetTiers(true)
+			local onOptions = table.clone(options)
+			onOptions.netTiers = true
+			local ok, onList, onText = pcall(toTier5, onOptions)
+			Catalog.setNetTiers(false)
+			assert(ok, onList)
+			local lines = { "off: " .. offText, "on: " .. onText }
+			local worst = 1
+			for tier = 2, 6 do
+				local off = quantile(offList, tierAt(tier), 0.5, 16 * HOUR)
+				local on = quantile(onList :: any, tierAt(tier), 0.5, 16 * HOUR)
+				local ratio = if off > 0 then on / off else 1
+				worst = math.min(worst, ratio)
+				table.insert(
+					lines,
+					string.format(
+						"Tier %d %s to %s (%.0f%%)",
+						tier,
+						clock(off),
+						clock(on),
+						ratio * 100
+					)
+				)
+			end
+			print("[Pace netTiers] " .. table.concat(lines, "; "))
+			if worst < 0.85 then
+				error("netTiers lands a tier more than 15% sooner: " .. table.concat(lines, "; "))
+			end
+		end)
+	end)
 
 	describe("Tier 2 right after the tutorial (#4188)", function()
 		it(

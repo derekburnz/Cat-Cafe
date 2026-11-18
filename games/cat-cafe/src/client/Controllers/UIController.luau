@@ -578,6 +578,15 @@ local function newKindTrail(s: Types.PlayerState): boolean
 	if not newKindGoal(s) or stuckGoalActive(s) then
 		return false
 	end
+	-- #5248 (Derek 2026-11-18: "after rank up is clicked no need to say new cat nearby collect in alleyway they have
+	-- park unlocked"; switch parkLead): from the Tier 2 rank up until the Park is reached, the walk to the Park leads
+	if
+		(s.tier or 1) == 2
+		and not UI.parkTrail.reached
+		and ReplicatedStorage:GetAttribute("LiveFlag_parkLead") == true
+	then
+		return false
+	end
 	local kinds = kindsOf(s)
 	local shownAt = if newKind.shownKinds == kinds then newKind.shownAt else nil
 	return NewKind.trail(

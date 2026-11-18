@@ -146,6 +146,7 @@ LiveFlags.KEYS = {
 	"tameCannonPoint", -- #5245: after the first bowl cat's card the Cannon button is dimmed and pointed at until pressed, and the picker's ringed Launch too (UI applyTutorial, Screens/Cannon); off by default
 	"parkLead", -- #5248: after the Tier 2 rank up no Alleyway new kind line, the picker's Park Launch dimmed and pointed at until pressed, no marker in a flight (Screens/Cannon); off by default
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
+	"upgradesInstant", -- #5253: an Upgrades buy shows in the window at once and the server syncs before the plot rebuild (Screens/UpgradeShop, CafeService); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -153,6 +154,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tameCannonPoint = true, -- #5245
 	parkLead = true, -- #5248
 	promptsAfter5 = true, -- #5251
+	upgradesInstant = true, -- #5253
 	giftCard = true, -- #4527
 	tradeFish = true,
 	nightCatch = true,

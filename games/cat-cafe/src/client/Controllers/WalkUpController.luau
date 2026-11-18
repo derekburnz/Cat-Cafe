@@ -444,6 +444,13 @@ local function blocked(): boolean
 		or ui.intro.playing()
 end
 
+-- Sync 2026-11-18: the intro ended with a new player standing 1 stud from the bowl's ring, and its Bait window opened
+-- 0.1 s later with no tap. A ring the player is put into while busy (the intro, a flight, a catch) or in the
+-- SETTLE_SECONDS after counts as off, so it opens only once the player steps out and back in (WalkUp.step starts a
+-- dwell only on a step in to a ring that is on). The walkUpSettle switch, on unless set false, turns this off.
+local SETTLE_SECONDS = 2
+local SETTLE_FLAG = "LiveFlag_walkUpSettle"
+
 function WalkUpController.start()
 	-- #2910: a press of a walk-up station's prompt, counted against the ring opens (shared/StationOpens)
 	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
@@ -462,10 +469,17 @@ function WalkUpController.start()
 	player.CharacterAdded:Connect(function()
 		table.clear(state.inside)
 	end)
+	local settleUntil = 0
 	task.spawn(function()
 		while true do
 			task.wait(POLL_SECONDS)
 			local at = rootPosition()
+			local busy = blocked()
+			if busy then
+				settleUntil = os.clock() + SETTLE_SECONDS
+			end
+			local settling = os.clock() < settleUntil
+				and ReplicatedStorage:GetAttribute(SETTLE_FLAG) ~= false
 			local stations: { WalkUp.Station } = {}
 			local opener: { [string]: () -> () } = {}
 			local windowOf: { [string]: string } = {} -- #2910: each station's window, for the ring count
@@ -483,9 +497,10 @@ function WalkUpController.start()
 				if prompt ~= nil then
 					setReach(prompt, hasRing)
 				end
-				local off = if prompt == nil
-					then not (loose == true and hasRing)
-					else not (prompt :: ProximityPrompt).Enabled
+				local off = settling
+					or if prompt == nil
+						then not (loose == true and hasRing)
+						else not (prompt :: ProximityPrompt).Enabled
 				local position = if hasRing
 					then centre
 					elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
@@ -536,7 +551,7 @@ function WalkUpController.start()
 			local openedKey = state.opened
 			local ok, open, close = pcall(function()
 				local current = UI.isOpen()
-				local key, shut = WalkUp.step(state, stations, blocked(), current, os.clock())
+				local key, shut = WalkUp.step(state, stations, busy, current, os.clock())
 				return key, shut
 			end)
 			if not ok then

@@ -131,6 +131,7 @@ LiveFlags.KEYS = {
 	"tablesSpread", -- #3867/#4763: one more table a tier, 3, 4 and 5 at Tiers 2 to 4 (shared/TablesSpread); off by default
 	"strayWalkSlow", -- #4601: a server stray walk writes its model at 10 Hz, not 60, and the client eases between (shared/Mover); off by default
 	"firstRankLock", -- Derek 2026-11-17: the first Rank Up window stays up while ready, dimmed, arrow on RANK UP (shared/RankUpRightAway.locked); off by default
+	"rankSpotPlain", -- Derek 2026-11-18: the first Rank Up walk-through has no words, only the dim and arrow, the dim in the window too (UI.rankSpot.set); off by default
 	"likeAskEarly", -- #5152: the like ask on the first UTC day at the first Park or Rare catch, as a card (shared/Tips.likeEarly); off by default
 	"nightSlice", -- #5164: the client's day and night change spreads its World walk and night look over frames (WorldController); off by default
 	"spinCat", -- #5171: the Spin Wheel's ninth slice, a Secret cat at 0.25% (shared/SpinCat); off by default
@@ -196,6 +197,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tablesSpread = true, -- #4763: on about 06:00 UTC Thu Nov 19, a UTC day apart from the funnel switches; Growth reads it
 	strayWalkSlow = true, -- #4601: on once Effects/Pose eases between the writes and a Studio walk looks the same
 	firstRankLock = true, -- Derek 2026-11-17 20:12 UTC: on after Review-QA and Sync's Studio pass
+	rankSpotPlain = true, -- Derek 2026-11-18 13:37 UTC: on once Review-QA passes (tutorial switches on ASAP)
 	likeAskEarly = true, -- #5152: on after Review-QA's QoL and phone sizing checks
 	nightSlice = true, -- #5164: on after Review-QA and Sync's frame-time read across a phase change
 	spinCat = true, -- #5171: on once the window's ninth wedge and the Odds list pass Review-QA and Sync's Studio look

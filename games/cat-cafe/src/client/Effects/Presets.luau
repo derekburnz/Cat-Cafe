@@ -676,6 +676,24 @@ Presets.emitters = {
 		lightEmission = 1,
 		rotSpeed = { -90, 90 },
 	},
+	-- Snowglobe Village (Effects/SnowglobeFx): the Town Square globe's icy swirl, the Rift's swirl in snow colours
+	globeSwirl = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 255, 255),
+			Color3.fromRGB(190, 225, 255),
+			Color3.fromRGB(140, 190, 255),
+		},
+		size = { 0.9, 0 },
+		transparency = { 0.15, 1 },
+		lifetime = { 1.2, 2 },
+		speed = { 1.5, 3.5 },
+		spread = 180,
+		rate = 24,
+		drag = 1.5,
+		lightEmission = 1,
+		rotSpeed = { -60, 60 },
+	},
 	riftStreak = {
 		texture = Presets.textures.sparkle,
 		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(210, 190, 255) },
@@ -4023,6 +4041,22 @@ Presets.adminDrops = {
 -- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
 -- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
 -- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
+-- Snowglobe Village's world effects (Effects/SnowglobeFx, Christmas Event Dec 1). Tag names are placeholders until
+-- Model-Agent's village and Gameplay-Engineer's event row land; change them here only.
+Presets.snowglobeFx = {
+	centreTag = "SnowglobeCentre",
+	portalTag = "SnowglobePortal",
+	every = 0.5,
+	airWithin = 140,
+	snow = "snowfall",
+	box = Vector3.new(60, 1, 60),
+	height = 18,
+	calmRate = 0.2,
+	swirl = "globeSwirl",
+	portalWithin = 120,
+	portalLift = 6,
+}
+
 Presets.harvestFx = {
 	pumpkinTag = "HarvestPumpkin",
 	boardTag = "HarvestBoard",

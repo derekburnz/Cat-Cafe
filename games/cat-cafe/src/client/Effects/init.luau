@@ -106,6 +106,7 @@ local Shove = require(script.Shove)
 local Signature = require(script.Signature)
 local Sky = require(script.Sky)
 local SlotWalk = require(script.SlotWalk)
+local SnowglobeFx = require(script.SnowglobeFx)
 local SpeedShoes = require(script.SpeedShoes)
 local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
@@ -239,6 +240,7 @@ function Effects.start()
 		KeepSets.start, -- Dragon Keep set looks from the DragonSets attribute
 		StationCircles.start, -- #4668: the walk-up rings hidden unless Station circles is on
 		HarvestFx.start, -- #4251: Harvest Hollow's falling leaves and the pumpkin patch's pops
+		SnowglobeFx.start, -- Christmas Event: Snowglobe Village's snow and the Town Square globe's swirl (idle until tagged)
 		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,

@@ -2,12 +2,20 @@
 -- Derek 2026-11-18 10:00 UTC ("make it load the whole area people are in on tablet at least probably all devices ...
 -- in longer maps it should load the whole map"). With streaming on (#4788) a device only holds what is within
 -- StreamingTargetRadius (384 studs) of its character, so the far end of a long area (the Park, the Castle, the Snowy
--- Mountain) pops in late. With the areaWhole switch on, each catching area's Model turns PersistentPerPlayer, and the
--- server keeps it whole on the devices of the players standing in it (or flying to it): one area at a time, so a
--- phone never holds two. Off (the default) the areas stream as before. Services/AreaWholeService does the work. Pure.
+-- Mountain) pops in late. With the areaWhole switch on, the server keeps the area a player stands in (or flies to)
+-- whole on that player's device: one area at a time, so a phone never holds two. Off (the default) the areas stream
+-- as before. Services/AreaWholeService does the work. Pure.
+--
+-- Sync's test of the first build (2026-11-18 10:33 UTC): making the whole area Model PersistentPerPlayer sent it in
+-- one client frame (303 to 741 ms, 7.7k to 11.5k instances) and stalled the server as long. So the area's Set and
+-- Backdrop are cut into chunks by ground cell (CELL studs), each its own PersistentPerPlayer Model, and a device gets
+-- them a few at a time (at most BUDGET instances every SPREAD seconds), nearest to where they will stand first. The
+-- first build also kept the last area held on the street for good, so the Alleyway stayed whole all session: now an
+-- area is let go RELEASE_AFTER seconds after they left it for the street or a cafe.
 --
 -- Roblox terms: a PersistentPerPlayer model is Persistent (sent whole, never streamed out) for the players added with
--- Model:AddPersistentPlayer and streams as usual for everyone else.
+-- Model:AddPersistentPlayer and Atomic (sent whole, but streams as usual) for everyone else. A Default model is only
+-- a group: its parts stream one by one.
 
 local AreaWhole = {}
 
@@ -16,31 +24,67 @@ AreaWhole.STEP = 1 -- seconds between the service's checks of where each player 
 -- A cannon flight's destination is held this long at most (the longest flight is about 6 s), so a flight cut short
 -- (a respawn, a leave) never pins an area.
 AreaWhole.FLIGHT_HOLD = 20
+AreaWhole.RELEASE_AFTER = 30 -- seconds on the street or in a cafe before the area they left is let go
+AreaWhole.CELL = 128 -- studs: the side of a chunk's ground cell
+-- At most this many instances are added for one player every SPREAD seconds (always at least one chunk). Sync's
+-- measure is about 65 microseconds of client apply per instance, so 400 is about 26 ms, and a big area comes in
+-- over about two seconds: a cannon flight lands at 2.2 s.
+AreaWhole.BUDGET = 400
+AreaWhole.SPREAD = 0.15 -- seconds; NightSpread's step, far enough apart to land in different network sends
+AreaWhole.CHUNK = "Chunk" -- the name of the Models AreaWholeService cuts a Set or Backdrop into
 
 export type Flight = { area: string, untilAt: number }
 
--- The streaming mode for an area's Model with the switch on or off.
+-- The streaming mode for an area's chunks with the switch on or off.
 function AreaWhole.mode(on: boolean): Enum.ModelStreamingMode
 	return if on
 		then Enum.ModelStreamingMode.PersistentPerPlayer
 		else Enum.ModelStreamingMode.Default
 end
 
+-- The ground cell a piece at `position` belongs to, as a key.
+function AreaWhole.cell(position: Vector3, size: number?): string
+	local side = size or AreaWhole.CELL
+	return string.format("%d,%d", math.floor(position.X / side), math.floor(position.Z / side))
+end
+
 -- The area a player's device should hold whole, and whether the flight still stands: a flight under way (`flight`,
 -- not past its untilAt at `now`) holds its destination until the player stands in it. A camp cannon launches from
 -- inside its own area and the arc crosses others, so standing in any other area never ends the flight early. With
--- no flight, where they stand, else the one they held (the street and their cafe keep the last area, so a walk out
--- and back does not send it twice). nil until they have been in one.
+-- no flight, where they stand; out of every area (the street, a cafe) the one they held, until they have been out
+-- RELEASE_AFTER seconds (`outSince` is when they left it). nil until they have been in one.
 function AreaWhole.pick(
 	flight: Flight?,
 	now: number,
 	standingIn: string?,
-	held: string?
+	held: string?,
+	outSince: number?
 ): (string?, boolean)
 	if flight ~= nil and now < flight.untilAt then
 		return flight.area, standingIn ~= flight.area
 	end
-	return standingIn or held, false
+	if standingIn ~= nil then
+		return standingIn, false
+	end
+	if held ~= nil and outSince ~= nil and now - outSince < AreaWhole.RELEASE_AFTER then
+		return held, false
+	end
+	return nil, false
+end
+
+-- How many of the waiting chunks (their instance counts in order, `sizes`) go out in one SPREAD step: as many as
+-- fit in `budget`, and always at least one while any wait.
+function AreaWhole.take(sizes: { number }, budget: number?): number
+	local limit = budget or AreaWhole.BUDGET
+	local count, total = 0, 0
+	for _, size in sizes do
+		if count > 0 and total + size > limit then
+			break
+		end
+		count += 1
+		total += size
+	end
+	return count
 end
 
 return AreaWhole

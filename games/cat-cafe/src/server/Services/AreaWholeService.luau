@@ -1,61 +1,158 @@
 --!strict
--- Derek 2026-11-18: the areaWhole switch (shared/AreaWhole). Every AreaWhole.STEP seconds it reads the switch and,
--- when it has changed, sets every catching area's Model to PersistentPerPlayer (on) or Default (off, as WorldBuilder
--- builds it). With it on, each player is added to the one area Model they stand in (WorldBuilder.areaAt) and taken
--- off the one they held before, so their device keeps that whole area and only that one. A cannon flight calls
--- AreaWholeService.heading at launch, so the area streams in during the flight and not all at the landing.
+-- Derek 2026-11-18: the areaWhole switch (shared/AreaWhole). At start each catching area's Set and Backdrop are cut
+-- into ground-cell chunks (Default Models, so nothing changes while the switch is off). With it on, the chunks turn
+-- PersistentPerPlayer and each player is added to the chunks of the one area they stand in (WorldBuilder.areaAt) or
+-- fly to, a few chunks every AreaWhole.SPREAD seconds and nearest first, so the area arrives over a couple of
+-- seconds and not in one frame. The area they held before is let go at once for another area, or RELEASE_AFTER
+-- seconds after they left it for the street or a cafe. A cannon flight calls AreaWholeService.heading at launch, so
+-- the area streams in during the flight, starting at the landing pad.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AreaWhole = require(ReplicatedStorage.Shared.AreaWhole)
+local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local PlotService = require(script.Parent.PlotService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local AreaWholeService = {}
 
-local switchOn = false
-local held: { [Player]: string } = {} -- the area each player's device is keeping whole
-local flying: { [Player]: AreaWhole.Flight } = {} -- a cannon flight's destination, until they stand in it
+type Chunk = { model: Model, at: Vector3, size: number }
+type Hold = {
+	area: string,
+	added: { Model }, -- chunks this player is on the list of
+	waiting: { Chunk }, -- chunks still to add, nearest first
+}
 
-local function areaModel(areaId: string): Model?
-	local ok, world = pcall(PlotService.world)
-	if not ok or world == nil then
-		return nil
+local CUT = { "Set", "Backdrop" } -- the area Model's children cut into chunks: nearly all of an area's instances
+
+local switchOn = false
+local chunks: { [string]: { Chunk } } = {} -- area id: its chunks
+local holds: { [Player]: Hold } = {}
+local flying: { [Player]: AreaWhole.Flight } = {} -- a cannon flight's destination, until they stand in it
+local outSince: { [Player]: number } = {} -- when they left their held area for the street or a cafe
+
+local function pieceAt(item: Instance): Vector3?
+	if item:IsA("Model") then
+		return (item :: Model):GetPivot().Position
+	elseif item:IsA("BasePart") then
+		return (item :: BasePart).Position
 	end
-	local info = world.areas[areaId]
-	return if info ~= nil then info.model else nil
+	return nil
 end
 
-local function release(player: Player, areaId: string)
-	local model = areaModel(areaId)
-	if model ~= nil then
+-- Cuts `container`'s direct children into one Default Model per ground cell and returns the chunks.
+local function cut(container: Instance, into: { Chunk })
+	local groups: { [string]: { Instance } } = {}
+	for _, child in container:GetChildren() do
+		local at = pieceAt(child)
+		if at ~= nil then
+			local key = AreaWhole.cell(at)
+			local group = groups[key]
+			if group == nil then
+				group = {}
+				groups[key] = group
+			end
+			table.insert(group, child)
+		end
+	end
+	for _, group in groups do
+		local model = Instance.new("Model")
+		model.Name = AreaWhole.CHUNK
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Default
+		local size = 1
+		for _, child in group do
+			child.Parent = model
+			size += #child:GetDescendants() + 1
+		end
+		model.Parent = container
+		table.insert(into, { model = model, at = model:GetPivot().Position, size = size })
+	end
+end
+
+local function cutAll()
+	local ok, world = pcall(PlotService.world)
+	if not ok or world == nil then
+		return
+	end
+	for id, info in world.areas do
+		local list: { Chunk } = {}
+		for _, name in CUT do
+			local container = info.model:FindFirstChild(name)
+			if container ~= nil then
+				cut(container, list)
+			end
+		end
+		chunks[id] = list
+	end
+end
+
+local function release(player: Player)
+	local hold = holds[player]
+	holds[player] = nil
+	if hold == nil then
+		return
+	end
+	for _, model in hold.added do
 		pcall(function()
 			model:RemovePersistentPlayer(player)
 		end)
 	end
 end
 
+-- Where the chunks should start from: the landing pad on a flight, else the character.
+local function aimFor(player: Player, areaId: string): Vector3?
+	if flying[player] ~= nil then
+		local pad = Layout.landingPads[areaId]
+		if pad ~= nil then
+			return Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
+		end
+	end
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	return if root ~= nil and root:IsA("BasePart") then (root :: BasePart).Position else nil
+end
+
 local function keep(player: Player, areaId: string?)
-	local before = held[player]
-	if areaId == before then
+	local hold = holds[player]
+	if hold ~= nil and hold.area == areaId then
 		return
 	end
-	if before ~= nil then
-		release(player, before)
-		held[player] = nil
-	end
-	if areaId == nil then
+	release(player)
+	local list = if areaId ~= nil then chunks[areaId] else nil
+	if areaId == nil or list == nil or #list == 0 then
 		return
 	end
-	local model = areaModel(areaId)
-	if model ~= nil and model.ModelStreamingMode == Enum.ModelStreamingMode.PersistentPerPlayer then
-		local ok = pcall(function()
-			model:AddPersistentPlayer(player)
+	local waiting = table.clone(list)
+	local aim = aimFor(player, areaId)
+	if aim ~= nil then
+		local from = aim :: Vector3
+		table.sort(waiting, function(a: Chunk, b: Chunk): boolean
+			return (a.at - from).Magnitude < (b.at - from).Magnitude
 		end)
-		if ok then
-			held[player] = areaId
+	end
+	holds[player] = { area = areaId, added = {}, waiting = waiting }
+end
+
+-- One SPREAD step: each player with chunks waiting gets the next few, up to AreaWhole.BUDGET instances.
+local function spread()
+	for player, hold in holds do
+		if #hold.waiting == 0 then
+			continue
+		end
+		local sizes: { number } = {}
+		for _, chunk in hold.waiting do
+			table.insert(sizes, chunk.size)
+		end
+		for _ = 1, AreaWhole.take(sizes) do
+			local chunk = table.remove(hold.waiting, 1) :: Chunk
+			local ok = pcall(function()
+				chunk.model:AddPersistentPlayer(player)
+			end)
+			if ok then
+				table.insert(hold.added, chunk.model)
+			end
 		end
 	end
 end
@@ -75,29 +172,41 @@ end
 
 local function apply(on: boolean)
 	switchOn = on
-	local ok, world = pcall(PlotService.world)
-	if not ok or world == nil then
-		return
-	end
 	if not on then
-		for player, areaId in held do
-			release(player, areaId)
+		for player in holds do
+			release(player)
 		end
-		table.clear(held)
+		table.clear(holds)
 		table.clear(flying)
+		table.clear(outSince)
 	end
 	local mode = AreaWhole.mode(on)
-	for _, info in world.areas do
-		if info.model.ModelStreamingMode ~= mode then
-			info.model.ModelStreamingMode = mode
+	for _, list in chunks do
+		for _, chunk in list do
+			if chunk.model.ModelStreamingMode ~= mode then
+				chunk.model.ModelStreamingMode = mode
+			end
 		end
 	end
 end
 
 local function step()
+	local now = os.clock()
 	for _, player in Players:GetPlayers() do
-		local area, flightStands =
-			AreaWhole.pick(flying[player], os.clock(), standingIn(player), held[player])
+		local hold = holds[player]
+		local here = standingIn(player)
+		if here ~= nil or hold == nil then
+			outSince[player] = nil
+		elseif outSince[player] == nil then
+			outSince[player] = now
+		end
+		local area, flightStands = AreaWhole.pick(
+			flying[player],
+			now,
+			here,
+			if hold ~= nil then hold.area else nil,
+			outSince[player]
+		)
 		if not flightStands then
 			flying[player] = nil
 		end
@@ -105,25 +214,39 @@ local function step()
 	end
 end
 
--- A cannon flight to `areaId` has started (CannonService): the device gets that area during the flight. The town and
--- anything that is not a catching area are left alone.
+-- A cannon flight to `areaId` has started (CannonService): the device gets that area during the flight, from the
+-- landing pad out. The town and anything that is not a catching area are left alone.
 function AreaWholeService.heading(player: Player, areaId: string)
-	if not switchOn or areaModel(areaId) == nil then
+	if not switchOn or chunks[areaId] == nil then
 		return
 	end
 	flying[player] = { area = areaId, untilAt = os.clock() + AreaWhole.FLIGHT_HOLD }
+	outSince[player] = nil
 	keep(player, areaId)
 end
 
--- The area this player's device is keeping whole, or nil (Debug and specs).
+-- The area this player's device is keeping whole (or getting), or nil (Debug and specs).
 function AreaWholeService.heldBy(player: Player): string?
-	return held[player]
+	local hold = holds[player]
+	return if hold ~= nil then hold.area else nil
 end
 
 function AreaWholeService.start()
+	cutAll()
 	Players.PlayerRemoving:Connect(function(player: Player)
-		held[player] = nil
+		holds[player] = nil
 		flying[player] = nil
+		outSince[player] = nil
+	end)
+	task.spawn(function()
+		while true do
+			if switchOn then
+				xpcall(spread, function(err: unknown)
+					warn("[AreaWholeService] " .. tostring(err))
+				end)
+			end
+			task.wait(AreaWhole.SPREAD)
+		end
 	end)
 	task.spawn(function()
 		local last: boolean? = nil

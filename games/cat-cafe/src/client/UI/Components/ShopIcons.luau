@@ -107,7 +107,7 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Bowl = "rbxassetid://103532889738881",
 	Icon_Clean_Cannon = "rbxassetid://136623310503178",
 	Icon_Clean_Cats = "rbxassetid://98525501130510",
-	Icon_Clean_Caviar = "rbxassetid://75650997072096",
+	Icon_Clean_Caviar = "rbxassetid://106267984439539", -- #5219: the matching cat bowl set (Model-Agent, group owned)
 	Icon_Clean_Coin = "rbxassetid://85581311877137", -- CoinGold (#1253); was 112195289471900,
 	-- #2089 (Derek2: the "?" box "shouldn't be anywhere"): the crate glyph draws the Classic Crate's picture, not the
 	-- mystery box (76162414943592) from icons-clean-2026-11-03. #4886 (Derek 2026-11-16, banned twice): never the
@@ -134,21 +134,21 @@ local IDS: { [string]: string } = {
 	Icon_Clean_PotionBigTip = "rbxassetid://111286476050307",
 	Icon_Clean_PotionGoldRush = "rbxassetid://134577238271535",
 	Icon_Clean_PotionQuickBait = "rbxassetid://117064600223329",
-	Icon_Clean_Tuna = "rbxassetid://82422020475314",
-	Icon_Clean_Salmon = "rbxassetid://118506839858835",
-	Icon_Clean_Sardines = "rbxassetid://77462554026769",
-	Icon_Clean_MoonMilk = "rbxassetid://109614940712323",
-	Icon_Clean_StarTreat = "rbxassetid://109199304319470",
+	Icon_Clean_Tuna = "rbxassetid://74456234846617", -- #5219: the matching cat bowl set (Model-Agent, group owned)
+	Icon_Clean_Salmon = "rbxassetid://109011578572291", -- #5219: the matching cat bowl set (Model-Agent, group owned)
+	Icon_Clean_Sardines = "rbxassetid://130455881771022", -- #5219: the matching cat bowl set (Model-Agent, group owned)
+	Icon_Clean_MoonMilk = "rbxassetid://122606145874553", -- #5219: the matching cat bowl set (Model-Agent, group owned)
+	Icon_Clean_StarTreat = "rbxassetid://99216472052979", -- #5219: the matching cat bowl set (Model-Agent, group owned)
 	-- #3462: the Day Cart's own two baits (upload run 43189985202, 11-12)
-	Icon_Clean_HoneyCream = "rbxassetid://101594576071338",
-	Icon_Clean_CometTreat = "rbxassetid://130150324251209",
+	Icon_Clean_HoneyCream = "rbxassetid://133091931452495", -- #5219: the matching cat bowl set (Model-Agent, group owned)
+	Icon_Clean_CometTreat = "rbxassetid://139109553677575", -- #5219: the matching cat bowl set (Model-Agent, group owned)
 	-- #4900: the Secret tier bait and the 50,000 XP cat food (upload run 43919997285, 11-16)
-	Icon_Clean_EclipseTreat = "rbxassetid://101916822452098",
+	Icon_Clean_EclipseTreat = "rbxassetid://70744648477031", -- #5219: the matching cat bowl set (Model-Agent, group owned)
 	Icon_Clean_RoyalFeast = "rbxassetid://133381821214039",
 	Icon_Clean_Spin = "rbxassetid://92256242473029",
 	Icon_Clean_TipJar = "rbxassetid://88738180093821", -- #4046: the Tip Jar quest's picture (🫙 draws blank on Roblox)
 	Icon_Clean_TipPile = "rbxassetid://120928045593770", -- #4046: the tip piles quest's (🪙 draws blank too)
-	Icon_Clean_Kibble = "rbxassetid://73553280032864", -- its own bowl of kibble (run 41851955780, 11-04)
+	Icon_Clean_Kibble = "rbxassetid://71045508448245", -- #5219: the matching cat bowl set (Model-Agent, group owned)
 	-- #1176: Model-Agent's HUD button pictures (#1185; upload run 41891138375, 11-04), the HUD's tiles prefer them
 	Icon_Hud_Store = "rbxassetid://93922915271593",
 	Icon_Hud_Cats = "rbxassetid://128934109652993",

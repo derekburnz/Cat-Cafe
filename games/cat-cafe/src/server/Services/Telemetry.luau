@@ -2334,11 +2334,13 @@ function Telemetry.feedbackAnswered(player: Player, profile: Profile, face: stri
 end
 
 -- #2681: the like ask shown (TipService's ask_shown for like_ask), to line up with Creator Hub's daily votes.
-function Telemetry.likeAskShown(player: Player, profile: Profile)
+-- #5152: field 2 is "<moment>:<minutes bucket>", the moment park_catch, rare_catch, recap (the exit recap card's
+-- line) or standard (dueAsk's Legendary or later day), as Roblox keeps only 3 custom fields.
+function Telemetry.likeAskShown(player: Player, profile: Profile, moment: string)
 	local session = sessions[player]
 	Telemetry.custom(player, "like_ask_shown", 1, {
 		tierText(profile),
-		FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
+		moment .. ":" .. FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
 		if session ~= nil then session.device or "unknown" else "unknown",
 	})
 end

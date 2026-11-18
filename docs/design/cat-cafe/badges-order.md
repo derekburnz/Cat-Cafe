@@ -82,3 +82,14 @@ Each needs a 512 x 512 icon first (Model-Agent, in the style of the present set;
 ## 4. Order on the Roblox page
 
 The page order is set by hand in Creator Hub (Badges, drag to sort) and does not follow the code. Once the six exist, sort to the numbers in section 1. `Badges.LIST` takes the same order so the two never drift.
+
+## 5. Order on the Roblox page since 2026-11-18 (#5160)
+
+Derek asked for a new order once the six first-step badges were turned off and five new ones were made: tiers first, then catching, then collecting, then badges with other players. Growth-Agent set it in Creator Hub (Badges, Reorder) at 00:25 UTC Nov 18 and read it back from the public badge list. The 26 enabled badges now read:
+
+1. Tiers: Corner Cafe, Cozy Cafe, Busy Cafe, Famous Cafe, Grand Cafe, Sunstone Cafe, Wonder Cafe, Summit Cafe (Tier 8), Funfair Cafe (Tier 9), Royal Cafe (Tier 10).
+2. Catching: Purrfect!, Purrfect Streak, Bait Cat, Rare Find, Legendary Find, Mythical Find, Secret Finder.
+3. Collecting: Cat Collector (25), Cat Expert (50), Cat Master (100), Golden Coat, Rainbow Coat, Page Complete.
+4. With other players: Helping Paw, First Trade, Met the Owner.
+
+The turned-off badges (First Catch, Home Sweet Home, Fixing Up, Liftoff, Welcome to the Cafe, Grand Opening, Cafe Party Guest) do not show on the page. Sections 1 and 4 above describe the order before this change. Reorder tip: the list is drag and drop, and a focused row also moves with Space, the arrow keys, then Space.

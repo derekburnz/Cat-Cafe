@@ -10,12 +10,12 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "list (every badge, no key needed) | create (the keys below, at most 5)"
+        description: "list (every badge, no key needed) | create (the keys below, at most 5) | disable (badge ids below, at most 10)"
         type: choice
-        options: [list, create]
+        options: [list, create, disable]
         default: list
       keys:
-        description: "create: Config.Badges keys, comma separated (rainbowCoat, pageComplete, helpingPaw, firstTrade, purrfectStreak, partyGuest)"
+        description: "create: Config.Badges keys, comma separated (summitCafe, funfairCafe, royalCafe, secretFind, catMaster). disable: badge ids, comma separated"
         required: false
         default: "rainbowCoat,pageComplete,helpingPaw,firstTrade,purrfectStreak"
 
@@ -47,7 +47,7 @@ jobs:
             assets/cat-cafe/exports/icons
 
       - name: Check the key is set
-        if: inputs.action == 'create'
+        if: inputs.action != 'list'
         run: |
           if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
             echo "::error::The repo secret OWNER_KEY is missing."
@@ -62,5 +62,9 @@ jobs:
           create)
             [[ $KEYS =~ ^[A-Za-z]+(,[A-Za-z]+){0,4}$ ]] || { echo "::error::keys must be 1 to 5 Config.Badges keys, comma separated"; exit 1; }
             bash "$script" create "$KEYS" | tee -a "$GITHUB_STEP_SUMMARY"
+            ;;
+          disable)
+            [[ $KEYS =~ ^[0-9]+(,[0-9]+){0,9}$ ]] || { echo "::error::keys must be 1 to 10 badge ids, comma separated"; exit 1; }
+            bash "$script" disable "$KEYS" | tee -a "$GITHUB_STEP_SUMMARY"
             ;;
           esac

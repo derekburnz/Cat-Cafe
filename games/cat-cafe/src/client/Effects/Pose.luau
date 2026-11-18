@@ -858,7 +858,9 @@ end
 -- `ease` (seconds, #4601 strayWalkSlow): a server step is not snapped to but eased into over that long, the whole cat
 -- sliding from where it was drawn onto the server's new frames, so a walk the server steps 10 times a second still
 -- looks smooth. A step longer than motion.hiss.jumpStuds (a teleport) still snaps. Nil or 0 reads as before.
-function Pose.read(rig: Rig, ease: number?): boolean
+-- `serverNow`: the server time to draw the walk at. Every read in one frame takes the same one (Sync's run on
+-- #5150: GetServerTimeNow moves on during the frame, so a late redraw ran a frame ahead of the frame's own draw).
+function Pose.read(rig: Rig, ease: number?, serverNow: number?): boolean
 	if rig.model.Parent == nil or rig.body.Parent == nil then
 		return false
 	end
@@ -893,20 +895,20 @@ function Pose.read(rig: Rig, ease: number?): boolean
 	-- read has the cat now instead; at a walk's end that is where its line stops.
 	local from = before
 	if seconds > 0 then
-		local serverNow = Workspace:GetServerTimeNow()
+		local clock = serverNow or Workspace:GetServerTimeNow()
 		local spot = rig.walkSpot
+		local lineFrom, lineWay, lineLength, lineSpeed, lineAt =
+			rig.lineFrom, rig.lineWay, rig.lineLength, rig.lineSpeed, rig.lineAt
+		rig.walkSpot = nil
+		shift, walkAt = walkShift(rig, clock)
 		if spot ~= nil then
-			local was = Logic.walkAlong(
-				rig.lineFrom,
-				rig.lineWay,
-				rig.lineLength,
-				rig.lineSpeed,
-				serverNow - rig.lineAt
-			)
+			-- A walk that just ended (WalkAt cleared) is where its line has the cat at the live server time, not a
+			-- frame back: the frame's clock is a frame behind (#5151), which left the cat short of WalkTo for a frame
+			-- and then eased in (Sync's run: 0.25 studs short, a frame held).
+			local at = if shift == nil then Workspace:GetServerTimeNow() else clock
+			local was = Logic.walkAlong(lineFrom, lineWay, lineLength, lineSpeed, at - lineAt)
 			from = CFrame.new(was.X - spot.X, 0, was.Z - spot.Z) * before
 		end
-		rig.walkSpot = nil
-		shift, walkAt = walkShift(rig, serverNow)
 	end
 	local walking = shift ~= nil
 	local shifted = if shift ~= nil then shift else IDENTITY

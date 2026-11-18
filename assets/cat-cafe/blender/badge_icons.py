@@ -38,6 +38,13 @@ The six of #3618 (badges-order.md), made after the 22:
   27 SunstoneCafe   Sunstone Cafe (Tier 6): a cut orange sunstone in a gold sun with twelve rays, on warm sand
   28 WonderCafe     Wonder Cafe (Tier 7): a big cut diamond under a crown of gold stars, on night blue
 
+The five of #5160 (the badge cleanup):
+  29 SummitCafe     Summit Cafe (Tier 8): a snowy peak with a pink paw flag on top, on sky blue
+  30 FunfairCafe    Funfair Cafe (Tier 9): a Ferris wheel with candy coloured cars, on blush
+  31 RoyalCafe      Royal Cafe (Tier 10): a berry shield with a gold paw under a gold crown, gold stars, on night blue
+  32 SecretFind     a cat as a dark shape (never a Secret's real look) by a gold question mark, on lilac
+  33 CatMaster      100 different cats: a gold trophy with a paw, three stars over it, on mint
+
 Built in Blender axes (x right, -y toward the camera, z up), the medal's face in the XZ plane; nothing here is a game
 model.
 """
@@ -676,6 +683,131 @@ def wonder_cafe(mat):
     return _fin(b, "WonderCafe", mat)
 
 
+def summit_cafe(mat):
+    """Summit Cafe (Tier 8, #5160): a snowy mountain peak with a pink paw flag planted on top, on sky blue."""
+    b = Builder()
+    _medal(b, "pastel_sky")
+    y = -0.3
+    b.prism((0.5, y + 0.08, -1.0), [(-0.85, 0.0), (0.85, 0.0), (0.0, 1.15)], 0.2, "fur_slate", rot=X)   # far peak
+    b.prism((-0.15, y, -1.05), [(-1.15, 0.0), (1.15, 0.0), (0.0, 1.75)], 0.24, "fur_grey", rot=X)        # the summit
+    b.prism((-0.15, y - 0.14, 0.12), [(-0.4, 0.0), (-0.22, -0.18), (-0.04, 0.0), (0.14, -0.2), (0.3, -0.02),
+                                      (0.4, 0.0), (0.0, 0.58)], 0.06, "offwhite", rot=X)                 # snow cap
+    b.prism((0.5, y + 0.0, -0.12), [(-0.26, 0.0), (0.26, 0.0), (0.0, 0.27)], 0.06, "offwhite", rot=X)
+    px, pz = -0.15, 0.7                                                                       # the flag on top
+    b.box((px, y - 0.22, pz + 0.35), (0.08, 0.08, 0.8), "dark_wood", bevel=False)
+    b.prism((px + 0.04, y - 0.22, pz + 0.74), [(0.0, 0.0), (0.0, -0.46), (0.68, -0.23)], 0.06, "apron_pink", rot=X)
+    _paw(b, px + 0.25, y - 0.27, pz + 0.53, 0.34, "offwhite")
+    for x, z, s in ((-1.1, 0.5, 0.11), (0.9, 0.85, 0.1), (1.15, 0.2, 0.08), (-0.85, -0.05, 0.09)):   # snowflakes
+        b.ico((x, y - 0.3, z), s, "offwhite")
+    _twinkle(b, 1.0, -0.5, 1.2, 0.3)
+    return _fin(b, "SummitCafe", mat)
+
+
+def funfair_cafe(mat):
+    """Funfair Cafe (Tier 9, #5160): a Ferris wheel with candy coloured cars on a striped stand, on blush."""
+    b = Builder()
+    _medal(b, "blush")
+    y = -0.3
+    cx, cz, r = 0.0, 0.2, 1.05
+    b.ring((cx, y, cz), r, 0.12, 0.12, "gold_mid", segments=36, rot=X)                          # the rim
+    b.ring((cx, y, cz), r * 0.55, 0.06, 0.1, "gold_light", segments=28, rot=X)
+    for k in range(8):                                                                          # spokes
+        t = math.radians(22.5 + 45 * k)
+        b.box((cx + r / 2 * math.cos(t), y + 0.02, cz + r / 2 * math.sin(t)), (r, 0.05, 0.05), "offwhite",
+              bevel=False, rot=(-t, "Y"))
+    b.cyl((cx, y - 0.08, cz), 0.2, 0.14, "bowl_red", segments=16, rot=X)                       # the hub
+    cars = ("bowl_red", "fish_blue", "pastel_butter", "mint", "apron_pink", "aurora_violet", "fur_orange",
+            "shirt_green")
+    for k in range(8):                                                                          # the cars
+        t = math.radians(22.5 + 45 * k)
+        x, z = cx + r * math.cos(t), cz + r * math.sin(t)
+        b.box((x, y - 0.14, z - 0.2), (0.34, 0.24, 0.26), cars[k])
+        b.box((x, y - 0.14, z - 0.05), (0.4, 0.26, 0.06), "offwhite", bevel=False)
+    for sx in (-1, 1):                                                                          # the stand
+        b.box((cx + sx * 0.42, y + 0.1, cz - 0.75), (0.12, 0.12, 1.6), "bowl_red", rot=(sx * math.radians(-22), "Y"))
+    b.box((cx, y + 0.1, -1.3), (1.5, 0.3, 0.14), "offwhite")
+    _star(b, -1.3, -0.5, 1.0, 0.26, "gold_mid")
+    _twinkle(b, 1.35, -0.5, -0.8, 0.3)
+    return _fin(b, "FunfairCafe", mat)
+
+
+def royal_cafe(mat):
+    """Royal Cafe (Tier 10, the top tier, #5160): a berry shield with a gold paw, a gold crown on top and gold stars
+    either side, on night blue."""
+    b = Builder()
+    _medal(b, "night_sky")
+    y = -0.3
+    shield = [(-0.85, 0.55), (0.85, 0.55), (0.85, -0.2), (0.45, -0.75), (0.0, -1.0), (-0.45, -0.75), (-0.85, -0.2)]
+    b.prism((0, y, -0.25), [(x * 1.12, z * 1.1) for x, z in shield], 0.18, "gold_mid", rot=X)    # the gold edge
+    b.prism((0, y - 0.1, -0.25), shield, 0.08, "royal_berry", rot=X)                            # the shield
+    _paw(b, 0, y - 0.16, -0.32, 1.0, "gold_light")
+    cz = 0.62                                                                                   # the crown
+    b.box((0, y - 0.05, cz), (1.3, 0.24, 0.3), "gold_mid")
+    for k, x in enumerate((-0.55, -0.27, 0.0, 0.27, 0.55)):
+        h = 0.55 if k == 2 else (0.42 if k % 2 == 0 else 0.32)
+        b.prism((x, y - 0.05, cz + 0.12), [(-0.13, 0.0), (0.13, 0.0), (0.0, h)], 0.2, "gold_mid", rot=X)
+        b.ico((x, y - 0.12, cz + 0.12 + h), 0.07, "gold_light")
+    for x, sw in ((-0.4, "mint"), (0.0, "bowl_red"), (0.4, "fish_blue")):
+        b.cyl((x, y - 0.18, cz), 0.08, 0.05, sw, segments=10, rot=X)
+    for sx in (-1, 1):                                                                          # gold stars
+        _star(b, sx * 1.22, -0.45, -0.1, 0.34, "gold_mid")
+        _star(b, sx * 1.0, -0.45, -0.85, 0.24, "gold_light")
+    _twinkle(b, -1.05, -0.5, 1.15, 0.3, "gold_light")
+    _twinkle(b, 1.05, -0.5, 1.15, 0.24, "gold_light")
+    return _fin(b, "RoyalCafe", mat)
+
+
+def _dark(objs):
+    """Paint every face of a built cat one dark swatch: a Secret shows only as a dark shape outside the game."""
+    import palette
+    uv = palette.uv_center(palette.idx("fur_ink"))
+    for ob in objs:
+        layer = ob.data.uv_layers.active
+        if layer is None:
+            continue
+        for d in layer.data:
+            d.uv = uv
+    return objs
+
+
+def secret_find(mat):
+    """Secret Find (#5160): a cat as a dark shape (the Secret rule), a gold question mark and twinkles, on lilac."""
+    b = Builder()
+    _medal(b, "pastel_lilac")
+    y = -0.3
+    b.cyl((0, y + 0.02, -0.1), 1.3, 0.04, "velvet_lilac", segments=40, rot=X)                   # a soft glow behind
+    qx, qz = 0.95, 0.75                                                                         # the question mark
+    _arc(b, qx, qz, 0.32, -90, 180, 0.15, 0.14, y - 0.3, "gold_mid", n=12)
+    b.box((qx, y - 0.3, qz - 0.48), (0.15, 0.14, 0.3), "gold_mid", bevel=False)
+    b.ico((qx, y - 0.3, qz - 0.8), 0.1, "gold_mid")
+    _twinkle(b, -1.2, -0.5, 0.8, 0.36, "gold_light")
+    _twinkle(b, -0.9, -0.5, 1.3, 0.2, "offwhite")
+    _twinkle(b, 1.3, -0.5, -0.6, 0.26, "offwhite")
+    cat = place(_dark(_cat("MaineCoon", mat)), at=(-0.2, -0.6, -0.95), scale=0.95, yaw=-14)
+    return _fin(b, "SecretFind", mat) + cat
+
+
+def cat_master(mat):
+    """Cat Master (#5160, 100 different cats): a big gold trophy with a paw on its cup, stars over it, on mint."""
+    b = Builder()
+    _medal(b, "mint")
+    y = -0.35
+    b.box((0, y, -1.1), (1.1, 0.5, 0.24), "dark_wood")                                          # the base
+    b.box((0, y, -0.9), (0.8, 0.4, 0.18), "gold_dark")
+    b.cyl((0, y, -0.65), 0.12, 0.4, "gold_mid", segments=12)                                    # the stem
+    b.cyl((0, y, -0.42), 0.32, 0.1, "gold_mid", segments=20)
+    b.cyl((0, y, 0.12), 0.48, 1.0, "gold_mid", segments=28, radius2=0.78)                      # the cup
+    b.cyl((0, y, 0.64), 0.8, 0.08, "gold_light", segments=28)                                   # its lip
+    for sx in (-1, 1):                                                                          # handles
+        b.ring((sx * 0.78, y, 0.2), 0.26, 0.08, 0.1, "gold_mid", segments=16, rot=X)
+    _paw(b, 0, y - 0.65, 0.12, 0.85, "offwhite")
+    for x, z, s in ((-0.7, 1.15, 0.26), (0.0, 1.3, 0.34), (0.7, 1.15, 0.26)):
+        _star(b, x, -0.5, z, s, "rarity_legend")
+    _twinkle(b, -1.25, -0.5, -0.3, 0.3)
+    _twinkle(b, 1.25, -0.5, -0.5, 0.26)
+    return _fin(b, "CatMaster", mat)
+
+
 # name -> builder, in the spec's creation order (release.md section 1)
 BADGES = {"Welcome": welcome, "FirstCatch": first_catch, "CozyCafe": cozy_cafe, "GrandOpening": grand_opening,
           "Purrfect": purrfect, "BaitCat": bait_cat, "RareFind": rare_find, "LegendaryFind": legendary_find,
@@ -686,4 +818,7 @@ BADGES = {"Welcome": welcome, "FirstCatch": first_catch, "CozyCafe": cozy_cafe, 
           "MetOwner": met_owner,
           # #3618 (badges-order.md): the six new ones, made five a day inside the free allowance
           "HomeSweetHome": home_sweet_home, "FixingUp": fixing_up, "Liftoff": liftoff, "CornerCafe": corner_cafe,
-          "SunstoneCafe": sunstone_cafe, "WonderCafe": wonder_cafe}
+          "SunstoneCafe": sunstone_cafe, "WonderCafe": wonder_cafe,
+          # #5160: the badge cleanup's five
+          "SummitCafe": summit_cafe, "FunfairCafe": funfair_cafe, "RoyalCafe": royal_cafe, "SecretFind": secret_find,
+          "CatMaster": cat_master}

@@ -4754,6 +4754,25 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local closeLeft = close.AbsolutePosition.X - Button.OUTLINE * Scale.get()
 		assert(titleRight <= closeLeft, ("uigate: the invite card's X (from %.0f) covers its title (to %.0f)"):format(closeLeft, titleRight))
 	end },
+	-- #5152 (likeAskEarly): the early like card, "Having fun?" over the game page drawing, its line, OK and the X,
+	-- all on screen on every device
+	{ "LikeAskEarly", function()
+		UI.asks.skipPace()
+		local shown = UI.asks.card((UI.tips :: any).likeAsk())
+		assert(shown, "uigate: the early like card didn't show (#5152)")
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask and ask:FindFirstChild("Title", true)
+		assert(title and title.Text == "Having fun?", "uigate: the like card reads " .. tostring(title and title.Text) .. " (#5152)")
+		local drawing = ask:FindFirstChild("Drawing", true) :: GuiObject
+		assert(drawing and drawing.Visible and drawing:FindFirstChild("LikePicture"), "uigate: the like card has no game page drawing (#5152)")
+		local line = ask:FindFirstChild("Line", true) :: TextLabel
+		assert(line and line.Visible and string.find(line.Text, "game page", 1, true), "uigate: the like card's line is missing (#5152)")
+		local button = ask:FindFirstChild("Choice_ok", true) :: GuiObject
+		assert(button, "uigate: the like card has no OK (#5152)")
+		local holder = ask:FindFirstChild("Holder", true) :: GuiObject
+		assert(holder.AbsolutePosition.Y >= 0, ("uigate: the like card's top is off the screen (%.0f) (#5152)"):format(holder.AbsolutePosition.Y))
+		assert(button.AbsolutePosition.Y > drawing.AbsolutePosition.Y + drawing.AbsoluteSize.Y - 1, "uigate: OK sits over the drawing (#5152)")
+	end },
 	-- #2798 (Derek2: the Cozy Cafe countdown is the gift icon's tooltip, not a new strip): standing in your cafe, the
 	-- Rewards list says when the next Cozy gift comes; once the bag waits on the counter the tile wears the red "!"
 	{ "CozyCountdown", function()

@@ -433,11 +433,16 @@ function AfkCafeService.start()
 		for _, player in hopping do
 			Telemetry.custom(player, "afk_rejoin", 1, { "restart" })
 		end
-		local options = Instance.new("TeleportOptions")
-		options.ShouldReserveServer = true
-		options:SetTeleportData(AfkCafe.hopData() :: any)
+		-- a reserved server of this place holds them for the few seconds the restart takes (noteArrival hops them back)
 		local ok, problem = pcall(function()
-			TeleportService:TeleportAsync(game.PlaceId, hopping, options)
+			local code = TeleportService:ReserveServer(game.PlaceId)
+			TeleportService:TeleportToPrivateServer(
+				game.PlaceId,
+				code,
+				hopping,
+				nil,
+				AfkCafe.hopData() :: any
+			)
 		end)
 		if not ok then
 			warn("[AfkCafeService] restart hop failed: " .. tostring(problem))

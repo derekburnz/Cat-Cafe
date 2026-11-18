@@ -1612,7 +1612,8 @@ function CafeService.addCaughtCat(
 	knownProfile: Profile?,
 	charm: number?,
 	method: Types.CatchMethod?,
-	variant: string?
+	variant: string?,
+	perfect: boolean? -- #5300: caught with every ring Perfect while the perfectCatch switch is on
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
@@ -1632,6 +1633,9 @@ function CafeService.addCaughtCat(
 	local howText: string = how -- analytics fields are plain strings
 	if method == "rescue" then
 		instance.rescued = true
+	end
+	if perfect == true then
+		instance.perfect = true
 	end
 	local firstGold = false
 	local firstRainbow = false
@@ -2660,6 +2664,10 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	local value = Settings.clean(rawKey, rawValue)
 	local profile = profileFor(player)
 	if profile == nil or value == nil then
+		return
+	end
+	-- #5322: AFK mode's saved mark is the server's (the AfkMode remote sets it)
+	if rawKey == "afkMode" then
 		return
 	end
 	-- #4266: the Auto Bowl switches change only for a pass owner

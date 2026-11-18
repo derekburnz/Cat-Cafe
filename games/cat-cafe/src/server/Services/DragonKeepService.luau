@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
+local EasyKeep = require(ReplicatedStorage.Shared.EasyKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
@@ -295,6 +296,24 @@ function DragonKeepService.start()
 	Net.on("SlotDragonCard", onSlot)
 	Net.on("SetDragonColour", onColour)
 	DataService.onLoaded:Connect(onLoaded)
+	-- #5311: with the easyKeep switch on mid-session, a Keep whose Warmth already reaches a lowered goal gets that
+	-- stage and its hand now (a join does it in DragonKeep.sanitize). EasyKeep.follow sets the goals first.
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. EasyKeep.FLAG)
+		:Connect(function()
+			if not EasyKeep.on() then
+				return
+			end
+			DragonKeep.setEasy(true) -- signal order is not promised, so the goals are set before the grow
+			for _, player in DataService.loadedPlayers() do
+				local profile = DataService.get(player)
+				if profile ~= nil and DragonKeep.regrow(profile.dragon) then
+					if LiveFlagService.on(DragonKeep.FLAG) and #profile.dragon.hand == 0 then
+						deal(player, profile)
+					end
+					CafeService.sync(player)
+				end
+			end
+		end)
 	DataService.beforeRelease(function(player)
 		breathAt[player] = nil
 	end)

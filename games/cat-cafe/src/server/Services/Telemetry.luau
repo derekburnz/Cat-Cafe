@@ -138,6 +138,9 @@ export type CustomEvent =
 	| "catch_circles" -- value the Perfect rings; rarity, net level, result (#2913: a miss is missed_early, missed_late or missed_none)
 	-- #1884 (catch-rework.md 7d): a net catch's end, value the rings judged; purrfect, great, nice or bolt, rarity, mood
 	| "catch_finish"
+	-- #5300 (shared/PerfectCatch): the perfectCatch switch's one charm migration for a save, value the cats it marked
+	-- Perfect (charm 80+); fields: the cats at charm 51 to 79 (they now earn a little less), the cats owned
+	| "perfect_migrate"
 	| "rescue_attempt"
 	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"

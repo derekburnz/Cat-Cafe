@@ -197,6 +197,7 @@ SettingsList.OTHER_KEYS = {
 	autoBowlClaim = true, -- #4266: the Bait bowl window's Auto Bowl switches set these three
 	autoBowlRefill = true,
 	bowlNewCatCard = true,
+	afkMode = true, -- #5322: AFK mode's saved mark, the server's (the AFK button)
 } :: { [string]: boolean }
 
 -- Every row in screen order.

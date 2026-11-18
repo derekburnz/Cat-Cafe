@@ -26,6 +26,21 @@ DragonKeep.STAGES = {
 }
 DragonKeep.MAX_STAGE = #DragonKeep.STAGES
 DragonKeep.REKINDLE = 1500
+-- #5311 (Derek 2026-11-18: "rebalance the tier 10 dragon warmth numbers to make it easier but also a proper increase
+-- like 50,100,250,500,1000"): the stage goals and Rekindle with the easyKeep switch on (shared/EasyKeep) and off
+DragonKeep.PLAIN_WARMTH = table.freeze({ 50, 300, 1000, 1400, 2400 })
+DragonKeep.PLAIN_REKINDLE = 1500
+DragonKeep.EASY_WARMTH = table.freeze({ 50, 100, 250, 500, 1000 })
+DragonKeep.EASY_REKINDLE = 500
+
+-- Writes the stage goals and Rekindle in place, so every reader agrees. Stages already reached stay reached.
+function DragonKeep.setEasy(on: boolean)
+	local goals = if on then DragonKeep.EASY_WARMTH else DragonKeep.PLAIN_WARMTH
+	for index, stage in DragonKeep.STAGES do
+		stage.warmth = goals[index]
+	end
+	DragonKeep.REKINDLE = if on then DragonKeep.EASY_REKINDLE else DragonKeep.PLAIN_REKINDLE
+end
 DragonKeep.HAND_CAP = 3 -- Rekindle hands waiting at most
 DragonKeep.HAND_SIZE = 3
 DragonKeep.KEEP_FISH = 25 -- "Keep my cards" on a Rekindle hand
@@ -780,6 +795,14 @@ local function addNapper(save: Types.DragonSave, instance: Types.CatInstance)
 	while #save.napping > DragonKeep.NAPPING do
 		table.remove(save.napping)
 	end
+end
+
+-- #5311: queues what the Warmth reaches now (the easyKeep switch lowered the goals mid-session); true when it queued
+-- a hand.
+function DragonKeep.regrow(save: Types.DragonSave): boolean
+	local before = #save.queue
+	grow(save)
+	return #save.queue > before
 end
 
 -- Queues the stage hands and Rekindle hands the Warmth has reached (Rekindle up to HAND_CAP waiting; past the cap

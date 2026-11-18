@@ -574,6 +574,7 @@ local function catFrom(
 			CatStats.MAX_CHARM
 		),
 		rescued = if entry.rescued == true then true else nil,
+		perfect = if entry.perfect == true then true else nil, -- #5300: no version bump, older saves have none
 		name = if fromVersion >= 3 then sanitizeName(entry.name) else nil,
 		method = if fromVersion >= 3
 			then sanitizeMethod(entry.method)

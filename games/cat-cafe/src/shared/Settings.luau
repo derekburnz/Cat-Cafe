@@ -54,6 +54,9 @@ Settings.kinds = {
 	-- #4991 (Derek 2026-11-16: "make a toggle for showing vip above head in titles and toggle it off by default"): the
 	-- gold VIP tag over a VIP owner's head (server Services/VipTagService). Off by default; the VIP money stays
 	vipTag = "switch",
+	-- #5322 (Derek 2026-11-18: "keep afk mode on until toggled off"): AFK mode was on when the player left, so a join
+	-- (or a restart's hop) takes it up again. Server only: SetSetting refuses it (CafeService). Off by default
+	afkMode = "switch",
 } :: { [string]: Kind }
 
 -- #3940: every way the four Show chips can be on, as CatPickLogic.packShown writes them (chip names in this order,
@@ -104,6 +107,7 @@ function Settings.defaults(): Types.Settings
 		bowlNewCatCard = true,
 		stationCircles = false,
 		vipTag = false, -- #4991
+		afkMode = false, -- #5322
 	}
 end
 

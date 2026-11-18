@@ -680,7 +680,31 @@ local rareGuide =
 	{ target = nil :: BasePart?, untilAt = 0, line = "", label = "", from = nil :: string? }
 local RARE_GUIDE_SECONDS = 30
 
-local function refreshTutorial(s: Types.PlayerState)
+-- #5330 (Components/NightLine): the night line's ring and arrow on Upgrades, and whether the line shows now
+local nightLine = { target = nil :: GuiObject?, showing = false } :: any
+function nightLine.arrow(target: GuiObject?)
+	if nightLine.target == target then
+		return
+	end
+	local TutorialGlow = require(script.Parent.Parent.UI.Components.TutorialGlow) :: any
+	local was = nightLine.target
+	if was ~= nil then
+		TutorialGlow.set(was, false)
+	end
+	nightLine.target = target
+	if target ~= nil then
+		TutorialGlow.set(target, true, nil, true) -- ring and arrow, no dim: nothing is required
+	end
+end
+
+function nightLine.now(s: Types.PlayerState): boolean
+	local NightLine = require(script.Parent.Parent.UI.Components.NightLine) :: any
+	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. NightLine.FLAG) == true
+	return NightLine.shows(on, s.tier, s.tutorialStep, not areasShut(), UI.isOpen() ~= nil)
+end
+
+local refreshTutorial: (s: Types.PlayerState) -> ()
+function nightLine.body(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
 		tutorialWatch.connection = nil
@@ -973,6 +997,14 @@ local function refreshTutorial(s: Types.PlayerState)
 			then "touch"
 			else "keyboard"
 		showTutorial(s, RankFirst.line(device))
+	elseif nightLine.now(s) then
+		-- #5330: the night stall's line, counted down by the night line loop below
+		local NightLine = require(script.Parent.Parent.UI.Components.NightLine) :: any
+		local clock = ReplicatedStorage:FindFirstChild("Clock")
+		local endsAt = if clock ~= nil then clock:GetAttribute("PhaseEndsAt") else nil
+		local left = if type(endsAt) == "number" then endsAt - Workspace:GetServerTimeNow() else 0
+		nightLine.showing = true
+		showTutorial(s, NightLine.text(left))
 	elseif stuckGoalActive(s) then
 		-- #2912: after the walk-through, to the Alleyway's stuck cat (the cannon first from town); nothing at night,
 		-- when the goal card says the cats come back at sunrise
@@ -1035,6 +1067,14 @@ local function refreshTutorial(s: Types.PlayerState)
 	else
 		UI.tutorial.hide()
 	end
+end
+
+-- The strip's line for this state, and the night line's arrow with it (#5330)
+refreshTutorial = function(s: Types.PlayerState)
+	nightLine.showing = false
+	nightLine.body(s)
+	local upgrades: any = (UI :: any).upgradesButton
+	nightLine.arrow(if nightLine.showing and type(upgrades) == "function" then upgrades() else nil)
 end
 
 -- #5202 (UI.nextGoal, Design-Agent): variant A's "Collect cats". A rarity still short (`rarity`): the trail to the
@@ -3950,6 +3990,20 @@ function UIController.start()
 				refreshTutorial(current)
 			end
 		end)
+	end)
+	-- #5330: the night line counts down each second, and comes and goes with windows
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local current = state
+			if
+				current ~= nil
+				and ReplicatedStorage:GetAttribute("LiveFlag_nightLine") == true
+				and (nightLine.showing or nightLine.now(current))
+			then
+				refreshTutorial(current)
+			end
+		end
 	end)
 	-- #2912: the stuck cat pointer follows the player (town or the Alleyway), the cat streaming in and its own
 	-- TRAIL_SECONDS; looked at once a second, and only while the save waits for its first rescue

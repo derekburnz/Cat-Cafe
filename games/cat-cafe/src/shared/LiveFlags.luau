@@ -151,6 +151,7 @@ LiveFlags.KEYS = {
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
+	"nightLine", -- #5330: at night up to Tier 4 the strip says when the areas open, with an arrow to Upgrades (Components/NightLine); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"cardFollow", -- #5296: Follow and the boost square on the cat card (Screens/CatRoom); off by default, Derek wants the old row
 	"bigTreats", -- Derek 2026-11-18: the Daily Treat pays big prizes only, no food (shared/BigTreats); off by default
@@ -245,6 +246,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
+	nightLine = true, -- #5330: on after Review-QA and Sync's phone look, 2 h from other switches
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	cardFollow = true, -- #5296: stays off; the Companion button replaces it
 	bigTreats = true, -- Derek 2026-11-18: on once Review-QA passes, 2 h from any other switch

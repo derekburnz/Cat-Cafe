@@ -836,14 +836,11 @@ local Config = {
 		-- Derek 2026-11-15 17:13 UTC ("are we still prompting people ... we should be"): the two after Better on Every
 		-- Device, so the ask keeps rolling to the next update with no gap. Cherry Blossom Grove's Roblox Event was
 		-- made 2026-11-15 (one week, Dec 5 to Dec 12), Harvest Hollow's on Nov 14.
-		{
-			id = "2956295611862876771",
-			startsAt = 1795636800, -- "Harvest Hollow", Wednesday 2026-11-25 20:00 UTC
-			title = "🔔 Next update Wed Nov 25: HARVEST HOLLOW! Want a reminder when it lands?",
-			name = "HARVEST HOLLOW",
-		},
-		-- Derek 2026-11-17 (Christmas Event Dec 12 to Jan 3): Growth made the Roblox Event in Creator Hub (saved
-		-- private while the public upcoming cap is full; public once Harvest Hollow ends)
+		-- #5174 (Derek 2026-11-17: all the hype on the Christmas Event): Harvest Hollow (Roblox Event
+		-- 2956295611862876771, Wed 2026-11-25 20:00 UTC) still opens then, quietly, so it has no entry: the ask and the
+		-- Town Square poster roll straight to Christmas.
+		-- Derek 2026-11-17 (Christmas Event Dec 12 to Jan 3): Growth made the Roblox Event in Creator Hub; public since
+		-- 21:22 UTC Nov 17
 		{
 			id = "3056428113926947439",
 			startsAt = 1797105600, -- "Christmas Event", Saturday 2026-12-12 20:00 UTC

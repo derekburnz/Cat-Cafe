@@ -114,7 +114,9 @@ local BARE_HEIGHT = TALL.Y - 128
 -- Sync's phone look (rankUpSteps): the steps window was BARE_HEIGHT for any count, so two steps left 88 px empty (one
 -- row and STEPS_SLACK under the last). It now loses a row's height for each step under three and the slack, so the
 -- Rank Up button sits right under the last step (RankUp.stepsHeight).
-local STEPS_SLACK = 24
+-- #5368 (Derek 2026-11-18: "rankup button shows on top of goals"): taking STEPS_SLACK off every count put the button
+-- over step 3, since the steps view's "N steps left" line uses that room. The window now loses only the missing rows.
+local STEPS_SLACK = 0
 -- #5218 (Derek 2026-11-18: "goal should be to show steps clearly"): with the switch `rankUpSteps` on, the window is
 -- the same one column (it implies noRankOpens), titled "Rank up to <tier>" over "N steps left" (gold "Ready!" once
 -- all are met). The needs are numbered steps in rankUpBlocker's order (cats, rarity, coins) in plain words; a met step

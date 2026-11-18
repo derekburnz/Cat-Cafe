@@ -79,24 +79,24 @@ function NextGoal.card(needs: Needs?, money: (number) -> string): Card
 	local catsShort = math.max(0, needs.catsNeed - needs.catsHave)
 	local rareShort = math.max(0, needs.rarityNeed - needs.rarityHave)
 	local coinsShort = needs.coinsHave < needs.coinsNeed
-	local catsLine: string
+	local parts: { string } = {}
 	if catsShort > 0 then
-		catsLine = string.format(
-			"Catch %d more kind%s for Tier 3",
-			catsShort,
-			if catsShort == 1 then "" else "s"
+		table.insert(
+			parts,
+			string.format("%d more kind%s of cat", catsShort, if catsShort == 1 then "" else "s")
 		)
 	elseif rareShort > 0 and needs.rarity ~= nil then
-		catsLine = string.format("Catch a %s or better cat", needs.rarity :: string)
-	else
-		catsLine = "Cats done for Tier 3"
+		table.insert(parts, string.format("a %s or better cat", needs.rarity :: string))
 	end
-	local coinsLine = if coinsShort
-		then string.format("coins %s / %s", money(needs.coinsHave), money(needs.coinsNeed))
-		else "coins done"
+	if coinsShort then
+		table.insert(parts, money(needs.coinsNeed - needs.coinsHave))
+	end
+	local line = if #parts == 0
+		then "Tier 3 is ready: rank up!"
+		else "Tier 3 needs " .. table.concat(parts, " and ") .. "."
 	return {
 		variant = "A",
-		line = catsLine .. ", " .. coinsLine .. ".",
+		line = line,
 		first = if catsShort > 0 or rareShort > 0 then "cats" else "cafe",
 	}
 end

@@ -22,7 +22,7 @@ return function()
 			}, money)
 			expect(card.variant).to.equal("A")
 			expect(card.first).to.equal("cats")
-			expect(card.line).to.equal("Catch 2 more kinds for Tier 3, coins $400 / $1500.")
+			expect(card.line).to.equal("Tier 3 needs 2 more kinds of cat and $1100.")
 			card = NextGoal.card({
 				catsHave = 5,
 				catsNeed = 5,
@@ -33,7 +33,7 @@ return function()
 				coinsNeed = 1500,
 			}, money)
 			expect(card.first).to.equal("cats")
-			expect(card.line).to.equal("Catch a Rare or better cat, coins done.")
+			expect(card.line).to.equal("Tier 3 needs a Rare or better cat.")
 			card = NextGoal.card({
 				catsHave = 6,
 				catsNeed = 5,
@@ -44,6 +44,7 @@ return function()
 				coinsNeed = 1500,
 			}, money)
 			expect(card.first).to.equal("cafe")
+			expect(card.line).to.equal("Tier 3 needs $1400.")
 		end)
 
 		it("gives the long goals after Tier 3", function()

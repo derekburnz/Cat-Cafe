@@ -1004,6 +1004,18 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 end
 
+-- #5202 (UI.nextGoal, Design-Agent): variant A's "Collect cats" brings the five cats trail now, to the nearest new
+-- kind's stray in the area, else the cannon, as if the player had been idle long enough for it.
+UI.nextGoal.guide = function()
+	newKind.idleSince = -math.huge
+	newKind.shownAt = nil
+	newKind.shownKinds = nil
+	local s = state
+	if s ~= nil then
+		refreshTutorial(s)
+	end
+end
+
 -- #3995: watches for the joiner's first step inside their own cafe, then puts the strip back to the tutorial's own
 -- first line. Gives up once the tutorial has moved past its first steps.
 local function watchPalJoin()

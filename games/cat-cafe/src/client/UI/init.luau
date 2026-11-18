@@ -11986,9 +11986,12 @@ end
 -- "What next?" slide-in card with Collect cats and Build up your cafe, at the first calm NextGoal.CALM seconds (no
 -- window, card, ask, catch, carry, cutscene, roll or the parkRankPoint dim; the 5 minute pop-up pace does not hold
 -- it, so it follows the like ask). Rank Up not ready: variant A with what Tier 3 still needs. Ready: it waits for
--- Tier 3 (parkRankPoint points at the goal card first), then variant B. Collect cats opens the Index on the Park
--- page (A) or the Index (B); Build up your cafe opens the upgrade shop (A) or rings the goal card (B).
-UI.nextGoal = { started = false }
+-- Tier 3 (parkRankPoint points at the goal card first), then variant B. Collect cats brings the five cats trail to
+-- the nearest new kind or the cannon (A) or opens the Index (B); Build up your cafe opens the upgrade shop (A) or rings the goal card (B).
+UI.nextGoal = {
+	started = false,
+	guide = (function() end) :: () -> (), -- UIController: the five cats trail now (Collect cats on variant A)
+}
 function UI.nextGoal.busy(): boolean
 	return (modal ~= nil and modal:current() ~= nil)
 		or (baitCard ~= nil and baitCard:isShowing())
@@ -12105,7 +12108,7 @@ function UI.nextGoal.open(after: boolean)
 			if choice == "cats" then
 				tap("cats")
 				if view.variant == "A" then
-					UI.openIndex("park")
+					UI.nextGoal.guide()
 				else
 					UI.open("Collection")
 				end

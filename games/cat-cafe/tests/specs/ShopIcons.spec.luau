@@ -96,9 +96,9 @@ return function()
 					expect(ShopIcons.perk(row.id)).to.be.ok()
 				end
 			end
-			-- the clean food pictures (#1070)
-			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://109199304319470")
-			expect(ShopIcons.food("moon_milk")).to.equal("rbxassetid://109614940712323")
+			-- the clean food pictures (#1070), the cat bowl set since #5219
+			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://99216472052979")
+			expect(ShopIcons.food("moon_milk")).to.equal("rbxassetid://122606145874553")
 			-- the spin wheel's food (#1242)
 			expect(ShopIcons.food("caviar")).to.equal(ShopIcons.clean("Caviar"))
 			-- #1242: every food in the catalog, shop and dealer alike, resolves to its clean 2D picture, so
@@ -281,7 +281,7 @@ return function()
 				end
 			end
 			expect(ShopIcons.catFood("royal_feast")).to.equal("rbxassetid://133381821214039")
-			expect(ShopIcons.food("eclipse_treat")).to.equal("rbxassetid://101916822452098")
+			expect(ShopIcons.food("eclipse_treat")).to.equal("rbxassetid://70744648477031")
 			expect(ShopIcons.snackGlyph("cat_snack")).to.equal("🍪")
 			expect(ShopIcons.snackGlyph("big_cat_snack")).to.equal("🧁")
 			expect(ShopIcons.snackGlyph("nope")).to.equal(ShopIcons.SNACK_GLYPH)

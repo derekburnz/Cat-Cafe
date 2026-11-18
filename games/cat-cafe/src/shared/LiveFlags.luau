@@ -63,6 +63,7 @@ LiveFlags.KEYS = {
 	"codes",
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
+	"bowlCardHold", -- Derek 2026-11-18: a bowl cat's card never shows over the intro or another cutscene, it waits for calm (UI.bait.showReady); on by default
 	"stationTiers", -- #4539: Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers)
 	"tradeCrates",
 	"tradeFish",

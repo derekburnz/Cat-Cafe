@@ -3276,7 +3276,12 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	bowls.cats[index] = cat
 	-- Derek 2026-11-14 ("mute all pop ups while in store"): whichever way the card is asked for while the Store is
 	-- open (Review-QA on #4260 saw one get past UI.bait.arrived), it waits for the Store to close, like arrived
-	if modal ~= nil and modal:current() == "Store" then
+	-- Derek 2026-11-18 ("the cat still coming to bowl over tutorial is not fixed yet?"): nor over the intro or any
+	-- other cutscene, whichever way it is asked for (a walk-up ring the character stands in, a sync); it waits for
+	-- calm like arrived. The bowlCardHold switch, on unless set false, turns this off.
+	local held = UI.cutscene.held()
+		and ReplicatedStorage:GetAttribute("LiveFlag_bowlCardHold") ~= false
+	if held or (modal ~= nil and modal:current() == "Store") then
 		renderBait()
 		UI.bait.whenCalm(function()
 			return bowls.cats[index] == cat

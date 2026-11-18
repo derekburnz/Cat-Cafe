@@ -1,7 +1,7 @@
 --!strict
 -- #5284 Cat Companion unlock scene (Derek 2026-11-18 16:42 UTC: "make the cat companion ... unlock at tier 2 with a
 -- scene make sure it doesn't overlap other cutscenes"). About 8 s: a quick fade, and the camera stands in front of the
--- player, a little low, on a slow push in; one of the player's cats trots in from the side and stops beside them;
+-- player, a little low, on a slow push in; one of the player's cats trots in from screen right and stops beside them;
 -- pink hearts puff over it, then "CAT COMPANION UNLOCKED!" with the cat's name and one line; a quick fade back and
 -- control returns. One tap, click, key or gamepad button skips it (after `skipAfter`). No black bars (Derek #4366).
 -- Reduce Motion: no push in, and the cat is already beside the player when the scene opens. Numbers in
@@ -288,11 +288,12 @@ function CompanionUnlockCut.play(
 	local def = Catalog.getCat(catId :: string)
 	local catName = if def ~= nil then def.name else nil
 
-	-- the player's own frame, flat: the camera stands in front of them, the cat comes in from their right
+	-- the player's own frame, flat: the camera stands in front of them, so the screen's right is the player's
+	-- left; the cat comes in from the screen's right and stops on that side
 	local base = rootPart.CFrame
 	local forward = Vector3.new(base.LookVector.X, 0, base.LookVector.Z)
 	forward = if forward.Magnitude > 1e-3 then forward.Unit else Vector3.new(0, 0, -1)
-	local right = forward:Cross(Vector3.yAxis).Unit
+	local right = Vector3.yAxis:Cross(forward).Unit
 	local ground = Vector3.new(rootPart.Position.X, feet, rootPart.Position.Z)
 	local stop = ground + right * p.beside
 	local from = stop + right * p.walkFrom + forward * p.walkIn
@@ -422,11 +423,14 @@ function CompanionUnlockCut.play(
 		else
 			cam.CFrame = start
 		end
-		-- the cat: a steady trot that eases into its stop, then it turns to face the camera and settles
-		local eased = 1 - (1 - walk) * (1 - walk)
+		-- the cat: eases up into a trot and eases into its stop (smoothstep, so it never starts at full speed and
+		-- the feet keep up), then it turns to face the camera and settles
+		local eased = walk * walk * (3 - 2 * walk)
 		local spot = from:Lerp(stop, eased)
 		local moving = walk < 1
-		local speed = if moving then (from - stop).Magnitude * 2 * (1 - walk) / p.walkSeconds else 0
+		local speed = if moving
+			then (from - stop).Magnitude * 6 * walk * (1 - walk) / p.walkSeconds
+			else 0
 		local facing = if moving then (stop - from).Unit else forward
 		place(spot, facing, speed, timeline, dt)
 		if not moving and not arrived and timeline >= p.walkAt then

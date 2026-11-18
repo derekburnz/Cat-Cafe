@@ -306,4 +306,19 @@ return function()
 			expect(MarketLogic.SEND_GAP.bundle >= 1).to.equal(true) -- BuyCrateBundle 1 a second
 		end)
 	end)
+
+	describe("MarketLogic.layoutOrder (#5221)", function()
+		it("puts Classic first, then golden crates, then zone crates", function()
+			local order = {
+				MarketLogic.layoutOrder("classic", false, 21),
+				MarketLogic.layoutOrder("classic", true, 22),
+				MarketLogic.layoutOrder("alley", true, 2),
+				MarketLogic.layoutOrder("alley", false, 1),
+				MarketLogic.layoutOrder("park", false, 3),
+			}
+			for n = 2, #order do
+				expect(order[n - 1] < order[n]).to.equal(true)
+			end
+		end)
+	end)
 end

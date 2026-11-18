@@ -1362,7 +1362,7 @@ function FishMarket._build(self: any)
 	for index, crate in crates do
 		local frame = card({
 			Name = crate.id,
-			LayoutOrder = index + (if crate.golden then 100 else 0),
+			LayoutOrder = MarketLogic.layoutOrder(crate.area, crate.golden, index), -- #5221: Classic, then golden, first
 			Parent = self._crateList,
 		})
 		local icon = ItemIcon.new({

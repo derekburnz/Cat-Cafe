@@ -74,6 +74,9 @@ Tips.LIKE_ASK = "like_ask"
 Tips.LIKE_RECAP = "like_recap"
 -- #5202 (shared/NextGoal.SEEN): the "What next?" card after the first Park catch showed. Kept like the asks.
 Tips.NEXT_GOAL = "next_goal"
+-- Derek 2026-11-18 ("People who were done t2 are getting tutorial steps again"): the parkRankPoint dim round the goal
+-- card showed once a session, so a Tier 2 player saw it on every visit. Now once per account. Kept like the asks.
+Tips.PARK_POINT = "park_point"
 Tips.LIKE_EARLY_FLAG = "likeAskEarly" -- shared/LiveFlags
 Tips.LIKE_EARLY_SECONDS = 10 * 60 -- the early like ask waits for this much play on the account
 Tips.FAVORITE_ASK = "favorite_ask" -- F96
@@ -127,6 +130,7 @@ function Tips.seenId(id: string): boolean
 		or StationCut.isKey(id) -- #5112: a rank up's station cut, played once
 		or id == Tips.LIKE_RECAP -- #5152
 		or id == Tips.NEXT_GOAL -- #5202
+		or id == Tips.PARK_POINT -- Derek 2026-11-18
 end
 
 -- #3430: whether the Mystic Pool's cutscene is due at a walk-up: the pool is open to this player (`traits` is the
@@ -329,6 +333,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					or StationCut.isKey(key) -- #5112
 					or key == Tips.LIKE_RECAP -- #5152
 					or key == Tips.NEXT_GOAL -- #5202
+					or key == Tips.PARK_POINT -- Derek 2026-11-18
 				)
 			then
 				seen[key] = true
@@ -368,6 +373,9 @@ function Tips.cleared(seen: { [string]: boolean }): { [string]: boolean }
 	end
 	if seen[Tips.NEXT_GOAL] == true then
 		kept[Tips.NEXT_GOAL] = true -- #5202: the "What next?" card, once per account
+	end
+	if seen[Tips.PARK_POINT] == true then
+		kept[Tips.PARK_POINT] = true -- Derek 2026-11-18: the Park rank point dim, once per account
 	end
 	return kept
 end

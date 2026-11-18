@@ -844,6 +844,16 @@ local Config = {
 		-- Town Square poster roll straight to Christmas.
 		-- Derek 2026-11-17 (Christmas Event Dec 12 to Jan 3): Growth made the Roblox Event in Creator Hub; public since
 		-- 21:22 UTC Nov 17
+		-- Derek 2026-11-18 13:00 UTC ("update the ingame sign to show this update"): the Cat Follower update is out now,
+		-- so the Town Square poster shows it with OUT NOW until liveUntil, then rolls on to Christmas. It has no Roblox
+		-- Event ("0"), and an entry that has started is never asked about.
+		{
+			id = "0",
+			startsAt = 1795006800, -- 2026-11-18 13:00 UTC
+			liveUntil = 1795291200, -- 2026-11-21 20:00 UTC
+			name = "CAT FOLLOWER",
+			poster = "rbxassetid://98774231410598", -- Model-Agent's v2 poster (#5213, 1024x576)
+		},
 		{
 			id = "3056428113926947439",
 			startsAt = 1797105600, -- "Christmas Event", Saturday 2026-12-12 20:00 UTC
@@ -872,6 +882,7 @@ local Config = {
 			title: string?,
 			name: string?,
 			poster: string?,
+			liveUntil: number?,
 		}
 	},
 	TutorialShrinkSeconds = 1.6,

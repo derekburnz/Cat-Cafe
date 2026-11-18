@@ -55,6 +55,7 @@ import cats  # noqa: E402
 import crates  # noqa: E402
 import dragon  # noqa: E402
 import dragon_icons  # noqa: E402
+import foodbowls  # noqa: E402
 import icon_art  # noqa: E402
 import harvest_icons  # noqa: E402
 import hud_icons  # noqa: E402
@@ -129,6 +130,7 @@ DRAGON_PADS = {"Drake": "height", "Elder": "height", "Crowned": "height"}      #
 # #4061 the booth's shelf pictures: the wearables from the front, a touch to one side
 SHELF_VIEWS = {"SnorkelMask": (-38.0, 14.0), "SwimCap": (-40.0, 24.0), "SunVisor": (-30.0, 16.0),
                "StarfishShades": (-16.0, 4.0)}
+FOODBOWL_VIEW = (-12.0, 16.0)   # #5219: one view for every food
 ICONS = {
     "CatCafe_Icon_GoldenFish": (icon_art.golden_fish, GOLD_INK, 10, (0.0, 8.0)),
     **{f"CatCafe_Icon_Crate_{p}{'_Gold' if g else ''}": ((lambda m, p=p, g=g: crates.build_crate(p, m, g)),
@@ -145,6 +147,9 @@ ICONS = {
     "CatCafe_Icon_CometTreat": (icon_art.comet_treat, INK, 10, (-12.0, 8.0)),
     "CatCafe_Icon_EclipseTreat": (icon_art.eclipse_treat, INK, 10, (-12.0, 8.0)),    # #4900, on a purple glow
     "CatCafe_Icon_RoyalFeast": (icon_art.royal_feast, GOLD_INK, 10, (-10.0, 22.0)),    # #4900, on a warm glow
+    # #5219: the matching food set, each heaped in the same cat bowl, same view and size (foodbowls.py)
+    **{f"CatCafe_Icon_FoodBowl_{n}": (fn, GOLD_INK if n == "RoyalFeast" else INK, 14, FOODBOWL_VIEW, 0.02)
+       for n, fn in foodbowls.FOODS.items()},
     "CatCafe_Icon_Perk_GoldenEspresso": (icon_art.golden_espresso, GOLD_INK, 10, (-20.0, 34.0)),
     "CatCafe_Icon_Perk_BigBowl": (icon_art.big_bowl, INK, 10, (-18.0, 26.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (icon_art.extra_decor_spot, INK, 10, (-26.0, 40.0)),

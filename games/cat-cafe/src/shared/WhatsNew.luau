@@ -46,6 +46,38 @@ WhatsNew.rows = table.freeze({
 		text = "A cat can follow you",
 		creditId = "c19",
 	},
+	-- Nov 18 midday (Gameplay-Engineer): areaWhole on 12:37 UTC (#5204, v938); bowl trail #5211; rarity gems #5203;
+	-- gold cats #5199; Castle flags #5207
+	{
+		id = "whole_area_loads",
+		date = "2026-11-18",
+		icon = "faster",
+		text = "Whole area loads in one go",
+	},
+	{
+		id = "bowl_trail_outside",
+		date = "2026-11-18",
+		icon = "fix",
+		text = "Bowl trail leads outside",
+	},
+	{
+		id = "rarity_gems_more_cats",
+		date = "2026-11-18",
+		icon = "look",
+		text = "Rarity gems on more cats",
+	},
+	{
+		id = "gold_cats_brighter",
+		date = "2026-11-18",
+		icon = "look",
+		text = "Brighter gold cats",
+	},
+	{
+		id = "castle_flags_fixed",
+		date = "2026-11-18",
+		icon = "fix",
+		text = "Castle flags fixed",
+	},
 	{
 		id = "spin_secret_cat",
 		date = "2026-11-18",

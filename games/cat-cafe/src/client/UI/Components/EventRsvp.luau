@@ -60,7 +60,13 @@ function EventRsvp.next(list: unknown, now: number): (string?, number?, string?)
 		end
 	end
 	for _, entry in list :: { any } do
-		if type(entry) == "table" and EventRsvp.due(entry.id, entry.startsAt, now) then
+		-- Derek 2026-11-18: an update with no Roblox Event (id "0", the poster's OUT NOW entry) is never asked about
+		if
+			type(entry) == "table"
+			and entry.id ~= "0"
+			and entry.liveUntil == nil
+			and EventRsvp.due(entry.id, entry.startsAt, now)
+		then
 			if startsAt == nil or entry.startsAt < startsAt then
 				id, startsAt = entry.id, entry.startsAt
 				title = if type(entry.title) == "string" and entry.title ~= ""

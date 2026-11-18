@@ -150,6 +150,7 @@ LiveFlags.KEYS = {
 	"rankUpSteps", -- #5218: the Rank Up window's needs as numbered steps with a Go button (Screens/RankUp); off by default
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
+	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"cardFollow", -- #5296: Follow and the boost square on the cat card (Screens/CatRoom); off by default, Derek wants the old row
@@ -244,6 +245,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankUpSteps = true, -- #5218: first-session flow, on after Sync's phone look with the first Rank Up pointer
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
+	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	cardFollow = true, -- #5296: stays off; the Companion button replaces it

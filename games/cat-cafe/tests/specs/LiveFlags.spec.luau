@@ -199,6 +199,7 @@ return function()
 							or key == "bigNet" -- #5309
 							or key == "cannonReturn" -- #5304
 							or key == "cheapTiers" -- #5249
+							or key == "tier4Easy" -- #5285 E
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
 							or key == "kingCatInfo" -- #5260

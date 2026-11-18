@@ -128,6 +128,22 @@ return function()
 			end
 		end)
 
+		-- #5240 (Derek 2026-11-18: night slightly too dark): with the nightBright switch the night is a little lighter,
+		-- still blue and still well under the day, and the dusk and dawn ends are the same as without it
+		it("lightens the night a little with nightBright", function()
+			for _, p in { 0.2, 0.5, 0.85 } do
+				local look = DayLight.at("night", p, true)
+				expect(sameLook(look, DayLight.BRIGHT_NIGHT)).to.equal(true)
+				expect(look.Brightness > DayLight.NIGHT.Brightness).to.equal(true)
+				expect(look.Brightness < DayLight.SUNSET.Brightness + 0.1).to.equal(true)
+				expect(look.OutdoorAmbient.B > look.OutdoorAmbient.R).to.equal(true) -- still blue
+				expect(look.Ambient.R > DayLight.NIGHT.Ambient.R).to.equal(true)
+			end
+			expect(sameLook(DayLight.at("night", 0, true), DayLight.at("night", 0))).to.equal(true)
+			expect(sameLook(DayLight.at("night", 1, true), DayLight.at("night", 1))).to.equal(true)
+			expect(sameLook(DayLight.at("day", 0.5, true), DayLight.at("day", 0.5))).to.equal(true)
+		end)
+
 		it("puts the sun up by day and down by night", function()
 			for i = 0, 20 do
 				local hour = DayLight.at("day", i / 20).ClockTime % 24

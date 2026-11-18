@@ -504,14 +504,15 @@ export type TipJarStep = {
 -- add up to 100, so each is the slice's chance in percent.
 export type SpinSlice = {
 	slice: number,
-	kind: "coins" | "lure" | "fish" | "crate", -- F54: golden fish and a crate
+	kind: "coins" | "lure" | "fish" | "crate" | "cat", -- F54: golden fish and a crate; #5171: a cat (SpinCat)
+	catId: string?, -- #5171: the cat a "cat" slice gives
 	seconds: number?,
 	minCoins: number?,
 	lureId: string?,
 	count: number?, -- foods, golden fish or crates
 	crate: string?, -- F54: the crate id, "highest" or (#1500) "highest_golden"
 	weight: number,
-	jackpot: boolean?, -- #1500: one of the two 0.5% slices, with the big win effect and a toast
+	jackpot: boolean?, -- #1500: one of the two 0.5% slices (and #5171's cat slice), with the big win effect and a toast
 }
 
 -- The player's spins (F49): `lastFreeDay` is the UTC day number (os.time() // 86400) of the last free spin, so the

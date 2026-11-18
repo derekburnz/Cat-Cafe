@@ -30,6 +30,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CrateLogic = require(script.Parent.Parent.Components.CrateLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
@@ -57,6 +58,8 @@ local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 local DragonKeep =
 	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("DragonKeep")) :: any
+local SharedCatalog =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 local Spin = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Spin")) :: any
 
 export type Callbacks = {
@@ -90,6 +93,7 @@ type Tile = {
 	crate: string?, -- the crate a crate slice shows now ("highest" resolved for the player's tier)
 	prize: TextLabel?, -- a row of the Odds list: its prize text, kept current with the day rate
 	amount: TextLabel?, -- a wheel tile: what it pays ("$1,200", "x3"), kept current with the day rate
+	portrait: any?, -- #5171: a cat slice's picture (CatPortrait), the dark shape until the player owns that cat
 }
 
 type Turn = {
@@ -606,6 +610,7 @@ function SpinWheel.setCatalog(self: any, catalog: Types.Catalog)
 	self._crates = CrateLogic.byId(catalog.crates)
 	self._areas = (catalog.areas or {}) :: any
 	self._rows = catalog.spinWheel or {}
+	self._wheelSeen = self._rows
 	-- #3722: the wheel's tiles and odds rows are built after start-up, or at once when the window opens first
 	self._lateBuild = self._lateBuild
 		or LateBuild.new(SpinWheel.BUILD_AFTER, function()
@@ -624,6 +629,7 @@ function SpinWheel.render(self: any, state: Types.PlayerState)
 		self._lateBuild:ensure()
 	end
 	self._spin = state.spin
+	self:_followWheel(state.collection)
 	-- the Dragon Keep's Lucky Spin: the Odds list shows the odds the server picks with
 	local cardLuck: any = (state :: any).cardLuck
 	local spinLuck = if type(cardLuck) == "table" and type(cardLuck.spin) == "number"
@@ -647,6 +653,64 @@ function SpinWheel.render(self: any, state: Types.PlayerState)
 		end
 	end
 	self:_refresh()
+end
+
+-- #5171 (switch spinCat, shared/SpinCat): the wheel gains or loses its cat slice when the switch flips (Spin.wheel()
+-- is a new table then), so the tiles and the Odds list are drawn again, but never mid-turn; and the cat's picture
+-- turns from its dark shape to the cat once the player owns one.
+function SpinWheel._followWheel(self: any, collection: { [string]: number }?)
+	local wheel = Spin.wheel()
+	if
+		self._catalog ~= nil
+		and wheel ~= self._wheelSeen
+		and self._turn == nil
+		and self._chain == nil
+	then
+		self._wheelSeen = wheel
+		self._rows = wheel
+		if #self._tiles > 0 then
+			self:_build()
+		end
+	end
+	self._collection = collection
+	local row = Spin.catRow
+	local owned = row ~= nil
+		and row.catId ~= nil
+		and collection ~= nil
+		and collection[row.catId] ~= nil
+	if owned ~= self._catOwned then
+		self._catOwned = owned
+		for _, tile: Tile in self._tiles do
+			self:_paintCat(tile)
+		end
+		for _, tile: Tile in self._oddsTiles do
+			self:_paintCat(tile)
+		end
+	end
+end
+
+-- A cat slice's picture: the cat's model, black with a "?" until the player owns that cat (secret cats dark shape
+-- rule), on the wheel and in the Odds list alike.
+function SpinWheel._paintCat(self: any, tile: Tile)
+	if tile.row.kind ~= "cat" then
+		return
+	end
+	local def = if tile.row.catId then SharedCatalog.getCat(tile.row.catId) else nil
+	local portrait = tile.portrait
+	if portrait == nil then
+		local frame = tile.icon.frame
+		portrait = CatPortrait.new({
+			parent = frame.Parent :: Instance,
+			size = frame.Size,
+			position = frame.Position,
+			anchorPoint = frame.AnchorPoint,
+			zIndex = frame.ZIndex + 1,
+			still = true,
+		})
+		tile.portrait = portrait
+	end
+	portrait:set(def)
+	portrait:setSilhouette(self._catOwned ~= true)
 end
 
 -- The crate id a crate slice pays this player now (F54: "highest" is the crate of their highest open area).
@@ -925,6 +989,9 @@ end
 
 function SpinWheel._build(self: any)
 	for _, tile in self._tiles do
+		if tile.portrait then
+			tile.portrait:destroy()
+		end
 		tile.icon:destroy()
 		tile.holder:Destroy()
 	end
@@ -980,6 +1047,9 @@ function SpinWheel._build(self: any)
 		end
 	end
 	for _, tile in self._oddsTiles do
+		if tile.portrait then
+			tile.portrait:destroy()
+		end
 		tile.icon:destroy()
 		tile.holder:Destroy()
 	end
@@ -1081,6 +1151,9 @@ function SpinWheel._paint(self: any, tile: Tile)
 		FishCoin.fill(icon.frame, 0.66, 2)
 	elseif row.kind == "crate" then
 		self:_paintCrate(tile)
+	elseif row.kind == "cat" then
+		icon:set(nil, "", "Secret")
+		self:_paintCat(tile)
 	elseif row.kind == "lure" then
 		-- the food's clean picture from the one food lookup (ShopIcons.food, #1242), as in the bowl and the Market
 		icon:setFood(if row.lureId then self._lureById[row.lureId] else nil, row.lureId)
@@ -1094,6 +1167,9 @@ end
 -- line under it while Lucky Spin is slotted. Drawn again when the luck changes (render).
 function SpinWheel._buildOdds(self: any)
 	for _, tile: Tile in self._oddsTiles do
+		if tile.portrait then
+			tile.portrait:destroy()
+		end
 		tile.icon:destroy()
 		tile.holder:Destroy()
 	end
@@ -1368,7 +1444,10 @@ function SpinWheel._prize(self: any, row: Types.SpinRow, amount: number?): strin
 		return Format.money(coins)
 	end
 	local count = if amount and amount > 0 then amount else row.count or 1
-	if row.kind == "fish" then
+	if row.kind == "cat" then
+		local def = if self._catOwned and row.catId then SharedCatalog.getCat(row.catId) else nil
+		return if def then def.name else "Secret Cat"
+	elseif row.kind == "fish" then
 		return ("%s golden fish"):format(Format.short(count))
 	elseif row.kind == "crate" then
 		local id = self:_crateOf(row)
@@ -1386,7 +1465,9 @@ function SpinWheel._amount(self: any, row: Types.SpinRow): string
 		return "+" .. Format.short(SpinLogic.coins(row, dayRate))
 	end
 	local count = row.count or 1
-	if row.jackpot == true then
+	if row.kind == "cat" then
+		return if self._catOwned then "x1" else "?"
+	elseif row.jackpot == true then
 		-- a jackpot's narrow wedge has a narrower pill: "x100" (its picture and gold edge say the rest)
 		return "x" .. Format.short(count)
 	elseif row.kind == "fish" then

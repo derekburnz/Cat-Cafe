@@ -19,6 +19,8 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Net = require(script.Parent.Net)
 local Prizes = require(ReplicatedStorage.Shared.Prizes)
+local RareMomentService = require(script.Parent.RareMomentService)
+local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -51,6 +53,27 @@ local function stationNear(player: Player): Model?
 	return nil
 end
 
+-- #5171 (switch spinCat, shared/SpinCat): the cat slice adds its cat like a tamed bait cat (method "bait", so the
+-- save needs no new method and it earns no rescue bonus), and once the wheel has stopped the winner gets the new cat
+-- card and the server the shout-out, as at a bowl. Returns 1, or 0 for an unknown cat.
+local function payCat(player: Player, profile: Types.PlayerProfile, row: Types.SpinSlice): number
+	local def = if row.catId ~= nil then Catalog.getCat(row.catId) else nil
+	if def == nil then
+		return 0
+	end
+	local cat = def :: Types.CatDef
+	local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection)
+	local instance, isNew = CafeService.addCaughtCat(player, cat, false, profile, nil, "bait", nil)
+	task.delay(Config.SpinCooldownSeconds, function()
+		if player.Parent ~= Players then
+			return
+		end
+		Net.fire(player, "CatCaught", cat.id, isNew, instance.variant, "spin")
+		RareMomentService.secured(player, cat, nil, "bait", hadEpicOrBetter)
+	end)
+	return 1
+end
+
 -- Pays the slice: coins, golden fish, a crate (banked for the Golden Fish Market; "highest" is the crate of the
 -- player's highest open zone, F54, "highest_golden" its golden crate, #1500) or foods. Returns the amount. A jackpot
 -- (#1500) also toasts the winner once the wheel has had time to stop (SpinCooldownSeconds, the spin animation); only
@@ -58,7 +81,9 @@ end
 local function pay(player: Player, profile: Types.PlayerProfile, row: Types.SpinSlice): number
 	local amount = Spin.amount(row, Economy.incomePerSecond(profile))
 	local crateId: string? = nil
-	if row.kind == "coins" then
+	if row.kind == "cat" then
+		amount = payCat(player, profile, row)
+	elseif row.kind == "coins" then
 		Economy.credit(profile, amount)
 		Telemetry.source(player, profile, amount, "Gameplay", "spin_wheel")
 	elseif row.kind == "fish" then
@@ -104,7 +129,7 @@ local function onSpinWheel(player: Player)
 	forcedSlice[player] = nil
 	-- the Dragon Keep's Lucky Spin lifts the rare slices (Spin.rows); the wheel's Odds list shows the same
 	local row = if forced ~= nil
-		then Catalog.spinWheel[forced]
+		then Spin.slice(forced) or Catalog.spinWheel[1]
 		else Spin.pick(random:NextNumber(), Economy.dragonEffects(profile).spinLuck)
 	local amount = pay(player, profile, row)
 	profile.stats.spins += 1
@@ -182,13 +207,13 @@ function SpinService.debugSet(
 end
 
 -- Studio-only test hook (Debug.spinSlice, QA S63): this player's next spin lands on `slice` (1 to #Catalog.spinWheel)
--- and pays it, with every other check as normal; nil goes back to the random pick. Returns the slice set.
+-- (9 is the cat slice while spinCat is on, #5171) and pays it, with every other check as normal; nil goes back to the random pick. Returns the slice set.
 function SpinService.debugForceSlice(player: Player, slice: number?): number?
 	if slice == nil then
 		forcedSlice[player] = nil
 		return nil
 	end
-	assert(Catalog.spinWheel[slice] ~= nil, "no such slice")
+	assert(Spin.slice(slice) ~= nil, "no such slice")
 	forcedSlice[player] = slice
 	return slice
 end

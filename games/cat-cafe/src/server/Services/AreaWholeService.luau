@@ -194,7 +194,11 @@ local function keep(player: Player, areaId: string?)
 			table.insert(still, chunk)
 		end
 	end
-	dropping[player] = if #still > 0 then still else nil
+	if #still > 0 then
+		dropping[player] = still
+	else
+		dropping[player] = nil
+	end
 	local have: { [Model]: boolean } = {}
 	for _, chunk in kept do
 		have[chunk.model] = true

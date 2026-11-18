@@ -17,6 +17,7 @@ local Prizes = require(ReplicatedStorage.Shared.Prizes)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Payout = {}
@@ -103,6 +104,17 @@ function Payout.pay(
 				profile.potions[potionId] = (profile.potions[potionId] or 0) + count
 				table.insert(paid, string.format("%d %s", count, potion.name))
 			end
+		end
+	end
+	local tokens = prize.traitTokens
+	if tokens ~= nil and tokens > 0 and profile.traits ~= nil then
+		-- Daily Treat v2 (bigTreats): into the Mystic Pool's bank, at most Traits.TOKEN_MAX
+		local added = Traits.give(profile.traits, tokens)
+		if added > 0 then
+			table.insert(
+				paid,
+				string.format("%d Trait Token%s", added, if added == 1 then "" else "s")
+			)
 		end
 	end
 	local forever = (prize.bonus or 0)

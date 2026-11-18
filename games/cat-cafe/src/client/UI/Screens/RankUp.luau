@@ -45,6 +45,8 @@ export type Requirement = {
 	status: string, -- "3 / 5" or "Done"
 	fraction: number, -- 0 to 1
 	met: boolean,
+	kind: string?, -- #5218: "coins", "cats" or "rarity", what the step's Go does
+	step: string?, -- #5218: the need as a step in plain words ("Catch 3 different cats")
 }
 
 export type Progress = {
@@ -62,6 +64,7 @@ export type Callbacks = {
 	close: () -> (),
 	perks: (() -> ())?, -- #2687: the title bar's Perks button
 	fly: (() -> ())?, -- #2915: the button while it reads "Fly to the Park" (setFly)
+	go: ((kind: string) -> ())?, -- #5218: a step's Go (UI.init: the Cannon, to catch and earn)
 }
 
 export type RankUp = {
@@ -108,12 +111,25 @@ local OPENS_TOP = LIST_TOP + LIST_H + 10 -- the tall window's "It opens", under 
 -- button take, on every screen: TALL less the section's 128 px (its label, teaser and cards), no taller than the room.
 RankUp.NO_OPENS_FLAG = "noRankOpens"
 local BARE_HEIGHT = TALL.Y - 128
-local function bare(): boolean
-	return LiveFlags.shown(
-		RankUp.NO_OPENS_FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankUp.NO_OPENS_FLAG)
-	)
+-- #5218 (Derek 2026-11-18: "goal should be to show steps clearly"): with the switch `rankUpSteps` on, the window is
+-- the same one column (it implies noRankOpens), titled "Rank up to <tier>" over "N steps left" (gold "Ready!" once
+-- all are met). The needs are numbered steps in rankUpBlocker's order (cats, rarity, coins) in plain words; a met step
+-- keeps its green tick, and the first unmet one has a gold border and a Go button (callbacks.go). The grey button
+-- reads "Rank Up (N steps left)".
+RankUp.STEPS_FLAG = "rankUpSteps"
+local GO_W = 64
+local function flagOn(key: string): boolean
+	return LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 end
+local function steps(): boolean
+	return flagOn(RankUp.STEPS_FLAG)
+end
+local function bare(): boolean
+	return flagOn(RankUp.NO_OPENS_FLAG) or steps()
+end
+
+-- #5218: the needs as steps and how many are left (Components/RankUpNeeds.steps, where the specs check it)
+RankUp.steps = RankUpNeeds.steps
 local TEASER_TALL = 20 -- #2687: the perk teaser's one line in the tall window
 local TEASER_WIDE = 38 -- and its two in the wide window's narrower column
 local PERKS_BUTTON = Vector2.new(112, 36) -- #2687: the title bar's Perks button, a 36 px face on a mouse
@@ -255,6 +271,8 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 				Format.money(nextTier.cost)
 			)
 		)
+		requirements[#requirements].kind = "coins"
+		requirements[#requirements].step = "Save " .. Format.money(nextTier.cost)
 		table.insert(
 			requirements,
 			requirement(
@@ -266,6 +284,10 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 				needs.catsNeed
 			)
 		)
+		requirements[#requirements].kind = "cats"
+		requirements[#requirements].step = (if nextTier.anyCats == true
+			then "Catch %d cats"
+			else "Catch %d different cats"):format(nextTier.distinctCats)
 		local needsRarity = needs.rarity
 		if needsRarity then
 			local count = needs.rarityNeed
@@ -283,6 +305,10 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 				count
 			)
 			row.touch = RankUpNeeds.rarityCaption(needsRarity, count, true) -- #2999
+			row.kind = "rarity"
+			row.step = if count == 1
+				then ("Find 1 %s or better"):format(needsRarity)
+				else ("Find %d different %s or better"):format(count, needsRarity)
 			table.insert(requirements, row)
 		end
 		opens = opensList(catalog, current, nextTier)
@@ -325,6 +351,8 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	self._catalog = nil :: Types.Catalog?
 	self._rows = {} :: { Frame }
 	self._rowsKey = nil :: string? -- #4292: what the drawn rows say
+	self._callbacks = callbacks
+	self._goButton = nil :: any -- #5218: the first unmet step's Go (a Button)
 	self._opensKey = nil :: string? -- #4292: what the drawn "It opens" cards say
 
 	local panel = Panel.new({
@@ -595,7 +623,13 @@ function RankUp.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 end
 
-function RankUp._row(self: any, index: number, item: Requirement): Frame
+function RankUp._row(
+	self: any,
+	index: number,
+	item: Requirement,
+	asStep: boolean?,
+	go: boolean?
+): Frame
 	local row: Frame = Create("Frame", {
 		Name = "Row" .. index,
 		BackgroundColor3 = CARD.card,
@@ -606,11 +640,15 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIStroke", {
-			Color = if item.met then Theme.colors.good else CARD.cardStroke,
-			Thickness = Theme.sizes.stroke,
+			Color = if item.met
+				then Theme.colors.good
+				elseif go then Theme.colors.gold
+				else CARD.cardStroke,
+			Thickness = if go then Theme.sizes.stroke + 1 else Theme.sizes.stroke,
 		}),
 	})
 	local left = 14
+	local goRoom = if go then GO_W + 8 else 0 -- #5218
 	-- #3961: the need's picture on the left
 	local tile: TextLabel = text({
 		Name = "Picture",
@@ -621,7 +659,7 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		BackgroundColor3 = CARD.line,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextSize = 18,
-		Text = NEED_ICONS[index] or "✨",
+		Text = if asStep then tostring(index) else NEED_ICONS[index] or "✨", -- #5218: the step's number
 		Parent = row,
 	})
 	Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = tile })
@@ -629,16 +667,16 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 	text({
 		Name = "Label",
 		Position = UDim2.fromOffset(left, 0),
-		Size = UDim2.new(1, -(left + 176), 1, -6),
+		Size = UDim2.new(1, -(left + 176 + goRoom), 1, -6),
 		FontFace = Theme.fonts.bodyBold,
 		TextColor3 = CARD.text,
-		Text = item.label,
+		Text = if asStep then (item.step or item.label) else item.label,
 		Parent = row,
 	})
 	text({
 		Name = "Status",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -14, 0, 0),
+		Position = UDim2.new(1, -(14 + goRoom), 0, 0),
 		-- room for "$45,000 / $80,000" at full size (the economy pass of 2026-10-28 put ranks at $8K to $5M)
 		Size = UDim2.new(0, 170, 1, -6),
 		FontFace = Theme.fonts.display,
@@ -647,6 +685,26 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		Text = if item.met then "✓" else item.status,
 		Parent = row,
 	})
+	if go then
+		-- #5218: Go on the first unmet step
+		local kind = item.kind or "coins"
+		self._goButton = Button.new({
+			name = "Go",
+			text = "Go",
+			style = "primary",
+			size = UDim2.fromOffset(GO_W, ROW_HEIGHT - 8),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -8, 0.5, -2),
+			textSize = Theme.sizes.textBody,
+			parent = row,
+			onClick = function()
+				local goTo: ((string) -> ())? = self._callbacks.go
+				if goTo then
+					goTo(kind)
+				end
+			end,
+		})
+	end
 	-- #4479 (Derek 2026-11-15: "in the rankup cards on mobile the coins don't show the full ... $##/..."): the need and
 	-- its numbers shrink to fit on a phone instead of ending in "..."
 	FitText.shrink(row:FindFirstChild("Label") :: TextLabel)
@@ -670,7 +728,7 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		BackgroundColor3 = CARD.line,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, left, 1, -9),
-		Size = UDim2.new(1, -(left + 14), 0, 4),
+		Size = UDim2.new(1, -(left + 14 + goRoom), 0, 4),
 		Parent = row,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Create("Frame", {
@@ -699,10 +757,17 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	-- #4292 (Derek 11-14: "those bottom white bubbles flash on and off"): render runs on every state push (money
 	-- ticks), and it threw the rows and the "It opens" cards away and drew them again each time. The cards size
 	-- themselves a frame later, so they blinked. Now they are drawn again only when what they say changes.
-	local rowsKey = ""
+	local stepsOn = steps() -- #5218
+	local shownRows: { Requirement } = progress.requirements
+	local stepsLeft = 0
+	if stepsOn then
+		shownRows, stepsLeft = RankUp.steps(progress.requirements)
+	end
+	local rowsKey = if stepsOn then "steps\n" else ""
 	if nextTier then
 		local parts = {}
-		for _, item in progress.requirements do
+		for _, entry in shownRows do
+			local item: Requirement = entry
 			table.insert(
 				parts,
 				("%s|%s|%s|%.3f"):format(item.label, item.status, tostring(item.met), item.fraction)
@@ -716,9 +781,17 @@ function RankUp.render(self: any, state: Types.PlayerState)
 			row:Destroy()
 		end
 		table.clear(self._rows)
+		if self._goButton then
+			self._goButton:destroy()
+			self._goButton = nil
+		end
 		if nextTier then
-			for index, item in progress.requirements do
-				local row: Frame = self:_row(index, item)
+			local goSet = false
+			for index, item in shownRows do
+				-- #5218: the first unmet step gets the Go button
+				local go = stepsOn and not item.met and not goSet
+				goSet = goSet or go
+				local row: Frame = self:_row(index, item, stepsOn, go)
 				table.insert(self._rows, row)
 			end
 		end
@@ -734,7 +807,9 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		self._button.instance.Visible = false
 		return
 	end
-	self._nextTitle.Text = ("Next: Tier %d  ·  %s"):format(nextTier.tier, nextTier.name)
+	self._nextTitle.Text = if stepsOn
+		then "Rank up to " .. nextTier.name
+		else ("Next: Tier %d  ·  %s"):format(nextTier.tier, nextTier.name)
 	-- #4543: one gold line, no pop-up, while the card is on the tier whose rank up grew the cafe
 	local grew = CafeGrewLogic.shows(self._grewTier, progress.tier)
 	self._needsLabel.RichText = grew
@@ -744,6 +819,14 @@ function RankUp.render(self: any, state: Types.PlayerState)
 			CafeGrewLogic.LINE
 		)
 		else "To rank up you need"
+	if stepsOn and not grew then
+		-- #5218: how many steps are left, gold "Ready!" once none are
+		self._needsLabel.RichText = true
+		self._needsLabel.Text = if stepsLeft == 0
+			then ('<font color="#%s">Ready!</font>'):format(PAL.gold:ToHex())
+			elseif stepsLeft == 1 then "1 step left"
+			else ("%d steps left"):format(stepsLeft)
+	end
 	-- #5258: with noRankOpens on, no "It opens" section; a flip of the switch fits the window again
 	local noOpens = bare()
 	if noOpens ~= self._bare then
@@ -767,6 +850,11 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	local missing: string? = nil
 	if not progress.ready and fly == nil then
 		missing = RankUpNeeds.missing(nextTier, RankUpNeeds.of(nextTier, state), short)
+	end
+	if stepsOn and missing ~= nil then
+		missing = if stepsLeft == 1
+			then "Rank Up (1 step left)"
+			else ("Rank Up (%d steps left)"):format(stepsLeft)
 	end
 	local words = fly or missing or "Not yet"
 	if progress.ready then
@@ -883,6 +971,9 @@ function RankUp.destroy(self: any)
 		self._room = nil
 	end
 	self._button:destroy()
+	if self._goButton then
+		self._goButton:destroy()
+	end
 	if self._perksButton then
 		self._perksButton:destroy()
 	end

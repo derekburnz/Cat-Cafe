@@ -1143,7 +1143,8 @@ return function()
 			local row = { key = "kingPack", effect = "The King Cat and 4 royal extras." } :: any
 			expect(StoreLogic.infoText(row, true):find("3x a Legendary", 1, true)).to.be.ok()
 			expect(StoreLogic.infoText(row, false):find("3x a Legendary", 1, true)).to.equal(nil)
-			expect(StoreLogic.KING_PERK:find("3x a Legendary", 1, true)).to.be.ok()
+			expect(StoreLogic.KING_PERK).to.equal("3x Legendary")
+			expect(#StoreLogic.KING_PERK <= 12).to.equal(true) -- fits the wide card's picture
 		end)
 
 		-- #5263: with bowlTicks on, the Second Bait Bowl pass's sheet lists the auto ticks it now gives

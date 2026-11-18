@@ -75,7 +75,7 @@ local NAMES: { [string]: string } = {
 	potion = "Lucky Potion",
 	lucky_day = "Lucky Day",
 	dragon = "Lucky Scale (Dragon Keep)", -- #4447
-	follower = "Your follower", -- #5172: the cat following you, with Luck picked
+	follower = "Your Cat Companion", -- #5172: the cat following you, with Luck picked
 	event = "Cafe Event", -- #2539: a Cafe Event's luck; rows() takes the running event's title ("Cafe Party") over it
 }
 

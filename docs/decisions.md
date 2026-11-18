@@ -1256,3 +1256,10 @@ Derek 2026-11-17 23:55 UTC asked for a good cat at a low rate on the wheel. This
 ## 2026-11-18: Cheaper rank ups to Tiers 3 to 8 (#5249, #5271)
 Derek asked three times on Nov 18 (14:28, 14:36 and 15:06 UTC) for an easier climb, "especially getting to ruins". Behind one off switch `cheapTiers` (shared/CheapTiers): Tier 3 50k to 25k, Tier 4 1M to 400k, Tier 5 12M to 5M, Tier 6 150M to 50M and 21 kinds to 17, Tier 7 3.125B to 1B, 27 kinds to 22 and 3 Mythicals to 2, Tier 8 21B to 7B and 43 kinds to 35 (its 5 Mythicals, Derek's #4513, kept). Tiers 9 and 10 and every reward are unchanged. The cost cut is Derek's own call, so the "raise costs, never cut rewards" rule is met.
 - **Read:** Growth compares tier 3 to 8 reach a day before and after the on-minute.
+
+## 2026-11-18: Harvest Hollow to the vault, Christmas Event from Dec 1
+Derek, Nov 18 16:47 UTC: "remove the harvest hollow event stuff for now put it in the vault more then half my audience wont even have thanks giving at that time. Make Christmas event start earlier instead", then 16:48 UTC: "Dec 1 works".
+- **Harvest Hollow:** `harvestHollow` set false at 16:47 UTC. The code, save field and models are kept, so it can come back as one EventArea row.
+- **Christmas Event:** Snowglobe Village, Tue Dec 1 2026 20:00 UTC to Sun Jan 3 2027 23:59 UTC, portal at Tier 2. It has 8 kept Christmas cats in Harvest's rarity shape, a Snowflake patch on Harvest's numbers and an 8-item Gift Stall at 1,800 Snowflakes in all. The stall has fixed prices, nothing random and nothing for Robux. It sits behind the `christmasEvent` switch. The code was Dec 12 before.
+- **Why this shape:** GE generalises Harvest's code into one EventArea driven by a config row, so this event and Cherry Blossom Grove are content jobs. All three teams estimated about 3 working days plus a day of fixes. The plan is to publish with the switch off on Nov 26, run Sync's look Nov 27 to 28 and switch on Nov 29. The dates keep it closed until Dec 1.
+- **Spec:** project files Design-Agent/christmas-2026-12-12/snowglobe-village-spec.md.

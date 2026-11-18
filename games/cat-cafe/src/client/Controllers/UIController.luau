@@ -1073,8 +1073,7 @@ end
 refreshTutorial = function(s: Types.PlayerState)
 	nightLine.showing = false
 	nightLine.body(s)
-	local upgrades: any = (UI :: any).upgradesButton
-	nightLine.arrow(if nightLine.showing and type(upgrades) == "function" then upgrades() else nil)
+	nightLine.arrow(if nightLine.showing then UI.upgradesButton() else nil)
 end
 
 -- #5202 (UI.nextGoal, Design-Agent): variant A's "Collect cats". A rarity still short (`rarity`): the trail to the

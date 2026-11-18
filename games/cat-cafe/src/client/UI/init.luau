@@ -1226,6 +1226,17 @@ function UI.init(config: Types.InitConfig)
 		close = function()
 			modalInstance:close("x") -- Growth's #5031 read: rank_up_window tells the X from other closes
 		end,
+		-- #5218 (rankUpSteps): a step's Go. Coins open the Upgrades on the best buy; cats and rarity close the window
+		-- and open the Cannon, where the newest area's strays are
+		go = function(kind: string)
+			if kind == "coins" then
+				modalInstance:open("Upgrades")
+			else
+				modalInstance:close("go")
+				local cannon: any = UI.cannon -- open is defined further down
+				cannon.open()
+			end
+		end,
 		perks = function()
 			-- #2687: "Your perks" over the window
 			if UI.perks.card then

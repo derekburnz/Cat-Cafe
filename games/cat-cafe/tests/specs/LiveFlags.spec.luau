@@ -201,6 +201,7 @@ return function()
 							or key == "kingCatInfo" -- #5260
 							or key == "foodByRarity" -- #5264
 							or key == "bowlTicks" -- #5263
+							or key == "rankUpSteps" -- #5218
 							or key == "catFollower" -- #5172
 							or key == "parkRankPoint" -- #5163
 							or key == "parkFirstEasy" -- #5182
@@ -214,7 +215,7 @@ return function()
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(72) -- #5263 bowlTicks; #5264 foodByRarity; #5260 kingCatInfo; #5258 noRankOpens; #5254 oneLadderRow; #5249 cheapTiers; #5240 nightBright; #5245 tameCannonPoint; #5248 parkLead; Derek 2026-11-18: townRings; #5251 promptsAfter5; #5253 upgradesInstant; #5240 nightBright; Derek 2026-11-18: rankSpotPlain; Derek 2026-11-18: less tradeSpot (removed); #5202 nextGoalBeat; Derek 2026-11-18 areaWhole; #4656: less goldTone; #5182 parkFirstEasy; #5163 parkRankPoint; #5172 catFollower; #5170 netTiers; #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
+				expect(count).to.equal(73) -- #5218 rankUpSteps; #5263 bowlTicks; #5264 foodByRarity; #5260 kingCatInfo; #5258 noRankOpens; #5254 oneLadderRow; #5249 cheapTiers; #5240 nightBright; #5245 tameCannonPoint; #5248 parkLead; Derek 2026-11-18: townRings; #5251 promptsAfter5; #5253 upgradesInstant; #5240 nightBright; Derek 2026-11-18: rankSpotPlain; Derek 2026-11-18: less tradeSpot (removed); #5202 nextGoalBeat; Derek 2026-11-18 areaWhole; #4656: less goldTone; #5182 parkFirstEasy; #5163 parkRankPoint; #5172 catFollower; #5170 netTiers; #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
 				-- #4654: the shipped stuckCall and fxLite switches are gone
 				expect(table.find(LiveFlags.KEYS, "stuckCall")).to.equal(nil)
 				expect(table.find(LiveFlags.KEYS, "fxLite")).to.equal(nil)

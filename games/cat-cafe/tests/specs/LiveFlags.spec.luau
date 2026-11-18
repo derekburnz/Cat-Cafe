@@ -203,6 +203,7 @@ return function()
 							or key == "kingCatInfo" -- #5260
 							or key == "foodByRarity" -- #5264
 							or key == "bowlTicks" -- #5263
+							or key == "rankUpSteps" -- #5218
 							or key == "catFollower" -- #5172
 							or key == "cardFollow" -- #5296
 							or key == "parkRankPoint" -- #5163

@@ -2381,6 +2381,31 @@ local SCENES = {
 	end },
 	-- #4920 item 7: the grey rank-up button says what is missing. Its longest line, "Need 2 more Legendary+" (Tier 5
 	-- with every kind caught and no Legendary yet), fits the 260 px button on every screen
+	-- #5218 (switch rankUpSteps): numbered steps, cats first; the first unmet step has the only Go button, and the
+	-- grey button counts the steps left
+	{ "RankUpSteps", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_rankUpSteps", true)
+		UI.update({ money = 0 } :: any)
+		UI.open("RankUp")
+		UIShim.advance(0.2)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local root = modals and modals:FindFirstChild("Root")
+		local container = root and root:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("RankUp") :: GuiObject?
+		assert(window, "uigate: no Rank Up window (#5218)")
+		local gos = 0
+		for _, piece in (window :: Instance):GetDescendants() do
+			if piece.Name == "Go" and piece:IsA("GuiObject") then
+				gos += 1
+			end
+		end
+		assert(gos == 1, ("uigate: %d Go buttons on the steps, wanted 1 (#5218)"):format(gos))
+		local opens = (window :: Instance):FindFirstChild("OpensLabel", true) :: GuiObject?
+		assert(opens == nil or not opens.Visible, "uigate: It opens shows with rankUpSteps on (#5218)")
+		local needs = (window :: Instance):FindFirstChild("NeedsLabel", true) :: TextLabel?
+		assert(needs and string.find(needs.Text, "left", 1, true), "uigate: no steps left line (#5218)")
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_rankUpSteps", nil)
+	end },
 	{ "RankUpMissing", function()
 		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 		local tierDef = Catalog.getTier(5) :: any

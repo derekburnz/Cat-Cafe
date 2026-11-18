@@ -129,6 +129,7 @@ LiveFlags.KEYS = {
 	"parkRingEarly", -- #5034: the nearest Park stray is ringed early after a landing (Motion-FX, PR #5035); off by default
 	"parkTrailBack", -- #5045: the Park trail comes back 30 s into a rest even while walking (Motion-FX, PR #5047); off by default
 	"tier3Path", -- #5038: at Tier 2 a new kind waits by the Park landing, one next goal, a Tier 3 welcome gift (shared/Tier3Path); off by default
+	"landSafe", -- #5269: a cannon landing lets go at touchdown and the client waits for the pad floor (shared/Cannon.LAND_FLAG)
 	"cafeGrows", -- #4543: the cafe's room grows every two tiers (shared/CafeRoom, Model-Agent's _WxD shells); off by default
 	"fxAfterLoad", -- #5068: client Effects and Audio start-up waits until the loading screen ends (Effects/LoadGate); off by default
 	"tomorrowCard", -- #3951: the come back tomorrow card on a new account's first day (UI/Components/TomorrowCard); off by default

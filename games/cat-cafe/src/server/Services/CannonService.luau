@@ -284,6 +284,18 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 			end
 		end
 	end)
+	-- #5269 (landSafe): the feet touch at CannonTouchdownAt, so the character is let go then; the flight's attributes
+	-- and the landing's bookkeeping still wait for CannonLaunchSeconds, so the effects and sounds run as before
+	local landEarly = LiveFlagService.on(Cannon.LAND_FLAG)
+		and type(Config.CannonTouchdownAt) == "number"
+		and Config.CannonTouchdownAt < Config.CannonLaunchSeconds
+	if landEarly then
+		task.delay(Config.CannonTouchdownAt * scale, function()
+			if current() then
+				body.Anchored = false
+			end
+		end)
+	end
 	task.delay(Config.CannonLaunchSeconds * scale, function()
 		if not current() then
 			return

@@ -38,6 +38,13 @@ Cannon.BESIDE_STRAY_RISE = 4 -- studs: a stray this much higher or lower than th
 Cannon.FLIGHT_SCALE = "CannonFlightScale"
 Cannon.QUICK_FLAG = "firstFlightQuick" -- the LiveFlags key, off by default until the effects follow the scale
 Cannon.FIRST_FLIGHT_SCALE = 2 / 3
+-- #5269 (Sync 2026-11-18): the feet touch the pad at CannonTouchdownAt but the server let go at CannonLaunchSeconds,
+-- so a landing player stood frozen 0.25 s plus ping; and at high ping a pad that had streamed out let them fall
+-- through. On (landSafe, on unless set false), the server lets go at touchdown and the client holds its own character
+-- until there is floor under it (client/Controllers/LandHoldController).
+Cannon.LAND_FLAG = "landSafe"
+Cannon.LAND_HOLD_SECONDS = 3 -- the client's hold waits at most this long for the pad's floor
+Cannon.LAND_FLOOR_STUDS = 20 -- floor this far under the root counts as there
 Cannon.FIRST_FLIGHT_CATS = 2 -- SecondCat.CATS: the first catch and the second cat
 Cannon.MIN_SCALE = 0.25
 

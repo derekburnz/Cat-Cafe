@@ -249,8 +249,13 @@ end
 
 -- One SPREAD step: each player gets the next few waiting chunks, up to AreaWhole.BUDGET instances, and with what
 -- is left of it the next few of a let-go area come off (one at least when none went on).
-local function spread()
+-- `tick` counts FLIGHT_SPREAD steps: a player on a cannon flight is fed every one, everyone else every SPREAD.
+local function spread(tick: number)
+	local every = math.max(1, math.round(AreaWhole.SPREAD / AreaWhole.FLIGHT_SPREAD))
 	for _, player in Players:GetPlayers() do
+		if flying[player] == nil and tick % every ~= 0 then
+			continue
+		end
 		local hold = holds[player]
 		local spent = 0
 		if hold ~= nil and #hold.waiting > 0 then
@@ -383,13 +388,15 @@ function AreaWholeService.start()
 		outSince[player] = nil
 	end)
 	task.spawn(function()
+		local tick = 0
 		while true do
+			tick += 1
 			if switchOn then
 				xpcall(spread, function(err: unknown)
 					warn("[AreaWholeService] " .. tostring(err))
-				end)
+				end, tick)
 			end
-			task.wait(AreaWhole.SPREAD)
+			task.wait(AreaWhole.FLIGHT_SPREAD)
 		end
 	end)
 	task.spawn(function()

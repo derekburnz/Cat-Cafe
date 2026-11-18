@@ -32,6 +32,10 @@ AreaWhole.CELL = 128 -- studs: the side of a chunk's ground cell
 -- over about two seconds: a cannon flight lands at 2.2 s.
 AreaWhole.BUDGET = 400
 AreaWhole.SPREAD = 0.15 -- seconds; NightSpread's step, far enough apart to land in different network sends
+-- Sync's round 4: fed every SPREAD, a flight got too little of its area before the 2.2 s teleport, and the streaming
+-- radius round the landed character pulled the rest in one frame (Atomic chunks). On a flight the feed runs every
+-- FLIGHT_SPREAD seconds instead (a few frames apart, each step about 26 ms), so most of the area is in by touchdown.
+AreaWhole.FLIGHT_SPREAD = 0.05
 AreaWhole.CHUNK = "Chunk" -- the name of the Models AreaWholeService cuts a Set or Backdrop into
 
 export type Flight = { area: string, untilAt: number }

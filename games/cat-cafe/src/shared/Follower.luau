@@ -111,7 +111,10 @@ end
 -- The boost kind picked (Money until the player picks Luck).
 function Follower.boost(profile: Types.PlayerProfile): Boost
 	local save = saveOf(profile)
-	return if save ~= nil and save.boost == "luck" then "luck" else "money"
+	if save ~= nil and save.boost == "luck" then
+		return "luck"
+	end
+	return "money"
 end
 
 -- What a cat of `rarity` and coat `variant` ("gold", "rainbow" or nil) gives with `boost`, 0 for an unknown rarity.
@@ -125,7 +128,7 @@ end
 -- `rarityOf(catId)` is Catalog's lookup, passed in so this module needs no Catalog (Economy and Luck require it).
 local function current(profile: Types.PlayerProfile, rarityOf: (string) -> string?): (Boost, number)
 	local cat = Follower.cat(profile)
-	local boost = Follower.boost(profile)
+	local boost: Boost = Follower.boost(profile)
 	if cat == nil then
 		return boost, 0
 	end

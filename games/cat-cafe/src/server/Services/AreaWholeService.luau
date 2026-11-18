@@ -265,7 +265,18 @@ end
 local function apply(on: boolean)
 	switchOn = on
 	if not on then
-		-- the switch going off sets every chunk back at once, which takes everyone off every list anyway
+		-- Review-QA: take everyone off every list by hand, since a mode change may not clear them, so a later switch
+		-- on starts clean. The chunks go back to their own mode below, so the device cost is the same.
+		for player, hold in holds do
+			for _, chunk in hold.added do
+				dropNow(player, chunk)
+			end
+		end
+		for player, queue in dropping do
+			for _, chunk in queue do
+				dropNow(player, chunk)
+			end
+		end
 		table.clear(holds)
 		table.clear(dropping)
 		table.clear(flying)

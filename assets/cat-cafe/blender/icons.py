@@ -153,7 +153,7 @@ ICONS = {
     "CatCafe_Icon_Coins": (icon_art.coins, GOLD_INK, 10, (-16.0, 34.0)),
     "CatCafe_Icon_Spin": (icon_art.spin_wheel, INK, 10, (-12.0, 6.0)),
     "CatCafe_Icon_Decor": (_hud_decor, INK, 10, (-24.0, 16.0)),
-    **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3, 4)},
+    **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3, 4, 5, 6)},
     # #4061 the Ticket Booth's two toys, for their prize cards
     **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
        for k in potions.POTIONS},

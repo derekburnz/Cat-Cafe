@@ -4378,12 +4378,20 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	-- #4909 (Sync's rerun: the "You can rank up!" bubble sat over the strip and hid its line): on the strip's own
 	-- RANK UP the strip's words say it, so no bubble
 	local onStrip = phase == "button" and target.Name == "TutorialBuy"
+	-- Derek 2026-11-18 ("first rankup text is not needed and makes it buggy ... just make it dim and arrow and then when
+	-- open dim screen and arrow to rank up button"): with rankSpotPlain on, no words in either step, and the window's
+	-- RANK UP gets the dim too (the first Rank Up window cannot be closed while it is ready, firstRankLock)
+	local flags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local plain = flags.shown(
+		"rankSpotPlain",
+		ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "rankSpotPlain")
+	) == true
 	UI.rankSpot.close = SpotlightGuide.show(
 		target,
-		if onStrip then "" else words or "",
+		if onStrip or plain then "" else words or "",
 		onOutside,
 		phase == "button" and not onStrip,
-		confirm
+		confirm and not plain
 	)
 	if confirm then
 		local pad = require(script.Components.GamepadNav) :: any

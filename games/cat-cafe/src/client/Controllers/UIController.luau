@@ -700,7 +700,7 @@ end
 function nightLine.now(s: Types.PlayerState): boolean
 	local NightLine = require(script.Parent.Parent.UI.Components.NightLine) :: any
 	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. NightLine.FLAG) == true
-	return NightLine.shows(on, s.tier, s.tutorialStep, not areasShut(), UI.isOpen() ~= nil)
+	return NightLine.shows(on, s.tier, s.tutorialStep, not areasShutForMe(), UI.isOpen() ~= nil)
 end
 
 local refreshTutorial: (s: Types.PlayerState) -> ()

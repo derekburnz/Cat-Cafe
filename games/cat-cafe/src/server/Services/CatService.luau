@@ -4179,7 +4179,7 @@ function CatService.nightFalls()
 	task.spawn(function()
 		for n, run in M.NightSpread.chunks(leaving, M.NightSpread.PER_STEP) do
 			if n > 1 then
-				task.wait()
+				task.wait(M.NightSpread.STEP_SECONDS)
 				if waveNumber ~= wave then
 					return
 				end
@@ -4224,8 +4224,27 @@ function CatService.sunriseWave()
 	-- #3661: the first few of every area (its rarest) at once, then the rest in turn, one area after another
 	local order = StrayTopUp.waveOrder(waves, M.Config.WaveAtOnce)
 	local later: { WavePlace } = order.later
-	for _, entry: WavePlace in order.now do
-		placeWave(entry)
+	if M.LiveFlagService.on(M.NightSpread.FLAG) then
+		-- #5164: the rarest of every area PER_STEP at a time, STEP_SECONDS apart, not all in the sunrise frame
+		task.spawn(function()
+			for n, run in M.NightSpread.chunks(order.now, M.NightSpread.PER_STEP) do
+				if n > 1 then
+					task.wait(M.NightSpread.STEP_SECONDS)
+					if waveNumber ~= wave or not M.ClockService.areasOpen() then
+						return
+					end
+				end
+				for _, entry: WavePlace in run do
+					xpcall(placeWave, function(err: unknown)
+						warn("[CatService] wave: " .. tostring(err))
+					end, entry)
+				end
+			end
+		end)
+	else
+		for _, entry: WavePlace in order.now do
+			placeWave(entry)
+		end
 	end
 	if #later > 0 then
 		local gap = StrayTopUp.waveGap(#later, M.Config.WaveSpreadSeconds)

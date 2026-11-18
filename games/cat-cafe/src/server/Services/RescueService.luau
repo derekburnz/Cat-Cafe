@@ -44,6 +44,7 @@ local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+local NightSpread = require(ReplicatedStorage.Shared.NightSpread)
 local PalService = require(script.Parent.PalService)
 local Payout = require(script.Parent.Payout)
 local RallyService = require(script.Parent.RallyService)
@@ -1057,10 +1058,10 @@ function RescueService.nightFalls()
 	for _, entry in stuckCats do
 		table.insert(clearing, entry)
 	end
-	for _, entry in clearing do
+	local function clear(entry: Stuck)
 		if entry.attempt == nil then
 			clearStuck(entry)
-			continue
+			return
 		end
 		task.spawn(function()
 			while entry.alive and entry.attempt ~= nil do
@@ -1069,13 +1070,36 @@ function RescueService.nightFalls()
 			clearStuck(entry)
 		end)
 	end
+	if not LiveFlagService.on(NightSpread.FLAG) then
+		for _, entry in clearing do
+			clear(entry)
+		end
+		return
+	end
+	-- #5164 (nightSpread): PER_STEP traps a step, STEP_SECONDS apart; one already cleared in between is skipped, and
+	-- a sunrise in between stops the rest (its roll refills those traps anyway)
+	task.spawn(function()
+		for n, run in NightSpread.chunks(clearing, NightSpread.PER_STEP) do
+			if n > 1 then
+				task.wait(NightSpread.STEP_SECONDS)
+				if ClockService.areasOpen() then
+					return
+				end
+			end
+			for _, entry in run do
+				if entry.alive then
+					clear(entry)
+				end
+			end
+		end
+	end)
 end
 
 -- Sunrise (v0.9, F66): every area's traps roll their cats.
 -- #5164 (switch nightSpread, shared/NightSpread): one area a frame, so sunrise is no one long server frame; a dusk
 -- in between stops the rest.
 function RescueService.sunrise()
-	if not LiveFlagService.on("nightSpread") then
+	if not LiveFlagService.on(NightSpread.FLAG) then
 		for _, areaDef in Catalog.areas do
 			rollRescues(areaDef)
 		end
@@ -1084,7 +1108,7 @@ function RescueService.sunrise()
 	task.spawn(function()
 		for n, areaDef in Catalog.areas do
 			if n > 1 then
-				task.wait()
+				task.wait(NightSpread.STEP_SECONDS)
 				if not ClockService.areasOpen() then
 					return
 				end

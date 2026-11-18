@@ -67,37 +67,6 @@ function AssetRegistry.stowServerOnly(): number
 	return moved
 end
 
--- #4601: the cats' _Gold models (384 of them, about 40,000 instances, a third of what a client downloads as it
--- joins) are looked up by nobody: a gold cat is its base model toned (shared/GoldTone). Moves them to
--- ServerStorage.Assets (back to ReplicatedStorage.Assets only under a spec's GoldTone.setOpen(false)). Returns how
--- many were moved.
-function AssetRegistry.stowGoldTwins(): number
-	local assets = AssetRegistry.folder()
-	local store = vault
-	if store == nil then
-		return 0
-	end
-	local from, to = store, assets
-	if GoldTone.open() then
-		from, to = assets, store
-	end
-	local moved = 0
-	for _, child in from:GetChildren() do
-		-- a gold _Work body is the server's alone whatever the switch says (ServerOnlyAssets, #4601)
-		if GoldTone.isTwin(child.Name) and not ServerOnlyAssets.matches(child.Name) then
-			child.Parent = to
-			moved += 1
-		end
-	end
-	return moved
-end
-
--- Runs stowGoldTwins once at start, after stowServerOnly, which makes the server's folder (#4656: the goldTone
--- switch it followed is retired, so the twins leave before the first player joins). Returns how many were moved.
-function AssetRegistry.followGoldTone(): number
-	return AssetRegistry.stowGoldTwins()
-end
-
 -- Fills in a placeholder for every asset name that has no real model yet. Returns how many were created.
 function AssetRegistry.ensurePlaceholders(): number
 	local assets = AssetRegistry.folder()

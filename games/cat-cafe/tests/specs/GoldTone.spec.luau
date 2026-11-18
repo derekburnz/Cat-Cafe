@@ -29,34 +29,6 @@ return function()
 			expect(light.R + light.G + light.B > deep.R + deep.G + deep.B).to.equal(true)
 		end)
 
-		it("knows a cat's _Gold models from everything else gold (#4601)", function()
-			for _, name in
-				{
-					"CatCafe_Cat_Tabby_Gold",
-					"CatCafe_Cat_Tabby_Gold_Sit",
-					"CatCafe_Cat_Tabby_Gold_Work",
-				}
-			do
-				expect(GoldTone.isTwin(name)).to.equal(true)
-			end
-			for _, name in
-				{
-					"CatCafe_Cat_Tabby",
-					"CatCafe_Cat_Tabby_Sit",
-					"CatCafe_Cat_Tabby_Work",
-					"CatCafe_Cat_Goldie",
-					"CatCafe_Cat_Tabby_Gold_Nap",
-					"CatCafe_Cat_Tabby_Golden",
-					"CatCafe_Prop_Crate_Alley_Gold",
-					"CatCafe_Decor_ParkBench_Gold",
-					"CatCafe_Camp_Woods_FishingHut_Gold",
-					"CatCafe_Menu_GoldPlate",
-				}
-			do
-				expect(GoldTone.isTwin(name)).to.equal(false)
-			end
-		end)
-
 		it("looks up the _Gold model while off and the toned base while on", function()
 			GoldTone.setOpen(false)
 			local names, tone = GoldTone.names("Cat_Gold", "Cat")

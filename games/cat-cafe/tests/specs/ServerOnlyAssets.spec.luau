@@ -147,11 +147,6 @@ return function()
 					expect(ServerOnlyAssets.matches(Catalog.goldModelName(cat.id))).to.equal(false)
 					-- #4601: the standing worker body is the server's alone
 					expect(ServerOnlyAssets.matches(Catalog.workModelName(model))).to.equal(true)
-					expect(
-						ServerOnlyAssets.matches(
-							Catalog.workModelName(Catalog.goldModelName(cat.id))
-						)
-					).to.equal(true)
 				end
 				-- #4601: a camp station is placed by the server, and the client reads the placed model
 				for _, extra in Catalog.campExtras do
@@ -164,9 +159,7 @@ return function()
 			for _, name in
 				{
 					"CatCafe_Cat_Tabby_Work",
-					"CatCafe_Cat_Tabby_Gold_Work",
 					"CatCafe_Cat_BellhopCat_Work",
-					"CatCafe_Cat_SnowLeopard_Gold_Work",
 				}
 			do
 				expect(ServerOnlyAssets.matches(name)).to.equal(true)
@@ -189,9 +182,6 @@ return function()
 					{
 						"CatCafe_Cat_Siamese_Sit",
 						"CatCafe_Cat_SnowLeopard_Sit",
-						"CatCafe_Cat_Tabby_Gold_Sit",
-						"CatCafe_Cat_Tuxedo_Gold_Sit",
-						"CatCafe_Cat_BellhopCat_Gold_Sit",
 					}
 				do
 					expect(ServerOnlyAssets.matches(name)).to.equal(true)

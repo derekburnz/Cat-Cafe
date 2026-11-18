@@ -4,8 +4,8 @@
 --   GoldTone 1, 2 or 3   the light, mid or deep gold below, in Metal
 --   GoldColor (Color3)   that colour, material unchanged (eyes, nose and the like keep their look)
 --   GoldSolid true       fully opaque, and casting a shadow when its longest side is at least 0.5 studs
--- A part with none of these is left as it is. Every gold cat is the toned base, even where a _Gold model is still in
--- Assets (#4656: the `goldTone` switch, on since launch, is retired; the _Gold twins stay stowed on the server).
+-- A part with none of these is left as it is. Every gold cat is the toned base (#4656: the `goldTone` switch is
+-- retired and the _Gold twin models are gone).
 -- Shared by the server (AssetRegistry.cloneCat) and the client (portraits and walks).
 
 local GoldTone = {}
@@ -27,15 +27,6 @@ end
 -- Whether gold cats are toned from the base: always, but for a spec's override.
 function GoldTone.open(): boolean
 	return override ~= false
-end
-
--- Whether `name` is a cat's _Gold model: the walking, seated or working twin ("CatCafe_Cat_Tabby_Gold",
--- "..._Gold_Sit", "..._Gold_Work"). Nothing looks these up (GoldTone.names), so the server keeps
--- them out of what clients download (AssetRegistry.followGoldTone, #4601). Gold crates, decor and the like are not
--- cats and never match.
-function GoldTone.isTwin(name: string): boolean
-	local rest = string.match(name, "^CatCafe_Cat_%w+_Gold(.*)$")
-	return rest == "" or rest == "_Sit" or rest == "_Work"
 end
 
 -- The colour for a GoldTone attribute value, or nil when it is not 1, 2 or 3.

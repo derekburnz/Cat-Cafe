@@ -179,25 +179,19 @@ function ServerOnlyAssets.matches(name: string): boolean
 	if string.match(name, "^CatCafe_Plot_[%w_]+_%d+x%d+$") ~= nil then
 		return true
 	end
-	-- #4601: the standing worker body of every cat (CatCafe_Cat_<Name>_Work and its _Gold_Work twin). Only the
+	-- #4601: the standing worker body of every cat (CatCafe_Cat_<Name>_Work; the _Gold twins are gone, #4656). Only the
 	-- server dresses a working cat at its station (AssetRegistry.cloneCat "work"); every client copy of a cat is
 	-- the walking body or the seated one (portraits, the Index, cafe walkers, the intro). 131 base models, about
 	-- 16,000 instances, a fifth of what a client downloads once the gold twins are stowed.
-	if
-		string.match(name, "^CatCafe_Cat_%w+_Work$") ~= nil
-		or string.match(name, "^CatCafe_Cat_%w+_Gold_Work$") ~= nil
-	then
+	if string.match(name, "^CatCafe_Cat_%w+_Work$") ~= nil then
 		return true
 	end
-	-- #4601: the seated body of every cat (CatCafe_Cat_<Name>_Sit and its _Gold_Sit twin) but the three in
+	-- #4601: the seated body of every cat (CatCafe_Cat_<Name>_Sit) but the three in
 	-- CLIENT_SIT. The server seats a cat in a cafe, a spa or a museum (AssetRegistry.cloneCat "sit") and clients get
 	-- that placed copy; every client copy of a cat from the templates is the walking body (portraits, the Index,
 	-- cafe walkers, the Rift Run). The one other reader was the Mystic Pool's floating cat, which now falls back to
 	-- the walking body (Effects/MysticPool). 134 base models, about 13,300 instances, a sixth of the client download.
-	if
-		(string.match(name, "^CatCafe_Cat_%w+_Sit$") ~= nil and not CLIENT_SIT[name])
-		or string.match(name, "^CatCafe_Cat_%w+_Gold_Sit$") ~= nil
-	then
+	if string.match(name, "^CatCafe_Cat_%w+_Sit$") ~= nil and not CLIENT_SIT[name] then
 		return true
 	end
 	for _, kind in ANY_AREA_KINDS do

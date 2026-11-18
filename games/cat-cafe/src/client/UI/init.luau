@@ -2600,6 +2600,12 @@ function UI.popupsShowing(): boolean
 	return popups ~= nil and popups:isShowing()
 end
 
+-- #5330: the HUD's Upgrades button, for the night line's arrow; nil while it is not on screen
+function UI.upgradesButton(): GuiObject?
+	local board: any = hud
+	return if board ~= nil then board:upgradesButton() else nil
+end
+
 -- #5284: the HUD's Cats button, for the Cat Companion's soft arrow; nil while it is not on screen
 function UI.catsButton(): GuiObject?
 	local board: any = hud

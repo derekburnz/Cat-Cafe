@@ -4214,6 +4214,15 @@ function HUD.pointCannon(self: any, on: boolean)
 end
 
 -- #5284: the Cats button, while it is on screen (the Cat Companion's soft arrow)
+-- #5330: the HUD's Upgrades button, for the night line's arrow; nil while it is not on screen
+function HUD.upgradesButton(self: any): GuiObject?
+	local pill = self._pills["Upgrades"]
+	if pill == nil or not pill.instance.Visible or not self.screenGui.Enabled then
+		return nil
+	end
+	return pill.instance
+end
+
 function HUD.catsButton(self: any): GuiObject?
 	local pill = self._pills["Cats"]
 	if pill == nil or not pill.instance.Visible or not self.screenGui.Enabled then

@@ -4460,6 +4460,46 @@ Presets.arcadeGlow = {
 	},
 }
 
+-- The Cat Arcade's attract screen (Derek 2026-11-18; Effects/ArcadeScreen): a SurfaceGui on the cabinet's `part`
+-- at `pixelsPerStud`, a mouse up every `beat` seconds, the paw bopping every `bopEvery`-th, a golden mouse every
+-- `goldEvery`-th. `sheet` and `backdrop` are Mouse Dash's uploaded pictures (UI/Components/MouseDashLogic).
+Presets.arcadeScreen = {
+	part = "Screen",
+	pixelsPerStud = 100,
+	brightness = 1.4,
+	maxDistance = 160,
+	within = 90,
+	beat = 0.9,
+	up = 0.18,
+	down = 0.12,
+	wait = 0.15,
+	bop = 0.12,
+	dust = 0.35,
+	bopEvery = 3,
+	goldEvery = 7,
+	holes = 3,
+	holeSize = 0.28,
+	holeY = 0.62,
+	sheet = "rbxassetid://106053188764774",
+	backdrop = "rbxassetid://116753136904678",
+	cell = 256,
+	cells = {
+		Mouse = { 0, 0 },
+		MouseHit = { 256, 0 },
+		GoldMouse = { 512, 0 },
+		GoldMouseHit = { 768, 0 },
+		Hole = { 512, 256 },
+		Dust = { 0, 512 },
+		Paw = { 256, 512 },
+		PawBop = { 512, 512 },
+	} :: { [string]: { number } },
+	night = Color3.fromRGB(31, 42, 68), -- the screen part's own night blue
+	floorTint = Color3.fromRGB(200, 190, 210),
+	text = "PRESS PLAY",
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(74, 46, 30),
+}
+
 -- A Golden find (#3222; Effects/GoldenFind): the toast line starting `prefix` (LawnService.giveDrop's) plays a gold
 -- `beamWidth` by `beamHeight` stud beam off the player for `beamSeconds`, `sparkles` catchSparkle and `confetti` pieces
 -- `lift` studs over their middle, and `rings` gold rings `ringGap` seconds apart, `ring` studs wider each, at their
@@ -6583,6 +6623,42 @@ Presets.stationCut = {
 		ringGap = 0.3,
 		ringSeconds = 1.2,
 	},
+}
+
+-- #5284 Cat Companion unlock scene (Effects/CompanionUnlockCut), about 8 s: fade in, the camera `far` studs in front
+-- of the player rising `rise` a stud, pushing in to `near`; the cat trots in from `walkFrom` studs to the player's right
+-- (and `walkIn` toward the camera) to `beside` studs beside them, from `walkAt` over `walkSeconds`; hearts `heartsUp`
+-- over it as it stops; the label from `labelAt`; the fade out at `endAt`. Skippable after `skipAfter`.
+Presets.companionCut = {
+	fade = 0.25,
+	walkAt = 0.6,
+	walkSeconds = 2.8,
+	labelAt = 3.7,
+	labelIn = 0.3,
+	endAt = 7.4,
+	skipAfter = 0.4,
+	far = 12,
+	near = 9,
+	rise = 0.22,
+	lookUp = 1.6, -- studs over the feet the camera looks at, between the player and the cat
+	clearance = 1.5,
+	closest = 5,
+	beside = 3,
+	walkFrom = 11,
+	walkIn = 2,
+	heartsUp = 0.6,
+	title = "CAT COMPANION UNLOCKED!",
+	line = "%s will follow you. Pick Money or Luck in Cats.",
+	lineNoName = "Your cat will follow you. Pick Money or Luck in Cats.",
+	displayOrder = 11, -- over ContextCut's 10, as the station cut
+	titleSize = 56,
+	nameSize = 34,
+	lineSize = 22,
+	titleY = 0.2,
+	nameY = 0.31,
+	lineY = 0.38,
+	smallScreen = 420,
+	smallScale = 0.7,
 }
 
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle

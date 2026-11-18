@@ -1,0 +1,7368 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/0",
+  "PartBuilt": true,
+  "Scale": {
+   "Float64": 1.0
+  },
+  "PropSlot": "Head",
+  "PropSlot2": "Back"
+ },
+ "children": [
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.703,
+       -0.057
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.665,
+     0.684,
+     0.5225
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.703,
+       0.057
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/0",
+    "GoldTone": 3
+   },
+   "children": [
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         -0.2612
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.2945
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.171,
+         0.2613
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2185,
+       0.1115
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.741,
+     0.437,
+     0.5841
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2945,
+       0.0617,
+       -0.095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.228,
+     0.1045,
+     0.38
+    ],
+    "Color": [
+     0.9647,
+     0.7255,
+     0.7961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2945,
+       0.0617,
+       -0.095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.228,
+     0.1045,
+     0.38
+    ],
+    "Color": [
+     0.9647,
+     0.7255,
+     0.7961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.228,
+       0.1045
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9211,
+     0.4465,
+     0.377
+    ],
+    "Color": [
+     0.949,
+     0.5608,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2444,
+       0.3424
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.8295,
+     0.4737,
+     0.1824
+    ],
+    "Color": [
+     0.9647,
+     0.7255,
+     0.7961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.399,
+       0.2945,
+       0.2185
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.399,
+       0.1425,
+       0.0475
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.399,
+       0.3325,
+       0.3705
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.152,
+       0.4655,
+       0.3325
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.171,
+       0.4655,
+       -0.0285
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.361,
+       0.779,
+       0.038
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.361,
+       0.627,
+       -0.133
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_SugarPlum_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.361,
+       0.817,
+       0.19
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.076,
+     0.076
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.235,
+         -0.2395
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.874,
+       0.722,
+       0.6801
+      ],
+      "Color": [
+       0.5804,
+       0.4745,
+       0.7451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.266,
+         0.1445
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/1",
+      "GoldTone": 3
+     },
+     "children": [
+      {
+       "name": "Carry",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.722,
+           0.0115
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BaristaCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3515,
+           -0.0455
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Boater",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3515,
+           -0.0455
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_PartyHat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3515,
+           -0.0455
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Hat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.361,
+           0.0115
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafBeret",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.361,
+           0.0115
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_AcornHairClip",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.361,
+           0.0115
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_MushroomCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.361,
+           0.0115
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafCrown",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.361,
+           0.0115
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Glasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.038,
+           -0.3875
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_ReadingGlasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.038,
+           -0.3875
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0,
+         1.2429,
+         -0.0171
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9341,
+       0.7662,
+       0.2953
+      ],
+      "Color": [
+       0.949,
+       0.5608,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0873,
+         -0.6033
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0997,
+       0.0698,
+       0.057
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0272,
+         -0.5842
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0266,
+       0.0693,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0249,
+         0.9825,
+         -0.5871
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0848,
+         0.9825,
+         -0.5842
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0249,
+         0.9825,
+         -0.5871
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0848,
+         0.9825,
+         -0.5842
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3591,
+         1.0573,
+         -0.5795
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1197,
+       0.0499,
+       0.0475
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3591,
+         1.0573,
+         -0.5795
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1197,
+       0.0499,
+       0.0475
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/2"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2095,
+           1.197,
+           -0.589
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2155,
+         0.2801,
+         0.0665
+        ],
+        "Color": [
+         0.6118,
+         0.4863,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/2"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.219,
+           1.1755,
+           -0.623
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1293,
+         0.2017,
+         0.0585
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.161,
+           1.2754,
+           -0.6317
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0646,
+         0.0754,
+         0.0285
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.2095,
+         1.197,
+         -0.589
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_SugarPlum_Sit_Eye1"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/3"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2095,
+           1.197,
+           -0.589
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2155,
+         0.2801,
+         0.0665
+        ],
+        "Color": [
+         0.6118,
+         0.4863,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/3"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.219,
+           1.1755,
+           -0.6305
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1293,
+         0.2017,
+         0.0735
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.258,
+           1.2754,
+           -0.6573
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0646,
+         0.0754,
+         0.0798
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.2095,
+         1.197,
+         -0.589
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_SugarPlum_Sit_Eye2"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2462,
+           1.6171,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2375,
+         0.095,
+         0.2375
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.0296,
+           -0.0444,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/4",
+        "GoldTone": 1
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.266,
+           1.71,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1425,
+         0.095,
+         0.1425
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2858,
+           1.8029,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0475,
+         0.095,
+         0.0475
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2838,
+           1.653,
+           -0.2895
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1026,
+         0.1083,
+         0.0604
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3147,
+           1.8347,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0633,
+         0.0507,
+         0.0633
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3253,
+           1.8843,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.038,
+         0.0507,
+         0.038
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3358,
+           1.9338,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0127,
+         0.0507,
+         0.0127
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.266,
+         1.5675,
+         -0.171
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_SugarPlum_Sit_EarL"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2462,
+           1.6171,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2375,
+         0.095,
+         0.2375
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0296,
+           -0.0444,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/5",
+        "GoldTone": 1
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.266,
+           1.71,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1425,
+         0.095,
+         0.1425
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2858,
+           1.8029,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0475,
+         0.095,
+         0.0475
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2838,
+           1.653,
+           -0.2895
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1026,
+         0.1083,
+         0.0604
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3147,
+           1.8347,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0633,
+         0.0507,
+         0.0633
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3253,
+           1.8843,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.038,
+         0.0507,
+         0.038
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3358,
+           1.9338,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0127,
+         0.0507,
+         0.0127
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.266,
+         1.5675,
+         -0.171
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_SugarPlum_Sit_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/9"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6198,
+           -0.361
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.437,
+         0.0475,
+         0.057
+        ],
+        "Color": [
+         0.9569,
+         0.9333,
+         0.9647
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.6508,
+           0.266
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/9",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.171,
+           1.6767,
+           -0.361
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.7071,
+            0.0
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0427,
+         0.0665,
+         0.0333
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.171,
+           1.7385,
+           -0.361
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0665,
+         0.0665,
+         0.0665
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0855,
+           1.6957,
+           -0.361
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.7071,
+            0.0
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0427,
+         0.1045,
+         0.0333
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0855,
+           1.7765,
+           -0.361
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0665,
+         0.0665,
+         0.0665
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0855,
+           1.6957,
+           -0.361
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.7071,
+            0.0
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0427,
+         0.1045,
+         0.0333
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0855,
+           1.7765,
+           -0.361
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0665,
+         0.0665,
+         0.0665
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.171,
+           1.6767,
+           -0.361
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.7071,
+            0.0
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0427,
+         0.0665,
+         0.0333
+        ],
+        "Color": [
+         0.9647,
+         0.7255,
+         0.7961
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.171,
+           1.7385,
+           -0.361
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0665,
+         0.0665,
+         0.0665
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/10"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7385,
+             -0.3705
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.152,
+           0.1748,
+           0.1064
+          ],
+          "Color": [
+           0.6118,
+           0.4863,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.0,
+             0.0095
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/10",
+          "Follows": "Head"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ]
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0105,
+             1.9,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.0,
+              1.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0237,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0105,
+             1.9,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.0,
+              -1.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0234,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0239,
+             1.8903,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.9511,
+              0.309
+             ],
+             [
+              0.0,
+              0.309,
+              -0.9511
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.023,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0304,
+             1.8703,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.9511,
+              -0.309
+             ],
+             [
+              0.0,
+              0.309,
+              0.9511
+             ],
+             [
+              1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0227,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0253,
+             1.8546,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.5878,
+              -0.809
+             ],
+             [
+              0.0,
+              -0.809,
+              -0.5878
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0223,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0082,
+             1.8423,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.5878,
+              0.809
+             ],
+             [
+              0.0,
+              -0.809,
+              0.5878
+             ],
+             [
+              1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.022,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0082,
+             1.8423,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              -0.5878,
+              -0.809
+             ],
+             [
+              0.0,
+              -0.809,
+              0.5878
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0216,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0253,
+             1.8546,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              -0.5878,
+              0.809
+             ],
+             [
+              0.0,
+              -0.809,
+              -0.5878
+             ],
+             [
+              1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0213,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0304,
+             1.8703,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              -0.9511,
+              0.309
+             ],
+             [
+              0.0,
+              0.309,
+              0.9511
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0209,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow",
+         "className": "WedgePart",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0239,
+             1.8903,
+             -0.3895
+            ],
+            "orientation": [
+             [
+              0.0,
+              -0.9511,
+              -0.309
+             ],
+             [
+              0.0,
+              0.309,
+              -0.9511
+             ],
+             [
+              1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0205,
+           0.057,
+           0.0211
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.7385,
+           -0.361
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_SugarPlum_Sit_Gem_Glow"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.969,
+         -0.095
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_SugarPlum_Sit_Prop"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.969,
+       -0.095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_SugarPlum_Sit_Head"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/6"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6673,
+         0.1195,
+         0.1412
+        ],
+        "orientation": [
+         [
+          -0.9063,
+          0.0,
+          0.4226
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.4226,
+          0.0,
+          -0.9063
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.171,
+       0.201,
+       0.3895
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.5476,
+         -0.015,
+         -0.0449
+        ],
+        "orientation": [
+         [
+          -0.9063,
+          0.0,
+          -0.4226
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.4226,
+          0.0,
+          -0.9063
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/6"
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.0095,
+           -0.0166
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3462,
+         0.1045,
+         0.4701
+        ],
+        "orientation": [
+         [
+          0.342,
+          0.0,
+          -0.9397
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9397,
+          0.0,
+          0.342
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.171,
+       0.171,
+       0.3895
+      ],
+      "Color": [
+       0.5804,
+       0.4745,
+       0.7451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.62,
+         0.1045,
+         0.4094
+        ],
+        "orientation": [
+         [
+          -0.7071,
+          0.0,
+          -0.7071
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7071,
+          0.0,
+          -0.7071
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.171,
+       0.171,
+       0.3895
+      ],
+      "Color": [
+       0.5804,
+       0.4745,
+       0.7451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.19,
+       0.1045,
+       0.4132
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_SugarPlum_Sit_Tail"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/7"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1615,
+         0.3183,
+         -0.285
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.19,
+       0.5415,
+       0.19
+      ],
+      "Color": [
+       0.5804,
+       0.4745,
+       0.7451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.2707,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/7",
+      "GoldTone": 3
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1615,
+         0.0522,
+         -0.3325
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.228,
+       0.1045,
+       0.266
+      ],
+      "Color": [
+       0.9647,
+       0.7255,
+       0.7961
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.1615,
+       0.589,
+       -0.285
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_SugarPlum_Sit_LegF1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/8"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1615,
+         0.3183,
+         -0.285
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.19,
+       0.5415,
+       0.19
+      ],
+      "Color": [
+       0.5804,
+       0.4745,
+       0.7451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.2707,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/8",
+      "GoldTone": 3
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1615,
+         0.0522,
+         -0.3325
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.228,
+       0.1045,
+       0.266
+      ],
+      "Color": [
+       0.9647,
+       0.7255,
+       0.7961
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.1615,
+       0.589,
+       -0.285
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_SugarPlum_Sit_LegF2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/11"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.19,
+         0.931,
+         0.5082
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.866,
+          0.5
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5,
+          0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0238,
+       0.418,
+       0.418
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.931,
+         -0.0896,
+         -0.5352
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          0.5
+         ],
+         [
+          0.5,
+          0.0,
+          0.866
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/11",
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.19,
+         0.7805,
+         0.4132
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5736,
+          0.8192
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          0.5736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0238,
+       0.304,
+       0.304
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.19,
+         0.931,
+         0.5082
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.866,
+          -0.5
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5,
+          0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0238,
+       0.418,
+       0.418
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.19,
+         0.7805,
+         0.4132
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5736,
+          -0.8192
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8192,
+          0.5736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0238,
+       0.304,
+       0.304
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_SugarPlum_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.8626,
+         0.2803
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.114,
+       0.114,
+       0.114
+      ],
+      "Color": [
+       0.9647,
+       0.7255,
+       0.7961
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_SugarPlum_Sit/12"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0028,
+           0.931,
+           0.5492
+          ],
+          "orientation": [
+           [
+            -0.9781,
+            0.0,
+            0.2079
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.0,
+            -0.9781
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.035,
+           -0.171,
+           0.151
+          ],
+          "orientation": [
+           [
+            -0.9781,
+            0.0,
+            -0.2079
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2079,
+            0.0,
+            -0.9781
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_SugarPlum_Sit/12",
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0581,
+           0.931,
+           0.6547
+          ],
+          "orientation": [
+           [
+            0.6691,
+            0.0,
+            0.7431
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.7431,
+            0.0,
+            0.6691
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1694,
+           0.931,
+           0.7043
+          ],
+          "orientation": [
+           [
+            0.1045,
+            0.0,
+            0.9945
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9945,
+            0.0,
+            0.1045
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2886,
+           0.931,
+           0.679
+          ],
+          "orientation": [
+           [
+            -0.5,
+            0.0,
+            0.866
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.866,
+            0.0,
+            -0.5
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3701,
+           0.931,
+           0.5884
+          ],
+          "orientation": [
+           [
+            -0.9135,
+            0.0,
+            0.4067
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.4067,
+            0.0,
+            -0.9135
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3828,
+           0.931,
+           0.4673
+          ],
+          "orientation": [
+           [
+            -0.9781,
+            0.0,
+            -0.2079
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2079,
+            0.0,
+            -0.9781
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3219,
+           0.931,
+           0.3618
+          ],
+          "orientation": [
+           [
+            -0.6691,
+            0.0,
+            -0.7431
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.7431,
+            0.0,
+            -0.6691
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2106,
+           0.931,
+           0.3122
+          ],
+          "orientation": [
+           [
+            -0.1045,
+            0.0,
+            -0.9945
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9945,
+            0.0,
+            -0.1045
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0914,
+           0.931,
+           0.3375
+          ],
+          "orientation": [
+           [
+            0.5,
+            0.0,
+            -0.866
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.866,
+            0.0,
+            0.5
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0099,
+           0.931,
+           0.4281
+          ],
+          "orientation": [
+           [
+            0.9135,
+            0.0,
+            -0.4067
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.4067,
+            0.0,
+            0.9135
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0028,
+           0.931,
+           0.5492
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.0,
+            0.2079
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.0,
+            0.9781
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.149,
+           0.7805,
+           0.5473
+          ],
+          "orientation": [
+           [
+            0.2924,
+            0.0,
+            0.9563
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9563,
+            0.0,
+            0.2924
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2356,
+           0.7805,
+           0.5457
+          ],
+          "orientation": [
+           [
+            -0.3256,
+            0.0,
+            0.9455
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9455,
+            0.0,
+            -0.3256
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3048,
+           0.7805,
+           0.4936
+          ],
+          "orientation": [
+           [
+            -0.8192,
+            0.0,
+            0.5736
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.5736,
+            0.0,
+            -0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3301,
+           0.7805,
+           0.4108
+          ],
+          "orientation": [
+           [
+            -0.9998,
+            0.0,
+            -0.0175
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0175,
+            0.0,
+            -0.9998
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3019,
+           0.7805,
+           0.3289
+          ],
+          "orientation": [
+           [
+            -0.7986,
+            0.0,
+            -0.6018
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.6018,
+            0.0,
+            -0.7986
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.231,
+           0.7805,
+           0.2792
+          ],
+          "orientation": [
+           [
+            -0.2924,
+            0.0,
+            -0.9563
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9563,
+            0.0,
+            -0.2924
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1444,
+           0.7805,
+           0.2808
+          ],
+          "orientation": [
+           [
+            0.3256,
+            0.0,
+            -0.9455
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9455,
+            0.0,
+            0.3256
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0752,
+           0.7805,
+           0.3329
+          ],
+          "orientation": [
+           [
+            0.8192,
+            0.0,
+            -0.5736
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.5736,
+            0.0,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0499,
+           0.7805,
+           0.4157
+          ],
+          "orientation": [
+           [
+            0.9998,
+            0.0,
+            0.0175
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.0175,
+            0.0,
+            0.9998
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0781,
+           0.7805,
+           0.4976
+          ],
+          "orientation": [
+           [
+            0.7986,
+            0.0,
+            0.6018
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.6018,
+            0.0,
+            0.7986
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3828,
+           0.931,
+           0.4673
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.0,
+            -0.2079
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2079,
+            0.0,
+            0.9781
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3701,
+           0.931,
+           0.5884
+          ],
+          "orientation": [
+           [
+            0.9135,
+            0.0,
+            0.4067
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.4067,
+            0.0,
+            0.9135
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2886,
+           0.931,
+           0.679
+          ],
+          "orientation": [
+           [
+            0.5,
+            0.0,
+            0.866
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.866,
+            0.0,
+            0.5
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1694,
+           0.931,
+           0.7043
+          ],
+          "orientation": [
+           [
+            -0.1045,
+            0.0,
+            0.9945
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9945,
+            0.0,
+            -0.1045
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0581,
+           0.931,
+           0.6547
+          ],
+          "orientation": [
+           [
+            -0.6691,
+            0.0,
+            0.7431
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.7431,
+            0.0,
+            -0.6691
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0099,
+           0.931,
+           0.4281
+          ],
+          "orientation": [
+           [
+            -0.9135,
+            0.0,
+            -0.4067
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.4067,
+            0.0,
+            -0.9135
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0914,
+           0.931,
+           0.3375
+          ],
+          "orientation": [
+           [
+            -0.5,
+            0.0,
+            -0.866
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.866,
+            0.0,
+            -0.5
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2106,
+           0.931,
+           0.3122
+          ],
+          "orientation": [
+           [
+            0.1045,
+            0.0,
+            -0.9945
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9945,
+            0.0,
+            0.1045
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3219,
+           0.931,
+           0.3618
+          ],
+          "orientation": [
+           [
+            0.6691,
+            0.0,
+            -0.7431
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.7431,
+            0.0,
+            0.6691
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1395
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3019,
+           0.7805,
+           0.3289
+          ],
+          "orientation": [
+           [
+            0.7986,
+            0.0,
+            -0.6018
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.6018,
+            0.0,
+            0.7986
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3301,
+           0.7805,
+           0.4108
+          ],
+          "orientation": [
+           [
+            0.9998,
+            0.0,
+            -0.0175
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0175,
+            0.0,
+            0.9998
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3048,
+           0.7805,
+           0.4936
+          ],
+          "orientation": [
+           [
+            0.8192,
+            0.0,
+            0.5736
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.5736,
+            0.0,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2356,
+           0.7805,
+           0.5457
+          ],
+          "orientation": [
+           [
+            0.3256,
+            0.0,
+            0.9455
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9455,
+            0.0,
+            0.3256
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.149,
+           0.7805,
+           0.5473
+          ],
+          "orientation": [
+           [
+            -0.2924,
+            0.0,
+            0.9563
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9563,
+            0.0,
+            -0.2924
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0238,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0781,
+           0.7805,
+           0.4976
+          ],
+          "orientation": [
+           [
+            -0.7986,
+            0.0,
+            0.6018
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.6018,
+            0.0,
+            -0.7986
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0499,
+           0.7805,
+           0.4157
+          ],
+          "orientation": [
+           [
+            -0.9998,
+            0.0,
+            0.0175
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.0175,
+            0.0,
+            -0.9998
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0752,
+           0.7805,
+           0.3329
+          ],
+          "orientation": [
+           [
+            -0.8192,
+            0.0,
+            -0.5736
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.5736,
+            0.0,
+            -0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1444,
+           0.7805,
+           0.2808
+          ],
+          "orientation": [
+           [
+            -0.3256,
+            0.0,
+            -0.9455
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9455,
+            0.0,
+            -0.3256
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.231,
+           0.7805,
+           0.2792
+          ],
+          "orientation": [
+           [
+            0.2924,
+            0.0,
+            -0.9563
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9563,
+            0.0,
+            0.2924
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0237,
+         0.0839,
+         0.1015
+        ],
+        "Color": [
+         0.949,
+         0.5608,
+         0.6667
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.76,
+         0.3943
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_SugarPlum_Sit_Wings_Glow"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_SugarPlum_Sit_Prop2"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

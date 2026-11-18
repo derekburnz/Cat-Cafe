@@ -1498,6 +1498,7 @@ local function applyState(s: Types.PlayerState)
 		lures = s.lures,
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
+		follower = s.follower, -- #5172: the Cats menu's Follow button and boost square (nil with catFollower off)
 		goldCollection = s.goldCollection,
 		rainbowCollection = s.rainbowCollection, -- F99: the Index's Rainbow tab
 		rainbowLuck = s.rainbowLuck, -- F99: the food card's "Rainbow 0.5%" line, capped
@@ -2112,6 +2113,13 @@ local function wireIntents()
 	-- The Lock row on a cat (F62): a locked cat cannot be sold or traded; the next ProfileSync shows the new lock.
 	UI.events.lockCat:Connect(function(uid: string, locked: boolean)
 		Net.fire("LockCat", uid, locked)
+	end)
+	-- #5172 (switch catFollower): Follow or Send home, and the follower's boost; the next ProfileSync shows the change
+	UI.events.setFollower:Connect(function(uid: string)
+		Net.fire("SetFollower", uid)
+	end)
+	UI.events.setFollowerBoost:Connect(function(boost: string)
+		Net.fire("SetFollowerBoost", boost)
 	end)
 	-- Trade or No thanks on the Cat Collector's card (F63). The server checks the range and the cat and answers with
 	-- CollectorOffer("") when the visit ends, or a toast when the cat cannot go yet.

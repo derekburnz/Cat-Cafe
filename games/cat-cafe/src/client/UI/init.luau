@@ -183,6 +183,8 @@ UI.events = {
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
 	lockCat = Signal.new(), -- (uid, locked)   the Lock square in the cat room: forward as LockCat (F62)
+	setFollower = Signal.new(), -- (uid)   #5172: Follow on a cat's detail ("" sends it home): forward as SetFollower
+	setFollowerBoost = Signal.new(), -- (boost)   #5172: the follower's Money or Luck: forward as SetFollowerBoost
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
@@ -1180,6 +1182,12 @@ function UI.init(config: Types.InitConfig)
 		end,
 		setAutoEquip = function(on: boolean)
 			UI.events.setSetting:Fire("autoEquip", on) -- #1955
+		end,
+		setFollower = function(uid: string)
+			UI.events.setFollower:Fire(uid)
+		end,
+		setFollowerBoost = function(boost: string)
+			UI.events.setFollowerBoost:Fire(boost)
 		end,
 		close = closeModal,
 	})

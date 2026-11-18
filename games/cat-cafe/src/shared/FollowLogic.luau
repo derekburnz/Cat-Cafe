@@ -13,13 +13,22 @@ FollowLogic.IDLE = 3 -- seconds standing still before it sits and grooms
 FollowLogic.HOP_SECONDS = 0.45
 FollowLogic.HOP_HEIGHT = 1.6
 
+FollowLogic.ASIDE = 2.4 -- during a net catch the spot is this many times farther out, clear of the rings
+FollowLogic.CATCH_HOLD = 8 -- seconds a catch counts as running with no result heard
+
 -- Where the cat walks to: behind and to the side of the player's root at `position` facing `look`, at the height
--- `floorY` of their feet.
-function FollowLogic.spot(position: Vector3, look: Vector3, floorY: number): Vector3
+-- `floorY` of their feet; `aside` (a net catch) puts it ASIDE times farther out, where it sits and watches.
+function FollowLogic.spot(
+	position: Vector3,
+	look: Vector3,
+	floorY: number,
+	aside: boolean?
+): Vector3
 	local flat = Vector3.new(look.X, 0, look.Z)
 	local forward = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
 	local right = Vector3.new(-forward.Z, 0, forward.X)
-	local p = position + right * FollowLogic.SIDE - forward * FollowLogic.BEHIND
+	local far = if aside then FollowLogic.ASIDE else 1
+	local p = position + right * FollowLogic.SIDE * far - forward * FollowLogic.BEHIND * far
 	return Vector3.new(p.X, floorY, p.Z)
 end
 

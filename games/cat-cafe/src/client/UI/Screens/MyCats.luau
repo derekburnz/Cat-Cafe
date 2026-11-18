@@ -19,6 +19,8 @@ export type Callbacks = {
 	equipBest: () -> (),
 	unequipAll: () -> (),
 	setAutoEquip: ((on: boolean) -> ())?, -- #1955: the Auto Equip switch over Equip Best
+	setFollower: ((uid: string) -> ())?, -- #5172: Follow ("" sends the follower home)
+	setFollowerBoost: ((boost: string) -> ())?, -- #5172: the follower's Money or Luck
 	close: () -> (),
 }
 
@@ -58,6 +60,8 @@ function MyCats.new(callbacks: Callbacks): MyCats
 		equipBest = callbacks.equipBest,
 		unequipAll = callbacks.unequipAll,
 		setAutoEquip = callbacks.setAutoEquip,
+		setFollower = callbacks.setFollower,
+		setFollowerBoost = callbacks.setFollowerBoost,
 	})
 
 	return self :: MyCats

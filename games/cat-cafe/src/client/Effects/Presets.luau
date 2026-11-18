@@ -6575,6 +6575,42 @@ Presets.stationCut = {
 	},
 }
 
+-- #5284 Cat Companion unlock scene (Effects/CompanionUnlockCut), about 8 s: fade in, the camera `far` studs in front
+-- of the player rising `rise` a stud, pushing in to `near`; the cat trots in from `walkFrom` studs to the player's right
+-- (and `walkIn` toward the camera) to `beside` studs beside them, from `walkAt` over `walkSeconds`; hearts `heartsUp`
+-- over it as it stops; the label from `labelAt`; the fade out at `endAt`. Skippable after `skipAfter`.
+Presets.companionCut = {
+	fade = 0.25,
+	walkAt = 0.6,
+	walkSeconds = 2.8,
+	labelAt = 3.7,
+	labelIn = 0.3,
+	endAt = 7.4,
+	skipAfter = 0.4,
+	far = 12,
+	near = 9,
+	rise = 0.22,
+	lookUp = 1.6, -- studs over the feet the camera looks at, between the player and the cat
+	clearance = 1.5,
+	closest = 5,
+	beside = 3,
+	walkFrom = 11,
+	walkIn = 2,
+	heartsUp = 0.6,
+	title = "CAT COMPANION UNLOCKED!",
+	line = "%s will follow you. Pick Money or Luck in Cats.",
+	lineNoName = "Your cat will follow you. Pick Money or Luck in Cats.",
+	displayOrder = 11, -- over ContextCut's 10, as the station cut
+	titleSize = 56,
+	nameSize = 34,
+	lineSize = 22,
+	titleY = 0.2,
+	nameY = 0.31,
+	lineY = 0.38,
+	smallScreen = 420,
+	smallScale = 0.7,
+}
+
 -- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle
 -- of head turns, ear flicks and a swaying tail, and a greet (head turned to you, a paw lifted and waved) as you come
 -- near. Off with Reduce Motion.

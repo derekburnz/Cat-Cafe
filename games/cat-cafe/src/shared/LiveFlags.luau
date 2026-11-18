@@ -156,6 +156,7 @@ LiveFlags.KEYS = {
 	"bigTreats", -- Derek 2026-11-18: the Daily Treat pays big prizes only, no food (shared/BigTreats); off by default
 	"bigNet", -- #5309: the net takes the whole half circle in front, further, and a miss scares no cat (shared/NetSwing); off by default
 	"companionScene", -- #5284: after the Tier 2 rank up the best cat becomes the Cat Companion in a short scene, once (shared/CompanionScene); off by default
+	"cannonReturn", -- #5304: Rummage from the Cannon menu goes back to it, Skip on the Lucky pick; off by default
 	"catFollower", -- #5172: one of your cats follows you for Money or Luck (shared/Follower); off by default
 	"parkRankPoint", -- #5163: after a Park cat checks in at Tier 2 the screen dims round the goal card, once a session (UI.parkRankPoint); off by default
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
@@ -248,6 +249,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	bigTreats = true, -- Derek 2026-11-18: on once Review-QA passes, 2 h from any other switch
 	bigNet = true, -- #5309: on once Review-QA and Sync pass
 	companionScene = true, -- #5284: on after Review-QA and Sync's phone pass of the scene
+	cannonReturn = true, -- #5304: on once Review-QA and Sync pass
 	catFollower = true, -- #5172: on after the walk and the Cats menu slot land, a Pace read and a restart (save field)
 	parkRankPoint = true, -- #5163: on after Review-QA and Sync's Studio pass
 	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device

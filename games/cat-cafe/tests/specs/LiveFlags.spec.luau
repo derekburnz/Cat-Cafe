@@ -197,6 +197,7 @@ return function()
 							or key == "netTiers" -- #5170
 							or key == "bigTreats" -- Derek 2026-11-18
 							or key == "bigNet" -- #5309
+							or key == "cannonReturn" -- #5304
 							or key == "cheapTiers" -- #5249
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258

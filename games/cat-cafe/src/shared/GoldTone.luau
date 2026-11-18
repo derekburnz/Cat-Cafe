@@ -1,7 +1,7 @@
 --!strict
 -- Gold cats from their base model (Model-Agent #4133, the first half of dropping the gold copies): each base cat's
 -- parts say how its gold twin differs, and GoldTone.apply turns a clone of the base into the gold cat. Per BasePart:
---   GoldTone 1, 2 or 3   the light, mid or deep gold below, in Metal
+--   GoldTone 1, 2 or 3   the light, mid or deep gold below, in GoldTone.MATERIAL with a little Reflectance
 --   GoldColor (Color3)   that colour, material unchanged (eyes, nose and the like keep their look)
 --   GoldSolid true       fully opaque, and casting a shadow when its longest side is at least 0.5 studs
 -- A part with none of these is left as it is. Every gold cat is the toned base (#4656: the `goldTone` switch is
@@ -11,11 +11,19 @@
 local GoldTone = {}
 
 GoldTone.TONES = table.freeze({
-	Color3.new(0.9843, 0.8941, 0.6039), -- 1 light
-	Color3.new(0.949, 0.7569, 0.3059), -- 2 mid
-	Color3.new(0.7882, 0.5608, 0.1647), -- 3 deep
+	-- #5199: mid and deep a step brighter than the Blender swatches (#F2C14E, #C98F2A, which goldtone.py matches the
+	-- twins by) at the same or more saturation, so a gold cat reads gold in the cafe's warm light and stays orange gold
+	-- in the sun (a paler lift went khaki outdoors, a darker deep went amber in the cafe). The light tone is the swatch.
+	Color3.new(0.9843, 0.8941, 0.6039), -- 1 light #FBE49A
+	Color3.new(1, 0.7593, 0.24), -- 2 mid #FFC23D
+	Color3.new(0.93, 0.7022, 0.279), -- 3 deep #EDB347
 })
 GoldTone.SHADOW_SIZE = 0.5
+-- #5199: Metal turned the gold amber in the cafe's dim warm light and khaki in bright sun (Sync, three rounds of
+-- colour tuning), because Metal takes its look from the surroundings. SmoothPlastic shows the tone's own colour
+-- everywhere, and a little Reflectance keeps a sheen.
+GoldTone.MATERIAL = Enum.Material.SmoothPlastic
+GoldTone.REFLECTANCE = 0.12
 
 local override: boolean? = nil
 
@@ -41,7 +49,8 @@ local function tonePart(part: BasePart)
 	local color = GoldTone.toneColor(part:GetAttribute("GoldTone"))
 	if color ~= nil then
 		part.Color = color
-		part.Material = Enum.Material.Metal
+		part.Material = GoldTone.MATERIAL
+		part.Reflectance = GoldTone.REFLECTANCE
 	else
 		local own = part:GetAttribute("GoldColor")
 		if typeof(own) == "Color3" then

@@ -171,7 +171,9 @@ end
 
 -- #5317: when the server has moved what a leaf hangs in (the cafe grew), the leaf's shut pose moves the same way.
 -- True when it moved. A frame part that streamed out (no parent) or is not in yet is left for later.
-local function followFrame(leaf: { shut: CFrame, frame: BasePart?, frameAt: CFrame, model: Model }): boolean
+local function followFrame(
+	leaf: { shut: CFrame, frame: BasePart?, frameAt: CFrame, model: Model }
+): boolean
 	local frame = leaf.frame
 	if frame == nil then
 		local found, at = frameOf(leaf.model)

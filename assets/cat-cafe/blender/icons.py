@@ -27,6 +27,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
                             Rewards, Tutorial, Feedback, Menu, MyCafe, Cannon, Areas, Potions, Bait,
                             NightMarket (the Night Market map bubble, #1607) and Bag (a backpack, #2453)
   CatCafe_Icon_Cat_<Name>   the shop-only cats' Store card and cat book picture (#1191): the sitting cat in its props
+  CatCafe_Icon_DecorTab_<Chip>  the Decor menu's chips (#5366, decor_tabs.py): All, Style, Lawn, Plants, Floor, Walls
   CatCafe_Icon_StoreTab_<Tab>  the Store's sidebar tabs (#1674, store_tabs.py): Featured, Passes, Cats, Potions and
                             Codes, in place of the tabs' emoji
   CatCafe_Icon_Badge_<Name>  the Roblox badges (#1934, badge_icons.py): a round gold-rimmed medal with one picture
@@ -71,6 +72,7 @@ import badge_icons  # noqa: E402
 import pass_reward_icons  # noqa: E402
 import store_icons  # noqa: E402
 import store_tabs  # noqa: E402
+import decor_tabs  # noqa: E402
 import waterparkshelf  # noqa: E402
 from common import RB  # noqa: E402
 
@@ -173,6 +175,8 @@ ICONS = {
     **{f"CatCafe_Icon_Market_{n}": (fn, INK, 10, MARKET_VIEWS[n]) for n, fn in market_icons.BUILDERS.items()},
     # #1674: the Store's sidebar tabs (store_tabs.py)
     **{f"CatCafe_Icon_StoreTab_{n}": (fn, INK, 10, store_tabs.VIEWS[n]) for n, fn in store_tabs.BUILDERS.items()},
+    # #5366: the Decor menu's chips (decor_tabs.py)
+    **{f"CatCafe_Icon_DecorTab_{n}": (fn, INK, 10, decor_tabs.VIEWS[n]) for n, fn in decor_tabs.BUILDERS.items()},
     # #1623: the Store's passes and products, fitted to Roblox's circle crop (STORE_FIT, store_icons.py)
     **{f"CatCafe_Icon_Pass_{n}": (fn, INK, 10, store_icons.VIEWS[n], None, STORE_FIT)
        for n, fn in store_icons.PASSES.items()},

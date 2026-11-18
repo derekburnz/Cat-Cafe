@@ -11,9 +11,11 @@
 local GoldTone = {}
 
 GoldTone.TONES = table.freeze({
-	Color3.new(0.9843, 0.8941, 0.6039), -- 1 light
-	Color3.new(0.949, 0.7569, 0.3059), -- 2 mid
-	Color3.new(0.7882, 0.5608, 0.1647), -- 3 deep
+	-- #5199: brighter than the Blender swatches (#FBE49A, #F2C14E, #C98F2A, which goldtone.py matches the twins by),
+	-- so a gold cat in the cafe's warm indoor light still reads gold, not bronze
+	Color3.new(0.9922, 0.9216, 0.6902), -- 1 light #FDEBB0
+	Color3.new(0.9804, 0.8157, 0.3922), -- 2 mid #FAD064
+	Color3.new(0.8784, 0.6627, 0.251), -- 3 deep #E0A940
 })
 GoldTone.SHADOW_SIZE = 0.5
 

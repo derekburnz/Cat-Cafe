@@ -130,12 +130,12 @@ local Config = {
 		cornerCafe = 4089080696855068, -- Corner Cafe
 		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
 		wonderCafe = 383838983462242, -- Wonder Cafe (made 2026-11-14, free)
-		-- #5160: 0 until badges.yml makes them (free only) from Model-Agent's icons
-		summitCafe = 0,
-		funfairCafe = 0,
-		royalCafe = 0,
-		secretFind = 0,
-		catMaster = 0,
+		-- #5160: made 2026-11-18 00:15 UTC by badges.yml (free) from Model-Agent's icons (#5162)
+		summitCafe = 946556433244703, -- Summit Cafe (#5160, made 2026-11-18)
+		funfairCafe = 544644545466611, -- Funfair Cafe
+		royalCafe = 2486851953650943, -- Royal Cafe
+		secretFind = 2624195981736362, -- Secret Finder
+		catMaster = 3407092942179958, -- Cat Master
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).

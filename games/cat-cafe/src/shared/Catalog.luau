@@ -2189,7 +2189,7 @@ function Catalog.setNetTiers(on: boolean): boolean
 				def.maxLevel = top
 				changed = true
 			end
-			local costs = def.costs :: { number }
+			local costs: any = def.costs -- a level past maxLevel is taken away (nil) with the switch off
 			for level, cost in Catalog.NET_TIER_COSTS do
 				costs[level] = if on then cost else nil
 			end

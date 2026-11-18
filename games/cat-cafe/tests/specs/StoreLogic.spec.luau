@@ -1132,6 +1132,26 @@ return function()
 			expect(#StoreLogic.infoLines(nap)).to.equal(2)
 			expect(StoreLogic.infoText(nap)).to.equal("Away money at 100%.\nWithout it: 50%.")
 		end)
+
+		-- #5260: with kingCatInfo on, the Cat King Pack's sheet says how King Croissant earns, in numbers that match
+		-- the Catalog (a Mythical's rate over a Legendary's)
+		it("says how good the King Cat is with the switch on", function()
+			local Catalog = require(game:GetService("ReplicatedStorage").Shared.Catalog) :: any
+			local times = Catalog.rarities.Mythical.incomePerSecond
+				/ Catalog.rarities.Legendary.incomePerSecond
+			expect(times).to.equal(3)
+			local row = { key = "kingPack", effect = "The King Cat and 4 royal extras." } :: any
+			expect(StoreLogic.infoText(row, true):find("3x a Legendary", 1, true)).to.be.ok()
+			expect(StoreLogic.infoText(row, false):find("3x a Legendary", 1, true)).to.equal(nil)
+			expect(StoreLogic.KING_PERK:find("3x a Legendary", 1, true)).to.be.ok()
+		end)
+
+		-- #5263: with bowlTicks on, the Second Bait Bowl pass's sheet lists the auto ticks it now gives
+		it("lists the auto ticks on the Second Bait Bowl pass with bowlTicks on", function()
+			local row = { key = "secondBowl", effect = "Two baits run at once." } :: any
+			expect(StoreLogic.infoText(row, false, true):find("Auto claim", 1, true)).to.be.ok()
+			expect(StoreLogic.infoText(row):find("Auto claim", 1, true)).to.equal(nil)
+		end)
 	end)
 
 	describe("the reworked Store (#3572)", function()
@@ -1146,12 +1166,18 @@ return function()
 		end)
 
 		it("says golden fish in the header line on the switch's Fish side", function()
-			expect(StoreLogic.subtitle("featured", true)).to.equal("Fish prices show where an item has one.")
+			expect(StoreLogic.subtitle("featured", true)).to.equal(
+				"Fish prices show where an item has one."
+			)
 			expect(StoreLogic.subtitle("potions", true)).to.equal(
 				"Potions are used from your Bag. These need Robux."
 			)
-			expect(StoreLogic.subtitle("deal", true)).to.equal("A new deal every day. These need Robux.")
-			expect(StoreLogic.subtitle("cats", true)).to.equal("Cat helpers are yours to keep. Some need Robux.")
+			expect(StoreLogic.subtitle("deal", true)).to.equal(
+				"A new deal every day. These need Robux."
+			)
+			expect(StoreLogic.subtitle("cats", true)).to.equal(
+				"Cat helpers are yours to keep. Some need Robux."
+			)
 			expect(StoreLogic.subtitle("packs", true)).to.equal(
 				"Packs are yours to keep. Prices are in golden fish."
 			)

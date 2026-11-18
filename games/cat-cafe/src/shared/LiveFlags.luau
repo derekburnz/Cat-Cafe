@@ -138,6 +138,12 @@ LiveFlags.KEYS = {
 	"nightSlice", -- #5164: the client's day and night change spreads its World walk and night look over frames (WorldController); off by default
 	"spinCat", -- #5171: the Spin Wheel's ninth slice, a Secret cat at 0.25% (shared/SpinCat); off by default
 	"nightSpread", -- #5164: dusk's strays leaving and sunrise's stuck cats spread over frames (shared/NightSpread); off by default
+	"bowlTicks", -- #5263: the bowl's tick boxes, auto ones with the Second Bait Bowl pass (Screens/BaitBowl, BaitService); off by default
+	"foodByRarity", -- #5264: food lists sort by rarity before the catalog's sortOrder (Components/FoodOrder); off by default
+	"kingCatInfo", -- #5260: the Cat King Pack's gold chip and i sheet say how King Croissant earns (Components/StoreLogic); off by default
+	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
+	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
+	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"catFollower", -- #5172: one of your cats follows you for Money or Luck (shared/Follower); off by default
 	"parkRankPoint", -- #5163: after a Park cat checks in at Tier 2 the screen dims round the goal card, once a session (UI.parkRankPoint); off by default
@@ -215,6 +221,12 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightSlice = true, -- #5164: on after Review-QA and Sync's frame-time read across a phase change
 	spinCat = true, -- #5171: on once the window's ninth wedge and the Odds list pass Review-QA and Sync's Studio look
 	nightSpread = true, -- #5164: on after Review-QA and Sync's phase change timing
+	bowlTicks = true, -- #5263: on once Gameplay-Engineer's BaitService side is merged and Review-QA has checked both
+	foodByRarity = true, -- #5264: on after Review-QA's look at the bowl list
+	kingCatInfo = true, -- #5260: on after Review-QA's phone check of the Store card
+	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
+	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
+	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	catFollower = true, -- #5172: on after the walk and the Cats menu slot land, a Pace read and a restart (save field)
 	parkRankPoint = true, -- #5163: on after Review-QA and Sync's Studio pass

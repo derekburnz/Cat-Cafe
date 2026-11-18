@@ -18,6 +18,8 @@ local GiftLadderLogic = {}
 export type Row = { id: string, left: number, words: string }
 
 GiftLadderLogic.SHOWN = 2 -- the list's ladder rows (5a: "the next two steps")
+-- #5254: the switch that shows only the next step, below the other reward rows (Screens/HUD); off by default
+GiftLadderLogic.ONE_ROW_FLAG = "oneLadderRow"
 GiftLadderLogic.PARTS = 2 -- the words name at most this many things, so a row stays one line on a phone
 
 -- "swift_potion" -> "Swift Potion"

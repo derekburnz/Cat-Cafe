@@ -123,6 +123,22 @@ local AUTO_NAMES: { [string]: string } =
 	{ claim = "AutoClaim", refill = "AutoRefill", popups = "NewCatPopups" }
 local AUTO_WORDS: { [string]: string } =
 	{ claim = "Auto claim", refill = "Auto refill", popups = "New cat pop-ups" }
+-- #5263 (Derek 2026-11-18: tick boxes "auto refill with best" and "auto claim foodbowl cats" as part of the 2nd food
+-- bowl pass, a buy prompt when one is turned on without it, and a free tick for no new cat pop-ups; his OK of
+-- Design-Agent/bowl-ticks-2026-11-18 at 14:48 UTC, "put the tick boxes here", under the wait chip over Refill): with
+-- the switch `bowlTicks` on, the card is BOWL OPTIONS for everyone with a bowl: three tick boxes, top down Auto refill,
+-- Auto claim, No new cat pop-ups. The first two come with the Second Bait Bowl pass (or the old Auto Bowl pass, kept
+-- for its owners); without either they show a lock, and a tap opens the Second Bait Bowl pass's purchase. No new cat
+-- pop-ups is free and ticked means the setting bowlNewCatCard is off. The Auto Bowl Store card is hidden meanwhile
+-- (UI.init's Store rows). The server's side (BaitService takes either pass) is Gameplay-Engineer's, behind the same
+-- switch.
+local TICKS_FLAG = "bowlTicks"
+local TICK_ORDER = { "refill", "claim", "popups" }
+local TICK_WORDS: { [string]: string } = {
+	refill = "Auto refill with best",
+	claim = "Auto claim bowl cats",
+	popups = "No new cat pop-ups",
+}
 local AUTO_HOLD = 5 -- SettingsList.HOLD_SECONDS: a tap holds until the server agrees
 local AUTO_ROW = 36 -- a switch row, the tap height a mouse needs; touch Hit pads reach 44
 local AUTO_PILL_W = 64
@@ -662,6 +678,7 @@ function BaitBowl._buildAuto(self: any)
 	})
 	-- the switches, one row each: its words on the left and an ON / OFF pill on the right
 	self._autoRows = {} :: { [string]: Frame }
+	self._autoWords = {} :: { [string]: TextLabel } -- #5263: the words change with bowlTicks
 	self._autoPills = {} :: { [string]: Button.Button }
 	for _, key in AUTO_ORDER do
 		local row: Frame = Create("Frame", {
@@ -670,7 +687,7 @@ function BaitBowl._buildAuto(self: any)
 			Size = UDim2.new(1, -AUTO_PAD * 2, 0, AUTO_ROW),
 			Parent = body,
 		})
-		text({
+		self._autoWords[key] = text({
 			Name = "Words",
 			Size = UDim2.new(1, -(AUTO_PILL_W + 4), 1, 0),
 			FontFace = Theme.fonts.bodyBold,
@@ -715,7 +732,30 @@ function BaitBowl._autoValue(self: any, key: string): boolean
 	return server
 end
 
+-- #5263: whether the tick boxes show (the bowlTicks switch)
+local function ticksOn(): boolean
+	return LiveFlags.shown(
+		TICKS_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. TICKS_FLAG)
+	)
+end
+
+-- #4266, #5263: whether the auto switches are the player's: the Auto Bowl pass (Roblox's word or the server's), or
+-- with bowlTicks on the Second Bait Bowl pass too
+function BaitBowl._autoOwns(self: any, ticks: boolean): boolean
+	local state: Types.PlayerState? = self._state
+	if self._autoOwned or (state ~= nil and state.autoBowl ~= nil and state.autoBowl.owned) then
+		return true
+	end
+	return ticks and self._second == "on"
+end
+
 function BaitBowl._tapAuto(self: any, key: string)
+	-- #5263: a locked tick opens the Second Bait Bowl pass's purchase in place of a change
+	if key ~= "popups" and ticksOn() and not self:_autoOwns(true) then
+		self._callbacks.buySecond()
+		return
+	end
 	local settingKey = AUTO_KEYS[key]
 	local on = not self:_autoValue(key)
 	self._autoTaps[settingKey] = { value = on, at = os.clock() }
@@ -746,15 +786,19 @@ function BaitBowl._renderAuto(self: any)
 	end
 	local state: Types.PlayerState? = self._state
 	local price: PassPrice? = self._autoPrice
+	local ticks = ticksOn() -- #5263
 	-- owned by the server's word (state.autoBowl) or Roblox's (PassShop, at once after a purchase)
-	local owned: boolean = self._autoOwned
-		or (state ~= nil and state.autoBowl ~= nil and state.autoBowl.owned)
-	local selling = not owned and price ~= nil and price.forSale and price.robux ~= nil
+	local owned: boolean = self:_autoOwns(ticks)
+	local selling = not ticks
+		and not owned
+		and price ~= nil
+		and price.forSale
+		and price.robux ~= nil
 	local shown = state ~= nil
-		and LiveFlags.shown(
+		and (ticks or LiveFlags.shown(
 			AUTO_FLAG,
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AUTO_FLAG)
-		)
+		))
 		and (state.upgradeLevels.lure_bowl or 0) >= 1
 		and self:_takesFood(self._selected)
 	-- top down: the heading (owned) or the offer (on sale), then the rows. On touch a pill's Hit pad reaches a
@@ -766,7 +810,8 @@ function BaitBowl._renderAuto(self: any)
 		else AUTO_ROW
 	local reach = (pad - AUTO_ROW) / 2
 	local step = math.max(AUTO_ROW + 4, pad + 1)
-	local keys: { string } = if owned then AUTO_ORDER else { "popups" }
+	local keys: { string } = if ticks then TICK_ORDER elseif owned then AUTO_ORDER else { "popups" }
+	local headed = owned or ticks -- #5263: BOWL OPTIONS heads the ticks for everyone
 	local room = 0
 	if shown then
 		-- room between the wait chip and the foot buttons (a phone with a cat waiting may have none)
@@ -783,7 +828,7 @@ function BaitBowl._renderAuto(self: any)
 		)
 	end
 	local function layout(offerH: number): (number, number)
-		local first = if owned
+		local first = if headed
 			then AUTO_PAD + AUTO_HEAD + reach
 			elseif selling then offerH + math.max(6, 2 * reach + 1)
 			else AUTO_PAD + reach
@@ -818,12 +863,14 @@ function BaitBowl._renderAuto(self: any)
 	self._autoBody.CanvasSize = UDim2.fromOffset(0, height)
 	self._autoBody.ScrollBarThickness = if cardH < height then 4 else 0
 	card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach)) -- clear of Refill's pad too
-	self._autoStroke.Color = if owned
+	self._autoStroke.Color = if ticks
 		then Theme.colors.mintDark
+		elseif owned then Theme.colors.mintDark
 		elseif selling then Theme.colors.gold
 		else CARD.cardStroke
 	self._autoOffer.Visible = selling
-	self._autoHeading.Visible = owned
+	self._autoHeading.Visible = headed
+	self._autoHeading.Text = if ticks then "BOWL OPTIONS" else "AUTO BOWL"
 	if selling and price and price.robux then
 		local words = ("R$%d"):format(price.robux :: number)
 		self._autoBuy:setText(if short then "Auto Bowl  " .. words else words)
@@ -835,9 +882,33 @@ function BaitBowl._renderAuto(self: any)
 			row.Position = UDim2.fromOffset(AUTO_PAD, y + (index - 1) * step)
 			local on = self:_autoValue(key)
 			local pill: Button.Button = self._autoPills[key]
-			pill:setStyle(if on then "primary" else "slate")
-			pill:setText(if on then "ON" else "OFF")
-			pill.instance:SetAttribute("On", on)
+			local words: TextLabel = self._autoWords[key]
+			if ticks then
+				-- #5263: a square tick box on the left of its words; ticked No new cat pop-ups is the setting off
+				local ticked = if key == "popups" then not on else on
+				local locked = key ~= "popups" and not owned
+				pill.instance.Size = UDim2.fromOffset(AUTO_ROW, AUTO_ROW)
+				pill.instance.AnchorPoint = Vector2.new(0, 0)
+				pill.instance.Position = UDim2.fromScale(0, 0)
+				pill:setStyle(if ticked and not locked then "primary" else "slate")
+				pill:setText(if locked then "🔒" elseif ticked then "✓" else "")
+				pill.instance:SetAttribute("On", ticked and not locked)
+				pill.instance:SetAttribute("Locked", locked)
+				words.Text = TICK_WORDS[key]
+				words.Position = UDim2.fromOffset(AUTO_ROW + 8, 0)
+				words.Size = UDim2.new(1, -(AUTO_ROW + 8), 1, 0)
+			else
+				pill.instance.Size = UDim2.fromOffset(AUTO_PILL_W, AUTO_ROW)
+				pill.instance.AnchorPoint = Vector2.new(1, 0)
+				pill.instance.Position = UDim2.fromScale(1, 0)
+				pill:setStyle(if on then "primary" else "slate")
+				pill:setText(if on then "ON" else "OFF")
+				pill.instance:SetAttribute("On", on)
+				pill.instance:SetAttribute("Locked", nil)
+				words.Text = AUTO_WORDS[key]
+				words.Position = UDim2.fromOffset(0, 0)
+				words.Size = UDim2.new(1, -(AUTO_PILL_W + 4), 1, 0)
+			end
 		end
 	end
 end

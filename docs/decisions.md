@@ -1252,3 +1252,7 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 
 ## 2026-11-18: The spin wheel may give a cat (#5171)
 Derek 2026-11-17 23:55 UTC asked for a good cat at a low rate on the wheel. This reverses the F49 rule "a spin never gives a cat". Lucky Clover (Secret) at 0.25%, shown in the Odds list, dark shape until owned, behind `spinCat`. It holds only while spins are free: if spins are ever sold for Robux, the cat slice comes off first, because a paid spin that can give a cat is a paid random item. Same night: stronger nets need fewer hits and Net 4 and 5 (#5170, `netTiers`), and the cat follower (#5172, `catFollower`), all off by default.
+
+## 2026-11-18: Cheaper rank ups to Tiers 3 to 8 (#5249, #5271)
+Derek asked three times on Nov 18 (14:28, 14:36 and 15:06 UTC) for an easier climb, "especially getting to ruins". Behind one off switch `cheapTiers` (shared/CheapTiers): Tier 3 50k to 25k, Tier 4 1M to 400k, Tier 5 12M to 5M, Tier 6 150M to 50M and 21 kinds to 17, Tier 7 3.125B to 1B, 27 kinds to 22 and 3 Mythicals to 2, Tier 8 21B to 7B and 43 kinds to 35 (its 5 Mythicals, Derek's #4513, kept). Tiers 9 and 10 and every reward are unchanged. The cost cut is Derek's own call, so the "raise costs, never cut rewards" rule is met.
+- **Read:** Growth compares tier 3 to 8 reach a day before and after the on-minute.

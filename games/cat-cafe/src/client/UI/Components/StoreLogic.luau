@@ -461,10 +461,48 @@ StoreLogic.INFO = {
 	},
 } :: { [string]: { PackLine } }
 
+-- #5260 (Derek 2026-11-18: "no explanation on king cat of how good it is fix that"): behind the switch `kingCatInfo`
+-- (LiveFlags.OFF_BY_DEFAULT; Screens/Store reads it), the Cat King Pack's card gets a gold chip with how he earns and
+-- its i sheet says it in numbers. King Croissant is a Mythical shop cat: he earns like a Mythical from the owner's
+-- newest area and keeps up as areas open (CatStats.areaMultiplier, `exclusive`), and a Mythical's rate is 3 times a
+-- Legendary's (Catalog.rarities: 75 against 25), so 3 times Duchess Marzipan, the Royal Cat. The booth is +8% money
+-- in use (shared/KingPack).
+StoreLogic.KING_FLAG = "kingCatInfo"
+StoreLogic.KING_PERK = "Mythical: 3x a Legendary"
+StoreLogic.KING_INFO = {
+	{ left = "King Croissant, a Mythical cat", right = "" },
+	{ left = "Earns like a Mythical from your newest area", right = "" },
+	{ left = "That is 3x a Legendary cat", right = "3x the Royal Cat" },
+	{ left = "Keeps up as you open new areas", right = "" },
+	{ left = "Royal Velvet Booth", right = "+8% money in use" },
+	{ left = "Royal Crest sign and Grand look", right = "looks only" },
+	{ left = "Potion Pack M", right = "5 Big Tip, 3 Swift, 2 Steady" },
+	KEEP_TRADE,
+} :: { PackLine }
+
+-- #5263: with the switch `bowlTicks` on, the Second Bait Bowl pass also gives the bowl's Auto refill and Auto claim
+-- ticks (Screens/BaitBowl), so its i sheet says so
+StoreLogic.SECOND_TICKS_INFO = {
+	{ left = "A second bait bowl", right = "" },
+	{ left = "Two baits run at once, so more cats come", right = "" },
+	{ left = "Auto refill", right = "with your best food" },
+	{ left = "Auto claim", right = "tames each bowl cat" },
+	{ left = "Never buys food for you", right = "" },
+	KEEP,
+} :: { PackLine }
+
 -- #4277: the i sheet's lines for a Store row: a pack's pieces, its INFO entry, else its own words a line each.
-function StoreLogic.infoLines(row: Row): { PackLine }
+-- #5260: `king` (the kingCatInfo switch) swaps the Cat King Pack's lines for KING_INFO; #5263: `ticks` (bowlTicks)
+-- the Second Bait Bowl pass's for SECOND_TICKS_INFO.
+function StoreLogic.infoLines(row: Row, king: boolean?, ticks: boolean?): { PackLine }
 	if row.pack ~= nil then
 		return StoreLogic.packLines(row.pack)
+	end
+	if king == true and row.key == "kingPack" then
+		return StoreLogic.KING_INFO
+	end
+	if ticks == true and row.key == "secondBowl" then
+		return StoreLogic.SECOND_TICKS_INFO
 	end
 	local info = StoreLogic.INFO[row.key]
 	if info ~= nil then
@@ -478,9 +516,9 @@ function StoreLogic.infoLines(row: Row): { PackLine }
 end
 
 -- #4277: the i sheet's words for a row in one string, a line each ("left  right")
-function StoreLogic.infoText(row: Row): string
+function StoreLogic.infoText(row: Row, king: boolean?, ticks: boolean?): string
 	local parts: { string } = {}
-	for _, line in StoreLogic.infoLines(row) do
+	for _, line in StoreLogic.infoLines(row, king, ticks) do
 		table.insert(parts, if line.right ~= "" then line.left .. "  " .. line.right else line.left)
 	end
 	return table.concat(parts, "\n")

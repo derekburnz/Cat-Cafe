@@ -2016,6 +2016,38 @@ Catalog.tiers = {
 
 Catalog.maxTier = #Catalog.tiers
 
+-- #5249: what Tiers 3 to 8 ask for plainly (coins, kinds of cats, their rare cats), and what they ask while
+-- `cheapTiers` is on (shared/CheapTiers): `needs` nil puts the plain ones back, and a field a tier's entry leaves out
+-- stays plain. Returns whether any changed.
+export type TierNeeds = { cost: number?, distinctCats: number?, needsRarityCount: number? }
+Catalog.PLAIN_TIER_NEEDS = {} :: { [number]: TierNeeds }
+for tier = 3, 8 do
+	local def = Catalog.tiers[tier] :: Types.TierDef
+	Catalog.PLAIN_TIER_NEEDS[tier] = {
+		cost = def.cost,
+		distinctCats = def.distinctCats,
+		needsRarityCount = def.needsRarityCount,
+	}
+end
+function Catalog.setTierNeeds(needs: { [number]: TierNeeds }?): boolean
+	local changed = false
+	for tier, plain in Catalog.PLAIN_TIER_NEEDS do
+		local def = Catalog.tiers[tier] :: any
+		local want: TierNeeds = if needs ~= nil and needs[tier] ~= nil then needs[tier] else {}
+		for _, field in { "cost", "distinctCats", "needsRarityCount" } do
+			local value = (want :: any)[field]
+			if value == nil then
+				value = (plain :: any)[field]
+			end
+			if def[field] ~= value then
+				def[field] = value
+				changed = true
+			end
+		end
+	end
+	return changed
+end
+
 function Catalog.getTier(tier: number): Types.TierDef?
 	return Catalog.tiers[tier]
 end

@@ -2578,7 +2578,7 @@ Presets.catPoses = {
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
 
--- Controller rumble and phone taps (#4224; Effects/Rumble): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
+-- Controller rumble (#4224; Effects/Rumble; phones never vibrate, #5214): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
 -- stud, between `least` and `most` of full, for the bump's seconds kept between `shortest` and `longest`. `catch` is
 -- your own catch's pulse by rarity: light for a Common, firmer and a little longer the rarer the cat.
 Presets.rumble = {
@@ -2587,11 +2587,6 @@ Presets.rumble = {
 	most = 0.7,
 	shortest = 0.08,
 	longest = 0.5,
-	-- a phone taps once: a click, a knock from `knockFrom` of full or a thump from `thumpFrom`, felt within `tapReach`
-	-- studs of where the camera looks
-	knockFrom = 0.3,
-	thumpFrom = 0.5,
-	tapReach = 60,
 	catch = {
 		Common = { seconds = 0.08, strength = 0.2 },
 		Rare = { seconds = 0.1, strength = 0.25 },

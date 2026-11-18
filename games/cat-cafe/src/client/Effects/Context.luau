@@ -151,7 +151,7 @@ function Context.reducedMotion(): boolean
 	return GuiService.ReducedMotionEnabled
 end
 
--- #4224: rumble and phone taps only while the `deviceFixes` switch is on (off by default; read each time, so the
+-- #4224: gamepad rumble only while the `deviceFixes` switch is on (off by default; read each time, so the
 -- switch works mid session).
 local function rumbleOn(): boolean
 	return LiveFlags.shown(

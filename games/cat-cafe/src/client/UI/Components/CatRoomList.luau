@@ -13,6 +13,10 @@
 --                                            "Rarity" is rarest first whether working or not, then the higher
 --                                            rating; "Level" is the highest level first, then rarer, then the
 --                                            higher rating. Breed and uid settle ties in each.
+--   list(..., "Boost", boostOf)           -> #5172 (catFollower): the best follower first, `boostOf(instance)` being
+--                                            what that cat would give as follower (shared Follower.amount, with
+--                                            the player's Money or Luck pick and its coat), then the Rarity order.
+--                                            Without `boostOf` it is the "Best" order.
 --   nextSort(sort)                        -> the order after `sort` as the Sort button steps round them
 -- Pure, no Theme, so the cloud spec runner can load it; the caller passes the rarity rank.
 
@@ -21,9 +25,10 @@ local Types = require(script.Parent.Parent.Types)
 local CatRoomList = {}
 
 export type Filter = "All" | "Working" | "Resting"
-export type Sort = "Best" | "Rarity" | "Level"
+export type Sort = "Best" | "Rarity" | "Level" | "Boost"
 
-local SORTS: { Sort } = { "Best", "Rarity", "Level" }
+-- "Boost" (#5172) shows in the Sort pop-up only while the follower slot is open (CatRoom)
+local SORTS: { Sort } = { "Best", "Rarity", "Level", "Boost" }
 CatRoomList.SORTS = table.freeze(SORTS)
 
 function CatRoomList.nextSort(sort: Sort): Sort
@@ -81,7 +86,8 @@ function CatRoomList.list(
 	rank: (rarity: string) -> number,
 	filter: Filter,
 	query: string,
-	sort: Sort?
+	sort: Sort?,
+	boostOf: ((instance: Types.CatInstance) -> number)?
 ): { Types.CatInstance }
 	local shown: { Types.CatInstance } = {}
 	for _, instance in cats do
@@ -113,11 +119,25 @@ function CatRoomList.list(
 		return instance.level or 1
 	end
 	local order: Sort = sort or "Best"
+	if order == "Boost" and boostOf == nil then
+		order = "Best"
+	end
+	local boosts: { [string]: number } = {}
+	if order == "Boost" and boostOf ~= nil then
+		for _, instance in shown do
+			boosts[instance.uid] = boostOf(instance)
+		end
+	end
 	table.sort(shown, function(a: Types.CatInstance, b: Types.CatInstance): boolean
 		if order == "Best" then
 			local workingA, workingB = a.spotId ~= nil, b.spotId ~= nil
 			if workingA ~= workingB then
 				return workingA
+			end
+		elseif order == "Boost" then
+			local boostA, boostB = boosts[a.uid] or 0, boosts[b.uid] or 0
+			if boostA ~= boostB then
+				return boostA > boostB
 			end
 		elseif order == "Level" then
 			local levelA, levelB = levelOf(a), levelOf(b)

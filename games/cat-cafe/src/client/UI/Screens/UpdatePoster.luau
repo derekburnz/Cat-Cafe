@@ -32,6 +32,7 @@ type Face = {
 	model: Instance,
 	gui: SurfaceGui,
 	picture: ImageLabel,
+	header: TextLabel,
 	name: TextLabel,
 	countdown: TextLabel,
 	hint: TextLabel,
@@ -255,6 +256,7 @@ function UpdatePoster._attach(self: any, model: Instance)
 		model = model,
 		gui = gui,
 		picture = picture,
+		header = header,
 		name = name,
 		countdown = countdown,
 		hint = hint,
@@ -282,7 +284,7 @@ function UpdatePoster._view(self: any): UpdatePosterLogic.View?
 	-- the server's clock, so a device with a wrong clock still counts down to the real start
 	local view =
 		UpdatePosterLogic.view(Config.UpdateEvents, math.floor(Workspace:GetServerTimeNow()))
-	self._eventId = if view then view.id else nil
+	self._eventId = if view ~= nil and view.live ~= true then view.id else nil -- an update out now has no ask
 	return view
 end
 
@@ -299,11 +301,15 @@ function UpdatePoster._paint(_self: any, face: Face, view: UpdatePosterLogic.Vie
 	if face.picture.Image ~= image then
 		face.picture.Image = image
 	end
+	local live = view.live == true
+	face.header.Text = if live
+		then UpdatePosterLogic.LIVE_HEADER
+		else "🔔 " .. UpdatePosterLogic.HEADER
 	face.name.Text = view.name
 	face.countdown.Text = view.countdown
-	face.hint.Visible = true
+	face.hint.Visible = not live
 	face.prompt.ObjectText = view.name
-	face.prompt.Enabled = true
+	face.prompt.Enabled = not live
 end
 
 function UpdatePoster._renderAll(self: any)

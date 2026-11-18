@@ -4213,6 +4213,15 @@ function HUD.pointCannon(self: any, on: boolean)
 	end
 end
 
+-- #5284: the Cats button, while it is on screen (the Cat Companion's soft arrow)
+function HUD.catsButton(self: any): GuiObject?
+	local pill = self._pills["Cats"]
+	if pill == nil or not pill.instance.Visible or not self.screenGui.Enabled then
+		return nil
+	end
+	return pill.instance
+end
+
 -- #3555: the goal card, the button that opens the rank up window, while it is on screen.
 -- #4909 (Sync's Studio run: the strip said "Tap RANK UP" while the walk-through's arrow moved to YOUR GOAL): the
 -- strip's RANK UP button first while it shows, so the arrow stays on the button the words name

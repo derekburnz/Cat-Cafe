@@ -1529,7 +1529,9 @@ function CatRoom._pressBoost(self: any)
 	local send = setBoost :: (boost: string) -> ()
 	send(boost)
 	self:_say(
-		if boost == "luck" then "Your follower brings Luck." else "Your follower brings money.",
+		if boost == "luck"
+			then "Your Cat Companion brings Luck."
+			else "Your Cat Companion brings money.",
 		true
 	)
 end

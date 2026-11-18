@@ -213,6 +213,7 @@ export type IndexPrize = {
 	tag: string?, -- a name tag ("Cat Master")
 	decorId: string?,
 	potions: { [string]: number }?, -- v0.10: potion id -> count (Tip Jar step 12, codes, the Daily Treat)
+	traitTokens: number?, -- Daily Treat v2 (bigTreats): Trait Tokens for the Mystic Pool
 }
 
 -- The Cat Collector's offer (F63, data-model section 12b), a Catalog.collectorOffers row as CollectorOffer sends it.

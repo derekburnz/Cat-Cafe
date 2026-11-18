@@ -13,6 +13,7 @@
 -- sets feedbackAsked) and `stuck_help` (the "Need a hand?" card: sets stuckHelpShown for the current tutorialStep).
 
 local Catalog = require(script.Parent.Catalog)
+local CompanionScene = require(script.Parent.CompanionScene)
 local Economy = require(script.Parent.Economy)
 local RankSpot = require(script.Parent.RankSpot)
 local StationCut = require(script.Parent.StationCut)
@@ -133,6 +134,7 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.LIKE_RECAP -- #5152
 		or id == Tips.NEXT_GOAL -- #5202
 		or id == Tips.PARK_POINT -- Derek 2026-11-18
+		or id == CompanionScene.KEY -- #5284
 end
 
 -- #3430: whether the Mystic Pool's cutscene is due at a walk-up: the pool is open to this player (`traits` is the
@@ -347,6 +349,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					or key == Tips.NEXT_GOAL -- #5202
 					or key == Tips.PARK_POINT -- Derek 2026-11-18
 					or key == Tips.PERFECT_CHARM -- #5300
+					or key == CompanionScene.KEY -- #5284
 				)
 			then
 				seen[key] = true

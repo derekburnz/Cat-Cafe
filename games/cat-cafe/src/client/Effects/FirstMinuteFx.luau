@@ -16,6 +16,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Context = require(script.Parent.Context)
+local FirstCatchWow = require(script.Parent.FirstCatchWow)
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Particles = require(script.Parent.Particles)
@@ -124,12 +125,17 @@ local function watchCard(playerGui: Instance)
 	playerGui.ChildAdded:Connect(hook)
 end
 
-local function caught()
+local function caught(strayId: string?, rarity: string?)
 	if not FirstMinuteFx.cheers(catsCaught, catchDone) then
 		return
 	end
 	catchDone = true
 	Moments.FirstCatchCheer:Fire()
+	-- #5285 E2: with the firstCatchWow switch on, the wow moment (slow motion, push, big pop, coins, banner) in
+	-- place of the confetti cheer; the cheer's sound above is its one sting
+	if FirstCatchWow.on() and FirstCatchWow.play(strayId, rarity) then
+		return
+	end
 	if Context.reducedMotion() then
 		return
 	end

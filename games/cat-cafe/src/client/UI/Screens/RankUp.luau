@@ -122,6 +122,16 @@ local STEPS_SLACK = 24
 -- reads "Rank Up (N steps left)".
 RankUp.STEPS_FLAG = "rankUpSteps"
 local GO_W = 64
+-- Sync's portrait read (rankUpSteps): the steps window is about 420 px wide at the 0.75 touch floor, so on a 360 px
+-- portrait phone it ran past the edge. It is now no wider than STEPS_MAX_W of the room, and a step's words wrap
+-- (never under STEP_MIN_TEXT) instead of shrinking away.
+local STEPS_MAX_W = 0.92
+local STEP_MIN_TEXT = 14
+-- The status box's width and its inset from the row's right edge, plus the gap kept between it and the label (the
+-- label ran 8 px into the status before).
+local STATUS_W = 170
+local STATUS_IN = 14
+local LABEL_GAP = 8
 local function flagOn(key: string): boolean
 	return LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 end
@@ -583,7 +593,10 @@ function RankUp._fit(self: any)
 	local wide = not noOpens and room.Y < TALL.Y
 	local bareHeight = if steps() then RankUp.stepsHeight(self._stepCount or 3) else BARE_HEIGHT
 	local size = if noOpens
-		then Vector2.new(math.min(TALL.X, room.X), math.min(bareHeight, room.Y))
+		then Vector2.new(
+			math.min(TALL.X, if steps() then room.X * STEPS_MAX_W else room.X),
+			math.min(bareHeight, room.Y)
+		)
 		elseif wide then Vector2.new(math.min(WIDE.X, room.X), math.min(WIDE.Y, room.Y))
 		else TALL
 	self.frame.Size = UDim2.fromOffset(math.floor(size.X), math.floor(size.Y))
@@ -675,21 +688,28 @@ function RankUp._row(
 	})
 	Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = tile })
 	left = 46
-	text({
+	-- Sync's portrait read (rankUpSteps): a step's label takes only the width left after the status and the Go button,
+	-- with LABEL_GAP between, and wraps onto a second line
+	local labelRight = if asStep then STATUS_IN + STATUS_W + LABEL_GAP else 176
+	local label = text({
 		Name = "Label",
 		Position = UDim2.fromOffset(left, 0),
-		Size = UDim2.new(1, -(left + 176 + goRoom), 1, -6),
+		Size = UDim2.new(1, -(left + labelRight + goRoom), 1, -6),
 		FontFace = Theme.fonts.bodyBold,
 		TextColor3 = CARD.text,
 		Text = if asStep then (item.step or item.label) else item.label,
 		Parent = row,
 	})
+	if asStep then
+		label.TextWrapped = true
+		label.TextTruncate = Enum.TextTruncate.None
+	end
 	text({
 		Name = "Status",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -(14 + goRoom), 0, 0),
+		Position = UDim2.new(1, -(STATUS_IN + goRoom), 0, 0),
 		-- room for "$45,000 / $80,000" at full size (the economy pass of 2026-10-28 put ranks at $8K to $5M)
-		Size = UDim2.new(0, 170, 1, -6),
+		Size = UDim2.new(0, STATUS_W, 1, -6),
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextColor3 = if item.met then CARD.good else CARD.warn,
@@ -718,7 +738,7 @@ function RankUp._row(
 	end
 	-- #4479 (Derek 2026-11-15: "in the rankup cards on mobile the coins don't show the full ... $##/..."): the need and
 	-- its numbers shrink to fit on a phone instead of ending in "..."
-	FitText.shrink(row:FindFirstChild("Label") :: TextLabel)
+	FitText.shrink(label, if asStep then STEP_MIN_TEXT else nil)
 	if not item.met then
 		FitText.shrink(row:FindFirstChild("Status") :: TextLabel)
 	end

@@ -12083,6 +12083,19 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "HarvestStallDecor", function()
 		UI.harvest.open("decor")
 	end },
+	-- the Christmas Event's Gift Stall (snowglobe-village-spec 5): 260 Snowflakes, the Santa Hat owned, the rest priced
+	{ "GiftStall", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_christmasEvent", true)
+		local Logic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GiftStallLogic") :: any
+		local view = Logic.defaultView({ snowflakes = 260 })
+		view.items[1].owned = true
+		UI.giftStall.setView(view)
+		UI.giftStall.open("outfit")
+	end },
+	{ "GiftStallDecor", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_christmasEvent", true)
+		UI.giftStall.open("decor")
+	end },
 	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a Steady Potion sold out
 	{ "CornerShop", function()
 		UI.cornerShop.setStock({

@@ -4043,6 +4043,32 @@ Presets.adminDrops = {
 -- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
 -- Snowglobe Village's world effects (Effects/SnowglobeFx, Christmas Event Dec 1). Tag names are placeholders until
 -- Model-Agent's village and Gameplay-Engineer's event row land; change them here only.
+-- Christmas Event (Effects/SnowglobeFlakes): the Snowflake patch. Ready flakes bob `height` studs over `period`
+-- seconds (each `phaseStep` seconds behind the one before) and turn once every `spin` seconds within `bobWithin`
+-- studs; a pick within `within` studs bursts `pickCount` icy sparkles `lift` studs up and a `pickRing` stud ring, a
+-- regrow `regrowCount`; a rise in your Snowflakes pops "+N Snowflakes" over your head for `popSeconds`.
+Presets.snowglobeFlakes = {
+	flag = "christmasEvent",
+	tag = "SnowglobeFlake",
+	touchName = "Touch",
+	readyAttribute = "Ready",
+	bobWithin = 90,
+	height = 0.35,
+	period = 2.4,
+	phaseStep = 0.37,
+	spin = 6,
+	within = 120,
+	lift = 1.2,
+	sparkle = "catchSparkle",
+	pickCount = 10,
+	pickRing = 5,
+	colour = Color3.fromRGB(143, 211, 255), -- icy blue, the Gift Stall's
+	regrowCount = 5,
+	regrowColour = Color3.fromRGB(255, 255, 255),
+	popColour = Color3.fromRGB(143, 211, 255),
+	popSeconds = 1.4,
+}
+
 Presets.snowglobeFx = {
 	centreTag = "SnowglobeCentre",
 	portalTag = "SnowglobePortal",

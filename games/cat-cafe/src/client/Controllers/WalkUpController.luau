@@ -133,12 +133,6 @@ local KINDS: { Kind } = {
 			local id = model:GetAttribute("CannonId")
 			UI.cannon.open(if type(id) == "string" then id else nil)
 		end,
-		-- #5206 (Sync 2026-11-18): a new player who wandered into the Town Square cannon's ring before opening their
-		-- bowl was flown to the Alleyway at once (#4920's direct flight). While the bowl part is still to do the ring
-		-- opens nothing; holding the prompt still does.
-		only = function(_model: Instance): boolean
-			return UI.cannon.bowlPending ~= true
-		end,
 	},
 	{
 		tag = "SpinWheel",

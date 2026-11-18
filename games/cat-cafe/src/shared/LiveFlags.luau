@@ -107,6 +107,7 @@ LiveFlags.KEYS = {
 	"autoFirstBait", -- #4452: the starter Kibble goes in bowl 1 by itself at the tutorial's bowl step (shared/SecondCatHelp)
 	"tier2TopUp", -- #4453: the first tamed bait cat's welcome tops coins up to Tier 2's cost once (shared/SecondCatHelp)
 	"stuckAfterSecond", -- #4473: the stuck cat goal, pointer and call wait until the second cat is caught (shared/StuckGoal)
+	"settleCutFree", -- Review-QA 2026-11-18: a station's one-time cut no longer starts the walk-up settle, so its card shows on the first walk-up (WalkUpController); on by default
 	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
 	-- #4527 (Derek 2026-11-15: "too much popups on screen maybe remove popups from claiming stuff"): the Mystery gift's
 	-- centre card; off (the default) the gift opens with its sound alone

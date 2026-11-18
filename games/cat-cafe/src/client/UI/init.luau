@@ -11900,6 +11900,87 @@ function UI.calmForMoment(): boolean
 		and not (card ~= nil and card:isShowing())
 end
 
+-- #5163 (Growth's Nov 17 read: 53% of players who catch in the Park never reach Tier 3): with the parkRankPoint
+-- switch on, the first Park cat checked in at Tier 2 this session dims the screen round the goal card (the Rank Up
+-- card) with the arrow and "See what Tier 3 needs", once the screen is calm (the Cat found card closed). It goes
+-- when any window opens (the goal card's own press opens Rank Up), on a press on the dim, or after SECONDS.
+local function parkPointIdle() end
+UI.parkPoint = {
+	done = false,
+	close = parkPointIdle :: () -> (),
+	SECONDS = 12,
+	WAIT = 60,
+	STEP = 0.25,
+	CALM = 1,
+}
+function UI.parkRankPoint(catId: string)
+	local point = UI.parkPoint
+	if point.done or (state.tier or 1) ~= 2 then
+		return
+	end
+	local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+	local def = Catalog.getCat(catId)
+	if def == nil or def.area ~= "park" then
+		return
+	end
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	if
+		not LiveFlags.shown(
+			"parkRankPoint",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "parkRankPoint")
+		)
+	then
+		return
+	end
+	point.done = true
+	task.spawn(function()
+		local started = os.clock()
+		local calmSince = -1 -- os.clock() since the screen has been calm, -1 while it is not
+		local target: any = nil
+		while os.clock() - started < point.WAIT do
+			task.wait(point.STEP)
+			if (state.tier or 1) ~= 2 then
+				return
+			end
+			if not UI.calmForMoment() then
+				calmSince = -1
+			elseif calmSince < 0 then
+				calmSince = os.clock()
+			elseif os.clock() - calmSince >= point.CALM then
+				local view: any = hud
+				target = if view ~= nil then view:goalButton() else nil
+				if target ~= nil then
+					break
+				end
+			end
+		end
+		if target == nil then
+			return
+		end
+		local over = false
+		local function done()
+			if over then
+				return
+			end
+			over = true
+			local shut: () -> () = point.close
+			point.close = parkPointIdle
+			shut()
+		end
+		point.close = SpotlightGuide.show(target, "See what Tier 3 needs", done, true)
+		local shownAt = os.clock()
+		while not over and os.clock() - shownAt < point.SECONDS do
+			task.wait(point.STEP)
+			local open: any = modal
+			if (open ~= nil and open:current() ~= nil) or (state.tier or 1) ~= 2 then
+				break
+			end
+		end
+		done()
+	end)
+end
+
 -- #4924 (Derek 2026-11-16: "when its ready pull the rankup screen into their screen to click"): the Rank Up window
 -- opens by itself the first time each tier's rank up is ready this session, once the screen has been calm for
 -- AutoRankUp.CALM_SECONDS (no window, card, catch, rescue, carry, cutscene, roll or intro). Closed, it waits for the

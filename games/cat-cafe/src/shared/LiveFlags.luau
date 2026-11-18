@@ -139,6 +139,8 @@ LiveFlags.KEYS = {
 	"nightSpread", -- #5164: dusk's strays leaving and sunrise's stuck cats spread over frames (shared/NightSpread); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"catFollower", -- #5172: one of your cats follows you for Money or Luck (shared/Follower); off by default
+	"parkRankPoint", -- #5163: after a Park cat checks in at Tier 2 the screen dims round the goal card, once a session (UI.parkRankPoint); off by default
+	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -202,6 +204,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightSpread = true, -- #5164: on after Review-QA and Sync's phase change timing
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	catFollower = true, -- #5172: on after the walk and the Cats menu slot land, a Pace read and a restart (save field)
+	parkRankPoint = true, -- #5163: on after Review-QA and Sync's Studio pass
+	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

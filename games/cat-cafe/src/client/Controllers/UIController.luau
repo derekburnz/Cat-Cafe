@@ -3179,6 +3179,7 @@ local function wireServerEvents()
 		-- check-in sound.
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
+		UI.parkRankPoint(catId) -- #5163: the first Park check-in at Tier 2 points at the goal card (parkRankPoint)
 	end)
 	-- The Cafe Pass (#1645, #1646): the season, level, XP and claims, at join, after each claim and at a season roll.
 	Net.on("CafePassState", function(view: Types.CafePassView)

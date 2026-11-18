@@ -241,6 +241,12 @@ end
 local function step()
 	local p = Presets.arcadeScreen
 	local still = Context.reducedMotion()
+	-- a cabinet can stream in before its Screen part, or lose and regain it: try again each beat (one cabinet)
+	for _, instance in CollectionService:GetTagged(TAG) do
+		if screens[instance] == nil then
+			added(instance)
+		end
+	end
 	for instance, s in screens do
 		if not instance:IsDescendantOf(game) or s.part.Parent == nil then
 			s.gui:Destroy()

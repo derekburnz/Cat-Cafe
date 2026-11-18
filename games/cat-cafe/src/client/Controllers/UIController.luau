@@ -680,6 +680,7 @@ local function refreshTutorial(s: Types.PlayerState)
 	pointNet(false) -- #4808: set again below only while a catch line shows
 	if s.carrying ~= nil then
 		tutorialCarry.was = true
+		rareGuide.target = nil -- any catch ends the rarity trail, so the carry line is not followed by a stale one
 		UI.tutorial.hide()
 		return
 	end

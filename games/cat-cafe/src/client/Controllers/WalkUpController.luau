@@ -398,9 +398,14 @@ local function ringOf(model: Instance): (boolean, Vector3?, number)
 		return true, nil, 0
 	end
 	local radius = ring:GetAttribute("Radius")
-	return true,
-		(ring :: BasePart).Position,
-		if type(radius) == "number" then radius else (ring :: BasePart).Size.X / 2
+	local size: number = if type(radius) == "number" then radius else (ring :: BasePart).Size.X / 2
+	-- Derek 2026-11-18 (#5224, townRings): a Town Square ring drawn smaller is reached at the same size
+	local _, scale = WalkUp.ringLook(
+		game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. WalkUp.TOWN_FLAG) == true,
+		ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE),
+		true
+	)
+	return true, (ring :: BasePart).Position, size * scale
 end
 
 local function rootPosition(): Vector3?

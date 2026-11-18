@@ -21,7 +21,7 @@ local StationCircles = {}
 local SWEEP = 1 -- seconds between sweeps of the known rings (a station unlocking flashes its art at most this long)
 
 local started = false
-local shown = false
+local shownSetting = false
 local rings: { [Instance]: RBXScriptConnection } = {}
 local faded: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- what this module faded
 
@@ -31,11 +31,24 @@ function StationCircles.visible(setting: unknown): boolean
 end
 
 local function paint(ring: Instance)
+	-- Derek 2026-11-18 (#5224, the townRings switch, shared/WalkUp.ringLook): a Town Square ring always shows, smaller,
+	-- and an area's never does; the rest follow the setting
+	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.TOWN_FLAG) == true
+	local shown, scale = WalkUp.ringLook(on, ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE), shownSetting)
 	for _, child in ring:GetChildren() do
 		if child:IsA("SurfaceGui") then
 			for _, piece in child:GetChildren() do
 				if piece:IsA("GuiObject") then
 					(piece :: GuiObject).Visible = shown
+					local size = piece:FindFirstChild("TownScale")
+					if scale ~= 1 and size == nil then
+						local made = Instance.new("UIScale")
+						made.Name = "TownScale"
+						made.Scale = scale
+						made.Parent = piece
+					elseif size ~= nil and size:IsA("UIScale") then
+						(size :: UIScale).Scale = scale
+					end
 				end
 			end
 		end
@@ -81,7 +94,7 @@ end
 
 -- Whether the circles show now (Effects/Codes asks before its motes and step-in ring).
 function StationCircles.shown(): boolean
-	return shown
+	return shownSetting
 end
 
 local function track(instance: Instance)
@@ -118,10 +131,10 @@ end
 -- Shows or hides every ring at once (Effects.applySettings, on a Settings tap and the saved value).
 function StationCircles.set(setting: unknown)
 	local want = StationCircles.visible(setting)
-	if want == shown then
+	if want == shownSetting then
 		return
 	end
-	shown = want
+	shownSetting = want
 	sweep()
 end
 

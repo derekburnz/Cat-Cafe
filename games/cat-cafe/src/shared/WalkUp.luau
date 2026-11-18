@@ -35,6 +35,24 @@ WalkUp.CIRCLE = "WalkUpCircle"
 -- As the Codes Cat's circle (Config.CodesCircleRadius). #3112 (Derek2: "make the circles infront of the stations
 -- bigger"): 4 to 6. #3448 (Derek 2026-11-12: "bigger for stepping on and auto claiming"): 6 to 8.
 WalkUp.FRONT_RADIUS = 8
+-- Derek 2026-11-18 (#5224, the townRings switch): a ring part's TOWN_ATTRIBUTE says it lies on the Town Square (true)
+-- or out in an area or camp (false); the cafe's bowl ring has none. With the switch on, a Town Square ring always shows,
+-- drawn and reached at TOWN_SCALE of its size, and an area's never shows (it still opens its window). Others follow
+-- the Station circles setting as before.
+WalkUp.TOWN_ATTRIBUTE = "Town"
+WalkUp.TOWN_MARGIN = 16
+WalkUp.TOWN_SCALE = 0.7
+WalkUp.TOWN_FLAG = "townRings"
+-- How a ring looks with the townRings switch `on`: shown or not, and at what scale. `town` is its TOWN_ATTRIBUTE,
+-- `setting` the Station circles setting's answer.
+function WalkUp.ringLook(on: boolean, town: unknown, setting: boolean): (boolean, number)
+	if on and town == true then
+		return true, WalkUp.TOWN_SCALE
+	elseif on and town == false then
+		return false, 1
+	end
+	return setting, 1
+end
 -- #2449: a station's icon in its ring (World/WalkUpCircles): the stand-in card this share of the ring's width (its
 -- corners stay inside the rim even tilted), the art at most this share across
 WalkUp.ICON_SHARE = 0.42

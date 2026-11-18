@@ -2247,8 +2247,12 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	-- #5172: Follow (Home on the follower) and, on the follower, the Money or Luck square
 	local follow = self:_followerView()
 	local following = follow ~= nil and follow.uid == instance.uid
-	self._follow.instance.Visible = follow ~= nil
-	self._boost.instance.Visible = following
+	-- #5296 (Derek 2026-11-18 17:11: "its such bloated and squished now revert it to the old buttons"): the card's
+	-- row is Equip, Feed and Lock again; the companion is picked from the Companion button (#5296). The cardFollow
+	-- switch (off by default) true brings Follow and the boost square back on the card.
+	local onCard = ReplicatedStorage:GetAttribute("LiveFlag_cardFollow") == true
+	self._follow.instance.Visible = follow ~= nil and onCard
+	self._boost.instance.Visible = following and onCard
 	if follow ~= nil then
 		self._follow:setText(if following then "Home" else "Follow")
 		self._follow:setStyle(if following then "gold" else "ghost")
@@ -2264,10 +2268,10 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 
 	-- one row: Equip or Unequip (Cancel while a "+" is awaited), Feed (gold while its tiles show), Follow, the squares
 	local square = (if live then self._actionsH + ACTION_GAP else 0)
-		+ (if following then self._actionsH + ACTION_GAP else 0)
-	local gaps = ACTION_GAP + square + (if follow ~= nil then ACTION_GAP else 0)
+		+ (if following and onCard then self._actionsH + ACTION_GAP else 0)
+	local gaps = ACTION_GAP + square + (if follow ~= nil and onCard then ACTION_GAP else 0)
 	local assignShare, feedShare = 0.6, 0.4
-	if follow ~= nil then
+	if follow ~= nil and onCard then
 		assignShare, feedShare = 0.4, 0.28
 		self._follow.instance.Size = UDim2.new(0.32, -math.ceil(gaps * 0.32), 1, 0)
 	end

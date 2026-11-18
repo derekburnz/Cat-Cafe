@@ -142,6 +142,17 @@ DayLight.NIGHT = {
 	Haze = 0,
 } :: Look
 
+-- #5240 (Derek 2026-11-18: "the night time is just slightly too dark for seeing"): the same deep blue night a little
+-- lighter, behind the `nightBright` switch (WorldController passes it to DayLight.at): about a third more light from
+-- the sky and the shade, and a touch of exposure. The colours keep their blue, so it still reads as night, and the
+-- night lamps still stand out over the shade.
+DayLight.BRIGHT_NIGHT = with(DayLight.NIGHT, {
+	Brightness = 0.85,
+	OutdoorAmbient = rgb(72, 80, 135),
+	Ambient = rgb(34, 38, 60),
+	ExposureCompensation = 0.15,
+})
+
 local DAY: { Key } = {
 	{ at = 0, look = DayLight.SUNRISE },
 	{ at = 0.12, look = DayLight.MORNING },
@@ -157,6 +168,14 @@ local NIGHT: { Key } = {
 	{ at = 0, look = DayLight.SUNSET },
 	{ at = 0.2, look = DayLight.NIGHT },
 	{ at = 0.85, look = with(DayLight.NIGHT, { ClockTime = 28.5 }) },
+	{ at = 1, look = with(DayLight.SUNRISE, { ClockTime = DayLight.SUNRISE.ClockTime + 24 }) },
+}
+
+-- #5240: the same night falling to BRIGHT_NIGHT instead.
+local BRIGHT: { Key } = {
+	{ at = 0, look = DayLight.SUNSET },
+	{ at = 0.2, look = DayLight.BRIGHT_NIGHT },
+	{ at = 0.85, look = with(DayLight.BRIGHT_NIGHT, { ClockTime = 28.5 }) },
 	{ at = 1, look = with(DayLight.SUNRISE, { ClockTime = DayLight.SUNRISE.ClockTime + 24 }) },
 }
 
@@ -185,9 +204,10 @@ local function mix(a: Look, b: Look, alpha: number, clockTime: number): Look
 	}
 end
 
--- The sky `progress` (0 to 1) through `phase` ("night", anything else is day).
-function DayLight.at(phase: string, progress: number): Look
-	local keys = if phase == "night" then NIGHT else DAY
+-- The sky `progress` (0 to 1) through `phase` ("night", anything else is day). `bright` (#5240, the nightBright
+-- switch) gives the slightly lighter night.
+function DayLight.at(phase: string, progress: number, bright: boolean?): Look
+	local keys = if phase ~= "night" then DAY elseif bright == true then BRIGHT else NIGHT
 	local p = math.clamp(progress, 0, 1)
 	for i = 2, #keys do
 		local before, after = keys[i - 1], keys[i]

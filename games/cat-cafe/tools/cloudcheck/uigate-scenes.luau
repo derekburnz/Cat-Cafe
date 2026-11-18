@@ -6716,7 +6716,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				cards += 1
 			end
 		end
-		assert(cards == 12, "uigate: " .. cards .. " card lines on the board, wanted 12 (#3926)")
+		-- #5228: four cards a page (ThanksBoardLogic.PER_PAGE), so 8 lines of the 6 rows sent
+		assert(cards == 8, "uigate: " .. cards .. " card lines on the board, wanted 8 (#3926, #5228)")
 		UI.thanksBoard({}, false)
 	end },
 	{ "WhatsNewNextRow", function()

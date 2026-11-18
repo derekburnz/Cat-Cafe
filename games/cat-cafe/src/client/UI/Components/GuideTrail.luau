@@ -9,6 +9,7 @@
 -- The dots are parts made by this client only, so other players never see your trail and the server never hears
 -- about it. They do not collide, cast no shadow and are skipped by raycasts and touches.
 
+local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
 local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
@@ -29,7 +30,11 @@ export type GuideTrail = {
 local SPACING = 3.5 -- studs between dots
 local MAX_DOTS = 48 -- about 170 studs of trail; the marker's distance covers the rest of a longer trip
 local START_GAP = 3 -- the first dot sits this far ahead of the player
-local ARRIVED = 10 -- studs from the target where the trail hides
+local ARRIVED = 10 -- studs from the target where the trail hides, once nothing solid stands between (#5206)
+local EYE = 3 -- studs above the feet the clear-view check starts from
+local NEAR_END = 2 -- studs: a ray that stops this close to the target counts as reaching it
+local WHOLE_TAGS = { "CatCannon", "Stray" } -- a model with one of these tags is a single piece round its target
+local SMALL_PIECE = 300 -- instances: a Model this small round the target is its own piece, not a whole cafe or area
 local REPATH_MOVE = 5 -- studs the player moves before the route is worked out again
 local REPATH_SECONDS = 0.75 -- and no more often than this
 local RETRY_SECONDS = 2 -- after a failed route, standing still or not
@@ -192,11 +197,87 @@ function GuideTrail._repath(self: any, start: Vector3, finish: Vector3)
 	end)
 end
 
+-- #5206 (Sync 2026-11-18: the bowl's trail hid at the cafe's back wall, the bowl 4.5 studs behind it, and nothing
+-- showed the last few studs out the back door): true while a solid part stands between the player and the target,
+-- so a trail near its end still leads round the wall. The target's own model, and anything at its end, never count.
+local function walled(self: any, target: Target, start: Vector3, finish: Vector3): boolean
+	local skip: { Instance } = { self._folder }
+	local character = Players.LocalPlayer.Character
+	if character ~= nil then
+		table.insert(skip, character)
+	end
+	if typeof(target) == "Instance" then
+		local instance = target :: Instance
+		table.insert(skip, instance)
+		local part = if instance:IsA("Attachment") then instance.Parent else nil
+		if part ~= nil then
+			table.insert(skip, part)
+		end
+		-- Review-QA on #5211: the bowl's anchor sits straight in the cafe's plot and the Park pad's in its area, so
+		-- the nearest Model can be the whole cafe or area, back wall and all. Only a small one (a stray's body, a
+		-- cannon) is the target's own piece. Counted once per target.
+		-- Sync on #5211: the Town Square cannon is 468 instances and its own climb part blocked the ray, so a model
+		-- tagged as a whole piece (a cannon, a stray) counts as the target's own at any size.
+		if self._holderFor ~= target then
+			self._holderFor = target
+			local holder = instance:FindFirstAncestorOfClass("Model")
+			local own: Instance? = nil
+			local up = instance.Parent
+			while up ~= nil and up ~= (Workspace :: Instance) do
+				for _, tag in WHOLE_TAGS do
+					if CollectionService:HasTag(up, tag) then
+						own = up
+						break
+					end
+				end
+				if own ~= nil then
+					break
+				end
+				up = up.Parent
+			end
+			self._holder = if own ~= nil
+				then own
+				elseif holder ~= nil and #holder:GetDescendants() <= SMALL_PIECE then holder
+				else nil
+		end
+		local holder: Instance? = self._holder
+		if holder ~= nil then
+			table.insert(skip, holder)
+		end
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = skip
+	params.RespectCanCollide = true
+	local origin = start + Vector3.new(0, EYE, 0)
+	local hit = Workspace:Raycast(origin, finish - origin, params)
+	return hit ~= nil and (hit.Position - finish).Magnitude > NEAR_END
+end
+
+-- Sync on #5211: a walk-up circle as the target (it carries its Radius) keeps its trail until the player is on it,
+-- where its window opens; anything else hides at ARRIVED.
+local function arrivedAt(target: Target): number
+	if typeof(target) == "Instance" and (target :: Instance):IsA("BasePart") then
+		local radius = (target :: Instance):GetAttribute("Radius")
+		if type(radius) == "number" then
+			return math.min(ARRIVED, math.max(1, radius - 0.2)) -- a little inside the edge, where its window opens
+		end
+	end
+	return ARRIVED
+end
+
 function GuideTrail._step(self: any)
 	local target: Target? = self._target
 	local finish = if target ~= nil then targetPosition(target) else nil
 	local start = feet()
-	if finish == nil or start == nil or (finish - start).Magnitude < ARRIVED then
+	if
+		finish == nil
+		or start == nil
+		or (
+			(finish - start).Magnitude < arrivedAt(target :: Target)
+			and not walled(self, target :: Target, start :: Vector3, finish :: Vector3)
+		)
+	then
 		self:_lay({})
 		self._lastStart = nil
 		return

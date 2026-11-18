@@ -300973,6 +300973,223 @@
           "centered": "footprint center x=0.03 y=0.00"
         }
       }
+    },
+    {
+      "name": "CatCafe_Cherry_Set",
+      "category": "Cherry",
+      "module": "cherryset",
+      "objects": [
+        "CatCafe_Cherry_Set",
+        "CatCafe_Cherry_Set_001_Wall_Barrier",
+        "CatCafe_Cherry_Set_002_Lights_Glow",
+        "CatCafe_Cherry_Set_003_Pond_Water",
+        "CatCafe_Cherry_Set_004_Petals_Decor",
+        "CatCafe_Cherry_Set_005_Waterfall_Water"
+      ],
+      "triangles": 27054,
+      "budget": 150000,
+      "size_studs": {
+        "x": 152.0,
+        "y": 120.0,
+        "z": 37.17
+      },
+      "size_roblox": [
+        152.0,
+        37.17,
+        120.0
+      ],
+      "bounds_min": [
+        -75.1,
+        -60.0,
+        -1.44
+      ],
+      "bounds_max": [
+        76.9,
+        60.0,
+        35.73
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "player_spawn": [
+          [
+            0,
+            0.0,
+            -55.2,
+            0
+          ]
+        ],
+        "spawn": [
+          [
+            16,
+            0.0,
+            -46
+          ],
+          [
+            -16,
+            0.0,
+            -46
+          ],
+          [
+            24,
+            0.0,
+            -6
+          ],
+          [
+            58,
+            0.0,
+            -36
+          ],
+          [
+            40,
+            0.0,
+            -44
+          ],
+          [
+            62,
+            0.0,
+            2
+          ],
+          [
+            -32,
+            0.0,
+            -4
+          ],
+          [
+            -40,
+            0.0,
+            -28
+          ],
+          [
+            -64,
+            0.0,
+            -28
+          ],
+          [
+            -62,
+            0.0,
+            6
+          ],
+          [
+            -22,
+            0.0,
+            12
+          ],
+          [
+            12,
+            0.0,
+            -2
+          ],
+          [
+            -32,
+            0.0,
+            38
+          ],
+          [
+            66,
+            0.0,
+            18
+          ]
+        ],
+        "nook": [
+          [
+            27.5,
+            0.0,
+            42.0
+          ]
+        ],
+        "station": [
+          [
+            36.13,
+            0.0,
+            -32.79,
+            0
+          ]
+        ]
+      },
+      "studio": "Cherry Blossom Grove, the spring event area (Sat Mar 27 to Sat Apr 3 2027, behind cherryGrove; nothing in the game places it before then). Place it at the area's centre on its floor; walled all round, players arrive at points_roblox player_spawn. The only _Barrier is the 30 high ring in the wall band. The pond and the three waterfalls are _Water (flat, no kerb); petals, koi and lily pads are _Decor. The pagoda is solid; the tea house deck is 2.5 up with steps at its -X end. points_roblox: spawn (14 stray spots), nook (the pond's far shore) and station (the Wishing Tree's walk-up spot by its wish box, facing the tree).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cherry_Set.model.json",
+      "rbx_parts": 1987,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cherry_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cherry_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "27054/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "15359 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.44 (want 0)",
+          "centered": "footprint center x=0.90 y=0.00",
+          "cat_spots": "17 cat spots clear of every collidable part"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cherry_Portal",
+      "category": "Cherry",
+      "module": "cherryset",
+      "objects": [
+        "CatCafe_Cherry_Portal",
+        "CatCafe_Cherry_Portal_Glow",
+        "CatCafe_Cherry_Portal_Screen",
+        "CatCafe_Cherry_Portal_Portal_Glow"
+      ],
+      "triangles": 1344,
+      "budget": 6000,
+      "size_studs": {
+        "x": 33.91,
+        "y": 9.22,
+        "z": 15.85
+      },
+      "size_roblox": [
+        33.91,
+        15.85,
+        9.22
+      ],
+      "bounds_min": [
+        -17.11,
+        -3.0,
+        0.0
+      ],
+      "bounds_max": [
+        16.8,
+        6.22,
+        15.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "The Grove's Town Square portal: a red torii under two cherry trees, front -Z, 30 wide. _Portal_Glow is the way in (7 x 8.25); the sign's face is _Screen (8.0 x 2.6, the same as the Snowglobe portal's) for the UI text.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cherry_Portal.model.json",
+      "rbx_parts": 90,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cherry_Portal.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cherry_Portal.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1344/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "684 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.15 y=1.61"
+        }
+      }
     }
   ]
 }

@@ -194,10 +194,12 @@ return function()
 							or key == "nightSlice" -- #5164
 							or key == "spinCat" -- #5171
 							or key == "nightSpread" -- #5164
+							or key == "netTiers" -- #5170
+							or key == "catFollower" -- #5172
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(55) -- #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
+				expect(count).to.equal(57) -- #5172 catFollower; #5170 netTiers; #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
 				-- #4654: the shipped stuckCall and fxLite switches are gone
 				expect(table.find(LiveFlags.KEYS, "stuckCall")).to.equal(nil)
 				expect(table.find(LiveFlags.KEYS, "fxLite")).to.equal(nil)

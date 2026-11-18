@@ -145,6 +145,8 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	BuyCornerShopAll = RateLimiter.new(3, 2),
 	FeedCat = RateLimiter.new(4, 1), -- #1181: 4 a second
 	PetCat = RateLimiter.new(2, 1), -- #3651: 2 a second; PetService also holds one pet each PetCooldownSeconds
+	SetFollower = RateLimiter.new(2, 1), -- #5172
+	SetFollowerBoost = RateLimiter.new(2, 1), -- #5172: FollowerService also holds one switch each 10 seconds
 	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync
 	BuyLawn = RateLimiter.new(2, 1),
 	SetLawnSpot = RateLimiter.new(4, 1),

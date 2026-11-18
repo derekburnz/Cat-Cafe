@@ -22,6 +22,7 @@ local CodesController = require(script.Parent.Controllers.CodesController)
 local CustomerController = require(script.Parent.Controllers.CustomerController)
 local DoorController = require(script.Parent.Controllers.DoorController)
 local Effects = require(script.Parent.Effects)
+local FollowerController = require(script.Parent.Controllers.FollowerController)
 local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
 local LateStationsController = require(script.Parent.Controllers.LateStationsController)
@@ -66,6 +67,7 @@ end
 require(ReplicatedStorage.Shared.TablesSpread).follow()
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch, like the server's (shared/SpinCat)
 require(ReplicatedStorage.Shared.SpinCat).follow()
+require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
 Audio.start()
 Audio.bindMoments(Moments :: any)
 UIController.start()
@@ -114,6 +116,7 @@ RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
 PetController.start() -- #3651: the Pet prompt on your own working cats, after the UI whose pill it uses
+FollowerController.start() -- #5172: the cat that follows each player (switch catFollower)
 AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
 StationLockController.start() -- #4539: Mystery Market, Cat Arcade and Mystic Pool hidden below their tiers
 StationCutController.start() -- #5112: a rank up's cut to the station it unlocks, behind stationCut

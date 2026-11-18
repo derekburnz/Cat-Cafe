@@ -76,7 +76,8 @@ return function()
 			expect(Avatar.netModel("3")).to.equal(1)
 			expect(Avatar.netModel(0 / 0)).to.equal(1)
 			expect(Avatar.netModel(-2)).to.equal(1)
-			expect(Avatar.netModel(9)).to.equal(4)
+			expect(Avatar.netModel(9)).to.equal(6) -- #5170: Net 5 (L6) is the top model
+			expect(Avatar.netModel(4)).to.equal(5)
 			expect(Avatar.netModel(2.7)).to.equal(3)
 		end)
 

@@ -625,7 +625,7 @@ end
 -- (3) last. A missing or odd value is the Basic net.
 function Avatar.netModel(level: unknown): number
 	local n = if type(level) == "number" and level == level then math.floor(level) else 0
-	return math.clamp(n + 1, 1, 4)
+	return math.clamp(n + 1, 1, 6) -- #5170: Net 4 and 5 (L5, L6; NetHold and NetPin fall back while a model is missing)
 end
 
 -- How hidden a carried cat's copy (Carry.luau) is `elapsed` seconds after its carry ended (#1138), from `start`

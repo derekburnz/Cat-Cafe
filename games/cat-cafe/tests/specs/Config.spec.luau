@@ -798,6 +798,8 @@ return function()
 					[1] = { perfect = 0.055, good = 0.13 },
 					[2] = { perfect = 0.065, good = 0.155 },
 					[3] = { perfect = 0.08, good = 0.18 },
+					[4] = { perfect = 0.09, good = 0.20 }, -- #5170 netTiers
+					[5] = { perfect = 0.10, good = 0.22 },
 				}
 				local levels = 0
 				for level, row in pairs(Config.NetWindows) do
@@ -809,7 +811,7 @@ return function()
 					expect(row.good).to.be.near(want.good, 1e-9)
 					expect((row :: any).jitter).never.to.be.ok()
 				end
-				expect(levels).to.equal(4)
+				expect(levels).to.equal(6) -- #5170: Net 4 and 5, reached only with netTiers on
 				local net = Catalog.getUpgrade("net")
 				assert(net)
 				expect(net.maxLevel).to.equal(3)

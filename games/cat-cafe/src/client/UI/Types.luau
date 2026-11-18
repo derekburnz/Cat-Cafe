@@ -323,6 +323,7 @@ export type PlayerState = {
 	luck: number?,
 	luckSources: { LuckSource }?,
 	cardLuck: { crate: number, trait: number, spin: number }?, -- the Dragon Keep's crate, trait and spin luck
+	follower: SharedTypes.FollowerView?, -- #5172: the Cats menu's Follower slot; nil with catFollower off
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	introAuto: boolean?, -- #3666: the intro plays itself for this player; nil reads as Config.IntroAutoPlay
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag

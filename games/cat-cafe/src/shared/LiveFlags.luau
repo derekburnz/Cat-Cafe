@@ -137,6 +137,8 @@ LiveFlags.KEYS = {
 	"nightSlice", -- #5164: the client's day and night change spreads its World walk and night look over frames (WorldController); off by default
 	"spinCat", -- #5171: the Spin Wheel's ninth slice, a Secret cat at 0.25% (shared/SpinCat); off by default
 	"nightSpread", -- #5164: dusk's strays leaving and sunrise's stuck cats spread over frames (shared/NightSpread); off by default
+	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
+	"catFollower", -- #5172: one of your cats follows you for Money or Luck (shared/Follower); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -198,6 +200,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightSlice = true, -- #5164: on after Review-QA and Sync's frame-time read across a phase change
 	spinCat = true, -- #5171: on once the window's ninth wedge and the Odds list pass Review-QA and Sync's Studio look
 	nightSpread = true, -- #5164: on after Review-QA and Sync's phase change timing
+	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
+	catFollower = true, -- #5172: on after the walk and the Cats menu slot land, a Pace read and a restart (save field)
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

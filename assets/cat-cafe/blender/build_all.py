@@ -126,6 +126,7 @@ import harvestdecor  # noqa: E402
 import harvestset  # noqa: E402
 import d1props  # noqa: E402
 import snowglobeset  # noqa: E402
+import christmasitems  # noqa: E402
 import waterparkshelf  # noqa: E402
 import wallperch  # noqa: E402
 import seasondecor  # noqa: E402
@@ -147,7 +148,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, snowglobeset, dragon,
+           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, snowglobeset, christmasitems, dragon,
            updateposter, decorstand, mysterysign,
            waterparkshelf, wallperch, plotsizes, d1props]
 

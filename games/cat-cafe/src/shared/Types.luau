@@ -1379,6 +1379,9 @@ export type TelemetryState = {
 	cleanV8Step: number?,
 	-- Derek 2026-11-17 15:18 UTC: onboarding_v9 (Onboarding.CLEAN_STEPS) the same way; v8 is no longer logged
 	cleanV9Step: number?,
+	-- #5291 (shared/MilestoneFunnel): the milestones_v1 steps logged, as a bit mask (step n is bit n - 1); -1 for a
+	-- save that is out of it, nil before Telemetry first sees the save with the switch on. Optional, so no save version
+	milestoneMask: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)

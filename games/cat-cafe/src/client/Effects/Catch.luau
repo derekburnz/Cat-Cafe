@@ -22,11 +22,13 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Cats = require(script.Parent.Cats)
 local Context = require(script.Parent.Context)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Logic = require(script.Parent.Logic)
 local Net = require(script.Parent.Parent.Net)
 local Particles = require(script.Parent.Particles)
@@ -237,6 +239,83 @@ local function resultWord(): GuiObject?
 	return nil
 end
 
+-- Sparkles and rings round the result word `label` in `look`'s colour (Presets.catchWord).
+local function burstOn(label: Instance, look: { sparkles: number, rings: number, colour: Color3 })
+	local c = Presets.catchWord
+	local gui = ScreenFx.gui("EffectsCatchWord", c.displayOrder)
+	if gui == nil then
+		return
+	end
+	local object = label :: GuiObject
+	local centre = ScreenFx.centre(gui, object)
+	local width = object.AbsoluteSize.X
+	if object:IsA("TextLabel") then
+		local bounds = (object :: TextLabel).TextBounds.X
+		if bounds > 0 then
+			width = math.min(width, bounds) -- the word, not its box
+		end
+	end
+	local reduced = Context.reducedMotion()
+	local count = math.min(look.sparkles, Context.budget.maxBurst)
+	if reduced then
+		count = math.max(1, math.floor(count / 2))
+	end
+	ScreenFx.sparkle(gui, Logic.wordSpots(centre, width, count), look.colour, {
+		size = c.size,
+		seconds = c.seconds,
+		reach = c.reach,
+		stagger = c.stagger,
+	})
+	if reduced then
+		return
+	end
+	for i = 1, look.rings do
+		task.delay((i - 1) * c.ringGap, function()
+			ScreenFx.ring(
+				gui,
+				centre,
+				width * c.ringFrom,
+				width * c.ringTo,
+				look.colour,
+				c.ringSeconds
+			)
+		end)
+	end
+end
+
+-- Perfect catch (#5300, switch perfectCatch): the PURRFECT! banner holds, then turns to "+50%" in sky blue
+-- (UI CatchCircles). When it does, a sky blue burst pops round it (Presets.catchWord.perfectPlus). Watches the label's
+-- Text for `perfectPlus.watch` seconds; off, or for any other word, nothing.
+local function perfectPlus(label: Instance)
+	local p = Presets.catchWord.perfectPlus
+	if
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. p.flag) ~= true
+		or not label:IsA("TextLabel")
+	then
+		return
+	end
+	local text = label :: TextLabel
+	local done = false
+	local watch: RBXScriptConnection? = nil
+	local function stop()
+		done = true
+		if watch ~= nil then
+			watch:Disconnect()
+			watch = nil
+		end
+	end
+	watch = text:GetPropertyChangedSignal("Text"):Connect(function()
+		if done then
+			return
+		end
+		if Logic.isPerfectPlus(text.Text, p.text) then
+			stop()
+			burstOn(text, p)
+		end
+	end)
+	task.delay(p.watch, stop)
+end
+
 -- The burst behind `word` ("purrfect", "excellent" or "great"), once the word shows, within Presets.catchWord.wait.
 local function wordBurst(word: string)
 	local c = Presets.catchWord
@@ -257,44 +336,9 @@ local function wordBurst(word: string)
 		if loop ~= nil then
 			loop:Disconnect()
 		end
-		local gui = ScreenFx.gui("EffectsCatchWord", c.displayOrder)
-		if gui == nil then
-			return
-		end
-		local object = label :: GuiObject
-		local centre = ScreenFx.centre(gui, object)
-		local width = object.AbsoluteSize.X
-		if object:IsA("TextLabel") then
-			local bounds = (object :: TextLabel).TextBounds.X
-			if bounds > 0 then
-				width = math.min(width, bounds) -- the word, not its box
-			end
-		end
-		local reduced = Context.reducedMotion()
-		local count = math.min(look.sparkles, Context.budget.maxBurst)
-		if reduced then
-			count = math.max(1, math.floor(count / 2))
-		end
-		ScreenFx.sparkle(gui, Logic.wordSpots(centre, width, count), look.colour, {
-			size = c.size,
-			seconds = c.seconds,
-			reach = c.reach,
-			stagger = c.stagger,
-		})
-		if reduced then
-			return
-		end
-		for i = 1, look.rings do
-			task.delay((i - 1) * c.ringGap, function()
-				ScreenFx.ring(
-					gui,
-					centre,
-					width * c.ringFrom,
-					width * c.ringTo,
-					look.colour,
-					c.ringSeconds
-				)
-			end)
+		burstOn(label, look)
+		if word == "purrfect" then
+			perfectPlus(label)
 		end
 	end)
 end

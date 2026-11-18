@@ -6682,6 +6682,48 @@ Presets.firstMinute = {
 	},
 }
 
+-- #5285 E2 Effects/FirstCatchWow: the account's first net catch, under 1.5 s (switch firstCatchWow). Times in seconds
+-- from the catch landing; `push` is the share of the way the camera moves toward the cat.
+Presets.firstCatchWow = {
+	slowSeconds = 0.25,
+	slowSpeed = 0.3, -- your animations at 30% speed for the slow motion
+	push = 0.15,
+	pushIn = 0.25,
+	popAt = 0.25,
+	ringScale = 2, -- times the rarity's catch ring (Presets.catchPop.ring)
+	ringSeconds = 0.6,
+	confetti = 1, -- of the budget's confetti; half on a phone or the low tier
+	colours = {
+		Presets.palette.golden,
+		Presets.palette.sparkle,
+		Presets.palette.offwhite,
+		Presets.palette.blush,
+	},
+	coins = 30, -- about three times a normal pay out's coins
+	coinSeconds = 0.7,
+	coinStagger = 0.012,
+	coinSpread = 90, -- pixels the coins fly out from the cat before they turn to the counter
+	coinLift = 40,
+	coinMin = 22,
+	bannerAt = 0.3,
+	bannerIn = 0.15,
+	bannerOut = 0.25,
+	bannerEnd = 1.3,
+	bannerTop = 40, -- pixels from the top when the catch strip is not there
+	popFrom = 0.6,
+	text = "FIRST CATCH!",
+	textShare = 0.065, -- of the screen's height
+	textMin = 26,
+	textMax = 52,
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(74, 46, 30), -- the menus' cocoa brown, for the outline
+	panel = Color3.fromRGB(74, 46, 30),
+	panelTransparency = 0.2,
+	backAt = 1.3,
+	backSeconds = 0.18,
+	displayOrder = 26, -- over the catch screen (25), under toasts (30)
+}
+
 -- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.
 Presets.rankUpPulse = {
 	displayOrder = 29, -- over the HUD and windows, under toasts (30)

@@ -1009,15 +1009,17 @@ return function()
 	-- or the log gives each tier's medians.
 	describe("netTiers pace (#5170)", function()
 		it("lands no tier from 2 to 6 more than 15% sooner with the switch on", function()
-			local options = { catches = 4, target = 6, limit = 16 * HOUR, long = true }
+			local options: Options = { catches = 4, target = 6, limit = 16 * HOUR, long = true }
 			Catalog.setNetTiers(false)
 			local offList, offText = toTier5(options)
 			Catalog.setNetTiers(true)
-			local onOptions = table.clone(options)
+			local onOptions: Options = table.clone(options)
 			onOptions.netTiers = true
 			local ok, onList, onText = pcall(toTier5, onOptions)
 			Catalog.setNetTiers(false)
-			assert(ok, onList)
+			if not ok then
+				error(onList)
+			end
 			local lines = { "off: " .. offText, "on: " .. onText }
 			local worst = 1
 			for tier = 2, 6 do

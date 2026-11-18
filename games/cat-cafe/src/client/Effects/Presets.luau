@@ -4055,6 +4055,28 @@ Presets.snowglobeFx = {
 	swirl = "globeSwirl",
 	portalWithin = 120,
 	portalLift = 6,
+	-- part 2 (#5326's names): the spin, the star and the night lights
+	parts = {
+		prefix = "CatCafe_Snowglobe_",
+		spin = "CatCafe_Snowglobe_Portal_Spin",
+		star = "CatCafe_Snowglobe_Set_006_TreeStar_Glow",
+		lights = {
+			"CatCafe_Snowglobe_Set_003_TreeLights_Glow",
+			"CatCafe_Snowglobe_Stall_Glow",
+			"CatCafe_Snowglobe_Portal_Portal_Glow",
+			"CatCafe_Snowglobe_Portal_Glow",
+		},
+	},
+	spinSeconds = 18, -- when Portal_Spin has no Seconds attribute
+	starSeconds = 10,
+	spinWithin = 160,
+	lightEvery = 4, -- of `every`: the lights are picked again every 2 s
+	lightWithin = 90,
+	lightGap = 9,
+	lightsMost = 10,
+	lightsLow = 5,
+	lightBrightness = 0.7,
+	lightRange = 10,
 }
 
 Presets.harvestFx = {

@@ -49,6 +49,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
 local MemoryWatch = require(ReplicatedStorage.Shared.MemoryWatch)
+local MilestoneFunnel = require(ReplicatedStorage.Shared.MilestoneFunnel)
 local MoneyCard = require(ReplicatedStorage.Shared.MoneyCard)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
@@ -1170,6 +1171,9 @@ end
 -- the service where it happens. Logs nothing unless the save stands right before that step.
 function Telemetry.cleanEvent(player: Player, profile: Profile, event: string)
 	logClean(player, profile, event)
+	if MilestoneFunnel.isLaterArrival(event) then
+		Telemetry.milestones(player, profile, true) -- #5291: second_area_entered
+	end
 end
 -- (the event names, for services that do not require Onboarding)
 Telemetry.CLEAN_EVENTS = Onboarding.CLEAN_EVENTS
@@ -1674,6 +1678,45 @@ local function logFirstHour(player: Player, profile: Profile)
 				{ arm, name, session.device or "unknown" }
 			)
 		end
+	end
+end
+
+-- #5291: the milestones_v1 funnel (shared/MilestoneFunnel), one run per account with the user id as its session:
+-- every step the save has reached and not logged before, in step order, with the account's play minutes and the
+-- device. A save first seen here past MilestoneFunnel.ENTRY_SECONDS of play stays out. Off (`milestoneFunnel`),
+-- nothing is logged and the save is left as it is. `arrivedLater` is a landing after the Alleyway just now.
+function Telemetry.milestones(player: Player, profile: Profile, arrivedLater: boolean?)
+	if not LiveFlagService.on(MilestoneFunnel.FLAG) then
+		return
+	end
+	local state = profile.telemetry
+	local played = PlayTime.seconds(player, profile)
+	local saved = state.milestoneMask
+	local mask: number = if saved ~= nil then saved else MilestoneFunnel.entry(played)
+	state.milestoneMask = mask
+	if mask == MilestoneFunnel.OUT then
+		return
+	end
+	local due = MilestoneFunnel.due(mask, MilestoneFunnel.reached(profile, arrivedLater))
+	if #due == 0 then
+		return
+	end
+	local fields = { MilestoneFunnel.minuteMark(played), Telemetry.device(player) or "unknown" }
+	for _, step in due do
+		mask = MilestoneFunnel.mark(mask, step)
+		state.milestoneMask = mask
+		local name = MilestoneFunnel.STEPS[step]
+		remember(player, "funnel", MilestoneFunnel.NAME .. " " .. name, step, fields)
+		send(player, "funnel " .. MilestoneFunnel.NAME, function()
+			AnalyticsService:LogFunnelStepEvent(
+				player,
+				MilestoneFunnel.NAME,
+				tostring(player.UserId),
+				step,
+				name,
+				customFields(fields)
+			)
+		end)
 	end
 end
 
@@ -2401,6 +2444,7 @@ local function logJoined(player: Player)
 		end
 	end
 	logFirstHour(player, profile)
+	Telemetry.milestones(player, profile) -- #5291
 	session.rarityStep = 0 -- #3876
 	logRarity(player, profile)
 	if session.returnedNextDay then
@@ -3657,6 +3701,7 @@ local function watchOnboarding(player: Player, session: Session)
 	end
 	if session.joinLogged then
 		logFirstHour(player, profile)
+		Telemetry.milestones(player, profile) -- #5291
 		logRarity(player, profile) -- #3876: a cat from a trade or a switch turned on mid session
 	end
 	watchFirstFive(player, session, profile)

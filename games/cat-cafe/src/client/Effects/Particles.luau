@@ -263,9 +263,9 @@ end
 
 -- A flat disc that grows and fades under a big moment (Purrfect, a gate opening, a getaway), to `diameter` studs
 -- over `seconds` (Presets.ring by default). One flash; skipped with Reduce Motion.
-function Particles.ring(at: Vector3, colour: Color3, diameter: number?, seconds: number?)
+function Particles.ring(at: Vector3, colour: Color3, diameter: number?, seconds: number?): BasePart?
 	if Context.reducedMotion() then
-		return
+		return nil
 	end
 	local r =
 		{ diameter = diameter or Presets.ring.diameter, seconds = seconds or Presets.ring.seconds }
@@ -280,6 +280,7 @@ function Particles.ring(at: Vector3, colour: Color3, diameter: number?, seconds:
 		:Create(ring, info, { Size = Vector3.new(0.12, r.diameter, r.diameter), Transparency = 1 })
 		:Play()
 	Debris:AddItem(ring, r.seconds + 0.1)
+	return ring
 end
 
 -- A beam of light from `at` straight up: it shoots up to `height` studs over the first part of `seconds`, holds and

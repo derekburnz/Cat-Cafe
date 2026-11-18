@@ -299883,6 +299883,240 @@
           "centered": "footprint center x=0.08 y=0.11"
         }
       }
+    },
+    {
+      "name": "CatCafe_Prop_AwayJar",
+      "category": "Prop",
+      "module": "d1props",
+      "objects": [
+        "CatCafe_Prop_AwayJar",
+        "CatCafe_Prop_AwayJar_Glass",
+        "CatCafe_Prop_AwayJar_Coins"
+      ],
+      "triangles": 452,
+      "budget": 900,
+      "size_studs": {
+        "x": 0.97,
+        "y": 1.01,
+        "z": 1.35
+      },
+      "size_roblox": [
+        0.97,
+        1.35,
+        1.01
+      ],
+      "bounds_min": [
+        -0.49,
+        -0.51,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        0.5,
+        1.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_AwayJar_Coins": [
+          0.0,
+          0.0,
+          0.08
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_AwayJar_Coins": [
+          0.0,
+          0.08,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_AwayJar.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_AwayJar.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_AwayJar.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "452/900 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "164 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_TreatBoard",
+      "category": "Prop",
+      "module": "d1props",
+      "objects": [
+        "CatCafe_Prop_TreatBoard",
+        "CatCafe_Prop_TreatBoard_Glow",
+        "CatCafe_Prop_TreatBoard_Stamp1",
+        "CatCafe_Prop_TreatBoard_Stamp2",
+        "CatCafe_Prop_TreatBoard_Stamp3",
+        "CatCafe_Prop_TreatBoard_Stamp4",
+        "CatCafe_Prop_TreatBoard_Stamp5",
+        "CatCafe_Prop_TreatBoard_Stamp6",
+        "CatCafe_Prop_TreatBoard_Stamp7"
+      ],
+      "triangles": 5232,
+      "budget": 5500,
+      "size_studs": {
+        "x": 6.2,
+        "y": 0.2,
+        "z": 2.8
+      },
+      "size_roblox": [
+        6.2,
+        2.8,
+        0.2
+      ],
+      "bounds_min": [
+        -3.1,
+        -0.2,
+        0.0
+      ],
+      "bounds_max": [
+        3.1,
+        0.0,
+        2.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_TreatBoard.model.json",
+      "rbx_parts": 318,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_TreatBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_TreatBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "5232/5500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2504 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.10"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_TomorrowGift",
+      "category": "Prop",
+      "module": "d1props",
+      "objects": [
+        "CatCafe_Prop_TomorrowGift"
+      ],
+      "triangles": 148,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.29,
+        "y": 1.33,
+        "z": 1.35
+      },
+      "size_roblox": [
+        1.29,
+        1.35,
+        1.33
+      ],
+      "bounds_min": [
+        -0.64,
+        -0.68,
+        -0.0
+      ],
+      "bounds_max": [
+        0.64,
+        0.64,
+        1.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_TomorrowGift.model.json",
+      "rbx_parts": 11,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_TomorrowGift.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_TomorrowGift.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "148/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "82 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Item_FoodBowl_Sleepover",
+      "category": "Item",
+      "module": "d1props",
+      "objects": [
+        "CatCafe_Item_FoodBowl_Sleepover"
+      ],
+      "triangles": 348,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.96,
+        "y": 0.96,
+        "z": 0.47
+      },
+      "size_roblox": [
+        0.96,
+        0.47,
+        0.96
+      ],
+      "bounds_min": [
+        -0.48,
+        -0.48,
+        0.0
+      ],
+      "bounds_max": [
+        0.48,
+        0.48,
+        0.47
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_FoodBowl_Sleepover.model.json",
+      "rbx_parts": 31,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Sleepover.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Sleepover.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "348/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "168 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
     }
   ]
 }

@@ -69,6 +69,7 @@ require(ReplicatedStorage.Shared.TablesSpread).follow()
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch, like the server's (shared/SpinCat)
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
+require(ReplicatedStorage.Shared.BigTreats).follow() -- Derek 2026-11-18: the Daily Treat rows follow bigTreats
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
 do
 	-- #5264: food lists sort by rarity first while foodByRarity is on (read before the UI builds its lists; a list

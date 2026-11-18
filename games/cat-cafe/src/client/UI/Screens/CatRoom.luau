@@ -58,6 +58,7 @@ local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
 
 -- #5172: the follower's boost by rarity and coat, as the server pays it
+local CatStats = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CatStats"))
 local Follower = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Follower")) :: any
 
 -- #3717: the trait row reads the `traits` switch and the trait's name
@@ -1213,13 +1214,23 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		bow.AnchorPoint = Vector2.new(1, 0)
 		bow.Position = UDim2.new(1, -4, 0, 4)
 	end
+	-- #5300 (shared/PerfectCatch): a Perfect cat's white star on the picture's top right, under the coat's badge, while
+	-- the perfectCatch switch is on
+	local topRight = if shiny or rainbow then 28 else 4
+	if instance.perfect == true and CatStats.perfectCatch() then
+		local star = badge(button, "★", Color3.fromRGB(143, 211, 255), Theme.colors.white)
+		star.Name = "PerfectBadge"
+		star.AnchorPoint = Vector2.new(1, 0)
+		star.Position = UDim2.new(1, -4, 0, topRight)
+		topRight += 24
+	end
 	-- F97 section 6: a spare cat (out of every area, F78) has no Index page any more, so its card says "Classic" on
 	-- the picture's top right, under the sparkle on a gold one
 	if def ~= nil and def.area == IndexRewards.SPARE_AREA then
 		local classic = badge(button, "Classic", Theme.areaColors.spare, Theme.colors.white)
 		classic.Name = "Classic"
 		classic.AnchorPoint = Vector2.new(1, 0)
-		classic.Position = UDim2.new(1, -4, 0, if shiny or rainbow then 28 else 4)
+		classic.Position = UDim2.new(1, -4, 0, topRight)
 	end
 	-- F62: on the picture's lower right corner while the cat is locked
 	local lock = badge(button, Theme.icons.lock, Theme.colors.cocoaDeep, Theme.colors.white)
@@ -2200,6 +2211,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 				favourite = favorite,
 				gold = shiny,
 				rainbow = rainbow,
+				perfect = instance.perfect == true, -- #5300
 				level = instance.level,
 			}),
 			role
@@ -2293,6 +2305,7 @@ local BUFF_LOOK: { [string]: { fill: Color3, text: Color3 } } = {
 	gold = { fill = Theme.colors.gold, text = Theme.colors.goldText },
 	rainbow = { fill = Theme.colors.white, text = Theme.colors.ink },
 	level = { fill = Theme.colors.sky, text = Theme.colors.white },
+	perfect = { fill = Color3.fromRGB(143, 211, 255), text = Theme.colors.ink }, -- #5300: shared/PerfectCatch.COLOR
 }
 
 -- The detail's buff chips, built again only when their words change.

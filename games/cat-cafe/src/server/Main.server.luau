@@ -117,6 +117,7 @@ require(ReplicatedStorage.Shared.TablesSpread).follow()
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch (shared/SpinCat)
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
+require(ReplicatedStorage.Shared.PerfectCatch).follow() -- #5300: the pay rule follows the perfectCatch switch
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
 local world = WorldBuilder.build()
 
@@ -167,6 +168,7 @@ DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
+require(script.Parent.Services.PerfectCatchService).start() -- #5300: the charm 80+ cats marked Perfect once
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags
 require(script.Parent.Services.LeaveCleanupService).start() -- server memory: old characters and leavers destroyed
 require(script.Parent.Services.AreaOnlyService).start() -- #5026: fences, camp cannons and other cafes stream (areaOnly switch)

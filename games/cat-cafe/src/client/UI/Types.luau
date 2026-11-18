@@ -243,6 +243,7 @@ export type CatInstance = {
 	caughtAt: number?,
 	spotId: string?, -- the role slot it works ("barista_1"), nil when resting in the cat room
 	rescued: boolean?,
+	perfect: boolean?, -- #5300: caught with every ring Perfect (x1.5 while the perfectCatch switch is on)
 	name: string?, -- the player's name for it, filtered by the server; nil shows the catalog name
 	method: CatchMethod?, -- how it was found
 	locked: boolean?, -- F62: true cannot be sold or traded; the lock shows once the server sends it as a boolean

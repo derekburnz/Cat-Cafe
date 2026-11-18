@@ -5,7 +5,7 @@
 --   chips(cat)        up to three, in this order: "+50% as Barista" in its favourite role (kind "favourite", the
 --                     screen adds a heart) or "Likes: Barista" anywhere else, "Gold +50%" (or "Rainbow x3" on a rainbow
 --                     cat, F99 rainbow-coat.md section 2), "Lv 12 +22%" (above level 1)
---   charmText(charm)  "Charm +12%", "Charm -8%", "Charm +0%"
+--   charmText(charm)  "Charm +12%", "Charm -8%", "Charm +0%"; "" with the perfectCatch switch on (#5300)
 -- The numbers come from Config and shared/CatStats, the server's own formula. Pure, so the cloud spec runner checks it.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -14,13 +14,14 @@ local Config = require(Shared:WaitForChild("Config"))
 
 local CatBuffs = {}
 
-export type Chip = { kind: string, text: string } -- kind: "favourite", "likes", "gold", "rainbow" or "level"
+export type Chip = { kind: string, text: string } -- kind: "favourite", "likes", "gold", "rainbow", "perfect" or "level"
 
 export type Cat = {
 	role: string?, -- the favourite role's display name ("Barista"), nil without one
 	favourite: boolean, -- working in that role now
 	gold: boolean,
 	rainbow: boolean?,
+	perfect: boolean?, -- #5300: marked Perfect; its chip shows only while the perfectCatch switch is on
 	level: number?,
 }
 
@@ -52,6 +53,13 @@ function CatBuffs.chips(cat: Cat): { Chip }
 			{ kind = "gold", text = "Gold " .. bonus(CatStats.variantMultiplier("gold")) }
 		)
 	end
+	-- #5300 (shared/PerfectCatch): "★ Perfect +50%" after the coat, while the perfectCatch switch is on
+	if cat.perfect == true and CatStats.perfectCatch() then
+		table.insert(chips, {
+			kind = "perfect",
+			text = "★ Perfect " .. bonus(CatStats.PERFECT_MULTIPLIER),
+		})
+	end
 	local level = cat.level
 	if level ~= nil and level > 1 then
 		table.insert(chips, {
@@ -62,7 +70,11 @@ function CatBuffs.chips(cat: Cat): { Chip }
 	return chips
 end
 
+-- "" while the perfectCatch switch is on (#5300: the Charm UI goes)
 function CatBuffs.charmText(charm: number): string
+	if CatStats.perfectCatch() then
+		return ""
+	end
 	return "Charm " .. bonus(CatStats.charmMultiplier(charm))
 end
 

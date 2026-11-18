@@ -28,6 +28,7 @@ local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
+local PerfectCatch = require(ReplicatedStorage.Shared.PerfectCatch)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SecretCalm = require(ReplicatedStorage.Shared.SecretCalm)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -166,6 +167,7 @@ type Carry = {
 	knocks: number, -- F84: times tackles knocked it loose since it was first caught (camp_checkin)
 	pity: boolean?, -- #2567: a pity or shower cat, so its check-in line stays in this server
 	bonusXp: number?, -- #1884 (catch-rework.md 7d): a PURRFECT catch's XP, given as it checks in
+	perfect: boolean?, -- #5300 (shared/PerfectCatch): every ring Perfect with the perfectCatch switch on
 }
 
 -- What a Dropped cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
@@ -2250,7 +2252,8 @@ local function startCarry(
 	homePos: Vector3?,
 	knocks: number?,
 	bonusXp: number?,
-	pity: boolean?
+	pity: boolean?,
+	perfect: boolean?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -2293,6 +2296,7 @@ local function startCarry(
 		knocks = knocks or 0,
 		bonusXp = bonusXp,
 		pity = pity,
+		perfect = if perfect == true then true else nil,
 	}
 	if packed[player] == nil and hasBackpack(player) then
 		-- #2565: the first cat rides in the Backpack and the net stays out; the walk speed doesn't change
@@ -2701,7 +2705,23 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local bonusXp = if finishKind == "purrfect" and not profile.flags.autoPress
 			then M.Config.CatXpBase
 			else nil
-		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp, pity)
+		-- #5300: every ring Perfect (not while AutoPress is set) marks the cat while the perfectCatch switch is on
+		local perfectMark = M.LiveFlagService.on(PerfectCatch.FLAG)
+			and PerfectCatch.marks(finishKind, profile.flags.autoPress)
+		startCarry(
+			player,
+			def,
+			method,
+			charm,
+			variant,
+			nil,
+			funnel,
+			homePos,
+			knocks,
+			bonusXp,
+			pity,
+			perfectMark
+		)
 		if waitedFor ~= nil and waitedFor ~= player.UserId then
 			-- #3181: the beginner it waited for gets a new one at their point now, not at the next 5 s tick
 			task.defer(tutorialTick)
@@ -3310,7 +3330,8 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 		profile,
 		carry.charm,
 		carry.method,
-		carry.variant
+		carry.variant,
+		carry.perfect
 	)
 	local bonusXp = carry.bonusXp
 	if bonusXp ~= nil and bonusXp > 0 then

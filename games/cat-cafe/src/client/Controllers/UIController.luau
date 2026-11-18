@@ -43,6 +43,7 @@ local MysticPool = require(script.Parent.Parent.Effects.MysticPool)
 local Net = require(script.Parent.Parent.Net)
 local NewKind = require(Shared:WaitForChild("NewKind"))
 local NewKindEconomy = require(Shared:WaitForChild("Economy"))
+local PerfectCatch = require(Shared:WaitForChild("PerfectCatch"))
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local RiftRun = require(script.Parent.Parent.Effects.RiftRun)
 local SecondCat = require(Shared:WaitForChild("SecondCat"))
@@ -3502,7 +3503,10 @@ local function wireServerEvents()
 				local model = strayModel(strayId)
 				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil
 				Moments.CatchSuccess:Fire(strayId, if type(rarity) == "string" then rarity else nil)
-				pendingCharmGain = charmGain
+				-- #5300: with the perfectCatch switch on the reveal's line is "PERFECT! +50% money", for a purrfect finish only
+				pendingCharmGain = if PerfectCatch.on()
+					then (if type(finish) == "table" and finish.finish == "purrfect" then 1 else 0)
+					else charmGain
 				if allPerfect and charmGain > 0 then
 					Moments.Purrfect:Fire(charmGain)
 				end

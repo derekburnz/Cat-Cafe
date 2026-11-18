@@ -77,6 +77,8 @@ Tips.NEXT_GOAL = "next_goal"
 -- Derek 2026-11-18 ("People who were done t2 are getting tutorial steps again"): the parkRankPoint dim round the goal
 -- card showed once a session, so a Tier 2 player saw it on every visit. Now once per account. Kept like the asks.
 Tips.PARK_POINT = "park_point"
+-- #5300 (shared/PerfectCatch.KEY): the perfectCatch switch's charm migration ran. Server only, kept like the asks.
+Tips.PERFECT_CHARM = "perfect_charm"
 Tips.LIKE_EARLY_FLAG = "likeAskEarly" -- shared/LiveFlags
 Tips.LIKE_EARLY_SECONDS = 10 * 60 -- the early like ask waits for this much play on the account
 Tips.FAVORITE_ASK = "favorite_ask" -- F96
@@ -344,6 +346,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					or key == Tips.LIKE_RECAP -- #5152
 					or key == Tips.NEXT_GOAL -- #5202
 					or key == Tips.PARK_POINT -- Derek 2026-11-18
+					or key == Tips.PERFECT_CHARM -- #5300
 				)
 			then
 				seen[key] = true
@@ -386,6 +389,9 @@ function Tips.cleared(seen: { [string]: boolean }): { [string]: boolean }
 	end
 	if seen[Tips.PARK_POINT] == true then
 		kept[Tips.PARK_POINT] = true -- Derek 2026-11-18: the Park rank point dim, once per account
+	end
+	if seen[Tips.PERFECT_CHARM] == true then
+		kept[Tips.PERFECT_CHARM] = true -- #5300: the charm migration ran, never again
 	end
 	return kept
 end

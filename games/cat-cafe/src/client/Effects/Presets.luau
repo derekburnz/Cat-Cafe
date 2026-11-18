@@ -5346,6 +5346,16 @@ Presets.rarityMark = {
 		lowMost = 16,
 		margin = 0.08,
 	},
+	-- Derek 2026-11-18 ("make the cats diamonds smaller from further away as they block the cats"; switch `flag`, off
+	-- by default): the billboard's fixed `pixels` part tapers from full at `near` studs to `least` at `far` (the Park
+	-- finder's to `finderLeast`), so past `far` a gem is 1.6 studs plus a few pixels and shrinks with the cat
+	shrink = {
+		flag = "gemsShrink",
+		near = 20,
+		far = 110,
+		least = 4,
+		finderLeast = 14,
+	},
 	-- #5034 Park phone leak (phones 37% never catch a cat in the Park, mostly from not finding one): with the switch
 	-- `flag` on and no `area` cat in the player's Index yet, the gems of that area's strays (their `Area`) show out to
 	-- `maxDistance` studs, `pixels` wide at the least, and draw over hedges and walls (AlwaysOnTop) past `onTopBeyond`

@@ -63,6 +63,7 @@ LiveFlags.KEYS = {
 	"codes",
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
+	"followRow", -- #5267: the Cats menu's Follow button on its own row with what the cat brings, and a paw on the follower's card (Screens/CatRoom); on by default
 	"stationTiers", -- #4539: Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers)
 	"tradeCrates",
 	"tradeFish",

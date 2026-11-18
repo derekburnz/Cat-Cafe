@@ -121,6 +121,11 @@ local CARD = Vector2.new(104, 134)
 local CARD_ART = 76
 local RENAME_W = 42 -- the phone sheet's Back button height: a 37 px face, over the 36 px a mouse needs (ui-review)
 local ACTION_GAP = 6 -- between the detail's buttons
+-- #5267: the follower's paw, on its card and its Follow button; the followRow switch (on unless set false)
+local FOLLOW_PAW = "🐾"
+local function followRowOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_followRow") ~= false
+end
 local BUFFS_H = 52 -- the buff chips: two lines of BUFF_H
 local BUFF_H = 22
 local BUFF_GAP = 6
@@ -885,6 +890,23 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		}),
 	})
 	self._actionsH = actionsH
+	self._actions = actions
+	-- #5267: Follow's own row, just over the actions row, shown only while the follower slot is open
+	self._followRow = Create("Frame", {
+		Name = "FollowRow",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 8, 1, -10 - actionsH - ACTION_GAP),
+		Size = UDim2.new(1, -16, 0, actionsH),
+		Visible = false,
+		Parent = body,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, ACTION_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
 	-- Equip or Unequip, one button (Derek 2026-11-13: "an equip/unequip button (no move)")
 	self._assign = Button.new({
 		name = "Assign",
@@ -1232,6 +1254,11 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	keep.AnchorPoint = Vector2.new(0, 1)
 	keep.Position = UDim2.fromOffset(4, CARD_ART + 4)
 	keep.Visible = false
+	-- #5267: the follower's card wears a paw, on the picture's top left under the role badge
+	local paw = badge(button, FOLLOW_PAW, Theme.colors.gold, Theme.colors.goldText)
+	paw.Name = "FollowPaw"
+	paw.Position = UDim2.fromOffset(4, 28)
+	paw.Visible = false
 	local name = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(4, CARD_ART + 10),
@@ -1267,6 +1294,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		role = role,
 		lock = lock,
 		keep = keep,
+		paw = paw,
 		name = name,
 		rate = rate,
 		def = def,
@@ -1482,6 +1510,10 @@ end
 
 -- Whether this cat shows as locked: never before the server sends `locked`, else its saved value or a fresh tap.
 -- #5172: the follower slot's view while catFollower is on and the player is at Tier 2, else nil.
+-- #5267 (Derek 2026-11-18: "follow button not ruins all other buttons make it so it has its own area for button and
+-- a little symbol showing it somewhere else in cat menu"): with the followRow switch (on unless set false) Follow and
+-- the boost square sit on their own row over Equip and Feed, the button says what the cat brings, and the follower's
+-- card wears a paw.
 function CatRoom._followerView(self: any): any?
 	local state: Types.PlayerState? = self._state
 	local view = if state ~= nil then (state :: any).follower else nil
@@ -1789,6 +1821,8 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		end
 		entry.lock.Visible = self:_locked(instance)
 		entry.keep.Visible = KeepUp.keepsUp(def, state.tier)
+		local followView = if followRowOn() then self:_followerView() else nil
+		entry.paw.Visible = followView ~= nil and followView.uid == uid
 		local picked = uid == selected
 		entry.stroke.Color = if picked
 			then Theme.colors.sky
@@ -1971,7 +2005,7 @@ function CatRoom._placeFeed(self: any)
 	-- on top of the actions row
 	local body = self._feedRow.Parent :: GuiObject
 	local bodyH = body.AbsoluteSize.Y / (if scale > 0 then scale else 1)
-	local actionsTop = bodyH - 10 - (self._actionsH or 0) - 4
+	local actionsTop = bodyH - 10 - self:_actionsBlock() - 4
 	local squeezed = self._feedRow.Visible and bodyH > 0 and top + FEED_H + FEED_CLEAR > actionsTop
 	local rateCovered = false
 	if squeezed then
@@ -1996,7 +2030,7 @@ function CatRoom._placeFeed(self: any)
 		-- away: a trait's name joins the Charm line as on the phone sheet, and "No trait yet" just hides
 		local body = trait.Parent :: GuiObject
 		local bodyH = body.AbsoluteSize.Y / (if scale > 0 then scale else 1)
-		local actionsTop = bodyH - 10 - (self._actionsH or 0) - 4
+		local actionsTop = bodyH - 10 - self:_actionsBlock() - 4
 		if bodyH > 0 and descTop + TRAIT_TITLE_H > actionsTop then
 			trait.Visible = false
 			local title = self._traitTitle
@@ -2010,11 +2044,24 @@ function CatRoom._placeFeed(self: any)
 		end
 	end
 	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
-	local descBottom = self._descBottom + (descTop - self._descTop)
+	local descBottom = self._descBottom
+		+ (descTop - self._descTop)
+		+ (self:_actionsBlock() - (self._actionsH or 0))
 	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
 	-- #3989 (Review-QA, Studio 667 x 375): with the food row pushed up there is no room left for the description, so
 	-- it hides while Feed is open instead of drawing faintly between the tiles and the buttons
 	self._detailDesc.Visible = not squeezed
+end
+
+-- #5267: how tall the buttons at the foot of the detail stand: the actions row, and Follow's own row over it while
+-- it shows.
+function CatRoom._actionsBlock(self: any): number
+	local h: number = self._actionsH or 0
+	local row: Frame? = self._followRow
+	if row ~= nil and row.Visible then
+		return h + h + ACTION_GAP
+	end
+	return h
 end
 
 -- One food's tile: a tap feeds one; held, it feeds again every FEED_REPEAT seconds while the food and the cat's
@@ -2247,27 +2294,50 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	-- #5172: Follow (Home on the follower) and, on the follower, the Money or Luck square
 	local follow = self:_followerView()
 	local following = follow ~= nil and follow.uid == instance.uid
+	local ownRow = follow ~= nil and followRowOn()
+	local rowHost: Instance = if ownRow then self._followRow else self._actions
+	if self._follow.instance.Parent ~= rowHost then
+		self._follow.instance.Parent = rowHost
+		self._boost.instance.Parent = rowHost
+	end
+	local rowWas: boolean = self._followRow.Visible
+	self._followRow.Visible = ownRow
 	self._follow.instance.Visible = follow ~= nil
 	self._boost.instance.Visible = following
 	if follow ~= nil then
-		self._follow:setText(if following then "Home" else "Follow")
 		self._follow:setStyle(if following then "gold" else "ghost")
 		self._boost:setText(if follow.boost == "luck" then Theme.icons.luck else "$")
 		-- what this cat brings as the follower, with the boost picked and its coat: "Follows +18% money (Rainbow x1.5)"
 		local amount = Follower.amount(rarity, follow.boost, instance.variant)
 		local coat = Follower.coatText(instance.variant)
-		local line = "Follows "
-			.. Follower.text(amount, follow.boost)
+		local brings = Follower.text(amount, follow.boost)
 			.. (if coat then " (" .. coat .. ")" else "")
-		stats.Text = if stats.Text ~= "" then stats.Text .. "  ·  " .. line else line
+		if ownRow then
+			-- #5267: the wide button carries the line, so the Charm line stays short
+			self._follow:setText(
+				if following
+					then FOLLOW_PAW .. " Following  ·  Home"
+					else FOLLOW_PAW .. " Follow  ·  " .. brings
+			)
+			local squareW = if following then self._actionsH + ACTION_GAP else 0
+			self._follow.instance.Size = UDim2.new(1, -squareW, 1, 0)
+		else
+			self._follow:setText(if following then "Home" else "Follow")
+			local line = "Follows " .. brings
+			stats.Text = if stats.Text ~= "" then stats.Text .. "  ·  " .. line else line
+		end
+	end
+	if rowWas ~= ownRow then
+		self:_placeFeed()
 	end
 
 	-- one row: Equip or Unequip (Cancel while a "+" is awaited), Feed (gold while its tiles show), Follow, the squares
+	local inRow = follow ~= nil and not ownRow
 	local square = (if live then self._actionsH + ACTION_GAP else 0)
-		+ (if following then self._actionsH + ACTION_GAP else 0)
-	local gaps = ACTION_GAP + square + (if follow ~= nil then ACTION_GAP else 0)
+		+ (if following and inRow then self._actionsH + ACTION_GAP else 0)
+	local gaps = ACTION_GAP + square + (if inRow then ACTION_GAP else 0)
 	local assignShare, feedShare = 0.6, 0.4
-	if follow ~= nil then
+	if inRow then
 		assignShare, feedShare = 0.4, 0.28
 		self._follow.instance.Size = UDim2.new(0.32, -math.ceil(gaps * 0.32), 1, 0)
 	end

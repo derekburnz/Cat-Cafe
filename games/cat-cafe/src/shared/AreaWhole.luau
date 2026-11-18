@@ -9,9 +9,10 @@
 -- Sync's test of the first build (2026-11-18 10:33 UTC): making the whole area Model PersistentPerPlayer sent it in
 -- one client frame (303 to 741 ms, 7.7k to 11.5k instances) and stalled the server as long. So the area's Set and
 -- Backdrop are cut into chunks by ground cell (CELL studs), each its own PersistentPerPlayer Model, and a device gets
--- them a few at a time (at most BUDGET instances every SPREAD seconds), nearest to where they will stand first. The
--- first build also kept the last area held on the street for good, so the Alleyway stayed whole all session: now an
--- area is let go RELEASE_AFTER seconds after they left it for the street or a cafe.
+-- them a few at a time (at most BUDGET instances every SPREAD seconds), nearest to where they will stand first, and
+-- loses a let-go area's chunks the same way. The first build also kept the last area held on the street for good, so
+-- the Alleyway stayed whole all session: now an area is let go RELEASE_AFTER seconds after they left it for the
+-- street or a cafe. A chunk is cut by each piece's bounding-box middle, as a kit set's pieces all pivot at its centre.
 --
 -- Roblox terms: a PersistentPerPlayer model is Persistent (sent whole, never streamed out) for the players added with
 -- Model:AddPersistentPlayer and Atomic (sent whole, but streams as usual) for everyone else. A Default model is only
@@ -72,13 +73,15 @@ function AreaWhole.pick(
 	return nil, false
 end
 
--- How many of the waiting chunks (their instance counts in order, `sizes`) go out in one SPREAD step: as many as
--- fit in `budget`, and always at least one while any wait.
-function AreaWhole.take(sizes: { number }, budget: number?): number
+-- How many of the waiting chunks (their instance counts in order, `sizes`) go in one SPREAD step: as many as fit
+-- in `budget`, and at least one while any wait unless `atLeastOne` is false (what is left of a step's budget after
+-- the adds, for the chunks coming off).
+function AreaWhole.take(sizes: { number }, budget: number?, atLeastOne: boolean?): number
 	local limit = budget or AreaWhole.BUDGET
+	local floor = if atLeastOne == false then 0 else 1
 	local count, total = 0, 0
 	for _, size in sizes do
-		if count > 0 and total + size > limit then
+		if count >= floor and total + size > limit then
 			break
 		end
 		count += 1

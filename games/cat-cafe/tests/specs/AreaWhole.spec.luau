@@ -48,6 +48,10 @@ return function()
 			expect(AreaWhole.take({ 700, 100 }, 400)).to.equal(1)
 			expect(AreaWhole.take({ 100, 350 }, 400)).to.equal(1)
 			expect(AreaWhole.take({}, 400)).to.equal(0)
+			-- the rest of a step's budget, for the chunks coming off: only what fits
+			expect(AreaWhole.take({ 100, 100 }, 150, false)).to.equal(1)
+			expect(AreaWhole.take({ 300 }, 150, false)).to.equal(0)
+			expect(AreaWhole.take({ 300 }, 400, false)).to.equal(1)
 		end)
 
 		it("cuts the ground into cells", function()

@@ -18,36 +18,58 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local AreaWholeService = {}
 
-type Chunk = { model: Model, at: Vector3, size: number }
+type Chunk = { model: Model, at: Vector3, size: number, mode: Enum.ModelStreamingMode }
 type Hold = {
 	area: string,
-	added: { Model }, -- chunks this player is on the list of
+	added: { Chunk }, -- chunks this player is on the list of
 	waiting: { Chunk }, -- chunks still to add, nearest first
 }
 
-local CUT = { "Set", "Backdrop" } -- the area Model's children cut into chunks: nearly all of an area's instances
+-- The area Model's children cut into chunks: nearly all of an area's instances (Sync's re-test: the Alleyway's
+-- Props alone are 8,901). Only WorldBuilder looks inside them, and it is done before start.
+local CUT = { "Set", "Backdrop", "Props", "Camp" }
+-- Children kept whole as one chunk each (the Nook popped in at 450 studs).
+local WHOLE = { "Nook", "SpawnPoints" }
+-- A child Model bigger than this is cut too, one level down: a kit set's pieces (the Camp's CampSet) are one Model.
+local SPLIT = 800
 
 local switchOn = false
 local chunks: { [string]: { Chunk } } = {} -- area id: its chunks
 local holds: { [Player]: Hold } = {}
+local dropping: { [Player]: { Chunk } } = {} -- chunks of an area let go, taken off a few at a time
 local flying: { [Player]: AreaWhole.Flight } = {} -- a cannon flight's destination, until they stand in it
 local outSince: { [Player]: number } = {} -- when they left their held area for the street or a cafe
 
+-- A piece's middle. Not its pivot: a kit set's pieces all pivot at the area's centre (Sync's re-test).
 local function pieceAt(item: Instance): Vector3?
 	if item:IsA("Model") then
-		return (item :: Model):GetPivot().Position
+		local box = (item :: Model):GetBoundingBox()
+		return box.Position
 	elseif item:IsA("BasePart") then
 		return (item :: BasePart).Position
 	end
 	return nil
 end
 
--- Cuts `container`'s direct children into one Default Model per ground cell and returns the chunks.
-local function cut(container: Instance, into: { Chunk })
+local function sizeOf(item: Instance): number
+	return #item:GetDescendants() + 1
+end
+
+-- Cuts `container`'s direct children into one Default Model per ground cell and adds the chunks to `into`. A child
+-- Model over SPLIT instances (and not Atomic or Persistent, whose wholeness something relies on) is cut in turn.
+local function cut(container: Instance, into: { Chunk }, depth: number?)
 	local groups: { [string]: { Instance } } = {}
 	for _, child in container:GetChildren() do
 		local at = pieceAt(child)
-		if at ~= nil then
+		if
+			at ~= nil
+			and (depth or 0) == 0
+			and child:IsA("Model")
+			and (child :: Model).ModelStreamingMode == Enum.ModelStreamingMode.Default
+			and sizeOf(child) > SPLIT
+		then
+			cut(child, into, 1)
+		elseif at ~= nil then
 			local key = AreaWhole.cell(at)
 			local group = groups[key]
 			if group == nil then
@@ -64,10 +86,15 @@ local function cut(container: Instance, into: { Chunk })
 		local size = 1
 		for _, child in group do
 			child.Parent = model
-			size += #child:GetDescendants() + 1
+			size += sizeOf(child)
 		end
 		model.Parent = container
-		table.insert(into, { model = model, at = model:GetPivot().Position, size = size })
+		table.insert(into, {
+			model = model,
+			at = model:GetBoundingBox().Position,
+			size = size,
+			mode = Enum.ModelStreamingMode.Default,
+		})
 	end
 end
 
@@ -84,21 +111,48 @@ local function cutAll()
 				cut(container, list)
 			end
 		end
+		for _, name in WHOLE do
+			local whole = info.model:FindFirstChild(name)
+			if whole ~= nil and whole:IsA("Model") then
+				local wholeModel = whole :: Model
+				local mode = wholeModel.ModelStreamingMode
+				-- one already Persistent (the Alleyway's spawn points) is on every device anyway
+				if mode ~= Enum.ModelStreamingMode.Persistent then
+					table.insert(list, {
+						model = wholeModel,
+						at = wholeModel:GetBoundingBox().Position,
+						size = sizeOf(wholeModel),
+						mode = mode,
+					})
+				end
+			end
+		end
 		chunks[id] = list
 	end
 end
 
+-- Lets go of the player's held area: its chunks come off a few at a time too (Sync: Snowy's Set, let go in one
+-- frame, cost 278 ms on the client).
 local function release(player: Player)
 	local hold = holds[player]
 	holds[player] = nil
 	if hold == nil then
 		return
 	end
-	for _, model in hold.added do
-		pcall(function()
-			model:RemovePersistentPlayer(player)
-		end)
+	local queue = dropping[player]
+	if queue == nil then
+		queue = {}
+		dropping[player] = queue
 	end
+	for _, chunk in hold.added do
+		table.insert(queue :: { Chunk }, chunk)
+	end
+end
+
+local function dropNow(player: Player, chunk: Chunk)
+	pcall(function()
+		chunk.model:RemovePersistentPlayer(player)
+	end)
 end
 
 -- Where the chunks should start from: the landing pad on a flight, else the character.
@@ -124,7 +178,27 @@ local function keep(player: Player, areaId: string?)
 	if areaId == nil or list == nil or #list == 0 then
 		return
 	end
-	local waiting = table.clone(list)
+	-- A chunk of this area still waiting to come off (a quick trip out and back) stays on, and is not sent again.
+	local mine: { [Model]: boolean } = {}
+	for _, chunk in list do
+		mine[chunk.model] = true
+	end
+	local kept: { Chunk } = {}
+	local still: { Chunk } = {}
+	for _, chunk in dropping[player] or {} do
+		table.insert(if mine[chunk.model] then kept else still, chunk)
+	end
+	dropping[player] = if #still > 0 then still else nil
+	local have: { [Model]: boolean } = {}
+	for _, chunk in kept do
+		have[chunk.model] = true
+	end
+	local waiting: { Chunk } = {}
+	for _, chunk in list do
+		if not have[chunk.model] then
+			table.insert(waiting, chunk)
+		end
+	end
 	local aim = aimFor(player, areaId)
 	if aim ~= nil then
 		local from = aim :: Vector3
@@ -132,26 +206,44 @@ local function keep(player: Player, areaId: string?)
 			return (a.at - from).Magnitude < (b.at - from).Magnitude
 		end)
 	end
-	holds[player] = { area = areaId, added = {}, waiting = waiting }
+	holds[player] = { area = areaId, added = kept, waiting = waiting }
 end
 
--- One SPREAD step: each player with chunks waiting gets the next few, up to AreaWhole.BUDGET instances.
+-- One SPREAD step: each player gets the next few waiting chunks, up to AreaWhole.BUDGET instances, and with what
+-- is left of it the next few of a let-go area come off (one at least when none went on).
 local function spread()
-	for player, hold in holds do
-		if #hold.waiting == 0 then
-			continue
+	for _, player in Players:GetPlayers() do
+		local hold = holds[player]
+		local spent = 0
+		if hold ~= nil and #hold.waiting > 0 then
+			local sizes: { number } = {}
+			for _, chunk in hold.waiting do
+				table.insert(sizes, chunk.size)
+			end
+			for _ = 1, AreaWhole.take(sizes) do
+				local chunk = table.remove(hold.waiting, 1) :: Chunk
+				spent += chunk.size
+				local ok = pcall(function()
+					chunk.model:AddPersistentPlayer(player)
+				end)
+				if ok then
+					table.insert(hold.added, chunk)
+				end
+			end
 		end
-		local sizes: { number } = {}
-		for _, chunk in hold.waiting do
-			table.insert(sizes, chunk.size)
-		end
-		for _ = 1, AreaWhole.take(sizes) do
-			local chunk = table.remove(hold.waiting, 1) :: Chunk
-			local ok = pcall(function()
-				chunk.model:AddPersistentPlayer(player)
-			end)
-			if ok then
-				table.insert(hold.added, chunk.model)
+		local queue = dropping[player]
+		if queue ~= nil then
+			local sizes: { number } = {}
+			for _, chunk in queue do
+				table.insert(sizes, chunk.size)
+			end
+			-- one at least when nothing went on, else only what fits in the rest of the budget
+			local count = AreaWhole.take(sizes, AreaWhole.BUDGET - spent, spent == 0)
+			for _ = 1, count do
+				dropNow(player, table.remove(queue, 1) :: Chunk)
+			end
+			if #queue == 0 then
+				dropping[player] = nil
 			end
 		end
 	end
@@ -173,16 +265,15 @@ end
 local function apply(on: boolean)
 	switchOn = on
 	if not on then
-		for player in holds do
-			release(player)
-		end
+		-- the switch going off sets every chunk back at once, which takes everyone off every list anyway
 		table.clear(holds)
+		table.clear(dropping)
 		table.clear(flying)
 		table.clear(outSince)
 	end
-	local mode = AreaWhole.mode(on)
 	for _, list in chunks do
 		for _, chunk in list do
+			local mode = if on then AreaWhole.mode(true) else chunk.mode
 			if chunk.model.ModelStreamingMode ~= mode then
 				chunk.model.ModelStreamingMode = mode
 			end
@@ -235,6 +326,7 @@ function AreaWholeService.start()
 	cutAll()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		holds[player] = nil
+		dropping[player] = nil
 		flying[player] = nil
 		outSince[player] = nil
 	end)

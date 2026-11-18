@@ -52,7 +52,7 @@ HarvestWorld.FLOOR_SIZE = Vector3.new(150, 4, 120)
 -- middle, inside its 24 stud width, so the wheel's "2 spins to use" pill and "!" sat on the sign's top corner. At
 -- (-21, 55) the arch is 21 degrees off the street and the wheel 25 degrees beyond it (the arch's half width is about
 -- 11.5 degrees from the pad): about 30 studs from the wheel and the Rally board, 1 stud past the lane's 12 stud margin.
-HarvestWorld.ARCH_AT = Vector3.new(-21, 0.1, 55)
+HarvestWorld.ARCH_AT = Vector3.new(-24, 0.1, 35) -- #5224 v5: (-21, 55) before, 14 studs from the Day Cart
 HarvestWorld.AREA_EARLY_SECONDS = 3600 -- built this long before it opens, so the first trip never waits on it
 HarvestWorld.ARCH_EARLY_SECONDS = 86400 -- the arch and its countdown from a day before (the update countdown's 24 hours)
 

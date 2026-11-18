@@ -878,7 +878,11 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			and self._open == true
 			and os.clock() >= self._pendingUntil -- not again in the beat after a press
 			and Cannon.spotOn(self._state)
-		StepTarget.ui(card.launch.instance, ringed and not dimmed) -- #2915
+		-- #2915; Sync on v947: a dimmed Launch keeps the spotlight's own glow, as this render's StepTarget off cleared
+		-- it a frame after it showed
+		if not dimmed then
+			StepTarget.ui(card.launch.instance, ringed)
+		end
 		if dimmed and (self._spot == nil or self._spot.id ~= id) then
 			self:_dropSpot()
 			self._spot = {

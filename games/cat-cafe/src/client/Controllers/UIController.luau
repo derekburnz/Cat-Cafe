@@ -1596,6 +1596,11 @@ local function applyState(s: Types.PlayerState)
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
 		follower = s.follower, -- #5172: the Cats menu's Follow button and boost square (nil with catFollower off)
+		-- #5245 (Sync on v947): the play counters (baitsTamed, luresUsed) the tutorial reads; sent but never copied, so
+		-- the Cannon point after the first Tame never lit
+		stats = if ReplicatedStorage:GetAttribute("LiveFlag_uiStats") ~= false
+			then (s :: any).stats
+			else nil, -- uiStats, on by default
 		goldCollection = s.goldCollection,
 		rainbowCollection = s.rainbowCollection, -- F99: the Index's Rainbow tab
 		rainbowLuck = s.rainbowLuck, -- F99: the food card's "Rainbow 0.5%" line, capped

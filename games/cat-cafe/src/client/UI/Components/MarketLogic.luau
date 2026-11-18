@@ -152,6 +152,17 @@ function MarketLogic.isOpen(crate: Crate, tier: number, areas: { Area }?): boole
 	return true
 end
 
+-- #5221 (Derek 2026-11-18: "move classic crates always and gold crates when you have them to front of crates not end
+-- so easier to find"): a crate card's place in the Crates tab from its pool `area` and `golden` flag, `index` its place in Catalog.crates. The Classic
+-- Crate first, its golden one next, then every other golden crate (shown only while owned), then the zone crates in
+-- catalog order.
+function MarketLogic.layoutOrder(area: string?, golden: boolean?, index: number): number
+	if area == MarketLogic.CLASSIC then
+		return if golden then 2 else 1
+	end
+	return if golden then 100 + index else 1000 + index
+end
+
 -- The tier a crate's zone opens at, for "Opens at Tier 3"; nil when it is open from the start.
 function MarketLogic.openTier(crate: Crate, areas: { Area }?): number?
 	local list: { Area } = areas or {}

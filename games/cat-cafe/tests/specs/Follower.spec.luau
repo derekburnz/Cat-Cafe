@@ -52,6 +52,28 @@ return function()
 			expect(Follower.amount(nil, "money")).to.equal(0)
 		end)
 
+		-- #5296 (switch companionMenu): the companion gives full Money and full Luck together
+		it("gives both boosts with companionMenu on, one with it off", function()
+			local profile, uid = withCat("tabby")
+			local base = Economy.tipMultiplier(profile, NOW)
+			profile.follower = { uid = uid, boost = "money" }
+			Follower.setBoth(true)
+			local ok, err = pcall(function()
+				expect(Economy.tipMultiplier(profile, NOW) - base).to.be.near(0.03, 1e-9)
+				expect(luckOf(profile)).to.be.near(0.05, 1e-9)
+				profile.follower.boost = "luck"
+				expect(Economy.tipMultiplier(profile, NOW) - base).to.be.near(0.03, 1e-9)
+				expect(Follower.bothText("Legendary", nil)).to.equal("+12% Money · +0.20 Luck")
+				expect(Follower.bothText("Common", "gold")).to.equal("+3.8% Money · +0.06 Luck")
+			end)
+			Follower.setBoth(nil)
+			if not ok then
+				error(err)
+			end
+			profile.follower.boost = "money"
+			expect(luckOf(profile)).to.equal(0)
+		end)
+
 		it("raises the boost by the coat: gold x1.25, rainbow x1.5 (Derek 2026-11-18)", function()
 			expect(Follower.amount("Legendary", "money", "rainbow")).to.equal(0.18)
 			expect(Follower.amount("Secret", "money", "rainbow")).to.equal(0.30)

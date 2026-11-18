@@ -57,6 +57,32 @@ function Follower.on(): boolean
 	return game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. Follower.FLAG) == true
 end
 
+-- #5296 (Derek 2026-11-18: "don't make it have a switch between stats just have it to an amount for both"), switch
+-- BOTH_FLAG (LiveFlags.OFF_BY_DEFAULT): the companion gives its full Money and its full Luck together (Design: no one
+-- loses anything, far under LuckMax), and the Cats window picks it from the Companion button (Screens/CatRoom).
+Follower.BOTH_FLAG = "companionMenu"
+local bothOverride: boolean? = nil
+function Follower.setBoth(on: boolean?)
+	bothOverride = on
+end
+function Follower.both(): boolean
+	if bothOverride ~= nil then
+		return bothOverride
+	end
+	return game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. Follower.BOTH_FLAG)
+		== true
+end
+
+-- "+12% Money · +0.20 Luck", the two boosts a cat of `rarity` and `variant` brings as the companion.
+function Follower.bothText(rarity: string?, variant: string?): string
+	local money = math.floor(Follower.amount(rarity, "money", variant) * 1000 + 0.5) / 10
+	local luck = Follower.amount(rarity, "luck", variant)
+	local percent = if money == math.floor(money)
+		then string.format("%d", money)
+		else string.format("%.1f", money)
+	return string.format("+%s%% Money · +%.2f Luck", percent, luck)
+end
+
 function Follower.fresh(): Save
 	return { uid = Follower.HOME, boost = "money" }
 end
@@ -159,12 +185,20 @@ end
 
 -- The Money boost added to the tip multiplier now (0.12 is +12%), 0 with Luck picked or nobody following.
 function Follower.money(profile: Types.PlayerProfile, rarityOf: (string) -> string?): number
+	if Follower.both() then -- #5296
+		local cat = Follower.cat(profile)
+		return if cat ~= nil then Follower.amount(rarityOf(cat.catId), "money", cat.variant) else 0
+	end
 	local boost, amount = current(profile, rarityOf)
 	return if boost == "money" then amount else 0
 end
 
 -- The Luck boost added as a Luck source now, 0 with Money picked or nobody following.
 function Follower.luck(profile: Types.PlayerProfile, rarityOf: (string) -> string?): number
+	if Follower.both() then -- #5296
+		local cat = Follower.cat(profile)
+		return if cat ~= nil then Follower.amount(rarityOf(cat.catId), "luck", cat.variant) else 0
+	end
 	local boost, amount = current(profile, rarityOf)
 	return if boost == "luck" then amount else 0
 end

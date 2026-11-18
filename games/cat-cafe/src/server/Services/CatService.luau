@@ -110,6 +110,7 @@ type Stray = {
 	missStreak: { [number]: Catching.MissStreak },
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
+	perfect: boolean?, -- #5300: a Dropped stray that was a Perfect catch keeps its mark for whoever checks it in
 	-- "rainbow" (RainbowChanceNet with rainbow luck, F99) or "gold" (GoldChanceNet with gold luck), rolled at spawn
 	-- and shown on the model (the Variant attribute; Gold too for a gold one), else "base"
 	variant: string,
@@ -180,6 +181,7 @@ type Kept = {
 	returning: boolean?, -- F67: let go with the Drop button, so it walks back to homePos
 	knocks: number?, -- F84: times tackles knocked it loose so far
 	pity: boolean?, -- #2567
+	perfect: boolean?, -- #5300: a Perfect cat keeps its mark through a drop
 }
 
 local world: WorldBuilder.World
@@ -821,6 +823,7 @@ local function spawnStray(
 		returning = kept ~= nil and kept.returning == true,
 		knocks = if kept ~= nil then kept.knocks or 0 else 0,
 		pity = kept ~= nil and kept.pity == true,
+		perfect = if kept ~= nil and kept.perfect == true then true else nil, -- #5300
 		recaught = false,
 		beginner = beginner,
 		mood = mood,
@@ -2707,7 +2710,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			else nil
 		-- #5300: every ring Perfect (not while AutoPress is set) marks the cat while the perfectCatch switch is on
 		local perfectMark = M.LiveFlagService.on(PerfectCatch.FLAG)
-			and PerfectCatch.marks(finishKind, profile.flags.autoPress)
+			and (PerfectCatch.marks(finishKind, profile.flags.autoPress) or stray.perfect == true)
 		startCarry(
 			player,
 			def,
@@ -2811,6 +2814,7 @@ local function knockLoose(target: Player, shoverUserId: number, areaId: string):
 		homePos = carry.homePos,
 		knocks = carry.knocks + (if shoverUserId ~= 0 then 1 else 0),
 		pity = carry.pity,
+		perfect = carry.perfect,
 	})
 end
 
@@ -3079,9 +3083,10 @@ local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray
 	local method: Types.CatchMethod = stray.method
 	local def, charm, variant, homePos = stray.def, stray.charm, stray.variant, stray.homePos
 	local knocks, pity = stray.knocks, stray.pity
+	local perfect = stray.perfect == true -- #5300: the mark rides with the cat
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
 	local area = stray.area
-	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks, nil, pity)
+	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks, nil, pity, perfect)
 	local home = M.homeFromCampless
 	if home ~= nil then
 		home(player, area)
@@ -3439,6 +3444,7 @@ local function leaveAtDusk(stray: Stray)
 		funnel = nil,
 		knocks = stray.knocks,
 		pity = stray.pity,
+		perfect = stray.perfect, -- #5300
 	}
 	despawn(stray, owner)
 	checkIn(owner, carry, true)
@@ -3733,6 +3739,7 @@ local function dropAtNight(player: Player, carry: Carry, root: Vector3?)
 		homePos = carry.homePos,
 		knocks = carry.knocks,
 		pity = carry.pity,
+		perfect = carry.perfect,
 	})
 	local areaDef = M.Catalog.getArea(homeId)
 	Net.toast(
@@ -3824,6 +3831,7 @@ local function dropCarry(player: Player, died: boolean)
 			returning = true,
 			knocks = carry.knocks,
 			pity = carry.pity,
+			perfect = carry.perfect,
 		}
 	)
 	task.spawn(walkHome, stray, home)

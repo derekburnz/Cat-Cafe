@@ -349,7 +349,7 @@ function Intro.plot(index: number): Plot
 	local ring = math.floor(pair / 2)
 	local z = north
 		* (
-			W.TownSquareHalfDepth
+			W.TownRowStartZ
 			+ W.PlotRowGap
 			+ W.PlotCapWidth / 2
 			+ ring * (W.PlotCapWidth + W.PlotRowGap)

@@ -1297,74 +1297,114 @@ return function()
 			end
 		)
 
-		local stations: { [string]: Point } = {
-			spinWheel = Layout.spinWheel,
-			fishMarket = Layout.fishMarket,
-			codesCat = Layout.codesCat,
-			dealerCart = Layout.dealerCart,
+		-- #5224 (Derek 2026-11-18 13:50 UTC, v5): Model-Agent's ring spots (SPOTS_roblox_v5.md, the pivot columns)
+		local RING: { [string]: { x: number, z: number, rotY: number, point: Point } } = {
+			dayCart = { x = -22.31, z = 69.13, rotY = -18.1, point = Layout.dayCart },
+			fishMarket = { x = -38.13, z = 50.32, rotY = -58.0, point = Layout.fishMarket },
+			bellhopStand = { x = -44.71, z = 15.27, rotY = -71.1, point = Layout.bellhopStand },
+			leaderboards = { x = -44.0, z = -17.0, rotY = -90.0, point = Layout.leaderboards },
+			updatePoster = {
+				x = -37.99,
+				z = -49.80,
+				rotY = -142.7,
+				point = square.updatePoster :: any,
+			},
+			feedbackStand = { x = -27.67, z = -65.13, rotY = -157.0, point = Layout.feedbackStand },
+			thanksBoard = { x = -20.16, z = -70.32, rotY = -164.0, point = Layout.thanksBoard },
+			pitySign = { x = 21.18, z = 69.80, rotY = 16.9, point = square.pitySign :: any },
+			arcadeCabinet = { x = 32.85, z = 59.78, rotY = 28.8, point = Layout.arcadeCabinet },
+			codesCat = { x = 46.67, z = 46.49, rotY = 45.1, point = Layout.codesCat },
+			mysticPool = { x = 44.58, z = 12.02, rotY = 74.9, point = Layout.mysticPool },
+			dealerCart = { x = 44.91, z = -12.64, rotY = 105.1, point = Layout.dealerCart },
+			spinWheel = { x = 40.32, z = -44.35, rotY = 137.7, point = Layout.spinWheel },
+			mysteryCart = { x = 28.69, z = -65.08, rotY = 156.2, point = Layout.mysteryCart },
 		}
+		local function propOf(asset: string): any
+			for _, prop in square.props do
+				if prop.asset == asset then
+					return prop
+				end
+			end
+			return nil
+		end
+		RING.decorStand =
+			{ x = -41.74, z = 39.58, rotY = -63.8, point = propOf("CatCafe_Square_DecorStand") }
+		RING.mysterySign =
+			{ x = 20.73, z = -71.01, rotY = 163.7, point = propOf("CatCafe_Square_MysterySign") }
+
+		it("is 108 by 165 and leaves every cafe where it stood (#5224)", function()
+			expect(W.TownSquareHalfWidth).to.equal(54)
+			expect(W.TownSquareHalfDepth).to.equal(82.5)
+			expect(square.floor.x2 - square.floor.x1).to.equal(108)
+			expect(square.floor.z2 - square.floor.z1).to.equal(165)
+			-- the cafe rows start where the 180 deep square ended, so no cafe, passage or yard moves
+			expect(W.TownRowStartZ).to.equal(90)
+			expect(W.TownRowStartZ >= W.TownSquareHalfDepth).to.equal(true)
+			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
+			expect(W.StreetNorthZ).to.equal(230)
+			expect(W.StreetSouthZ).to.equal(-230)
+			expect(W.TownGroundDepth).to.equal(512)
+			-- the Rally board came out with v5
+			expect(#square.rallyBoards).to.equal(0)
+		end)
+
+		it("stands every station on its v5 ring spot (#5224)", function()
+			for name, spot in RING do
+				local point = spot.point
+				if point == nil then
+					fail("%s has no spot", name)
+				end
+				expect(math.abs(point.x - spot.x) < 0.01).to.equal(true)
+				expect(math.abs(point.z - spot.z) < 0.01).to.equal(true)
+				expect(math.abs((point.rotY or 0) - spot.rotY) < 0.01).to.equal(true)
+			end
+			-- the Corner Shop's fallback building shares the Day Cart's spot (only one is ever built)
+			expect(Layout.cornerShop.x).to.equal(Layout.dayCart.x)
+			expect(Layout.cornerShop.z).to.equal(Layout.dayCart.z)
+		end)
 
 		it(
-			"stands each station in its own quarter on the edge, off the open cross, facing straight in (#4667)",
+			"keeps the ring inside the square, off the street's line and turned toward the cannon (#5224)",
 			function()
-				local quarters: { [string]: string } = {}
-				for name, point in stations do
+				for name, spot in RING do
+					local point = spot.point
 					expect(inside(point.x, point.z, square.floor, 4)).to.equal(true)
-					for _, lane in lanes do
-						if inside(point.x, point.z, lane, -5) then
-							fail(
-								"%s at (%g, %g) stands within 5 studs of the open cross",
-								name,
-								point.x,
-								point.z
-							)
-						end
+					if math.abs(point.x) < W.TownSquareLaneHalfWidth + 8 then
+						fail(
+							"%s at (%g, %g) stands within 8 studs of the street's line",
+							name,
+							point.x,
+							point.z
+						)
 					end
-					local quarter = (if point.x < 0 then "w" else "e")
-						.. (if point.z < 0 then "s" else "n")
-					expect(quarters[quarter]).to.equal(nil)
-					quarters[quarter] = name
-					-- WorldBuilder turns a point by CFrame.Angles(0, rad(rotY), 0), whose LookVector is (-sin, 0, -cos).
+					-- WorldBuilder turns a point by CFrame.Angles(0, rad(rotY), 0), whose LookVector is (-sin, 0, -cos)
 					local yaw = math.rad(point.rotY or 0)
 					local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
-					-- #4667: on the east or west edge, facing straight in across the square
-					expect(math.abs(point.x)).to.equal(50)
-					expect(math.abs(lookZ) < 0.001).to.equal(true)
-					expect(lookX * -math.sign(point.x) > 0.999).to.equal(true)
+					local long = math.sqrt(point.x * point.x + point.z * point.z)
+					local toward = (lookX * -point.x + lookZ * -point.z) / long
+					if toward < 0.5 then
+						fail("%s faces %g off the cannon", name, math.deg(math.acos(toward)))
+					end
 				end
 			end
 		)
 
 		it(
-			"fits the Codes Cat and Juniper's cart in the south-west corner, facing straight in (#2565, #3454, #4667)",
+			"keeps the ring's stations apart, a helper sign beside its own station (#5224)",
 			function()
-				-- #3454: the Day Cart left this corner for the north-east, beside the Golden Fish Market
-				expect(Layout.dayCart.x > 0 and Layout.dayCart.z > 0).to.equal(true)
-				local corner: { [string]: Point } = {
-					codesCat = Layout.codesCat,
-					mysteryCart = Layout.mysteryCart,
-				}
-				for name, point in corner do
-					if not (point.x < 0 and point.z < 0) then
-						fail("%s at (%g, %g) left the south-west quarter", name, point.x, point.z)
+				local names: { string } = {}
+				for name in RING do
+					table.insert(names, name)
+				end
+				for a = 1, #names do
+					for b = a + 1, #names do
+						local p, q = RING[names[a]].point, RING[names[b]].point
+						local gap = math.sqrt((p.x - q.x) ^ 2 + (p.z - q.z) ^ 2)
+						if gap < 8 then
+							fail("%s and %s stand %g apart", names[a], names[b], gap)
+						end
 					end
-					expect(inside(point.x, point.z, square.floor, 4)).to.equal(true)
-					local yaw = math.rad(point.rotY or 0)
-					local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
-					-- #4667: facing straight in across the square
-					expect(math.abs(lookZ) < 0.001).to.equal(true)
-					expect(lookX * -math.sign(point.x) > 0.999).to.equal(true)
 				end
-				-- Model-Agent's check used the real footprints; centres at least 12 studs apart keep the wagon
-				-- (12 x 7) off its neighbours
-				local function apart(a: Point, b: Point): number
-					return math.sqrt((a.x - b.x) ^ 2 + (a.z - b.z) ^ 2)
-				end
-				expect(apart(Layout.mysteryCart, Layout.codesCat) > 12).to.equal(true)
-				expect(apart(Layout.fishMarket, Layout.dayCart) > 12).to.equal(true)
-				expect(apart(Layout.mysteryCart, Layout.townSquare.pitySign :: any) > 12).to.equal(
-					true
-				)
 			end
 		)
 
@@ -1441,83 +1481,6 @@ return function()
 			end
 		)
 
-		it("is 120 by 180: #3001's width, 20 deeper either side (#4532)", function()
-			expect(W.TownSquareHalfWidth).to.equal(60)
-			expect(W.TownSquareHalfDepth).to.equal(90)
-			expect(square.floor.x2 - square.floor.x1).to.equal(120)
-			expect(square.floor.z2 - square.floor.z1).to.equal(180)
-			-- the width grows inside the town edge: the gardens keep a strip either side
-			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
-			-- the streets and the town ground follow the deeper square, so the outer cafe row keeps its margin
-			expect(W.StreetNorthZ).to.equal(230) -- #4543: 198 before the 60 wide plots
-			expect(W.StreetSouthZ).to.equal(-230)
-			expect(W.TownGroundDepth).to.equal(512)
-		end)
-
-		it("brings the Thank You board and the Rally board out into the open (#3070)", function()
-			-- seen from the spawn, the line to the Thanks board's middle passes the night cart's middle by half the
-			-- cart's length (12) or more; it passed 3.8 away on #3001's square, the board behind the cart
-			local spawn = Layout.playerSpawn
-			local board, cart = Layout.thanksBoard, Layout.dealerCart
-			local dx, dz = board.x - spawn.x, board.z - spawn.z
-			local long = math.sqrt(dx * dx + dz * dz)
-			local off = math.abs((cart.x - spawn.x) * dz - (cart.z - spawn.z) * dx) / long
-			expect(off >= 6).to.equal(true)
-			-- the spawn's line to the Rally board's middle passes the cannon's 7 wide turret by 1.5 or more (the plinth
-			-- is low); it passed 4.6 from the middle on #3001's square
-			local rally = square.rallyBoards[1]
-			local t = (0 - spawn.z) / (rally.z - spawn.z) -- where the spawn's line to the board crosses z = 0
-			local crossX = spawn.x + t * (rally.x - spawn.x)
-			expect(math.abs(crossX) >= 3.5 + 1.5).to.equal(true)
-		end)
-
-		it(
-			"keeps a spot each for the feedback stand and the arcade cabinet (#3070), the stand beside the Thanks board (#3454)",
-			function()
-				local stand, arcade = Layout.feedbackStand, Layout.arcadeCabinet
-				-- #3189 put the stand on the Thanks board's right. #3454 (Derek OK'd the picture): the board takes
-				-- the south-east corner and the stand the spot beside the street in the same quarter, a body's
-				-- width or more from the board, south of the lane and well away from the Golden Fish Market
-				local board = Layout.thanksBoard
-				expect(stand.x > 0 and board.x > 0 and board.z < 0).to.equal(true)
-				expect(math.sqrt((stand.x - board.x) ^ 2 + (stand.z - board.z) ^ 2) > 12).to.equal(
-					true
-				)
-				expect(stand.z < 0).to.equal(true)
-				local fish = Layout.fishMarket
-				expect(math.sqrt((stand.x - fish.x) ^ 2 + (stand.z - fish.z) ^ 2) > 40).to.equal(
-					true
-				)
-				for _, spot in { stand, arcade } do
-					expect(inside(spot.x, spot.z, square.floor, 4)).to.equal(true)
-					for _, lane in lanes do
-						expect(inside(spot.x, spot.z, lane, -4)).to.equal(false)
-					end
-					-- 12 or more from every other station's spot, so two prompts never show at once
-					for _, other in
-						{
-							Layout.spinWheel,
-							Layout.fishMarket,
-							Layout.codesCat,
-							Layout.dealerCart,
-							Layout.bellhopStand,
-							Layout.mysteryCart,
-							Layout.leaderboards,
-							Layout.dayCart,
-							Layout.thanksBoard,
-						}
-					do
-						local gap = math.sqrt((spot.x - other.x) ^ 2 + (spot.z - other.z) ^ 2)
-						expect(gap >= 12).to.equal(true)
-					end
-					-- and it faces the cannon
-					local yaw = math.rad(spot.rotY or 0)
-					local toCannon = -spot.x * -math.sin(yaw) + -spot.z * -math.cos(yaw)
-					expect(toCannon > 0).to.equal(true)
-				end
-			end
-		)
-
 		it(
 			"keeps the arcade's floor ring in front of the cabinet, off the Spin Wheel's ring and the lanes (#3359)",
 			function()
@@ -1589,103 +1552,6 @@ return function()
 				do
 					local gap = math.sqrt((x - other.x) ^ 2 + (z - other.z) ^ 2)
 					expect(gap >= 12).to.equal(true)
-				end
-			end
-		)
-
-		it(
-			"stands the Codes Cat back from the middle, between the Mystery Market and the Bellhop Cat (#3000)",
-			function()
-				local codes, cart, stand = Layout.codesCat, Layout.mysteryCart, Layout.bellhopStand
-				-- back: at least 8 studs farther from the cannon than #2707's (-29, -16)
-				local out = math.sqrt(codes.x ^ 2 + codes.z ^ 2)
-				expect(out >= math.sqrt(29 ^ 2 + 16 ^ 2) + 8).to.equal(true)
-				-- between: south of the Bellhop stand, north of the Mystery Market, on their side of the square
-				expect(codes.z < stand.z and codes.z > cart.z).to.equal(true)
-				expect(codes.x < -W.TownSquareLaneHalfWidth).to.equal(true)
-				expect(inside(codes.x, codes.z, square.floor, 4.5)).to.equal(true)
-				-- its circle (its edge 2 studs in front) keeps off the Mystery Market's ring: the box closes a stud
-				-- past the circle, and the ring is WalkUp.FRONT_RADIUS round a point touching the cart's 3.5 front
-				local yaw = math.rad(codes.rotY or 0)
-				local ahead = 2 + Config.CodesCircleRadius
-				local cx, cz = codes.x - ahead * math.sin(yaw), codes.z - ahead * math.cos(yaw)
-				local cartYaw = math.rad(cart.rotY or 0)
-				local ring = WalkUp.frontOffset(3.5, WalkUp.FRONT_RADIUS, Config.MysteryMarketRange)
-				local rx, rz = cart.x - ring * math.sin(cartYaw), cart.z - ring * math.cos(cartYaw)
-				local gap = math.sqrt((cx - rx) ^ 2 + (cz - rz) ^ 2)
-				expect(gap >= Config.CodesCircleRadius + 1 + WalkUp.FRONT_RADIUS + 2).to.equal(true)
-				-- and off both carts' bodies and the lane
-				for _, lane in lanes do
-					expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
-				end
-				expect(
-					math.sqrt((cx - cart.x) ^ 2 + (cz - cart.z) ^ 2) > Config.CodesCircleRadius + 6
-				).to.equal(true)
-			end
-		)
-
-		it(
-			"puts the Bellhop stand at the lane's west end, facing the cannon, its card clear of the Codes circle (F96)",
-			function()
-				local stand = Layout.bellhopStand
-				local DAIS = 4.6 -- half the stand's 9.2 stud dais
-				expect(inside(stand.x, stand.z, square.floor, DAIS)).to.equal(true)
-				expect(stand.x < 0).to.equal(true)
-				expect(stand.z > Layout.codesCat.z and stand.z < Layout.spinWheel.z).to.equal(true)
-				-- the street's line stays open past the dais
-				expect(math.abs(stand.x) - DAIS > W.TownSquareLaneHalfWidth).to.equal(true)
-				local yaw = math.rad(stand.rotY or 0)
-				local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
-				local length = math.sqrt(stand.x * stand.x + stand.z * stand.z)
-				expect((lookX * -stand.x + lookZ * -stand.z) / length > 0.999).to.equal(true)
-				-- walking into the stand's card never also opens the code box
-				local codes = Layout.codesCat
-				local codesYaw = math.rad(codes.rotY or 0)
-				local ahead = 2 + Config.CodesCircleRadius -- #3112: the circle's centre, 8 out at radius 6
-				local cx, cz =
-					codes.x - ahead * math.sin(codesYaw), codes.z - ahead * math.cos(codesYaw)
-				local gap = math.sqrt((cx - stand.x) ^ 2 + (cz - stand.z) ^ 2)
-				expect(gap > Config.StarterCatRangeStuds + 1 + Config.CodesCircleRadius + 1).to.equal(
-					true
-				)
-				for name, point in stations do
-					local apart = math.sqrt((point.x - stand.x) ^ 2 + (point.z - stand.z) ^ 2)
-					if apart < DAIS + 8 then
-						fail("the stand is %.1f studs from the %s", apart, name)
-					end
-				end
-				for _, prop in square.props :: { any } do
-					local apart = math.sqrt((prop.x - stand.x) ^ 2 + (prop.z - stand.z) ^ 2)
-					if prop.asset ~= "CatCafe_Square_Paving" and apart < DAIS + 1 then
-						fail(
-							"%s at (%g, %g) stands on the stand's dais",
-							prop.asset,
-							prop.x,
-							prop.z
-						)
-					end
-				end
-			end
-		)
-
-		it(
-			"stands the leaderboards at the lane's east end, facing the cannon, clear of the edge and the stations (F98)",
-			function()
-				local row = Layout.leaderboards
-				local HALF_LONG, HALF_DEEP = 11.9, 1.35 -- the row turned: 23.8 along z, 2.7 along x
-				expect(row.x > 0).to.equal(true)
-				expect(row.x + HALF_DEEP < W.TownSquareHalfWidth - 5).to.equal(true) -- in front of the edge lamps
-				expect(math.abs(row.z) + HALF_LONG < W.TownSquareHalfDepth).to.equal(true)
-				expect(row.x - HALF_DEEP > W.TownSquareLaneHalfWidth).to.equal(true) -- the street's line stays open
-				local yaw = math.rad(row.rotY or 0)
-				local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
-				local length = math.sqrt(row.x * row.x + row.z * row.z)
-				expect((lookX * -row.x + lookZ * -row.z) / length > 0.999).to.equal(true)
-				for name, point in stations do
-					local dx, dz = math.abs(point.x - row.x), math.abs(point.z - row.z)
-					if dx < HALF_DEEP + 4 and dz < HALF_LONG + 4 then
-						fail("the leaderboards stand on the %s", name)
-					end
 				end
 			end
 		)
@@ -2315,49 +2181,6 @@ return function()
 		)
 
 		it(
-			"stands one Rally board left of the street's path at its north end, facing straight in, off the cross and the stations (F101, #2224, #2367)",
-			function()
-				local boards = square.rallyBoards
-				expect(#boards).to.equal(1)
-				for _, board in boards do
-					expect(board.asset).to.equal("CatCafe_Square_RallyBoard")
-					expect(board.z > 0).to.equal(true)
-					expect(board.x < 0).to.equal(true) -- the left side, off the Fish Market's (#2367)
-					-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
-					local yaw = math.rad(board.rotY or 0)
-					local cos, sin = math.cos(yaw), math.sin(yaw)
-					for _, corner in
-						{ { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } }
-					do
-						local x = board.x + corner[1] * cos + corner[2] * sin
-						local z = board.z - corner[1] * sin + corner[2] * cos
-						expect(inside(x, z, square.floor, 4)).to.equal(true)
-						for _, lane in lanes do
-							expect(inside(x, z, lane, -0.5)).to.equal(false)
-						end
-						expect(math.sqrt(x ^ 2 + z ^ 2) > square.fountainRadius + 3).to.equal(true)
-					end
-					-- #4667: front -Z turned straight in across the square (toward +X from the west edge)
-					expect(-sin > 0.999).to.equal(true)
-					for name, point in
-						{
-							spinWheel = Layout.spinWheel,
-							fishMarket = Layout.fishMarket,
-							codesCat = Layout.codesCat,
-							dealerCart = Layout.dealerCart,
-							bellhopStand = Layout.bellhopStand,
-							leaderboards = Layout.leaderboards,
-						} :: { [string]: Point }
-					do
-						if math.sqrt((point.x - board.x) ^ 2 + (point.z - board.z) ^ 2) < 13 then
-							fail("a Rally board stands on the %s", name)
-						end
-					end
-				end
-			end
-		)
-
-		it(
 			"keeps the Rally boards out of the line from the spawn and the cannon to the Fish Market (#2224)",
 			function()
 				-- seen from each spot, a board (12.2 wide) and the market (about 12 wide) take up an arc each; they must
@@ -2380,142 +2203,6 @@ return function()
 								eye.z
 							)
 						end
-					end
-				end
-			end
-		)
-
-		it(
-			"stands the update poster on the square's edge facing straight in, off the lanes (#4362, #4667)",
-			function()
-				local poster = square.updatePoster
-				expect(poster.asset).to.equal("CatCafe_Square_UpdatePoster")
-				-- about 9.4 wide and 1.4 deep (the manifest); every corner of that, turned, stays on the square off the lanes
-				local yaw = math.rad(poster.rotY or 0)
-				local cos, sin = math.cos(yaw), math.sin(yaw)
-				for _, corner in { { -4.7, -0.7 }, { 4.7, -0.7 }, { -4.7, 0.7 }, { 4.7, 0.7 } } do
-					local x = poster.x + corner[1] * cos + corner[2] * sin
-					local z = poster.z - corner[1] * sin + corner[2] * cos
-					expect(inside(x, z, square.floor, 2)).to.equal(true)
-					for _, lane in lanes do
-						expect(inside(x, z, lane, -0.5)).to.equal(false)
-					end
-				end
-				-- #4667: on the edge, front -Z turned straight in across the square
-				expect(math.abs(poster.x)).to.equal(50)
-				expect(-sin * -math.sign(poster.x) > 0.999).to.equal(true)
-				local sign = square.pitySign
-				expect(math.sqrt((sign.x - poster.x) ^ 2 + (sign.z - poster.z) ^ 2) > 12).to.equal(
-					true
-				)
-			end
-		)
-
-		it(
-			"stands the Mystery Market's signboard beside the wagon, facing straight in (#4508, #4667)",
-			function()
-				local sign: any = nil
-				for _, prop in square.props :: { any } do
-					if prop.asset == "CatCafe_Square_MysterySign" then
-						expect(sign).to.equal(nil) -- one board
-						sign = prop
-					end
-				end
-				expect(sign).to.be.ok()
-				local cart = Layout.mysteryCart
-				local apart = math.sqrt((sign.x - cart.x) ^ 2 + (sign.z - cart.z) ^ 2)
-				-- beside the wagon (10.2 x 5.7): past its end, and close enough to read as the wagon's own board
-				expect(apart > 7).to.equal(true)
-				expect(apart < 12).to.equal(true)
-				-- about 5.4 wide and 3 deep (the manifest); every corner, turned, stays on the square off the lanes
-				local yaw = math.rad(sign.rotY or 0)
-				local cos, sin = math.cos(yaw), math.sin(yaw)
-				for _, corner in { { -2.7, -2.2 }, { 2.7, -2.2 }, { -2.7, 0.7 }, { 2.7, 0.7 } } do
-					local x = sign.x + corner[1] * cos + corner[2] * sin
-					local z = sign.z - corner[1] * sin + corner[2] * cos
-					expect(inside(x, z, square.floor, 2)).to.equal(true)
-					for _, lane in lanes do
-						expect(inside(x, z, lane, -0.5)).to.equal(false)
-					end
-				end
-				-- #4667: on the edge, front -Z turned straight in across the square
-				expect(math.abs(sign.x)).to.equal(50)
-				expect(-sin * -math.sign(sign.x) > 0.999).to.equal(true)
-				-- the arrow on its top points along the board's +X (cos, -sin): toward the wagon
-				local cartX, cartZ = cart.x - sign.x, cart.z - sign.z
-				expect((cos * cartX - sin * cartZ) / apart > 0.7).to.equal(true)
-			end
-		)
-
-		it(
-			"stands the decor stand beside the Golden Fish Market, facing straight in (#4516, #4667)",
-			function()
-				local stand: any = nil
-				for _, prop in square.props :: { any } do
-					if prop.asset == "CatCafe_Square_DecorStand" then
-						expect(stand).to.equal(nil) -- one stand
-						stand = prop
-					end
-				end
-				expect(stand).to.be.ok()
-				local market = Layout.fishMarket
-				local apart = math.sqrt((stand.x - market.x) ^ 2 + (stand.z - market.z) ^ 2)
-				-- beside the market (11.9 wide): past its end, and close enough to read as the market's own stand
-				expect(apart > 8).to.equal(true)
-				expect(apart < 12).to.equal(true)
-				-- clear of the Day Cart next door
-				local cart = Layout.dayCart
-				expect(math.sqrt((stand.x - cart.x) ^ 2 + (stand.z - cart.z) ^ 2) > 10).to.equal(
-					true
-				)
-				-- about 5 wide and 3 deep (the manifest); every corner, turned, stays on the square off the lanes
-				local yaw = math.rad(stand.rotY or 0)
-				local cos, sin = math.cos(yaw), math.sin(yaw)
-				for _, corner in { { -2.5, -1.9 }, { 2.5, -1.9 }, { -2.5, 1.1 }, { 2.5, 1.1 } } do
-					local x = stand.x + corner[1] * cos + corner[2] * sin
-					local z = stand.z - corner[1] * sin + corner[2] * cos
-					expect(inside(x, z, square.floor, 2)).to.equal(true)
-					for _, lane in lanes do
-						expect(inside(x, z, lane, -0.5)).to.equal(false)
-					end
-				end
-				-- #4667: on the edge, front -Z turned straight in across the square
-				expect(math.abs(stand.x)).to.equal(50)
-				expect(-sin * -math.sign(stand.x) > 0.999).to.equal(true)
-				-- the arrow on its top points along the stand's +X (cos, -sin): toward the market
-				local toMarketX, toMarketZ = market.x - stand.x, market.z - stand.z
-				expect((cos * toMarketX - sin * toMarketZ) / apart > 0.7).to.equal(true)
-			end
-		)
-
-		it(
-			"stands the pity sign on the square's edge facing straight in, off the lanes (#1753, #4667)",
-			function()
-				local sign = square.pitySign
-				expect(sign.asset).to.equal("CatCafe_Square_PitySign")
-				-- about 8.2 wide and 1.2 deep (the manifest); every corner of that, turned, stays on the square off the lanes
-				local yaw = math.rad(sign.rotY or 0)
-				local cos, sin = math.cos(yaw), math.sin(yaw)
-				for _, corner in { { -4.1, -0.6 }, { 4.1, -0.6 }, { -4.1, 0.6 }, { 4.1, 0.6 } } do
-					local x = sign.x + corner[1] * cos + corner[2] * sin
-					local z = sign.z - corner[1] * sin + corner[2] * cos
-					expect(inside(x, z, square.floor, 2)).to.equal(true)
-					for _, lane in lanes do
-						expect(inside(x, z, lane, -0.5)).to.equal(false)
-					end
-				end
-				-- #4667: on the edge, front -Z turned straight in across the square
-				expect(math.abs(sign.x)).to.equal(50)
-				expect(-sin * -math.sign(sign.x) > 0.999).to.equal(true)
-				for name, point in
-					{
-						dayCart = Layout.dayCart,
-						codesCat = Layout.codesCat,
-						dealerCart = Layout.dealerCart,
-					} :: { [string]: Point }
-				do
-					if math.sqrt((point.x - sign.x) ^ 2 + (point.z - sign.z) ^ 2) < 9 then
-						fail("the pity sign stands on the %s", name)
 					end
 				end
 			end

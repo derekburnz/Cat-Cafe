@@ -1704,12 +1704,17 @@ local Config = {
 		-- side arches into the back alleys until v4 closed them). Its gardens fill the rest of the width out to the yards.
 		-- #3001 (Derek2 2026-11-10: "expand the town square"): 120 x 110, a quarter more each way. The width grows
 		-- inside the town edge (TownEdgeX stays), so the side gardens are 9 deep; the depth moves the cafes back 11.
-		TownSquareHalfWidth = 60, -- 48 before
+		-- #5224 (Derek 2026-11-18 13:50 UTC, v5): 108 x 165 with the stations in an oval ring round the cannon. The
+		-- cafes and their side passages keep their spots (TownRowStartZ); the street runs on to the square's edge.
+		TownSquareHalfWidth = 54, -- #5224: 60 before (48 before #3001)
 		-- #3070 (Derek2 2026-11-10: "expand the town square again"): 120 x 140. Only the depth grows (the town edge
 		-- holds the width), which moves the cafes back another 15.
 		-- #4532 (Derek2 2026-11-15, a playtester's "expand town square everything is too cramped", "I agree with this
 		-- one"): 120 x 180. Only the depth grows again, which moves the cafes back another 20.
-		TownSquareHalfDepth = 90, -- #4532: 70 before (#3070: 55, #3001: 44, #2707: 32 before that)
+		TownSquareHalfDepth = 82.5, -- #5224: 90 before (#4532: 70, #3070: 55, #3001: 44, #2707: 32 before that)
+		-- Where the first row of cafes starts out from the middle (z), the old square's edge: #5224 shrank the square
+		-- but left every cafe, passage and back yard where it stood.
+		TownRowStartZ = 90,
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of

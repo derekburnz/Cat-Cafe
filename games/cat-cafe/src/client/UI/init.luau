@@ -1798,7 +1798,10 @@ function UI.init(config: Types.InitConfig)
 		blocked = function()
 			-- #2409: the catch prompt's touch button takes the Net button's spot while it shows
 			local prompt = catch
+			-- Derek 2026-11-18 ("net is flashing through minigame mid game"): and while the HUD is still in catching mode
+			-- between circles (a held tutorial Miss's retry gap, the result word), so it never pops in mid minigame
 			return UI.catch.circlesActive()
+				or hudInstance:isCatching()
 				or UI.rescue.isActive()
 				or (prompt ~= nil and prompt:grabShowing())
 		end,

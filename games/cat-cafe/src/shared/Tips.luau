@@ -374,6 +374,9 @@ function Tips.cleared(seen: { [string]: boolean }): { [string]: boolean }
 	if seen[Tips.NEXT_GOAL] == true then
 		kept[Tips.NEXT_GOAL] = true -- #5202: the "What next?" card, once per account
 	end
+	if seen[Tips.PARK_POINT] == true then
+		kept[Tips.PARK_POINT] = true -- Derek 2026-11-18: the Park rank point dim, once per account
+	end
 	return kept
 end
 

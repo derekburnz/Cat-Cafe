@@ -291,6 +291,26 @@ local function flyCoins(gui: ScreenGui, from: Vector2, p: typeof(Presets.firstCa
 	end)
 end
 
+-- The speed to set a track to while the slow motion holds: `slow` of its own speed. `seen` is the speed it had when
+-- last looked at, `set` what we set it to then (both nil the first time). A track whose speed is not what we set was
+-- changed by someone else since (the Animate script sets the walk's speed as you move, a new pose starts at 1), so
+-- its new speed becomes its own speed. Returns the speed to set and its own speed. Pure.
+function FirstCatchWow.holdSpeed(
+	now: number,
+	own: number?,
+	set: number?,
+	slow: number
+): (number, number)
+	if own == nil or set == nil or math.abs(now - set) > 1e-3 then
+		own = now
+	end
+	return (own :: number) * slow, own :: number
+end
+
+-- #5341 recheck (Sync, Nov 18): slowing the playing tracks once was undone at once (the Animate script sets the
+-- speed again and the carry pose starts a new track at full speed), so the slow is held each frame for the window,
+-- last in the render step, on every playing track including ones that start inside it; each goes back to its own
+-- speed after, unless something else changed it since.
 local function slowAnimations(p: typeof(Presets.firstCatchWow))
 	local character = Players.LocalPlayer.Character
 	local animator = if character ~= nil
@@ -299,21 +319,36 @@ local function slowAnimations(p: typeof(Presets.firstCatchWow))
 	if animator == nil then
 		return
 	end
-	local was: { [AnimationTrack]: number } = {}
+	local own: { [AnimationTrack]: number } = {}
+	local set: { [AnimationTrack]: number } = {}
 	local slowed = 0
-	for _, track in (animator :: Animator):GetPlayingAnimationTracks() do
-		was[track] = track.Speed
-		track:AdjustSpeed(track.Speed * p.slowSpeed)
-		slowed += 1
-	end
-	-- for Sync's Studio check: how many of your character's playing tracks were slowed, and while it lasts, the speed
 	local who = character :: Model
-	who:SetAttribute("FirstCatchSlowTracks", slowed)
+	local function hold()
+		for _, track in (animator :: Animator):GetPlayingAnimationTracks() do
+			if own[track] == nil then
+				slowed += 1
+			end
+			local speed, base =
+				FirstCatchWow.holdSpeed(track.Speed, own[track], set[track], p.slowSpeed)
+			own[track] = base
+			if math.abs(track.Speed - speed) > 1e-3 then
+				track:AdjustSpeed(speed)
+			end
+			set[track] = speed
+		end
+		-- for Sync's Studio check: how many of your character's playing tracks were slowed, and the speed while it lasts
+		who:SetAttribute("FirstCatchSlowTracks", slowed)
+	end
 	who:SetAttribute("FirstCatchSlowSpeed", p.slowSpeed)
+	hold()
+	local name = "FirstCatchWowSlow"
+	RunService:BindToRenderStep(name, Enum.RenderPriority.Last.Value, hold)
 	task.delay(p.slowSeconds, function()
+		RunService:UnbindFromRenderStep(name)
 		who:SetAttribute("FirstCatchSlowSpeed", nil)
-		for track, speed in was do
-			if track.IsPlaying then
+		for track, speed in own do
+			local mine = set[track]
+			if track.IsPlaying and mine ~= nil and math.abs(track.Speed - mine) <= 1e-3 then
 				track:AdjustSpeed(speed)
 			end
 		end

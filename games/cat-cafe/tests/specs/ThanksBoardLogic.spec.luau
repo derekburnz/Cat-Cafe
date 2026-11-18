@@ -27,17 +27,17 @@ return function()
 				"Idea from a player"
 			)
 		end)
-		it("pages six cards at a time and clamps the page", function()
+		it("pages four cards at a time and clamps the page (#5228)", function()
 			local rows = {}
 			for index = 1, 14 do
 				table.insert(rows, { idea = "idea " .. index, version = 1, name = "n" })
 			end
 			local first = Logic.page(rows, 1)
-			expect(#first.rows).to.equal(6)
-			expect(first.pages).to.equal(3)
+			expect(#first.rows).to.equal(4)
+			expect(first.pages).to.equal(4)
 			expect(first.rows[1].idea).to.equal("idea 1")
 			local last = Logic.page(rows, 9)
-			expect(last.page).to.equal(3)
+			expect(last.page).to.equal(4)
 			expect(#last.rows).to.equal(2)
 			expect(Logic.page({}, 1).pages).to.equal(1)
 		end)

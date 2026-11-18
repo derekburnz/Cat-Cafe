@@ -273,14 +273,11 @@ return function()
 				local glyph = ShopIcons.snackGlyph(food.id)
 				expect(seen[glyph]).to.equal(nil)
 				seen[glyph] = true
-				-- #4900: only the Royal Feast has a drawn picture; the rest keep their glyph alone
-				if food.id == "royal_feast" then
-					expect(ShopIcons.catFood(food.id)).to.equal(ShopIcons.clean("RoyalFeast"))
-				else
-					expect(ShopIcons.catFood(food.id)).to.equal(nil)
-				end
+				-- #5225: every XP cat food has its own picture on the XP plate, its glyph the fallback
+				expect(ShopIcons.catFood(food.id)).never.to.equal(nil)
 			end
-			expect(ShopIcons.catFood("royal_feast")).to.equal("rbxassetid://133381821214039")
+			expect(ShopIcons.catFood("royal_feast")).to.equal("rbxassetid://132550470089627")
+			expect(ShopIcons.catFood("small_cat_snack")).to.equal("rbxassetid://105963914520145")
 			expect(ShopIcons.food("eclipse_treat")).to.equal("rbxassetid://70744648477031")
 			expect(ShopIcons.snackGlyph("cat_snack")).to.equal("🍪")
 			expect(ShopIcons.snackGlyph("big_cat_snack")).to.equal("🧁")
@@ -371,8 +368,8 @@ return function()
 			expect(count).to.equal(8)
 		end)
 		it("finds the late stations' pictures (#4412, #4415, #4417, #4061)", function()
-			expect(ShopIcons.hud("TicketBooth")).to.equal("rbxassetid://96195139920509")
-			expect(ShopIcons.clean("DragonKeep")).to.equal("rbxassetid://122710978883444")
+			expect(ShopIcons.hud("TicketBooth")).to.equal("rbxassetid://91504525538853")
+			expect(ShopIcons.clean("DragonKeep")).to.equal("rbxassetid://125776128924798")
 			for _, stage in { "Hatchling", "Whelp", "Drake", "Elder", "Crowned" } do
 				expect(ShopIcons.dragonStage(stage) ~= nil).to.equal(true)
 			end
@@ -383,7 +380,7 @@ return function()
 			end
 			expect(ShopIcons.dragonFamily("")).to.equal(nil)
 			expect(ShopIcons.booth("PoolNoodle")).to.equal(nil) -- the toys were removed (Derek 2026-11-16)
-			expect(ShopIcons.booth("BoothPlush")).to.equal("rbxassetid://126308376800797")
+			expect(ShopIcons.booth("BoothPlush")).to.equal("rbxassetid://140079607547714")
 			expect(ShopIcons.booth("Nothing")).to.equal(nil)
 		end)
 	end)

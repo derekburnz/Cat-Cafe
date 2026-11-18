@@ -32,7 +32,17 @@ export type ThanksBoard = {
 
 local TAG = "ThanksBoard"
 local PIXELS_PER_STUD = 64 -- the 7.6 x 5.2 stud Screen is 486 x 333
-local MAX_DISTANCE = 80
+-- #5228: a bigger board (Model-Agent) keeps this layout and grows its words: the page is always drawn as wide as
+-- the 7.6 stud Screen at 64 px a stud, so PixelsPerStud falls as the part grows
+local DESIGN_WIDTH = 7.6 * PIXELS_PER_STUD
+
+local function pixelsFor(part: BasePart): number
+	return if part.Size.X > 0 then DESIGN_WIDTH / part.Size.X else PIXELS_PER_STUD
+end
+-- #5228 (Derek 2026-11-18: "make it so feedback board is always rendered in and text is a bit bigger so people can
+-- acc read if not on pc"): drawn from across the square (was 80), with bigger words, four cards a page and six
+-- What's new lines (were six and eight)
+local MAX_DISTANCE = 250
 local MARGIN = 8
 local HEADER = 46
 local FOOTER = 34
@@ -66,10 +76,11 @@ end
 -- compact line per update, the date on its right, so WhatsNew.SHOWN (8) fit under the title; a player's idea adds a
 -- credit line under its update.
 local NEW_TITLE = 40
-local NEW_ROW = 30
-local NEW_CREDIT = 18
-local NEW_DATE_W = 60
-local CARD_CREDIT = 26 -- the credit at a card's foot (#3926): one line, or two small ones for a long name
+local NEW_ROW = 38 -- #5228: was 30
+local NEW_CREDIT = 20 -- #5228: was 18
+local NEW_DATE_W = 70 -- #5228: was 60
+local NEW_SHOWN = 6 -- #5228: the lines the panel has room for at the bigger size (WhatsNew.SHOWN is 8)
+local CARD_CREDIT = 30 -- #5228 (was 26): the credit at a card's foot (#3926): one line, or two small ones for a long name
 local CARD_TEXT_MIN = 11 -- px: 0.17 studs, the smallest a card's words shrink to (#3926)
 
 local function partOf(model: Instance, name: string): BasePart?
@@ -127,7 +138,7 @@ function ThanksBoard.new(parent: Instance): ThanksBoard
 		Parent = page,
 	}, {
 		Create("UIGridLayout", {
-			CellSize = UDim2.new(0.5, -4, 1 / 3, -5),
+			CellSize = UDim2.new(0.5, -4, 0.5, -3), -- #5228: two by two (was two by three)
 			CellPadding = UDim2.fromOffset(8, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -271,8 +282,8 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 	local bell = text({
 		Name = "Icon",
 		Position = UDim2.fromOffset(0, 2),
-		Size = UDim2.fromOffset(26, 26),
-		TextSize = 22,
+		Size = UDim2.fromOffset(30, 30),
+		TextSize = 26, -- #5228: was 22
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "🔔",
 		Parent = nextRow,
@@ -281,9 +292,9 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 	local nextText = text({
 		Name = "Text",
 		Position = UDim2.fromOffset(34, 2),
-		Size = UDim2.new(1, -34, 0, 26),
+		Size = UDim2.new(1, -34, 0, 32),
 		FontFace = Theme.fonts.display,
-		TextSize = 22,
+		TextSize = 28, -- #5228: was 22
 		TextColor3 = BERRY,
 		Text = "",
 		Parent = nextRow,
@@ -292,8 +303,8 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 	local nextWhen = text({
 		Name = "When",
 		Position = UDim2.fromOffset(34, NEW_ROW - 2),
-		Size = UDim2.new(1, -34, 0, 16),
-		TextSize = 16,
+		Size = UDim2.new(1, -34, 0, 20),
+		TextSize = 19, -- #5228: was 16
 		TextColor3 = Color3.fromRGB(140, 120, 104),
 		Text = "",
 		Parent = nextRow,
@@ -311,7 +322,7 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 	end)
 	-- Derek2 11-07: a credit line ("Thanks to ...") makes its row taller, so the rows stop where WhatsNew.SHOWN plain
 	-- rows would end and the oldest give way, never running off the panel
-	local budget = WhatsNew.SHOWN * (NEW_ROW + 2)
+	local budget = NEW_SHOWN * (NEW_ROW + 2)
 	local used = NEW_ROW + NEW_CREDIT + 2
 	for order, line in ThanksBoardLogic.whatsNew(WhatsNew.latest(), {}) do
 		local height = NEW_ROW + (if line.credit ~= nil then NEW_CREDIT else 0)
@@ -329,8 +340,8 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 		local icon = text({
 			Name = "Icon",
 			Position = UDim2.fromOffset(0, 2),
-			Size = UDim2.fromOffset(26, 26),
-			TextSize = 22,
+			Size = UDim2.fromOffset(30, 30),
+			TextSize = 26, -- #5228: was 22
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = line.glyph,
 			Parent = row,
@@ -341,9 +352,9 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 			text({
 				Name = "Text",
 				Position = UDim2.fromOffset(34, 2),
-				Size = UDim2.new(1, -34 - NEW_DATE_W, 0, 26), -- 28 characters fit beside the date at this size
+				Size = UDim2.new(1, -34 - NEW_DATE_W, 0, 32), -- long ones shrink to fit beside the date
 				FontFace = Theme.fonts.display,
-				TextSize = 22, -- 0.34 studs at 64 px a stud, still readable from a few steps
+				TextSize = 28, -- #5228: 0.44 studs at 64 px a stud (was 22), readable on a phone from a few steps
 				Text = line.text,
 				Parent = row,
 			}),
@@ -353,8 +364,8 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 			Name = "Date",
 			AnchorPoint = Vector2.new(1, 0),
 			Position = UDim2.new(1, 0, 0, 6), -- on the update's own line, at the right
-			Size = UDim2.fromOffset(NEW_DATE_W, 18),
-			TextSize = 16, -- 0.25 studs
+			Size = UDim2.fromOffset(NEW_DATE_W, 22),
+			TextSize = 19, -- #5228: 0.3 studs (was 16)
 			TextColor3 = Color3.fromRGB(140, 120, 104),
 			TextXAlignment = Enum.TextXAlignment.Right,
 			Text = line.date,
@@ -364,8 +375,8 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 			text({
 				Name = "Credit",
 				Position = UDim2.fromOffset(34, NEW_ROW - 2),
-				Size = UDim2.new(1, -34, 0, 16),
-				TextSize = 16,
+				Size = UDim2.new(1, -34, 0, 20),
+				TextSize = 19, -- #5228: was 16
 				TextColor3 = BERRY,
 				Text = line.credit or "",
 				Visible = line.credit ~= nil,
@@ -430,6 +441,7 @@ function ThanksBoard._hang(self: any, model: Instance)
 		return
 	end
 	self._gui.Adornee = screen
+	self._gui.PixelsPerStud = pixelsFor(screen)
 	self._gui.Face = Enum.NormalId.Front
 	self._gui.Enabled = true
 	-- What's new on its own panel, once the board has it (#1216); a board without one just has no panel
@@ -437,6 +449,7 @@ function ThanksBoard._hang(self: any, model: Instance)
 	local newGui: SurfaceGui? = self._newGui
 	if panel and newGui then
 		newGui.Adornee = panel
+		newGui.PixelsPerStud = pixelsFor(panel)
 		newGui.Face = Enum.NormalId.Front
 		newGui.Enabled = true
 	elseif newGui and not self._panelWait[model] then
@@ -490,7 +503,7 @@ function ThanksBoard._card(self: any, index: number): Frame
 			Position = UDim2.fromOffset(10, 5),
 			Size = UDim2.new(1, -20, 1, -(5 + CARD_CREDIT + 6)),
 			FontFace = Theme.fonts.display,
-			TextSize = 21,
+			TextSize = 28, -- #5228: was 21
 			TextWrapped = true,
 			TextYAlignment = Enum.TextYAlignment.Top,
 			Parent = made,
@@ -503,7 +516,7 @@ function ThanksBoard._card(self: any, index: number): Frame
 			AnchorPoint = Vector2.new(0, 1),
 			Position = UDim2.new(0, 10, 1, -4),
 			Size = UDim2.new(1, -20, 0, CARD_CREDIT),
-			TextSize = 16,
+			TextSize = 20, -- #5228: was 16
 			TextWrapped = true,
 			TextYAlignment = Enum.TextYAlignment.Bottom,
 			TextColor3 = BERRY,

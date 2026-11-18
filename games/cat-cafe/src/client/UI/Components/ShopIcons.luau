@@ -89,8 +89,8 @@ local IDS: { [string]: string } = {
 	Net_L2 = "rbxassetid://115749849359916", -- Sturdy
 	Net_L3 = "rbxassetid://81977508273905", -- Pro
 	Net_L4 = "rbxassetid://139611963099304", -- Master
-	Net_L5 = "rbxassetid://77049947732046", -- #5170 Net 4, Crystal (Model-Agent #5178)
-	Net_L6 = "rbxassetid://106208429919926", -- #5170 Net 5, Star
+	Net_L5 = "rbxassetid://123687742757936", -- #5170 Net 4, Crystal (Model-Agent #5178)
+	Net_L6 = "rbxassetid://85187014508045", -- #5170 Net 5, Star
 	Potion_Tip = "rbxassetid://78228531662647",
 	Potion_Lucky = "rbxassetid://109956828055851",
 	Potion_Swift = "rbxassetid://106601094256001",
@@ -144,10 +144,10 @@ local IDS: { [string]: string } = {
 	Icon_Clean_CometTreat = "rbxassetid://139109553677575", -- #5219: the matching cat bowl set (Model-Agent, group owned)
 	-- #4900: the Secret tier bait and the 50,000 XP cat food (upload run 43919997285, 11-16)
 	Icon_Clean_EclipseTreat = "rbxassetid://70744648477031", -- #5219: the matching cat bowl set (Model-Agent, group owned)
-	Icon_Clean_RoyalFeast = "rbxassetid://133381821214039",
+	Icon_Clean_RoyalFeast = "rbxassetid://100077341235461",
 	Icon_Clean_Spin = "rbxassetid://92256242473029",
-	Icon_Clean_TipJar = "rbxassetid://88738180093821", -- #4046: the Tip Jar quest's picture (🫙 draws blank on Roblox)
-	Icon_Clean_TipPile = "rbxassetid://120928045593770", -- #4046: the tip piles quest's (🪙 draws blank too)
+	Icon_Clean_TipJar = "rbxassetid://139556869856261", -- #4046: the Tip Jar quest's picture (🫙 draws blank on Roblox)
+	Icon_Clean_TipPile = "rbxassetid://129668364028889", -- #4046: the tip piles quest's (🪙 draws blank too)
 	Icon_Clean_Kibble = "rbxassetid://71045508448245", -- #5219: the matching cat bowl set (Model-Agent, group owned)
 	-- #1176: Model-Agent's HUD button pictures (#1185; upload run 41891138375, 11-04), the HUD's tiles prefer them
 	Icon_Hud_Store = "rbxassetid://93922915271593",
@@ -162,7 +162,7 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Menu = "rbxassetid://135021601977821",
 	Icon_Hud_MyCafe = "rbxassetid://72852868500556",
 	Icon_Hud_Cannon = "rbxassetid://72423459131220",
-	Icon_Hud_Harvest = "rbxassetid://99530037996427", -- Model-Agent #4460: the Harvest Hollow tile's pumpkin (CatCafe_Icon_Harvest_Pumpkin)
+	Icon_Hud_Harvest = "rbxassetid://126306189710838", -- Model-Agent #4460: the Harvest Hollow tile's pumpkin (CatCafe_Icon_Harvest_Pumpkin), group owned (the first upload was on a user account and did not load)
 	Icon_Hud_Areas = "rbxassetid://140584233944874",
 	Icon_Hud_Potions = "rbxassetid://130302894956532",
 	Icon_Hud_Bait = "rbxassetid://102824386265413",
@@ -198,28 +198,28 @@ local IDS: { [string]: string } = {
 	-- better", OK'd 22:18): the clean redraws of the Upgrades rows, the staff roles and the Oasis Spa (upload run
 	-- 42913358930, assets/cat-cafe/ui/icons-clean-2026-11-10). They win over the #2836 pictures above, which stay as
 	-- their backups (BACKUP) while one is in moderation or fails to load.
-	Icon_Clean_Tables = "rbxassetid://78752964799899",
-	Icon_Clean_Espresso = "rbxassetid://75462239871153",
-	Icon_Clean_Net = "rbxassetid://107635112477250",
-	Icon_Clean_LureBowl = "rbxassetid://125008235885167",
-	Icon_Clean_LuckyCat = "rbxassetid://130158950733679",
-	Icon_Clean_Barista = "rbxassetid://88726552754770",
-	Icon_Clean_Waiter = "rbxassetid://122492899176267",
-	Icon_Clean_Greeter = "rbxassetid://107746555479783",
-	Icon_Clean_Entertainer = "rbxassetid://79258683838050",
+	Icon_Clean_Tables = "rbxassetid://88983370624792",
+	Icon_Clean_Espresso = "rbxassetid://117201077548202",
+	Icon_Clean_Net = "rbxassetid://94499600283073",
+	Icon_Clean_LureBowl = "rbxassetid://97668058355292",
+	Icon_Clean_LuckyCat = "rbxassetid://125074618745259",
+	Icon_Clean_Barista = "rbxassetid://119859422367172",
+	Icon_Clean_Waiter = "rbxassetid://137711484467749",
+	Icon_Clean_Greeter = "rbxassetid://130252006773919",
+	Icon_Clean_Entertainer = "rbxassetid://75995006159440",
 	Icon_Clean_Spa = StationIcons.spa,
 	-- #3137 batch 2 (Derek2 OK'd the night's uploads, 11-11 01:05): the seven places (upload run 42937300084,
 	-- assets/cat-cafe/ui/icons-clean-2026-11-11), drawn wherever IconArt meets their emoji (Components/CleanGlyphs)
-	Icon_Clean_Park = "rbxassetid://130402303377210",
-	Icon_Clean_Neighbourhood = "rbxassetid://81559978948079",
-	Icon_Clean_Woods = "rbxassetid://88100194069700",
-	Icon_Clean_Sewer = "rbxassetid://73407312338999",
-	Icon_Clean_Desert = "rbxassetid://105252509632683",
-	Icon_Clean_Ruins = "rbxassetid://117006304300316",
-	Icon_Clean_Town = "rbxassetid://84240054469741",
+	Icon_Clean_Park = "rbxassetid://115925581562013",
+	Icon_Clean_Neighbourhood = "rbxassetid://132176329816133",
+	Icon_Clean_Woods = "rbxassetid://72221815479974",
+	Icon_Clean_Sewer = "rbxassetid://99119698709458",
+	Icon_Clean_Desert = "rbxassetid://89728254182051",
+	Icon_Clean_Ruins = "rbxassetid://110804041023530",
+	Icon_Clean_Town = "rbxassetid://133511366710891",
 	-- #3137 batch 3 (upload run 42938004143): the moon and the open padlock
-	Icon_Clean_Moon = "rbxassetid://113770680051546",
-	Icon_Clean_Unlock = "rbxassetid://96025123745905",
+	Icon_Clean_Moon = "rbxassetid://83300993463004",
+	Icon_Clean_Unlock = "rbxassetid://129908896970192",
 	-- #3347 batch 4 (group upload run 43100302103): the station ring cards; Arcade is also its window badge
 	Icon_Clean_Museum = StationIcons.museum,
 	Icon_Clean_Picnic = StationIcons.picnic,
@@ -229,36 +229,36 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Arcade = StationIcons.arcade,
 	-- #4417 (Model-Agent, 2026-11-15): the late stations' clean pictures, for their window headers and Cannon strips
 	-- (ShopIcons.hud("TicketBooth") finds Icon_Clean_TicketBooth)
-	Icon_Clean_TicketBooth = "rbxassetid://96195139920509",
-	Icon_Clean_Observatory = "rbxassetid://72696437397422",
-	Icon_Clean_DragonKeep = "rbxassetid://122710978883444",
+	Icon_Clean_TicketBooth = "rbxassetid://91504525538853",
+	Icon_Clean_Observatory = "rbxassetid://128908458555745",
+	Icon_Clean_DragonKeep = "rbxassetid://125776128924798",
 	-- #4424: one prize ticket, for the Ticket Booth's balance and prices
-	Icon_Clean_Ticket = "rbxassetid://129842731005234",
+	Icon_Clean_Ticket = "rbxassetid://124912411715371",
 	-- #4412: Cinder's five stage portraits (CatCafe_Icon_Dragon_<Stage>); ShopIcons.dragonStage
-	Icon_Dragon_Hatchling = "rbxassetid://99135344316065",
-	Icon_Dragon_Whelp = "rbxassetid://102034058992887",
-	Icon_Dragon_Drake = "rbxassetid://134663605479359",
-	Icon_Dragon_Elder = "rbxassetid://72176959650077",
-	Icon_Dragon_Crowned = "rbxassetid://71739636873722",
+	Icon_Dragon_Hatchling = "rbxassetid://105133648507385",
+	Icon_Dragon_Whelp = "rbxassetid://120406944416844",
+	Icon_Dragon_Drake = "rbxassetid://89709785421081",
+	Icon_Dragon_Elder = "rbxassetid://73589391060356",
+	Icon_Dragon_Crowned = "rbxassetid://91690027010195",
 	-- #4415: the six card families (CatCafe_Icon_DragonFamily_<Name>); ShopIcons.dragonFamily
-	Icon_DragonFamily_Flame = "rbxassetid://77240575634492",
-	Icon_DragonFamily_Claw = "rbxassetid://90005938117764",
-	Icon_DragonFamily_Wing = "rbxassetid://94092411571418",
-	Icon_DragonFamily_Hoard = "rbxassetid://131216459580695",
-	Icon_DragonFamily_Heart = "rbxassetid://100631268032899",
-	Icon_DragonFamily_Crown = "rbxassetid://91850271285128",
+	Icon_DragonFamily_Flame = "rbxassetid://87628537565730",
+	Icon_DragonFamily_Claw = "rbxassetid://112824204888587",
+	Icon_DragonFamily_Wing = "rbxassetid://115058388007671",
+	Icon_DragonFamily_Hoard = "rbxassetid://136495228704782",
+	Icon_DragonFamily_Heart = "rbxassetid://113202414045925",
+	Icon_DragonFamily_Crown = "rbxassetid://80704421539743",
 	-- #4061: the Ticket Booth's prizes and weekly shelf (Model-Agent); ShopIcons.booth
-	Icon_ShopCat_BoothPlush = "rbxassetid://126308376800797",
-	Icon_Booth_FlamingoFloat = "rbxassetid://104577381956407",
-	Icon_Booth_SplashFountain = "rbxassetid://73775856027824",
-	Icon_Booth_TicketArch = "rbxassetid://123078102631830",
-	Icon_Booth_WavePoolTiles = "rbxassetid://94896793871597",
-	Icon_Booth_LifeguardChair = "rbxassetid://85047858255430",
-	Icon_Booth_SnackHut = "rbxassetid://128018175497731",
-	Icon_Booth_SnorkelMask = "rbxassetid://89416076906488",
-	Icon_Booth_SwimCap = "rbxassetid://118865614034085",
-	Icon_Booth_SunVisor = "rbxassetid://140281430991767",
-	Icon_Booth_StarfishShades = "rbxassetid://83848413674386",
+	Icon_ShopCat_BoothPlush = "rbxassetid://140079607547714",
+	Icon_Booth_FlamingoFloat = "rbxassetid://131965479494547",
+	Icon_Booth_SplashFountain = "rbxassetid://110098086988535",
+	Icon_Booth_TicketArch = "rbxassetid://116699508417286",
+	Icon_Booth_WavePoolTiles = "rbxassetid://126330542042731",
+	Icon_Booth_LifeguardChair = "rbxassetid://74525340663161",
+	Icon_Booth_SnackHut = "rbxassetid://139891487889069",
+	Icon_Booth_SnorkelMask = "rbxassetid://109485056643539",
+	Icon_Booth_SwimCap = "rbxassetid://124385200253599",
+	Icon_Booth_SunVisor = "rbxassetid://106290644045561",
+	Icon_Booth_StarfishShades = "rbxassetid://111577007996220",
 	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
 	Icon_Hud_SetMusic = "rbxassetid://133550441899269",
 	Icon_Hud_SetMusicVolume = "rbxassetid://121500344853399",
@@ -329,21 +329,27 @@ local IDS: { [string]: string } = {
 	Icon_StoreTab_Cats = "rbxassetid://136977692053739",
 	Icon_StoreTab_Potions = "rbxassetid://110723659646530",
 	Icon_StoreTab_Codes = "rbxassetid://126780860250721",
-	Icon_StoreTab_Packs = "rbxassetid://125330764207763", -- #4026: the Winter Pack's icon
+	Icon_StoreTab_Packs = "rbxassetid://114239641358443", -- #4026: the Winter Pack's icon
 	Icon_StoreTab_Deal = "rbxassetid://118492801057625", -- #4259: the Deal tab wears the tag picture (Icon_Hud_Tag, its 🏷️)
 	-- the Store's card pictures, one per pass and product, by ShopIcons.store (#1762: the redrawn set, Tools-Agent 11-06;
 	-- #2578: eight passes redrawn on clear backgrounds, upload run 42665652455, 11-09)
 	-- #4026: the outfit packs' pass icons (512) and their 2:1 store art, cats close up in the pack (Model-Agent, 21:00
 	-- UTC 2026-11-13, moderation passed)
-	Icon_Store_PackStylish = "rbxassetid://108944643960006",
-	Icon_Store_PackWinter = "rbxassetid://125330764207763",
-	Icon_Store_PackChef = "rbxassetid://112087743532356",
-	Icon_Store_PackSpace = "rbxassetid://108635017155209",
-	Icon_Store_PackStylishArt = "rbxassetid://104257781959891",
-	Icon_Store_PackWinterArt = "rbxassetid://124937928622829",
-	Icon_Store_PackChefArt = "rbxassetid://114389016087315",
-	Icon_Store_PackSpaceArt = "rbxassetid://130035950104996",
+	Icon_Store_PackStylish = "rbxassetid://134008528446029",
+	Icon_Store_PackWinter = "rbxassetid://114239641358443",
+	Icon_Store_PackChef = "rbxassetid://135865345807872",
+	Icon_Store_PackSpace = "rbxassetid://126984824609834",
+	Icon_Store_PackStylishArt = "rbxassetid://134163058467418",
+	Icon_Store_PackWinterArt = "rbxassetid://80746232038286",
+	Icon_Store_PackChefArt = "rbxassetid://106238097844684",
+	Icon_Store_PackSpaceArt = "rbxassetid://138749834605596",
 	Icon_Store_Money2x = "rbxassetid://106785644491188",
+	-- #5225: the XP cat foods on their mint XP plate (Model-Agent, xpsnacks.py, 256, group owned)
+	Icon_XpFood_SmallSnack = "rbxassetid://105963914520145",
+	Icon_XpFood_CatSnack = "rbxassetid://71636028716764",
+	Icon_XpFood_BigSnack = "rbxassetid://138587640099666",
+	Icon_XpFood_CatFeast = "rbxassetid://85120198290442",
+	Icon_XpFood_RoyalFeast = "rbxassetid://132550470089627",
 	-- #4246: Today's Deal pictures (Model-Agent, Nov 15): golden fish, Trait Tokens, golden crates, the Golden Haul
 	-- #5120: re-uploaded group owned (Creampuff Games) on Nov 17; the Nov 15 copies were on Derek's own account, not the group's
 	Icon_Deal_Fish = "rbxassetid://77754066053264",
@@ -700,7 +706,14 @@ function ShopIcons.snackGlyph(foodId: string?): string
 end
 
 -- #4900: a cat food with a drawn picture of its own shows it everywhere its glyph would go
-local CAT_FOOD_PICTURES: { [string]: string } = { royal_feast = "Icon_Clean_RoyalFeast" }
+-- #5225: all five on the XP plate; the glyphs above stay as the fallback until a picture loads
+local CAT_FOOD_PICTURES: { [string]: string } = {
+	small_cat_snack = "Icon_XpFood_SmallSnack",
+	cat_snack = "Icon_XpFood_CatSnack",
+	big_cat_snack = "Icon_XpFood_BigSnack",
+	cat_feast = "Icon_XpFood_CatFeast",
+	royal_feast = "Icon_XpFood_RoyalFeast",
+}
 
 -- Cat food's uploaded picture (#1181): its own drawn one (#4900), else the clean star treat, now only for a food
 -- without its own glyph (#1616)

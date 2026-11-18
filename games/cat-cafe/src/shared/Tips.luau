@@ -213,6 +213,16 @@ function Tips.notifyLongPlay(profile: Types.PlayerProfile, playSeconds: number?)
 		and profile.stats.rescues >= 1
 end
 
+-- #5251 (Derek 2026-11-18: "make sure no favourite or notify popups for first 5 min"; switch promptsAfter5): the one
+-- floor every prompt that asks the player for something (a Roblox notify, favourite or event card) waits for, in
+-- both the account's play and this session's, past the 5 minute mark so none lands at exactly 5:00
+Tips.PROMPT_FLOOR_SECONDS = 360
+Tips.PROMPTS_FLAG = "promptsAfter5"
+function Tips.promptOk(playSeconds: number?, sessionSeconds: number?): boolean
+	return (playSeconds or 0) >= Tips.PROMPT_FLOOR_SECONDS
+		and (sessionSeconds or 0) >= Tips.PROMPT_FLOOR_SECONDS
+end
+
 -- #2553: the notification ask's return path: a second session or later (stats.sessions counts this one), on a later
 -- UTC day than the first join, NOTIFY_RETURN_SECONDS into it. Never in the first session.
 function Tips.notifyReturn(

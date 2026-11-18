@@ -71,8 +71,8 @@ local BULB = { Color3.fromHex("FFF096"), Color3.fromHex("FFFFFF") }
 -- centred at the top and then clockwise (SpinLogic's order), each with its prize picture. The frame stays still: the
 -- gold rim with its lights, the Lucky Cat hub and the pointer. The drawn wheel stays underneath, so the window still
 -- reads while Roblox is still checking the pictures. Redraw both with the weights if PRIZES change.
-local FACE_IMAGE = "rbxassetid://76596036710944"
-local FRAME_IMAGE = "rbxassetid://104531670337320"
+local FACE_IMAGE = "rbxassetid://79187808685947"
+local FRAME_IMAGE = "rbxassetid://71405479314319"
 local FRAME_SCALE = 512 / 490 -- the frame picture's rim is 490 px of its 512 px half
 
 local AdminWheel = {}

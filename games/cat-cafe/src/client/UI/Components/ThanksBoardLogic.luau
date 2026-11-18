@@ -11,7 +11,7 @@
 
 local ThanksBoardLogic = {}
 
-ThanksBoardLogic.PER_PAGE = 6
+ThanksBoardLogic.PER_PAGE = 4 -- #5228: two by two at the bigger size (was 6)
 ThanksBoardLogic.ANON = "a player" -- IdeaCredits.ANON: the server's name for a hidden or unknown player
 ThanksBoardLogic.EMPTY = "Send an idea with 💡 Feedback: if we build it, your name goes here."
 

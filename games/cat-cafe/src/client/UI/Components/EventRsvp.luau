@@ -78,7 +78,15 @@ function EventRsvp.next(list: unknown, now: number): (string?, number?, string?)
 	return id, startsAt, title
 end
 
-function EventRsvp.window(played: number): boolean
+-- #5251 (switch promptsAfter5): the ask's part of a session moves past the 5 minute mark (Tips.PROMPT_FLOOR_SECONDS)
+-- and ends 2 minutes later than before, so the window stays about as long
+EventRsvp.LATE_FROM_SECONDS = 360
+EventRsvp.LATE_UNTIL_SECONDS = 720
+
+function EventRsvp.window(played: number, late: boolean?): boolean
+	if late == true then
+		return played >= EventRsvp.LATE_FROM_SECONDS and played <= EventRsvp.LATE_UNTIL_SECONDS
+	end
 	return played >= EventRsvp.FROM_SECONDS and played <= EventRsvp.UNTIL_SECONDS
 end
 

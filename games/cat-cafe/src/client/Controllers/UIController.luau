@@ -578,6 +578,15 @@ local function newKindTrail(s: Types.PlayerState): boolean
 	if not newKindGoal(s) or stuckGoalActive(s) then
 		return false
 	end
+	-- #5248 (Derek 2026-11-18: "after rank up is clicked no need to say new cat nearby collect in alleyway they have
+	-- park unlocked"; switch parkLead): from the Tier 2 rank up until the Park is reached, the walk to the Park leads
+	if
+		(s.tier or 1) == 2
+		and not UI.parkTrail.reached
+		and ReplicatedStorage:GetAttribute("LiveFlag_parkLead") == true
+	then
+		return false
+	end
 	local kinds = kindsOf(s)
 	local shownAt = if newKind.shownKinds == kinds then newKind.shownAt else nil
 	return NewKind.trail(
@@ -2922,13 +2931,18 @@ local eventAsk = { asked = false, started = os.clock() }
 local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
+-- #5251: the promptsAfter5 switch moves the Event ask past the 5 minute mark (EventRsvp.window's late part)
+local function eventLate(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_promptsAfter5") == true
+end
+
 local function offerEvent()
 	local id, startsAt, words = EventRsvp.next(Config.UpdateEvents, os.time())
 	if
 		eventAsk.asked
 		or state == nil
 		or state.tutorialStep < 5
-		or not EventRsvp.window(os.clock() - eventAsk.started)
+		or not EventRsvp.window(os.clock() - eventAsk.started, eventLate())
 		or not EventRsvp.due(id, startsAt, os.time())
 	then
 		return
@@ -2952,7 +2966,7 @@ local function offerEvent()
 		end
 		while not safe() do
 			task.wait(1)
-			if not EventRsvp.window(os.clock() - eventAsk.started) then
+			if not EventRsvp.window(os.clock() - eventAsk.started, eventLate()) then
 				return -- no quiet moment by minute 10: not this session
 			end
 		end

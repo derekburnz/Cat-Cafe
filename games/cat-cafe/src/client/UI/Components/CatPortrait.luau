@@ -1,7 +1,7 @@
 --!strict
 -- A live 3D cat for reveal cards and the Index: the cat's own model, cloned from ReplicatedStorage.Assets (the
 -- asset thread's mesh, or the server's placeholder until it lands), in a ViewportFrame that sways it slowly.
--- set(def, true) shows a gold cat's own coat (v0.5 F42, Catalog.goldModelName; the toned base with goldTone on, #4133),
+-- set(def, true) shows a gold cat's own coat (v0.5 F42, Catalog.goldModelName; the toned base, #4133),
 -- else its base coat.
 -- When the model is not there yet it falls back to the cat's initial on its body colour. A silhouette (the
 -- Index's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
@@ -65,7 +65,7 @@ local function bodyColor(def: Types.CatDef): Color3
 end
 
 -- A copy of the cat's model (the gold coat when asked and there, else the base coat) with every script removed,
--- or nil when Assets has no model for it yet. #4133: with the goldTone switch on, a gold cat is its base model toned
+-- or nil when Assets has no model for it yet. #4133: a gold cat is its base model toned
 -- gold (GoldTone.apply), as its walks and catches are.
 local function cloneModel(catId: string, gold: boolean): Model?
 	local assets = ReplicatedStorage:FindFirstChild("Assets")

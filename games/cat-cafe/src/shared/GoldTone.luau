@@ -4,16 +4,12 @@
 --   GoldTone 1, 2 or 3   the light, mid or deep gold below, in Metal
 --   GoldColor (Color3)   that colour, material unchanged (eyes, nose and the like keep their look)
 --   GoldSolid true       fully opaque, and casting a shadow when its longest side is at least 0.5 studs
--- A part with none of these is left as it is. Behind the `goldTone` switch (LiveFlags, off by default): on, every gold
--- cat is the toned base, even where a _Gold model is still in Assets, so QA can compare; off, the _Gold models as
--- before. Model-Agent drops the _Gold files only after the switch is on and QA has passed.
+-- A part with none of these is left as it is. Every gold cat is the toned base, even where a _Gold model is still in
+-- Assets (#4656: the `goldTone` switch, on since launch, is retired; the _Gold twins stay stowed on the server).
 -- Shared by the server (AssetRegistry.cloneCat) and the client (portraits and walks).
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GoldTone = {}
 
-GoldTone.FLAG = "goldTone"
 GoldTone.TONES = table.freeze({
 	Color3.new(0.9843, 0.8941, 0.6039), -- 1 light
 	Color3.new(0.949, 0.7569, 0.3059), -- 2 mid
@@ -23,21 +19,18 @@ GoldTone.SHADOW_SIZE = 0.5
 
 local override: boolean? = nil
 
--- Specs: forces the switch (nil goes back to the live one).
+-- Specs: false looks up the _Gold models again, as before #4133 (nil goes back to the toned base).
 function GoldTone.setOpen(open: boolean?)
 	override = open
 end
 
--- Whether gold cats are toned from the base (the switch, as LiveFlagService copies it to ReplicatedStorage).
+-- Whether gold cats are toned from the base: always, but for a spec's override.
 function GoldTone.open(): boolean
-	if override ~= nil then
-		return override
-	end
-	return ReplicatedStorage:GetAttribute("LiveFlag_" .. GoldTone.FLAG) == true
+	return override ~= false
 end
 
 -- Whether `name` is a cat's _Gold model: the walking, seated or working twin ("CatCafe_Cat_Tabby_Gold",
--- "..._Gold_Sit", "..._Gold_Work"). With the switch on nothing looks these up (GoldTone.names), so the server keeps
+-- "..._Gold_Sit", "..._Gold_Work"). Nothing looks these up (GoldTone.names), so the server keeps
 -- them out of what clients download (AssetRegistry.followGoldTone, #4601). Gold crates, decor and the like are not
 -- cats and never match.
 function GoldTone.isTwin(name: string): boolean
@@ -85,8 +78,8 @@ function GoldTone.apply(model: Instance)
 	end
 end
 
--- The names to look up for a gold cat's model, in order, and whether what is found must be toned: with the switch on
--- the base `baseName` only (toned), else `goldName` then `baseName` (as found).
+-- The names to look up for a gold cat's model, in order, and whether what is found must be toned: the base `baseName`
+-- only (toned), or with a spec's setOpen(false) `goldName` then `baseName` (as found).
 function GoldTone.names(goldName: string, baseName: string): ({ string }, boolean)
 	if GoldTone.open() then
 		return { baseName }, true

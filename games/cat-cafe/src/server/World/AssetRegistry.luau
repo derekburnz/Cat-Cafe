@@ -68,9 +68,9 @@ function AssetRegistry.stowServerOnly(): number
 end
 
 -- #4601: the cats' _Gold models (384 of them, about 40,000 instances, a third of what a client downloads as it
--- joins) are looked up by nobody while the goldTone switch is on: a gold cat is then its base model toned
--- (shared/GoldTone). Moves them to ServerStorage.Assets while the switch is on and back to ReplicatedStorage.Assets
--- when it is off, so the switch stays a true way back. Returns how many were moved.
+-- joins) are looked up by nobody: a gold cat is its base model toned (shared/GoldTone). Moves them to
+-- ServerStorage.Assets (back to ReplicatedStorage.Assets only under a spec's GoldTone.setOpen(false)). Returns how
+-- many were moved.
 function AssetRegistry.stowGoldTwins(): number
 	local assets = AssetRegistry.folder()
 	local store = vault
@@ -92,17 +92,9 @@ function AssetRegistry.stowGoldTwins(): number
 	return moved
 end
 
-local goldFollow: RBXScriptConnection? = nil
-
--- Runs stowGoldTwins now and each time the goldTone switch flips (LiveFlagService copies it to a ReplicatedStorage
--- attribute). After stowServerOnly, which makes the server's folder. Returns how many were moved now.
+-- Runs stowGoldTwins once at start, after stowServerOnly, which makes the server's folder (#4656: the goldTone
+-- switch it followed is retired, so the twins leave before the first player joins). Returns how many were moved.
 function AssetRegistry.followGoldTone(): number
-	if goldFollow == nil then
-		goldFollow = ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. GoldTone.FLAG)
-			:Connect(function()
-				AssetRegistry.stowGoldTwins()
-			end)
-	end
 	return AssetRegistry.stowGoldTwins()
 end
 
@@ -172,7 +164,7 @@ export type Body = "walk" | "sit" | "work"
 function AssetRegistry.cloneCat(catId: string, variant: string?, body: Body?): (Model, Body)
 	local base = Catalog.catModelName(catId)
 	local gold = Catalog.goldModelName(catId)
-	-- #4133: with the goldTone switch on a gold cat is its base model toned (shared/GoldTone), so the _Gold models
+	-- #4133: a gold cat is its base model toned (shared/GoldTone), so the _Gold models
 	-- are never looked up
 	local walkers: { string } = { base }
 	local tone = false

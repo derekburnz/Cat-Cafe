@@ -30,6 +30,21 @@ return function()
 			expect(p.coins).to.equal(30)
 		end)
 
+		it(
+			"holds the slow on a track the Animate script or a new pose sets back to full speed",
+			function()
+				local speed, own = Wow.holdSpeed(1, nil, nil, 0.3)
+				expect(speed).to.be.near(0.3, 1e-6)
+				expect(own).to.equal(1)
+				speed, own = Wow.holdSpeed(0.3, own, speed, 0.3) -- unchanged since we set it
+				expect(speed).to.be.near(0.3, 1e-6)
+				expect(own).to.equal(1)
+				speed, own = Wow.holdSpeed(1.6, own, speed, 0.3) -- the walk sped up: its own speed is now 1.6
+				expect(speed).to.be.near(0.48, 1e-6)
+				expect(own).to.equal(1.6)
+			end
+		)
+
 		it("halves the confetti on a phone or the low tier", function()
 			local p = Presets.firstCatchWow
 			expect(Wow.confetti(40, false, p)).to.equal(40)

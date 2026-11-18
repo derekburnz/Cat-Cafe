@@ -11869,12 +11869,13 @@ function UI.parkRankPoint(catId: string)
 	if point.done or (state.tier or 1) ~= 2 then
 		return
 	end
-	local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+	local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 	local def = Catalog.getCat(catId)
 	if def == nil or def.area ~= "park" then
 		return
 	end
-	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 	if
 		not LiveFlags.shown(
 			"parkRankPoint",

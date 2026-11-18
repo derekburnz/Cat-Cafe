@@ -115,6 +115,7 @@ local stowed = AssetRegistry.stowServerOnly()
 stowed += AssetRegistry.followGoldTone()
 -- #4763: the tables caps follow the tablesSpread switch (shared/TablesSpread)
 require(ReplicatedStorage.Shared.TablesSpread).follow()
+require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
 local world = WorldBuilder.build()
 
 Net.start()

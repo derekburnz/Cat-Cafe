@@ -67,6 +67,7 @@ local M = {
 	LiveFlagService = require(script.Parent.LiveFlagService),
 	Moods = require(ReplicatedStorage.Shared.Moods),
 	Onboarding = require(ReplicatedStorage.Shared.Onboarding),
+	NetTiers = require(ReplicatedStorage.Shared.NetTiers), -- #5170
 	Payout = require(script.Parent.Payout),
 	Pity = require(ReplicatedStorage.Shared.Pity),
 	PlotService = require(script.Parent.PlotService),
@@ -2887,6 +2888,14 @@ function startCatch(
 	local trust = if tutorial
 		then Circles.tutorialTrust(#circles) -- #4845: a held first catch runs 3 rings and lands on the last
 		else Circles.trustFor(stray.def.rarity, M.Moods.trustBonus(stray.curiousAt, now))
+	-- #5170 (netTiers): the owned net level cuts the Perfect hits, never under two (a potion widens windows only)
+	if not tutorial and M.LiveFlagService.on(M.NetTiers.FLAG) then
+		trust.start += M.NetTiers.trustBonus(
+			M.Economy.level(profile, "net"),
+			trust.start,
+			trust.need
+		)
+	end
 	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt

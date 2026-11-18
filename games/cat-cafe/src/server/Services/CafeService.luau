@@ -31,6 +31,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
 local FishStore = require(ReplicatedStorage.Shared.FishStore)
+local Follower = require(ReplicatedStorage.Shared.Follower)
 local Fusion = require(ReplicatedStorage.Shared.Fusion)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
@@ -322,6 +323,30 @@ local function lookItems(profile: Profile): { [string]: boolean }
 end
 
 -- The Dragon Keep's crate, trait and spin luck for the odds lists, the same numbers the rolls use (DragonKeep.of).
+-- #5172 (shared/Follower): the Cats menu's Follower slot, nil while catFollower is off. The boost's cooldown comes from
+-- the player's FollowerSwitchAt attribute (FollowerService).
+local function followerViewOf(player: Player, profile: Profile): Types.FollowerView?
+	if not Follower.on() then
+		return nil
+	end
+	local cat = Follower.cat(profile)
+	local boost = Follower.boost(profile)
+	local def = if cat ~= nil then Catalog.getCat(cat.catId) else nil
+	local switchedAt = player:GetAttribute("FollowerSwitchAt")
+	local since = if type(switchedAt) == "number" then os.time() - switchedAt else math.huge
+	return {
+		open = (profile.tier or 1) >= Follower.OPEN_TIER,
+		uid = if cat ~= nil then cat.uid else nil,
+		boost = boost,
+		amount = Follower.amount(
+			if def ~= nil then def.rarity else nil,
+			boost,
+			if cat ~= nil then cat.variant else nil
+		),
+		switchIn = math.max(0, Follower.SWITCH_SECONDS - since),
+	}
+end
+
 local function cardLuckOf(profile: Profile): { crate: number, trait: number, spin: number }
 	local fx = Economy.dragonEffects(profile)
 	return { crate = fx.crateLuck, trait = fx.traitLuck, spin = fx.spinLuck }
@@ -466,6 +491,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		luck = luck, -- F88
 		luckSources = luckSources,
 		cardLuck = cardLuckOf(profile),
+		follower = followerViewOf(player, profile), -- #5172
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
 		passBoosts = { -- #1624: the store passes' rows in the money card's Boosts list
 			cafe = Economy.passCafeBonus(profile),

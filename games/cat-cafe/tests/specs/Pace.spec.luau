@@ -116,6 +116,10 @@ return function()
 		pals: number?, -- pals on the server (Economy.setPals, #1165): tips, piles and rich visitors earn the pal bonus
 		event: { from: number, to: number }?, -- #2486: a Cafe Event's money (EventMoneyMax) over these seconds of play
 		tier2Band: { number }?, -- #2557: this case's Tier 2 band in minutes, { low, high }, when not 10 to 20
+		-- #5172: a Legendary of this coat ("base", "gold", "rainbow") in the cats from the start; `follows` makes it the
+		-- Money follower (catFollower on), so a case with and without differs only by the boost
+		follower: string?,
+		follows: boolean?,
 	}
 	-- The daytime top-ups (#1159, shared/StrayTopUp) as the one catcher sees them. `players` sets the floor of live
 	-- strays (StrayTopUp.floor); `wait` fixes the seconds between top-ups (60 is StrayTopUpMinSeconds, the most a
@@ -212,6 +216,12 @@ return function()
 		end
 		if options.pals ~= nil then
 			Economy.setPals(profile, options.pals)
+		end
+		if options.follower ~= nil then
+			local pet = CatStats.newInstance("pace_follower", "void", base, 1)
+			pet.variant = options.follower
+			profile.cats[pet.uid] = pet
+			profile.follower = { uid = if options.follows then pet.uid else "", boost = "money" }
 		end
 		Economy.setEventMoney(1)
 		local eventOn = false
@@ -1250,6 +1260,56 @@ return function()
 	-- were about halved, so Tiers 8 to 10 follow at 21B, 250B and 1.5T, asking 36, 45 and 54 kinds (the step of 9 on
 	-- Tier 7's 27): 2 h 27, 3 h 40 and 6 h 09 between tiers, Tier 10 at 21 h 36.
 	-- Two runs only, since one run to Tier 10 is about 22 hours of play.
+	-- #5172 (Design, Derek 2026-11-18): a rainbow Legendary following with Money (+18%, the coat x1.5) against the same
+	-- cat not following. Design's rule: if a tier comes more than about 10% sooner, that tier's cost goes up.
+	describe("cat follower pace (#5172)", function()
+		it("a rainbow Legendary Money follower brings no tier more than 10% sooner", function()
+			local Follower = require(Shared.Follower)
+			local limit = 40 * HOUR
+			local function timesFor(follows: boolean): { Run }
+				Follower.setOn(true)
+				local options: Options = {
+					catches = 4,
+					target = 6,
+					limit = limit,
+					long = true,
+					follower = "rainbow",
+					follows = follows,
+				}
+				local ok, list = pcall(runs, options, 2)
+				Follower.setOn(nil)
+				if not ok then
+					error(list)
+				end
+				return list :: { Run }
+			end
+			local without, with = timesFor(false), timesFor(true)
+			local parts, bad = {}, {}
+			-- the time from the start to each tier, the player's own pace; a few seconds on a short reach is noise, so a
+			-- tier only counts as sooner by more than 10% and 2 minutes
+			for tier = 3, 6 do
+				local off = quantile(without, tierAt(tier), 0.5, limit)
+				local on = quantile(with, tierAt(tier), 0.5, limit)
+				local sooner = if off > 0 then 1 - on / off else 0
+				local text = string.format(
+					"T%d at %s off, %s on (%d%% sooner)",
+					tier,
+					clock(off),
+					clock(on),
+					math.floor(sooner * 100 + 0.5)
+				)
+				table.insert(parts, text)
+				if sooner > 0.10 and off - on > 120 then
+					table.insert(bad, text)
+				end
+			end
+			print("[Pace #5172] " .. table.concat(parts, ", "))
+			if #bad > 0 then
+				error("follower makes a tier more than 10% sooner: " .. table.concat(bad, ", "))
+			end
+		end)
+	end)
+
 	describe("Tiers 8 to 10 on the money ladder (#4192)", function()
 		it(
 			"takes 1.5 to 4 hours from Tier 7 to Tier 8, 2.5 to 18 on to Tier 9 and up to 14 on to Tier 10 (#4515 and +25%: was 2.5 to 6 and 4 to 9; #4320: was 2.5 to 5.5, 4.5 to 9 and 5.5 to 11; #4192: the draft was 12 to 15 for Tier 8, untested)",

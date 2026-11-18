@@ -40,6 +40,7 @@ local FallCatchService = require(script.Parent.Services.FallCatchService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local FishStoreService = require(script.Parent.Services.FishStoreService)
+local FollowerService = require(script.Parent.Services.FollowerService)
 local FusionService = require(script.Parent.Services.FusionService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
@@ -201,6 +202,7 @@ ArcadeCabinetService.start() -- #3443: the cabinet and its ring are in the world
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
 PetService.start() -- #3651: pet a cat, the happy cat pays double for an hour (switch petCats)
+FollowerService.start() -- #5172: a cat follows the player for Money or Luck (switch catFollower)
 AfkCafeService.start() -- #3573: resting in your own cafe pays the cats' cafe pay double
 AwayNotifyService.start() -- #2768: notes who is due an away notification, before DataService (onLoaded)
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)

@@ -8,6 +8,7 @@ local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local DragonKeep = require(script.Parent.DragonKeep)
+local Follower = require(script.Parent.Follower)
 local IndexRewards = require(script.Parent.IndexRewards)
 local LateTiers = require(script.Parent.LateTiers)
 local Lawn = require(script.Parent.Lawn)
@@ -100,12 +101,24 @@ function Economy.takePalEarned(profile: Types.PlayerProfile): number
 	return earned
 end
 
+local function rarityOf(catId: string): string?
+	local def = Catalog.getCat(catId)
+	return if def ~= nil then def.rarity else nil
+end
+
+-- #5172 (switch catFollower, shared/Follower): the following cat's Money boost, 0 with none or with Luck picked.
+function Economy.followerMoney(profile: Types.PlayerProfile): number
+	return Follower.money(profile, rarityOf)
+end
+
 -- Everything on top of the cafe's rate at `now`: the running tip potions (Potions.tipMultiplier, at most
--- TimedTipsMax) plus the pal bonus. Income, the tip piles and rich visitors use it; offline pay does not.
+-- TimedTipsMax) plus the pal bonus and (#5172) a follower's Money boost. Income, the tip piles and rich visitors use
+-- it; offline pay does not.
 function Economy.tipMultiplier(profile: Types.PlayerProfile, now: number): number
 	return Potions.tipMultiplier(profile, now)
 		+ Economy.palBonus(profile)
 		+ Economy.dragonEffects(profile).tips
+		+ Economy.followerMoney(profile)
 end
 
 -- The Money pass multiplier on all cafe income, 1 without one. #2850: a bought once-per-account product with a
@@ -642,7 +655,9 @@ function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: n
 			* money
 			* nightSecondsFrom(profile.lastTick, elapsed, clockEpoch)
 			* Config.NightIncomeMultiplier
-		earned = rate * paidSeconds + palCoins + nightTrait
+		-- #5172: a Money follower's share over the whole window, like the pal bonus; the caller settled when it changed
+		local followerCoins = rate * base * Economy.followerMoney(profile)
+		earned = rate * paidSeconds + palCoins + nightTrait + followerCoins
 		if palCoins > 0 then
 			palEarnedByProfile[profile] = (palEarnedByProfile[profile] or 0) + palCoins
 		end

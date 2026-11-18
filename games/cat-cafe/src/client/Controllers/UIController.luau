@@ -666,6 +666,10 @@ local function pointNet(on: boolean)
 	UI.net.point(on)
 end
 
+-- #5202 (UI.nextGoal.guide): the trail to a stray of the rarity Tier 3 still needs, held for RARE_GUIDE_SECONDS
+local rareGuide = { target = nil :: BasePart?, untilAt = 0, line = "", label = "" }
+local RARE_GUIDE_SECONDS = 30
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -679,6 +683,17 @@ local function refreshTutorial(s: Types.PlayerState)
 		UI.tutorial.hide()
 		return
 	end
+	local rare = rareGuide.target
+	if
+		rare ~= nil
+		and os.clock() < rareGuide.untilAt
+		and rare.Parent ~= nil
+		and rare:IsDescendantOf(Workspace)
+	then
+		showTutorial(s, rareGuide.line, rare, rareGuide.label)
+		return
+	end
+	rareGuide.target = nil
 	-- Review-QA's fresh join runs, 2026-11-12: as the first cat is secured the server's sync that ends the carry comes
 	-- a moment before the one that moves the tutorial on, so "Follow the trail and catch the cat!" came back for
 	-- about 0.2 s. The first catch line now waits CARRY_SETTLE after a carry ends; a cat that was dropped, not
@@ -1004,16 +1019,59 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 end
 
--- #5202 (UI.nextGoal, Design-Agent): variant A's "Collect cats" brings the five cats trail now, to the nearest new
--- kind's stray in the area, else the cannon, as if the player had been idle long enough for it.
-UI.nextGoal.guide = function()
+-- #5202 (UI.nextGoal, Design-Agent): variant A's "Collect cats". A rarity still short (`rarity`): the trail to the
+-- nearest loose stray of that rarity or better in this area, held RARE_GUIDE_SECONDS. Else, while new kinds are the
+-- goal, the five cats trail now, as if the player had been idle long enough for it. False when neither has anything
+-- to point at (the card opens the Park's Index page instead).
+UI.nextGoal.guide = function(rarity: string?): boolean
+	local s = state
+	if s == nil then
+		return false
+	end
+	if rarity ~= nil then
+		local area: string? = (UI.cannon :: any).area
+		local character = player.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if area == nil or root == nil or not root:IsA("BasePart") then
+			return false
+		end
+		local best: BasePart? = nil
+		local bestDistance = math.huge
+		for _, cat in CollectionService:GetTagged("Stray") do
+			local catRarity = cat:GetAttribute("Rarity")
+			local locked = cat:GetAttribute("LockedBy")
+			local part = if cat:IsA("Model") then (cat :: Model).PrimaryPart else nil
+			if
+				part ~= nil
+				and cat:GetAttribute("Area") == area
+				and type(catRarity) == "string"
+				and Catching.rarityAtLeast(catRarity :: any, rarity :: any)
+				and (locked == nil or locked == 0 or locked == player.UserId)
+			then
+				local distance = (part.Position - (root :: BasePart).Position).Magnitude
+				if distance < bestDistance then
+					best, bestDistance = part, distance
+				end
+			end
+		end
+		if best == nil then
+			return false
+		end
+		rareGuide.target = best
+		rareGuide.untilAt = os.clock() + RARE_GUIDE_SECONDS
+		rareGuide.line = "Catch a " .. rarity .. " or better cat!"
+		rareGuide.label = rarity
+		refreshTutorial(s)
+		return true
+	end
+	if not newKindGoal(s) then
+		return false
+	end
 	newKind.idleSince = -math.huge
 	newKind.shownAt = nil
 	newKind.shownKinds = nil
-	local s = state
-	if s ~= nil then
-		refreshTutorial(s)
-	end
+	refreshTutorial(s)
+	return newKind.target ~= nil
 end
 
 -- #3995: watches for the joiner's first step inside their own cafe, then puts the strip back to the tutorial's own

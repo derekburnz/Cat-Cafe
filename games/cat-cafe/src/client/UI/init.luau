@@ -11990,7 +11990,10 @@ end
 -- the nearest new kind or the cannon (A) or opens the Index (B); Build up your cafe opens the upgrade shop (A) or rings the goal card (B).
 UI.nextGoal = {
 	started = false,
-	guide = (function() end) :: () -> (), -- UIController: the five cats trail now (Collect cats on variant A)
+	-- UIController: the trail now (Collect cats on variant A); false when it has nothing to point at
+	guide = (function(_rarity: string?)
+		return false
+	end) :: (rarity: string?) -> boolean,
 }
 function UI.nextGoal.busy(): boolean
 	return (modal ~= nil and modal:current() ~= nil)
@@ -12108,7 +12111,9 @@ function UI.nextGoal.open(after: boolean)
 			if choice == "cats" then
 				tap("cats")
 				if view.variant == "A" then
-					UI.nextGoal.guide()
+					if not UI.nextGoal.guide(view.rarity) then
+						UI.openIndex("park")
+					end
 				else
 					UI.open("Collection")
 				end

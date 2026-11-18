@@ -2700,6 +2700,11 @@ function Logic.catchFinish(...: any): string?
 	return nil
 end
 
+-- #5300: whether the result word now reads the Perfect catch's `want` ("+50%"), ignoring case and outer spaces.
+function Logic.isPerfectPlus(text: string, want: string): boolean
+	return string.lower((string.gsub(text, "^%s*(.-)%s*$", "%1"))) == string.lower(want)
+end
+
 -- Where a result word's sparkles start: `n` spots spread evenly across `width` pixels through `centre`.
 function Logic.wordSpots(centre: Vector2, width: number, n: number): { Vector2 }
 	local spots: { Vector2 } = {}

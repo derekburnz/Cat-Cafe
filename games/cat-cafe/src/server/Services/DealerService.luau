@@ -131,14 +131,15 @@ local function stockFor(player: Player, tonight: { Dealer.FoodAmount }): Types.D
 	local rows: { Types.DealerFood } = {}
 	for _, food in tonight do
 		local def = Catalog.getLure(food.lureId)
-		if def ~= nil and not Dealer.sells(def, tier) then
-			continue -- #4900: the Eclipse Treat only shows from Tier 8
-		end
+		-- #4900: the Eclipse Treat is sold only from Tier 8. #5230 (Derek 2026-11-18: "should show even with 0 stock like
+		-- the rest"): under its tier its row still comes, at 0, so every list shows it (the card reads its tier); the
+		-- buys still refuse it (Dealer.sells)
+		local amount = if def ~= nil and not Dealer.sells(def, tier) then 0 else food.amount
 		table.insert(rows, {
 			lureId = food.lureId,
 			cost = Economy.foodPrice(food.lureId, tier),
-			amount = food.amount,
-			bought = math.min(mine[food.lureId] or 0, food.amount),
+			amount = amount,
+			bought = math.min(mine[food.lureId] or 0, amount),
 		})
 	end
 	return { night = night, stock = rows }

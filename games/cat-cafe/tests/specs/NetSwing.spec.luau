@@ -304,4 +304,39 @@ return function()
 			end
 		)
 	end)
+
+	-- #5309 (Derek 2026-11-18: "pretty much hit anything infront of you"), switch bigNet; #5308: no hop on a miss
+	describe("the big net (#5309)", function()
+		local function with(on: boolean, body: () -> ())
+			NetSwing.setBig(on)
+			local ok, err = pcall(body)
+			NetSwing.setBig(nil)
+			if not ok then
+				error(err)
+			end
+		end
+
+		it("off, the half circle's edge and 11 studs ahead are out as before", function()
+			with(false, function()
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(7, 85))).to.equal(false)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(11, 0))).to.equal(false)
+				expect(NetSwing.missHops(99, 3)).to.equal(true)
+			end)
+		end)
+
+		it("on, takes the whole half circle in front, 4 studs further, and never behind", function()
+			with(true, function()
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(7, 85))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(7, -89))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(12, 0))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(12, 60))).to.equal(true)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(13.5, 0))).to.equal(false)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(6, 120))).to.equal(false)
+				expect(NetSwing.inReach(ORIGIN, AHEAD, at(2.5, 180))).to.equal(true) -- at the feet
+				expect(NetSwing.missHops(99, 3)).to.equal(false)
+				local edge = NetSwing.fanPoints(2)
+				expect(edge[1].X).to.be.near(-(Config.NetReachStuds + NetSwing.BIG_REACH), 1e-9)
+			end)
+		end)
+	end)
 end

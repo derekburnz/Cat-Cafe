@@ -14,10 +14,13 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local IntroController = require(script.Parent.IntroController)
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Net = require(script.Parent.Parent.Net)
+local Onboarding = require(Shared:WaitForChild("Onboarding"))
 local PerfSuggest = require(Shared:WaitForChild("PerfSuggest"))
 local Scale = require(script.Parent.Parent.UI.Scale)
 local UI = require(script.Parent.Parent.UI)
+local UIController = require(script.Parent.UIController)
 
 local PerfSuggestController = {}
 
@@ -82,7 +85,42 @@ local function ask(): boolean
 	return shown
 end
 
+-- #5285 A1 (phoneSmooth): a new account on a touch screen starts in Smooth mode, once the save's settings are in.
+local function autoStart()
+	task.spawn(function()
+		local untilAt = os.clock() + 30
+		while UIController.state == nil and os.clock() < untilAt do
+			task.wait(0.2)
+		end
+		local state: any = UIController.state
+		if state == nil then
+			return
+		end
+		task.wait(1) -- Review-QA: the settings sync from the state a moment later; read them once settled
+		local on = ReplicatedStorage:GetAttribute(
+			LiveFlags.ATTRIBUTE_PREFIX .. PerfSuggest.AUTO_FLAG
+		) == true
+		local newAccount = (state.tier or 1) <= 1
+			and (state.tutorialStep or math.huge) < Onboarding.NEW_PLAYER_STEP
+		if
+			PerfSuggest.autoStart(
+				on,
+				Scale.isTouch(),
+				newAccount,
+				UI.settings.value("lowPerformance"),
+				UI.settings.value(PerfSuggest.ASKED_KEY)
+			)
+		then
+			local ui: any = UI
+			ui.events.setSetting:Fire("lowPerformance", true)
+			ui.events.setSetting:Fire(PerfSuggest.ASKED_KEY, true)
+			report("auto")
+		end
+	end)
+end
+
 function PerfSuggestController.start()
+	autoStart()
 	local started = os.clock()
 	local run = 0
 	local asked = false

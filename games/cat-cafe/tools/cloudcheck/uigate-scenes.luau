@@ -2381,6 +2381,31 @@ local SCENES = {
 	end },
 	-- #4920 item 7: the grey rank-up button says what is missing. Its longest line, "Need 2 more Legendary+" (Tier 5
 	-- with every kind caught and no Legendary yet), fits the 260 px button on every screen
+	-- #5218 (switch rankUpSteps): numbered steps, cats first; the first unmet step has the only Go button, and the
+	-- grey button counts the steps left
+	{ "RankUpSteps", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_rankUpSteps", true)
+		UI.update({ money = 0 } :: any)
+		UI.open("RankUp")
+		UIShim.advance(0.2)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local root = modals and modals:FindFirstChild("Root")
+		local container = root and root:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("RankUp") :: GuiObject?
+		assert(window, "uigate: no Rank Up window (#5218)")
+		local gos = 0
+		for _, piece in (window :: Instance):GetDescendants() do
+			if piece.Name == "Go" and piece:IsA("GuiObject") then
+				gos += 1
+			end
+		end
+		assert(gos == 1, ("uigate: %d Go buttons on the steps, wanted 1 (#5218)"):format(gos))
+		local opens = (window :: Instance):FindFirstChild("OpensLabel", true) :: GuiObject?
+		assert(opens == nil or not opens.Visible, "uigate: It opens shows with rankUpSteps on (#5218)")
+		local needs = (window :: Instance):FindFirstChild("NeedsLabel", true) :: TextLabel?
+		assert(needs and string.find(needs.Text, "left", 1, true), "uigate: no steps left line (#5218)")
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_rankUpSteps", nil)
+	end },
 	{ "RankUpMissing", function()
 		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 		local tierDef = Catalog.getTier(5) :: any
@@ -3611,6 +3636,37 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(art.Parent and (art.Parent :: GuiObject).Visible, "uigate: the held ring went before the press (#2920)")
 		-- #4836: and the tutorial's big arrow points at the waiting ring (its ScreenGui ignores the top bar inset)
 		assertArrowAt(ring, "the held catch ring")
+	end },
+	-- #5285 E2: the wow first catch's "FIRST CATCH!" banner (Effects/FirstCatchWow) sits in the catch strip's spot at
+	-- the top middle, whole on screen, and its words fit
+	{ "FirstCatchWow", function()
+		local t = workspace:GetServerTimeNow()
+		local list = { { startsAt = t + 0.2, shrinkSeconds = 1.2, x = 0.5, y = 0.55 } }
+		UI.catch.show({ strayId = "gate_wow", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common" })
+		UI.catch.showCircles("gate_wow", list :: any, { perfect = 0.074, good = 0.18 })
+		UIShim.advance(0.3)
+		local Wow = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.FirstCatchWow")
+		local ScreenFx = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.ScreenFx")
+		local Presets = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.Presets")
+		local gui = ScreenFx.gui(Wow.GUI, Presets.firstCatchWow.displayOrder)
+		local banner = Wow.banner(gui)
+		Wow.show(banner, 1, true)
+		UIShim.advance(0.05)
+		local text = banner:FindFirstChild("Text") :: TextLabel
+		assert(text.Text == "FIRST CATCH!", "uigate: the wow banner reads " .. text.Text .. " (#5285)")
+		assert(text.TextFits ~= false, "uigate: FIRST CATCH! does not fit its banner (#5285)")
+		-- in the effects ScreenGui's own pixels (it ignores the top bar inset; ScreenFx's Origin measures that)
+		local screen = gui.AbsoluteSize
+		local at, size = ScreenFx.toGui(gui, banner.AbsolutePosition), banner.AbsoluteSize
+		assert(at.X >= 0 and at.Y >= 0 and at.X + size.X <= screen.X and at.Y + size.Y <= screen.Y,
+			"uigate: the FIRST CATCH! banner runs off the screen (#5285)")
+		assert(math.abs(at.X + size.X / 2 - screen.X / 2) <= 4, "uigate: the FIRST CATCH! banner is not centred (#5285)")
+		-- the catch strip's spot: its middle level with the strip's
+		local strip = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles"):FindFirstChild("Strip", true) :: Frame
+		local stripMid = ScreenFx.toGui(gui, strip.AbsolutePosition).Y + strip.AbsoluteSize.Y / 2
+		assert(math.abs(at.Y + size.Y / 2 - stripMid) <= 4, "uigate: the FIRST CATCH! banner is not in the catch strip's spot (#5285)")
+		assert(size.Y >= 30, "uigate: the FIRST CATCH! banner is under 30 px tall (#5285)")
+		banner:Destroy()
 	end },
 	-- #2871 (console): on a gamepad the catch line under the cat's name names A or R2
 	{ "GamepadCatchWords", function()

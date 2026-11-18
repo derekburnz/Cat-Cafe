@@ -11935,6 +11935,11 @@ function UI.parkRankPoint(catId: string)
 		return
 	end
 	point.done = true
+	-- Sync on nextGoalBeat: the dim held the "What next?" card for 11 s. With that card due as variant A (Rank Up not
+	-- ready), it says what Tier 3 needs itself, so the dim stands down; variant B still follows the dim.
+	if (UI :: any).nextGoal.takes(catId) then
+		return
+	end
 	task.spawn(function()
 		local started = os.clock()
 		local calmSince = -1 -- os.clock() since the screen has been calm, -1 while it is not
@@ -11995,20 +12000,58 @@ UI.nextGoal = {
 		return false
 	end) :: (rarity: string?) -> boolean,
 }
+-- What holds the card back now, or nil when the screen is calm. Sync on nextGoalBeat: 11 s of an empty screen held
+-- it, so the waiting loop writes this to the player's NextGoalWait attribute (this client only) for QA.
+function UI.nextGoal.why(): string?
+	local perks: any = UI.perks.card
+	return if modal ~= nil and modal:current() ~= nil
+		then "window"
+		elseif
+			popups ~= nil and popups:isShowing()
+		then "popup" -- Sync: the Cat found card, so the 8 s run in view
+		elseif baitCard ~= nil and baitCard:isShowing() then "baitCard"
+		elseif tipCard ~= nil and tipCard:isShowing() then "tipCard"
+		elseif askCard ~= nil and askCard:isShowing() then "askCard"
+		elseif UI.gift.card ~= nil and UI.gift.card:isShowing() then "giftCard"
+		elseif UI.recap.card ~= nil and UI.recap.card:isShowing() then "recapCard"
+		elseif not visible then "hidden"
+		elseif hud ~= nil and hud:isCatching() then "catching"
+		elseif state.carrying ~= nil then "carrying"
+		elseif UI.cutscene.held() or UI.cutscene.on then "cutscene"
+		elseif UI.rollBusy.held() or UI.rollBusy.on then "roll"
+		elseif UI.bait.busy() then "bait"
+		elseif perks ~= nil and perks:isShowing() then "perksCard"
+		elseif UI.parkPoint.close ~= parkPointIdle then "parkPoint"
+		else nil
+end
 function UI.nextGoal.busy(): boolean
-	return (modal ~= nil and modal:current() ~= nil)
-		or (baitCard ~= nil and baitCard:isShowing())
-		or (tipCard ~= nil and tipCard:isShowing())
-		or (askCard ~= nil and askCard:isShowing())
-		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
-		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
-		or not visible
-		or (hud ~= nil and hud:isCatching())
-		or state.carrying ~= nil
-		or UI.cutscene.held()
-		or UI.rollBusy.held()
-		or not UI.calmForMoment()
-		or UI.parkPoint.close ~= parkPointIdle
+	return UI.nextGoal.why() ~= nil
+end
+
+-- Whether try(catId) would show variant A now (the switch on, Tier 2, a Park cat, not yet seen, Rank Up not ready).
+function UI.nextGoal.takes(catId: string): boolean
+	local NextGoal =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("NextGoal")) :: any
+	local seen: { [string]: boolean }? = state.tipsSeen
+	if
+		UI.nextGoal.started
+		or (state.tier or 1) ~= 2
+		or seen == nil
+		or seen[NextGoal.SEEN] == true
+	then
+		return false
+	end
+	local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+	local def = Catalog.getCat(catId)
+	if def == nil or def.area ~= "park" then
+		return false
+	end
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	return LiveFlags.shown(
+		NextGoal.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NextGoal.FLAG)
+	) == true and not UI.autoRank.ready()
 end
 
 function UI.nextGoal.try(catId: string)
@@ -12051,11 +12094,14 @@ function UI.nextGoal.try(catId: string)
 			if not ready and waiting then
 				return
 			end
-			if waiting or UI.nextGoal.busy() then
+			local why = if waiting then "tier" else UI.nextGoal.why()
+			Players.LocalPlayer:SetAttribute("NextGoalWait", why or "calm")
+			if why ~= nil then
 				calmSince = -1
 			elseif calmSince < 0 then
 				calmSince = os.clock()
 			elseif os.clock() - calmSince >= NextGoal.CALM then
+				Players.LocalPlayer:SetAttribute("NextGoalWait", nil)
 				UI.nextGoal.open(ready)
 				return
 			end

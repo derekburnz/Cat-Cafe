@@ -667,7 +667,8 @@ local function pointNet(on: boolean)
 end
 
 -- #5202 (UI.nextGoal.guide): the trail to a stray of the rarity Tier 3 still needs, held for RARE_GUIDE_SECONDS
-local rareGuide = { target = nil :: BasePart?, untilAt = 0, line = "", label = "" }
+local rareGuide =
+	{ target = nil :: BasePart?, untilAt = 0, line = "", label = "", from = nil :: string? }
 local RARE_GUIDE_SECONDS = 30
 
 local function refreshTutorial(s: Types.PlayerState)
@@ -685,6 +686,13 @@ local function refreshTutorial(s: Types.PlayerState)
 		return
 	end
 	local rare = rareGuide.target
+	if
+		rare ~= nil
+		and rareGuide.label == "Cannon"
+		and (UI.cannon :: any).area ~= rareGuide.from
+	then
+		rare = nil -- a cannon pointer is done once they have flown
+	end
 	if
 		rare ~= nil
 		and os.clock() < rareGuide.untilAt
@@ -1065,14 +1073,23 @@ UI.nextGoal.guide = function(rarity: string?): boolean
 		refreshTutorial(s)
 		return true
 	end
-	if not newKindGoal(s) then
+	-- Sync on nextGoalBeat: at Tier 2 the five cats goal is often over (newKindGoal false), so this no longer waits
+	-- on it: the nearest new kind here, else the cannon on, held like the rarity trail
+	local where, target = newKindTarget(s)
+	if target == nil then
 		return false
 	end
-	newKind.idleSince = -math.huge
-	newKind.shownAt = nil
-	newKind.shownKinds = nil
+	rareGuide.target = target
+	rareGuide.untilAt = os.clock() + RARE_GUIDE_SECONDS
+	local line: string = if where == "stray"
+		then NewKind.LINE
+		elseif where == "next" then NewKind.NEXT_AREA
+		else "Take the cannon to catch new kinds of cat"
+	rareGuide.line = line
+	rareGuide.label = if where == "stray" then NewKind.LABEL else "Cannon"
+	rareGuide.from = (UI.cannon :: any).area
 	refreshTutorial(s)
-	return newKind.target ~= nil
+	return true
 end
 
 -- #3995: watches for the joiner's first step inside their own cafe, then puts the strip back to the tutorial's own

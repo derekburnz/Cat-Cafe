@@ -8,7 +8,8 @@
 -- It never overlaps anything: it waits for the player to be free for SETTLE seconds, with no cutscene or quiet hold,
 -- no intro, no station cut, no flight or carry, no catch circles, no open window, no card (bowl, pop-up, perk, rare
 -- reveal), no banner across the top and no tutorial glow (the Rank Up walk-through, the Cannon point and the like).
--- A player who never gets free in FREE_MOST seconds still gets their companion, with a toast.
+-- It waits for the next check-in after the rank up (the first Park catch) or SESSION_AFTER seconds into the session
+-- first (Design-Agent). A player who never gets free in FREE_MOST seconds still gets their companion and the card.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -39,6 +40,8 @@ local AREA_TITLE = "CatCafeAreaTitle" -- UI Screens/AreaTitle
 local CUT = "CompanionUnlockCut" -- Motion-FX's Effects module, looked for by name so neither PR waits on the other
 
 local started = false
+local startedAt = os.clock() -- the session start, near enough (the controller starts at join)
+local SESSION_AFTER = 180
 local GLOW_EVERY = 1
 local glowLookedAt, glowSeen = -math.huge, false
 local asked = false
@@ -245,6 +248,16 @@ local function ranked(tier: number)
 	asked = true
 	task.spawn(function()
 		task.wait(LATE)
+		-- Design-Agent (first-90s spec): not straight after the rank up, which puts it between the player and the Park
+		-- inside the first 90 s; after the next check-in (the first Park catch) or SESSION_AFTER into the session
+		local checkedIn = false
+		local link = Moments.CheckIn:Connect(function()
+			checkedIn = true
+		end)
+		while not checkedIn and os.clock() - startedAt < SESSION_AFTER do
+			task.wait(POLL)
+		end
+		link:Disconnect()
 		local ready = waitFree()
 		local now = UIController.state
 		local uid = CompanionScene.pick(if now ~= nil then now.cats :: any else nil)
@@ -313,6 +326,7 @@ function CompanionSceneController.start()
 		return
 	end
 	started = true
+	startedAt = os.clock()
 	Moments.RankUp:Connect(ranked)
 end
 

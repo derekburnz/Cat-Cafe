@@ -653,11 +653,35 @@ function applyTutorial()
 			and CannonLogic.isFirstFlight(hint)
 			and order.bowlFirst()
 			and not inReach
+		-- #5245 (Derek 2026-11-18: "after the tame screen and nice is clicked the screen should dim and point towards
+		-- cannon button so people click cannon button"; switch tameCannonPoint): at Tier 1, once the first bowl cat is
+		-- tamed and its card is gone, the Cannon button is lit until it is pressed, wherever the player stands
+		if
+			not first
+			and not introPending
+			and ReplicatedStorage:GetAttribute("LiveFlag_tameCannonPoint") == true
+			and (state.tier or 1) <= 1
+			and not cannonLaunched
+		then
+			local stats: any = (state :: any).stats or {}
+			first = (stats.baitsTamed or 0) >= 1
+				and not (popups ~= nil and popups:isShowing())
+				and (baitCard == nil or not baitCard:isShowing())
+				and not UI.cutscene.on
+		end
 		local board: any = hud
 		board:pointCannon(first == true)
 	end
 	if introScreen ~= nil and introScreen:playing() then
 		return -- the marker and trail come back when the intro ends
+	end
+	-- #5248 (Derek 2026-11-18: "sometimes when flying it still showing a floating arrow"; switch parkLead): no marker
+	-- in the clouds or as the player lands; UI.cannon.flight looks again once the hold is over
+	if
+		os.clock() < tipsHeldUntil
+		and ReplicatedStorage:GetAttribute("LiveFlag_parkLead") == true
+	then
+		target = nil
 	end
 	if tutorialMarker then
 		if target ~= nil then
@@ -4651,6 +4675,12 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		UI.cannon.wrapUp.on = false
 		applyTutorial()
 		UI.cannon.clearFly() -- #2915: a flight ends "Fly to the Park" and its ring
+		-- #5248: the marker hidden for the flight comes back once it is over
+		task.delay(math.max(0, tipsHeldUntil - os.clock()) + 0.1, function()
+			if hud ~= nil then
+				applyTutorial()
+			end
+		end)
 	end
 	local name = CannonLogic.TOWN_NAME
 	for _, area in catalogAreas() do

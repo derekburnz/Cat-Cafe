@@ -302,6 +302,10 @@ export type CustomEvent =
 	| "event_rsvp" -- #2766
 	| "return_hook_early_shown" -- #4626
 	| "tomorrow_card" -- #3951: the come back tomorrow card, value 1; its outcome (ReturnHook.CARD_OUTCOMES), the device
+	-- #5202 (nextGoalBeat): the "What next?" card, value 1, each once a session; the variant (A or B) or the target
+	-- (cats, cafe or closed), the tier and the device
+	| "next_goal_shown"
+	| "next_goal_tap"
 	| "screen_short" -- #2913: the viewport's short side once a session, SCREEN_SHORTS
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
@@ -582,6 +586,7 @@ local REPORTS = {
 	PerfWatch.READY, -- #4783: seconds from the client's first script line to the world ready (client_load), once
 	PerfWatch.FPS, -- #4783: the average fps up to a mark (PerfWatch.encode), once a mark a session (client_fps)
 	"fx_lite", -- #4945: the lighter effects budget tripped, seconds x 100 + fps (Effects Logic.liteReport), once
+	"next_goal", -- #5202: the "What next?" card shown (A or B) or tapped (cats, cafe or closed), shared/NextGoal
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -2507,6 +2512,24 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		then
 			session.nudges["return_hook_early"] = true
 			Telemetry.custom(player, "return_hook_early_shown", 1, { kind })
+		end
+	elseif name == "next_goal" then
+		-- #5202: each once a session, with the switch on
+		local NextGoal = require(ReplicatedStorage.Shared.NextGoal) :: any
+		local kind, value = NextGoal.decode(rawValue)
+		local key = if kind ~= nil then "next_goal:" .. kind .. ":" .. tostring(value) else nil
+		if key ~= nil and LiveFlagService.on(NextGoal.FLAG) and not session.nudges[key] then
+			session.nudges[key] = true -- the stuck nudges' once-a-session set, keyed apart
+			local event: CustomEvent = "next_goal_tap"
+			if kind == "shown" then
+				event = "next_goal_shown"
+			end
+			Telemetry.custom(
+				player,
+				event,
+				1,
+				{ tostring(value), tierText(profile), session.device or "unknown" }
+			)
 		end
 	elseif name == "tomorrow_card" then
 		-- #3951: each outcome once a session, with the switch on

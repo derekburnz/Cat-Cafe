@@ -292,6 +292,7 @@ UI.events = {
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
 	returnHookEarly = Signal.new(), -- (kind)   #4626: the minute 6 "come back tomorrow" line showed: forward as TelemetryReport("return_hook_early", kind)
 	tomorrowCard = Signal.new(), -- (outcome)   #3951: the come back tomorrow card: forward as TelemetryReport("tomorrow_card", outcome)
+	nextGoal = Signal.new(), -- (value)   #5202: shared/NextGoal.encode's "shown:A" and the like: forward as TelemetryReport("next_goal", value)
 	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
 	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
@@ -11979,6 +11980,159 @@ function UI.parkRankPoint(catId: string)
 		end
 		done()
 	end)
+end
+
+-- #5202 (shared/NextGoal, nextGoalBeat switch): once per account, after the first Park cat is checked in, a
+-- "What next?" slide-in card with Collect cats and Build up your cafe, at the first calm NextGoal.CALM seconds (no
+-- window, card, ask, catch, carry, cutscene, roll or the parkRankPoint dim; the 5 minute pop-up pace does not hold
+-- it, so it follows the like ask). Rank Up not ready: variant A with what Tier 3 still needs. Ready: it waits for
+-- Tier 3 (parkRankPoint points at the goal card first), then variant B. Collect cats opens the Index on the Park
+-- page (A) or the Index (B); Build up your cafe opens the upgrade shop (A) or rings the goal card (B).
+UI.nextGoal = { started = false }
+function UI.nextGoal.busy(): boolean
+	return (modal ~= nil and modal:current() ~= nil)
+		or (baitCard ~= nil and baitCard:isShowing())
+		or (tipCard ~= nil and tipCard:isShowing())
+		or (askCard ~= nil and askCard:isShowing())
+		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
+		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
+		or not visible
+		or (hud ~= nil and hud:isCatching())
+		or state.carrying ~= nil
+		or UI.cutscene.held()
+		or UI.rollBusy.held()
+		or not UI.calmForMoment()
+		or UI.parkPoint.close ~= parkPointIdle
+end
+
+function UI.nextGoal.try(catId: string)
+	local NextGoal =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("NextGoal")) :: any
+	local goal = UI.nextGoal
+	if goal.started or (state.tier or 1) ~= 2 then
+		return
+	end
+	local seen: { [string]: boolean }? = state.tipsSeen
+	if seen == nil or seen[NextGoal.SEEN] == true then
+		return
+	end
+	local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+	local def = Catalog.getCat(catId)
+	if def == nil or def.area ~= "park" then
+		return
+	end
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	if
+		not LiveFlags.shown(
+			NextGoal.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NextGoal.FLAG)
+		)
+	then
+		return
+	end
+	goal.started = true
+	task.spawn(function()
+		local ready = UI.autoRank.ready()
+		local started = os.clock()
+		local limit = if ready then NextGoal.WAIT_B else NextGoal.WAIT_A
+		local calmSince = -1
+		while os.clock() - started < limit do
+			task.wait(0.25)
+			-- variant B waits for Tier 3; variant A gives up if they rank up first (the goal moved on)
+			local tier = state.tier or 1
+			local waiting = if ready then tier < 3 else tier ~= 2
+			if not ready and waiting then
+				return
+			end
+			if waiting or UI.nextGoal.busy() then
+				calmSince = -1
+			elseif calmSince < 0 then
+				calmSince = os.clock()
+			elseif os.clock() - calmSince >= NextGoal.CALM then
+				UI.nextGoal.open(ready)
+				return
+			end
+		end
+	end)
+end
+
+-- The card now (UI.nextGoal.try's calm moment, or QA): `after` true is variant B.
+function UI.nextGoal.open(after: boolean)
+	local card = askCard
+	if card == nil then
+		return
+	end
+	local NextGoal =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("NextGoal")) :: any
+	local needs: any = nil
+	if not after then
+		local GoalLines = require(script.Components.GoalLines) :: any
+		local RankUpNeeds = require(script.Components.RankUpNeeds) :: any
+		local nextTier = if currentCatalog ~= nil
+			then GoalLines.nextTier(currentCatalog.tiers, state.tier or 1)
+			else nil
+		needs = if nextTier ~= nil then RankUpNeeds.of(nextTier, state :: any) else nil
+	end
+	local view = NextGoal.card(needs, Format.money)
+	UI.events.tipSeen:Fire(NextGoal.SEEN)
+	UI.events.nextGoal:Fire(NextGoal.encode("shown", view.variant))
+	local tapped = false
+	local function tap(target: string)
+		if tapped then
+			return
+		end
+		tapped = true
+		UI.events.nextGoal:Fire(NextGoal.encode("tap", target))
+	end
+	card:show({
+		title = NextGoal.TITLE,
+		line = view.line,
+		seconds = NextGoal.SECONDS,
+		choices = {
+			{
+				id = "cats",
+				label = NextGoal.CATS,
+				style = if view.first == "cats" then "primary" else "ghost",
+			},
+			{
+				id = "cafe",
+				label = NextGoal.CAFE,
+				style = if view.first == "cafe" then "primary" else "ghost",
+			},
+		},
+		answer = function(choice: string?)
+			if choice == "cats" then
+				tap("cats")
+				if view.variant == "A" then
+					UI.openIndex("park")
+				else
+					UI.open("Collection")
+				end
+			elseif choice == "cafe" then
+				tap("cafe")
+				if view.variant == "A" then
+					UI.open("Upgrades")
+				else
+					local target = if hud ~= nil then (hud :: any):goalButton() else nil
+					if target ~= nil then
+						local ring = { close = function() end }
+						ring.close = SpotlightGuide.show(target, "Rank up for new areas", function()
+							ring.close()
+						end, true, true)
+						task.delay(NextGoal.SECONDS, function()
+							ring.close()
+						end)
+					end
+				end
+			end
+		end,
+		ended = function(how: string)
+			if how == "closed" then
+				tap("closed")
+			end
+		end,
+	})
 end
 
 -- #4924 (Derek 2026-11-16: "when its ready pull the rankup screen into their screen to click"): the Rank Up window

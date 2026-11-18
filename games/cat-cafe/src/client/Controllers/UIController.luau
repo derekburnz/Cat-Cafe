@@ -2265,6 +2265,12 @@ local function wireIntents()
 		events.tomorrowCard:Connect(function(outcome: string)
 			Net.fire("TelemetryReport", "tomorrow_card", outcome)
 		end)
+		-- #5202: the "What next?" card's shown and tap reports (shared/NextGoal)
+		events.nextGoal:Connect(function(value: string?)
+			if value ~= nil then
+				Net.fire("TelemetryReport", "next_goal", value)
+			end
+		end)
 	end
 	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both
 	if events.sessionRecap ~= nil then
@@ -3180,6 +3186,7 @@ local function wireServerEvents()
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
 		UI.parkRankPoint(catId) -- #5163: the first Park check-in at Tier 2 points at the goal card (parkRankPoint)
+		UI.nextGoal.try(catId) -- #5202: and once per account a "What next?" card (nextGoalBeat)
 	end)
 	-- The Cafe Pass (#1645, #1646): the season, level, XP and claims, at join, after each claim and at a season roll.
 	Net.on("CafePassState", function(view: Types.CafePassView)

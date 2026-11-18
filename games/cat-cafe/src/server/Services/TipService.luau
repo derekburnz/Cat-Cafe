@@ -235,6 +235,11 @@ local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown, ra
 		end
 		return
 	end
+	-- #5202 (nextGoalBeat): the "What next?" card showed; kept once an account, logged by its own report
+	if id == Tips.NEXT_GOAL then
+		profile.tipsSeen[Tips.NEXT_GOAL] = true
+		return
+	end
 	if Tips.isAsk(id) then
 		-- only an ask this session sent, so a client cannot log or put one away at will
 		if wasSent and profile.tipsSeen[id] ~= true then

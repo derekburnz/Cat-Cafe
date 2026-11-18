@@ -72,6 +72,8 @@ Tips.LIKE_ASK = "like_ask"
 -- #5152 (Derek 2026-11-17: 400+ favourites, 47 likes): the like ask's one follow up, a line on the exit recap card
 -- after the early like card was closed with its X. Kept like the asks, never cleared; never a card of its own.
 Tips.LIKE_RECAP = "like_recap"
+-- #5202 (shared/NextGoal.SEEN): the "What next?" card after the first Park catch showed. Kept like the asks.
+Tips.NEXT_GOAL = "next_goal"
 Tips.LIKE_EARLY_FLAG = "likeAskEarly" -- shared/LiveFlags
 Tips.LIKE_EARLY_SECONDS = 10 * 60 -- the early like ask waits for this much play on the account
 Tips.FAVORITE_ASK = "favorite_ask" -- F96
@@ -124,6 +126,7 @@ function Tips.seenId(id: string): boolean
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
 		or StationCut.isKey(id) -- #5112: a rank up's station cut, played once
 		or id == Tips.LIKE_RECAP -- #5152
+		or id == Tips.NEXT_GOAL -- #5202
 end
 
 -- #3430: whether the Mystic Pool's cutscene is due at a walk-up: the pool is open to this player (`traits` is the
@@ -325,6 +328,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 					or StationReveal.isKey(key)
 					or StationCut.isKey(key) -- #5112
 					or key == Tips.LIKE_RECAP -- #5152
+					or key == Tips.NEXT_GOAL -- #5202
 				)
 			then
 				seen[key] = true
@@ -361,6 +365,9 @@ function Tips.cleared(seen: { [string]: boolean }): { [string]: boolean }
 	end
 	if seen[Tips.LIKE_RECAP] == true then
 		kept[Tips.LIKE_RECAP] = true -- #5152: the like ask's follow up, once per account
+	end
+	if seen[Tips.NEXT_GOAL] == true then
+		kept[Tips.NEXT_GOAL] = true -- #5202: the "What next?" card, once per account
 	end
 	return kept
 end

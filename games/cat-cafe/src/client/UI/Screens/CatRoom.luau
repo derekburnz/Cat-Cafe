@@ -311,6 +311,43 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	})
 	Outline.border(search, Theme.sizes.stroke, PAL.cardStroke)
 	self._search = search
+	self._searchFixedW = fixedW
+	-- Derek 2026-11-18 ("it should be like a partner square in the cats menu where you can pick it from"; switch
+	-- catFollower): a square left of the search shows the cat following the player (a paw with none). A press asks for
+	-- a cat: the next cat tapped follows. A press again while asking stops asking.
+	local partner: TextButton = Create("TextButton", {
+		Name = "PartnerSquare",
+		AutoButtonColor = true,
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(TOOL_H, TOOL_H),
+		Text = "🐾",
+		TextSize = Theme.sizes.textBody,
+		FontFace = Theme.fonts.body,
+		TextColor3 = PAL.text,
+		Visible = false,
+		Parent = toolbar,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+	})
+	self._partnerStroke = Outline.border(partner, Theme.sizes.stroke, PAL.cardStroke)
+	self._partner = partner
+	self._partnerArt = CatPortrait.new({
+		parent = partner,
+		size = UDim2.new(1, -6, 1, -6),
+		anchorPoint = Vector2.new(0.5, 0.5),
+		position = UDim2.fromScale(0.5, 0.5),
+		still = true,
+		zIndex = 2,
+	})
+	self._partnerCat = nil :: string?
+	self._partnerPick = false
+	table.insert(
+		self._connections,
+		partner.Activated:Connect(function()
+			self:_pressPartner()
+		end)
+	)
 	table.insert(
 		self._connections,
 		search:GetPropertyChangedSignal("Text"):Connect(function()
@@ -1310,7 +1347,30 @@ function CatRoom._layout(self: any)
 	self:_refresh()
 end
 
+-- The partner square (Derek 2026-11-18): asks for a cat to follow, or stops asking.
+function CatRoom._pressPartner(self: any)
+	if self:_followerView() == nil then
+		return
+	end
+	self._partnerPick = not self._partnerPick
+	if self._partnerPick then
+		self:_say("Tap a cat to make it your partner", true)
+	else
+		self._notice = nil
+	end
+	self:_refresh()
+end
+
 function CatRoom._select(self: any, uid: string?)
+	-- the partner square asked for a cat: the one tapped follows the player
+	if self._partnerPick and uid ~= nil then
+		self._partnerPick = false
+		local view = self:_followerView()
+		if view ~= nil and view.uid ~= uid then
+			self._callbacks.setFollower(uid)
+			self:_say("Now following you!", true)
+		end
+	end
 	if self._selected ~= uid or self._compact then
 		-- on a phone a tap on the cat again also ends Assign, so its sheet comes back
 		self._placing = false
@@ -1576,6 +1636,29 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	local followView = self:_followerView()
 	if followView == nil and self._sort == "Boost" then
 		self._sort = "Best"
+	end
+	-- the partner square, while the follower slot is open; the search makes room for it
+	local partner: TextButton = self._partner
+	partner.Visible = followView ~= nil
+	local room = if followView ~= nil then TOOL_H + GAP else 0
+	self._search.Position = UDim2.fromOffset(room, 0)
+	self._search.Size = UDim2.new(1, -self._searchFixedW - room, 0, TOOL_H)
+	if followView == nil then
+		self._partnerPick = false
+	else
+		local followUid: string? = followView.uid
+		local followCat = if followUid ~= nil then cats[followUid] else nil
+		local followDef = if followCat ~= nil then self._catById[followCat.catId] else nil
+		local key = if followCat ~= nil then followCat.uid else ""
+		if self._partnerCat ~= key then
+			self._partnerCat = key
+			self._partnerArt:set(followDef, followCat ~= nil and followCat.variant == "gold")
+		end
+		partner.Text = if followDef ~= nil then "" else "🐾"
+		local stroke: any = self._partnerStroke
+		if stroke ~= nil then
+			stroke.Color = if self._partnerPick then Theme.colors.gold else PAL.cardStroke
+		end
 	end
 	local boostChoice = self._sortChoices.Boost
 	if boostChoice then

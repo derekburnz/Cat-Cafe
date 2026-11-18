@@ -4,13 +4,13 @@ Derek2: "go through lots of simple plain looking images for ui/buttons and make 
 
 | Icon | rbxassetid | Used by |
 |---|---|---|
-| Icon_Clean_Tables | 78752964799899 | Upgrades: Tables (ShopIcons.upgrade) |
-| Icon_Clean_Espresso | 75462239871153 | Upgrades: Espresso |
-| Icon_Clean_Net | 107635112477250 | not wired: the Net row keeps its per-level Net_L pictures |
-| Icon_Clean_LureBowl | 125008235885167 | Upgrades: Bait bowl |
-| Icon_Clean_LuckyCat | 130158950733679 | Upgrades: Lucky cat |
-| Icon_Clean_Barista | 88726552754770 | Roles (ShopIcons.role) |
-| Icon_Clean_Waiter | 122492899176267 | Roles |
-| Icon_Clean_Greeter | 107746555479783 | Roles |
-| Icon_Clean_Entertainer | 79258683838050 | Roles |
-| Icon_Clean_Spa | 90117647745743 | Oasis Spa card badge |
+| Icon_Clean_Tables | 88983370624792 | Upgrades: Tables (ShopIcons.upgrade) |
+| Icon_Clean_Espresso | 117201077548202 | Upgrades: Espresso |
+| Icon_Clean_Net | 94499600283073 | not wired: the Net row keeps its per-level Net_L pictures |
+| Icon_Clean_LureBowl | 97668058355292 | Upgrades: Bait bowl |
+| Icon_Clean_LuckyCat | 125074618745259 | Upgrades: Lucky cat |
+| Icon_Clean_Barista | 119859422367172 | Roles (ShopIcons.role) |
+| Icon_Clean_Waiter | 137711484467749 | Roles |
+| Icon_Clean_Greeter | 130252006773919 | Roles |
+| Icon_Clean_Entertainer | 75995006159440 | Roles |
+| Icon_Clean_Spa | 90711706325777 | Oasis Spa card badge |

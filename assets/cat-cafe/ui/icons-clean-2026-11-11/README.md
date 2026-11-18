@@ -7,17 +7,17 @@ Grand style, which share its 🏛️ glyph.
 
 | Icon | rbxassetid |
 |---|---|
-| Icon_Clean_Park | 130402303377210 |
-| Icon_Clean_Neighbourhood | 81559978948079 |
-| Icon_Clean_Woods | 88100194069700 |
-| Icon_Clean_Sewer | 73407312338999 |
-| Icon_Clean_Desert | 105252509632683 |
-| Icon_Clean_Ruins | 117006304300316 |
-| Icon_Clean_Town | 84240054469741 |
+| Icon_Clean_Park | 115925581562013 |
+| Icon_Clean_Neighbourhood | 132176329816133 |
+| Icon_Clean_Woods | 72221815479974 |
+| Icon_Clean_Sewer | 99119698709458 |
+| Icon_Clean_Desert | 89728254182051 |
+| Icon_Clean_Ruins | 110804041023530 |
+| Icon_Clean_Town | 133511366710891 |
 
 Uploaded with `upload-image.yml` run 42937300084 from `friend/icons-batch2`.
-| Icon_Clean_Moon | 113770680051546 (batch 3, run 42938004143) |
-| Icon_Clean_Unlock | 96025123745905 (batch 3, run 42938004143) |
+| Icon_Clean_Moon | 83300993463004 (batch 3, run 42938004143) |
+| Icon_Clean_Unlock | 129908896970192 (batch 3, run 42938004143) |
 
 ## Batch 4 (2026-11-11, #3347): the station ring cards
 

@@ -12,6 +12,9 @@ Card pictures for the F84 cannon picker and the Areas screen, 512 x 256 PNG each
 | `Area_town.png` | Town Square | `rbxassetid://95556560149882` |
 | `Area_desert.png` | Desert | `rbxassetid://78191788809166` |
 | `Area_ruins.png` | Ruins | `rbxassetid://76447908818587` |
-| `Area_snowy.png` | Snowy Mountain | `rbxassetid://78221826396063` |
-| `Area_waterpark.png` | Water Park | `rbxassetid://99110201209726` |
-| `Area_castle.png` | Medieval Castle | `rbxassetid://101068487529770` |
+| `Area_snowy.png` | Snowy Mountain | `rbxassetid://104828732421649` |
+| `Area_waterpark.png` | Water Park | `rbxassetid://85072898707519` |
+| `Area_castle.png` | Medieval Castle | `rbxassetid://135433305849134` |
+| `Area_harvest.png` | Harvest Hollow | `rbxassetid://99559086501127` |
+
+Nov 18: Castle, Snowy and Water Park were on Derek's account, not the group, so they did not load; re-uploaded group owned. Harvest Hollow added the same day. Always upload with owner group.

@@ -10947,10 +10947,15 @@ do
 		local flags =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		local config: any = Config
+		-- #5263: and is gone while bowlTicks is on (the Second Bait Bowl pass gives the auto ticks then)
 		if
 			not flags.shown(
 				"autoBowl",
 				ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "autoBowl")
+			)
+			or flags.shown(
+				"bowlTicks",
+				ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "bowlTicks")
 			)
 		then
 			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })

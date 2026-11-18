@@ -47,4 +47,16 @@ return function()
 			expect(Settings.clean(AutoBowl.KEYS.claim, "yes")).to.equal(nil)
 		end)
 	end)
+	describe("owner (#5263 bowlTicks)", function()
+		it(
+			"is the Auto Bowl pass, or the 2nd Bowl pass only with bowlTicks known and on",
+			function()
+				expect(AutoBowl.owner(true, false, false, false)).to.equal(true)
+				expect(AutoBowl.owner(false, true, false, false)).to.equal(false)
+				expect(AutoBowl.owner(false, true, true, false)).to.equal(false)
+				expect(AutoBowl.owner(false, true, true, true)).to.equal(true)
+				expect(AutoBowl.owner(false, false, true, true)).to.equal(false)
+			end
+		)
+	end)
 end

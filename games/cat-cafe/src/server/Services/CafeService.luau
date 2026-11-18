@@ -379,7 +379,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bait = baitView(profile, now, 1),
 		bait2 = baitView(profile, now, 2), -- #1161: sent while food is in it, even after the pass went, so it can be emptied
 		secondBowl = CafeService.secondBowl(player, profile),
-		autoBowl = { owned = PassService.owns(player, AutoBowl.passId()) }, -- #4266
+		autoBowl = { owned = PassService.ownsAutoBowl(player) }, -- #4266; #5263: or the 2nd Bowl pass with bowlTicks
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
@@ -2665,7 +2665,7 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	-- #4266: the Auto Bowl switches change only for a pass owner
 	if
 		(rawKey == AutoBowl.KEYS.claim or rawKey == AutoBowl.KEYS.refill)
-		and not PassService.owns(player, AutoBowl.passId())
+		and not PassService.ownsAutoBowl(player) -- #5263: the 2nd Bowl pass too, with bowlTicks
 	then
 		return
 	end

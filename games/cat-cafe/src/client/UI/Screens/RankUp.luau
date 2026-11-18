@@ -103,6 +103,17 @@ local BUTTON = Vector2.new(260, 52)
 local LIST_TOP = 58
 local LIST_H = 3 * ROW_HEIGHT + 2 * Theme.sizes.gap
 local OPENS_TOP = LIST_TOP + LIST_H + 10 -- the tall window's "It opens", under the requirements
+-- #5258 (Derek 2026-11-18: "remove the it opens area of the rank up menu"): with the switch `noRankOpens` on, the
+-- window has no "It opens" section (no label, perk teaser or cards). It is one column, as tall as the needs and the
+-- button take, on every screen: TALL less the section's 128 px (its label, teaser and cards), no taller than the room.
+RankUp.NO_OPENS_FLAG = "noRankOpens"
+local BARE_HEIGHT = TALL.Y - 128
+local function bare(): boolean
+	return LiveFlags.shown(
+		RankUp.NO_OPENS_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankUp.NO_OPENS_FLAG)
+	)
+end
 local TEASER_TALL = 20 -- #2687: the perk teaser's one line in the tall window
 local TEASER_WIDE = 38 -- and its two in the wide window's narrower column
 local PERKS_BUTTON = Vector2.new(112, 36) -- #2687: the title bar's Perks button, a 36 px face on a mouse
@@ -331,6 +342,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	self.frame = panel.frame
 	local content = panel.content
 	self._wide = nil :: boolean?
+	self._bare = nil :: boolean? -- #5258: whether the window was last fitted without "It opens"
 	self._room = nil :: RBXScriptConnection?
 
 	self._nextTitle = text({
@@ -529,15 +541,18 @@ function RankUp._fit(self: any)
 	if room.Y <= 0 then
 		return
 	end
-	local wide = room.Y < TALL.Y
-	local size = if wide
-		then Vector2.new(math.min(WIDE.X, room.X), math.min(WIDE.Y, room.Y))
+	local noOpens = bare()
+	local wide = not noOpens and room.Y < TALL.Y
+	local size = if noOpens
+		then Vector2.new(math.min(TALL.X, room.X), math.min(BARE_HEIGHT, room.Y))
+		elseif wide then Vector2.new(math.min(WIDE.X, room.X), math.min(WIDE.Y, room.Y))
 		else TALL
 	self.frame.Size = UDim2.fromOffset(math.floor(size.X), math.floor(size.Y))
-	if self._wide == wide then
+	if self._wide == wide and self._bare == noOpens then
 		return
 	end
 	self._wide = wide
+	self._bare = noOpens
 	local half = Theme.sizes.gap / 2
 	local left = if wide then UDim.new(LEFT, -half) else UDim.new(1, 0)
 	self._nextTitle.Size = UDim2.new(left, UDim.new(0, 30))
@@ -729,12 +744,17 @@ function RankUp.render(self: any, state: Types.PlayerState)
 			CafeGrewLogic.LINE
 		)
 		else "To rank up you need"
-	self._opensLabel.Visible = true
+	-- #5258: with noRankOpens on, no "It opens" section; a flip of the switch fits the window again
+	local noOpens = bare()
+	if noOpens ~= self._bare then
+		self:_fit()
+	end
+	self._opensLabel.Visible = not noOpens
 	local teaser = PerkCardLogic.teaser(progress.tier, PerkCardLogic.poolStands())
 	self._teaser.Text = teaser or ""
-	self._teaser.Visible = teaser ~= nil
-	self._opens.Text = table.concat(progress.opens, "\n")
-	self:_fillOpens(progress.opens)
+	self._teaser.Visible = teaser ~= nil and not noOpens
+	self._opens.Text = if noOpens then "" else table.concat(progress.opens, "\n")
+	self:_fillOpens(if noOpens then {} else progress.opens)
 	self._button.instance.Visible = true
 	-- #2915: a ready rank up wins over "Fly to the Park"
 	local fly: string? = if progress.ready then nil else self._fly

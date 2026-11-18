@@ -5155,6 +5155,46 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assertAutoRoom(window, card)
 	end },
+	-- #5263 (Derek 2026-11-18): with bowlTicks on, BOWL OPTIONS for everyone: Auto refill and Auto claim locked without
+	-- the Second Bait Bowl pass (a tap asks to buy it, nothing changes), No new cat pop-ups free and unticked
+	{ "BaitTicksLocked", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_bowlTicks", true)
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local card = window:FindFirstChild("AutoBowl", true) :: GuiObject
+		assert(card and card.Visible, "uigate: no Bowl options card with bowlTicks on (#5263)")
+		for _, name in { "AutoClaim", "AutoRefill" } do
+			local row = card:FindFirstChild(name .. "Row", true) :: GuiObject
+			local box = row and row:FindFirstChild(name, true)
+			assert(row and row.Visible and box, "uigate: no " .. name .. " tick (#5263)")
+			assert(box:GetAttribute("Locked") == true, "uigate: " .. name .. " is not locked without the pass")
+		end
+		local popups = card:FindFirstChild("NewCatPopups", true) :: Instance
+		assert(popups:GetAttribute("Locked") == false, "uigate: No new cat pop-ups is locked (it is free)")
+		assert(popups:GetAttribute("On") == false, "uigate: No new cat pop-ups starts ticked")
+		press("Bait", "AutoClaimRow.AutoClaim")
+		local claim = card:FindFirstChild("AutoClaim", true) :: Instance
+		assert(claim:GetAttribute("Locked") == true, "uigate: a locked tick changed on a tap")
+		press("Bait", "NewCatPopupsRow.NewCatPopups")
+		assert(popups:GetAttribute("On") == true, "uigate: No new cat pop-ups did not tick")
+		assertAutoRoom(window, card)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_bowlTicks", nil)
+	end },
+	{ "BaitTicksOwned", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_bowlTicks", true)
+		UI.update({ autoBowl = { owned = true } } :: any)
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local card = window:FindFirstChild("AutoBowl", true) :: GuiObject
+		assert(card and card.Visible, "uigate: no Bowl options card for an owner (#5263)")
+		for _, name in { "AutoClaim", "AutoRefill" } do
+			local box = card:FindFirstChild(name, true) :: Instance
+			assert(box:GetAttribute("Locked") == false, "uigate: " .. name .. " locked for an owner")
+			assert(box:GetAttribute("On") == true, "uigate: " .. name .. " starts unticked for an owner")
+		end
+		assertAutoRoom(window, card)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_bowlTicks", nil)
+	end },
 	-- #4266: with the pass, AUTO BOWL's three switches, all on; a tap turns one off and keeps it through a stale sync
 	{ "BaitAutoOwned", function()
 		autoBowlOn()

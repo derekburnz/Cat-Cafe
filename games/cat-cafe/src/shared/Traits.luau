@@ -67,7 +67,15 @@ Traits.BUNDLES = table.freeze({
 
 export type Trait = { id: string }
 
-export type Kind = "income" | "nightIncome" | "xp" | "bowlLuck" | "speed" | "rareCustomer"
+export type Kind =
+	"income"
+	| "nightIncome"
+	| "xp"
+	| "bowlLuck"
+	| "speed"
+	| "rareCustomer"
+	| "companionMoney" -- #5303
+	| "companionLuck" -- #5303
 
 export type Rarity = {
 	id: string,
@@ -201,6 +209,22 @@ Traits.KINDS = {
 		best = 2,
 		cap = 0.40,
 		what = "rare customer chance",
+		studs = false,
+	},
+	-- #5303 (companionTraits): added to this cat's Cat Companion boosts, only while it follows you (shared/Follower);
+	-- Money in percentage points, Luck in Luck (still at most LuckMax). The coat multiplies the base boost only.
+	companionMoney = {
+		cafe = false,
+		best = 1,
+		cap = math.huge,
+		what = "Companion Money (while following you)",
+		studs = false,
+	},
+	companionLuck = {
+		cafe = false,
+		best = 1,
+		cap = math.huge,
+		what = "Companion Luck (while following you)",
 		studs = false,
 	},
 } :: { [Kind]: KindInfo }
@@ -338,16 +362,104 @@ table.insert(
 )
 Traits.LIST = list
 
+-- #5303 (Derek 2026-11-18 17:17 UTC: "make new traits ... that effect companion bonuses", Design's companion-traits
+-- spec): behind the switch `companionTraits` (LiveFlags.OFF_BY_DEFAULT; shared/CompanionTraits follows it and calls
+-- setCompanion). While on, these join their rarity's even pick (the rarity odds do not change) and Eclipse gains both
+-- companion kinds at the highest amount. Their ids are always known (get, sanitize), so a saved one survives the
+-- switch going off; its companion part then gives nothing (Follower reads companionOn).
+Traits.COMPANION_FLAG = "companionTraits"
+local companionList: { Def } = {}
+for i, rarity in { COMMON, UNCOMMON, RARE, EPIC } do
+	table.insert(
+		companionList,
+		def("loyalHeart_" .. rarity.id, "Loyal Heart", rarity, {
+			e("companionMoney", ({ 0.01, 0.02, 0.03, 0.05 })[i]),
+		})
+	)
+	table.insert(
+		companionList,
+		def("luckyShadow_" .. rarity.id, "Lucky Shadow", rarity, {
+			e("companionLuck", ({ 0.03, 0.05, 0.08, 0.12 })[i]),
+		})
+	)
+end
+table.insert(
+	companionList,
+	def(
+		"bestFriend",
+		"Best Friend",
+		LEGENDARY,
+		{ e("companionMoney", 0.08), e("companionLuck", 0.15) }
+	)
+)
+table.insert(
+	companionList,
+	def("trailBuddy", "Trail Buddy", LEGENDARY, { e("companionMoney", 0.06), e("income", 0.25) })
+)
+table.insert(
+	companionList,
+	def("guardianSpirit", "Guardian Spirit", MYTHIC, {
+		e("companionMoney", 0.12),
+		e("companionLuck", 0.25),
+		e("income", 0.50),
+	})
+)
+Traits.COMPANION_LIST = companionList
+-- #3908's rule: Eclipse holds every kind at the highest amount (Guardian Spirit's)
+local ECLIPSE_COMPANION: { Effect } = { e("companionMoney", 0.12), e("companionLuck", 0.25) }
+
 local byId: { [string]: Def } = {}
 local byRarity: { [string]: { Def } } = {}
-for _, entry in list do
-	byId[entry.id] = entry
+local function addTo(entry: Def)
 	local group = byRarity[entry.rarity.id]
 	if group == nil then
 		group = {}
 		byRarity[entry.rarity.id] = group
 	end
 	table.insert(group, entry)
+end
+for _, entry in list do
+	byId[entry.id] = entry
+	addTo(entry)
+end
+for _, entry in companionList do
+	byId[entry.id] = entry
+end
+
+-- #5303: the companion traits in the pool (and Eclipse's companion effects) or out of it. Off until the switch says.
+local companionOn = false
+function Traits.setCompanion(on: boolean)
+	if on == companionOn then
+		return
+	end
+	companionOn = on
+	local eclipse = byId.eclipse
+	if on then
+		for _, entry in companionList do
+			addTo(entry)
+		end
+		for _, effect in ECLIPSE_COMPANION do
+			table.insert(eclipse.effects, effect)
+		end
+	else
+		for _, entry in companionList do
+			local group = byRarity[entry.rarity.id]
+			local at = table.find(group, entry)
+			if at then
+				table.remove(group, at)
+			end
+		end
+		for _, effect in ECLIPSE_COMPANION do
+			local at = table.find(eclipse.effects, effect)
+			if at then
+				table.remove(eclipse.effects, at)
+			end
+		end
+	end
+end
+
+function Traits.companionOn(): boolean
+	return companionOn
 end
 
 -- Whether a player of `tier` may use the station (the `traits` switch is checked by the caller).
@@ -422,6 +534,9 @@ function Traits.effectLines(trait: Trait): { string }
 		local info = Traits.KINDS[effect.kind]
 		local shown = if info.studs
 			then string.format("+%s studs/s", tostring(effect.amount))
+			elseif
+				effect.kind == "companionLuck"
+			then string.format("+%.2f", effect.amount) -- #5303: Luck, not a share
 			else string.format("+%d%%", math.floor(effect.amount * 100 + 0.5))
 		table.insert(lines, shown .. " " .. info.what)
 	end

@@ -6,6 +6,7 @@
 -- only); Luck is a Luck source (Luck.sources, still at most LuckMax). Nothing here is sold for Robux.
 -- The save is `profile.follower` ({ uid, boost }); no version bump, so the switch goes on only after a restart.
 
+local Traits = require(script.Parent.Traits)
 local Types = require(script.Parent.Types)
 
 local Follower = {}
@@ -55,6 +56,32 @@ function Follower.on(): boolean
 		return onOverride
 	end
 	return game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. Follower.FLAG) == true
+end
+
+-- #5296 (Derek 2026-11-18: "don't make it have a switch between stats just have it to an amount for both"), switch
+-- BOTH_FLAG (LiveFlags.OFF_BY_DEFAULT): the companion gives its full Money and its full Luck together (Design: no one
+-- loses anything, far under LuckMax), and the Cats window picks it from the Companion button (Screens/CatRoom).
+Follower.BOTH_FLAG = "companionMenu"
+local bothOverride: boolean? = nil
+function Follower.setBoth(on: boolean?)
+	bothOverride = on
+end
+function Follower.both(): boolean
+	if bothOverride ~= nil then
+		return bothOverride
+	end
+	return game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. Follower.BOTH_FLAG)
+		== true
+end
+
+-- "+12% Money · +0.20 Luck", the two boosts a cat of `rarity` and `variant` brings as the companion.
+function Follower.bothText(rarity: string?, variant: string?): string
+	local money = math.floor(Follower.amount(rarity, "money", variant) * 1000 + 0.5) / 10
+	local luck = Follower.amount(rarity, "luck", variant)
+	local percent = if money == math.floor(money)
+		then string.format("%d", money)
+		else string.format("%.1f", money)
+	return string.format("+%s%% Money · +%.2f Luck", percent, luck)
 end
 
 function Follower.fresh(): Save
@@ -125,6 +152,62 @@ function Follower.amount(rarity: string?, boost: Boost, variant: string?): numbe
 	return math.floor(base * Follower.coat(variant) * 10000 + 0.5) / 10000
 end
 
+-- #5303 (companionTraits): what the cat's trait adds to `boost`, added after the coat (the coat multiplies the base
+-- only), 0 while the switch is off or for a trait with no companion effect.
+function Follower.traitPart(trait: Types.TraitData?, boost: Boost): number
+	if trait == nil or not Traits.companionOn() then
+		return 0
+	end
+	return Traits.amount(
+		trait :: any,
+		if boost == "luck" then "companionLuck" else "companionMoney"
+	)
+end
+
+-- Whether the companion traits count (the companionTraits switch, through shared/CompanionTraits).
+function Follower.traitsOn(): boolean
+	return Traits.companionOn()
+end
+
+-- The trait's rarity colour (hex) for its chip, nil for none.
+function Follower.traitColor(trait: Types.TraitData?): string?
+	local rarity = if trait then Traits.rarity(trait :: any) else nil
+	return if rarity then rarity.color else nil
+end
+
+-- A cat's whole companion boost: the rarity's times the coat, plus its trait's part.
+function Follower.catAmount(cat: Types.CatInstance, rarity: string?, boost: Boost): number
+	local sum = Follower.amount(rarity, boost, cat.variant) + Follower.traitPart(cat.trait, boost)
+	return math.floor(sum * 10000 + 0.5) / 10000
+end
+
+-- "+12% Money · +0.20 Luck" for this cat, its trait included.
+function Follower.catBothText(cat: Types.CatInstance, rarity: string?): string
+	local money = math.floor(Follower.catAmount(cat, rarity, "money") * 1000 + 0.5) / 10
+	local luck = Follower.catAmount(cat, rarity, "luck")
+	local percent = if money == math.floor(money)
+		then string.format("%d", money)
+		else string.format("%.1f", money)
+	return string.format("+%s%% Money · +%.2f Luck", percent, luck)
+end
+
+-- The trait's chip under a companion's numbers, "Loyal Heart +3%" or "Lucky Shadow +0.08", nil for none.
+function Follower.traitChip(trait: Types.TraitData?): string?
+	local money = Follower.traitPart(trait, "money")
+	local luck = Follower.traitPart(trait, "luck")
+	if trait == nil or (money <= 0 and luck <= 0) then
+		return nil
+	end
+	local parts: { string } = { Traits.title(trait :: any) }
+	if money > 0 then
+		table.insert(parts, string.format("+%d%%", math.floor(money * 100 + 0.5)))
+	end
+	if luck > 0 then
+		table.insert(parts, string.format("+%.2f", luck))
+	end
+	return table.concat(parts, " ")
+end
+
 -- The boost's words for the Cats menu: "+18% money", "+0.60 Luck".
 function Follower.text(amount: number, boost: Boost): string
 	if boost == "luck" then
@@ -154,17 +237,25 @@ local function current(profile: Types.PlayerProfile, rarityOf: (string) -> strin
 	if cat == nil then
 		return boost, 0
 	end
-	return boost, Follower.amount(rarityOf(cat.catId), boost, cat.variant)
+	return boost, Follower.catAmount(cat, rarityOf(cat.catId), boost)
 end
 
 -- The Money boost added to the tip multiplier now (0.12 is +12%), 0 with Luck picked or nobody following.
 function Follower.money(profile: Types.PlayerProfile, rarityOf: (string) -> string?): number
+	if Follower.both() then -- #5296
+		local cat = Follower.cat(profile)
+		return if cat ~= nil then Follower.catAmount(cat, rarityOf(cat.catId), "money") else 0
+	end
 	local boost, amount = current(profile, rarityOf)
 	return if boost == "money" then amount else 0
 end
 
 -- The Luck boost added as a Luck source now, 0 with Money picked or nobody following.
 function Follower.luck(profile: Types.PlayerProfile, rarityOf: (string) -> string?): number
+	if Follower.both() then -- #5296
+		local cat = Follower.cat(profile)
+		return if cat ~= nil then Follower.catAmount(cat, rarityOf(cat.catId), "luck") else 0
+	end
 	local boost, amount = current(profile, rarityOf)
 	return if boost == "luck" then amount else 0
 end

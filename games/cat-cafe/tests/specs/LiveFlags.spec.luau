@@ -196,6 +196,8 @@ return function()
 							or key == "nightSpread" -- #5164
 							or key == "netTiers" -- #5170
 							or key == "nightLine" -- #5330
+							or key == "companionMenu" -- #5296
+							or key == "companionTraits" -- #5303
 							or key == "afkQuick" -- #5310
 							or key == "bigTreats" -- Derek 2026-11-18
 							or key == "bigNet" -- #5309

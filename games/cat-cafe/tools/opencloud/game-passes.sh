@@ -36,7 +36,9 @@ def key: (.name // "" | ascii_downcase | gsub("^\\s+|\\s+$"; ""));
 def line: "\(.gamePassId)  \(.name)  "
 	+ (if price == null then "no price" else "R$\(price)" end)
 	+ (if .isForSale then ", on sale" else ", off sale" end)
-	+ (if regional then ", regional pricing on" else "" end);
+	+ (if regional then ", regional pricing on" else "" end)
+	+ ([to_entries[] | select(.key | test("icon"; "i")) | "\(.key) \(.value)"] | if length == 0 then ", no icon field"
+		else ", " + join(", ") end);
 '
 
 reply=$(mktemp)

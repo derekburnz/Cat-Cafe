@@ -293,7 +293,7 @@ function CompanionUnlockCut.play(
 	local base = rootPart.CFrame
 	local forward = Vector3.new(base.LookVector.X, 0, base.LookVector.Z)
 	forward = if forward.Magnitude > 1e-3 then forward.Unit else Vector3.new(0, 0, -1)
-	local right = Vector3.yAxis:Cross(forward).Unit
+	local right = -forward:Cross(Vector3.yAxis).Unit -- yAxis x forward, written for selene
 	local ground = Vector3.new(rootPart.Position.X, feet, rootPart.Position.Z)
 	local stop = ground + right * p.beside
 	local from = stop + right * p.walkFrom + forward * p.walkIn

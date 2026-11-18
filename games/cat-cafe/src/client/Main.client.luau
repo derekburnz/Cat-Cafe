@@ -25,6 +25,7 @@ local Effects = require(script.Parent.Effects)
 local FollowerController = require(script.Parent.Controllers.FollowerController)
 local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
+local LandHoldController = require(script.Parent.Controllers.LandHoldController)
 local LateStationsController = require(script.Parent.Controllers.LateStationsController)
 local MemoryWatchController = require(script.Parent.Controllers.MemoryWatchController)
 local Moments = require(script.Parent.Moments)
@@ -119,6 +120,7 @@ ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 AirMovesController.start() -- #4447: the Dragon Keep's Double Jump and Glide
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
+LandHoldController.start() -- #5269: a cannon landing waits on this client for the pad floor, behind landSafe
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
 CafeGrewController.start() -- #4543: "Your cafe grew!" on the Rank Up card, after the UI
 ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail

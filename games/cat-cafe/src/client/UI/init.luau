@@ -12006,6 +12006,9 @@ function UI.nextGoal.why(): string?
 	local perks: any = UI.perks.card
 	return if modal ~= nil and modal:current() ~= nil
 		then "window"
+		elseif
+			popups ~= nil and popups:isShowing()
+		then "popup" -- Sync: the Cat found card, so the 8 s run in view
 		elseif baitCard ~= nil and baitCard:isShowing() then "baitCard"
 		elseif tipCard ~= nil and tipCard:isShowing() then "tipCard"
 		elseif askCard ~= nil and askCard:isShowing() then "askCard"

@@ -111,6 +111,10 @@ local OPENS_TOP = LIST_TOP + LIST_H + 10 -- the tall window's "It opens", under 
 -- button take, on every screen: TALL less the section's 128 px (its label, teaser and cards), no taller than the room.
 RankUp.NO_OPENS_FLAG = "noRankOpens"
 local BARE_HEIGHT = TALL.Y - 128
+-- Sync's phone look (rankUpSteps): the steps window was BARE_HEIGHT for any count, so two steps left 88 px empty (one
+-- row and STEPS_SLACK under the last). It now loses a row's height for each step under three and the slack, so the
+-- Rank Up button sits right under the last step (RankUp.stepsHeight).
+local STEPS_SLACK = 24
 -- #5218 (Derek 2026-11-18: "goal should be to show steps clearly"): with the switch `rankUpSteps` on, the window is
 -- the same one column (it implies noRankOpens), titled "Rank up to <tier>" over "N steps left" (gold "Ready!" once
 -- all are met). The needs are numbered steps in rankUpBlocker's order (cats, rarity, coins) in plain words; a met step
@@ -559,6 +563,12 @@ function RankUp._watchRoom(self: any)
 	end
 end
 
+-- The steps window's height for `count` steps (1 to 3): BARE_HEIGHT less each missing row and STEPS_SLACK.
+function RankUp.stepsHeight(count: number): number
+	local missing = math.clamp(3 - count, 0, 2)
+	return BARE_HEIGHT - missing * (ROW_HEIGHT + Theme.sizes.gap) - STEPS_SLACK
+end
+
 -- TALL where it fits, WIDE (no bigger than the room) where it does not.
 function RankUp._fit(self: any)
 	local holder = self.frame.Parent
@@ -571,8 +581,9 @@ function RankUp._fit(self: any)
 	end
 	local noOpens = bare()
 	local wide = not noOpens and room.Y < TALL.Y
+	local bareHeight = if steps() then RankUp.stepsHeight(self._stepCount or 3) else BARE_HEIGHT
 	local size = if noOpens
-		then Vector2.new(math.min(TALL.X, room.X), math.min(BARE_HEIGHT, room.Y))
+		then Vector2.new(math.min(TALL.X, room.X), math.min(bareHeight, room.Y))
 		elseif wide then Vector2.new(math.min(WIDE.X, room.X), math.min(WIDE.Y, room.Y))
 		else TALL
 	self.frame.Size = UDim2.fromOffset(math.floor(size.X), math.floor(size.Y))
@@ -829,7 +840,9 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	end
 	-- #5258: with noRankOpens on, no "It opens" section; a flip of the switch fits the window again
 	local noOpens = bare()
-	if noOpens ~= self._bare then
+	local stepCount = if stepsOn then #shownRows else nil
+	if noOpens ~= self._bare or stepCount ~= self._stepCount then
+		self._stepCount = stepCount
 		self:_fit()
 	end
 	self._opensLabel.Visible = not noOpens

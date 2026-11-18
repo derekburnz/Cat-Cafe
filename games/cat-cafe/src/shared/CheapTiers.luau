@@ -13,8 +13,14 @@
 --   Tier 6   150,000,000, 21 kinds         50,000,000, 17 kinds
 --   Tier 7   3,125,000,000, 27 kinds, 3 M  1,000,000,000, 22 kinds, 2 Mythicals (the Ruins)
 --   Tier 8   21,000,000,000, 43 kinds      7,000,000,000, 35 kinds (5 Mythicals kept: Derek's #4513)
---   on() -> boolean
---   follow()          sets the needs now and each time the switch flips
+-- #5285 E (Design-Agent's Pace read of the first 30 minutes, 2026-11-18: with cheapTiers on, Tier 4 is the wall, a median
+-- of 22.5 min for the model player and 15 for an active one, coins first, and a quarter of model runs got no Legendary in
+-- 30 min): behind its own switch `tier4Easy`, Tier 4 asks 250,000 and an Epic or better (Tier 5 keeps the Legendary).
+-- It sits on top of whichever Tier 4 row is in use, so it works with cheapTiers on or off. Pace: 18 and 11.4 min.
+--   on() -> boolean           cheapTiers
+--   easyFour() -> boolean     tier4Easy
+--   needs() -> needs?         what setTierNeeds gets for the two switches now
+--   follow()                  sets the needs now and each time either switch flips
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -33,6 +39,9 @@ CheapTiers.NEEDS = {
 	[8] = { cost = 7000000000, distinctCats = 35 }, -- a third of 21,000,000,000; 43 kinds before
 } :: { [number]: Catalog.TierNeeds }
 
+CheapTiers.TIER4_FLAG = "tier4Easy"
+CheapTiers.TIER4 = { cost = 250000, needsRarity = "Epic" } :: Catalog.TierNeeds
+
 local following = false
 
 function CheapTiers.on(): boolean
@@ -42,8 +51,39 @@ function CheapTiers.on(): boolean
 	)
 end
 
+function CheapTiers.easyFour(): boolean
+	return LiveFlags.shown(
+		CheapTiers.TIER4_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER4_FLAG)
+	)
+end
+
+-- The rows for the switches: NEEDS with cheapTiers, and Tier 4's row replaced by TIER4 with tier4Easy (its other
+-- fields kept from the row it replaces). Pure on its two answers, so the spec can check every pair.
+function CheapTiers.needsFor(cheap: boolean, easy: boolean): { [number]: Catalog.TierNeeds }?
+	if not easy then
+		return if cheap then CheapTiers.NEEDS else nil
+	end
+	local out: { [number]: Catalog.TierNeeds } = {}
+	if cheap then
+		for tier, row in CheapTiers.NEEDS do
+			out[tier] = row
+		end
+	end
+	local four: any = table.clone((out[4] or {}) :: any)
+	for field, value in CheapTiers.TIER4 :: any do
+		four[field] = value
+	end
+	out[4] = four
+	return out
+end
+
+function CheapTiers.needs(): { [number]: Catalog.TierNeeds }?
+	return CheapTiers.needsFor(CheapTiers.on(), CheapTiers.easyFour())
+end
+
 local function apply()
-	Catalog.setTierNeeds(if CheapTiers.on() then CheapTiers.NEEDS else nil)
+	Catalog.setTierNeeds(CheapTiers.needs())
 end
 
 function CheapTiers.follow()
@@ -53,6 +93,8 @@ function CheapTiers.follow()
 	end
 	following = true
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.FLAG)
+		:Connect(apply)
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER4_FLAG)
 		:Connect(apply)
 end
 

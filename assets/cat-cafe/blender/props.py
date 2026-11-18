@@ -3599,7 +3599,152 @@ def wheat_cloak(ctx):
                   rot=_rx(45))
 
 
+# ------------------------------------------------------------- Snowglobe Village, the Christmas Event --
+
+
+def icing_smile(ctx):
+    """Gingerbread (Common): a piped white icing smile line under its mouth, a dot at each end, and icing dots for
+    buttons down its chin."""
+    F = ctx.pen("face")
+    z = ctx.mouth_z - 0.07
+    for k in range(7):
+        t = (k - 3) / 3
+        F.box((t * 0.2, -0.035, z + 0.05 * t * t), (0.075, 0.03, 0.035), "milk", rot=_ry(-28 * t))
+    for sx in (-1, 1):
+        F.ico((sx * 0.235, -0.04, z + 0.06), 0.03, "milk")
+    F.ico((-0.07, -0.04, ctx.fbot + 0.03), 0.04, "bowl_red")       # two gumdrop buttons at the chin
+    F.ico((0.07, -0.04, ctx.fbot + 0.03), 0.04, "leaf_green")
+
+
+def snow_pile(ctx):
+    """Snowball (Common): a little heap of fresh snow on its head, three snowballs with a sky-blue frost flake."""
+    P = ctx.pen("head")
+    for x, y, z, r, sw in ((0.0, 0.0, 0.1, 0.17, "fish_belly"), (-0.15, 0.03, 0.07, 0.12, "pastel_sky"),
+                           (0.15, 0.04, 0.07, 0.11, "fish_belly"), (0.02, -0.02, 0.27, 0.11, "milk")):
+        P.ico((x, y, z), r, sw)
+    _snowflake(P, (0.2, -0.14, 0.2), 0.09, "fish_blue", w=0.03, t=0.025)
+
+
+def candy_cane(ctx):
+    """Candy Cane (Rare): a big red and white striped candy cane slung across its back, hook up behind its head."""
+    P = ctx.pen("back")
+    L = ctx.back_len
+    R = _rz(20)
+    n = 7
+    for k in range(n):
+        y = -L * 0.45 + k * L * 0.9 / n
+        P.box(tuple(R @ Vector((0.0, y + L * 0.45 / n, 0.12))), (0.15, L * 0.9 / n, 0.15), ("bowl_red", "milk")[k % 2], rot=R)
+    top = R @ Vector((0.0, -L * 0.45, 0.12))
+    for k in range(4):                                        # the hook, curling up and over toward the head
+        a = math.radians(30 + 45 * k)
+        c = top + R @ Vector((0.0, -0.16 * math.sin(a), 0.16 - 0.16 * math.cos(a)))
+        P.box(tuple(c), (0.15, 0.15, 0.15), ("milk", "bowl_red")[k % 2], rot=R @ _rx(-45 * k))
+    P.box((0, 0, 0.03), (ctx.back_w * 0.9, 0.06, 0.03), "leaf_dark")       # the green ribbon that holds it
+
+
+def tinsel_boa(ctx):
+    """Tinsel (Rare): a fluffy silver tinsel garland round its neck, with gold strands and a little bauble."""
+    F, fw, fd, bot = ctx.pen("face"), ctx.fw, ctx.fd, ctx.fbot
+    for k in range(9):
+        x = -fw - 0.01 + (2 * fw + 0.02) * k / 8
+        F.ico((x, -0.01, bot + 0.0), 0.06, ("metal", "rarity_legend", "fur_silver")[k % 3])
+    for sx in (-1, 1):
+        for k in range(3):
+            F.ico((sx * (fw + 0.02), fd * (0.1 + 0.15 * k), bot + 0.0), 0.055, ("fur_silver", "metal", "rarity_legend")[k])
+    F.sphere((0.12, -0.06, bot - 0.11), 0.065, "shirt_red", segments=8, rings=5)          # the bauble
+    F.box((0.12, -0.06, bot - 0.04), (0.04, 0.04, 0.03), "rarity_legend")
+
+
+def jingle_collar(ctx):
+    """Jingle (Rare): a red collar round the bottom of the head with a gold jingle bell at the front. The bell is
+    its own object, `<name>_Bell`, pivoted where it hangs, so it can swing and ring hello."""
+    F = ctx.pen("face")
+    fw, fd, bot = ctx.fw, ctx.fd, ctx.fbot
+    lo, hi = bot - 0.008, bot + 0.05
+    F.box((0, 0.012, (lo + hi) / 2), (2 * fw + 0.03, 0.078, hi - lo), "shirt_red")
+    for sx in (-1, 1):
+        F.box((sx * (fw - 0.0175), (fd - 0.07 - 0.027) / 2, (lo + hi) / 2), (0.065, fd - 0.07 + 0.027, hi - lo), "shirt_red")
+    F.box((0, -0.03, bot - 0.012), (0.075, 0.04, 0.05), "rarity_legend")
+    B = ctx.piece("Bell", "face", (0, -0.03, bot - 0.034))
+    B.ring((0, -0.03, bot - 0.07), 0.04, 0.016, 0.018, "brass", rot=_rx(90), segments=8)
+    B.sphere((0, -0.03, bot - 0.17), 0.095, "rarity_legend", segments=10, rings=6)
+    B.box((0, -0.03 - 0.09, bot - 0.19), (0.11, 0.02, 0.025), "choco")                      # the slot
+    B.ico((0, -0.03 - 0.085, bot - 0.15), 0.02, "choco")
+
+
+def mistletoe_sprig(ctx):
+    """Mistletoe (Epic): a sprig of mistletoe tucked behind its right ear, pale leaves, white berries and a little
+    red bow."""
+    P = ctx.pen("head")
+    base = (0.24, 0.06, 0.08)
+    for ang, L in ((35, 0.3), (75, 0.26), (115, 0.28), (155, 0.22)):
+        a = math.radians(ang)
+        c = (base[0] + 0.16 * math.cos(a), base[1], base[2] + 0.16 * math.sin(a))
+        _leaf(P, c, 0.12, "leaf_green" if ang % 2 else "fur_fern", rot=_ry(90 - ang) @ _rx(90))
+    for x, z in ((0.22, 0.14), (0.3, 0.1), (0.26, 0.2), (0.18, 0.08)):
+        P.ico((x, base[1] - 0.06, z), 0.045, "milk")
+    for sx in (-1, 1):
+        P.box((base[0] + sx * 0.07, base[1] - 0.04, base[2] - 0.02), (0.1, 0.03, 0.07), "bowl_red", rot=_ry(sx * 25))
+    P.ico((base[0], base[1] - 0.05, base[2] - 0.02), 0.035, "bowl_red")
+
+
+def sugar_tiara(ctx):
+    """Sugar Plum (Legendary): a sugar-plum fairy's tiara, a pearl band with sugared points and a glowing plum gem."""
+    P = ctx.pen("head")
+    G = ctx.piece("Gem_Glow", "head", (0, -0.14, 0.15))
+    y = -0.14
+    P.box((0, y, 0.025), (0.46, 0.06, 0.05), "pearl")
+    for x, h in ((-0.18, 0.07), (-0.09, 0.11), (0.09, 0.11), (0.18, 0.07)):
+        P.box((x, y, 0.05 + h / 2), (0.045, 0.035, h), "apron_pink", rot=_ry(45))
+        P.ico((x, y, 0.05 + h + 0.03), 0.035, "sparkle")
+    G.ico((0, y - 0.01, 0.15), 0.08, "eye_violet", scale=(1, 0.7, 1.15))
+    G.star((0, y - 0.03, 0.29), 0.06, 0.025, 0.025, "sparkle", rot=_rx(90))
+
+
+def sugar_wings(ctx):
+    """Sugar Plum's second prop: little sugared fairy wings on its back, lit pink at the edges."""
+    P = ctx.pen("back")
+    G = ctx.piece("Wings_Glow", "back", (0, 0, 0.2))
+    L = ctx.back_len
+    for sx in (-1, 1):
+        for k, (dy, dz, r, ang) in enumerate(((-0.1, 0.32, 0.22, 30), (0.12, 0.22, 0.16, 55))):
+            c = (sx * 0.2, -L * 0.15 + dy * L, dz)
+            P.cyl(c, r, 0.025, "pastel_lilac", rot=_ry(sx * ang) @ _rx(90), segments=10)
+            G.ring(c, r, 0.025, 0.03, "fur_strawberry", rot=_ry(sx * ang) @ _rx(90), segments=10)
+    P.ico((0, -L * 0.15, 0.08), 0.06, "apron_pink")
+
+
+def tree_star(ctx):
+    """Star Topper (Mythical): the gold star off the top of the tree, floating above its head and lit all night."""
+    P = ctx.pen("head")
+    G = ctx.piece("Star_Glow", "head", (0, 0, 0.42))
+    G.star((0, 0.0, 0.42), 0.24, 0.11, 0.08, "rarity_legend", rot=_rx(90))
+    G.star((0, -0.045, 0.42), 0.12, 0.055, 0.02, "sparkle", rot=_rx(90))
+    for x, z in ((0.32, 0.3), (-0.3, 0.52), (0.22, 0.66)):
+        G.star((x, 0.0, z), 0.06, 0.025, 0.025, "sparkle", rot=_rx(90))
+    P.ico((0, 0.0, 0.03), 0.04, "rarity_legend")                       # where the glow rises from
+
+
+def tree_lights(ctx):
+    """Star Topper's second prop: a string of coloured tree lights draped along its back, the bulbs lit."""
+    P = ctx.pen("back")
+    G = ctx.piece("Bulbs_Glow", "back", (0, 0, 0.1))
+    hw, L = ctx.back_w / 2, ctx.back_len
+    n = 7
+    cols = ("shirt_red", "rarity_legend", "leaf_green", "fish_blue", "fur_strawberry")
+    pts = [Vector((hw * 0.6 * math.sin(k * 1.3), -L * 0.42 + k * L * 0.84 / (n - 1), 0.04)) for k in range(n)]
+    for a, b in zip(pts, pts[1:]):
+        P.bar(tuple(a), tuple(b), 0.025, 0.025, "dark_wood")
+    for k, p in enumerate(pts):
+        P.box(tuple(p + Vector((0, 0, 0.03))), (0.05, 0.05, 0.04), "metal")
+        G.ico(tuple(p + Vector((0, 0, 0.09))), 0.06, cols[k % len(cols)], scale=(1, 1, 1.3))
+
+
 PROPS = {
+    # Snowglobe Village, the Christmas Event (Dec 1 2026)
+    "Gingerbread": ("Face", icing_smile), "Snowball": ("Head", snow_pile), "CandyCane": ("Back", candy_cane),
+    "Tinsel": ("Neck", tinsel_boa), "Jingle": ("Face", jingle_collar), "Mistletoe": ("Head", mistletoe_sprig),
+    "SugarPlum": ("Head", sugar_tiara), "StarTopper": ("Head", tree_star),
     # #4251 Harvest Hollow
     "PumpkinSpice": ("Head", spice_swirl), "Cranberry": ("Head", berry_sprig), "MapleLeaf": ("Head", maple_crest),
     "HayBale": ("Head", straw_hat), "AcornCap": ("Head", acorn_top), "ApplePie": ("Head", pie_top),
@@ -3665,6 +3810,7 @@ PROPS = {
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
 PROPS2 = {
+    "SugarPlum": ("Back", sugar_wings), "StarTopper": ("Back", tree_lights),   # Christmas (Dec 1 2026)
     "MapleLeaf": ("Back", leaf_cape), "HarvestMoon": ("Back", wheat_cloak),   # #4251
     "Nebula": ("Back", star_trail), "Glitch": ("Back", error_sprite),   # #3470
     "LuckyClover": ("Back", rainbow_pot), "Moonstag": ("Back", spirit_grove), "Ooze": ("Back", toxic_barrel),
@@ -3708,6 +3854,9 @@ PROPS2 = {
 # rides, and their Roblox Model nests inside that prop's Model.
 PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
           "BoothPlush": {"Tag_Glow": "Prop"},              # #4061 the lit ticket tag
+          # Snowglobe Village (Christmas, Dec 1 2026): the Jingle's bell and the lit gem, wings, star and bulbs
+          "Jingle": {"Bell": "Prop"}, "SugarPlum": {"Gem_Glow": "Prop", "Wings_Glow": "Prop2"},
+          "StarTopper": {"Star_Glow": "Prop", "Bulbs_Glow": "Prop2"},
           # #4251 Harvest Hollow: the lit leaf and moon
           "MapleLeaf": {"Glow": "Prop", "Leaves_Glow": "Prop2"},
           "HarvestMoon": {"Glow": "Prop", "Wheat_Glow": "Prop2"},

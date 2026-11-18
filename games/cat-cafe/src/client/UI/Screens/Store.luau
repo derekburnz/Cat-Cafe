@@ -124,6 +124,8 @@ local CELL_MAX = 230 -- a Featured pick card no taller than this, however tall t
 -- #3572 (Model-Agent's OK'd mock): a tab's cards two across, each a wide card with its
 -- picture at the left and the name, what it does and the price button beside it, about three rows in view
 local WIDE_TILE = 76
+local WIDE_PERK_IN = 8 -- a wide card's gold chip: this far inside the card's left edge
+local WIDE_PERK_GAP = 6 -- and this far short of the button
 local WIDE_NAME_H = 24
 local WIDE_EFFECT_MIN = 30 -- two small lines at least
 local WIDE_MAX = 170
@@ -1198,8 +1200,21 @@ function Store._place(self: any, entry: any)
 		entry.name.Position = UDim2.fromOffset(left, CARD_PAD)
 		entry.name.Size = UDim2.new(1, -(left + CARD_PAD), 0, WIDE_NAME_H)
 		local top = CARD_PAD + WIDE_NAME_H + 2
-		entry.perk.AnchorPoint = Vector2.new(0.5, 1)
-		entry.perk.Position = UDim2.new(0, CARD_PAD + WIDE_TILE / 2, 0.5, WIDE_TILE / 2 + 4)
+		-- Sync's phone look (kingCatInfo): a chip wider than the picture ran 1 px off the card and onto the button, so it
+		-- starts WIDE_PERK_IN inside the card and ends WIDE_PERK_GAP short of the button, its words shrinking to fit
+		if entry.perkFixed ~= true then
+			entry.perkFixed = true
+			entry.perk.AutomaticSize = Enum.AutomaticSize.None
+			local pad = entry.perk:FindFirstChildOfClass("UIPadding")
+			if pad then
+				pad.PaddingLeft = UDim.new(0, 4)
+				pad.PaddingRight = UDim.new(0, 4)
+			end
+			FitText.shrink(entry.perk)
+		end
+		entry.perk.Size = UDim2.fromOffset(left - WIDE_PERK_GAP - WIDE_PERK_IN, PERK_H)
+		entry.perk.AnchorPoint = Vector2.new(0, 1)
+		entry.perk.Position = UDim2.new(0, WIDE_PERK_IN, 0.5, WIDE_TILE / 2 + 4)
 		entry.effect.Position = UDim2.fromOffset(left, top)
 		local saleRoom = if entry.saleLow then SALE_ROOM else 0
 		entry.effect.Size =

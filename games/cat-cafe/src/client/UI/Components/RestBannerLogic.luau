@@ -66,10 +66,12 @@ function RestBannerLogic.clock(seconds: number): string
 end
 
 -- The big line, the small line and the badge's letters. `doubled` false in a 2x party.
+-- #5310: `afkWords` (the afkQuick switch) names the AFK button in the welcome: "Turn on AFK for 2x money".
 function RestBannerLogic.words(
 	state: State,
 	doubled: boolean,
-	remaining: number
+	remaining: number,
+	afkWords: boolean?
 ): (string, string, string)
 	if state == "counting" then
 		return "2x money in " .. RestBannerLogic.clock(remaining), "Almost resting", "zz"
@@ -81,6 +83,9 @@ function RestBannerLogic.words(
 		return "Resting in your cafe", "Your cats keep earning", "zz"
 	end
 	if doubled then
+		if afkWords == true then
+			return "Turn on AFK for 2x money", "Your cats earn double while you rest", "2x"
+		end
 		return "Stand still for 2x money", "Your cats earn double while you rest", "2x"
 	end
 	return "Rest here, cats still earn", "Even while you are away", "zz"

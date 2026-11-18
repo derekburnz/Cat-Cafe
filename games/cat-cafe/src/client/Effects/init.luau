@@ -56,6 +56,7 @@ local FireTrail = require(script.FireTrail)
 local FirstBaitCut = require(script.FirstBaitCut)
 local FirstMinuteFx = require(script.FirstMinuteFx)
 local Fish = require(script.Fish)
+local Follower = require(script.Follower)
 local FusionFx = require(script.FusionFx)
 local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
@@ -148,6 +149,7 @@ function Effects.start()
 		Cats.start,
 		CafeWalk.start,
 		BedWalk.start,
+		Follower.start, -- #5172: the cat follower's walk, hop, loaf and groom, and its puff
 		Bellhop.start,
 		LuckyPaw.start,
 		PullHop.start,

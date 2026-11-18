@@ -104,10 +104,10 @@ local Config = {
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
 	Badges = {
-		welcome = 3335628834714920,
-		firstCatch = 965821038770402,
+		-- #5160 (Derek 2026-11-17): retired and disabled on Roblox, no longer in Badges.LIST: welcome 3335628834714920,
+		-- firstCatch 965821038770402, grandOpening 1259873901887390, firstHome 3818992250915779, firstUpgrade
+		-- 708647132528539, firstFlight 771736196964132
 		cozyCafe = 3159884753679593,
-		grandOpening = 1259873901887390,
 		purrfect = 1317002089922327,
 		baitCat = 2110748625065463,
 		rareFind = 3754290961752885,
@@ -127,12 +127,15 @@ local Config = {
 		-- #4282: partyGuest (4328065554528969, "Cafe Party Guest") removed by Derek 2026-11-14; disabled on Roblox
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
-		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
-		firstUpgrade = 708647132528539, -- Fixing Up
-		firstFlight = 771736196964132, -- Liftoff
 		cornerCafe = 4089080696855068, -- Corner Cafe
 		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
 		wonderCafe = 383838983462242, -- Wonder Cafe (made 2026-11-14, free)
+		-- #5160: made 2026-11-18 00:15 UTC by badges.yml (free) from Model-Agent's icons (#5162)
+		summitCafe = 946556433244703, -- Summit Cafe (#5160, made 2026-11-18)
+		funfairCafe = 544644545466611, -- Funfair Cafe
+		royalCafe = 2486851953650943, -- Royal Cafe
+		secretFind = 2624195981736362, -- Secret Finder
+		catMaster = 3407092942179958, -- Cat Master
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
@@ -833,14 +836,11 @@ local Config = {
 		-- Derek 2026-11-15 17:13 UTC ("are we still prompting people ... we should be"): the two after Better on Every
 		-- Device, so the ask keeps rolling to the next update with no gap. Cherry Blossom Grove's Roblox Event was
 		-- made 2026-11-15 (one week, Dec 5 to Dec 12), Harvest Hollow's on Nov 14.
-		{
-			id = "2956295611862876771",
-			startsAt = 1795636800, -- "Harvest Hollow", Wednesday 2026-11-25 20:00 UTC
-			title = "🔔 Next update Wed Nov 25: HARVEST HOLLOW! Want a reminder when it lands?",
-			name = "HARVEST HOLLOW",
-		},
-		-- Derek 2026-11-17 (Christmas Event Dec 12 to Jan 3): Growth made the Roblox Event in Creator Hub (saved
-		-- private while the public upcoming cap is full; public once Harvest Hollow ends)
+		-- #5174 (Derek 2026-11-17: all the hype on the Christmas Event): Harvest Hollow (Roblox Event
+		-- 2956295611862876771, Wed 2026-11-25 20:00 UTC) still opens then, quietly, so it has no entry: the ask and the
+		-- Town Square poster roll straight to Christmas.
+		-- Derek 2026-11-17 (Christmas Event Dec 12 to Jan 3): Growth made the Roblox Event in Creator Hub; public since
+		-- 21:22 UTC Nov 17
 		{
 			id = "3056428113926947439",
 			startsAt = 1797105600, -- "Christmas Event", Saturday 2026-12-12 20:00 UTC

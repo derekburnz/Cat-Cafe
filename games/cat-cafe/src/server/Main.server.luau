@@ -115,6 +115,8 @@ local stowed = AssetRegistry.stowServerOnly()
 stowed += AssetRegistry.followGoldTone()
 -- #4763: the tables caps follow the tablesSpread switch (shared/TablesSpread)
 require(ReplicatedStorage.Shared.TablesSpread).follow()
+-- #5171: the Spin Wheel's cat slice follows the spinCat switch (shared/SpinCat)
+require(ReplicatedStorage.Shared.SpinCat).follow()
 local world = WorldBuilder.build()
 
 Net.start()

@@ -273,14 +273,11 @@ return function()
 				local glyph = ShopIcons.snackGlyph(food.id)
 				expect(seen[glyph]).to.equal(nil)
 				seen[glyph] = true
-				-- #4900: only the Royal Feast has a drawn picture; the rest keep their glyph alone
-				if food.id == "royal_feast" then
-					expect(ShopIcons.catFood(food.id)).to.equal(ShopIcons.clean("RoyalFeast"))
-				else
-					expect(ShopIcons.catFood(food.id)).to.equal(nil)
-				end
+				-- #5225: every XP cat food has its own picture on the XP plate, its glyph the fallback
+				expect(ShopIcons.catFood(food.id)).never.to.equal(nil)
 			end
-			expect(ShopIcons.catFood("royal_feast")).to.equal("rbxassetid://133381821214039")
+			expect(ShopIcons.catFood("royal_feast")).to.equal("rbxassetid://132550470089627")
+			expect(ShopIcons.catFood("small_cat_snack")).to.equal("rbxassetid://105963914520145")
 			expect(ShopIcons.food("eclipse_treat")).to.equal("rbxassetid://70744648477031")
 			expect(ShopIcons.snackGlyph("cat_snack")).to.equal("🍪")
 			expect(ShopIcons.snackGlyph("big_cat_snack")).to.equal("🧁")

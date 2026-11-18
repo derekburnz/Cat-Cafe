@@ -11,19 +11,16 @@ return function()
 	) :: any
 
 	describe("HarvestHollow", function()
-		it(
-			"sells five outfits and six decor for 1,440 pumpkins in all (spec section 4, x3 on 2026-11-17)",
-			function()
-				expect(#HarvestHollow.STALL).to.equal(11)
-				expect(HarvestHollow.TOTAL).to.equal(1440)
-				expect(#Logic.rows("outfit")).to.equal(5)
-				expect(#Logic.rows("decor")).to.equal(6)
-				expect(Logic.rows("outfit")[2].name).to.equal("Sunflower Hat")
-				expect(HarvestHollow.item("wheat_wreath").price).to.equal(180)
-				expect(HarvestHollow.item("nope")).to.equal(nil)
-				expect(HarvestHollow.item(5)).to.equal(nil)
-			end
-		)
+		it("sells five outfits and six decor for 1,440 pumpkins in all (spec section 4, x3 on 2026-11-17)", function()
+			expect(#HarvestHollow.STALL).to.equal(11)
+			expect(HarvestHollow.TOTAL).to.equal(1440)
+			expect(#Logic.rows("outfit")).to.equal(5)
+			expect(#Logic.rows("decor")).to.equal(6)
+			expect(Logic.rows("outfit")[2].name).to.equal("Sunflower Hat")
+			expect(HarvestHollow.item("wheat_wreath").price).to.equal(180)
+			expect(HarvestHollow.item("nope")).to.equal(nil)
+			expect(HarvestHollow.item(5)).to.equal(nil)
+		end)
 		it("keeps every id unique and every price a whole pumpkin count", function()
 			local seen = {}
 			for _, item in HarvestHollow.STALL do

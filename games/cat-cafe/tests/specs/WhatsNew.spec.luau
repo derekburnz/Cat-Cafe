@@ -90,11 +90,23 @@ return function()
 				end
 			end
 			expect(#before).to.equal(math.min(WhatsNew.SHOWN, live))
+			-- at its startsAt it is live, and on the board unless SHOWN newer live rows already fill it (an old
+			-- update's row rolls off as newer rows come)
+			expect(WhatsNew.isLive(timed, timed.startsAt)).to.equal(true)
+			local ahead = 0
+			for _, row in WhatsNew.rows do
+				if row == timed then
+					break
+				end
+				if WhatsNew.isLive(row, timed.startsAt) then
+					ahead += 1
+				end
+			end
 			local shownAt = false
 			for _, row in WhatsNew.latest(timed.startsAt) do
 				shownAt = shownAt or row == timed
 			end
-			expect(shownAt).to.equal(true)
+			expect(shownAt).to.equal(ahead < WhatsNew.SHOWN)
 		end)
 
 		it("writes the date as UTC month and day", function()

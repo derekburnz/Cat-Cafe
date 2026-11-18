@@ -148,6 +148,7 @@ LiveFlags.KEYS = {
 	"foodByRarity", -- #5264: food lists sort by rarity before the catalog's sortOrder (Components/FoodOrder); off by default
 	"kingCatInfo", -- #5260: the Cat King Pack's gold chip and i sheet say how King Croissant earns (Components/StoreLogic); off by default
 	"rankUpSteps", -- #5218: the Rank Up window's needs as numbered steps with a Go button (Screens/RankUp); off by default
+	"goalNeedLine", -- #5331: the folded goal chip and a takeover goal show the biggest Rank Up need (Components/GoalNeed); off by default
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
@@ -245,6 +246,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	foodByRarity = true, -- #5264: on after Review-QA's look at the bowl list
 	kingCatInfo = true, -- #5260: on after Review-QA's phone check of the Store card
 	rankUpSteps = true, -- #5218: first-session flow, on after Sync's phone look with the first Rank Up pointer
+	goalNeedLine = true, -- #5331: first-session flow (stall fix), on at its own minute after Sync's phone look
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read

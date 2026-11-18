@@ -207,6 +207,7 @@ return function()
 							or key == "foodByRarity" -- #5264
 							or key == "bowlTicks" -- #5263
 							or key == "rankUpSteps" -- #5218
+							or key == "goalNeedLine" -- #5331
 							or key == "catFollower" -- #5172
 							or key == "cardFollow" -- #5296
 							or key == "companionScene" -- #5284

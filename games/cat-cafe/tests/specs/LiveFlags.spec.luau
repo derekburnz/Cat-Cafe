@@ -199,6 +199,7 @@ return function()
 							or key == "companionMenu" -- #5296
 							or key == "companionTraits" -- #5303
 							or key == "perfectCatch" -- #5300
+							or key == "easyKeep" -- #5311
 							or key == "afkQuick" -- #5310
 							or key == "bigTreats" -- Derek 2026-11-18
 							or key == "bigNet" -- #5309

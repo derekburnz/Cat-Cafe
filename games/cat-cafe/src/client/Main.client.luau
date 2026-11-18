@@ -71,6 +71,7 @@ require(ReplicatedStorage.Shared.TablesSpread).follow()
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
 require(ReplicatedStorage.Shared.PerfectCatch).follow() -- #5300: the ratings shown follow the perfectCatch switch
+require(ReplicatedStorage.Shared.EasyKeep).follow() -- #5311: the Dragon Keep's goals follow the easyKeep switch
 require(ReplicatedStorage.Shared.BigTreats).follow() -- Derek 2026-11-18: the Daily Treat rows follow bigTreats
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
 require(ReplicatedStorage.Shared.CompanionTraits).follow() -- #5303: the companion traits follow the companionTraits switch

@@ -188,7 +188,7 @@ local function step(dt: number)
 	local shownOthers = 0
 	for _, owner in Players:GetPlayers() do
 		local want = wanted(owner, shownOthers)
-		local walker = walkers[owner]
+		local walker: Walker? = walkers[owner]
 		local root, humanoid = rootOf(owner)
 		if not want or root == nil then
 			drop(owner)
@@ -205,7 +205,7 @@ local function step(dt: number)
 			if walker == nil then
 				continue
 			end
-			walkers[owner] = walker
+			walkers[owner] = walker :: Walker
 		end
 		if owner ~= Players.LocalPlayer then
 			shownOthers += 1

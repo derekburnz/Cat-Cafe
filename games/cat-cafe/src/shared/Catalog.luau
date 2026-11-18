@@ -2520,7 +2520,9 @@ Catalog.DAILY_TREAT_BIG = {
 
 -- Puts the big rows (on) or the plain ones (off) into Catalog.dailyTreat, keeping the table. True when it changed.
 function Catalog.setBigTreats(on: boolean): boolean
-	local rows = if on then Catalog.DAILY_TREAT_BIG else Catalog.DAILY_TREAT_PLAIN
+	local rows: { Types.DailyTreatDay } = if on
+		then Catalog.DAILY_TREAT_BIG
+		else Catalog.DAILY_TREAT_PLAIN
 	local changed = false
 	for i, row in rows do
 		if Catalog.dailyTreat[i] ~= row then

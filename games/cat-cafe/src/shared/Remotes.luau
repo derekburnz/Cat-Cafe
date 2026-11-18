@@ -275,7 +275,7 @@ Remotes.ClientToServer = {
 	-- Config.PetCooldownSeconds; answered with CatPetted to everyone, nothing when refused
 	"SetFollower", -- (uid: string)  #5172 (switch catFollower): "" sends the follower home, else one of the player's own
 	-- cats follows them (Follower.blocker: Tier 2, owned, no running trade); 2 a second
-	"SetFollowerBoost", -- (boost: "money" | "luck")  #5172: one switch each Follower.SWITCH_SECONDS; 2 a second
+	"SetFollowerBoost", -- (boost: "money" | "luck")  #5172: one switch each Follower.SWITCH_SECONDS unless followerSwitchFree (#5273); 2 a second
 }
 
 -- Server -> client.

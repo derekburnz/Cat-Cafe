@@ -63,8 +63,6 @@ LiveFlags.KEYS = {
 	"codes",
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
-	"followerSwitchFree", -- #5273: the follower switches between Money and Luck with no wait (shared/Follower.FREE_FLAG); on by default
-	"followRow", -- #5267: the Cats menu's Follow button on its own row with what the cat brings, and a paw on the follower's card (Screens/CatRoom); on by default
 	"stationTiers", -- #4539: Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers)
 	"tradeCrates",
 	"tradeFish",
@@ -96,6 +94,8 @@ LiveFlags.KEYS = {
 	"harvestHollow", -- #4251: Harvest Hollow (shared/HarvestSave); a kill switch, the area's dates open and close it
 	"harvestPieLow", -- #4251: the Feast Pie's goal drops from 25,000 to 15,000 harvest cats (HarvestSave.pieGoal); off
 	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
+	"followRow", -- #5267: the Cats menu's Follow button on its own row with what the cat brings, and a paw on the follower's card (Screens/CatRoom); on by default
+	"followerSwitchFree", -- #5273: the follower switches between Money and Luck with no wait (shared/Follower.FREE_FLAG); on by default
 	"deviceFixes", -- the Tue 2026-11-17 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)

@@ -1249,3 +1249,6 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
   - This overrides the staggered dates in the 2026-11-17 Park switch entry and the tomorrowCard plan. `parkRingEarly`, `parkTrailBack`, `parkGateTrail`, `tier3Path`, `tomorrowCard` and `cannonCue` go on as soon as each passes review.
   - The strip's extra RANK UP button is removed. The rank up walk-through (RankSpot) dims the screen and points at the goal card, then dims and points at the window's RANK UP. It shows in safe zones only, and the window's X stays visible.
 - **Read:** one combined before and after for the first 5 minutes and Tier 2 to 3. Each on-minute goes in Growth's timeline.
+
+## 2026-11-18: The spin wheel may give a cat (#5171)
+Derek 2026-11-17 23:55 UTC asked for a good cat at a low rate on the wheel. This reverses the F49 rule "a spin never gives a cat". Lucky Clover (Secret) at 0.25%, shown in the Odds list, dark shape until owned, behind `spinCat`. It holds only while spins are free: if spins are ever sold for Robux, the cat slice comes off first, because a paid spin that can give a cat is a paid random item. Same night: stronger nets need fewer hits and Net 4 and 5 (#5170, `netTiers`), and the cat follower (#5172, `catFollower`), all off by default.

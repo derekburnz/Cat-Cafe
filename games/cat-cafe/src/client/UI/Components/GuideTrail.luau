@@ -9,6 +9,7 @@
 -- The dots are parts made by this client only, so other players never see your trail and the server never hears
 -- about it. They do not collide, cast no shadow and are skipped by raycasts and touches.
 
+local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
 local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
@@ -32,6 +33,7 @@ local START_GAP = 3 -- the first dot sits this far ahead of the player
 local ARRIVED = 10 -- studs from the target where the trail hides, once nothing solid stands between (#5206)
 local EYE = 3 -- studs above the feet the clear-view check starts from
 local NEAR_END = 2 -- studs: a ray that stops this close to the target counts as reaching it
+local WHOLE_TAGS = { "CatCannon", "Stray" } -- a model with one of these tags is a single piece round its target
 local SMALL_PIECE = 300 -- instances: a Model this small round the target is its own piece, not a whole cafe or area
 local REPATH_MOVE = 5 -- studs the player moves before the route is worked out again
 local REPATH_SECONDS = 0.75 -- and no more often than this
@@ -214,11 +216,28 @@ local function walled(self: any, target: Target, start: Vector3, finish: Vector3
 		-- Review-QA on #5211: the bowl's anchor sits straight in the cafe's plot and the Park pad's in its area, so
 		-- the nearest Model can be the whole cafe or area, back wall and all. Only a small one (a stray's body, a
 		-- cannon) is the target's own piece. Counted once per target.
+		-- Sync on #5211: the Town Square cannon is 468 instances and its own climb part blocked the ray, so a model
+		-- tagged as a whole piece (a cannon, a stray) counts as the target's own at any size.
 		if self._holderFor ~= target then
 			self._holderFor = target
 			local holder = instance:FindFirstAncestorOfClass("Model")
-			self._holder = if holder ~= nil and #holder:GetDescendants() <= SMALL_PIECE
-				then holder
+			local own: Instance? = nil
+			local up = instance.Parent
+			while up ~= nil and up ~= (Workspace :: Instance) do
+				for _, tag in WHOLE_TAGS do
+					if CollectionService:HasTag(up, tag) then
+						own = up
+						break
+					end
+				end
+				if own ~= nil then
+					break
+				end
+				up = up.Parent
+			end
+			self._holder = if own ~= nil
+				then own
+				elseif holder ~= nil and #holder:GetDescendants() <= SMALL_PIECE then holder
 				else nil
 		end
 		local holder: Instance? = self._holder

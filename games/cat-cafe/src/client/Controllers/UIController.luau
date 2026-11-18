@@ -213,6 +213,24 @@ function UIController.ownBaitBowl(): BasePart?
 	return if bowl ~= nil and bowl:IsA("BasePart") then bowl :: BasePart else nil
 end
 
+-- #5206 (Sync on #5211): where the bowl part's trail and arrow lead: the bowl's walk-up circle on the back step, which
+-- opens the Bait window, else the bowl. The bowl's own pill needs a clear view from the camera, which is often still
+-- inside the cafe there.
+function UIController.bowlGuidePoint(): BasePart?
+	local plot = ownPlot()
+	local folder = if plot ~= nil then plot:FindFirstChild("Bait") else nil
+	local bowl = if folder ~= nil then folder:FindFirstChild("Bowl") else nil
+	local WalkUp = require(Shared:WaitForChild("WalkUp")) :: any
+	local link = if bowl ~= nil then bowl:FindFirstChild(WalkUp.CIRCLE) else nil
+	local ring = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	if ring ~= nil and ring:IsA("BasePart") and ring:IsDescendantOf(Workspace) then
+		return ring :: BasePart
+	end
+	return UIController.ownBaitBowl()
+end
+
 -- #2751 (Laptop-Tester: on the job step no cat flashed): one of your resting cats in your cafe's Cats folder (CafeService
 -- marks a cat without a role Napping), for the step's ring; nil while none has streamed in.
 local function restingCat(): BasePart?
@@ -739,21 +757,21 @@ local function refreshTutorial(s: Types.PlayerState)
 			showTutorial(
 				s,
 				deviceLine("arrived", "Click Tame to keep your cat. It earns you money!"),
-				UIController.ownBaitBowl(),
+				UIController.bowlGuidePoint(),
 				"Bowl"
 			)
 		elseif bait ~= nil then
 			showTutorial(
 				s,
 				deviceLine("waiting", "A cat smells your food. It's on its way!"),
-				UIController.ownBaitBowl(),
+				UIController.bowlGuidePoint(),
 				"Bowl"
 			)
 		else
 			showTutorial(
 				s,
 				deviceLine("food", "Press F, then Use on Kibble to call a cat"),
-				UIController.ownBaitBowl(),
+				UIController.bowlGuidePoint(),
 				"Bowl"
 			)
 		end
@@ -917,14 +935,14 @@ local function refreshTutorial(s: Types.PlayerState)
 			showTutorial(
 				s,
 				deviceLine("waiting", "A cat smells your food. It's on its way!"),
-				UIController.ownBaitBowl(),
+				UIController.bowlGuidePoint(),
 				"Bowl"
 			)
 		else
 			showTutorial(
 				s,
 				deviceLine("food", "Press F, then Use on Kibble to call a cat"),
-				UIController.ownBaitBowl(),
+				UIController.bowlGuidePoint(),
 				"Bowl"
 			)
 		end

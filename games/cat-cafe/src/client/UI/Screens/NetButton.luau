@@ -252,11 +252,11 @@ function NetButton.setInReach(self: any, on: boolean)
 	end
 end
 
+-- Derek 2026-11-18 ("net is flashing ... during tutorial steps ... on mobile"): UIController's refreshTutorial turns the
+-- point off and on again in one pass at every sync, so the ring is drawn on the next tick (TICK), never at once: an
+-- off and on within one tick changes nothing on screen.
 function NetButton.point(self: any, on: boolean)
-	if self._point ~= on then
-		self._point = on
-		self:_tick()
-	end
+	self._point = on
 end
 
 function NetButton.destroy(self: any)

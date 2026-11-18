@@ -1105,13 +1105,12 @@ function RescueService.sunrise()
 		end
 		return
 	end
+	-- #4601: half a step behind CatService.sunriseWave's stray steps, so the two series do not land on the same send
 	task.spawn(function()
 		for n, areaDef in Catalog.areas do
-			if n > 1 then
-				task.wait(NightSpread.STEP_SECONDS)
-				if not ClockService.areasOpen() then
-					return
-				end
+			task.wait(if n == 1 then NightSpread.STEP_SECONDS / 2 else NightSpread.STEP_SECONDS)
+			if not ClockService.areasOpen() then
+				return
 			end
 			xpcall(rollRescues, function(err: unknown)
 				warn("[RescueService] sunrise: " .. tostring(err))

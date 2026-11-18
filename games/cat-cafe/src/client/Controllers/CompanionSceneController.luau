@@ -39,6 +39,8 @@ local AREA_TITLE = "CatCafeAreaTitle" -- UI Screens/AreaTitle
 local CUT = "CompanionUnlockCut" -- Motion-FX's Effects module, looked for by name so neither PR waits on the other
 
 local started = false
+local GLOW_EVERY = 1
+local glowLookedAt, glowSeen = -math.huge, false
 local asked = false
 
 local function ui(): any
@@ -119,7 +121,12 @@ local function free(): boolean
 	if u.isOpen() ~= nil then
 		return false -- a window is open (the Rank Up window among them)
 	end
-	if glowing(playerGui) then
+	-- the glow search walks the whole PlayerGui, so at most once a GLOW_EVERY (Review-QA: cheaper on phones)
+	if os.clock() - glowLookedAt >= GLOW_EVERY then
+		glowLookedAt = os.clock()
+		glowSeen = glowing(playerGui)
+	end
+	if glowSeen then
 		return false
 	end
 	local held: any = if u.cutscene ~= nil then u.cutscene.held else nil
@@ -246,12 +253,22 @@ local function ranked(tier: number)
 			and type((now :: any).follower.uid) == "string"
 			and (now :: any).follower.uid ~= Follower.HOME
 		-- a player who already picked a companion keeps theirs
+		local setUid: string? = nil
 		if following then
 			uid = (now :: any).follower.uid
-		elseif uid ~= nil then
-			Net.fire("SetFollower", uid)
+		else
+			setUid = uid
+		end
+		-- the real follower comes once the scene hands back (Motion-FX: the cut walks its own copy in, so firing first
+		-- put two of the cat beside the player)
+		local function follow()
+			if setUid ~= nil then
+				Net.fire("SetFollower", setUid)
+				setUid = nil
+			end
 		end
 		if not ready then
+			follow()
 			card(uid)
 			Net.fire("TipSeen", CompanionScene.KEY, true)
 			return
@@ -275,6 +292,7 @@ local function ranked(tier: number)
 				catId,
 				function(outcome: string)
 					stage(false)
+					follow()
 					card(uid)
 					Net.fire("TipSeen", CompanionScene.KEY, outcome == "skipped")
 				end
@@ -284,6 +302,7 @@ local function ranked(tier: number)
 			end
 			stage(false)
 		end
+		follow()
 		card(uid)
 		Net.fire("TipSeen", CompanionScene.KEY, false)
 	end)

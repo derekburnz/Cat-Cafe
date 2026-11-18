@@ -860,7 +860,7 @@ local Config = {
 			startsAt = 1796155200, -- "Christmas Event", Tuesday 2026-12-01 20:00 UTC
 			title = "🔔 Next update Tue Dec 1: the CHRISTMAS EVENT! Want a reminder when it lands?",
 			name = "CHRISTMAS EVENT",
-			poster = "rbxassetid://121570332796448", -- #5153: the Christmas banner (1024x576, Model-Agent)
+			poster = "rbxassetid://75146631114839", -- DEC 1 TO JAN 3 banner (1024x576, Model-Agent #5288)
 		},
 		{
 			id = "6693355219203523122",

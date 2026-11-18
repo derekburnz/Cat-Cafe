@@ -33,6 +33,7 @@ CompanionPicker.TITLE = "Pick your Companion"
 CompanionPicker.NOTE = "They follow you and boost Money and Luck, and they keep their cafe job."
 
 local CARD = Vector2.new(128, 184)
+local CHIP_H = 14 -- #5303: the trait chip's row, added to the card while companionTraits is on
 local ART = 64
 local GAP = Theme.sizes.gap
 local BUTTON_H = Scale.tapHeight(Theme.sizes.touchMin)
@@ -137,6 +138,7 @@ function CompanionPicker.new(props: Props)
 		Parent = frame,
 	}, {
 		Create("UIGridLayout", {
+			Name = "Grid",
 			CellSize = UDim2.fromOffset(CARD.X, CARD.Y),
 			CellPadding = UDim2.fromOffset(GAP, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
@@ -186,14 +188,24 @@ function CompanionPicker.render(
 	end
 	local list = CompanionPicker.order(cats, catById)
 	local uids: { string } = {}
+	local keys: { string } = {}
 	for index = 1, math.min(#list, CompanionPicker.MAX) do
-		table.insert(uids, list[index].uid)
+		local cat = list[index]
+		table.insert(uids, cat.uid)
+		table.insert(keys, cat.uid .. ":" .. (if cat.trait then cat.trait.id else ""))
 	end
 	self._followUid = followUid
-	local key = table.concat(uids, ",")
+	-- #5303: the cards build again when a trait changes or the companionTraits switch flips
+	local chips = Follower.traitsOn()
+	local key = table.concat(keys, ",") .. (if chips then "|t" else "")
 	if key ~= self._shownKey then
 		self:_clear()
 		self._shownKey = key
+		self._chips = chips
+		local layout = self._grid:FindFirstChild("Grid") :: UIGridLayout?
+		if layout then
+			layout.CellSize = UDim2.fromOffset(CARD.X, CARD.Y + (if chips then CHIP_H else 0))
+		end
 		for index = 1, #uids do
 			local cat = list[index]
 			local def: Types.CatDef? = catById[cat.catId]
@@ -267,7 +279,7 @@ function CompanionPicker._card(
 		ZIndex = 32,
 		Parent = frame,
 	})
-	local money = Follower.amount(rarity, "money", cat.variant)
+	local money = Follower.catAmount(cat, rarity, "money") -- #5303: its trait included
 	local percent = math.floor(money * 1000 + 0.5) / 10
 	label({
 		Name = "Money",
@@ -287,10 +299,26 @@ function CompanionPicker._card(
 		Size = UDim2.new(1, -8, 0, 14),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Theme.colors.good,
-		Text = string.format("+%.2f Luck", Follower.amount(rarity, "luck", cat.variant)),
+		Text = string.format("+%.2f Luck", Follower.catAmount(cat, rarity, "luck")),
 		ZIndex = 32,
 		Parent = frame,
 	})
+	-- #5303: the trait chip under the numbers, in the trait's rarity colour ("Loyal Heart +3%")
+	local chipRow = if self._chips == true then CHIP_H else 0
+	local chip: string? = if chipRow > 0 then Follower.traitChip(cat.trait) else nil
+	if chip ~= nil then
+		local color: string? = Follower.traitColor(cat.trait)
+		label({
+			Name = "TraitChip",
+			Position = UDim2.fromOffset(4, ART + 64),
+			Size = UDim2.new(1, -8, 0, CHIP_H),
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = if color then Color3.fromHex(color) else PAL.text,
+			Text = chip,
+			ZIndex = 32,
+			Parent = frame,
+		})
+	end
 	local uid = cat.uid
 	local button = Button.new({
 		name = "Follow",

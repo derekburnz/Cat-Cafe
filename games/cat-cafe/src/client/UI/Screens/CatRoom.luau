@@ -1827,7 +1827,7 @@ function CatRoom._renderCompanion(self: any, state: Types.PlayerState, view: any
 	end
 	self._compArt.frame.Visible = def ~= nil
 	self._compLine.Text = if def ~= nil and cat ~= nil
-		then Follower.bothText((def :: Types.CatDef).rarity, cat.variant)
+		then Follower.catBothText(cat, (def :: Types.CatDef).rarity) -- #5303: its trait included
 		else "Tap to pick one"
 	self._picker:render(cats, self._catById, uid)
 end
@@ -1956,7 +1956,7 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		local boost = if followView.boost == "luck" then "luck" else "money"
 		boostOf = function(instance: Types.CatInstance): number
 			local def = self._catById[instance.catId]
-			return Follower.amount(if def then def.rarity else nil, boost, instance.variant)
+			return Follower.catAmount(instance, if def then def.rarity else nil, boost) -- #5303
 		end
 	end
 	local shown = CatRoomList.list(
@@ -2484,7 +2484,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._follow:setStyle(if following then "gold" else "ghost")
 		self._boost:setText(if follow.boost == "luck" then Theme.icons.luck else "$")
 		-- what this cat brings as the follower, with the boost picked and its coat: "Follows +18% money (Rainbow x1.5)"
-		local amount = Follower.amount(rarity, follow.boost, instance.variant)
+		local amount = Follower.catAmount(instance, rarity, follow.boost) -- #5303: its trait included
 		local coat = Follower.coatText(instance.variant)
 		local line = "Follows "
 			.. Follower.text(amount, follow.boost)

@@ -25,8 +25,7 @@ function CompanionLogic.order(
 	local function score(cat: Types.CatInstance): (number, number)
 		local def = catById[cat.catId]
 		local rarity = if def then def.rarity else nil
-		return Follower.amount(rarity, "money", cat.variant),
-			Follower.amount(rarity, "luck", cat.variant)
+		return Follower.catAmount(cat, rarity, "money"), Follower.catAmount(cat, rarity, "luck") -- #5303
 	end
 	table.sort(list, function(a: Types.CatInstance, b: Types.CatInstance): boolean
 		local am, al = score(a)

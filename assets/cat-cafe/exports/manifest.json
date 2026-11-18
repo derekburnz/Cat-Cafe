@@ -300552,6 +300552,427 @@
         }
       },
       "preview": "../../../tmp/claude-0/-home-user/e2d75650-f71a-5211-9166-39fe9043e0ee/scratchpad/sg/docs/previews/CatCafe_Snowglobe_Snowflake.png"
+    },
+    {
+      "name": "CatCafe_Accessory_SantaHat",
+      "category": "Accessory",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Accessory_SantaHat"
+      ],
+      "triangles": 172,
+      "budget": 600,
+      "size_studs": {
+        "x": 0.87,
+        "y": 0.84,
+        "z": 0.68
+      },
+      "size_roblox": [
+        0.87,
+        0.68,
+        0.84
+      ],
+      "bounds_min": [
+        -0.42,
+        -0.42,
+        0.0
+      ],
+      "bounds_max": [
+        0.45,
+        0.42,
+        0.68
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SantaHat.model.json",
+      "rbx_parts": 10,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SantaHat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SantaHat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "172/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "70 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.01 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_ReindeerAntlers",
+      "category": "Accessory",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Accessory_ReindeerAntlers"
+      ],
+      "triangles": 268,
+      "budget": 600,
+      "size_studs": {
+        "x": 0.74,
+        "y": 0.14,
+        "z": 0.55
+      },
+      "size_roblox": [
+        0.74,
+        0.55,
+        0.14
+      ],
+      "bounds_min": [
+        -0.37,
+        -0.1,
+        -0.0
+      ],
+      "bounds_max": [
+        0.37,
+        0.04,
+        0.55
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_ReindeerAntlers.model.json",
+      "rbx_parts": 21,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_ReindeerAntlers.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_ReindeerAntlers.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "268/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "154 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_KnitBeanie",
+      "category": "Accessory",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Accessory_KnitBeanie"
+      ],
+      "triangles": 440,
+      "budget": 700,
+      "size_studs": {
+        "x": 0.87,
+        "y": 0.87,
+        "z": 0.58
+      },
+      "size_roblox": [
+        0.87,
+        0.58,
+        0.87
+      ],
+      "bounds_min": [
+        -0.44,
+        -0.44,
+        0.0
+      ],
+      "bounds_max": [
+        0.44,
+        0.44,
+        0.58
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_KnitBeanie.model.json",
+      "rbx_parts": 30,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_KnitBeanie.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_KnitBeanie.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "440/700 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "206 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_PresentPile",
+      "category": "Decor",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Decor_PresentPile"
+      ],
+      "triangles": 444,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.12,
+        "y": 1.76,
+        "z": 2.4
+      },
+      "size_roblox": [
+        4.12,
+        2.4,
+        1.76
+      ],
+      "bounds_min": [
+        -2.0,
+        -1.0,
+        -0.01
+      ],
+      "bounds_max": [
+        2.12,
+        0.76,
+        2.39
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PresentPile.model.json",
+      "rbx_parts": 37,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PresentPile.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PresentPile.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "444/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "222 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.06 y=-0.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_Snowman",
+      "category": "Decor",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Decor_Snowman"
+      ],
+      "triangles": 480,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.02,
+        "y": 2.18,
+        "z": 4.28
+      },
+      "size_roblox": [
+        3.02,
+        4.28,
+        2.18
+      ],
+      "bounds_min": [
+        -1.51,
+        -1.09,
+        0.0
+      ],
+      "bounds_max": [
+        1.51,
+        1.09,
+        4.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_Snowman.model.json",
+      "rbx_parts": 28,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_Snowman.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_Snowman.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "480/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "246 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_GingerbreadHouse",
+      "category": "Decor",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Decor_GingerbreadHouse",
+        "CatCafe_Decor_GingerbreadHouse_Glow"
+      ],
+      "triangles": 724,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.2,
+        "y": 3.2,
+        "z": 2.39
+      },
+      "size_roblox": [
+        3.2,
+        2.39,
+        3.2
+      ],
+      "bounds_min": [
+        -1.6,
+        -1.6,
+        0.0
+      ],
+      "bounds_max": [
+        1.6,
+        1.6,
+        2.39
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_GingerbreadHouse.model.json",
+      "rbx_parts": 51,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_GingerbreadHouse.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_GingerbreadHouse.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "724/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "450 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_StockingWall",
+      "category": "Decor",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Decor_StockingWall",
+        "CatCafe_Decor_StockingWall_Glow"
+      ],
+      "triangles": 1016,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.13,
+        "y": 0.8,
+        "z": 3.69
+      },
+      "size_roblox": [
+        4.13,
+        3.69,
+        0.8
+      ],
+      "bounds_min": [
+        -2.07,
+        -0.38,
+        0.0
+      ],
+      "bounds_max": [
+        2.07,
+        0.41,
+        3.69
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_StockingWall.model.json",
+      "rbx_parts": 70,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_StockingWall.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_StockingWall.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1016/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "746 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_LittleLitTree",
+      "category": "Decor",
+      "module": "christmasitems",
+      "objects": [
+        "CatCafe_Decor_LittleLitTree",
+        "CatCafe_Decor_LittleLitTree_Glow"
+      ],
+      "triangles": 1208,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.63,
+        "y": 2.1,
+        "z": 4.09
+      },
+      "size_roblox": [
+        2.63,
+        4.09,
+        2.1
+      ],
+      "bounds_min": [
+        -1.29,
+        -1.05,
+        -0.01
+      ],
+      "bounds_max": [
+        1.34,
+        1.05,
+        4.08
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_LittleLitTree.model.json",
+      "rbx_parts": 69,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_LittleLitTree.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_LittleLitTree.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1208/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "914 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.03 y=0.00"
+        }
+      }
     }
   ]
 }

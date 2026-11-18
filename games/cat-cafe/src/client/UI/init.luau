@@ -1302,6 +1302,11 @@ function UI.init(config: Types.InitConfig)
 			if start ~= nil then
 				closeModal()
 				start()
+				-- #5304 (Derek 2026-11-18: "when using rummage through cannon menu make it go back to cannon menu when
+				-- done"): the picker opens again once the bar and its loot card are done
+				if ReplicatedStorage:GetAttribute("LiveFlag_cannonReturn") == true then
+					UI.cannon.rummageBack()
+				end
 			end
 		end,
 		rummageOn = function(): boolean
@@ -4294,6 +4299,51 @@ end
 UI.cannon = {}
 -- #4961: the Cat Cannon picker's Rummage button (BinController sets both): whether it may show, and the press
 UI.cannon.rummage = { on = nil :: (() -> boolean)?, start = nil :: (() -> ())? }
+
+-- #5304 (switch cannonReturn): after a Rummage started from the picker, the picker of the same cannon again once the
+-- bar has come and gone and the loot card has closed (at most LOOT_WAIT seconds), while nothing else has opened and
+-- the player still stands there. A bar that never comes (a refused start) hands back nothing.
+function UI.cannon.rummageBack()
+	local nearest: (() -> string?)? = (UI.cannon :: any).nearest
+	local near = if nearest ~= nil then nearest() else nil
+	if near == nil then
+		return
+	end
+	local BAR_WAIT, BAR_MOST, LOOT_SETTLE, LOOT_WAIT = 8, 180, 2, 8
+	local ui: any = UI -- (UI.rescue and UI.loot are made further down the file)
+	task.spawn(function()
+		local startedAt = os.clock()
+		local seen = false
+		while true do
+			local up = ui.rescue.isActive()
+			if up then
+				seen = true
+			elseif seen then
+				break -- the bar has ended
+			end
+			local waited = os.clock() - startedAt
+			if (not seen and waited > BAR_WAIT) or waited > BAR_MOST then
+				return
+			end
+			task.wait(0.2)
+		end
+		task.wait(LOOT_SETTLE) -- the win's reveal, then its loot card
+		local untilAt = os.clock() + LOOT_WAIT
+		while ui.loot.card ~= nil and ui.loot.card:isShowing() and os.clock() < untilAt do
+			task.wait(0.2)
+		end
+		local again: (() -> string?)? = (UI.cannon :: any).nearest
+		if
+			modal ~= nil
+			and modal:current() == nil
+			and not ui.rescue.isActive()
+			and again ~= nil
+			and again() == near
+		then
+			(UI.cannon :: any).open(near)
+		end
+	end)
+end
 
 -- On: the HUD's Cannon button takes the Areas button's place and fires events.travel("cannon") (the server moves
 -- the player to the front of the nearest cannon), the Alley button goes, and the carry banner reads "Bring it to the
@@ -8789,6 +8839,9 @@ do
 				if modalView:current() == "YardSale" then
 					modalView:close()
 				end
+			end,
+			skipOn = function(): boolean
+				return ReplicatedStorage:GetAttribute("LiveFlag_cannonReturn") == true -- #5304
 			end,
 			far = function(): boolean
 				if camp.yardAnywhere == true then

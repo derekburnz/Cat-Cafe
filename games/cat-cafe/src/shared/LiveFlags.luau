@@ -151,6 +151,7 @@ LiveFlags.KEYS = {
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
+	"cannonReturn", -- #5304: Rummage from the Cannon menu goes back to it, Skip on the Lucky pick; off by default
 	"catFollower", -- #5172: one of your cats follows you for Money or Luck (shared/Follower); off by default
 	"parkRankPoint", -- #5163: after a Park cat checks in at Tier 2 the screen dims round the goal card, once a session (UI.parkRankPoint); off by default
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
@@ -236,6 +237,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
+	cannonReturn = true, -- #5304: on once Review-QA and Sync pass
 	catFollower = true, -- #5172: on after the walk and the Cats menu slot land, a Pace read and a restart (save field)
 	parkRankPoint = true, -- #5163: on after Review-QA and Sync's Studio pass
 	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device

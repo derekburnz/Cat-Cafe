@@ -1072,10 +1072,28 @@ function RescueService.nightFalls()
 end
 
 -- Sunrise (v0.9, F66): every area's traps roll their cats.
+-- #5164 (switch nightSpread, shared/NightSpread): one area a frame, so sunrise is no one long server frame; a dusk
+-- in between stops the rest.
 function RescueService.sunrise()
-	for _, areaDef in Catalog.areas do
-		rollRescues(areaDef)
+	if not LiveFlagService.on("nightSpread") then
+		for _, areaDef in Catalog.areas do
+			rollRescues(areaDef)
+		end
+		return
 	end
+	task.spawn(function()
+		for n, areaDef in Catalog.areas do
+			if n > 1 then
+				task.wait()
+				if not ClockService.areasOpen() then
+					return
+				end
+			end
+			xpcall(rollRescues, function(err: unknown)
+				warn("[RescueService] sunrise: " .. tostring(err))
+			end, areaDef)
+		end
+	end)
 end
 
 -- How many traps hold a stuck cat right now, across all areas.

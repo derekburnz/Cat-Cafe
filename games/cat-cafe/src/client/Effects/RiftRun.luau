@@ -659,7 +659,7 @@ local function makeCat(catId: string?, gold: boolean?): Model?
 	end
 	local names, tone = { Catalog.catModelName(catId) }, false
 	if gold == true then
-		-- #4133: gold from the base model once the goldTone switch is on
+		-- #4133: gold from the base model
 		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
 	end
 	for _, name in names do

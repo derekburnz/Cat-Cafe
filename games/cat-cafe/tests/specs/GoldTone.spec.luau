@@ -1,5 +1,5 @@
 --!strict
--- #4133: gold cats from their base model, behind the goldTone switch.
+-- #4133: gold cats from their base model (the goldTone switch retired in #4656).
 return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local GoldTone =
@@ -12,9 +12,11 @@ return function()
 			GoldTone.setOpen(nil)
 		end)
 
-		it("ships behind an off switch", function()
-			expect(LiveFlags.OFF_BY_DEFAULT[GoldTone.FLAG]).to.equal(true)
-			expect(table.find(LiveFlags.KEYS, GoldTone.FLAG) ~= nil).to.equal(true)
+		it("is no longer a switch: gold cats are always the toned base (#4656)", function()
+			expect(GoldTone.FLAG).to.equal(nil)
+			expect(LiveFlags.OFF_BY_DEFAULT.goldTone).to.equal(nil)
+			expect(table.find(LiveFlags.KEYS, "goldTone")).to.equal(nil)
+			expect(GoldTone.open()).to.equal(true)
 		end)
 
 		it("has three golds, light to deep", function()

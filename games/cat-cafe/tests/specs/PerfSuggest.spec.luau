@@ -36,5 +36,18 @@ return function()
 			expect((Settings.kinds :: any)[PerfSuggest.ASKED_KEY]).to.equal("switch")
 			expect((Settings.defaults() :: any)[PerfSuggest.ASKED_KEY]).to.equal(false)
 		end)
+
+		it(
+			"starts a new touch account in Smooth mode only with phoneSmooth on (#5285 A1)",
+			function()
+				expect(PerfSuggest.autoStart(true, true, true, false, false)).to.equal(true)
+				expect(PerfSuggest.autoStart(false, true, true, false, false)).to.equal(false)
+				expect(PerfSuggest.autoStart(true, false, true, false, false)).to.equal(false)
+				expect(PerfSuggest.autoStart(true, true, false, false, false)).to.equal(false)
+				expect(PerfSuggest.autoStart(true, true, true, true, false)).to.equal(false)
+				expect(PerfSuggest.autoStart(true, true, true, false, true)).to.equal(false)
+				expect(table.find(PerfSuggest.OUTCOMES, "auto")).to.be.ok()
+			end
+		)
 	end)
 end

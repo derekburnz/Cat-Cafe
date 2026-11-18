@@ -2502,6 +2502,37 @@ Catalog.dailyTreat = {
 	},
 } :: { Types.DailyTreatDay }
 
+-- Daily Treat v2 (Derek 2026-11-18: "no bad rewards in the daily treat these are supposed to bring people back no cat
+-- food or bowl food", then 17:22 no potions and trait re-rolls; Design-Agent's daily-treat-v2 spec; switch bigTreats,
+-- shared/BigTreats): big prizes only, no food, bait or potions; days 5 and 7 add Trait Tokens (the Mystic Pool's). Earnings days pay coinSeconds of the day rate at claim time with
+-- `coins` as the floor. "highest_golden" is the golden crate of the best open area. Catalog.setBigTreats swaps the
+-- rows into Catalog.dailyTreat in place, so every reader (the card, the payout, the HUD dot) follows the switch.
+Catalog.DAILY_TREAT_PLAIN = table.clone(Catalog.dailyTreat)
+Catalog.DAILY_TREAT_BIG = {
+	{ day = 1, prize = { coins = 5000, coinSeconds = 3600, spins = 3 } },
+	{ day = 2, prize = { fish = 500, spins = 5 } },
+	{ day = 3, prize = { coins = 10000, coinSeconds = 7200, spins = 10 } },
+	{ day = 4, prize = { crates = { highest_golden = 3 } } },
+	{ day = 5, prize = { coins = 20000, coinSeconds = 14400, spins = 10, traitTokens = 5 } },
+	{ day = 6, prize = { fish = 750, spins = 10 } },
+	{ day = 7, prize = { crates = { highest_golden = 5 }, fish = 1000, traitTokens = 10 } },
+} :: { Types.DailyTreatDay }
+
+-- Puts the big rows (on) or the plain ones (off) into Catalog.dailyTreat, keeping the table. True when it changed.
+function Catalog.setBigTreats(on: boolean): boolean
+	local rows: { Types.DailyTreatDay } = if on
+		then Catalog.DAILY_TREAT_BIG
+		else Catalog.DAILY_TREAT_PLAIN
+	local changed = false
+	for i, row in rows do
+		if Catalog.dailyTreat[i] ~= row then
+			Catalog.dailyTreat[i] = row
+			changed = true
+		end
+	end
+	return changed
+end
+
 -- Section 11c (F49): the Spin Wheel's slices in order around the wheel. Free spins only: no Robux button, pass
 -- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes.
 -- v2 (#1500, rewards-and-shops.md section 2b v2, the friend 2026-11-05): 8 slices, coins on 69% of spins and two

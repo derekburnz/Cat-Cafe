@@ -37,6 +37,9 @@ export type Callbacks = {
 	tick: (() -> ())?, -- #3615: a row lit during the roll (its tick sound)
 	close: () -> (),
 	far: (() -> boolean)?, -- true once the player has walked away from the Yard Sale: the card closes
+	-- #5304 (Derek 2026-11-18: "add a skip button for lucky pick", switch cannonReturn): true lets a rolling pick be
+	-- skipped, the button reading Skip; the crate is already banked, so the light jumps to it
+	skipOn: (() -> boolean)?,
 }
 
 export type YardSale = {
@@ -81,6 +84,7 @@ local PICK_NOTE = "Crates you win open free at the Golden Fish Market"
 local TAKE_NOTE = "Taken crates open free at the Golden Fish Market"
 local PICK_GAP = 10
 local PICK_BUTTON = "Lucky pick"
+local SKIP_BUTTON = "Skip" -- #5304
 local PICK_TILE = 64 -- #3953: the picture on the pick's side card
 -- the light stays on the won row this long (#4225, Review-QA's phone check: at 1.5 the win was easy to miss)
 local LANDED_SECONDS = 2.5
@@ -170,6 +174,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 	self._won = nil :: string? -- #4225: the crate the last pick landed on, said under the board until _wonUntil
 	self._wonUntil = 0
 	self._rollToken = 0
+	self._skipped = 0 -- #5304: the roll token a Skip was pressed on
 	self._pickFrame = Create("Frame", {
 		Name = "Pick",
 		BackgroundTransparency = 1,
@@ -536,6 +541,11 @@ end
 function YardSale._pressPick(self: any)
 	local callbacks: Callbacks = self._callbacks
 	local view: Types.CampExtraView? = self._view
+	if self._rolling and self:_canSkip() then
+		self._skipped = self._rollToken -- #5304: the roll's loop lands at once
+		self:_paint()
+		return
+	end
 	if self._pending ~= nil or self._rolling or callbacks.pick == nil or view == nil then
 		return
 	end
@@ -553,6 +563,13 @@ function YardSale._pressPick(self: any)
 	end)
 	self:_paint()
 	callbacks.pick()
+end
+
+-- #5304: whether the rolling pick shows Skip (the switch, through the callback)
+function YardSale._canSkip(self: any): boolean
+	local callbacks: Callbacks = self._callbacks
+	local skipOn = callbacks.skipOn
+	return skipOn ~= nil and skipOn() and self._skipped ~= self._rollToken
 end
 
 -- #3615: the card as the lucky pick. True when it painted (the server sent the pick's rows), so the crate cards hide.
@@ -583,12 +600,13 @@ function YardSale._paintPick(self: any): boolean
 	self._board:set(made)
 	local waiting = view.nextAt ~= nil and now < view.nextAt
 	local pending = self._pending == "pick"
-	local label = if pending then "..." else PICK_BUTTON
+	local skip = self._rolling and self:_canSkip()
+	local label = if pending then "..." elseif skip then SKIP_BUTTON else PICK_BUTTON
 	if self._pickLabel ~= label then
 		self._pickLabel = label
 		self._pickButton:setText(label)
 	end
-	local enabled = not waiting and not pending and not self._rolling
+	local enabled = skip or (not waiting and not pending and not self._rolling)
 	if self._pickEnabled ~= enabled then
 		self._pickEnabled = enabled
 		self._pickButton:setEnabled(enabled)
@@ -653,8 +671,8 @@ function YardSale.picked(self: any, index: number, crateId: string?)
 			if self._rollToken ~= token then
 				return
 			end
-			-- a closed card skips to the end: the crate is already banked
-			if self._open then
+			-- a closed card skips to the end: the crate is already banked (#5304: so does Skip)
+			if self._open and self._skipped ~= token then
 				self._board:light(step.index)
 				self:_showRow(step.index)
 				local ticking: Callbacks = self._callbacks
@@ -676,6 +694,7 @@ function YardSale.picked(self: any, index: number, crateId: string?)
 			callbacks.landed(rows[index].crateId)
 		end
 		if self._open then
+			self:_paint() -- #5304: Skip goes back to Lucky pick as the light lands
 			task.wait(LANDED_SECONDS)
 		end
 		if self._rollToken == token then

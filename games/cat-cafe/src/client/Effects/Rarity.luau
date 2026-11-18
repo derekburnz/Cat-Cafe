@@ -43,6 +43,7 @@ type Mark = {
 	height: number, -- studs over the body part
 	shown: boolean,
 	finder: boolean, -- #5034: drawn with the Park finder's size and over walls now
+	pixels: number, -- the billboard's pixel part now (Logic.gemPixels)
 }
 
 local marks: { [Model]: Mark } = {}
@@ -266,6 +267,7 @@ local function makeMark(model: Model, rarity: string): Mark?
 		height = top - body.Position.Y + r.above,
 		shown = false,
 		finder = false,
+		pixels = Presets.rarityMark.pixels,
 	}
 end
 
@@ -336,13 +338,15 @@ local function remove(model: Instance)
 	mark.gui:Destroy()
 end
 
--- #5034: the Park finder's size and over-the-walls look on a gem, or the usual one.
-local function setFinder(mark: Mark, on: boolean, distance: number)
+-- #5034: the Park finder's size and over-the-walls look on a gem, or the usual one. With the gemsShrink switch
+-- (Derek 2026-11-18: far gems blocked the cats) its fixed pixel part tapers off with distance (Logic.gemPixels).
+local function setFinder(mark: Mark, on: boolean, distance: number, shrink: boolean)
 	local r = Presets.rarityMark
 	local f = r.finder
-	if mark.finder ~= on then
-		mark.finder = on
-		local pixels = if on then math.max(r.pixels, f.pixels) else r.pixels
+	mark.finder = on
+	local pixels = Logic.gemPixels(distance, on, shrink)
+	if mark.pixels ~= pixels then
+		mark.pixels = pixels
 		mark.gui.Size = UDim2.new(r.size, pixels, r.size, pixels)
 	end
 	mark.gui.AlwaysOnTop = on and distance > f.onTopBeyond
@@ -371,6 +375,8 @@ local function check()
 	local v = r.inView
 	local camera = Workspace.CurrentCamera
 	local finderOn = ReplicatedStorage:GetAttribute("LiveFlag_" .. r.finder.flag) == true
+	local shrink = ReplicatedStorage:GetAttribute("LiveFlag_" .. r.shrink.flag) == true
+	local away: { [Model]: number } = {} -- each shown stray's distance, for its size
 	local candidates: { Logic.Candidate<Model> } = {}
 	local commons: { Logic.Candidate<Model> } = {} -- behind the rest for the `most` slots, so a Rare still shows
 	local far: { [Model]: number } = {} -- #5034: the strays the Park finder reaches, by distance
@@ -398,6 +404,7 @@ local function check()
 				if finder then
 					far[model] = distance
 				end
+				away[model] = distance
 				table.insert(
 					if rarity == "Common" then commons else candidates,
 					{ key = model, distance = distance }
@@ -428,7 +435,7 @@ local function check()
 			marks[model] = mark
 			mark.tag.Visible = Rarity.isNew(model)
 			local distance = far[model]
-			setFinder(mark, distance ~= nil, distance or 0)
+			setFinder(mark, distance ~= nil, away[model] or distance or 0, shrink)
 			show(mark)
 		end
 	end

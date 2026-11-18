@@ -112,8 +112,6 @@ local started = os.clock()
 local placeholders = AssetRegistry.ensurePlaceholders()
 -- #3743: the area sets and backdrops leave ReplicatedStorage before anyone joins, so no client is sent them
 local stowed = AssetRegistry.stowServerOnly()
--- #4601: and the cats' _Gold models (#4656: always, the goldTone switch is retired)
-stowed += AssetRegistry.followGoldTone()
 -- #4763: the tables caps follow the tablesSpread switch (shared/TablesSpread)
 require(ReplicatedStorage.Shared.TablesSpread).follow()
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch (shared/SpinCat)

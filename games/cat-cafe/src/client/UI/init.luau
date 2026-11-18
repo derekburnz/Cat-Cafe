@@ -1146,6 +1146,9 @@ function UI.init(config: Types.InitConfig)
 			openRankUp = function()
 				modalInstance:open("RankUp")
 			end,
+			isOpen = function(): boolean
+				return modalInstance:current() == "Upgrades"
+			end,
 		}
 	)
 	decor = DecorShop.new({

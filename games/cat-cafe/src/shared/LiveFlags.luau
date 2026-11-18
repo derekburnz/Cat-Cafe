@@ -85,6 +85,7 @@ LiveFlags.KEYS = {
 	"tier9", -- #4070: Tier 9 and the Water Park (shared/LateTiers); on once the area is built, after a restart, never before tier8
 	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
+	"upgradesWarm", -- Sync 2026-11-18: the Upgrades window lays out once off screen after its rows are built, so the first open has no long frame (Screens/UpgradeShop._warm); on by default
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"starterSuggest", -- #4174: the Starter Bundle's one slide-in card a session after 10 to 15 minutes (shared/StarterSuggest)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)

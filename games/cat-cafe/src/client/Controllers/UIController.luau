@@ -2113,6 +2113,13 @@ local function wireIntents()
 	UI.events.lockCat:Connect(function(uid: string, locked: boolean)
 		Net.fire("LockCat", uid, locked)
 	end)
+	-- #5172 (switch catFollower): Follow or Send home, and the follower's boost; the next ProfileSync shows the change
+	UI.events.setFollower:Connect(function(uid: string)
+		Net.fire("SetFollower", uid)
+	end)
+	UI.events.setFollowerBoost:Connect(function(boost: string)
+		Net.fire("SetFollowerBoost", boost)
+	end)
 	-- Trade or No thanks on the Cat Collector's card (F63). The server checks the range and the cat and answers with
 	-- CollectorOffer("") when the visit ends, or a toast when the cat cannot go yet.
 	UI.events.answerCollector:Connect(function(accept: boolean)

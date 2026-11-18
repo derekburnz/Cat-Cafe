@@ -122,6 +122,28 @@ function Follower.amount(rarity: string?, boost: Boost, variant: string?): numbe
 	return math.floor(base * Follower.coat(variant) * 10000 + 0.5) / 10000
 end
 
+-- The boost's words for the Cats menu: "+18% money", "+0.60 Luck".
+function Follower.text(amount: number, boost: Boost): string
+	if boost == "luck" then
+		return string.format("+%.2f Luck", amount)
+	end
+	local percent = math.floor(amount * 1000 + 0.5) / 10
+	if percent == math.floor(percent) then
+		return string.format("+%d%% money", percent)
+	end
+	return string.format("+%.1f%% money", percent)
+end
+
+-- The coat's chip (Derek 2026-11-18): "Gold x1.25", "Rainbow x1.5", nil for the base coat.
+function Follower.coatText(variant: string?): string?
+	if variant == "gold" then
+		return "Gold x1.25"
+	elseif variant == "rainbow" then
+		return "Rainbow x1.5"
+	end
+	return nil
+end
+
 -- `rarityOf(catId)` is Catalog's lookup, passed in so this module needs no Catalog (Economy and Luck require it).
 local function current(profile: Types.PlayerProfile, rarityOf: (string) -> string?): (Boost, number)
 	local cat = Follower.cat(profile)

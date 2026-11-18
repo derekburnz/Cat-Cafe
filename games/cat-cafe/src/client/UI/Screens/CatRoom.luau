@@ -26,6 +26,7 @@
 -- MyCats owns the window; this view only reads state and calls back.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
@@ -56,6 +57,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
 
+-- #5172: the follower's boost by rarity and coat, as the server pays it
+local Follower = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Follower")) :: any
+
 -- #3717: the trait row reads the `traits` switch and the trait's name
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -73,6 +77,9 @@ export type Callbacks = {
 	-- #1955 (auto-equip.md): the Auto Equip switch over Equip Best, saved as settings.autoEquip; no switch without it
 	-- or while the server does not save the key
 	setAutoEquip: ((on: boolean) -> ())?,
+	-- #5172 (switch catFollower): Follow on the detail ("" sends the follower home) and the follower's Money or Luck
+	setFollower: ((uid: string) -> ())?,
+	setFollowerBoost: ((boost: string) -> ())?,
 }
 
 export type CatRoom = {
@@ -862,13 +869,40 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	})
 	-- F62: the lock, a small square with only the lock picture (Derek 2026-11-13: "make the lock a small square to
 	-- toggle with just the image")
+	-- #5172 (switch catFollower): Follow or Home, and on the follower a square that switches Money and Luck
+	self._follow = Button.new({
+		name = "Follow",
+		text = "Follow",
+		style = "ghost",
+		size = UDim2.new(0.3, 0, 1, 0),
+		textSize = Theme.sizes.textSmall,
+		layoutOrder = 3,
+		parent = actions,
+		onClick = function()
+			self:_pressFollow()
+		end,
+	})
+	self._follow.instance.Visible = false
+	self._boost = Button.new({
+		name = "FollowBoost",
+		text = "$",
+		style = "gold",
+		size = UDim2.fromOffset(actionsH, actionsH),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 4,
+		parent = actions,
+		onClick = function()
+			self:_pressBoost()
+		end,
+	})
+	self._boost.instance.Visible = false
 	self._lock = Button.new({
 		name = "Lock",
 		text = Theme.icons.unlock,
 		style = "ghost",
 		size = UDim2.fromOffset(actionsH, actionsH),
 		textSize = Theme.sizes.textBody,
-		layoutOrder = 3,
+		layoutOrder = 5,
 		parent = actions,
 		onClick = function()
 			self:_pressLock()
@@ -1354,6 +1388,48 @@ function CatRoom._pressEquip(self: any)
 end
 
 -- Whether this cat shows as locked: never before the server sends `locked`, else its saved value or a fresh tap.
+-- #5172: the follower slot's view while catFollower is on and the player is at Tier 2, else nil.
+function CatRoom._followerView(self: any): any?
+	local state: Types.PlayerState? = self._state
+	local view = if state ~= nil then (state :: any).follower else nil
+	if type(view) ~= "table" or view.open ~= true or self._callbacks.setFollower == nil then
+		return nil
+	end
+	return view
+end
+
+-- Follow sends the picked cat out to the player; on the follower it reads Home and sends it back.
+function CatRoom._pressFollow(self: any)
+	local view = self:_followerView()
+	local uid: string? = self._selected
+	if view == nil or uid == nil then
+		return
+	end
+	local home = view.uid == uid
+	self._callbacks.setFollower(if home then "" else uid)
+	self:_say(if home then "Sent home to the cafe." else "Now following you!", true)
+end
+
+-- The follower's square: Money ($) or Luck (the clover), one switch each 10 seconds (the server holds it too).
+function CatRoom._pressBoost(self: any)
+	local view = self:_followerView()
+	local setBoost: ((boost: string) -> ())? = self._callbacks.setFollowerBoost
+	if view == nil or setBoost == nil then
+		return
+	end
+	if (view.switchIn or 0) > 0 then
+		self:_say(string.format("Switch again in %ds", math.ceil(view.switchIn)))
+		return
+	end
+	local boost = if view.boost == "luck" then "money" else "luck"
+	local send = setBoost :: (boost: string) -> ()
+	send(boost)
+	self:_say(
+		if boost == "luck" then "Your follower brings Luck." else "Your follower brings money.",
+		true
+	)
+end
+
 function CatRoom._locked(self: any, instance: Types.CatInstance): boolean
 	local tap = self._lockTaps[instance.uid]
 	return self._lockLive and CatLock.shown(instance.locked, tap, os.clock())
@@ -2028,16 +2104,40 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	self._lock:setStyle(if locked then "gold" else "ghost")
 	self:_placeFeed()
 
-	-- one row: Equip or Unequip (Cancel while a "+" is awaited), Feed (gold while its tiles show), the Lock square
-	local square = if live then self._actionsH + ACTION_GAP else 0
-	local gaps = ACTION_GAP + square
+	-- #5172: Follow (Home on the follower) and, on the follower, the Money or Luck square
+	local follow = self:_followerView()
+	local following = follow ~= nil and follow.uid == instance.uid
+	self._follow.instance.Visible = follow ~= nil
+	self._boost.instance.Visible = following
+	if follow ~= nil then
+		self._follow:setText(if following then "Home" else "Follow")
+		self._follow:setStyle(if following then "gold" else "ghost")
+		self._boost:setText(if follow.boost == "luck" then Theme.icons.luck else "$")
+		-- what this cat brings as the follower, with the boost picked and its coat: "Follows +18% money (Rainbow x1.5)"
+		local amount = Follower.amount(rarity, follow.boost, instance.variant)
+		local coat = Follower.coatText(instance.variant)
+		local line = "Follows "
+			.. Follower.text(amount, follow.boost)
+			.. (if coat then " (" .. coat .. ")" else "")
+		stats.Text = if stats.Text ~= "" then stats.Text .. "  ·  " .. line else line
+	end
+
+	-- one row: Equip or Unequip (Cancel while a "+" is awaited), Feed (gold while its tiles show), Follow, the squares
+	local square = (if live then self._actionsH + ACTION_GAP else 0)
+		+ (if following then self._actionsH + ACTION_GAP else 0)
+	local gaps = ACTION_GAP + square + (if follow ~= nil then ACTION_GAP else 0)
+	local assignShare, feedShare = 0.6, 0.4
+	if follow ~= nil then
+		assignShare, feedShare = 0.4, 0.28
+		self._follow.instance.Size = UDim2.new(0.32, -math.ceil(gaps * 0.32), 1, 0)
+	end
 	self._assign:setText(if self._placing then "Cancel" elseif spotId then "Unequip" else "Equip")
 	self._assign:setStyle(if self._placing or spotId then "ghost" else "primary")
 	self._assign:setEnabled(self._catalog ~= nil)
-	self._assign.instance.Size = UDim2.new(0.6, -math.ceil(gaps * 0.6), 1, 0)
+	self._assign.instance.Size = UDim2.new(assignShare, -math.ceil(gaps * assignShare), 1, 0)
 	self._feed:setStyle(if self._feedOpen then "gold" else "ghost")
 	self._feed:setEnabled(self._callbacks.feedCat ~= nil)
-	self._feed.instance.Size = UDim2.new(0.4, -math.ceil(gaps * 0.4), 1, 0)
+	self._feed.instance.Size = UDim2.new(feedShare, -math.ceil(gaps * feedShare), 1, 0)
 end
 
 -- Theme colours per chip: the favourite role in berry with a heart, gold in gold, rainbow on the turning bands (F99),

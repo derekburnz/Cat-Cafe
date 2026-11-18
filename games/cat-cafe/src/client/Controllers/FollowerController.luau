@@ -9,7 +9,9 @@
 --   - it hops when the player jumps;
 --   - more than SNAP studs away (a teleport, a fall, a cannon) it pops to the spot at once, and the model gets a
 --     Popped attribute (os.clock) for Motion-FX's puff;
---   - its Moving attribute is false after IDLE seconds standing still, for Motion-FX's sit and groom.
+--   - its Moving attribute is false after IDLE seconds standing still, for Motion-FX's sit and groom;
+--   - during this player's own net catch (CatchSchedule until CatchResult) it walks out to a spot ASIDE times farther
+--     out and sits there (Moving false once it arrives), clear of the rings.
 -- On a phone or tablet other players' followers show only within OTHERS_RANGE studs, at most OTHERS_MAX of them.
 -- Show only: nothing here reaches the server.
 
@@ -24,6 +26,7 @@ local Catalog = require(Shared:WaitForChild("Catalog"))
 local FollowLogic = require(Shared:WaitForChild("FollowLogic"))
 local GoldTone = require(Shared:WaitForChild("GoldTone"))
 local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
+local Net = require(script.Parent.Parent.Net)
 
 local FollowerController = {}
 
@@ -40,9 +43,18 @@ type Walker = {
 	facing: Vector3,
 	hop: number, -- seconds into a hop, or -1
 	stillFor: number,
+	floorY: number, -- the player's feet the last time they stood on something, held while they are in the air
 }
 
 local walkers: { [Player]: Walker } = {}
+-- os.clock() when this player's net catch started (CatchSchedule), nil when none runs (CatchResult). Only this
+-- player's own catches are known here, so only their own follower steps aside.
+local catchingSince: number? = nil
+
+local function catching(): boolean
+	local since = catchingSince
+	return since ~= nil and os.clock() - since < FollowLogic.CATCH_HOLD
+end
 local folder: Folder? = nil
 local started = false
 
@@ -166,9 +178,14 @@ local function make(owner: Player, root: BasePart, humanoid: Humanoid?): Walker?
 	local half = model:GetPivot().Position.Y - (box.Position.Y - size.Y / 2)
 	model.Name = "Follower_" .. owner.UserId
 	model:SetAttribute("Moving", false)
+	-- Effects/Rainbow dresses any model with Variant "rainbow" as it is added (review nit: rainbow drew plain)
+	if variant == "rainbow" then
+		model:SetAttribute("Variant", "rainbow")
+	end
 	model:SetAttribute("OwnerUserId", owner.UserId)
 	model.Parent = folderOf()
-	local spot = FollowLogic.spot(root.Position, root.CFrame.LookVector, floorOf(root, humanoid))
+	local floorY = floorOf(root, humanoid)
+	local spot = FollowLogic.spot(root.Position, root.CFrame.LookVector, floorY)
 	return {
 		model = model,
 		catId = catId,
@@ -178,6 +195,7 @@ local function make(owner: Player, root: BasePart, humanoid: Humanoid?): Walker?
 		facing = root.CFrame.LookVector,
 		hop = -1,
 		stillFor = 0,
+		floorY = floorY,
 	}
 end
 
@@ -212,7 +230,12 @@ local function step(dt: number)
 		end
 		local w = walker :: Walker
 		local r = root :: BasePart
-		local spot = FollowLogic.spot(r.Position, r.CFrame.LookVector, floorOf(r, humanoid))
+		-- the floor under the player, kept while they jump or fall so the cat stays on the ground (review nit)
+		if humanoid == nil or humanoid.FloorMaterial ~= Enum.Material.Air then
+			w.floorY = floorOf(r, humanoid)
+		end
+		local aside = owner == Players.LocalPlayer and catching()
+		local spot = FollowLogic.spot(r.Position, r.CFrame.LookVector, w.floorY, aside)
 		local speed = if humanoid ~= nil then humanoid.WalkSpeed else 16
 		local move = FollowLogic.move(w.position, spot, speed, dt)
 		if move.snapped then
@@ -241,7 +264,7 @@ local function step(dt: number)
 				w.hop = -1
 			end
 		end
-		local moving = w.stillFor < FollowLogic.IDLE
+		local moving = w.stillFor < FollowLogic.IDLE and not (aside and move.moved <= 1e-3)
 		if w.model:GetAttribute("Moving") ~= moving then
 			w.model:SetAttribute("Moving", moving)
 		end
@@ -261,6 +284,13 @@ function FollowerController.start()
 	end
 	started = true
 	Players.PlayerRemoving:Connect(drop)
+	-- during this player's own net catch the follower sits and watches, out of the rings (cat-follower-spec.md)
+	Net.on("CatchSchedule", function()
+		catchingSince = os.clock()
+	end)
+	Net.on("CatchResult", function()
+		catchingSince = nil
+	end)
 	RunService.Heartbeat:Connect(step)
 end
 

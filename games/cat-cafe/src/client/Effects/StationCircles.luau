@@ -40,14 +40,17 @@ local function paint(ring: Instance)
 			for _, piece in child:GetChildren() do
 				if piece:IsA("GuiObject") then
 					(piece :: GuiObject).Visible = shown
-					local size = piece:FindFirstChild("TownScale")
-					if scale ~= 1 and size == nil then
+					local found = piece:FindFirstChild("TownScale")
+					local size: UIScale? = if found and found:IsA("UIScale")
+						then found :: UIScale
+						else nil
+					if size then
+						size.Scale = scale
+					elseif scale ~= 1 then
 						local made = Instance.new("UIScale")
 						made.Name = "TownScale"
 						made.Scale = scale
 						made.Parent = piece
-					elseif size ~= nil and size:IsA("UIScale") then
-						(size :: UIScale).Scale = scale
 					end
 				end
 			end

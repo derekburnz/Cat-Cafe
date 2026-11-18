@@ -21,6 +21,7 @@ local AdminDrops = require(script.AdminDrops)
 local AdminFlash = require(script.AdminFlash)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
+local ArcadeScreen = require(script.ArcadeScreen)
 local AreaFx = require(script.AreaFx)
 local AreaWater = require(script.AreaWater)
 local BaitCrumbs = require(script.BaitCrumbs)
@@ -225,6 +226,7 @@ function Effects.start()
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,
+		ArcadeScreen.start, -- Derek 2026-11-18: the cabinet's screen plays a little Mouse Dash
 		PoolBeacon.start,
 		RuinsWater.start,
 		AreaWater.start, -- #4070, #4071: the Water Park's pools and river, the Castle's moat and well

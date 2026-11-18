@@ -4460,6 +4460,46 @@ Presets.arcadeGlow = {
 	},
 }
 
+-- The Cat Arcade's attract screen (Derek 2026-11-18; Effects/ArcadeScreen): a SurfaceGui on the cabinet's `part`
+-- at `pixelsPerStud`, a mouse up every `beat` seconds, the paw bopping every `bopEvery`-th, a golden mouse every
+-- `goldEvery`-th. `sheet` and `backdrop` are Mouse Dash's uploaded pictures (UI/Components/MouseDashLogic).
+Presets.arcadeScreen = {
+	part = "Screen",
+	pixelsPerStud = 100,
+	brightness = 1.4,
+	maxDistance = 160,
+	within = 90,
+	beat = 0.9,
+	up = 0.18,
+	down = 0.12,
+	wait = 0.15,
+	bop = 0.12,
+	dust = 0.35,
+	bopEvery = 3,
+	goldEvery = 7,
+	holes = 3,
+	holeSize = 0.28,
+	holeY = 0.62,
+	sheet = "rbxassetid://106053188764774",
+	backdrop = "rbxassetid://116753136904678",
+	cell = 256,
+	cells = {
+		Mouse = { 0, 0 },
+		MouseHit = { 256, 0 },
+		GoldMouse = { 512, 0 },
+		GoldMouseHit = { 768, 0 },
+		Hole = { 512, 256 },
+		Dust = { 0, 512 },
+		Paw = { 256, 512 },
+		PawBop = { 512, 512 },
+	} :: { [string]: { number } },
+	night = Color3.fromRGB(31, 42, 68), -- the screen part's own night blue
+	floorTint = Color3.fromRGB(200, 190, 210),
+	text = "PRESS PLAY",
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(74, 46, 30),
+}
+
 -- A Golden find (#3222; Effects/GoldenFind): the toast line starting `prefix` (LawnService.giveDrop's) plays a gold
 -- `beamWidth` by `beamHeight` stud beam off the player for `beamSeconds`, `sparkles` catchSparkle and `confetti` pieces
 -- `lift` studs over their middle, and `rings` gold rings `ringGap` seconds apart, `ring` studs wider each, at their

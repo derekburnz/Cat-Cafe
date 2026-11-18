@@ -388,7 +388,7 @@ local function autoBowl(player: Player, profile: Types.PlayerProfile, now: numbe
 		or not AutoBowl.active(
 			known,
 			known and LiveFlagService.on(AutoBowl.FLAG),
-			PassService.owns(player, AutoBowl.passId())
+			PassService.ownsAutoBowl(player) -- #5263: or the 2nd Bowl pass, with bowlTicks
 		)
 	then
 		return

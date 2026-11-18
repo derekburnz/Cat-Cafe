@@ -709,8 +709,9 @@ function SpinWheel._paintCat(self: any, tile: Tile)
 		})
 		tile.portrait = portrait
 	end
-	portrait:set(def)
-	portrait:setSilhouette(self._catOwned ~= true)
+	local shown: any = portrait
+	shown:set(def)
+	shown:setSilhouette(self._catOwned ~= true)
 end
 
 -- The crate id a crate slice pays this player now (F54: "highest" is the crate of their highest open area).

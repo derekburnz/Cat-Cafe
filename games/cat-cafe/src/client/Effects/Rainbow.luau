@@ -455,7 +455,10 @@ function Rainbow.start()
 			if child.Name ~= "RainbowSpawned" or not child:IsA("RemoteEvent") then
 				return false
 			end
-			(child :: RemoteEvent).OnClientEvent:Connect(function(_areaId: unknown, catId: unknown)
+			(child :: RemoteEvent).OnClientEvent:Connect(function(areaId: unknown, catId: unknown)
+				if Context.areaShut(areaId) then
+					return -- #5265: no beam over a rainbow stray in an area this player's tier has not opened
+				end
 				spawned(catId)
 			end)
 			return true

@@ -2640,13 +2640,15 @@ Layout.townSquare = {
 	-- "more left closer to leaderboards not that close to feedback"): half size, back by the west edge between the
 	-- bench at z -35.9 and the lamp at z -45, 23 studs from the leaderboard row and 20 from the Feedback stand, still
 	-- facing the spawn (0, -14). It was at (-37.99, -49.80), turned -142.7.
+	-- #5461 (Derek 2026-11-19: "update this sign to be a little bigger"): 0.65 (6.0 wide) on the same spot; its ends
+	-- stay 4 studs off the west bench and 9 off the lamp.
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
 		x = -45.0,
 		y = 0.1,
 		z = -40.5,
 		rotY = -120.5,
-		scale = 0.5,
+		scale = 0.65,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the

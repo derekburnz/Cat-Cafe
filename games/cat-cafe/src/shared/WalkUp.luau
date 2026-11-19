@@ -352,8 +352,8 @@ function WalkUp.step(
 	-- #5386 (Derek 2026-11-19: "after claiming cats in areas the next couple seconds even if you walk up to cannon it
 	-- doesnt give you a menu"): with `retry`, a step in that lands while busy or under another window keeps its ask,
 	-- so the window opens once the player is free, still standing in the ring
-	if retry == true and entered ~= nil then
-		state.since[(entered :: Station).key] = enteredSince
+	if retry == true and entered ~= nil and enteredSince ~= nil then
+		state.since[(entered :: Station).key] = enteredSince :: number
 	end
 	return nil, close
 end

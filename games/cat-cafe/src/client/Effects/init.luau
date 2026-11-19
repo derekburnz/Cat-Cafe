@@ -61,6 +61,7 @@ local Follower = require(script.Follower)
 local FusionFx = require(script.FusionFx)
 local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
+local GuideArrow = require(script.GuideArrow)
 local HarvestFx = require(script.HarvestFx)
 local HoldPulse = require(script.HoldPulse)
 local Intro = require(script.Intro)
@@ -246,6 +247,7 @@ function Effects.start()
 		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,
+		GuideArrow.start, -- #5465: one arrow by the player in place of the trail, with guideArrow on
 		GoldenFind.start,
 		MoneyBag.start,
 		StationBuild.start,

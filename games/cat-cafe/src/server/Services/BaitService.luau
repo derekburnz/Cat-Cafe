@@ -315,7 +315,7 @@ local function resolveBait(
 	elseif
 		profile.tutorialStep < TutorialOrder.BOWL_STEP_BELOW
 		and profile.stats.luresUsed <= 1
-		and TutorialOrder.bowlFirst()
+		and TutorialOrder.bowlFirst(player)
 	then
 		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway.
 		-- #4777: no longer moved; the HUD's Cannon button is lit for the player to press

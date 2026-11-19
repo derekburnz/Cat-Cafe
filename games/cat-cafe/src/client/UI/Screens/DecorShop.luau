@@ -114,7 +114,8 @@ local CHIP_ICONS: { [string]: string } = {
 -- switch on, each chip draws Model-Agent's picture (decor_tabs.py, group owned) in front of its word at CHIP_PICTURE
 -- times the text size, the emoji showing until it loads. Read when the chips are built.
 local CHIP_FLAG = "decorChipIcons"
-local CHIP_PICTURE = 1.7
+local CHIP_PICTURE = 1.5 -- 1.7 until #5366's 360 px check (Sync 2026-11-19: "Plants" 33 px text in a 34 px box)
+local CHIP_GAP_PICTURES = 6 -- #5366: with the pictures the chips sit closer, each about 3 px wider on a phone
 local CHIP_IMAGES: { [string]: string } = {
 	All = "rbxassetid://101387394392524",
 	Style = "rbxassetid://100879474778439",
@@ -175,6 +176,8 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._chipHeight = Scale.tapHeight(CHIP_HEIGHT, Theme.sizes.buttonDepth)
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	local chipHeight = self._chipHeight
+	local chipPictures = ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CHIP_FLAG)
+	self._chipGap = if LiveFlags.shown(CHIP_FLAG, chipPictures) then CHIP_GAP_PICTURES else CHIP_GAP
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -202,7 +205,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, CHIP_GAP),
+			Padding = UDim.new(0, self._chipGap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -350,7 +353,7 @@ function DecorShop._layoutChips(self: any)
 	local count = math.max(#shown, 1)
 	for _, chip in shown do
 		chip.button.instance.Size =
-			UDim2.new(1 / count, -CHIP_GAP * (count - 1) / count, 0, self._chipHeight)
+			UDim2.new(1 / count, -self._chipGap * (count - 1) / count, 0, self._chipHeight)
 	end
 end
 

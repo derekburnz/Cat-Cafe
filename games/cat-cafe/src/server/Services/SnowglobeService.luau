@@ -21,6 +21,14 @@ SnowglobeService.area = nil :: any
 
 local function build()
 	SnowglobeService.portal = SnowglobeWorld.buildPortal(Workspace)
+	local portal = SnowglobeService.portal
+	if portal ~= nil then
+		-- #5502: the advent calendar board beside the globe; its doors stay shut by date and switch (AdventService)
+		local ok, err: any = pcall(SnowglobeWorld.buildAdventBoard, Workspace, portal)
+		if not ok then
+			warn("[SnowglobeService] advent board failed: " .. tostring(err))
+		end
+	end
 	local folder, info = SnowglobeWorld.buildArea(Workspace)
 	SnowglobeService.folder = folder
 	SnowglobeService.area = info

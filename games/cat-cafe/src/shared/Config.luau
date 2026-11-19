@@ -865,7 +865,9 @@ local Config = {
 		{
 			id = "0",
 			startsAt = 1795006800, -- 2026-11-18 13:00 UTC
-			liveUntil = 1795291200, -- 2026-11-21 20:00 UTC
+			-- #5461 (Derek 2026-11-19: "switch to christmas"): OUT NOW ends 14:00 UTC Nov 19 (was Nov 21 20:00 UTC), so
+			-- the poster shows the Christmas Event's DEC 1 TO JAN 3 art, the Roblox event card's picture
+			liveUntil = 1795096800, -- 2026-11-19 14:00 UTC
 			name = "CAT COMPANION",
 			-- Derek 2026-11-18 (#5284: the follower is the Cat Companion now): the CAT COMPANION! picture, group owned
 			poster = "rbxassetid://74687423272088", -- was 140613402107560, the CAT FOLLOWER! one (#5213)

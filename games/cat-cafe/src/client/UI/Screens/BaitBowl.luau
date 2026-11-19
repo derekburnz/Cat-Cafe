@@ -887,7 +887,9 @@ function BaitBowl._renderAuto(self: any)
 	local offerH = AUTO_OFFER_H
 	local y, height = layout(offerH)
 	-- #5472: too short a column puts the whole card at the top of the foods list
-	local asButton = shown and height > room and ReplicatedStorage:GetAttribute(BUTTON_FLAG) == true -- #5488
+	local asButton: boolean = shown == true
+		and height > room
+		and ReplicatedStorage:GetAttribute(BUTTON_FLAG) == true -- #5488
 	local inList = shown
 		and height > room
 		and not asButton

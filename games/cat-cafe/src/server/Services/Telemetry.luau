@@ -218,6 +218,7 @@ export type CustomEvent =
 	| "quest_set" -- F73: kind, when the last quest of a full set is claimed and the set prize paid
 	| "achievement_claimed" -- F73: achievement id, size
 	| "daily_treat" -- F70: the day stamped (1 to 7)
+	| "advent_door" -- #5502 (shared/Advent): value the door; fields on_time or catch_up, device, first_day/first_week/older
 	-- Derek's 10-31 research notes: where early players stop. On leaving before Tier 2: the furthest onboarding step,
 	-- the tutorial step ("intro" while the intro has never finished) and where they were; the value is the session's
 	-- seconds

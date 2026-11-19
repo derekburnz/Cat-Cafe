@@ -57,7 +57,12 @@ return function()
 		it("covers every Secret the Catalog has", function()
 			local missing = {}
 			for catId, def in Catalog.catsById do
-				if def.rarity == "Secret" and Presets.signature[catId] == nil then
+				-- #5502: the advent calendar cats get their own glow from Motion-FX (advent-calendar-spec section 8)
+				if
+					def.rarity == "Secret"
+					and def.source ~= "advent"
+					and Presets.signature[catId] == nil
+				then
 					table.insert(missing, catId)
 				end
 			end

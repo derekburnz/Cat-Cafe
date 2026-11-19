@@ -397,7 +397,8 @@ local function ringOf(model: Instance): (boolean, Vector3?, number)
 	local _, scale = WalkUp.ringLook(
 		game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. WalkUp.TOWN_FLAG) == true,
 		ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE),
-		true
+		true,
+		ring:GetAttribute(WalkUp.FULL_ATTRIBUTE)
 	)
 	return true, (ring :: BasePart).Position, size * scale
 end

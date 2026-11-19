@@ -45,9 +45,17 @@ WalkUp.TOWN_SCALE = 0.7
 WalkUp.TOWN_FLAG = "townRings"
 -- How a ring looks with the townRings switch `on`: shown or not, and at what scale. `town` is its TOWN_ATTRIBUTE,
 -- `setting` the Station circles setting's answer.
-function WalkUp.ringLook(on: boolean, town: unknown, setting: boolean): (boolean, number)
+-- #5367 (Derek 2026-11-18: "make the cannon circle bigger again"): a ring all the way round its station (a Cat Cannon,
+-- WalkUpCircles.around) carries FULL_ATTRIBUTE and keeps its full size on the Town Square; `full` is that attribute.
+WalkUp.FULL_ATTRIBUTE = "FullSize"
+function WalkUp.ringLook(
+	on: boolean,
+	town: unknown,
+	setting: boolean,
+	full: unknown?
+): (boolean, number)
 	if on and town == true then
-		return true, WalkUp.TOWN_SCALE
+		return true, if full == true then 1 else WalkUp.TOWN_SCALE
 	elseif on and town == false then
 		return false, 1
 	end

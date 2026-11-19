@@ -470,6 +470,14 @@ function WalkUpCircles.around(
 	local blocks = blocksAround(model, Vector3.new(at.X, bottom + PROBE_UP, at.Z), reach)
 	local shift, fitted = WalkUp.fitRing(radius, blocks, most, 1, baseOf(model, at, bottom))
 	ring(model, Vector3.new(at.X + shift.X, bottom + LIFT, at.Z + shift.Y), fitted, color, into)
+	-- #5367: a cannon's ring keeps its full size on the Town Square (WalkUp.ringLook)
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local laid = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	if laid ~= nil then
+		laid:SetAttribute(WalkUp.FULL_ATTRIBUTE, true)
+	end
 	keepApart(model, nil, 0, range, shift, fitted, fitted) -- a ring round its station holds its base: it never shrinks
 end
 

@@ -109,6 +109,7 @@ local FACE_TAP = Scale.tapHeight(36) -- a face's tap pad: 36 px with a mouse, a 
 -- #5296 (Derek 2026-11-18, switch companionMenu): the team strip is four role symbols with counts (a tap opens a strip
 -- of that role's cats) beside the gold Companion button, one button tall
 local MENU_FLAG = "LiveFlag_companionMenu"
+local NUDGE_FLAG = "LiveFlag_companionNudge" -- #5364: the "!" on the Companion button with no companion
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
 local SEARCH_MIN = 110 -- #4028: the search box takes what the bar leaves, never less
 local SEG_W = 288 -- the All / Working / Resting switch
@@ -121,6 +122,7 @@ local AUTO_W = 68 -- #4256: the AUTO switch, its own button right of Equip Best 
 local CONFIRM_SECONDS = 3 -- Unequip All asks a second tap within this
 local COUNT_W = 40 -- a role's green "2/4"
 local COMP_W = 240 -- #5296: the Companion button
+local ROLE_SYMBOL_SIZE = 32 -- #5358: a role's symbol with companionMenu on (it was the 20 px name line's)
 local ROLE_STRIP_H = 2 * CREW_PAD + SQUARE + 2 + CREW_NOTE_H -- #5296: a role's cats under its symbol
 local DETAIL_W = 236
 local DETAIL_ART = 64
@@ -675,6 +677,34 @@ function CatRoom._buildCompanion(self: any, parent: Frame, crew: Frame, crewH: n
 	FitText.shrink(self._compLine)
 	self._compButton = button
 	self._compCat = nil :: string?
+	-- #5364 (Derek 2026-11-18: "show an exclamation mark on the companion box in cats menu if they don't current have one
+	-- equipped"): the HUD's red "!" (#1074) on the button's top right corner, while companionNudge is on and nothing
+	-- follows (_renderCompanion)
+	local nudge: Frame = Create("Frame", {
+		Name = "Nudge",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -6, 0, 6), -- inside the strip's 6 px pad, so a clipping parent keeps it whole
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = 4,
+		Parent = button,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(nudge, 2)
+	text({
+		Name = "Mark",
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "!",
+		ZIndex = 5,
+		Parent = nudge,
+	})
+	self._compNudge = nudge
 	table.insert(
 		self._connections,
 		button.Activated:Connect(function()
@@ -1172,14 +1202,17 @@ function CatRoom._buildCrew(self: any)
 		})
 		Outline.border(group, Theme.sizes.stroke, PAL.cardStroke)
 		local small = self._menuOn == true -- #5296: the symbol and the count, centred, the whole pill a tap
+		-- #5358 (Derek 2026-11-18: "make the role symbols much bigger since no cats are showing beside it"): with
+		-- companionMenu on, the symbol fills the pill's height left of the count, centred in the space it had alone
 		local label = text({
 			Name = "Role",
-			Position = if small
-				then UDim2.new(0, 6, 0.5, -CREW_NAME_H / 2)
-				else UDim2.fromOffset(8, 4),
-			Size = UDim2.new(1, -(8 + COUNT_W + 8), 0, CREW_NAME_H),
+			Position = if small then UDim2.fromOffset(4, 2) else UDim2.fromOffset(8, 4),
+			Size = if small
+				then UDim2.new(1, -(4 + COUNT_W + 10), 1, -4)
+				else UDim2.new(1, -(8 + COUNT_W + 8), 0, CREW_NAME_H),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
+			TextSize = if small then ROLE_SYMBOL_SIZE else Theme.sizes.textBody,
+			TextXAlignment = if small then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left,
 			Text = (Theme.roleIcons[row.role] or "") .. " " .. row.name,
 			Parent = group,
 		})
@@ -1837,6 +1870,8 @@ function CatRoom._renderCompanion(self: any, state: Types.PlayerState, view: any
 		self._compArt:set(def, cat ~= nil and cat.variant == "gold")
 	end
 	self._compArt.frame.Visible = def ~= nil
+	-- #5364: the "!" while the companion is open (Tier 2, so `view` is set) and no cat follows
+	self._compNudge.Visible = cat == nil and ReplicatedStorage:GetAttribute(NUDGE_FLAG) == true
 	self._compLine.Text = if def ~= nil and cat ~= nil
 		then Follower.catBothText(cat, (def :: Types.CatDef).rarity) -- #5303: its trait included
 		else "Tap to pick one"

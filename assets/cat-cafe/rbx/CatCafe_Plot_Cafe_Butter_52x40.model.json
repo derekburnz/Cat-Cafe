@@ -6643,7 +6643,7 @@
        "CFrame": {
         "position": [
          11.1,
-         23.9659,
+         24.7849,
          12.5286
         ],
         "orientation": [
@@ -6667,8 +6667,57 @@
       },
       "Size": [
        2.2,
-       8.5291,
+       6.8912,
        2.2
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Butter_52x40_Roof",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.1,
+         20.8263,
+         12.5286
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.2,
+       2.2,
+       1.0259
       ],
       "Color": [
        0.6118,

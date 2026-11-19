@@ -291,8 +291,13 @@ local function keptFront(player: Player, areaId: string)
 	end
 	local front: { Chunk } = {}
 	local rest: { Chunk } = {}
-	for _, chunk in keptQueue[player] or {} do
-		table.insert(if inArea[chunk.model] then front else rest, chunk)
+	local queued: { Chunk } = keptQueue[player] or {}
+	for _, chunk in queued do
+		if inArea[chunk.model] then
+			table.insert(front, chunk)
+		else
+			table.insert(rest, chunk)
+		end
 	end
 	if not areas[areaId] then
 		areas[areaId] = true

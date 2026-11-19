@@ -1291,8 +1291,22 @@ local function ownBowlPart(index: number): BasePart?
 end
 
 -- A bowl's window, as its prompt or its walk-up ring (#2476) opens it: the cat waiting there, else the food picker.
-function UIController.openBowl(index: number)
+function UIController.openBowl(index: number, walked: boolean?)
 	local waiting = if state ~= nil then baitCat(bowlBait(state, index)) else nil
+	-- #5436 (Derek 2026-11-19: "the no new cat pop-ups sometimes doesn't work"): the tick was checked as a cat came
+	-- and as it was tamed, but standing in the bowl's walk-up ring (walkUpRetry opens it again without stepping out)
+	-- showed the waiting cat's card anyway. With bowlWalkQuiet on and the tick set, a walk-up open shows nothing for a
+	-- waiting cat (the bowl chip and the prompt still open it, and auto claim tames it).
+	local settings: any = if state ~= nil then (state :: any).settings else nil
+	if
+		walked == true
+		and waiting ~= nil
+		and type(settings) == "table"
+		and settings.bowlNewCatCard == false
+		and ReplicatedStorage:GetAttribute("LiveFlag_bowlWalkQuiet") == true
+	then
+		return
+	end
 	if waiting ~= nil then
 		baitUI.showReady(waiting, index)
 	else

@@ -26,27 +26,36 @@ return function()
 			expect(TownGround.PATHS_NAME).to.equal("PawPaths")
 		end)
 
-		it("maps a point on a floor to its top face canvas (#5471)", function()
-			local x, y = TownGround.pixel(0, 0, 14.8, 161, 20)
-			expect(x).to.equal(148)
-			expect(y).to.equal(1610)
-			local x2, y2 = TownGround.pixel(-0.7, -40, 14.8, 161, 20)
-			expect(math.abs(x2 - 134) < 1e-6).to.equal(true)
-			expect(math.abs(y2 - 810) < 1e-6).to.equal(true)
-		end)
-
 		it(
-			"reads a print's turn from its look and turns the canvas the other way (#5471)",
+			"maps a point on a floor to its top face canvas, X along the part's Z (#5471)",
 			function()
-				expect(math.abs(TownGround.turnOf(0, -1)) < 1e-6).to.equal(true) -- looking -Z: no turn
-				expect(
-					math.abs(TownGround.turnOf(0, 1) - 180) < 1e-6
-						or math.abs(TownGround.turnOf(0, 1) + 180) < 1e-6
-				).to.equal(true)
-				expect(math.abs(TownGround.turnOf(-1, 0) - 90) < 1e-6).to.equal(true) -- a quarter turn: -Z to -X
-				expect(TownGround.canvasTurn(90)).to.equal(-90)
+				local c = TownGround.CANVAS
+				-- the canvas is the part's Z long and its X high (Sync: 2950 x 640 on a 32 x 147.5 street half)
+				local w, h = TownGround.pixel(16, 73.75, 32, 147.5, 20)
+				local w2, h2 = TownGround.pixel(-16, -73.75, 32, 147.5, 20)
+				expect(math.abs(math.abs(w - w2) - 2950) < 1e-6).to.equal(true)
+				expect(math.abs(math.abs(h - h2) - 640) < 1e-6).to.equal(true)
+				local x, y = TownGround.pixel(0, 0, 14.8, 161, 20)
+				expect(x).to.equal(1610)
+				expect(y).to.equal(148)
+				local x2, y2 = TownGround.pixel(-0.7, -40, 14.8, 161, 20)
+				expect(math.abs(x2 - (1610 + c.xSign * -40 * 20)) < 1e-6).to.equal(true)
+				expect(math.abs(y2 - (148 + c.ySign * -0.7 * 20)) < 1e-6).to.equal(true)
 			end
 		)
+
+		it("turns a print so its toes point the way it looks (#5471)", function()
+			for _, way in { { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }, { 0.6, -0.8 } } do
+				local turn = math.rad(TownGround.facing(way[1], way[2]))
+				-- toes drawn toward canvas -Y, turned clockwise by `turn`
+				local tu, tv = math.sin(turn), -math.cos(turn)
+				-- where the look lands on the canvas, a little way along from the middle
+				local u0, v0 = TownGround.pixel(0, 0, 10, 10, 1)
+				local u1, v1 = TownGround.pixel(way[1], way[2], 10, 10, 1)
+				expect(math.abs(tu - (u1 - u0)) < 1e-6).to.equal(true)
+				expect(math.abs(tv - (v1 - v0)) < 1e-6).to.equal(true)
+			end
+		end)
 
 		it("keeps every toe inside the print's box", function()
 			for _, toe in TownGround.TOES do

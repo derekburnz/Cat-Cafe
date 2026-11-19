@@ -227,6 +227,7 @@ return function()
 							or key == "promptsAfter5" -- #5251
 							or key == "upgradesInstant" -- #5253
 							or key == "nightBright" -- #5240
+							or key == "frontDoors" -- #5385
 							or key == "ringSolid" -- #5256
 							or key == "phoneSmooth" -- #5285
 							or key == "quickFirstRings" -- #5232

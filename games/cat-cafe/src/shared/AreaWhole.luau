@@ -25,6 +25,11 @@ AreaWhole.FLAG = "areaWhole" -- shared/LiveFlags, off by default
 -- doesn't need to spike each time they visit them"): with areaWhole on too, every area a player has unlocked loads
 -- onto their device once, the one they are in (or flying to) first, the rest after, and nothing is let go again.
 AreaWhole.KEPT_FLAG = "areasKept" -- shared/LiveFlags, off by default
+-- Sync 2026-11-19 (Tier 10, all areas): areasKept held about 4x the parts of areaWhole alone (88k against 21k) and
+-- about +300 MB, too much for a low-memory phone. With areasKeptBig on, only a PC or console keeps every area; a
+-- phone, a tablet and a device not reported yet keep one area whole, as areaWhole alone does.
+AreaWhole.KEPT_BIG_FLAG = "areasKeptBig" -- shared/LiveFlags, off by default
+AreaWhole.KEPT_DEVICES = { pc = true, console = true } :: { [string]: boolean }
 AreaWhole.STEP = 1 -- seconds between the service's checks of where each player stands
 -- A cannon flight's destination is held this long at most (the longest flight is about 6 s), so a flight cut short
 -- (a respawn, a leave) never pins an area.
@@ -96,6 +101,15 @@ function AreaWhole.take(sizes: { number }, budget: number?, atLeastOne: boolean?
 		total += size
 	end
 	return count
+end
+
+-- Whether a device keeps every unlocked area (areasKept): any device, or with `bigOnly` (areasKeptBig) only a PC or
+-- console. `device` is what the client reported (Telemetry.device), nil before it has.
+function AreaWhole.keptFor(device: string?, bigOnly: boolean): boolean
+	if not bigOnly then
+		return true
+	end
+	return device ~= nil and AreaWhole.KEPT_DEVICES[device] == true
 end
 
 return AreaWhole

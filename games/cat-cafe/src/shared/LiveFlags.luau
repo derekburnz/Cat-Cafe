@@ -108,6 +108,7 @@ LiveFlags.KEYS = {
 	"areasKept", -- #5381: with areaWhole on, every unlocked area loads once and stays on the device (shared/AreaWhole); off by default
 	"firstFlightQuick", -- #4920: the walk-through's flights out take 2/3 of every beat (shared/Cannon.flightScale)
 	"moneyCard", -- #4437: the HUD Money button's first tap opens the boost card (UI/Screens/MoneyCard); false prompts at once
+	"areasKeptBig", -- Sync 2026-11-19: with areasKept, only a PC or console keeps every area; a phone or tablet keeps one (shared/AreaWhole.keptFor); off by default
 	"firstFlightDirect", -- #4920: the walk-through's first flight goes straight to the Alleyway (UI/Components/WalkRingLogic)
 	"autoRankUp", -- #4924: the Rank Up window opens by itself once a tier when it is ready (UI/Components/AutoRankUp)
 	"noIntro", -- #4929: no intro plays by itself on a first join (shared/IntroSplit.NO_INTRO); off unless switched on
@@ -228,6 +229,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	dailyDeal = true,
 	perfectFlagged = true, -- #5379
 	starterSuggest = true,
+	areasKeptBig = true, -- Sync 2026-11-19
 	updateFeature = true,
 	adminEvents = true,
 	secretAreas = true,

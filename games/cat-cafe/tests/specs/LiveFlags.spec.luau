@@ -200,6 +200,7 @@ return function()
 							or key == "companionTraits" -- #5303
 							or key == "perfectCatch" -- #5300
 							or key == "easyKeep" -- #5311
+							or key == "bangFixedText" -- #5390
 							or key == "afkQuick" -- #5310
 							or key == "afkStay" -- #5322
 							or key == "strayMeets" -- onboarding_v9
@@ -222,16 +223,18 @@ return function()
 							or key == "parkRankPoint" -- #5163
 							or key == "parkFirstEasy" -- #5182
 							or key == "areaWhole" -- Derek 2026-11-18
-							or key == "bangFixedText" -- #5390
+							or key == "crateUnstick" -- #5394
 							or key == "cannonAnywhere" -- #5382
 							or key == "nextGoalBeat" -- #5202
 							or key == "milestoneFunnel" -- #5291
 							or key == "townGround" -- #5357
+							or key == "decorChipIcons" -- #5366
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
 							or key == "promptsAfter5" -- #5251
 							or key == "upgradesInstant" -- #5253
 							or key == "nightBright" -- #5240
+							or key == "frontDoors" -- #5385
 							or key == "ringSolid" -- #5256
 							or key == "phoneSmooth" -- #5285
 							or key == "quickFirstRings" -- #5232

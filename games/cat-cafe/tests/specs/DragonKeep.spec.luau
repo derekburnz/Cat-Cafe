@@ -118,6 +118,25 @@ return function()
 			)
 		end)
 
+		it("refuses an event cat only with keepNoEvent on (#5428)", function()
+			local profile = profileWith({
+				{ uid = "a", rarity = "Common" },
+				{ uid = "b", rarity = "Common" },
+				{ uid = "c", rarity = "Common" },
+			})
+			profile.cats.a.catId = "hay_bale"
+			profile.cats.b.catId = "hay_bale"
+			expect(DragonKeep.eventCat("hay_bale")).to.equal(true)
+			expect(DragonKeep.eventCat("tabby")).to.equal(false)
+			expect(DragonKeep.giveBlocker(profile, 10, { "a" }, false, true)).to.equal(nil)
+			expect(DragonKeep.giveBlocker(profile, 10, { "a" }, false, true, true)).to.equal(
+				DragonKeep.Messages.eventCat
+			)
+			expect(DragonKeep.giveBlocker(profile, 10, { "c" }, false, true, true)).to.equal(nil)
+			expect(#DragonKeep.quickPlan(profile, "repeats", true)).to.equal(0)
+			expect(#DragonKeep.quickPlan(profile, "repeats")).to.equal(1)
+		end)
+
 		it("plans repeats without gold, working or the last copy", function()
 			local profile = profileWith({
 				{ uid = "a", rarity = "Common" },

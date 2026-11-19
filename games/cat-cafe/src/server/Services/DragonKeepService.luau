@@ -104,7 +104,8 @@ local function onGive(player: Player, rawUids: unknown, rawConfirmed: unknown)
 		Economy.tier(profile),
 		uids,
 		TradeService.isTrading(player) or offered,
-		Guard.bool(rawConfirmed) == true
+		Guard.bool(rawConfirmed) == true,
+		LiveFlagService.on(DragonKeep.NO_EVENT_FLAG) -- #5428
 	)
 	if blocker ~= nil then
 		refuse(player, blocker)

@@ -408,6 +408,66 @@ Traits.COMPANION_LIST = companionList
 -- #3908's rule: Eclipse holds every kind at the highest amount (Guardian Spirit's)
 local ECLIPSE_COMPANION: { Effect } = { e("companionMoney", 0.12), e("companionLuck", 0.25) }
 
+-- #5445 (Derek 2026-11-19: "make sure to put companion boosts on legendary+ traits and make different varitations of
+-- secret/mythics like the other rarities for traits"), two switches (LiveFlags.OFF_BY_DEFAULT):
+--   topTraitCompanion: every Legendary and Mythic trait of the main list also adds to its cat's Cat Companion boosts
+--     (TOP_COMPANION; Eclipse already has both at the top amounts through companionTraits). No new ids, so it can go
+--     on at once.
+--   topTraitsMore: three more Mythic and two more Secret traits join their rarity's even pick (MORE_LIST; the rarity
+--     odds do not change, so the shown odds stay right). Their ids are always known (get, sanitize), but an older
+--     server's code drops an id it does not know, so this goes on only once every server runs this code (a restart).
+--     Each new Secret keeps #3908's rule, every cafe kind at the highest amount, and differs in its companion part.
+Traits.TOP_COMPANION_FLAG = "topTraitCompanion"
+Traits.TOP_MORE_FLAG = "topTraitsMore"
+local TOP_COMPANION: { [string]: { Effect } } = {
+	goldenWhiskers = { e("companionMoney", 0.06) },
+	moonlitHunter = { e("companionLuck", 0.12) },
+	prodigy = { e("companionMoney", 0.04), e("companionLuck", 0.06) },
+	lightningTail = { e("companionLuck", 0.10) },
+	cosmicFortune = { e("companionMoney", 0.10) },
+	eternalNight = { e("companionLuck", 0.20) },
+	starSage = { e("companionMoney", 0.06), e("companionLuck", 0.12) },
+}
+Traits.TOP_COMPANION = TOP_COMPANION
+local function eclipseKinds(): { Effect }
+	return {
+		e("income", 1.0),
+		e("nightIncome", 1.5),
+		e("xp", 2.5),
+		e("bowlLuck", 0.25),
+		e("speed", 2.5),
+		e("rareCustomer", 0.25),
+	}
+end
+local moreList: { Def } = {
+	def("auroraPaws", "Aurora Paws", MYTHIC, {
+		e("nightIncome", 1.2),
+		e("bowlLuck", 0.22),
+		e("companionLuck", 0.25),
+	}),
+	def("sunfireMane", "Sunfire Mane", MYTHIC, {
+		e("income", 0.9),
+		e("speed", 2.2),
+		e("companionMoney", 0.12),
+	}),
+	def("tideWhisperer", "Tide Whisperer", MYTHIC, {
+		e("xp", 2.0),
+		e("rareCustomer", 0.22),
+		e("companionLuck", 0.20),
+	}),
+}
+do
+	local starforged = eclipseKinds()
+	table.insert(starforged, e("companionMoney", 0.12))
+	table.insert(starforged, e("companionLuck", 0.40))
+	table.insert(moreList, def("starforged", "Starforged", SECRET, starforged))
+	local voidCrown = eclipseKinds()
+	table.insert(voidCrown, e("companionMoney", 0.20))
+	table.insert(voidCrown, e("companionLuck", 0.25))
+	table.insert(moreList, def("voidCrown", "Void Crown", SECRET, voidCrown))
+end
+Traits.MORE_LIST = moreList
+
 local byId: { [string]: Def } = {}
 local byRarity: { [string]: { Def } } = {}
 local function addTo(entry: Def)
@@ -423,6 +483,9 @@ for _, entry in list do
 	addTo(entry)
 end
 for _, entry in companionList do
+	byId[entry.id] = entry
+end
+for _, entry in moreList do -- #5445: always known, in the pick only with topTraitsMore on
 	byId[entry.id] = entry
 end
 
@@ -460,6 +523,47 @@ end
 
 function Traits.companionOn(): boolean
 	return companionOn
+end
+
+-- #5445: the Legendary and Mythic companion parts (topTraitCompanion) in or out of their traits' effects.
+local topCompanionOn = false
+function Traits.setTopCompanion(on: boolean)
+	if on == topCompanionOn then
+		return
+	end
+	topCompanionOn = on
+	for id, effects in TOP_COMPANION do
+		local entry = byId[id]
+		if entry == nil then
+			continue
+		end
+		for _, effect in effects do
+			local at = table.find(entry.effects, effect)
+			if on and at == nil then
+				table.insert(entry.effects, effect)
+			elseif not on and at ~= nil then
+				table.remove(entry.effects, at)
+			end
+		end
+	end
+end
+
+-- #5445: the extra Mythic and Secret traits (topTraitsMore) in or out of their rarity's even pick.
+local topMoreOn = false
+function Traits.setTopMore(on: boolean)
+	if on == topMoreOn then
+		return
+	end
+	topMoreOn = on
+	for _, entry in moreList do
+		local group = byRarity[entry.rarity.id]
+		local at = if group ~= nil then table.find(group, entry) else nil
+		if on and at == nil then
+			addTo(entry)
+		elseif not on and at ~= nil then
+			table.remove(group :: { Def }, at)
+		end
+	end
 end
 
 -- Whether a player of `tier` may use the station (the `traits` switch is checked by the caller).

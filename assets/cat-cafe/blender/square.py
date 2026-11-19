@@ -371,7 +371,8 @@ def build_paving(mat):
     # #1130: the lane stops at the brick border; the paths that carried it on through the gardens to their wall are
     # gone, and the middle garden bed (CatCafe_Square_GardenMid) fills that ground between the two beds each side
     _compass(b)
-    _walk_ring(b)
+    # #5409 (Derek 2026-11-19: "the brown pathing is still on servers fix asap"): the #5224 walk ring is gone. Its
+    # straight boxes along the oval read as loose brown slabs over the tiles; the walk-up circles sit on the paving
     for sz in (-1, 1):                                                            # #5224: the ends, to the street
         z0, z1 = sorted((sz * SQ_D, sz * TOWN_D))
         lane_p.span((lane[0], 0, z0), (lane[1], STONE, z1), "paving_light")

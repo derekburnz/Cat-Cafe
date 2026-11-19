@@ -2640,13 +2640,15 @@ Layout.townSquare = {
 	-- "more left closer to leaderboards not that close to feedback"): half size, back by the west edge between the
 	-- bench at z -35.9 and the lamp at z -45, 23 studs from the leaderboard row and 20 from the Feedback stand, still
 	-- facing the spawn (0, -14). It was at (-37.99, -49.80), turned -142.7.
+	-- #5461 (Derek 2026-11-19: "update this sign to be a little bigger"): 0.65 (6.0 wide) on the same spot; its ends
+	-- stay 4 studs off the west bench and 9 off the lamp.
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
 		x = -45.0,
 		y = 0.1,
 		z = -40.5,
 		rotY = -120.5,
-		scale = 0.5,
+		scale = 0.65,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
@@ -3022,7 +3024,12 @@ Layout.campExtras = {
 -- basket and the Index Board, its front turned to the pad. Model-Agent's spot against the real parts (Design's
 -- (26, -14) put the camp bench between the pad and the bin): 4.5 off the gate wall's flower bed, 8.3 off the arch
 -- pier, 9 or more off the bench, no other prompt within 12. Derek OK'd it on the picture.
-Layout.rummageBin = { area = "alley", x = 26, z = -10, rotY = 83.4 }
+-- #5453 (Derek 2026-11-19: "move rummage bin back a little so people don't step on it accidently when going to
+-- cannon"): its walk-up pad (Config.BinPadRadius 7, in front of the bin toward the landing pad) reached in to x 10.6,
+-- over the walk from the right of the way out to the camp cannon. The bin stands 7 studs further back along its own
+-- line, so the pad's near edge is at x 17.6, clear of that walk; still 4 off the flower beds on the gate wall, 7 off
+-- the side flower bed and its front still turned to the landing pad.
+Layout.rummageBin = { area = "alley", x = 33, z = -10, rotY = 84.8 }
 
 -- Where the Rummage Bin stands in the world: x, the floor's y, z and its turn about Y, or nil without that camp.
 function Layout.rummageBinAt(): (number?, number?, number?, number?)

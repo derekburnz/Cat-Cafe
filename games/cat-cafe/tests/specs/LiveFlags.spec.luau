@@ -223,6 +223,7 @@ return function()
 							or key == "companionNudge" -- #5364
 							or key == "plushSecret" -- #5414
 							or key == "keepLook" -- #5433
+							or key == "bowlLockBig" -- #5455
 							or key == "secretTraitTile" -- #5445
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
@@ -265,6 +266,7 @@ return function()
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "lockedRingsHidden" -- #5463
+							or key == "nightLineNoArrow" -- #5459
 							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)

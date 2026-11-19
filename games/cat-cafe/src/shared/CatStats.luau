@@ -223,6 +223,16 @@ function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
 	local opened: number
 	-- #3470: a Secret earns at the owner's best area; #4251: so does a harvest cat
 	local newest = def.exclusive == true or def.rarity == "Secret" or def.area == "harvest"
+	if def.source == "advent" then
+		-- #5502: an advent calendar cat earns like a Secret whose home is the owner's newest area (Catalog.advent)
+		local top = 1
+		for _, area in Catalog.areas do
+			if area.tier <= math.floor(tier) and area.incomeMultiplier > top then
+				top = area.incomeMultiplier
+			end
+		end
+		return own * top
+	end
 	if newest then
 		opened = math.floor(tier)
 	elseif Config.KeepUpRarities[def.rarity] == true then

@@ -117,6 +117,12 @@ function Payout.pay(
 			)
 		end
 	end
+	local flakes = prize.snowflakes
+	if flakes ~= nil and flakes > 0 then
+		-- #5502: the Christmas event's Snowflakes, spent at the Gift Stall
+		profile.snowflakes = (profile.snowflakes or 0) + flakes
+		table.insert(paid, string.format("+%d Snowflakes", flakes))
+	end
 	local forever = (prize.bonus or 0)
 		+ (prize.goldLuck or 0)
 		+ (prize.rainbowLuck or 0)

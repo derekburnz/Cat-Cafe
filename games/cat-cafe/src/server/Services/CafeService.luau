@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AdminWheel = require(ReplicatedStorage.Shared.AdminWheel)
+local Advent = require(ReplicatedStorage.Shared.Advent)
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
@@ -427,6 +428,11 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
+		-- #5502: the advent calendar board, only while both switches are on (the dates still hold it shut till Dec 1)
+		advent = if LiveFlagService.on(Advent.FLAG) and LiveFlagService.on(Advent.EVENT_FLAG)
+			then Advent.view(Advent.fresh(profile.advent), os.time(), true, true)
+			else nil,
+		snowflakes = profile.snowflakes or 0, -- #5502: the Gift Stall's count
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
 		-- #4195: the Admin Wheel that is up and whether this account has spun it
 		adminWheel = AdminWheel.view(

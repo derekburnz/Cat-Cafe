@@ -273,6 +273,7 @@ return function()
 							or key == "firstCatchWow" -- #5285
 							or key == "gemsShrink" -- Derek 2026-11-18
 							or key == "christmasEvent" -- snowglobe-village-spec
+							or key == "adventCalendar" -- #5502
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "catsArrowOff" -- #5485

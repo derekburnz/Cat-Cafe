@@ -383,12 +383,16 @@ end
 -- each empty bowl that takes food, never buying any. The tutorial's bait step (4) is left to the player.
 local function autoBowl(player: Player, profile: Types.PlayerProfile, now: number)
 	local known = table.find(LiveFlags.KEYS, AutoBowl.FLAG) ~= nil
+	local owns = PassService.ownsAutoBowl(player) -- #5263: or the 2nd Bowl pass, with bowlTicks
+	-- #5374 (Derek 2026-11-19: "all bowl options on ... still not auto claiming ... not auto refilling"): with bowlTicks
+	-- on, the ticks work for an owner even while the separate `autoBowl` offer switch is off
+	local ticksKnown = table.find(LiveFlags.KEYS, AutoBowl.TICKS_FLAG) ~= nil
+	local ticks = ticksKnown and LiveFlagService.on(AutoBowl.TICKS_FLAG)
 	if
 		profile.tutorialStep == 4
-		or not AutoBowl.active(
-			known,
-			known and LiveFlagService.on(AutoBowl.FLAG),
-			PassService.ownsAutoBowl(player) -- #5263: or the 2nd Bowl pass, with bowlTicks
+		or not (
+			AutoBowl.active(known, known and LiveFlagService.on(AutoBowl.FLAG), owns)
+			or (ticks and owns)
 		)
 	then
 		return

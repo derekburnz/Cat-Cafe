@@ -202,11 +202,13 @@ return function()
 							or key == "easyKeep" -- #5311
 							or key == "afkQuick" -- #5310
 							or key == "afkStay" -- #5322
+							or key == "strayMeets" -- onboarding_v9
 							or key == "bigTreats" -- Derek 2026-11-18
 							or key == "bigNet" -- #5309
 							or key == "cannonReturn" -- #5304
 							or key == "cheapTiers" -- #5249
 							or key == "tier4Easy" -- #5285 E
+							or key == "companionNudge" -- #5364
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
 							or key == "kingCatInfo" -- #5260
@@ -221,6 +223,7 @@ return function()
 							or key == "parkFirstEasy" -- #5182
 							or key == "areaWhole" -- Derek 2026-11-18
 							or key == "catchCurve" -- #5392
+							or key == "cannonAnywhere" -- #5382
 							or key == "nextGoalBeat" -- #5202
 							or key == "milestoneFunnel" -- #5291
 							or key == "townGround" -- #5357
@@ -240,7 +243,7 @@ return function()
 				end
 				-- 2026-11-18 train (Review-QA): a minimum, so parallel switch PRs stop clashing on one number; 83 with the
 				-- train (cardFollow, bigTreats, bigNet, rankUpSteps, companionScene, phoneSmooth, #5301, cannonReturn, #5313)
-				expect(count >= 83).to.equal(true) -- christmasEvent; #5232 quickFirstRings; #5256 ringSolid; #5263 bowlTicks; #5264 foodByRarity; #5260 kingCatInfo; #5258 noRankOpens; #5254 oneLadderRow; #5249 cheapTiers; #5240 nightBright; #5245 tameCannonPoint; #5248 parkLead; Derek 2026-11-18: townRings; #5251 promptsAfter5; #5253 upgradesInstant; #5240 nightBright; Derek 2026-11-18: rankSpotPlain; Derek 2026-11-18: less tradeSpot (removed); #5202 nextGoalBeat; Derek 2026-11-18 areaWhole; #4656: less goldTone; #5182 parkFirstEasy; #5163 parkRankPoint; #5172 catFollower; #5170 netTiers; #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
+				expect(count >= 84).to.equal(true) -- strayMeets; christmasEvent; #5232 quickFirstRings; #5256 ringSolid; #5263 bowlTicks; #5264 foodByRarity; #5260 kingCatInfo; #5258 noRankOpens; #5254 oneLadderRow; #5249 cheapTiers; #5240 nightBright; #5245 tameCannonPoint; #5248 parkLead; Derek 2026-11-18: townRings; #5251 promptsAfter5; #5253 upgradesInstant; #5240 nightBright; Derek 2026-11-18: rankSpotPlain; Derek 2026-11-18: less tradeSpot (removed); #5202 nextGoalBeat; Derek 2026-11-18 areaWhole; #4656: less goldTone; #5182 parkFirstEasy; #5163 parkRankPoint; #5172 catFollower; #5170 netTiers; #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
 				-- #4654: the shipped stuckCall and fxLite switches are gone
 				expect(table.find(LiveFlags.KEYS, "stuckCall")).to.equal(nil)
 				expect(table.find(LiveFlags.KEYS, "fxLite")).to.equal(nil)

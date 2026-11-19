@@ -42,12 +42,28 @@ Follower.LUCK = table.freeze({
 -- +30% Money or +0.60 Luck.
 Follower.COAT = table.freeze({ gold = 1.25, rainbow = 1.5 }) :: { [string]: number }
 
--- #5431 (Derek 2026-11-19: "why r are companion stats for secrets so bad buff them a ton"): a rainbow Mythical
--- (0.16 x 1.5 = +24%, 0.30 x 1.5 = +0.45) beat a plain Secret (+20%, +0.40). With secretCompanionBig on a Secret's
--- base is +40% Money and +0.75 Luck, so even a plain Secret is above a rainbow Mythical with the best companion trait
--- (+36%, +0.70). A rainbow Secret gives +60% and +1.13, still far under LuckMax.
+-- #5431 (Derek 2026-11-19: "why r are companion stats for secrets so bad buff them a ton", then "secret should be
+-- way better also make the luck/money scale off area not just rarity and mutation"): a rainbow Mythical (+24%, +0.45)
+-- beat a plain Secret (+20%, +0.40). With secretCompanionBig on a Secret's base is +60% Money and +0.90 Luck, about
+-- four times a Mythical's, and every companion's boost grows with its cat's area: AREA_STEP more per area after the
+-- Alleyway (the Castle's cats x1.9). A Secret counts its home area (secretArea), a cat with no area of its own the
+-- area it earns like (incomeArea), else the Alleyway. Luck still stops at LuckMax with every other source.
 Follower.SECRET_FLAG = "secretCompanionBig"
-Follower.SECRET_BIG = table.freeze({ money = 0.40, luck = 0.75 }) :: { [string]: number }
+Follower.SECRET_BIG = table.freeze({ money = 0.60, luck = 0.90 }) :: { [string]: number }
+Follower.AREA_STEP = 0.10
+-- the areas in unlock order, Alleyway 1 to Castle 10 (Catalog's AREA_INCOME, each three times the one before)
+Follower.AREA_INDEX = table.freeze({
+	alley = 1,
+	park = 2,
+	neighbourhood = 3,
+	woods = 4,
+	sewer = 5,
+	desert = 6,
+	ruins = 7,
+	snowy = 8,
+	waterpark = 9,
+	castle = 10,
+}) :: { [string]: number }
 local secretOverride: boolean? = nil
 function Follower.setSecretBig(on: boolean?)
 	secretOverride = on
@@ -58,6 +74,26 @@ function Follower.secretBig(): boolean
 	end
 	return game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. Follower.SECRET_FLAG)
 		== true
+end
+
+-- The area multiplier for a companion from `area` (an area id), 1 while secretCompanionBig is off.
+function Follower.areaMult(area: string?): number
+	if not Follower.secretBig() then
+		return 1
+	end
+	local index = if area ~= nil then Follower.AREA_INDEX[area] or 1 else 1
+	return 1 + Follower.AREA_STEP * (index - 1)
+end
+
+-- The area a cat's companion boost scales with (see above), from its catalog entry.
+function Follower.areaOf(def: any): string?
+	if def == nil then
+		return nil
+	end
+	if Follower.AREA_INDEX[def.area] ~= nil then
+		return def.area
+	end
+	return def.secretArea or def.incomeArea
 end
 
 function Follower.coat(variant: string?): number
@@ -164,13 +200,13 @@ end
 
 -- What a cat of `rarity` and coat `variant` ("gold", "rainbow" or nil) gives with `boost`, 0 for an unknown rarity.
 -- Rounded to a hundredth of a percent so 0.12 x 1.5 reads 0.18.
-function Follower.amount(rarity: string?, boost: Boost, variant: string?): number
+function Follower.amount(rarity: string?, boost: Boost, variant: string?, area: string?): number
 	local table_ = if boost == "luck" then Follower.LUCK else Follower.MONEY
 	local base = if rarity ~= nil then table_[rarity] or 0 else 0
 	if rarity == "Secret" and Follower.secretBig() then
 		base = Follower.SECRET_BIG[boost] -- #5431
 	end
-	return math.floor(base * Follower.coat(variant) * 10000 + 0.5) / 10000
+	return math.floor(base * Follower.coat(variant) * Follower.areaMult(area) * 10000 + 0.5) / 10000 -- #5431: area
 end
 
 -- #5303 (companionTraits): what the cat's trait adds to `boost`, added after the coat (the coat multiplies the base
@@ -198,7 +234,14 @@ end
 
 -- A cat's whole companion boost: the rarity's times the coat, plus its trait's part.
 function Follower.catAmount(cat: Types.CatInstance, rarity: string?, boost: Boost): number
-	local sum = Follower.amount(rarity, boost, cat.variant) + Follower.traitPart(cat.trait, boost)
+	-- #5431: the cat's area, looked up here (Catalog requires the modules that require this one, so not at load)
+	local area: string? = nil
+	if Follower.secretBig() then
+		local Catalog = require(script.Parent.Catalog) :: any
+		area = Follower.areaOf(Catalog.getCat(cat.catId))
+	end
+	local sum = Follower.amount(rarity, boost, cat.variant, area)
+		+ Follower.traitPart(cat.trait, boost)
 	return math.floor(sum * 10000 + 0.5) / 10000
 end
 

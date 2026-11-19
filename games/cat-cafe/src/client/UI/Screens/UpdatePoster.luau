@@ -242,10 +242,10 @@ function UpdatePoster._attach(self: any, model: Instance)
 		Parent = gui,
 	})
 	Outline.text(hint, 3)
-	-- #5461: the prompt hangs just under the face, so its pill does not cover the picture on a phone
+	-- #5461: the prompt hangs 1.3 studs under the face, so its pill clears the picture and countdown on a phone
 	local promptSpot: Attachment = Create("Attachment", {
 		Name = "UpdatePosterPromptSpot",
-		Position = Vector3.new(0, -screen.Size.Y / 2 - 0.35, -screen.Size.Z / 2 - 0.05),
+		Position = Vector3.new(0, -screen.Size.Y / 2 - 1.3, -screen.Size.Z / 2 - 0.05),
 		Parent = screen,
 	})
 	local prompt: ProximityPrompt = Create("ProximityPrompt", {

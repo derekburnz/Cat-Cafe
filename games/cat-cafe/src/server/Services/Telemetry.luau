@@ -142,6 +142,7 @@ export type CustomEvent =
 	-- #5500 (shared/CatchLost, switch catchLostLog): a started net catch that ended with no cat, value the rings judged;
 	-- reason, device, area
 	| "catch_lost"
+	| "days_played" -- #5505 (shared/DaysPlayed): a days played milestone paid, value its day; cat or prize, device
 	-- #5300 (shared/PerfectCatch): the perfectCatch switch's one charm migration for a save, value the cats it marked
 	-- Perfect (charm 80+); fields: the cats at charm 51 to 79 (they now earn a little less), the cats owned
 	| "perfect_migrate"

@@ -1618,6 +1618,9 @@ export type PlayerProfile = {
 	-- #2791 (shared/PlaytimeGifts): the gift ladder's small steps paid ("m2", "m4", "m6", "m15", "m20" -> true). No
 	-- VERSION bump: an older server dropping it can only pay a few small steps again.
 	giftSteps: { [string]: boolean },
+	-- #5505 (shared/DaysPlayed): the UTC days played, the last one counted and the highest milestone paid. No VERSION
+	-- bump (an automatic publish restarts every server on one); the awayPromise switch goes on after Derek's restart.
+	daysPlayed: { count: number, last: number, paid: number }?,
 	-- #2486 (save version 43, live-events.md section 2e): each Cafe Event reward piece given, cosmeticId -> os.time()
 	-- it was first given, and the last event (its reward key, CafeEvents.rewardKey) this account was rewarded in, ""
 	-- for none; the "Cafe Party Guest" badge reads it

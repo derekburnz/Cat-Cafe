@@ -19,6 +19,7 @@ local Types = require(script.Parent.Types)
 local PerfectCatch = {}
 
 PerfectCatch.FLAG = "perfectCatch"
+PerfectCatch.FLAGGED_FLAG = "perfectFlagged" -- #5379: the scripted-press flag no longer blocks the mark
 PerfectCatch.KEY = "perfect_charm" -- tipsSeen: the charm migration ran (server only; TipSeen may not carry it)
 PerfectCatch.CHIP = "Perfect +50%"
 PerfectCatch.CATCH_LINE = "PERFECT! +50% money"

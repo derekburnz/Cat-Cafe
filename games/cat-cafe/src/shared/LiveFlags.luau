@@ -155,6 +155,7 @@ LiveFlags.KEYS = {
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"nightLine", -- #5330: at night up to Tier 4 the strip says when the areas open, with an arrow to Upgrades (Components/NightLine); off by default
 	"perfectCatch", -- #5300: every ring Perfect marks the cat Perfect, x1.5 pay with its coat, charm counts 1x (shared/PerfectCatch); off by default
+	"perfectFlagged", -- #5379: a Perfect catch marks the cat even while the profile's scripted-press flag is set (CatService); off by default
 	"easyKeep", -- #5311: the Dragon Keep's Warmth goals 50, 100, 250, 500, 1,000 and Rekindle 500 (shared/EasyKeep); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"companionMenu", -- #5296: Cats window role symbols, the Companion button and picker, both boosts (shared/Follower); off by default
@@ -260,6 +261,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	nightLine = true, -- #5330: on after Review-QA and Sync's phone look, 2 h from other switches
 	perfectCatch = true, -- #5300: on after Review-QA, Sync's phone look at the pills and a restart
+	perfectFlagged = true, -- #5379
 	easyKeep = true, -- #5311: on after Review-QA, with a restart
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	companionMenu = true, -- #5296: on after Review-QA, Sync's pictures and Derek's look

@@ -393,7 +393,7 @@ return function()
 		local function secretIds(): { string }
 			local ids: { string } = {}
 			for _, def in Catalog.cats do
-				if def.rarity == "Secret" then
+				if def.rarity == "Secret" and def.source ~= "advent" then -- #5502: the calendar cats are not rolled Secrets
 					table.insert(ids, def.id)
 				end
 			end

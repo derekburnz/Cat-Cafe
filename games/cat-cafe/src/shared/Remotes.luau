@@ -155,6 +155,8 @@ Remotes.ClientToServer = {
 	"ClaimAll", -- (what: string)  shared/ClaimAll.KINDS: "daily", "weekly", "achievements" or "quests" (all three, #1073),
 	-- "index" (every Index page) or "tipjar"; pays every one ready as its single Claim would, one toast and one sync
 	-- (and QuestResult for quests, TipJarState for the Tip Jar); nothing ready answers "Nothing to claim yet"
+	"OpenAdventDoor", -- ()  #5502 (shared/Advent): the next advent door, if both switches are on, the server's UTC date has
+	-- reached it and today's catch-ups allow it; pays it and answers with ProfileSync (`advent`)
 	"ClaimDailyTreat", -- ()  F70: a Daily Treat stamp due (a later UTC day than the last claim); pays the next day
 	-- of the card and answers with ProfileSync (`dailyTreat`)
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?, featureName: boolean?)  featureName (#1083)

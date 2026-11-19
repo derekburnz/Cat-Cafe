@@ -191,6 +191,16 @@ local function exclusive(def: Types.CatDef, source: Types.CatSource): Types.CatD
 	return def
 end
 
+-- #5502: an advent calendar cat (shared/Advent). An exclusive cat with source "advent" and a Secret's rate for an
+-- alley home (SecretNextMythicTimes times the Park's Mythical); CatStats.areaMultiplier lifts that by the owner's
+-- newest area, so it earns like a Secret whose home is that area.
+local function advent(def: Types.CatDef): Types.CatDef
+	def.incomePerSecond = Config.SecretNextMythicTimes
+		* Catalog.rarities.Mythical.incomePerSecond
+		* (AREA_INCOME.park or 3)
+	return exclusive(def, "advent")
+end
+
 -- #3470: a Secret cat. It belongs to no area (`area = "secret"`), so no wave, bait or rescue table and no Index page
 -- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
 -- an owner's best open area multiplies it (CatStats.areaMultiplier). #4221: `home` is the one area whose rolled
@@ -1701,12 +1711,63 @@ Catalog.cats = {
 			"Glows like the big orange moon over the patch."
 		)
 	),
+	-- #5502 the four advent calendar cats (doors 6, 12, 18 and 24; Model-Agent's CatCafe_Cat_PeppermintSwirl and the
+	-- rest, with _Sit and _Work, no gold or rainbow coats). Exclusive: never spawned, rolled or sold, and no trade,
+	-- fusion, Index page, count or Dragon Keep. Each earns like a Secret whose home is the owner's newest area.
+	advent(
+		cat(
+			"peppermint_swirl",
+			"Peppermint Swirl",
+			"Secret",
+			"alley",
+			"waiter",
+			"stripes",
+			{ 245, 240, 240 },
+			"Spins three times before every nap."
+		)
+	),
+	advent(
+		cat(
+			"nutcracker",
+			"Nutcracker",
+			"Secret",
+			"alley",
+			"greeter",
+			"solid",
+			{ 196, 40, 48 },
+			"Stands guard by the door, very seriously."
+		)
+	),
+	advent(
+		cat(
+			"northern_lights",
+			"Northern Lights",
+			"Secret",
+			"alley",
+			"entertainer",
+			"gradient",
+			{ 24, 40, 96 },
+			"The sky followed it home one winter."
+		)
+	),
+	advent(
+		cat(
+			"silent_night",
+			"Silent Night",
+			"Secret",
+			"alley",
+			"barista",
+			"gradient",
+			{ 40, 48, 110 },
+			"Arrives with the first quiet snow on Christmas Eve."
+		)
+	),
 } :: { Types.CatDef }
 
 -- #3470: the Secret cats, in catalog order
 Catalog.secretCats = {} :: { Types.CatDef }
 for _, def in Catalog.cats do
-	if def.rarity == "Secret" then
+	if def.rarity == "Secret" and def.source ~= "advent" then -- #5502: the calendar cats never roll
 		table.insert(Catalog.secretCats, def)
 	end
 end

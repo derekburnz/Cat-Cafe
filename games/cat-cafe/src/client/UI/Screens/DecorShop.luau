@@ -116,6 +116,10 @@ local CHIP_ICONS: { [string]: string } = {
 local CHIP_FLAG = "decorChipIcons"
 local CHIP_PICTURE = 1.5 -- 1.7 until #5366's 360 px check (Sync 2026-11-19: "Plants" 33 px text in a 34 px box)
 local CHIP_GAP_PICTURES = 6 -- #5366: with the pictures the chips sit closer, each about 3 px wider on a phone
+-- #5366 (Sync 2026-11-19, 360 px: the words ran past the white chip faces): beside a picture a word that does not fit
+-- its chip shrinks down to CHIP_WORD_MIN, and below that the chip shows its picture alone
+local CHIP_WORD_MIN = Theme.sizes.textTiny
+local CHIP_WORD_EDGE = 8 -- screen px kept clear inside the picture row, for the rounded corners
 local CHIP_IMAGES: { [string]: string } = {
 	All = "rbxassetid://101387394392524",
 	Style = "rbxassetid://100879474778439",
@@ -357,6 +361,39 @@ function DecorShop._layoutChips(self: any)
 	end
 end
 
+-- #5366: fits one chip's word beside its picture. The word's full width is measured while it shows at full size, so a
+-- chip that grows again gets its word back.
+function DecorShop._fitChipWord(_self: any, chip: any)
+	local label: TextLabel? = chip.button.label
+	local icon: GuiObject? = chip.button.icon
+	if label == nil or icon == nil then
+		return
+	end
+	local parent = label.Parent
+	if parent == nil or parent.Name ~= "Row" or not parent:IsA("GuiObject") then
+		return
+	end
+	local row = parent :: GuiObject
+	local full = Theme.sizes.textBody
+	if label.Visible and label.TextSize == full and label.AbsoluteSize.X > 0 then
+		chip.wordWidth = label.AbsoluteSize.X
+	end
+	local width: number? = chip.wordWidth
+	local rowWidth = row.AbsoluteSize.X
+	if width == nil or rowWidth <= 0 then
+		return
+	end
+	local room = rowWidth - CHIP_WORD_EDGE - icon.AbsoluteSize.X - 4
+	local size = math.min(full, math.floor(full * room / width))
+	if size >= CHIP_WORD_MIN then
+		label.TextSize = size
+		label.Visible = true
+	else
+		label.TextSize = full
+		label.Visible = false
+	end
+end
+
 function DecorShop._setFilter(self: any, category: string)
 	-- a filter with no chip (one the catalog has no piece for) falls back to All
 	local known = category == "All"
@@ -556,7 +593,17 @@ function DecorShop._build(self: any)
 			then self._lawnLive
 			elseif category == STYLE_CHIP then self._styleLive
 			else true
-		table.insert(self._chips, { category = category, button = button })
+		local chip = { category = category, button = button, wordWidth = nil :: number? }
+		table.insert(self._chips, chip)
+		if pictures then
+			-- #5366: the face resizes with the row and the word's own width arrives once it is drawn
+			local function fit()
+				self:_fitChipWord(chip)
+			end
+			button.face:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+			button.label:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+			task.defer(fit)
+		end
 	end
 	self:_layoutChips()
 

@@ -8008,6 +8008,10 @@ Presets.dragonRise = {
 		wallsHalf = 7.5,
 		wallsTop = 7.5,
 		wallsMost = 16,
+		-- #5423 (Derek 2026-11-19: "still a little bit too much with the wall in camera make it more from above"): the
+		-- yard shots swing up to `above` over him, `aboveRange` of the low shot's distance away (Effects/KeepShot.above)
+		above = math.rad(64),
+		aboveRange = 0.9,
 	},
 	-- the ember ball
 	ball = {

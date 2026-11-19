@@ -64,4 +64,17 @@ function KeepShot.lift(
 	return Vector3.new(eye.X, y, eye.Z)
 end
 
+-- Pure (#5423, Derek 2026-11-19: "still a little bit too much with the wall in camera make it more from above"): the
+-- low shot `eye` swung up over `look` to `elevation` radians, `range` times as far from it (X and Z keep their way
+-- round). Lifting the eye alone (KeepShot.lift) kept it out past the front wall, so the wall filled the bottom of the
+-- frame; swung up like this the eye stands over the yard and the wall is under or behind it.
+function KeepShot.above(eye: Vector3, look: Vector3, elevation: number, range: number): Vector3
+	local out = Vector3.new(eye.X - look.X, 0, eye.Z - look.Z)
+	local distance = (eye - look).Magnitude * range
+	local way = if out.Magnitude > 1e-6 then out.Unit else Vector3.new(0, 0, -1)
+	return look
+		+ way * (distance * math.cos(elevation))
+		+ Vector3.new(0, distance * math.sin(elevation), 0)
+end
+
 return KeepShot

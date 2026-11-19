@@ -14,9 +14,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DailyGifts = require(ReplicatedStorage.Shared.DailyGifts)
 local DataService = require(script.Parent.DataService)
+local DaysPlayed = require(ReplicatedStorage.Shared.DaysPlayed)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
@@ -169,6 +171,48 @@ local function dailyGift(player: Player): boolean
 	return true
 end
 
+-- #5505 part 1 (shared/DaysPlayed, switch awayPromise): counts each UTC day the player is loaded on, once, and pays
+-- the next milestone reached, marked before paying. A cat milestone gives the rule's pick into the cafe. True when one
+-- was paid this tick.
+local function daysPlayed(player: Player): boolean
+	local profile = DataService.get(player)
+	if profile == nil or not LiveFlagService.on(DaysPlayed.FLAG) then
+		return false
+	end
+	local state = DaysPlayed.note(profile.daysPlayed, DaysPlayed.day(os.time()))
+	profile.daysPlayed = state
+	local milestone = DaysPlayed.due(state)
+	if milestone == nil then
+		return false
+	end
+	state.paid = milestone.days
+	local words: { string } = {}
+	if milestone.cat ~= nil then
+		local catId = DaysPlayed.pickCat(milestone.cat, Economy.tier(profile), profile.collection)
+		local def = if catId ~= nil then Catalog.getCat(catId) else nil
+		if def ~= nil then
+			CafeService.addCaughtCat(player, def, true, profile, 50, "starter")
+			table.insert(words, "a " .. milestone.cat .. " cat, " .. def.name)
+		end
+	end
+	if milestone.prize ~= nil then
+		for _, line in Payout.pay(player, profile, table.clone(milestone.prize), "days_played") do
+			table.insert(words, line)
+		end
+	end
+	Telemetry.custom(player, "days_played", milestone.days, {
+		if milestone.cat ~= nil then "cat" else "prize",
+		Telemetry.device(player) or "unknown",
+	})
+	CafeService.sync(player)
+	Net.toast(
+		player,
+		string.format("Day %d played! %s", milestone.days, table.concat(words, ", ")),
+		"good"
+	)
+	return true
+end
+
 -- true when a gift was paid this tick
 local function check(player: Player): boolean
 	local profile = DataService.get(player)
@@ -232,6 +276,10 @@ function PlaytimeGiftService.start()
 				local dailyOk, dailyErr = pcall(dailyGift, player)
 				if not dailyOk then
 					warn("[PlaytimeGiftService] daily gift: " .. tostring(dailyErr))
+				end
+				local daysOk, daysErr = pcall(daysPlayed, player)
+				if not daysOk then
+					warn("[PlaytimeGiftService] days played: " .. tostring(daysErr))
 				end
 				local returnOk, returnErr = pcall(returnGift, player)
 				if not returnOk then

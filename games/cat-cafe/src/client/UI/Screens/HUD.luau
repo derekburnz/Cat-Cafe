@@ -117,6 +117,7 @@ export type Callbacks = {
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
 	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
+	openAway: (() -> ())?, -- #5505: the Rewards list's away row opens what comes tomorrow
 }
 
 export type HUD = {
@@ -175,6 +176,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
 	setCozy: (self: HUD, line: string?, ready: boolean) -> (), -- #2798
+	setAway: (self: HUD, line: string?, gold: boolean) -> (), -- #5505: the Rewards list's away row
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -1065,6 +1067,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._rewardsText = "Rewards"
 	self._gift = nil :: { ready: number, nextIn: number?, left: number }?
 	self._ladder = nil :: { GiftLadderLogic.Row }? -- #2791: the gift ladder's next steps (setGiftLadder)
+	self._away = nil :: string? -- #5505: the away row's words (setAway), and whether it is gold
+	self._awayGold = false
 	self._cozy = nil :: string? -- #2798: the Cozy Cafe line (setCozy), and whether its bag waits
 	self._cozyReady = false
 	self._dailyDue = false
@@ -4912,13 +4916,28 @@ function HUD.setCozy(self: any, line: string?, ready: boolean)
 	self:_renderRewards()
 end
 
+-- #5505 (Components/AwayLineLogic): the away row on the Rewards list, "Away: about $X by tomorrow", gold when it pays
+-- for the next tier; nil takes it away. It lives on the list, not the HUD, so the phone layout keeps its room.
+function HUD.setAway(self: any, line: string?, gold: boolean)
+	if line == self._away and gold == self._awayGold then
+		return
+	end
+	local rows = (self._away == nil) ~= (line == nil)
+	self._away = line
+	self._awayGold = line ~= nil and gold
+	if rows and self._popFor == "rewards" then
+		self:_closePop() -- the list's rows change; the next press builds it again
+	end
+	self:_renderRewards()
+end
+
 -- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87), the gift
--- ladder from the first second (#2791), and the Cozy Cafe line (#2798).
+-- ladder from the first second (#2791), and the Cozy Cafe line (#2798), which the away row (#5505) counts with.
 function HUD._rewardParts(self: any): (boolean, boolean, boolean, boolean)
 	return self._giftsWanted == true and self:_open("gifts"),
 		self._dailyWanted == true and self:_open("daily"),
 		self._ladder ~= nil,
-		self._cozy ~= nil
+		self._cozy ~= nil or self._away ~= nil
 end
 
 -- The Rewards tile: shown while it holds anything; "Rewards" and a red "!" of what waits (gifts ready, plus one for
@@ -5082,10 +5101,25 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 	local rows: { PopRow } = {}
 	local callbacks: Callbacks = self._callbacks
 	if kind == "rewards" then
-		local gifts, daily, _, cozy = self:_rewardParts()
+		local gifts, daily, _, _ = self:_rewardParts()
+		-- #5505: the away row first, gold when the away money pays for the next tier; a press opens tomorrow's card
+		if self._away ~= nil then
+			table.insert(rows, {
+				id = "Away",
+				icon = Theme.icons.home,
+				style = (if self._awayGold then "gold" else "ghost") :: Button.Style,
+				press = function()
+					if callbacks.openAway then
+						callbacks.openAway()
+					else
+						callbacks.openScreen("DailyTreat") -- tomorrow's Daily Treat
+					end
+				end,
+			})
+		end
 		-- #2798: the Cozy Cafe line first. #2854 (Derek2: "make it auto claim if clicked"): with a bag waiting a press
 		-- takes it from anywhere; the countdown's press only closes the list
-		if cozy then
+		if self._cozy ~= nil then
 			table.insert(rows, {
 				id = "Cozy",
 				icon = Theme.icons.home,
@@ -5194,6 +5228,8 @@ function HUD._popText(self: any, id: string): string
 		return "Daily treat"
 	elseif id == "Cozy" then
 		return self._cozy or "Cozy gift"
+	elseif id == "Away" then
+		return self._away or "Away"
 	elseif string.sub(id, 1, 6) == "Ladder" then
 		local row: GiftLadderLogic.Row? = (self._ladder or {})[tonumber(string.sub(id, 7)) or 0]
 		return if row then GiftLadderLogic.line(row) else "Gift"

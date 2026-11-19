@@ -606,7 +606,7 @@ function WalkUpController.start()
 			local bowl = UIController.ownBowlModel()
 			if bowl ~= nil then
 				add(bowl, UIController.bowlPrompt(), "Bait", function()
-					UIController.openBowl(1)
+					UIController.openBowl(1, true) -- #5436: a walk-up open
 				end)
 			end
 			local openedKey = state.opened

@@ -247,6 +247,7 @@ return function()
 							or key == "decorChipIcons" -- #5366
 							or key == "bowlHintRetry" -- #5438
 							or key == "chipPickedWord" -- #5406
+							or key == "bowlWalkQuiet" -- #5436
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
 							or key == "promptsAfter5" -- #5251

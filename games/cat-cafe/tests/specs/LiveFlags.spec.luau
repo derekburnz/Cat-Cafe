@@ -222,6 +222,7 @@ return function()
 							or key == "parkRankPoint" -- #5163
 							or key == "parkFirstEasy" -- #5182
 							or key == "areaWhole" -- Derek 2026-11-18
+							or key == "crateUnstick" -- #5394
 							or key == "cannonAnywhere" -- #5382
 							or key == "nextGoalBeat" -- #5202
 							or key == "milestoneFunnel" -- #5291

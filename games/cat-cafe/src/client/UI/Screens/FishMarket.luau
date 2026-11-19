@@ -141,6 +141,21 @@ local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
 local PENDING_SECONDS = 6
 -- #3991: the longest a queued Open may wait: its turn behind an open in flight and the spam limit after it
 local QUEUE_MAX_SECONDS = PENDING_SECONDS + 4
+-- #5394 (Derek 2026-11-19: "sometimes crate stall on the ... when trying to open"): with the crateUnstick switch on a
+-- press waits QUICK_PENDING_SECONDS (the server answers every OpenCrate at once), a queued one QUICK_QUEUE_SECONDS,
+-- and opening the window clears every crate's wait, so "..." never outlasts a few seconds
+local QUICK_PENDING_SECONDS = 3
+local QUICK_QUEUE_SECONDS = 5
+local UNSTICK_FLAG = "LiveFlag_crateUnstick"
+local function unstick(): boolean
+	return ReplicatedStorage:GetAttribute(UNSTICK_FLAG) == true
+end
+local function pendingSeconds(): number
+	return if unstick() then QUICK_PENDING_SECONDS else PENDING_SECONDS
+end
+local function queueMaxSeconds(): number
+	return if unstick() then QUICK_QUEUE_SECONDS else QUEUE_MAX_SECONDS
+end
 -- #2577: after a wait runs out with no answer, the button reads "Try again" this long
 local RETRY_SECONDS = 3
 -- #2290: a Buy waits this long after it is sent; its answer (a sync) ends the wait sooner, and a
@@ -527,6 +542,14 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		if self.frame.Visible and self._queued ~= nil then
 			self._queued = nil
 			self._queuedAt = nil
+		end
+		if self.frame.Visible and unstick() then
+			-- #5394: a fresh window starts with every crate's Open free
+			for id in self._crateById do
+				self._pending[id] = nil
+				self._pending[BUNDLE_KEY .. id] = nil
+				self._retry[id] = nil
+			end
 		end
 	end)
 	return self :: FishMarket
@@ -1656,7 +1679,7 @@ function FishMarket._expirePending(self: any): boolean
 	end
 	-- #3991: a queued press that has waited longer than any answer could take is dropped, so it never holds "..."
 	local queuedAt: number? = self._queuedAt
-	if self._queued ~= nil and queuedAt ~= nil and now - queuedAt > QUEUE_MAX_SECONDS then
+	if self._queued ~= nil and queuedAt ~= nil and now - queuedAt > queueMaxSeconds() then
 		self._queued = nil
 		self._queuedAt = nil
 		any = true
@@ -1729,7 +1752,7 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 		return
 	end
 	self._retry[crate.id] = nil
-	self._pending[crate.id] = os.clock() + PENDING_SECONDS
+	self._pending[crate.id] = os.clock() + pendingSeconds()
 	self._lastOpenAt = os.clock()
 	self._callbacks.openCrate(crate.id)
 	self:_refresh()
@@ -1772,7 +1795,7 @@ function FishMarket._openAll(self: any, crate: Types.CrateDef)
 	if send == nil or self._revealing or self._reelView:playing() or self:_crateGate() ~= nil then
 		return
 	end
-	self._pending[crate.id] = os.clock() + PENDING_SECONDS
+	self._pending[crate.id] = os.clock() + pendingSeconds()
 	self._lastOpenAt = os.clock()
 	send(crate.id)
 	self:_refresh()

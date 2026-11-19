@@ -445,7 +445,7 @@ local moreList: { Def } = {
 		e("bowlLuck", 0.22),
 		e("companionLuck", 0.25),
 	}),
-	def("sunfireMane", "Sunfire Mane", MYTHIC, {
+	def("solarPurr", "Solar Purr", MYTHIC, {
 		e("income", 0.9),
 		e("speed", 2.2),
 		e("companionMoney", 0.12),

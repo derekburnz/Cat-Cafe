@@ -329,6 +329,25 @@ return function()
 		end)
 	end)
 
+	describe("switch-gated upgrade levels (#5491)", function()
+		it(
+			"keeps Net 5 and Tables 8 when a save loads with netTiers and tablesEight off",
+			function()
+				Catalog.setNetTiers(false)
+				local raw: any = ProfileSchema.template(1_800_000_000)
+				raw.upgradeLevels.net = 5
+				raw.upgradeLevels.tables = Catalog.TABLES_MAX_EIGHT
+				local profile = ProfileSchema.migrate(raw, 1_800_000_000)
+				expect(profile.upgradeLevels.net).to.equal(5)
+				expect(profile.upgradeLevels.tables).to.equal(Catalog.TABLES_MAX_EIGHT)
+				raw.upgradeLevels.net = 99
+				expect(ProfileSchema.migrate(raw, 1_800_000_000).upgradeLevels.net).to.equal(
+					Catalog.NET_MAX_TIERS
+				)
+			end
+		)
+	end)
+
 	describe("retired potions (#2891, the Cat Whistle)", function()
 		it("are gone from the Catalog and refunded at their Corner Shop prices, once", function()
 			for id in ProfileSchema.RETIRED_POTIONS do

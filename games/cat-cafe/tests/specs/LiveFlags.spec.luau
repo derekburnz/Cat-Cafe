@@ -222,6 +222,7 @@ return function()
 							or key == "companionNudge" -- #5364
 							or key == "plushSecret" -- #5414
 							or key == "keepLook" -- #5433
+							or key == "secretTraitTile" -- #5445
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
 							or key == "kingCatInfo" -- #5260

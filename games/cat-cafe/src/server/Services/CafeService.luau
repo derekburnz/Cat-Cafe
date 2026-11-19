@@ -1267,13 +1267,41 @@ local FOOD_SCALE = 1.2 -- the food item sits in the bowl
 -- #2255: the food's base rests on the bowl's inner floor (CatCafe_Item_FoodBowl's tan disc, top 0.18 at scale 1), a
 -- hair above it; at 0.1 the bottom of every food sat inside the floor and Tuna, Sardines, Caviar and Star Treat sank.
 local FOOD_LIFT = 0.18 * BOWL_SCALE + 0.01
--- Sync's clip recordings (shared/RecordMode, Studio only): a bowl cat starts RECORD_WALK_SIDE studs to the side of
--- its spot and walks in at RECORD_WALK_SPEED, so a clip shows it arrive instead of popping in
+-- Sync's clip recordings (shared/RecordMode, Studio only): a bowl cat starts RECORD_WALK_SIDE studs from its spot and
+-- walks in at RECORD_WALK_SPEED, so a clip shows it arrive instead of popping in. The side is the first of right, back,
+-- front and left with nothing in the way for RECORD_WALK_CLEAR studs (Sync 2026-11-19: Plot_1's bowl sits against the
+-- cafe wall on its right, so a fixed side walked the cat through the wall)
 local RECORD_WALK_SIDE = 8
+local RECORD_WALK_CLEAR = 10
 local RECORD_WALK_SPEED = 4
 
+local function recordWalkFrom(model: Model, spot: CFrame): Vector3
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.RespectCanCollide = true -- only what would really block a walk
+	local skip: { Instance } = { model.Parent or model } -- the bowl's own folder: its bowl, food and ring
+	for _, other in Players:GetPlayers() do
+		if other.Character ~= nil then
+			table.insert(skip, other.Character)
+		end
+	end
+	params.FilterDescendantsInstances = skip
+	local eye = spot.Position + Vector3.new(0, 1.5, 0)
+	local sides = { spot.RightVector, spot.LookVector, -spot.LookVector, -spot.RightVector }
+	for _, side in sides do
+		local flat = Vector3.new(side.X, 0, side.Z)
+		if flat.Magnitude > 0.01 then
+			flat = flat.Unit
+			if Workspace:Raycast(eye, flat * RECORD_WALK_CLEAR, params) == nil then
+				return spot.Position + flat * RECORD_WALK_SIDE
+			end
+		end
+	end
+	return spot.Position + spot.RightVector * RECORD_WALK_SIDE
+end
+
 local function recordWalkIn(model: Model, spot: CFrame)
-	local from = spot.Position + spot.RightVector * RECORD_WALK_SIDE
+	local from = recordWalkFrom(model, spot)
 	model:PivotTo(CFrame.lookAt(from, Vector3.new(spot.Position.X, from.Y, spot.Position.Z)))
 	task.spawn(function()
 		local arrived = Mover.walkTo(model, spot.Position, RECORD_WALK_SPEED, function()

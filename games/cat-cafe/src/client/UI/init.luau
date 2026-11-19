@@ -7866,6 +7866,40 @@ function UI.giftLadder.refresh()
 	)
 end
 
+-- #5505 (Components/AwayLineLogic): the Rewards list's away row, worked out each second with the ladder's play clock
+function UI.giftLadder.away()
+	local view = hud
+	if view == nil then
+		return
+	end
+	local AwayLineLogic = require(script.Components.AwayLineLogic)
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local ladder = UI.giftLadder
+	local s = state :: any
+	local catalog: any = currentCatalog
+	local nextDef = if type(s.tier) == "number"
+			and catalog ~= nil
+			and catalog.tiers ~= nil
+		then catalog.tiers[s.tier + 1]
+		else nil
+	local line, gold = AwayLineLogic.line({
+		on = LiveFlags.shown(
+			AwayLineLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AwayLineLogic.FLAG)
+		),
+		played = if ladder.played ~= nil
+			then (ladder.played :: number) + (os.clock() - ladder.playedAt)
+			else nil,
+		rate = tonumber(s.incomePerSecond) or 0,
+		longNap = s.longNap == true,
+		coins = tonumber(s.coins) or 0,
+		nextTier = if nextDef ~= nil then nextDef.tier else nil,
+		nextCost = if nextDef ~= nil then nextDef.cost else nil,
+	})
+	view:setAway(line, gold)
+end
+
 function UI.giftLadder.tick(dt: number)
 	local ladder = UI.giftLadder
 	ladder.clock += dt
@@ -7874,6 +7908,7 @@ function UI.giftLadder.tick(dt: number)
 		if (state :: any).giftNext ~= nil then
 			UI.giftLadder.refresh()
 		end
+		UI.giftLadder.away()
 		UI.cozy.refresh()
 	end
 end

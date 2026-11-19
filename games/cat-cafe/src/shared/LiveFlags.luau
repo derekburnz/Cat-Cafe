@@ -167,6 +167,7 @@ LiveFlags.KEYS = {
 	"parkFirstCalm", -- #5496: on a phone, tablet or console a missed catch in the Park leaves the cat put until the first Park catch (shared/ParkFirstEasy.calm); off by default
 	"orderSplit", -- #5498: new saves split half catch first, half bowl first, kept for good (shared/TutorialOrder); off by default
 	"dailyGifts", -- #5506: ten gifts for minutes played today on the Rewards tile, the small account steps stop (shared/DailyGifts); off by default
+	"awayPromise", -- #5505: days played milestones (shared/DaysPlayed), later the away line and return moment; off by default
 	"catchLostLog", -- #5500: log catch_lost with why a started net catch ended with no cat, by device and area (shared/CatchLost); off by default
 	"mutationBoost", -- #5493: a wild stray's gold and rainbow coat chances are doubled (shared/MutationBoost); off by default
 	"bowlOptionsButton", -- #5488: a column too short for the Bowl Options card shows an Options button over Refill that opens it (Screens/BaitBowl); off by default
@@ -325,6 +326,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkFirstCalm = true, -- #5496: on as soon as it publishes (Derek 2026-11-19)
 	orderSplit = true, -- #5498: on once both arms are walked end to end (Derek 2026-11-19: go with the recommendation)
 	dailyGifts = true, -- #5506: on after the next restart Derek calls (new save field)
+	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
 	mutationBoost = true, -- #5493: on as soon as it publishes (Derek 2026-11-19)
 	bowlOptionsButton = true, -- #5488: on as soon as it publishes (Derek 2026-11-19)

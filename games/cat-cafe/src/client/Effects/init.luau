@@ -19,6 +19,7 @@
 local AdminAir = require(script.AdminAir)
 local AdminDrops = require(script.AdminDrops)
 local AdminFlash = require(script.AdminFlash)
+local AdventFx = require(script.AdventFx)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
 local ArcadeScreen = require(script.ArcadeScreen)
@@ -216,6 +217,7 @@ function Effects.start()
 		AreaFx.start,
 		LateStationFx.start,
 		BoothFx.start, -- #4061: the Ticket Booth's buy moment
+		AdventFx.start, -- #5502: the advent calendar board's doors, glow and bursts
 		DragonStageCut.start, -- #4062: the Dragon Keep stage-up cutscene on each DragonStage
 		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
 		KeepDragon.start, -- #4567: your own stage's dragon stands in the Dragon Keep

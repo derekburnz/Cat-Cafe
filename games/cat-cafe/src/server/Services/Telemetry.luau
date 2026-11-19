@@ -145,6 +145,7 @@ export type CustomEvent =
 	-- reason, device, area
 	| "catch_lost"
 	| "daily_gift" -- #5506 (shared/DailyGifts): a daily playtime gift paid, value the minutes played today; step, device, first_day or later_day
+	| "days_played" -- #5505 (shared/DaysPlayed): a days played milestone paid, value its day; cat or prize, device
 	-- #5300 (shared/PerfectCatch): the perfectCatch switch's one charm migration for a save, value the cats it marked
 	-- Perfect (charm 80+); fields: the cats at charm 51 to 79 (they now earn a little less), the cats owned
 	| "perfect_migrate"

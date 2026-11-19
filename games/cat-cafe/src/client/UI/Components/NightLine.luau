@@ -6,11 +6,15 @@
 -- line hides at sunrise and while any window is open. Pure.
 --   shows(on, tier, step, areasOpen, windowOpen) -> boolean
 --   text(seconds) -> string                     "Areas open at sunrise in 0:42. Upgrade your cafe while you wait"
+--   arrow(showing, noArrow) -> boolean          #5459 (Derek 2026-11-19: "remove this random arrow pointing to upgrades
+--                                               no need for that ever"): the ring and arrow on Upgrades, never with
+--                                               switch `nightLineNoArrow` on
 
 local NightLine = {}
 
 NightLine.FLAG = "nightLine"
 NightLine.MAX_TIER = 4
+NightLine.NO_ARROW_FLAG = "nightLineNoArrow"
 NightLine.DONE_STEP = 5 -- the tutorial's last step (TutorialHints.DONE)
 
 function NightLine.shows(
@@ -25,6 +29,10 @@ function NightLine.shows(
 		and not windowOpen
 		and (step or 0) >= NightLine.DONE_STEP
 		and (tier or 1) <= NightLine.MAX_TIER
+end
+
+function NightLine.arrow(showing: boolean, noArrow: boolean): boolean
+	return showing and not noArrow
 end
 
 function NightLine.text(seconds: number): string

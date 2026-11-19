@@ -159,6 +159,7 @@ local DETAILS_H = 42 -- a 37 px face, over the 36 px a mouse needs (the UI gate'
 local ICON = 52 -- the food's picture with its grade gem
 local TEXT_LEFT = ICON + 24
 local TAB_H = 42 -- the bowl tabs (#1161), as tall as Details
+local LOCK_FLAG = "LiveFlag_bowlLockBig" -- #5455: the Bowl Options' big lock pictures
 local PERK_LINE = 24 -- #1767: one of the locked bowl 2 card's three lines
 -- #3961 (batch 1 mock, station-menus-batch1-3558.png): with the family look the status card is a column down the
 -- left (the bowl's picture, what is in it, the wait chip, the buttons at its foot) and the foods are picture cards
@@ -680,6 +681,7 @@ function BaitBowl._buildAuto(self: any)
 	self._autoRows = {} :: { [string]: Frame }
 	self._autoWords = {} :: { [string]: TextLabel } -- #5263: the words change with bowlTicks
 	self._autoPills = {} :: { [string]: Button.Button }
+	self._autoLocks = {} :: { [string]: TextLabel } -- #5455
 	for _, key in AUTO_ORDER do
 		local row: Frame = Create("Frame", {
 			Name = AUTO_NAMES[key] .. "Row",
@@ -711,6 +713,21 @@ function BaitBowl._buildAuto(self: any)
 				self:_tapAuto(key)
 			end,
 		})
+		-- #5455 (Derek 2026-11-19: "make the lock symbols a little easier to see"): with `bowlLockBig` on, a locked
+		-- tick box shows a big lock picture over it in place of the button's small 🔒 text
+		local lock = text({
+			Name = "BigLock",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(0.72, 0.72),
+			TextScaled = true,
+			Text = Theme.icons.lock,
+			Visible = false,
+			ZIndex = self._autoPills[key].instance.ZIndex + 2,
+			Parent = self._autoPills[key].instance,
+		})
+		IconArt.set(lock, Theme.icons.lock)
+		self._autoLocks[key] = lock
 	end
 end
 
@@ -891,7 +908,11 @@ function BaitBowl._renderAuto(self: any)
 				pill.instance.AnchorPoint = Vector2.new(0, 0)
 				pill.instance.Position = UDim2.fromScale(0, 0)
 				pill:setStyle(if ticked and not locked then "primary" else "slate")
-				pill:setText(if locked then "🔒" elseif ticked then "✓" else "")
+				local bigLock = locked and ReplicatedStorage:GetAttribute(LOCK_FLAG) == true -- #5455
+				pill:setText(
+					if bigLock then "" elseif locked then "🔒" elseif ticked then "✓" else ""
+				)
+				self._autoLocks[key].Visible = bigLock
 				pill.instance:SetAttribute("On", ticked and not locked)
 				pill.instance:SetAttribute("Locked", locked)
 				words.Text = TICK_WORDS[key]
@@ -903,6 +924,7 @@ function BaitBowl._renderAuto(self: any)
 				pill.instance.Position = UDim2.fromScale(1, 0)
 				pill:setStyle(if on then "primary" else "slate")
 				pill:setText(if on then "ON" else "OFF")
+				self._autoLocks[key].Visible = false
 				pill.instance:SetAttribute("On", on)
 				pill.instance:SetAttribute("Locked", nil)
 				words.Text = AUTO_WORDS[key]

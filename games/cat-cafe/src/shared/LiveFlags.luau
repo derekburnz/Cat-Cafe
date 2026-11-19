@@ -164,6 +164,7 @@ LiveFlags.KEYS = {
 	"companionNudge", -- #5364: a red "!" on the Cats menu Companion button while none follows (Screens/CatRoom); off by default
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
+	"bowlLockBig", -- #5455: the Bowl Options' locked tick boxes show a big lock picture (Screens/BaitBowl); off by default
 	"secretTraitTile", -- #5445: Secret trait cards in the Mystic Pool on the Secret night tile (Screens/MysticPool); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
@@ -213,6 +214,7 @@ LiveFlags.KEYS = {
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
+	"nightLineNoArrow", -- #5459: the night line keeps its words but no ring or arrow on Upgrades (Components/NightLine); off by default
 	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
 	"bowlHintRetry", -- #5438: the tutorial strip is worked out again when a new server's switches arrive, so bowl first shows its food ask (Controllers/UIController); off by default
@@ -303,6 +305,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	companionNudge = true, -- #5364: on as soon as it publishes (Derek 2026-11-18)
 	plushSecret = true, -- #5414: on as soon as it publishes (Derek 2026-11-19)
 	keepLook = true, -- #5433: on as soon as it publishes (Derek 2026-11-19)
+	bowlLockBig = true, -- #5455: on as soon as it publishes (Derek 2026-11-19)
 	secretTraitTile = true, -- #5445: on together with topTraitsMore
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
@@ -345,6 +348,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	guideArrow = true, -- #5465: on as soon as it merges
+	nightLineNoArrow = true, -- #5459: on as soon as it merges
 	secretCompanionBig = true, -- #5431
 	decorChipIcons = true, -- #5366: on after Review-QA, once the six pictures pass moderation
 	bowlHintRetry = true, -- #5438

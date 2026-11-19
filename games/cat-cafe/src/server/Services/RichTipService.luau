@@ -18,7 +18,7 @@
 -- #3889: with the `rareCustomers` switch on the timer stops and RareCustomerService sends the customer
 -- (RichTipService.arriveRare) when an arriving customer rolls rich; the bag then waits on any open table, which the
 -- plot attribute RichTable names for the client's rich customer (1 by default). A new account's first one still
--- comes at FirstVisitAt.rich, on table 1.
+-- comes at FirstVisitAt.rich, on any open table too (#5440).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -390,7 +390,23 @@ local function tickTimers(dt: number)
 		end
 		if due then
 			local first = FirstVisit.arrive(player, profile, plot.model, "rich")
-			drop(player, plot, dayRate * Economy.tipMultiplier(profile, now), now, first)
+			-- #5440 (Derek 2026-11-19: "it's not supposed to leave the bag on only table 1 should be a per customer
+			-- spawn and any table"): with rareCustomers on, a new account's first rich customer sits at any open
+			-- table too, like every later one (RareCustomers.tableFor); off, table 1 as before
+			local tableIndex: number? = nil
+			if byChance then
+				local tables = math.min(Economy.level(profile, "tables"), #plot.tableAnchors)
+				tableIndex = RareCustomers.tableFor(tables, rng:NextNumber())
+			end
+			drop(
+				player,
+				plot,
+				dayRate * Economy.tipMultiplier(profile, now),
+				now,
+				first,
+				nil,
+				tableIndex
+			)
 			left = VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
 				/ Economy.richRate(profile)
 		end

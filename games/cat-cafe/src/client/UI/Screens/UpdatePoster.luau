@@ -37,6 +37,7 @@ type Face = {
 	countdown: TextLabel,
 	hint: TextLabel,
 	prompt: ProximityPrompt,
+	promptSpot: Attachment,
 }
 
 local TAG = "UpdatePoster"
@@ -241,6 +242,12 @@ function UpdatePoster._attach(self: any, model: Instance)
 		Parent = gui,
 	})
 	Outline.text(hint, 3)
+	-- #5461: the prompt hangs just under the face, so its pill does not cover the picture on a phone
+	local promptSpot: Attachment = Create("Attachment", {
+		Name = "UpdatePosterPromptSpot",
+		Position = Vector3.new(0, -screen.Size.Y / 2 - 0.35, -screen.Size.Z / 2 - 0.05),
+		Parent = screen,
+	})
 	local prompt: ProximityPrompt = Create("ProximityPrompt", {
 		Name = "UpdatePosterPrompt",
 		ActionText = UpdatePosterLogic.ACTION,
@@ -249,7 +256,7 @@ function UpdatePoster._attach(self: any, model: Instance)
 		MaxActivationDistance = PROMPT_DISTANCE,
 		RequiresLineOfSight = false,
 		Enabled = false,
-		Parent = screen,
+		Parent = promptSpot,
 	})
 	prompt.Triggered:Connect(function()
 		self:_ask()
@@ -263,6 +270,7 @@ function UpdatePoster._attach(self: any, model: Instance)
 		countdown = countdown,
 		hint = hint,
 		prompt = prompt,
+		promptSpot = promptSpot,
 	}
 	self._faces[model] = face
 	self:_paint(face, self:_view())
@@ -278,6 +286,7 @@ function UpdatePoster._detach(self: any, model: Instance)
 	if face then
 		face.gui:Destroy()
 		face.prompt:Destroy()
+		face.promptSpot:Destroy()
 		self._faces[model] = nil
 	end
 end

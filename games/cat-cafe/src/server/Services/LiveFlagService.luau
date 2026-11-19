@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local DataService = require(script.Parent.DataService)
+local Holdout = require(ReplicatedStorage.Shared.Holdout)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 
 local LiveFlagService = {}
@@ -24,8 +25,12 @@ local overrides: { [string]: boolean } = {} -- Studio only (Debug.flag)
 local failing = false
 local readOnce = false -- a read of the store has come back in this server
 
--- Whether feature `key` (one of LiveFlags.KEYS) is on in this server.
-function LiveFlagService.on(key: string): boolean
+-- Whether feature `key` (one of LiveFlags.KEYS) is on in this server. #5499: with `player`, a switch the holdout holds
+-- back (shared/Holdout) reads off for a player held this session (the Holdout attribute Telemetry sets at load).
+function LiveFlagService.on(key: string, player: Player?): boolean
+	if player ~= nil and Holdout.gated(key) and player:GetAttribute(Holdout.ATTR) == true then
+		return false
+	end
 	local override = overrides[key]
 	if override ~= nil then
 		return override

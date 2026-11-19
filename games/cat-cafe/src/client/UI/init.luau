@@ -7824,10 +7824,11 @@ function UI.giftLadder.away()
 		then catalog.tiers[s.tier + 1]
 		else nil
 	local line, gold = AwayLineLogic.line({
+		-- #5499: never for a player the holdout holds back this session (the Holdout attribute, shared/Holdout)
 		on = LiveFlags.shown(
 			AwayLineLogic.FLAG,
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AwayLineLogic.FLAG)
-		),
+		) and Players.LocalPlayer:GetAttribute("Holdout") ~= true,
 		played = if ladder.played ~= nil
 			then (ladder.played :: number) + (os.clock() - ladder.playedAt)
 			else nil,

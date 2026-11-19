@@ -17,6 +17,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local PlotService = require(script.Parent.PlotService)
+local TownGround = require(ReplicatedStorage.Shared.TownGround)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local AreaWholeService = {}
@@ -206,6 +207,11 @@ local function cutAll()
 				model.ModelStreamingMode ~= Enum.ModelStreamingMode.Default
 				or model:GetAttribute("Area") ~= nil
 				or CollectionService:HasTag(model, "Plot")
+				-- #5411 (Derek 2026-11-19: "cat footprints in town square still dont render in fully"): the paving and
+				-- the paw print paths belong to townGround, which keeps them Persistent on every device. At start
+				-- they are still Default, so they used to join the town's chunks here and turn PersistentPerPlayer:
+				-- kept only for a player on the square, and the prints out on the street streamed away
+				or CollectionService:HasTag(model, TownGround.TAG)
 			then
 				continue
 			end

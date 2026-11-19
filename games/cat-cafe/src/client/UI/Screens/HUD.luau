@@ -3222,14 +3222,22 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
-	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
+	-- #5485 (Derek 2026-11-19: "random arrows show up pointing at cat menu ... shouldn't ever happen"): none on Cats
+	-- with catsArrowOff on; the strip's words still say what to do
+	local catsArrowOff = ReplicatedStorage:GetAttribute(
+		LiveFlags.ATTRIBUTE_PREFIX .. "catsArrowOff"
+	) == true
+	StepTarget.ui(
+		self._stepTiles.Cats and self._stepTiles.Cats.face,
+		not held and asks == "job" and not catsArrowOff
+	)
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
 	-- Review-QA 2026-11-14: a step that points at a menu tile (Upgrades, Cats, Bowl) with the menu folded off the edge
 	-- had no tile on screen and no arrow, only the strip's words. The folded menu slides back out once as such a step
 	-- starts; a player who folds it again keeps it folded until the next step.
 	local menuAsk: string? = nil
 	if not held then
-		if asks == "job" or asks == "food" then
+		if (asks == "job" and not catsArrowOff) or asks == "food" then
 			menuAsk = asks
 		elseif
 			not holdsTable

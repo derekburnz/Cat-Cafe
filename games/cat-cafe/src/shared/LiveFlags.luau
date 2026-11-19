@@ -165,6 +165,7 @@ LiveFlags.KEYS = {
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
 	"mutationBoost", -- #5493: a wild stray's gold and rainbow coat chances are doubled (shared/MutationBoost); off by default
+	"bowlOptionsButton", -- #5488: a column too short for the Bowl Options card shows an Options button over Refill that opens it (Screens/BaitBowl); off by default
 	"shieldNoBump", -- #5476: a new player's character passes through other characters while their tackle shield runs (ShoveService); off by default
 	"bowlLockBig", -- #5455: the Bowl Options' locked tick boxes show a big lock picture (Screens/BaitBowl); off by default
 	"bowlOptionsList", -- #5472: a column too short for the Bowl Options card puts it atop the foods list (Screens/BaitBowl); off by default
@@ -219,6 +220,7 @@ LiveFlags.KEYS = {
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
+	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
 	"pawsInFloor", -- #5471: the Town Square's paw prints are drawn on the floor they lie on, so they stream with it (World/PawFloor); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
 	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
@@ -315,6 +317,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	keepLook = true, -- #5433: on as soon as it publishes (Derek 2026-11-19)
 	bowlLockBig = true, -- #5455: on as soon as it publishes (Derek 2026-11-19)
 	mutationBoost = true, -- #5493: on as soon as it publishes (Derek 2026-11-19)
+	bowlOptionsButton = true, -- #5488: on as soon as it publishes (Derek 2026-11-19)
 	shieldNoBump = true, -- #5476: on as soon as it publishes (Derek 2026-11-19)
 	bowlOptionsList = true, -- #5472: on as soon as it publishes (Derek 2026-11-19)
 	companionBetter = true, -- #5457: on as soon as it publishes (Derek 2026-11-19)
@@ -361,6 +364,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
+	catsArrowOff = true, -- #5485: on as soon as it merges
 	pawsInFloor = true, -- #5471: on as soon as it merges
 	guideArrow = true, -- #5465: on as soon as it merges
 	lockedRingsHidden = true, -- #5463: on as soon as it merges

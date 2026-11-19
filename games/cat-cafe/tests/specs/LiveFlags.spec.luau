@@ -227,6 +227,7 @@ return function()
 							or key == "bowlLockBig" -- #5455
 							or key == "shieldNoBump" -- #5476
 							or key == "mutationBoost" -- #5493
+							or key == "bowlOptionsButton" -- #5488
 							or key == "bowlOptionsList" -- #5472
 							or key == "companionBetter" -- #5457
 							or key == "tier3Easy" -- #5467
@@ -271,6 +272,7 @@ return function()
 							or key == "christmasEvent" -- snowglobe-village-spec
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
+							or key == "catsArrowOff" -- #5485
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465
 							or key == "lockedRingsHidden" -- #5463

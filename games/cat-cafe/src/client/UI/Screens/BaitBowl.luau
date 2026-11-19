@@ -164,6 +164,11 @@ local LOCK_FLAG = "LiveFlag_bowlLockBig" -- #5455: the Bowl Options' big lock pi
 -- for the whole Bowl Options card (a phone, more so with a cat waiting or two bowls) puts the card at the top of the
 -- foods list instead, where it scrolls with the foods, rather than hiding it or squeezing it to one row
 local LIST_FLAG = "LiveFlag_bowlOptionsList"
+-- #5488 (Derek 2026-11-19: "for mobile instead of having an options at the top of food put an options button in the
+-- space above refill"): with `bowlOptionsButton` on, that too short column shows an Options button over Refill
+-- instead, and a tap lays the whole card over the top of the foods (the list itself never moves); a tap again closes
+-- it, and so does closing the window
+local BUTTON_FLAG = "LiveFlag_bowlOptionsButton"
 local PERK_LINE = 24 -- #1767: one of the locked bowl 2 card's three lines
 -- #3961 (batch 1 mock, station-menus-batch1-3558.png): with the family look the status card is a column down the
 -- left (the bowl's picture, what is in it, the wait chip, the buttons at its foot) and the foods are picture cards
@@ -600,6 +605,28 @@ function BaitBowl._buildAuto(self: any)
 		{ Color = Theme.colors.gold, Thickness = Theme.sizes.stroke, Parent = card }
 	)
 	self._autoCard = card
+	-- #5488: the Options button over Refill, shown only while the column is too short for the card
+	self._optionsOpen = false
+	self._optionsButton = Button.new({
+		name = "BowlOptions",
+		text = "Options",
+		style = "sky",
+		size = UDim2.new(1, -20, 0, REFILL.Y),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -10),
+		textSize = Theme.sizes.textSmall,
+		parent = self._status,
+		onClick = function()
+			self._optionsOpen = not self._optionsOpen
+			self:_renderAuto()
+		end,
+	})
+	self._optionsButton.instance.Visible = false
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not self.frame.Visible then
+			self._optionsOpen = false
+		end
+	end)
 	-- what the card holds scrolls where a short phone's column has less room than it needs
 	local body: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "Body",
@@ -860,13 +887,29 @@ function BaitBowl._renderAuto(self: any)
 	local offerH = AUTO_OFFER_H
 	local y, height = layout(offerH)
 	-- #5472: too short a column puts the whole card at the top of the foods list
-	local inList = shown and height > room and ReplicatedStorage:GetAttribute(LIST_FLAG) == true
-	local short = selling and height > room and not inList
+	local asButton: boolean = shown == true
+		and height > room
+		and ReplicatedStorage:GetAttribute(BUTTON_FLAG) == true -- #5488
+	local inList = shown
+		and height > room
+		and not asButton
+		and ReplicatedStorage:GetAttribute(LIST_FLAG) == true
+	local optionsButton: Button.Button = self._optionsButton
+	optionsButton.instance.Visible = asButton
+	if asButton then
+		optionsButton.instance.Position =
+			UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach))
+		optionsButton:setText(if self._optionsOpen then "Close" else "Options")
+		if not self._optionsOpen then
+			shown = false
+		end
+	end
+	local short = selling and height > room and not inList and not asButton
 	if short then
 		offerH = AUTO_PAD + AUTO_ROW
 		y, height = layout(offerH)
 	end
-	if shown and not inList then
+	if shown and not inList and not asButton then
 		-- a short phone's column shows what fits and scrolls the rest; at least a row's worth
 		shown = room >= math.min(height, pad + AUTO_PAD)
 	end
@@ -874,14 +917,23 @@ function BaitBowl._renderAuto(self: any)
 	if not shown then
 		return
 	end
-	if inList then
+	if asButton then
+		-- #5488: over the top of the foods, the column (and the Options button) left clear
+		card.Parent = self._list.Parent
+		card.ZIndex = 50
+		card.AnchorPoint = Vector2.zero
+		card.Position = self._list.Position + UDim2.fromOffset(4, 4)
+		room = height
+	elseif inList then
 		card.Parent = self._list
+		card.ZIndex = 1
 		card.LayoutOrder = -1 -- over the locked bowl 2's card and the foods
 		card.AnchorPoint = Vector2.zero
 		card.Position = UDim2.new()
 		room = height
 	elseif card.Parent ~= self._status then
 		card.Parent = self._status
+		card.ZIndex = 1
 		card.AnchorPoint = Vector2.new(0.5, 1)
 	end
 	self._autoOffer.Size = UDim2.new(1, 0, 0, offerH)
@@ -892,10 +944,13 @@ function BaitBowl._renderAuto(self: any)
 		end
 	end
 	local cardH = math.min(height, room)
-	card.Size = if inList then UDim2.new(1, 0, 0, cardH) else UDim2.new(1, -20, 0, cardH)
+	card.Size = if asButton
+		then UDim2.new(self._list.Size.X.Scale, -8, 0, cardH)
+		elseif inList then UDim2.new(1, 0, 0, cardH)
+		else UDim2.new(1, -20, 0, cardH)
 	self._autoBody.CanvasSize = UDim2.fromOffset(0, height)
 	self._autoBody.ScrollBarThickness = if cardH < height then 4 else 0
-	if not inList then
+	if not inList and not asButton then
 		card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach)) -- clear of Refill's pad too
 	end
 	self._autoStroke.Color = if ticks
@@ -1621,6 +1676,7 @@ function BaitBowl.destroy(self: any)
 	self._action:destroy()
 	self._refill:destroy()
 	self._refillFood:destroy()
+	self._optionsButton:destroy()
 	if self._autoBuy then
 		self._autoBuy:destroy()
 		for _, pill in self._autoPills do

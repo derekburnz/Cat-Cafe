@@ -3027,9 +3027,12 @@ Layout.campExtras = {
 -- #5453 (Derek 2026-11-19: "move rummage bin back a little so people don't step on it accidently when going to
 -- cannon"): its walk-up pad (Config.BinPadRadius 7, in front of the bin toward the landing pad) reached in to x 10.6,
 -- over the walk from the right of the way out to the camp cannon. The bin stands 7 studs further back along its own
--- line, so the pad's near edge is at x 17.6, clear of that walk; still 4 off the flower beds on the gate wall, 7 off
--- the side flower bed and its front still turned to the landing pad.
-Layout.rummageBin = { area = "alley", x = 33, z = -10, rotY = 84.8 }
+-- line, so the pad's near edge is at x 17.6, clear of that walk; 7 off the side flower bed and its front still turned
+-- to the landing pad.
+-- Sync's Play check of that spot: the pad's top edge came within 0.1 of the gate wall's flower bed (x 25 to 30, z to
+-- -3.7), so the bin stands 2.5 further from the gate line, still turned to the pad: the pad's edge 2 off that bed and
+-- 3.9 off the walk from the way out to the cannon.
+Layout.rummageBin = { area = "alley", x = 33, z = -12.5, rotY = 89.1 }
 
 -- Where the Rummage Bin stands in the world: x, the floor's y, z and its turn about Y, or nil without that camp.
 function Layout.rummageBinAt(): (number?, number?, number?, number?)

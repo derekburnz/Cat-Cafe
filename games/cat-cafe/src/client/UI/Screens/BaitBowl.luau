@@ -921,12 +921,14 @@ function BaitBowl._renderAuto(self: any)
 		-- #5488: over the top of the foods, the column (and the Options button) left clear
 		card.Parent = self._list.Parent
 		card.ZIndex = 50
+		card.Active = true -- a tap on its background never reaches the food card under it
 		card.AnchorPoint = Vector2.zero
 		card.Position = self._list.Position + UDim2.fromOffset(4, 4)
 		room = height
 	elseif inList then
 		card.Parent = self._list
 		card.ZIndex = 1
+		card.Active = false
 		card.LayoutOrder = -1 -- over the locked bowl 2's card and the foods
 		card.AnchorPoint = Vector2.zero
 		card.Position = UDim2.new()
@@ -934,6 +936,7 @@ function BaitBowl._renderAuto(self: any)
 	elseif card.Parent ~= self._status then
 		card.Parent = self._status
 		card.ZIndex = 1
+		card.Active = false
 		card.AnchorPoint = Vector2.new(0.5, 1)
 	end
 	self._autoOffer.Size = UDim2.new(1, 0, 0, offerH)

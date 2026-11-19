@@ -3472,6 +3472,25 @@ end
 
 function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
 	local index = if bowl == 2 then 2 else 1
+	-- #5374 (Derek 2026-11-19: "all bowl options on yet I am still getting pop-ups"): with bowlTicks on and the Bowl
+	-- window's pop-ups tick set (settings.bowlNewCatCard false), a bowl cat after the first is a toast, not the card.
+	-- The bowl chip still shows it, and auto claim (when owned) tames it within a second.
+	local settings: { [string]: boolean | number | string } = state.settings or {}
+	local stats: any = (state :: any).stats or {}
+	if
+		settings.bowlNewCatCard == false
+		and ReplicatedStorage:GetAttribute("LiveFlag_bowlTicks") == true
+		and state.tutorialStep ~= 4
+		and (stats.baitsTamed or 0) > 0
+	then
+		bowls.cats[index] = cat
+		renderBait()
+		local def = lookupCat(cat.catId)
+		if def ~= nil then
+			UI.toast(string.format("%s came to bowl %d!", def.name, index), "info")
+		end
+		return
+	end
 	if not UI.bait.busy() then
 		UI.bait.showReady(cat, index)
 		return

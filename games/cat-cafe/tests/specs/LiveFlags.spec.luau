@@ -203,6 +203,7 @@ return function()
 							or key == "companionTraits" -- #5303
 							or key == "perfectCatch" -- #5300
 							or key == "easyKeep" -- #5311
+							or key == "bangFixedText" -- #5390
 							or key == "afkQuick" -- #5310
 							or key == "afkStay" -- #5322
 							or key == "strayMeets" -- onboarding_v9

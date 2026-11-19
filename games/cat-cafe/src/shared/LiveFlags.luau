@@ -193,6 +193,7 @@ LiveFlags.KEYS = {
 	"christmasEvent", -- Snowglobe Village, Dec 1 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
 	"bangRelayout", -- #5261: a "!" bubble showing with words but laid out blank lays its text out again (UI/Components/MarketBang); on by default
 	"phoneSmooth", -- #5285 A1: a new account on a touch screen starts in Smooth mode, no ask (shared/PerfSuggest.autoStart); off by default
+	"bangFixedText", -- #5390: the "!" bubbles' words sized by hand, not TextScaled (UI/Components/MarketBang); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
@@ -201,6 +202,7 @@ LiveFlags.KEYS = {
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
 	tameCannonPoint = true, -- #5245
+	bangFixedText = true, -- #5390
 	parkLead = true, -- #5248
 	promptsAfter5 = true, -- #5251
 	upgradesInstant = true, -- #5253

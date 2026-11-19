@@ -50,4 +50,21 @@ function MarketBangLogic.treatsNew(storeSeen: unknown): boolean
 	return (if type(seen) == "number" then seen else 0) < version
 end
 
+-- #5390: the "!" bubble's text size, worked out by hand (Components/MarketBang.fixText).
+MarketBangLogic.CHAR_WIDTH = 0.6 -- a display-font character's width, as a share of the text size (emoji included)
+MarketBangLogic.LINE_HEIGHT = 1.15 -- a line's height, as a share of the text size
+
+-- The text size that fits `words` in a box `width` x `height` px, between 8 and 100. Pure.
+function MarketBangLogic.fitSize(words: string, width: number, height: number): number
+	local lines, longest = 0, 1
+	for _, part in string.split(words, "\n") do
+		lines += 1
+		longest = math.max(longest, utf8.len(part) or #part)
+	end
+	lines = math.max(lines, 1)
+	local byHeight = height / (lines * MarketBangLogic.LINE_HEIGHT)
+	local byWidth = width / (longest * MarketBangLogic.CHAR_WIDTH)
+	return math.clamp(math.floor(math.min(byHeight, byWidth)), 8, 100)
+end
+
 return MarketBangLogic

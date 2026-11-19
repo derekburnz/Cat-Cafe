@@ -118,6 +118,11 @@ local function ownsPassOf(player: Player): (number) -> boolean
 end
 
 local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for a door set with none picked (F80)
+-- #5385 (Derek 2026-11-19: "doors missing at front of cafe and a little patch of grass is showing"): the cafe's own
+-- front doors, standing open into the cafe for good, and a threshold over the front wall's depth, where the bare arch
+-- showed the grass between the path and the floor. DoorFront where no door set is in use, behind FRONT_DOOR_FLAG.
+local OWN_FRONT_DOOR = "CatCafe_Plot_FrontDoor"
+local FRONT_DOOR_FLAG = "frontDoors"
 
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
 -- #2123: the welcome back card's line, picked once at the join from the save as it was left (ReturnHook "join")
@@ -950,11 +955,22 @@ local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile): (string?
 		local named = doorDef.asset .. "_" .. side
 		return if AssetRegistry.has(named) then named else doorDef.asset
 	end
-	local frontModel = showStyleModel(plot, "DoorFront", doorAsset("Front"), doorId, front)
+	local ownFront: string? = nil
+	if LiveFlagService.on(FRONT_DOOR_FLAG) and AssetRegistry.has(OWN_FRONT_DOOR) then
+		ownFront = OWN_FRONT_DOOR
+	end
+	local frontAsset = doorAsset("Front")
+	local frontModel = showStyleModel(
+		plot,
+		"DoorFront",
+		frontAsset or ownFront,
+		if frontAsset ~= nil then doorId else nil,
+		front
+	)
 	local backModel = showStyleModel(plot, "DoorBack", doorAsset("Back"), doorId, back)
-	if doorId ~= nil and (frontModel == nil or backModel == nil) then
+	if doorId ~= nil and (frontAsset == nil or frontModel == nil or backModel == nil) then
 		-- half a door set is no door set: the cafe keeps both its own doors
-		showStyleModel(plot, "DoorFront", nil, nil, front)
+		showStyleModel(plot, "DoorFront", ownFront, nil, front)
 		showStyleModel(plot, "DoorBack", nil, nil, back)
 		frontModel, backModel, doorId = nil, nil, nil
 	end

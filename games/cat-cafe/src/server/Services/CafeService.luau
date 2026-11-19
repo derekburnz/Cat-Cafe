@@ -1045,7 +1045,8 @@ end
 local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	local count = math.min(Economy.level(profile, "tables"), #plot.tableAnchors)
 	for i, anchor in plot.tableAnchors do
-		local spot = Layout.plot.tables[i]
+		-- #5441: Tables 7 and 8 (tablesEight) are the grown room's fourth row
+		local spot = Layout.plot.tables[i] or Layout.plot.tablesBig[i - #Layout.plot.tables]
 		local name = "table_" .. i
 		local existing = plot.tables:FindFirstChild(name)
 		if i > count then

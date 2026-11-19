@@ -954,7 +954,7 @@ return function()
 				{ tables = 40, espresso = -2, net = "x", lure_bowl = 9, cafe_level = 4 }
 			local profile: any = ProfileSchema.migrate(raw, 500)
 			expect(profile.upgradeLevels).to.deepEqual({
-				tables = 6,
+				tables = 8, -- #5441: Tables 7 and 8 (tablesEight) are kept whether the switch is on yet or not
 				espresso = 1,
 				net = 0,
 				lure_bowl = 5,

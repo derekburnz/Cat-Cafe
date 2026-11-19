@@ -484,8 +484,12 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 	for id, lvl in rawLevels do
 		local def = if type(id) == "string" then Catalog.getUpgrade(id) else nil
 		if def ~= nil then
+			-- #5441: Tables 7 and 8 are kept with the tablesEight switch off (or not read yet at load)
+			local top = if def.id == "tables"
+				then math.max(def.maxLevel, Catalog.TABLES_MAX_EIGHT)
+				else def.maxLevel
 			profile.upgradeLevels[def.id] =
-				math.clamp(asInt(lvl, def.startLevel), def.startLevel, def.maxLevel)
+				math.clamp(asInt(lvl, def.startLevel), def.startLevel, top)
 		end
 	end
 end

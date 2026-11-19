@@ -391,6 +391,16 @@ Layout.plot = {
 		{ x = -12.83, y = 0, z = 4.86, lane = 1.09 },
 		{ x = 12.22, y = 0, z = 4.86, lane = 1.09 },
 	} :: { TableSpot },
+	-- #5441 (switch tablesEight): Tables 7 and 8, a fourth row in the back of the 60 x 46 room of Tiers 9 and 10, in
+	-- line with the columns above. These are that room's plot-local places (CafeRoom.offset does not move them), and
+	-- they stand only while the room is tablesBigRoom (WorldBuilder.setRoom). The band between the cat trees and
+	-- waiters by the third row (z up to 10.9) and the counter's row moved back 12 (z from 21.2) is clear: each table
+	-- is 2.5 from the cat tree in front of it, and the lane behind runs 1.05 from the table and the back cat tree.
+	tablesBig = {
+		{ x = -12.22, y = 0, z = 15.5, lane = 19.4 },
+		{ x = 12.22, y = 0, z = 15.5, lane = 19.4 },
+	} :: { TableSpot },
+	tablesBigRoom = { width = 60, depth = 46 },
 	-- How far either side of the aisle's middle customers walk to and from a lane, clear of the waiters at 5.5.
 	aisleX = 2,
 

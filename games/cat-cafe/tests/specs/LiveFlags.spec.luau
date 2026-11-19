@@ -204,6 +204,7 @@ return function()
 							or key == "spinCat" -- #5171
 							or key == "nightSpread" -- #5164
 							or key == "netTiers" -- #5170
+							or key == "tablesEight" -- #5441
 							or key == "nightLine" -- #5330
 							or key == "companionMenu" -- #5296
 							or key == "companionTraits" -- #5303

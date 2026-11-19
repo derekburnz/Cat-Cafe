@@ -543,6 +543,33 @@ end
 -- Hiding keeps each part's own transparency in an attribute and puts it back after; nothing on an awning collides.
 local AWNING_TRANSPARENCY = "ThemeTransparency"
 
+-- #5441 (switch tablesEight): Tables 7 and 8's anchors (TableAnchors/table_7 and table_8, Layout.plot.tablesBig) stand
+-- while the room is Layout.plot.tablesBigRoom and come down in any other room, so #plot.tableAnchors is how many
+-- tables the room holds. They are placed in that room's own plot-local spots and kept out of roomBase.
+function WorldBuilder.setBigTables(plot: Plot)
+	local big = Layout.plot.tablesBigRoom
+	local wanted = plot.room.width == big.width and plot.room.depth == big.depth
+	local base = #Layout.plot.tables
+	local holder = plot.model:FindFirstChild("TableAnchors")
+	if holder == nil then
+		return
+	end
+	if not wanted then
+		while #plot.tableAnchors > base do
+			local extra = table.remove(plot.tableAnchors) :: BasePart
+			extra:Destroy()
+		end
+		return
+	end
+	for n, point in Layout.plot.tablesBig do
+		local i = base + n
+		if #plot.tableAnchors < i then
+			plot.tableAnchors[i] =
+				anchor("table_" .. i, plot.cframe * CFrame.new(point.x, point.y, point.z), holder)
+		end
+	end
+end
+
 -- #4543 (behind cafeGrows): the room grows to `width` x `depth` (CafeRoom.size, Config.World.CafeRoomByTier). The
 -- front wall stays where it is and the room reaches further back: the shell, interior and yard fence swap for
 -- Model-Agent's sized art (`<asset>_WxD`, centred on the room), the floor and the Cafe zone grow, and every piece the
@@ -687,6 +714,7 @@ function WorldBuilder.setRoom(plot: Plot, width: number, depth: number): boolean
 	end
 
 	plot.room = { width = width, depth = depth }
+	WorldBuilder.setBigTables(plot)
 	plot.model:SetAttribute("RoomWidth", width)
 	plot.model:SetAttribute("RoomDepth", depth)
 	return true

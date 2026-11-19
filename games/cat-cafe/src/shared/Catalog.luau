@@ -2201,6 +2201,50 @@ function Catalog.setTablesSpread(on: boolean): boolean
 	return changed
 end
 
+-- #5441 (Derek 2026-11-19: "the tier 10 cafe now feels a little empty make it so there are 2 more table upgrades",
+-- switch tablesEight, shared/TablesEight): Tables 7 and 8 open at Tiers 9 and 10, where the room has grown to 60 x 46
+-- (Layout.plot.tablesBig). Their costs are Espresso 9 and 10's, the same share of those tiers. Off, Tables 6 is the
+-- top as before. A level owned above the cap is kept.
+Catalog.TABLES_EIGHT = table.freeze({ [9] = 7, [10] = 8 })
+Catalog.TABLES_SIX = table.freeze({ [9] = 6, [10] = 6 })
+Catalog.TABLES_MAX_PLAIN = 6
+Catalog.TABLES_MAX_EIGHT = 8
+Catalog.TABLES_EIGHT_COSTS = table.freeze({ [7] = 25000000000, [8] = 150000000000 })
+
+function Catalog.setTablesEight(on: boolean): boolean
+	local caps: { [number]: number } = if on then Catalog.TABLES_EIGHT else Catalog.TABLES_SIX
+	local changed = false
+	for tier, cap in caps do
+		local def = Catalog.tiers[tier]
+		if def ~= nil and (def.caps :: any).tables ~= cap then
+			(def.caps :: any).tables = cap
+			changed = true
+		end
+	end
+	for _, def in Catalog.upgrades do
+		if def.id == "tables" then
+			local top = if on then Catalog.TABLES_MAX_EIGHT else Catalog.TABLES_MAX_PLAIN
+			if def.maxLevel ~= top then
+				def.maxLevel = top
+				changed = true
+			end
+			local costs: any = def.costs -- a level past maxLevel is taken away (nil) with the switch off
+			for level, cost in Catalog.TABLES_EIGHT_COSTS do
+				costs[level] = if on then cost else nil
+			end
+			local perLevel: { [number]: number } = {}
+			for level = 1, def.maxLevel do
+				local tier = Catalog.tierForLevel(def.id, level)
+				if tier ~= nil and tier > 1 then
+					perLevel[level] = tier
+				end
+			end
+			def.requiresTierAtLevel = perLevel
+		end
+	end
+	return changed
+end
+
 -- #5170 (switch netTiers, shared/NetTiers): the net's caps at Tiers 7 to 10 and its maxLevel. Off, Net 3 is the top
 -- from Tier 5 as before; on, Net 4 opens at Tier 7 and Net 5 at Tier 9. A level owned above the cap is kept.
 Catalog.NET_TIERS = table.freeze({ [7] = 4, [8] = 4, [9] = 5, [10] = 5 })

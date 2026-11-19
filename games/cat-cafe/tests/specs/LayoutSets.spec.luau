@@ -82,6 +82,92 @@ return function()
 			)
 		end)
 
+		-- #5441 (tablesEight): Tables 7 and 8 stand in the 60 x 46 room, clear of every piece that stands there once the
+		-- room has grown (CafeRoom.point), of the first six tables, and with their lane clear from the aisle to the
+		-- outer chair.
+		it("stands Tables 7 and 8 in the grown room clear of everything there (#5441)", function()
+			local CafeRoom = require(Shared.CafeRoom)
+			local big = plot.tablesBigRoom
+			local CLEAR = 1.5 -- a piece's centre from the table and chairs' box: cat trees and beds are 2.6 across
+			expect(#plot.tablesBig).to.equal(2)
+			expect(big.width).to.equal(60)
+			expect(big.depth).to.equal(46)
+			local front = -W.PlotDepth / 2
+			local pieces: { { what: string, x: number, z: number } } = {}
+			local function add(what: string, p: any)
+				local moved =
+					CafeRoom.point({ x = p.x, y = p.y or 0, z = p.z }, big.width, big.depth)
+				table.insert(pieces, { what = what, x = moved.x, z = moved.z })
+			end
+			for id, p in plot.spots do
+				add(id, p)
+			end
+			for id, p in plot.spotFurniture do
+				add(id .. "'s cat tree", p)
+			end
+			for _, p in plot.beds do
+				add(p.id, p)
+			end
+			for n, p in plot.napSpots do
+				add("nap spot " .. n, p)
+			end
+			for n, p in plot.decorSpots do
+				add("decor spot " .. n, p)
+			end
+			add("counter", plot.counter)
+			add("order point", plot.orderPoint)
+			local function boxGap(
+				x1: number,
+				x2: number,
+				z1: number,
+				z2: number,
+				x: number,
+				z: number
+			): number
+				local dx = math.max(x1 - x, x - x2, 0)
+				local dz = math.max(z1 - z, z - z2, 0)
+				return math.sqrt(dx * dx + dz * dz)
+			end
+			for n, spot in plot.tablesBig do
+				local i = #plot.tables + n
+				expect(math.abs(spot.x) + REACH <= big.width / 2 - 1).to.equal(true)
+				expect(spot.z - DEPTH >= front + 1 and spot.z + DEPTH <= front + big.depth - 1).to.equal(
+					true
+				)
+				expect(math.abs(spot.x) - REACH >= AISLE).to.equal(true)
+				for _, piece in pieces do
+					local gap = boxGap(
+						spot.x - REACH,
+						spot.x + REACH,
+						spot.z - DEPTH,
+						spot.z + DEPTH,
+						piece.x,
+						piece.z
+					)
+					if gap < CLEAR then
+						fail("table %d is %.2f studs from %s", i, gap, piece.what)
+					end
+				end
+				for j, other in plot.tables do
+					if math.abs(other.z - spot.z) < 2 * DEPTH + 2 then
+						fail("table %d stands on table %d's row", i, j)
+					end
+				end
+				-- the lane, from beside the aisle to the outer chair, a stud clear of the tables and pieces
+				local side = if spot.x < 0 then -1 else 1
+				local outer = spot.x + side * plot.seatOffsets[2].x
+				local laneX1, laneX2 =
+					math.min(side * plot.aisleX, outer), math.max(side * plot.aisleX, outer)
+				expect(math.abs(spot.lane - spot.z) - DEPTH >= 1).to.equal(true)
+				for _, piece in pieces do
+					local gap = boxGap(laneX1, laneX2, spot.lane, spot.lane, piece.x, piece.z)
+					if gap < CLEAR then
+						fail("table %d's lane is %.2f studs from %s", i, gap, piece.what)
+					end
+				end
+			end
+		end)
+
 		it("leaves the aisle clear: no table or chair reaches inside x -6.3 to 6.3", function()
 			expect(plot.seatOffsets[2].x + 1.3 <= REACH + 1e-9).to.equal(true)
 			for i, spot in plot.tables do

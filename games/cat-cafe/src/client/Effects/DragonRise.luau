@@ -799,6 +799,21 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 		return look + way * reach
 	end
 
+	-- #5480: the hill or floor height under `at` (nil when there is none in reach)
+	local function groundUnder(at: Vector3): number?
+		local hit = Workspace:Raycast(at + Vector3.new(0, 200, 0), Vector3.new(0, -400, 0), rays)
+		return if hit ~= nil then hit.Position.Y else nil
+	end
+	-- #5480: the flight from `from` to `to` at `k`, humped up over the straight line and kept over the ground
+	local function flight(from: CFrame, to: CFrame, k: number): CFrame
+		local frame = from:Lerp(to, k)
+		local distance = (to.Position - from.Position).Magnitude
+		local eye = frame.Position
+			+ Vector3.new(0, KeepShot.hop(k, distance, c.hopLift, c.hopMost), 0)
+		eye = KeepShot.overGround(eye, groundUnder(eye), c.groundGap * math.sin(math.pi * k))
+		return frame.Rotation + eye
+	end
+
 	local function finish()
 		if finished then
 			return
@@ -1265,7 +1280,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 		local scene = CFrame.lookAt(wantEye, lookAt)
 		local frame: CFrame
 		if t < plan.swing then
-			frame = start:Lerp(scene, Logic.smoothstep01(t / plan.swing))
+			frame = flight(start, scene, Logic.smoothstep01(t / plan.swing))
 			fov = fovWas + (c.fov - fovWas) * Logic.smoothstep01(t / plan.swing)
 		elseif t >= plan.backAt then
 			if not backing then
@@ -1275,7 +1290,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 				-- he is back in the yard for the hand over, in his new look (the caller's live one takes over)
 			end
 			local k = Logic.smoothstep01((t - plan.backAt) / (plan.total - plan.backAt))
-			frame = backFrom:Lerp(start, k)
+			frame = flight(backFrom, start, k)
 			fov = fov + (fovWas - fov) * k
 		else
 			frame = scene

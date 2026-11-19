@@ -8031,6 +8031,11 @@ Presets.dragonRise = {
 		-- yard shots swing up to `above` over him, `aboveRange` of the low shot's distance away (Effects/KeepShot.above)
 		above = math.rad(64),
 		aboveRange = 0.9,
+		-- #5480: the flights to and from the Keep rise over the straight line by `hopLift` of their length (at most
+		-- `hopMost` studs) and keep `groundGap` studs over the hills under them, so they never skim the ground
+		hopLift = 0.35,
+		hopMost = 60,
+		groundGap = 6,
 	},
 	-- the ember ball
 	ball = {

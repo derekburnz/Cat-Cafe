@@ -91,5 +91,25 @@ return function()
 				12
 			)
 		end)
+
+		it("humps the flight to and from the Keep over the straight line (#5480)", function()
+			expect(KeepShot.hop(0, 100, 0.35, 60)).to.equal(0)
+			expect(math.abs(KeepShot.hop(1, 100, 0.35, 60)) < 1e-6).to.equal(true)
+			expect(math.abs(KeepShot.hop(0.5, 100, 0.35, 60) - 35) < 1e-6).to.equal(true)
+			expect(math.abs(KeepShot.hop(0.5, 1000, 0.35, 60) - 60) < 1e-6).to.equal(true)
+			expect(KeepShot.hop(0.25, 100, 0.35, 60) < KeepShot.hop(0.5, 100, 0.35, 60)).to.equal(
+				true
+			)
+		end)
+
+		it("keeps the flight over the ground under it (#5480)", function()
+			local eye = Vector3.new(4, 10, 2)
+			expect(KeepShot.overGround(eye, nil, 6)).to.equal(eye)
+			expect(KeepShot.overGround(eye, 2, 6)).to.equal(eye)
+			local raised = KeepShot.overGround(eye, 9, 6)
+			expect(raised.Y).to.equal(15)
+			expect(raised.X).to.equal(4)
+			expect(raised.Z).to.equal(2)
+		end)
 	end)
 end

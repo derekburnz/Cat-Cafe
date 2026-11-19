@@ -77,4 +77,21 @@ function KeepShot.above(eye: Vector3, look: Vector3, elevation: number, range: n
 		+ Vector3.new(0, distance * math.sin(elevation), 0)
 end
 
+-- Pure (#5480): how far over the straight line the camera's flight to or from the Keep rises at `k` (0 to 1 of the
+-- way): a hump that is 0 at both ends and highest halfway, `lift` of the flight's `distance` and at most `most` studs.
+-- The straight line between the player's view and the yard shot ran through the hills on the way.
+function KeepShot.hop(k: number, distance: number, lift: number, most: number): number
+	local t = math.clamp(k, 0, 1)
+	return math.sin(math.pi * t) * math.min(math.max(distance, 0) * lift, most)
+end
+
+-- Pure (#5480): `eye` raised (X and Z kept) to stand at least `gap` studs over `ground` (the floor or hill height
+-- under it, nil when there is none).
+function KeepShot.overGround(eye: Vector3, ground: number?, gap: number): Vector3
+	if ground == nil or eye.Y >= ground + gap then
+		return eye
+	end
+	return Vector3.new(eye.X, ground + gap, eye.Z)
+end
+
 return KeepShot

@@ -1390,6 +1390,7 @@ export type TelemetryState = {
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)
 	introGroup: string?,
+	orderGroup: string?, -- #5498: the walk-through order test arm (shared/TutorialOrder)
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

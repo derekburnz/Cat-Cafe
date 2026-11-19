@@ -908,13 +908,13 @@ end
 -- The furthest clean step logged, for the events that say where a player was: "none" before joined and "done" for a
 -- player through it or out of it (a veteran who never started it).
 -- Whether onboarding_v8 is the funnel logged now: the walk-through runs bowl first (#4518); v7 otherwise.
-function Onboarding.v8On(): boolean
-	return TutorialOrder.bowlFirst()
+function Onboarding.v8On(player: Player?): boolean
+	return TutorialOrder.bowlFirst(player) -- #5498: the player's arm in the order test, else the switch
 end
 
 -- `v8` says which funnel runs (Onboarding.v8On; nil reads it): v7's names for today's order.
 function Onboarding.cleanFurthest(state: Types.TelemetryState, v8: boolean?): string
-	if not (if v8 == nil then TutorialOrder.bowlFirst() else v8) then
+	if not (if v8 == nil then TutorialOrder.fromGroup(state.orderGroup) else v8) then
 		return v7Furthest(state)
 	end
 	local step = state.cleanV9Step or 0

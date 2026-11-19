@@ -4002,6 +4002,8 @@ function UIController.start()
 		:Connect(bowlOrderChanged)
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlagsShared.ATTRIBUTE_PREFIX .. "catchFirst")
 		:Connect(bowlOrderChanged)
+	-- #5498: the player's arm in the walk-through order test arrives as their TutorialOrder attribute
+	Players.LocalPlayer:GetAttributeChangedSignal("TutorialOrder"):Connect(bowlOrderChanged) -- TutorialOrder.GROUP_ATTR
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

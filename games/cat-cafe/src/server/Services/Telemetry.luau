@@ -112,6 +112,7 @@ export type CustomEvent =
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "order_group" -- #5498 (shared/TutorialOrder): a new save joined the walk-through order test (value 1; field: its arm)
 	| "cat_pet" -- #3651 (shared/Pet): a cat was petted (value 1; field: first, same or moved)
 	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
 	| "afk_start"
@@ -1012,7 +1013,8 @@ end
 
 -- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
 local function grouped(profile: Profile, fields: { string }): { string }
-	return IntroSplit.fields(profile.telemetry.introGroup, fields)
+	-- #5498: a save in the walk-through order test carries its arm there instead (the intro test takes nobody new)
+	return IntroSplit.fields(profile.telemetry.introGroup or profile.telemetry.orderGroup, fields)
 end
 
 -- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
@@ -1029,7 +1031,34 @@ function Telemetry.setIntroSkip(skip: (Player) -> boolean)
 	introSkip = skip
 end
 
+-- #5498 (shared/TutorialOrder): a new save joins the walk-through order test once, and its arm (or none) goes on the
+-- Player as the TutorialOrder attribute, so the client and the server read the same order. Checked once a session,
+-- before the intro check, so the switch going on mid session moves nobody.
+local orderChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
+function Telemetry.orderJoin(player: Player, profile: Profile)
+	if orderChecked[player] then
+		return
+	end
+	orderChecked[player] = true
+	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
+	local state = profile.telemetry
+	if
+		TutorialOrder.joins(
+			LiveFlagService.on(TutorialOrder.SPLIT_FLAG),
+			profile.stats.sessions,
+			profile.tutorialStep or 0,
+			state.orderGroup
+		)
+	then
+		state.orderGroup = TutorialOrder.group(player.UserId)
+		Telemetry.custom(player, "order_group", 1, { state.orderGroup :: string }) -- TutorialOrder.EVENT
+	end
+	player:SetAttribute(TutorialOrder.GROUP_ATTR, state.orderGroup)
+end
+
 function Telemetry.introJoin(player: Player, profile: Profile)
+	Telemetry.orderJoin(player, profile)
 	if introChecked[player] ~= nil then
 		return
 	end
@@ -1150,7 +1179,7 @@ local function logClean(player: Player, profile: Profile, event: string?)
 		return -- joined is not logged yet (logJoined calls this once the session is set up)
 	end
 	local areas: { [string]: boolean } = session.areasCaught
-	if not Onboarding.v8On() then
+	if not Onboarding.v8On(player) then
 		logCleanV7(player, profile, areas)
 		return
 	end
@@ -2550,7 +2579,11 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		-- #4674: once a session each, as step_time, and only in the bowl first order
 		local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
 		local step = if type(rawValue) == "string" then TutorialOrder.BOWL_STEPS[rawValue] else nil
-		if step ~= nil and TutorialOrder.bowlFirst() and not session.nudges["bowl:" .. step] then
+		if
+			step ~= nil
+			and TutorialOrder.bowlFirst(player)
+			and not session.nudges["bowl:" .. step]
+		then
 			session.nudges["bowl:" .. step] = true
 			Telemetry.stepTime(player, profile, step)
 		end

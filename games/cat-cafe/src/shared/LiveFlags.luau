@@ -165,6 +165,7 @@ LiveFlags.KEYS = {
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
 	"parkFirstCalm", -- #5496: on a phone, tablet or console a missed catch in the Park leaves the cat put until the first Park catch (shared/ParkFirstEasy.calm); off by default
+	"orderSplit", -- #5498: new saves split half catch first, half bowl first, kept for good (shared/TutorialOrder); off by default
 	"awayPromise", -- #5505: days played milestones (shared/DaysPlayed), later the away line and return moment; off by default
 	"catchLostLog", -- #5500: log catch_lost with why a started net catch ended with no cat, by device and area (shared/CatchLost); off by default
 	"mutationBoost", -- #5493: a wild stray's gold and rainbow coat chances are doubled (shared/MutationBoost); off by default
@@ -321,6 +322,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	keepLook = true, -- #5433: on as soon as it publishes (Derek 2026-11-19)
 	bowlLockBig = true, -- #5455: on as soon as it publishes (Derek 2026-11-19)
 	parkFirstCalm = true, -- #5496: on as soon as it publishes (Derek 2026-11-19)
+	orderSplit = true, -- #5498: on once both arms are walked end to end (Derek 2026-11-19: go with the recommendation)
 	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
 	mutationBoost = true, -- #5493: on as soon as it publishes (Derek 2026-11-19)

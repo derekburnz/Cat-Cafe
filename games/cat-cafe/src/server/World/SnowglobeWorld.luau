@@ -12,7 +12,7 @@
 --                        part Effects/SnowglobeFx's snowfall centres on).
 --   buildAdventBoard(parent, portal)  #5502: the advent calendar board (CatCafe_Square_AdventBoard, #5511) beside the
 --                        globe, facing the cannon like it, on the first side whose spot is clear, tagged AdventBoard.
---                        Its doors stay anchored and unwelded: the client's AdventBoardController swings them.
+--                        Its doors stay anchored and unwelded: the client's Effects/AdventFx swings them.
 --   landing()            where a trip in lands: the player spawn, facing the tree.
 --   areaInfo(folder)     the area as CatService knows the others (WorldBuilder.AreaInfo, id "snowglobe"): the 14 stray
 --                        spots and the nook (zone "rare") as invisible parts in `folder`, and five roam boxes inside
@@ -278,7 +278,7 @@ function SnowglobeWorld.buildPortal(parent: Instance): Model?
 end
 
 -- #5502: whether nothing but ground stands in a board's box at `cframe` (the globe left out). Ground (a part whose
--- top is under 0.6 studs) and invisible touch parts do not count.
+-- top is under 0.6 studs above the spot) and invisible touch parts do not count.
 local function clear(cframe: CFrame, portal: Instance): boolean
 	local params = OverlapParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
@@ -287,7 +287,7 @@ local function clear(cframe: CFrame, portal: Instance): boolean
 	local parts = game:GetService("Workspace")
 		:GetPartBoundsInBox(cframe * CFrame.new(0, box.Y / 2 + 0.6, 0), box, params)
 	for _, part in parts do
-		if part.Transparency < 1 and part.Position.Y + part.Size.Y / 2 > 0.6 then
+		if part.Transparency < 1 and part.Position.Y + part.Size.Y / 2 > cframe.Position.Y + 0.6 then
 			return false
 		end
 	end

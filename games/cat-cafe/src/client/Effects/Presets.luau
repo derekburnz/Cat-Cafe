@@ -7271,6 +7271,25 @@ Presets.palDay = {
 	},
 }
 
+-- #5465 the guide arrow (Effects/GuideArrow, switch guideArrow): a ">" of two `length` x `width` neon arms, each
+-- `spread` radians off the line, its tip `ahead` studs before the player's feet toward the target and `lift` over the
+-- ground, sliding up to `reach` studs further and back every `period` seconds. `target` and `colour` are the
+-- attributes UI's GuideTrail writes on its folder.
+Presets.guideArrow = {
+	name = "CatCafeGuideArrow",
+	target = "GuideTarget",
+	colour = "GuideColour",
+	ahead = 4.5,
+	lift = 0.15,
+	length = 1.6,
+	width = 0.4,
+	thick = 0.12,
+	spread = math.rad(38),
+	transparency = 0.1,
+	reach = 0.8,
+	period = 1.2,
+}
+
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
 -- dot is drawn as a paw print `size` studs across on a `pixels` square canvas, `offset` studs left and right of the
 -- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).

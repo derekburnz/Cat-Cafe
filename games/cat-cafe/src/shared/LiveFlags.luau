@@ -212,6 +212,7 @@ LiveFlags.KEYS = {
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
+	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
 	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
 	"bowlHintRetry", -- #5438: the tutorial strip is worked out again when a new server's switches arrive, so bowl first shows its food ask (Controllers/UIController); off by default
@@ -343,6 +344,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
+	guideArrow = true, -- #5465: on as soon as it merges
 	secretCompanionBig = true, -- #5431
 	decorChipIcons = true, -- #5366: on after Review-QA, once the six pictures pass moderation
 	bowlHintRetry = true, -- #5438

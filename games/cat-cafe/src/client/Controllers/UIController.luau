@@ -3963,6 +3963,26 @@ function UIController.start()
 	do
 		task.wait(0.1)
 	end
+	-- #5438 (Derek 2026-11-19 on the funnel: "how are they not getting bowl hint"): a new server answers every switch
+	-- from its defaults until its first store read, and catchFirst is on by default, so a joiner whose first sync came
+	-- before that read got the catch first strip (the back door and the alley) instead of the bowl's food ask, and
+	-- nothing worked the strip out again when the real switches came, so bowl_hint never fired. With bowlHintRetry
+	-- on the strip is worked out again when the switches arrive (the ready mark) and whenever catchFirst flips.
+	local function bowlOrderChanged()
+		task.defer(function()
+			local current = state
+			if
+				current ~= nil
+				and ReplicatedStorage:GetAttribute("LiveFlag_bowlHintRetry") == true
+			then
+				refreshTutorial(current)
+			end
+		end)
+	end
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlagsShared.READY_ATTRIBUTE)
+		:Connect(bowlOrderChanged)
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlagsShared.ATTRIBUTE_PREFIX .. "catchFirst")
+		:Connect(bowlOrderChanged)
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

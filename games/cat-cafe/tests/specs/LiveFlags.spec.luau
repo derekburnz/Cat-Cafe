@@ -242,6 +242,7 @@ return function()
 							or key == "townGround" -- #5357
 							or key == "tipPileOldest" -- #5422
 							or key == "decorChipIcons" -- #5366
+							or key == "bowlHintRetry" -- #5438
 							or key == "chipPickedWord" -- #5406
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
@@ -257,6 +258,7 @@ return function()
 							or key == "christmasEvent" -- snowglobe-village-spec
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
+							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

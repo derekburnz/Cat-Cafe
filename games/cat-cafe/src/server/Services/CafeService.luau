@@ -348,7 +348,8 @@ local function followerViewOf(player: Player, profile: Profile): Types.FollowerV
 		amount = Follower.amount(
 			if def ~= nil then def.rarity else nil,
 			boost,
-			if cat ~= nil then cat.variant else nil
+			if cat ~= nil then cat.variant else nil,
+			Follower.areaOf(def) -- #5431
 		),
 		switchIn = math.max(0, Follower.SWITCH_SECONDS - since),
 	}

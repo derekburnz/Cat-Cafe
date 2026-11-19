@@ -125,6 +125,7 @@ import harvestoutfits  # noqa: E402
 import harvestdecor  # noqa: E402
 import harvestset  # noqa: E402
 import d1props  # noqa: E402
+import advent  # noqa: E402
 import snowglobeset  # noqa: E402
 import christmasitems  # noqa: E402
 import waterparkshelf  # noqa: E402
@@ -150,7 +151,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
            arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, snowglobeset, christmasitems, dragon,
            updateposter, decorstand, mysterysign,
-           waterparkshelf, wallperch, plotsizes, d1props]
+           waterparkshelf, wallperch, plotsizes, d1props, advent]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -1022,6 +1023,8 @@ def main():
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
+        if name == advent.NAME:                   # #5502: Prize01 to Prize24 in the nooks, the PromptAnchor
+            extra = {"attachments": advent.rbx_attachments(name)}
         if name in wallperch.ASSETS:              # the cat's Seat on the shelf
             extra = {"attachments": wallperch.rbx_attachments(name)}
         if name in dragon.ASSETS:                 # #4062: the joint chain, each joint's scales inside it

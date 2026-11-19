@@ -15,8 +15,11 @@ local CollectorService = require(script.Parent.CollectorService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FirstVisits = require(ReplicatedStorage.Shared.FirstVisits)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local MysteryService = require(script.Parent.MysteryService)
+local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
+local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local RareCustomers = require(ReplicatedStorage.Shared.RareCustomers)
 local RichTipService = require(script.Parent.RichTipService)
 local Telemetry = require(script.Parent.Telemetry)
@@ -26,6 +29,16 @@ local RareCustomerService = {}
 local rng = Random.new()
 -- each player's seconds of open day toward the next arriving customer
 local carried: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+-- #5439 (Review-QA before rareCustomers goes on): no rare customer of a kind while the account's scheduled first visit
+-- of that kind is still ahead (FirstVisits.pending: the timer's FirstVisit.due path brings it, with its card), and none
+-- at all before the walk-through ends (Onboarding.NEW_PLAYER_STEP), so a new player's tutorial keeps its schedule.
+local function waits(player: Player, profile: any, kind: string): boolean
+	if (profile.tutorialStep or 0) < Onboarding.NEW_PLAYER_STEP then
+		return true
+	end
+	return FirstVisits.pending(profile.firstVisits, kind :: any, PlayTime.seconds(player, profile))
+end
 
 local function send(player: Player, kind: string): boolean
 	if kind == "rich" then
@@ -63,7 +76,7 @@ local function tick(dt: number): boolean
 		)
 		for _ = 1, count do
 			local kind = RareCustomers.pick(chances, rng:NextNumber())
-			if kind ~= nil and send(player, kind) then
+			if kind ~= nil and not waits(player, profile, kind) and send(player, kind) then
 				Telemetry.custom(player, "rare_customer", 1, { kind })
 			end
 		end

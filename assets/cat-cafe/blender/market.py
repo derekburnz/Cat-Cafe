@@ -10,6 +10,7 @@ sou'wester. A crate of fish and a barrel stand at the sides.
   CatCafe_Street_FishMarket_Bulb          the sign lamp, lit at night
   CatCafe_Street_FishMarket_Cat_<Piece>   the shopkeeper, the same hinged pieces as every sitting cat; its hat
                                           (_Cat_Prop) rides inside the Head Model
+  CatCafe_Street_FishMarket_Decor         the Fresh Catch board's frame, legs, header and fish (#5398: walk-through)
   CatCafe_Street_FishMarket_FreshCatch    the blank chalk face of the Fresh Catch board (F94, rewards-and-shops.md
                                           section 3): one Part whose Front (-Z) face, 1.7 by 1.45 studs, takes the
                                           UI's stock list by day and "Back at sunrise" at night
@@ -177,7 +178,9 @@ CHALK = (0.85, 1.0, 2.45)                            # the chalk face: half widt
 
 def _fresh_catch(b, chalk):
     """The Fresh Catch board (F94): a navy frame on two legs with feet and gold ball caps, a cream header with
-    FRESH over CATCH in blue, the chalk face (its own object, for the UI) and a small golden fish on top."""
+    FRESH over CATCH in blue, the chalk face (its own object, for the UI) and a small golden fish on top. #5398 (Sync
+    2026-11-19: a walk across the Town Square wedged the character between the board, the crate behind it and the
+    stall's post): `b` is the stall's _Decor object, so nothing on the board collides."""
     x, z = BOARD_X, BOARD_Z
     hw, lo, hi = CHALK
     for sx in (-1, 1):                                                              # legs, feet and caps
@@ -204,13 +207,14 @@ def _fish_flat_upright(b, x, y, z):
 
 def build_fish_market(mat):
     name = "CatCafe_Street_FishMarket"
-    b, bulb, chalk = RB(), RB(), RB()
+    b, bulb, chalk, decor = RB(), RB(), RB(), RB()
     _counter(b)
     _ice(b)
     _back(b, bulb)
     _sides(b)
-    _fresh_catch(b, chalk)
-    out = [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), chalk.finalize(name + "_FreshCatch", mat)]
+    _fresh_catch(decor, chalk)
+    out = [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), chalk.finalize(name + "_FreshCatch", mat),
+           decor.finalize(name + "_Decor", mat)]
     coin = coins.build_fish_coin(mat, name + "_Coin")[0]                                # on the counter front
     scale_mesh(coin, COIN_K)
     coin.location = coin.location + Vector(RB.p(0, 0.55, C_FRONT - coins.T * COIN_K / 2 + 0.01))

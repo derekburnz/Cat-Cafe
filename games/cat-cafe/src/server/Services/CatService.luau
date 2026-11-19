@@ -1403,10 +1403,14 @@ do
 	type ParkNeed = "kinds" | "rare" -- shared/Tier3Path.Need
 	local parkSpawned: { [Player]: number } = {}
 
+	-- #5487 (Derek 2026-11-19: "those cats with paws on top that only take one hit in park still exist remove that"):
+	-- no Park stray waits any more (no gold paw badge, no one circle catch); tier3Path keeps its goal line and gift
+	local PARK_WAITS = false
 	local function parkNeed(player: Player): (Types.PlayerProfile?, ParkNeed?)
 		local profile = M.DataService.get(player)
 		if
-			profile == nil
+			not PARK_WAITS
+			or profile == nil
 			or not M.LiveFlagService.on(M.Tier3Path.FLAG)
 			or carrying[player] ~= nil
 			or packed[player] ~= nil
@@ -1583,7 +1587,8 @@ do
 
 	-- #5038: the waiting Park stray's catch is the first catch's slow circle too (easyCatch)
 	function Second.parkWaits(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
-		return stray.waitsFor == player.UserId
+		return PARK_WAITS
+			and stray.waitsFor == player.UserId
 			and stray.area == M.Tier3Path.AREA
 			and M.LiveFlagService.on(M.Tier3Path.FLAG)
 			and M.Tier3Path.need(profile) ~= nil

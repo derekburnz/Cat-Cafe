@@ -43,7 +43,7 @@ export type RescuePoint = {
 	rotY: number?,
 }
 -- y is the height above the area floor (0 when omitted); wall props set it.
-export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
+export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number?, scale: number? }
 -- #2687 part 2: an area's hidden nook (Model-Agent's CatCafe_Nook_<Area>, assets/cat-cafe/blender/nooks.py), a little
 -- walled corner against a side wall of its set with one extra rescue spot inside. The model stands at (x, floor + y,
 -- z) turned by rotY with its gate open; `trap` is its rescue spot, which holds a trap every day on top of the area's
@@ -2620,12 +2620,17 @@ Layout.townSquare = {
 	-- It stands beside the street now, 8 studs west of both lines, still facing the spawn.
 	-- #4667: the east edge spot nearest the spawn, across from the pity sign, facing straight in
 	-- #5224 (v5): the south-west of the ring, near the spawn
+	-- #5356 (Derek 2026-11-18: "move the sign a bit to the side its blocking part of the walkway", "about 50% smaller",
+	-- "more left closer to leaderboards not that close to feedback"): half size, back by the west edge between the
+	-- bench at z -35.9 and the lamp at z -45, 23 studs from the leaderboard row and 20 from the Feedback stand, still
+	-- facing the spawn (0, -14). It was at (-37.99, -49.80), turned -142.7.
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
-		x = -37.99,
+		x = -45.0,
 		y = 0.1,
-		z = -49.80,
-		rotY = -142.7,
+		z = -40.5,
+		rotY = -120.5,
+		scale = 0.5,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the

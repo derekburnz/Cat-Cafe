@@ -34,7 +34,12 @@ local function paint(ring: Instance)
 	-- Derek 2026-11-18 (#5224, the townRings switch, shared/WalkUp.ringLook): a Town Square ring always shows, smaller,
 	-- and an area's never does; the rest follow the setting
 	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.TOWN_FLAG) == true
-	local shown, scale = WalkUp.ringLook(on, ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE), shownSetting)
+	local shown, scale = WalkUp.ringLook(
+		on,
+		ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE),
+		shownSetting,
+		ring:GetAttribute(WalkUp.FULL_ATTRIBUTE)
+	)
 	for _, child in ring:GetChildren() do
 		if child:IsA("SurfaceGui") then
 			for _, piece in child:GetChildren() do

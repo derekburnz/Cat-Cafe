@@ -121,6 +121,7 @@ local AUTO_W = 68 -- #4256: the AUTO switch, its own button right of Equip Best 
 local CONFIRM_SECONDS = 3 -- Unequip All asks a second tap within this
 local COUNT_W = 40 -- a role's green "2/4"
 local COMP_W = 240 -- #5296: the Companion button
+local ROLE_SYMBOL_SIZE = 32 -- #5358: a role's symbol with companionMenu on (it was the 20 px name line's)
 local ROLE_STRIP_H = 2 * CREW_PAD + SQUARE + 2 + CREW_NOTE_H -- #5296: a role's cats under its symbol
 local DETAIL_W = 236
 local DETAIL_ART = 64
@@ -1172,14 +1173,17 @@ function CatRoom._buildCrew(self: any)
 		})
 		Outline.border(group, Theme.sizes.stroke, PAL.cardStroke)
 		local small = self._menuOn == true -- #5296: the symbol and the count, centred, the whole pill a tap
+		-- #5358 (Derek 2026-11-18: "make the role symbols much bigger since no cats are showing beside it"): with
+		-- companionMenu on, the symbol fills the pill's height left of the count, centred in the space it had alone
 		local label = text({
 			Name = "Role",
-			Position = if small
-				then UDim2.new(0, 6, 0.5, -CREW_NAME_H / 2)
-				else UDim2.fromOffset(8, 4),
-			Size = UDim2.new(1, -(8 + COUNT_W + 8), 0, CREW_NAME_H),
+			Position = if small then UDim2.fromOffset(4, 2) else UDim2.fromOffset(8, 4),
+			Size = if small
+				then UDim2.new(1, -(4 + COUNT_W + 10), 1, -4)
+				else UDim2.new(1, -(8 + COUNT_W + 8), 0, CREW_NAME_H),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
+			TextSize = if small then ROLE_SYMBOL_SIZE else Theme.sizes.textBody,
+			TextXAlignment = if small then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left,
 			Text = (Theme.roleIcons[row.role] or "") .. " " .. row.name,
 			Parent = group,
 		})

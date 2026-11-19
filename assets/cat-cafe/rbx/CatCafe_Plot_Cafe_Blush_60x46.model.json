@@ -6643,7 +6643,7 @@
        "CFrame": {
         "position": [
          11.1,
-         25.8311,
+         26.6501,
          14.2429
         ],
         "orientation": [
@@ -6667,8 +6667,57 @@
       },
       "Size": [
        2.2,
-       8.5291,
+       6.8912,
        2.2
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Blush_60x46_Roof",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.1,
+         22.6915,
+         14.2429
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.2,
+       2.2,
+       1.0259
       ],
       "Color": [
        0.6118,

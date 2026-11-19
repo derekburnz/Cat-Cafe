@@ -73,7 +73,7 @@ return function()
 				end
 				-- the Cat Companion (was Cat Follower) update shows as out now (Derek 2026-11-18), then the poster rolls on to Christmas
 				local out = Logic.view(Config.UpdateEvents, 1795006800 + 3600)
-				expect(out.name).to.equal("CAT COMPANION")
+				expect(out.name).to.equal("CAT COMPANION") -- #5356: the follower's new name
 				expect(out.live).to.equal(true)
 				expect(out.countdown).to.equal(Logic.LIVE_LINE)
 				expect(Logic.view(Config.UpdateEvents, 1795291200).name).to.equal("CHRISTMAS EVENT")

@@ -166,6 +166,7 @@ LiveFlags.KEYS = {
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
 	"shieldNoBump", -- #5476: a new player's character passes through other characters while their tackle shield runs (ShoveService); off by default
 	"bowlLockBig", -- #5455: the Bowl Options' locked tick boxes show a big lock picture (Screens/BaitBowl); off by default
+	"bowlOptionsList", -- #5472: a column too short for the Bowl Options card puts it atop the foods list (Screens/BaitBowl); off by default
 	"companionBetter", -- #5457: the Companion "!" also for a better cat not yet seen in the picker (Screens/CatRoom); off by default
 	"secretTraitTile", -- #5445: Secret trait cards in the Mystic Pool on the Secret night tile (Screens/MysticPool); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
@@ -312,6 +313,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	keepLook = true, -- #5433: on as soon as it publishes (Derek 2026-11-19)
 	bowlLockBig = true, -- #5455: on as soon as it publishes (Derek 2026-11-19)
 	shieldNoBump = true, -- #5476: on as soon as it publishes (Derek 2026-11-19)
+	bowlOptionsList = true, -- #5472: on as soon as it publishes (Derek 2026-11-19)
 	companionBetter = true, -- #5457: on as soon as it publishes (Derek 2026-11-19)
 	tier3Easy = true, -- #5467: on as soon as it publishes (Derek 2026-11-19)
 	secretTraitTile = true, -- #5445: on together with topTraitsMore

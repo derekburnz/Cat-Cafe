@@ -226,6 +226,7 @@ return function()
 							or key == "keepLook" -- #5433
 							or key == "bowlLockBig" -- #5455
 							or key == "shieldNoBump" -- #5476
+							or key == "bowlOptionsList" -- #5472
 							or key == "companionBetter" -- #5457
 							or key == "tier3Easy" -- #5467
 							or key == "secretTraitTile" -- #5445

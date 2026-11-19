@@ -38,7 +38,8 @@ local function paint(ring: Instance)
 		on,
 		ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE),
 		shownSetting,
-		ring:GetAttribute(WalkUp.FULL_ATTRIBUTE)
+		ring:GetAttribute(WalkUp.FULL_ATTRIBUTE),
+		ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.AREA_CANNON_FLAG) == true -- #5416
 	)
 	for _, child in ring:GetChildren() do
 		if child:IsA("SurfaceGui") then

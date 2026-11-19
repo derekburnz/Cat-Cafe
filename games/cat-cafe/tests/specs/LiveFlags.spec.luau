@@ -144,6 +144,7 @@ return function()
 							or key == "perfectFlagged" -- #5379
 							or key == "loadingScreen"
 							or key == "goldenDrops"
+							or key == "areaCannonRings" -- #5416
 							or key == "luckyCharm"
 							or key == "introSplit"
 							or key == "parkGateTrail"

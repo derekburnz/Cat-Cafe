@@ -20,6 +20,20 @@ return function()
 		end)
 	end)
 
+	describe("ringLook", function()
+		it("shows an area's cannon ring again only with areaCannonRings (#5416)", function()
+			expect((WalkUp.ringLook(true, false, true, true))).to.equal(false)
+			expect((WalkUp.ringLook(true, false, true, true, true))).to.equal(true)
+			local _, scale = WalkUp.ringLook(true, false, true, true, true)
+			expect(scale).to.equal(1)
+			-- an area's other rings stay hidden
+			expect((WalkUp.ringLook(true, false, true, nil, true))).to.equal(false)
+			-- the town and the switch-off look are unchanged
+			expect((WalkUp.ringLook(true, true, false, true, true))).to.equal(true)
+			expect((WalkUp.ringLook(false, false, false, true, true))).to.equal(false)
+		end)
+	end)
+
 	describe("step", function()
 		it("opens on walking up, once, and closes on walking away", function()
 			local state = WalkUp.new()

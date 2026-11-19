@@ -170014,6 +170014,7 @@
         "CatCafe_Street_FishMarket",
         "CatCafe_Street_FishMarket_Bulb",
         "CatCafe_Street_FishMarket_FreshCatch",
+        "CatCafe_Street_FishMarket_Decor",
         "CatCafe_Street_FishMarket_Coin",
         "CatCafe_Street_FishMarket_Cat_Body",
         "CatCafe_Street_FishMarket_Cat_Head",
@@ -259229,6 +259230,65 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.08 (want 0)",
           "centered": "footprint center x=0.00 y=0.08"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_FrontDoor",
+      "category": "Plot",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Plot_FrontDoor",
+        "CatCafe_Plot_FrontDoor_OpenL",
+        "CatCafe_Plot_FrontDoor_OpenL_Glass",
+        "CatCafe_Plot_FrontDoor_OpenR",
+        "CatCafe_Plot_FrontDoor_OpenR_Glass"
+      ],
+      "triangles": 1124,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.16,
+        "y": 4.35,
+        "z": 7.33
+      },
+      "size_roblox": [
+        7.16,
+        7.33,
+        4.35
+      ],
+      "bounds_min": [
+        -3.58,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.58,
+        3.35,
+        7.33
+      ],
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -17); the street is -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#5385: the cafe's own front doors, as DoorFront where no F80 door set is in use (CafeService.refreshDoors). The leaves (_OpenL, _OpenR) stand open into the cafe and never move; the threshold fills the wall's depth. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_FrontDoor.model.json",
+      "rbx_parts": 67,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_FrontDoor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_FrontDoor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1124/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "482 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.18"
         }
       }
     },

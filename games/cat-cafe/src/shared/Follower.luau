@@ -42,6 +42,24 @@ Follower.LUCK = table.freeze({
 -- +30% Money or +0.60 Luck.
 Follower.COAT = table.freeze({ gold = 1.25, rainbow = 1.5 }) :: { [string]: number }
 
+-- #5431 (Derek 2026-11-19: "why r are companion stats for secrets so bad buff them a ton"): a rainbow Mythical
+-- (0.16 x 1.5 = +24%, 0.30 x 1.5 = +0.45) beat a plain Secret (+20%, +0.40). With secretCompanionBig on a Secret's
+-- base is +40% Money and +0.75 Luck, so even a plain Secret is above a rainbow Mythical with the best companion trait
+-- (+36%, +0.70). A rainbow Secret gives +60% and +1.13, still far under LuckMax.
+Follower.SECRET_FLAG = "secretCompanionBig"
+Follower.SECRET_BIG = table.freeze({ money = 0.40, luck = 0.75 }) :: { [string]: number }
+local secretOverride: boolean? = nil
+function Follower.setSecretBig(on: boolean?)
+	secretOverride = on
+end
+function Follower.secretBig(): boolean
+	if secretOverride ~= nil then
+		return secretOverride
+	end
+	return game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. Follower.SECRET_FLAG)
+		== true
+end
+
 function Follower.coat(variant: string?): number
 	return if variant ~= nil then Follower.COAT[variant] or 1 else 1
 end
@@ -149,6 +167,9 @@ end
 function Follower.amount(rarity: string?, boost: Boost, variant: string?): number
 	local table_ = if boost == "luck" then Follower.LUCK else Follower.MONEY
 	local base = if rarity ~= nil then table_[rarity] or 0 else 0
+	if rarity == "Secret" and Follower.secretBig() then
+		base = Follower.SECRET_BIG[boost] -- #5431
+	end
 	return math.floor(base * Follower.coat(variant) * 10000 + 0.5) / 10000
 end
 

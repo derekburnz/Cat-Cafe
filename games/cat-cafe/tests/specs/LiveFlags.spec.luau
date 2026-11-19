@@ -251,6 +251,7 @@ return function()
 							or key == "gemsShrink" -- Derek 2026-11-18
 							or key == "christmasEvent" -- snowglobe-village-spec
 							or key == "cannonCloudsEarly" -- #5370
+							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

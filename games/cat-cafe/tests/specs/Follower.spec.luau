@@ -183,5 +183,24 @@ return function()
 			profile.follower.boost = "money"
 			expect(luckOf(profile)).to.equal(0)
 		end)
+		it("puts every Secret above any Mythical with secretCompanionBig on (#5431)", function()
+			Follower.setSecretBig(false)
+			expect(Follower.amount("Secret", "money")).to.equal(0.2)
+			Follower.setSecretBig(true)
+			expect(Follower.amount("Secret", "money")).to.equal(0.4)
+			expect(Follower.amount("Secret", "luck")).to.equal(0.75)
+			expect(Follower.amount("Secret", "money", "rainbow")).to.equal(0.6)
+			-- a plain Secret beats a rainbow Mythical with the best companion trait (+0.12, +0.25)
+			expect(
+				Follower.amount("Secret", "money")
+					> Follower.amount("Mythical", "money", "rainbow") + 0.12
+			).to.equal(true)
+			expect(
+				Follower.amount("Secret", "luck")
+					> Follower.amount("Mythical", "luck", "rainbow") + 0.25
+			).to.equal(true)
+			expect(Follower.amount("Mythical", "money")).to.equal(0.16)
+			Follower.setSecretBig(nil)
+		end)
 	end)
 end

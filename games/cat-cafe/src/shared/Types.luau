@@ -1619,6 +1619,10 @@ export type PlayerProfile = {
 	-- #2791 (shared/PlaytimeGifts): the gift ladder's small steps paid ("m2", "m4", "m6", "m15", "m20" -> true). No
 	-- VERSION bump: an older server dropping it can only pay a few small steps again.
 	giftSteps: { [string]: boolean },
+	-- #5506 (shared/DailyGifts): today's playtime gifts, the UTC day, seconds played that day and the steps paid. No
+	-- VERSION bump (an automatic publish restarts every server on one): an older server dropping it can only start
+	-- that day's ladder again, so the dailyGifts switch goes on only after a restart Derek calls.
+	dailyGifts: { day: number, seconds: number, claimed: number }?,
 	-- #5505 (shared/DaysPlayed): the UTC days played, the last one counted and the highest milestone paid. No VERSION
 	-- bump (an automatic publish restarts every server on one); the awayPromise switch goes on after Derek's restart.
 	daysPlayed: { count: number, last: number, paid: number }?,

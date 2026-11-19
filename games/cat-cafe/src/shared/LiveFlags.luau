@@ -181,6 +181,7 @@ LiveFlags.KEYS = {
 	"cardFollow", -- #5296: Follow and the boost square on the cat card (Screens/CatRoom); off by default, Derek wants the old row
 	"bigTreats", -- Derek 2026-11-18: the Daily Treat pays big prizes only, no food (shared/BigTreats); off by default
 	"tomorrowBoard", -- #5449: the Daily Treat Board on the cafe wall, with Remind me (shared/TomorrowBoard); off by default
+	"walkUpCardWait", -- Derek 2026-11-19: a walk-up ring waits for a new cat card to go before its window opens; off by default
 	"bigNet", -- #5309: the net takes the whole half circle in front, further, and a miss scares no cat (shared/NetSwing); off by default
 	"companionScene", -- #5284: after the Tier 2 rank up the best cat becomes the Cat Companion in a short scene, once (shared/CompanionScene); off by default
 	"cannonReturn", -- #5304: Rummage from the Cannon menu goes back to it, Skip on the Lucky pick; off by default
@@ -321,6 +322,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cardFollow = true, -- #5296: stays off; the Companion button replaces it
 	bigTreats = true, -- Derek 2026-11-18: on once Review-QA passes, 2 h from any other switch
 	tomorrowBoard = true, -- #5449 (Growth: its 2-day D1 read starts when it goes on)
+	walkUpCardWait = true, -- Derek 2026-11-19 (the cannon after a check-in): on as soon as it publishes
 	bigNet = true, -- #5309: on once Review-QA and Sync pass
 	companionScene = true, -- #5284: on after Review-QA and Sync's phone pass of the scene
 	cannonReturn = true, -- #5304: on once Review-QA and Sync pass

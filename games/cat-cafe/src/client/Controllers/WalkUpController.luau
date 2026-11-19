@@ -494,6 +494,12 @@ local RETRY_FLAG = "LiveFlag_walkUpRetry"
 -- no ask, and the carry also put the ring on the settle list for 2 s more. With walkUpCarry on (and walkUpRetry), a
 -- carry is no longer counted as being put into a ring, and a ring that is off only for the carry keeps the step in.
 local CARRY_FLAG = "LiveFlag_walkUpCarry"
+-- Derek 2026-11-19 14:34 UTC ("if you checked in a cat to safezone recently causes the cannon menu to not be able to
+-- open"; Sync's runs): a check-in's new cat card (Popups, DisplayOrder 40) covers the windows (DisplayOrder 20), so a
+-- step into the cannon's ring right after opened the menu hidden behind the card and its dim; a close while it was
+-- hidden left the player in the ring with no way to open it but stepping out and back. With walkUpCardWait on (and
+-- walkUpRetry), a step in while a card is up keeps its ask and the window opens once the card has gone.
+local CARD_WAIT_FLAG = "LiveFlag_walkUpCardWait"
 
 function WalkUpController.start()
 	-- #2910: a press of a walk-up station's prompt, counted against the ring opens (shared/StationOpens)
@@ -610,8 +616,12 @@ function WalkUpController.start()
 				end)
 			end
 			local openedKey = state.opened
+			local cardWait = retry and ReplicatedStorage:GetAttribute(CARD_WAIT_FLAG) == true
 			local ok, open, close = pcall(function()
 				local current = UI.isOpen()
+				if current == nil and cardWait and UI.popupsShowing() then
+					current = "Popups" -- a card is over the windows: the step in waits for it to go
+				end
 				local key, shut = WalkUp.step(state, stations, busy, current, os.clock(), retry)
 				return key, shut
 			end)

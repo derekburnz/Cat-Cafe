@@ -55,6 +55,7 @@ export type Props = {
 	image: string?, -- clean and wide layouts, and an inline icon: the symbol's uploaded picture (the glyph shows until
 	-- it loads)
 	iconSize: number?, -- row layout: the icon's own size in px, bigger than the text (default: inline with the text)
+	pictureScale: number?, -- #5366: an inline picture's side as a share of the text size (default 1.3)
 	layout: Layout?,
 	style: Style?,
 	size: UDim2?,
@@ -340,7 +341,7 @@ function Button.new(props: Props): Button
 			Parent = face,
 		})
 	elseif pictureRow then
-		local side = math.floor(textSize * 1.3)
+		local side = math.floor(textSize * (props.pictureScale or 1.3))
 		icon = Create("TextLabel", {
 			Name = "Icon",
 			BackgroundTransparency = 1,

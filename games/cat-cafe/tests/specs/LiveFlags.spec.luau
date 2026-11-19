@@ -218,6 +218,7 @@ return function()
 							or key == "cheapTiers" -- #5249
 							or key == "tier4Easy" -- #5285 E
 							or key == "companionNudge" -- #5364
+							or key == "plushSecret" -- #5414
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
 							or key == "kingCatInfo" -- #5260

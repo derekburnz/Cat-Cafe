@@ -26,6 +26,21 @@ return function()
 
 		it("is off by default", function()
 			expect(LiveFlags.OFF_BY_DEFAULT[ParkFirstEasy.FLAG]).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT[ParkFirstEasy.CALM_FLAG]).to.equal(true)
 		end)
+
+		it(
+			"#5496: calm Park misses only on touch or console, only before the first Park catch",
+			function()
+				expect(ParkFirstEasy.calm("park", false, "phone", true)).to.equal(true)
+				expect(ParkFirstEasy.calm("park", false, "tablet", true)).to.equal(true)
+				expect(ParkFirstEasy.calm("park", false, "console", true)).to.equal(true)
+				expect(ParkFirstEasy.calm("park", false, "pc", true)).to.equal(false)
+				expect(ParkFirstEasy.calm("park", false, nil, true)).to.equal(false)
+				expect(ParkFirstEasy.calm("park", true, "phone", true)).to.equal(false)
+				expect(ParkFirstEasy.calm("park", false, "phone", false)).to.equal(false)
+				expect(ParkFirstEasy.calm("alley", false, "phone", true)).to.equal(false)
+			end
+		)
 	end)
 end

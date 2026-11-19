@@ -2803,7 +2803,14 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	-- #4815 (Derek 2026-11-16): in the walk-through (Tier 1) a missed catch never scares the cat either: it stays put
 	-- with no sprint or wait, as a beginner's tutorial stray does
 	local easy = easyCatch(player, profile, stray)
-	if easy or NetSwing.calm(M.Economy.tier(profile)) then
+	-- #5496 (parkFirstCalm): on a phone, tablet or console a Park miss leaves the cat put until the first Park catch
+	local parkCalm = M.ParkFirstEasy.calm(
+		stray.area,
+		M.Onboarding.reached(profile.telemetry, "first_park_catch"), -- ParkFirstEasy.STEP
+		Telemetry.device(player),
+		M.LiveFlagService.on(M.ParkFirstEasy.CALM_FLAG)
+	)
+	if easy or parkCalm or NetSwing.calm(M.Economy.tier(profile)) then
 		if not easy then
 			-- a Tier 1 miss that would have bolted before, so the bolt read can tell the two apart
 			Telemetry.custom(

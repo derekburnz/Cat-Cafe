@@ -226,6 +226,7 @@ return function()
 							or key == "keepLook" -- #5433
 							or key == "bowlLockBig" -- #5455
 							or key == "shieldNoBump" -- #5476
+							or key == "parkFirstCalm" -- #5496
 							or key == "mutationBoost" -- #5493
 							or key == "bowlOptionsButton" -- #5488
 							or key == "bowlOptionsList" -- #5472

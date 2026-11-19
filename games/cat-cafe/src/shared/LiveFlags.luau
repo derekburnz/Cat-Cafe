@@ -164,6 +164,7 @@ LiveFlags.KEYS = {
 	"companionNudge", -- #5364: a red "!" on the Cats menu Companion button while none follows (Screens/CatRoom); off by default
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
+	"parkFirstCalm", -- #5496: on a phone, tablet or console a missed catch in the Park leaves the cat put until the first Park catch (shared/ParkFirstEasy.calm); off by default
 	"mutationBoost", -- #5493: a wild stray's gold and rainbow coat chances are doubled (shared/MutationBoost); off by default
 	"bowlOptionsButton", -- #5488: a column too short for the Bowl Options card shows an Options button over Refill that opens it (Screens/BaitBowl); off by default
 	"shieldNoBump", -- #5476: a new player's character passes through other characters while their tackle shield runs (ShoveService); off by default
@@ -316,6 +317,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	plushSecret = true, -- #5414: on as soon as it publishes (Derek 2026-11-19)
 	keepLook = true, -- #5433: on as soon as it publishes (Derek 2026-11-19)
 	bowlLockBig = true, -- #5455: on as soon as it publishes (Derek 2026-11-19)
+	parkFirstCalm = true, -- #5496: on as soon as it publishes (Derek 2026-11-19)
 	mutationBoost = true, -- #5493: on as soon as it publishes (Derek 2026-11-19)
 	bowlOptionsButton = true, -- #5488: on as soon as it publishes (Derek 2026-11-19)
 	shieldNoBump = true, -- #5476: on as soon as it publishes (Derek 2026-11-19)

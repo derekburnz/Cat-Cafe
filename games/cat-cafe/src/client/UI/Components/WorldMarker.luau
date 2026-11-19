@@ -10,11 +10,13 @@
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
+local RecordMode = require(ReplicatedStorage.Shared.RecordMode)
 local StepTarget = require(script.Parent.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 
@@ -145,7 +147,9 @@ end
 function WorldMarker.show(self: any, target: Target, label: string, color: Color3?)
 	self:_clear()
 	local step: StepTarget.StepTarget? = self._step
-	if step then
+	-- Sync's clip recordings (shared/RecordMode, Studio only): no marker or edge arrow in the frame
+	local recording = RecordMode.on()
+	if step and not recording then
 		step:show(target) -- free when the target is the same
 	end
 	local billboard: BillboardGui = self._billboard
@@ -161,7 +165,7 @@ function WorldMarker.show(self: any, target: Target, label: string, color: Color
 	end
 	self._label.Text = label
 	self._card.UIStroke.Color = color or Theme.colors.gold
-	billboard.Enabled = true
+	billboard.Enabled = not recording
 
 	local accumulator = 0
 	self._loop = RunService.Heartbeat:Connect(function(dt: number)
@@ -170,6 +174,7 @@ function WorldMarker.show(self: any, target: Target, label: string, color: Color
 			return
 		end
 		accumulator = 0
+		billboard.Enabled = not RecordMode.on() -- RecordMode set mid-play takes the marker off within 0.2 s
 		local character = Players.LocalPlayer and Players.LocalPlayer.Character
 		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 		if rootPart and rootPart:IsA("BasePart") then

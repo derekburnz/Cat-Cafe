@@ -2579,6 +2579,16 @@ local function wireIntents()
 				if at ~= nil and os.clock() - at < 1 then "auto" else "button"
 			)
 		end
+		if
+			name == "Cannon"
+			and state ~= nil
+			and (state :: any).tier == 3
+			and not stepsReported["tier3:cannon"]
+		then
+			-- #5517 (shared/Tier3Trip): the Cannon menu at Tier 3, once a session; the server logs it once an account
+			stepsReported["tier3:cannon"] = true
+			Net.fire("TelemetryReport", "tier3_cannon", true)
+		end
 		if name == "Store" then
 			-- #1888: every Store visit starts a Store funnel, with where the UI said it was opened from
 			Net.fire("TelemetryReport", "store_opened", StoreFunnel.takeSource())

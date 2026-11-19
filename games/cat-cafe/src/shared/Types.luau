@@ -1391,6 +1391,7 @@ export type TelemetryState = {
 	-- reads as never in the test)
 	introGroup: string?,
 	orderGroup: string?, -- #5498: the walk-through order test arm (shared/TutorialOrder)
+	tier3Trip: number?, -- #5517: the Tier 3 to Neighbourhood stops logged, a bit mask (shared/Tier3Trip)
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

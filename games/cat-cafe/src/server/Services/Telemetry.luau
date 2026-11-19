@@ -73,6 +73,7 @@ local StarterSuggest = require(ReplicatedStorage.Shared.StarterSuggest)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
+local Tier3Trip = require(ReplicatedStorage.Shared.Tier3Trip)
 local TomorrowBoard = require(ReplicatedStorage.Shared.TomorrowBoard)
 local Types = require(ReplicatedStorage.Shared.Types)
 local UpgradePace = require(ReplicatedStorage.Shared.UpgradePace)
@@ -92,6 +93,8 @@ export type CustomEvent =
 	-- #4314: the seconds the loading screen was up for a test save (0 "off" or never shown); fields: arm, device
 	| "ab_loading_seen"
 	| "session_end"
+	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
+	| "tier3_left" -- #5517: a session ended at Tier 3 before that landing (value seconds; fields furthest stop, device, day or night)
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
 	-- (else since the join); fields: "1", "2", "3", "4" or "5+" (the account's nth buy), the upgrade id, the new level
 	| "upgrade_bought"
@@ -559,6 +562,7 @@ local REPORTS = {
 	"step",
 	"screen",
 	"tutorial_closed",
+	"tier3_cannon", -- #5517: the Cannon menu opened at Tier 3 (shared/Tier3Trip; the server checks the tier)
 	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
 	"rank_up_end", -- #5031: how that window ended, "pressed" or "closed" (rank_up_window)
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
@@ -1248,6 +1252,26 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 		areas[area] = true
 		logClean(player, profile)
 	end
+end
+
+-- #5517 (shared/Tier3Trip, switch tier3TripLog): one stop of the Tier 3 to Neighbourhood trip, once per account.
+-- `detail` is the refusal's words for "refused".
+function Telemetry.tier3Stop(player: Player, profile: Profile, stop: string, detail: string?)
+	local state = profile.telemetry
+	if
+		not LiveFlagService.on(Tier3Trip.FLAG)
+		or not Tier3Trip.due(state.tier3Trip, stop, Economy.tier(profile))
+	then
+		return
+	end
+	state.tier3Trip = Tier3Trip.mark(state.tier3Trip, stop)
+	local session = sessions[player]
+	Telemetry.custom(player, "tier3_trip", 1, {
+		stop,
+		(if session ~= nil then session.device else nil) or "unknown",
+		if ClockService.areasOpen() then "day" else "night",
+		detail or "-",
+	})
 end
 
 -- #4544: the AreaVisit journey's first node. The cannon fired at `area` (CannonService checked it), or with `locked`
@@ -2891,6 +2915,8 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
 			end
 		end
+	elseif name == "tier3_cannon" then
+		Telemetry.tier3Stop(player, profile, "cannon_open") -- #5517: Tier3Trip.due checks the tier and the stop
 	elseif name == "rank_up_open" then
 		-- #5031: step 15 logs the moment the window opens, so one closed inside the screen report's 5 s counts too
 		local how = Guard.oneOf(rawValue, RankUpRightAway.HOWS)
@@ -3528,6 +3554,17 @@ local function onRelease(player: Player, profile: Profile)
 	})
 	if session.rankWindow ~= nil then
 		rankWindowEnd(player, session, "left") -- #5031: left with the Rank Up window open
+	end
+	-- #5517: a session that ends at Tier 3 before the first Neighbourhood landing, with how far the trip got
+	if
+		LiveFlagService.on(Tier3Trip.FLAG)
+		and Tier3Trip.leftDue(profile.telemetry.tier3Trip, Economy.tier(profile))
+	then
+		Telemetry.custom(player, "tier3_left", math.max(0, now - session.joinedAt), {
+			Tier3Trip.furthest(profile.telemetry.tier3Trip),
+			session.device or "unknown",
+			if ClockService.areasOpen() then "day" else "night",
+		})
 	end
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),

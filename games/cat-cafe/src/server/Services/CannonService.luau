@@ -43,6 +43,7 @@ local PlotService = require(script.Parent.PlotService)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local StreamAround = require(script.Parent.Parent.Util.StreamAround)
 local Telemetry = require(script.Parent.Telemetry)
+local Tier3Trip = require(ReplicatedStorage.Shared.Tier3Trip)
 local TravelService = require(script.Parent.TravelService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -208,6 +209,9 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		if area ~= nil and area.tier > Economy.tier(profile) then
 			Telemetry.tripPicked(player, profile, destination, true)
 		end
+		if destination == Tier3Trip.AREA then
+			Telemetry.tier3Stop(player, profile, "refused", reason or "Still loading") -- #5517
+		end
 		refuse(player, destination, reason or "Still loading")
 		return
 	end
@@ -237,6 +241,9 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	-- Derek 2026-11-18 (areaWhole): the destination area starts streaming in whole now, during the flight
 	local wholeTakes = AreaWholeService.heading(player, destination)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	if destination == Tier3Trip.AREA then
+		Telemetry.tier3Stop(player, profile, "picked") -- #5517
+	end
 	if area ~= nil then
 		Telemetry.tripPicked(player, profile, destination, false) -- #4544: the AreaVisit journey
 	end
@@ -311,6 +318,9 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		if lander ~= nil then
 			Telemetry.cleanEvent(player, lander, Telemetry.arrivedEvent(destination)) -- #4504: arrived
 			Telemetry.tripArrived(player, destination) -- #4544
+			if destination == Tier3Trip.AREA then
+				Telemetry.tier3Stop(player, lander, "landed") -- #5517
+			end
 		end
 	end)
 end

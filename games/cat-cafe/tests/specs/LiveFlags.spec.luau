@@ -216,6 +216,7 @@ return function()
 							or key == "strayMeets" -- onboarding_v9
 							or key == "bigTreats" -- Derek 2026-11-18
 							or key == "tomorrowBoard" -- #5449
+							or key == "walkUpCardWait" -- Derek 2026-11-19
 							or key == "bigNet" -- #5309
 							or key == "cannonReturn" -- #5304
 							or key == "cheapTiers" -- #5249

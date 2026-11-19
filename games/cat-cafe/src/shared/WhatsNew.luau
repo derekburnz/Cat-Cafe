@@ -37,6 +37,57 @@ local UPDATE_NOV_17 = 1794945600 -- 2026-11-17 20:00 UTC: Better on Every Device
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
 
 WhatsNew.rows = table.freeze({
+	-- Nov 19 (Gameplay-Engineer, Derek 19:56 UTC: "update the whats new board"): mutationBoost #5493, net levels kept
+	-- #5491, bowlOptionsButton #5488, tablesEight #5448, topTraitsMore #5445, secretCompanionBig, tier3Easy #5467,
+	-- tomorrowBoard #5449
+	{
+		id = "more_coat_strays",
+		date = "2026-11-19",
+		icon = "cat",
+		text = "More gold and rainbow cats",
+	},
+	{
+		id = "net_level_kept",
+		date = "2026-11-19",
+		icon = "fix",
+		text = "Net level kept after updates",
+	},
+	{
+		id = "bowl_options_phones",
+		date = "2026-11-19",
+		icon = "fix",
+		text = "Bowl options on phones",
+	},
+	{
+		id = "eight_tables",
+		date = "2026-11-19",
+		icon = "new",
+		text = "Up to 8 tables",
+	},
+	{
+		id = "mythic_secret_traits",
+		date = "2026-11-19",
+		icon = "cat",
+		text = "New Mythic and Secret traits",
+	},
+	{
+		id = "secret_companions_stronger",
+		date = "2026-11-19",
+		icon = "cat",
+		text = "Stronger Secret companions",
+	},
+	{
+		id = "easier_tier_3",
+		date = "2026-11-19",
+		icon = "faster",
+		text = "Easier Tier 3",
+	},
+	{
+		id = "daily_treat_board",
+		date = "2026-11-19",
+		icon = "new",
+		text = "Daily Treat Board in cafe",
+	},
 	-- Nov 18 night (Gameplay-Engineer): switches on 02:42 to 03:51 UTC on publish v922 and the 03:49 UTC restart.
 	-- catFollower #5172 (idea credit c19); spinCat #5171; netTiers #5170; nightSlice and nightSpread #5164
 	{

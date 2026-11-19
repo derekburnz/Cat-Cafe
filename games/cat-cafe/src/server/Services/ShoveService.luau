@@ -9,6 +9,7 @@
 -- BumpHeld; the carried cat is CatService's (tryKnockLoose). No hit by the window's end is a miss: TackleMissAt on
 -- the tackler and ShoveResult "miss" to them alone. The tackler's own client moves its character for the lunge.
 
+local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -21,6 +22,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -106,6 +108,49 @@ local function startShield(player: Player)
 	if untilAt ~= nil then
 		shieldUntil[player] = untilAt
 		player:SetAttribute("TackleShieldUntil", untilAt)
+	end
+end
+
+-- #5476: puts every character's parts in the collision group Shove.collisionGroup names (a shielded new player is
+-- never shoved about by other characters). Collision groups replicate, so it holds on every client's physics.
+local groupsReady = false
+local function readyGroups(): boolean
+	if groupsReady then
+		return true
+	end
+	local ok = pcall(function()
+		for _, name in { Shove.CHARACTERS, Shove.SHIELDED_GROUP } do
+			if not PhysicsService:IsCollisionGroupRegistered(name) then
+				PhysicsService:RegisterCollisionGroup(name)
+			end
+		end
+		PhysicsService:CollisionGroupSetCollidable(Shove.SHIELDED_GROUP, Shove.CHARACTERS, false)
+		PhysicsService:CollisionGroupSetCollidable(
+			Shove.SHIELDED_GROUP,
+			Shove.SHIELDED_GROUP,
+			false
+		)
+	end)
+	groupsReady = ok
+	return ok
+end
+
+local function groupCharacters()
+	local on = LiveFlagService.on(Shove.NO_BUMP_FLAG)
+	if on and not readyGroups() then
+		return
+	end
+	local now = serverNow()
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		if character ~= nil then
+			local group = Shove.collisionGroup(on, Shove.shielded(shieldUntil[player], now))
+			for _, part in character:GetDescendants() do
+				if part:IsA("BasePart") and part.CollisionGroup ~= group then
+					part.CollisionGroup = group
+				end
+			end
+		end
 	end
 end
 
@@ -323,6 +368,21 @@ function ShoveService.start()
 	for _, player in Players:GetPlayers() do
 		startShield(player)
 	end
+	-- #5476: a shielded new player's character passes through other characters; checked each second, so a new
+	-- character, an accessory, the shield's end and the switch all catch up within one
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local ok, problem = pcall(function()
+				groupCharacters()
+				return nil :: any
+			end)
+			if not ok then
+				warn("[Shove] " .. tostring(problem))
+				task.wait(10)
+			end
+		end
+	end)
 	-- #3378: one tackle_shield event a minute for the whole server, not one a hit
 	task.spawn(function()
 		while true do

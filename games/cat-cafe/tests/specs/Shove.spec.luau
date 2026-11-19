@@ -160,6 +160,16 @@ return function()
 		end)
 
 		it(
+			"keeps a shielded player clear of other characters with shieldNoBump on (#5476)",
+			function()
+				expect(Shove.collisionGroup(false, true)).to.equal("Default")
+				expect(Shove.collisionGroup(false, false)).to.equal("Default")
+				expect(Shove.collisionGroup(true, true)).to.equal(Shove.SHIELDED_GROUP)
+				expect(Shove.collisionGroup(true, false)).to.equal(Shove.CHARACTERS)
+			end
+		)
+
+		it(
 			"counts the 15 minutes across visits and gives a returning player none (#3629)",
 			function()
 				-- left after 5 minutes: 10 are left on the next join

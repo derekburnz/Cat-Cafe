@@ -225,6 +225,7 @@ return function()
 							or key == "plushSecret" -- #5414
 							or key == "keepLook" -- #5433
 							or key == "bowlLockBig" -- #5455
+							or key == "shieldNoBump" -- #5476
 							or key == "companionBetter" -- #5457
 							or key == "tier3Easy" -- #5467
 							or key == "secretTraitTile" -- #5445

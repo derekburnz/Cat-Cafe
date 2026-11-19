@@ -1926,7 +1926,7 @@ end
 -- and the move into the Park come right after it. Behind the same `tier2TopUp` switch.
 function CafeService.tier2ReadyTopUp(player: Player, profile: Profile)
 	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
-	if not TutorialOrder.bowlFirst() then
+	if not TutorialOrder.bowlFirst(player) then
 		return
 	end
 	local SecondCatHelp = require(ReplicatedStorage.Shared.SecondCatHelp)
@@ -2422,7 +2422,7 @@ local function onRankUp(player: Player)
 	-- #4674: under bowl first the rank up to Tier 2 takes the player into the Park (TutorialMoveService)
 	local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
 	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
-	if TutorialMoves.parkAfterRankUp(def.tier, TutorialOrder.bowlFirst()) then
+	if TutorialMoves.parkAfterRankUp(def.tier, TutorialOrder.bowlFirst(player)) then
 		CafeService.tutorialMove:Fire(player, "park")
 	end
 end

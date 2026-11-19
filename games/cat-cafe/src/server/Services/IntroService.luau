@@ -48,7 +48,7 @@ local function onIntroDone(
 		profile.introSeen = true
 		CafeService.sync(player)
 		-- #4716: from the town spawn to the player's own bowl, before the first bowl cat (tutorial step 0)
-		if TutorialOrder.bowlFirst() and (profile.tutorialStep or 0) == 0 then
+		if TutorialOrder.bowlFirst(player) and (profile.tutorialStep or 0) == 0 then
 			CafeService.tutorialMove:Fire(player, "bowl")
 		end
 	end

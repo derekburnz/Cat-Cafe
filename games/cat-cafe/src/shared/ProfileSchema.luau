@@ -42,6 +42,7 @@ local TicketBooth = require(script.Parent.TicketBooth)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
 local Traits = require(script.Parent.Traits)
+local TutorialOrder = require(script.Parent.TutorialOrder)
 local Types = require(script.Parent.Types)
 local YardSale = require(script.Parent.YardSale)
 
@@ -950,6 +951,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		else 0
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
+	telemetry.orderGroup = TutorialOrder.valid(value.orderGroup) -- #5498
 	-- #5291: milestones_v1's mask (MilestoneFunnel.sanitize, kept here as a number check so this module needs no
 	-- Economy): a whole number from -1 (out) to 4095 (all 12 steps), nil for none
 	local milestoneMask = value.milestoneMask

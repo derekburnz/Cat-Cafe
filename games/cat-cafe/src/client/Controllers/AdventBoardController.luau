@@ -1,10 +1,9 @@
 --!strict
 -- #5502 the advent calendar board in the Town Square (Model-Agent's CatCafe_Square_AdventBoard), on this client. The
 -- server places the board and tags it BOARD_TAG; once a second this gives it a ProximityPrompt (Roblox's "press E /
--- tap" button over a part) at its PromptAnchor that opens the calendar's card, and swings open the doors this
--- player has opened (each door is its own piece pivoted on its hinge, so a turn about Y opens it; the swing is local,
--- so every player sees their own doors). The prompt shows only while the server's view says the calendar is live
--- (both switches on and the dates come), so before Dec 1 a board that is somehow in the world is only a prop.
+-- tap" button over a part) at its PromptAnchor that opens the calendar's card. The prompt shows only while the
+-- server's view says the calendar is live (both switches on and the dates come), so before Dec 1 a board that is
+-- somehow in the world is only a prop. The doors' swing is Effects/AdventFx's (#5514), not this file's.
 -- Nothing here opens a door: the card fires OpenAdventDoor and the server decides.
 
 local CollectionService = game:GetService("CollectionService")
@@ -22,12 +21,6 @@ local TICK_SECONDS = 1
 local PROMPT_DISTANCE = 12
 local PROMPT_NAME = "AdventPrompt"
 local ANCHOR = "PromptAnchor"
-local DOOR_NAME = "CatCafe_Square_AdventBoard_Door%02d"
-local OPEN_TURN = math.rad(-105) -- negative opens a door out to the front (assets/cat-cafe/blender/advent.py)
-
--- each door's closed place, kept the first time it is seen, and whether it is swung open now
-local closed: { [Instance]: CFrame } = {}
-local swung: { [Instance]: boolean } = {}
 
 local function view(): AdventLogic.View?
 	local state = UIController.state
@@ -65,31 +58,6 @@ local function promptOf(board: Instance): ProximityPrompt?
 	return prompt
 end
 
-local function swing(board: Instance, opened: number)
-	for n = 1, AdventLogic.DOORS do
-		local door = board:FindFirstChild(DOOR_NAME:format(n), true)
-		if door == nil or not door:IsA("PVInstance") then
-			continue
-		end
-		local piece = door :: PVInstance
-		local open = n <= opened
-		if swung[piece] == open then
-			continue
-		end
-		local shut = closed[piece]
-		if shut == nil then
-			shut = piece:GetPivot()
-			closed[piece] = shut
-			piece.Destroying:Once(function()
-				closed[piece] = nil
-				swung[piece] = nil
-			end)
-		end
-		piece:PivotTo(if open then shut * CFrame.Angles(0, OPEN_TURN, 0) else shut)
-		swung[piece] = open
-	end
-end
-
 local function tick()
 	local now = view()
 	local shows = AdventLogic.shows(now)
@@ -99,7 +67,6 @@ local function tick()
 			prompt.Enabled = shows
 			prompt.ActionText = if now ~= nil and now.ready then "Open a door" else "Look"
 		end
-		swing(board, if shows and now ~= nil then now.opened else 0)
 	end
 end
 

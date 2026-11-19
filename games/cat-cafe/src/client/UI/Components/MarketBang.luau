@@ -161,7 +161,47 @@ function MarketBang.build(parent: Instance, name: string?): Bang
 		Create("UITextSizeConstraint", { MinTextSize = 8, MaxTextSize = 100 }),
 	})
 	Outline.text(line, 1.5)
+	MarketBang.fixText(line)
 	return { gui = gui, line = line, bob = nil }
+end
+
+-- #5390 (Derek 2026-11-19: "this fish market text missing issue is still there"): TextScaled inside a BillboardGui
+-- sized in studs (its pixel size changes with every camera move) sometimes draws nothing while TextBounds still reads
+-- a size, so #5261's zero-bounds check never fired. With the bangFixedText switch on the line is not scaled by the
+-- engine: its TextSize is worked out here from the label's pixel size and its words, again whenever either changes.
+MarketBang.FIXED_FLAG = "LiveFlag_bangFixedText"
+function MarketBang.fixText(line: TextLabel)
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local lastW, lastH, lastText = -1, -1, nil :: string?
+	local function fit()
+		if ReplicatedStorage:GetAttribute(MarketBang.FIXED_FLAG) ~= true then
+			if not line.TextScaled then
+				line.TextScaled = true
+			end
+			lastText = nil
+			return
+		end
+		local size = line.AbsoluteSize
+		if
+			lastText == line.Text
+			and math.abs(size.X - lastW) < 2
+			and math.abs(size.Y - lastH) < 2
+			and not line.TextScaled
+		then
+			return
+		end
+		lastW, lastH, lastText = size.X, size.Y, line.Text
+		line.TextScaled = false
+		line.TextWrapped = false
+		line.TextSize = MarketBangLogic.fitSize(line.Text, size.X, size.Y)
+	end
+	line:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	line:GetPropertyChangedSignal("Text"):Connect(fit)
+	local flag = ReplicatedStorage:GetAttributeChangedSignal(MarketBang.FIXED_FLAG):Connect(fit)
+	line.Destroying:Connect(function()
+		flag:Disconnect()
+	end)
+	fit()
 end
 
 -- #4328: sets a label's text again so a TextScaled label measured while its billboard had no size is laid out anew.

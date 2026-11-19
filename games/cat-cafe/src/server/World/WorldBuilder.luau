@@ -1179,6 +1179,11 @@ local function buildPlot(index: number, parent: Instance): Plot
 	-- the Cat Collector's spot (F63): CollectorService measures range from it and clients stand him on it
 	local collectorSpot =
 		anchor("CollectorSpot", localCFrame(cframe, Layout.plot.collectorSpot), model)
+	-- #5449: the Daily Treat Board and the Tomorrow Gift (shared/TomorrowBoard), placed by the owner's client
+	local treatBoardAnchor =
+		anchor("TreatBoardAnchor", localCFrame(cframe, Layout.plot.treatBoard), model)
+	local tomorrowGiftAnchor =
+		anchor("TomorrowGiftAnchor", localCFrame(cframe, Layout.plot.tomorrowGift), model)
 
 	local napFolder = folder("NapSpots", model)
 	local napSpots: { BasePart } = {}
@@ -1257,6 +1262,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 		baitCat2,
 		richTipAnchor,
 		collectorSpot,
+		treatBoardAnchor,
+		tomorrowGiftAnchor,
 	}
 	for _, list in
 		{ spots, spotFurniture, decorAnchors, decorSpots, tableAnchors, expansions } :: { any }

@@ -177,6 +177,7 @@ LiveFlags.KEYS = {
 	"afkQuick", -- #5310: AFK mode rests at once (2x within a second) and the cafe banner says Turn on AFK; off by default
 	"cardFollow", -- #5296: Follow and the boost square on the cat card (Screens/CatRoom); off by default, Derek wants the old row
 	"bigTreats", -- Derek 2026-11-18: the Daily Treat pays big prizes only, no food (shared/BigTreats); off by default
+	"tomorrowBoard", -- #5449: the Daily Treat Board on the cafe wall, with Remind me (shared/TomorrowBoard); off by default
 	"bigNet", -- #5309: the net takes the whole half circle in front, further, and a miss scares no cat (shared/NetSwing); off by default
 	"companionScene", -- #5284: after the Tier 2 rank up the best cat becomes the Cat Companion in a short scene, once (shared/CompanionScene); off by default
 	"cannonReturn", -- #5304: Rummage from the Cannon menu goes back to it, Skip on the Lucky pick; off by default
@@ -311,6 +312,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	afkQuick = true, -- #5310: on once Review-QA passes
 	cardFollow = true, -- #5296: stays off; the Companion button replaces it
 	bigTreats = true, -- Derek 2026-11-18: on once Review-QA passes, 2 h from any other switch
+	tomorrowBoard = true, -- #5449 (Growth: its 2-day D1 read starts when it goes on)
 	bigNet = true, -- #5309: on once Review-QA and Sync pass
 	companionScene = true, -- #5284: on after Review-QA and Sync's phone pass of the scene
 	cannonReturn = true, -- #5304: on once Review-QA and Sync pass

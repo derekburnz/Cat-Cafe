@@ -73,6 +73,7 @@ local StarterSuggest = require(ReplicatedStorage.Shared.StarterSuggest)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
+local TomorrowBoard = require(ReplicatedStorage.Shared.TomorrowBoard)
 local Types = require(ReplicatedStorage.Shared.Types)
 local UpgradePace = require(ReplicatedStorage.Shared.UpgradePace)
 
@@ -306,6 +307,9 @@ export type CustomEvent =
 	| "event_rsvp" -- #2766
 	| "return_hook_early_shown" -- #4626
 	| "tomorrow_card" -- #3951: the come back tomorrow card, value 1; its outcome (ReturnHook.CARD_OUTCOMES), the device
+	-- #5449: the Daily Treat Board's card, value 1; its outcome (TomorrowBoard.OUTCOMES), the device, "first" or "later"
+	-- (the account's first UTC day, dayText "0", or not)
+	| "tomorrow_board"
 	-- #5202 (nextGoalBeat): the "What next?" card, value 1, each once a session; the variant (A or B) or the target
 	-- (cats, cafe or closed), the tier and the device
 	| "next_goal_shown"
@@ -579,6 +583,7 @@ local REPORTS = {
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"return_hook_early", -- #4626: the minute 6 "come back tomorrow" line showed, its kind (ReturnHook.EARLY_KINDS)
 	"tomorrow_card", -- #3951: the come back tomorrow card's outcome (ReturnHook.CARD_OUTCOMES)
+	"tomorrow_board", -- #5449: the Daily Treat Board card's outcome (TomorrowBoard.OUTCOMES)
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
@@ -2607,6 +2612,21 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		then
 			session.nudges["tomorrow_card:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "tomorrow_card", 1, { outcome, session.device or "unknown" })
+		end
+	elseif name == "tomorrow_board" then
+		-- #5449: each outcome once a session, with the switch on
+		local outcome = Guard.oneOf(rawValue, TomorrowBoard.OUTCOMES)
+		if
+			outcome ~= nil
+			and LiveFlagService.on(TomorrowBoard.FLAG)
+			and not session.nudges["tomorrow_board:" .. outcome]
+		then
+			session.nudges["tomorrow_board:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
+			Telemetry.custom(player, "tomorrow_board", 1, {
+				outcome,
+				session.device or "unknown",
+				if dayText(profile) == "0" then "first" else "later",
+			})
 		end
 	elseif name == "event_rsvp" then
 		local kind = Guard.oneOf(rawValue, RSVP_KINDS)

@@ -1106,4 +1106,16 @@ return function()
 			end
 		)
 	end)
+	describe("Catching.secretShare (#5418)", function()
+		it(
+			"doubles the share only with secretDouble on, for the default and a food's own share",
+			function()
+				expect(Catching.secretShare(nil, false)).to.equal(Catalog.secretPerMythical)
+				expect(Catching.secretShare(nil, true)).to.equal(Catalog.secretPerMythical * 2)
+				expect(Catching.secretShare(0.1, false)).to.equal(0.1)
+				expect(Catching.secretShare(0.1, true)).to.equal(0.2)
+				expect(Catching.secretShare(0.7, true)).to.equal(1)
+			end
+		)
+	end)
 end

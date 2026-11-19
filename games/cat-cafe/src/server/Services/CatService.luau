@@ -1018,7 +1018,8 @@ local function spawnAt(
 			rng:NextNumber(),
 			rng:NextNumber(),
 			true,
-			if M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil
+			if M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil,
+			Catching.secretShare(nil, M.LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)) -- #5418
 		)
 		else nil
 	local def = secret

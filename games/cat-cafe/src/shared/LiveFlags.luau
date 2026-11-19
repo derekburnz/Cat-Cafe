@@ -157,6 +157,7 @@ LiveFlags.KEYS = {
 	"kingCatInfo", -- #5260: the Cat King Pack's gold chip and i sheet say how King Croissant earns (Components/StoreLogic); off by default
 	"walkUpRetry", -- #5386: a ring stepped into while busy opens once the player is free (Controllers/WalkUpController); off by default
 	"rankUpSteps", -- #5218: the Rank Up window's needs as numbered steps with a Go button (Screens/RankUp); off by default
+	"secretDouble", -- #5418: twice the share of rolled Mythicals that turn Secret, everywhere, and on every odds card (shared/Catching.secretShare); off by default
 	"goalNeedLine", -- #5331: the folded goal chip and a takeover goal show the biggest Rank Up need (Components/GoalNeed); off by default
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
@@ -286,6 +287,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
 	catchCurve = true, -- #5392
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
+	secretDouble = true, -- #5418
 	companionNudge = true, -- #5364: on as soon as it publishes (Derek 2026-11-18)
 	plushSecret = true, -- #5414: on as soon as it publishes (Derek 2026-11-19)
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read

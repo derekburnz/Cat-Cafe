@@ -187,6 +187,7 @@ return function()
 							or key == "palDay" -- #4913
 							or key == "areaOnly" -- #5026
 							or key == "harvestPieLow" -- #4251
+							or key == "secretDouble" -- #5418
 							or key == "walkUpRetry" -- #5386
 							or key == "cafeGrows" -- #4543
 							or key == "fxAfterLoad" -- #5068

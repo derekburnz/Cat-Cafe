@@ -22,6 +22,7 @@ local FreshCatch = require(script.Parent.FreshCatch)
 local Fusion = require(script.Parent.Fusion)
 local GrandOpening = require(script.Parent.GrandOpening)
 local HarvestSave = require(script.Parent.HarvestSave)
+local Holdout = require(script.Parent.Holdout)
 local IntroSplit = require(script.Parent.IntroSplit)
 local Invites = require(script.Parent.Invites)
 local Jukebox = require(script.Parent.Jukebox)
@@ -953,6 +954,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
 	telemetry.orderGroup = TutorialOrder.valid(value.orderGroup) -- #5498
+	telemetry.holdout = Holdout.valid(value.holdout) -- #5499
 	-- #5291: milestones_v1's mask (MilestoneFunnel.sanitize, kept here as a number check so this module needs no
 	-- Economy): a whole number from -1 (out) to 4095 (all 12 steps), nil for none
 	local milestoneMask = value.milestoneMask

@@ -1391,6 +1391,7 @@ export type TelemetryState = {
 	-- reads as never in the test)
 	introGroup: string?,
 	orderGroup: string?, -- #5498: the walk-through order test arm (shared/TutorialOrder)
+	holdout: string?, -- #5499: the holdout group, "holdout" or "live" (shared/Holdout)
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

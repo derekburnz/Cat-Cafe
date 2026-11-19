@@ -427,7 +427,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		tutorialStep = profile.tutorialStep,
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		-- #2791: the gift icon's next step and the popover's two; #5506: today's ladder while dailyGifts is on
-		giftNext = if LiveFlagService.on(DailyGifts.FLAG)
+		giftNext = if LiveFlagService.on(DailyGifts.FLAG, player)
 			then DailyGifts.upcoming(
 				DailyGifts.fresh(profile.dailyGifts, DailyGifts.day(os.time())),
 				PlayTime.seconds(player, profile),

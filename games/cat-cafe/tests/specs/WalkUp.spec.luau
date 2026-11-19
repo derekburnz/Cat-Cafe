@@ -52,6 +52,32 @@ return function()
 			expect(open).to.equal(nil)
 		end)
 
+		it(
+			"with retry, a step in while the ring is off for a carry opens once it is on (#5415)",
+			function()
+				local function cannon(distance: number, off: boolean?, waits: boolean?): any
+					local station = at("cannon", distance, "Cannon")
+					station.off = off
+					station.waits = waits
+					return station
+				end
+				local state = WalkUp.new()
+				WalkUp.step(state, { cannon(20, true, true) }, true, nil, 0, true)
+				-- ran in while the prompt is still hidden for the carry
+				local open = WalkUp.step(state, { cannon(5, true, true) }, true, nil, 1, true)
+				expect(open).to.equal(nil)
+				-- the carry clears: the ring opens with no step out
+				open = WalkUp.step(state, { cannon(5) }, false, nil, 2, true)
+				expect(open).to.equal("cannon")
+				-- without `waits` (a put-into ring) the same step in still waits for out and back in
+				state = WalkUp.new()
+				WalkUp.step(state, { cannon(20, true) }, true, nil, 0, true)
+				WalkUp.step(state, { cannon(5, true) }, true, nil, 1, true)
+				open = WalkUp.step(state, { cannon(5) }, false, nil, 2, true)
+				expect(open).to.equal(nil)
+			end
+		)
+
 		it("without retry, a step in under a card is asked once (as before)", function()
 			local state = WalkUp.new()
 			WalkUp.step(state, { at("cannon", 20, "Cannon") }, false, nil, 0)

@@ -234,6 +234,7 @@ return function()
 							or key == "milestoneFunnel" -- #5291
 							or key == "townGround" -- #5357
 							or key == "decorChipIcons" -- #5366
+							or key == "chipPickedWord" -- #5406
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
 							or key == "promptsAfter5" -- #5251

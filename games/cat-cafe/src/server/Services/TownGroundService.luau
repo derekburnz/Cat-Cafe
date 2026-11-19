@@ -7,6 +7,7 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local PawFloor = require(script.Parent.Parent.World.PawFloor)
 local TownGround = require(ReplicatedStorage.Shared.TownGround)
 
 local TownGroundService = {}
@@ -34,11 +35,24 @@ function TownGroundService.start()
 	CollectionService:GetInstanceAddedSignal(TownGround.TAG):Connect(set)
 	task.spawn(function()
 		local last: boolean? = nil
+		local floorLast: boolean? = nil
 		while true do
 			local on = LiveFlagService.on(TownGround.FLAG)
 			if on ~= last then
 				last = on
 				apply(on)
+			end
+			-- #5471: the paw prints drawn into the floor under them (World/PawFloor)
+			local floor = LiveFlagService.on(TownGround.FLOOR_FLAG)
+			if floor ~= floorLast then
+				floorLast = floor
+				local ok, err = pcall(function(): string?
+					PawFloor.apply(floor)
+					return nil -- CI's luau-lsp wants two values from pcall
+				end)
+				if not ok then
+					warn("[TownGround] paws in the floor: " .. tostring(err))
+				end
 			end
 			task.wait(TownGround.STEP)
 		end

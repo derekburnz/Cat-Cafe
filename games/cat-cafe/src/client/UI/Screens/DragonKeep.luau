@@ -89,6 +89,11 @@ local SETS_LOOK_H = 66
 local MARK = 22 -- a Binder card's corner picture
 local GHOST = 48 -- a card not found yet: its family picture, faded, behind the words
 local GHOST_FADE = 0.6
+local BAND_TOP = 20 -- a card not found yet: a dark band under its family name and "Not found yet"
+local BAND_H = 34
+local BAND_COLOUR = Color3.fromHex("16161D")
+local BAND_FADE = 0.25
+local UNFOUND_TEXT = Color3.fromHex("F4EEFF")
 local SET_ICON = 32
 local PIP = 10
 local TAG_W = 58
@@ -852,6 +857,20 @@ function DragonKeep._buildBinder(self: any, pages: Frame)
 		})
 		IconArt.setImage(ghost, picture)
 		IconArt.setTransparency(ghost, GHOST_FADE)
+		-- Sync check: the purple words were hard to read over the faded picture, so they sit on a band
+		local band = Create("Frame", {
+			Name = "Band",
+			Position = UDim2.fromOffset(0, BAND_TOP),
+			Size = UDim2.new(1, 0, 0, BAND_H),
+			BackgroundColor3 = BAND_COLOUR,
+			BackgroundTransparency = BAND_FADE,
+			BorderSizePixel = 0,
+			Visible = false,
+			ZIndex = 1,
+			Parent = cell,
+		})
+		rarity.ZIndex = 2
+		words.ZIndex = 2
 		cell.Activated:Connect(function()
 			self:_binderTapped(entry.id)
 		end)
@@ -863,6 +882,7 @@ function DragonKeep._buildBinder(self: any, pages: Frame)
 			words = words,
 			mark = mark,
 			ghost = ghost,
+			band = band,
 		}
 	end
 end
@@ -877,12 +897,14 @@ function DragonKeep._paintBinder(self: any)
 		end
 		cell.mark.Visible = look and entry.owned
 		cell.ghost.Visible = look and not entry.owned
+		cell.band.Visible = look and not entry.owned
 		local family = DragonKeepLogic.FAMILY_NAMES[entry.family] or entry.family
 		if entry.owned then
 			cell.name.Text = entry.name
 			cell.rarity.Text = entry.rarity .. " · " .. family
 			cell.rarity.TextColor3 =
 				MenuFamily.rarity(if entry.rarity == "Mythic" then "Mythical" else entry.rarity)
+			cell.words.TextColor3 = CARD.subtext
 			cell.words.Text = if entry.slot
 				then ("In slot %d. %s"):format(entry.slot, entry.text)
 				else entry.text
@@ -890,8 +912,9 @@ function DragonKeep._paintBinder(self: any)
 		else
 			cell.name.Text = if look then "" else "?" -- #5433: the faded picture says what it is
 			cell.rarity.Text = family
-			cell.rarity.TextColor3 = CARD.subtext
+			cell.rarity.TextColor3 = if look then UNFOUND_TEXT else CARD.subtext
 			cell.words.Text = "Not found yet"
+			cell.words.TextColor3 = if look then UNFOUND_TEXT else CARD.subtext
 			cell.cell.BackgroundColor3 = PAL.card
 		end
 		cell.stroke.Thickness = if self._chosen == entry.id then 4 elseif entry.slot then 3 else 2

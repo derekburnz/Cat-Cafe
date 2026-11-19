@@ -101,7 +101,9 @@ end
 
 -- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
 -- the achievements view; QuestService and Claim all reach Quests through it)
-Quests.setFlagReader(LiveFlagService.on)
+Quests.setFlagReader(function(key: string): boolean
+	return LiveFlagService.on(key)
+end)
 -- #3995: a player who joins through a friend this session gets no intro by itself, and the save stays out of the intro
 -- test (the ? Tutorial tile still plays it on a tap)
 Telemetry.setIntroSkip(function(player: Player): boolean
@@ -428,7 +430,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		tutorialStep = profile.tutorialStep,
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		-- #2791: the gift icon's next step and the popover's two; #5506: today's ladder while dailyGifts is on
-		giftNext = if LiveFlagService.on(DailyGifts.FLAG)
+		giftNext = if LiveFlagService.on(DailyGifts.FLAG, player)
 			then DailyGifts.upcoming(
 				DailyGifts.fresh(profile.dailyGifts, DailyGifts.day(os.time())),
 				PlayTime.seconds(player, profile),

@@ -41,6 +41,7 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Holdout = require(ReplicatedStorage.Shared.Holdout)
 local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
@@ -115,6 +116,7 @@ export type CustomEvent =
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "holdout_group" -- #5499 (shared/Holdout): a new save joined the holdout (value 1; field: "holdout" or "live")
 	| "order_group" -- #5498 (shared/TutorialOrder): a new save joined the walk-through order test (value 1; field: its arm)
 	| "cat_pet" -- #3651 (shared/Pet): a cat was petted (value 1; field: first, same or moved)
 	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
@@ -1020,7 +1022,9 @@ end
 -- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
 local function grouped(profile: Profile, fields: { string }): { string }
 	-- #5498: a save in the walk-through order test carries its arm there instead (the intro test takes nobody new)
-	return IntroSplit.fields(profile.telemetry.introGroup or profile.telemetry.orderGroup, fields)
+	-- #5499: and a save in neither carries its holdout group ("holdout" or "live"); a held save is never in the order test
+	local state = profile.telemetry
+	return IntroSplit.fields(state.introGroup or state.orderGroup or state.holdout, fields)
 end
 
 -- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
@@ -1049,9 +1053,22 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 	orderChecked[player] = true
 	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
 	local state = profile.telemetry
+	-- #5499 (shared/Holdout): the holdout first, so a held save reads orderSplit off below and keeps the bowl first arm
+	if
+		Holdout.joins(
+			LiveFlagService.on(Holdout.FLAG),
+			profile.stats.sessions,
+			profile.tutorialStep or 0,
+			state.holdout
+		)
+	then
+		state.holdout = Holdout.group(player.UserId)
+		Telemetry.custom(player, "holdout_group", 1, { state.holdout :: string }) -- Holdout.EVENT
+	end
+	player:SetAttribute(Holdout.ATTR, Holdout.held(state.holdout, state.firstDay, os.time()))
 	if
 		TutorialOrder.joins(
-			LiveFlagService.on(TutorialOrder.SPLIT_FLAG),
+			LiveFlagService.on(TutorialOrder.SPLIT_FLAG, player),
 			profile.stats.sessions,
 			profile.tutorialStep or 0,
 			state.orderGroup

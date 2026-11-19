@@ -146,7 +146,7 @@ local function dailyGift(player: Player): boolean
 	local clock = os.clock()
 	local last = dailyAt[player]
 	dailyAt[player] = clock
-	if profile == nil or not LiveFlagService.on(DailyGifts.FLAG) then
+	if profile == nil or not LiveFlagService.on(DailyGifts.FLAG, player) then
 		return false
 	end
 	local now = os.time()
@@ -176,7 +176,7 @@ end
 -- was paid this tick.
 local function daysPlayed(player: Player): boolean
 	local profile = DataService.get(player)
-	if profile == nil or not LiveFlagService.on(DaysPlayed.FLAG) then
+	if profile == nil or not LiveFlagService.on(DaysPlayed.FLAG, player) then
 		return false
 	end
 	local state = DaysPlayed.note(profile.daysPlayed, DaysPlayed.day(os.time()))
@@ -226,7 +226,7 @@ local function check(player: Player): boolean
 	local played = PlayTime.seconds(player, profile)
 	-- #5506: with the daily ladder on, the once-per-account small steps stop paying; the like and favourite stay
 	local due: PlaytimeGifts.Step? =
-		PlaytimeGifts.due(profile, played, LiveFlagService.on(DailyGifts.FLAG))
+		PlaytimeGifts.due(profile, played, LiveFlagService.on(DailyGifts.FLAG, player))
 	if due == nil then
 		return false
 	end

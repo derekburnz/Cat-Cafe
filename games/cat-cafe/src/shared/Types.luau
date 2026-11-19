@@ -1392,6 +1392,7 @@ export type TelemetryState = {
 	-- reads as never in the test)
 	introGroup: string?,
 	orderGroup: string?, -- #5498: the walk-through order test arm (shared/TutorialOrder)
+	holdout: string?, -- #5499: the holdout group, "holdout" or "live" (shared/Holdout)
 	tier3Trip: number?, -- #5517: the Tier 3 to Neighbourhood stops logged, a bit mask (shared/Tier3Trip)
 }
 

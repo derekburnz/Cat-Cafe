@@ -10,6 +10,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local AreaWhole = require(ReplicatedStorage.Shared.AreaWhole)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -185,6 +186,47 @@ local function cutAll()
 			end
 		end
 		chunks[id] = list
+	end
+	-- Derek 2026-11-18: the Town Square, held while they stand on it (Layout.inTownSquare)
+	local town: { Chunk } = {}
+	local square = world.folder:FindFirstChild("TownSquare")
+	if square ~= nil then
+		cut(square, town)
+	end
+	local rect = Layout.townSquare.floor
+	local margin = AreaWhole.TOWN_MARGIN
+	for _, holder in { world.folder :: Instance, Workspace :: Instance } do
+		for _, child in holder:GetChildren() do
+			if not child:IsA("Model") or Players:GetPlayerFromCharacter(child :: Model) ~= nil then
+				continue
+			end
+			local model = child :: Model
+			-- Review-QA: never an area or a plot that sits near the square
+			if
+				model.ModelStreamingMode ~= Enum.ModelStreamingMode.Default
+				or model:GetAttribute("Area") ~= nil
+				or CollectionService:HasTag(model, "Plot")
+			then
+				continue
+			end
+			local at = model:GetBoundingBox().Position
+			local size = sizeOf(model)
+			if
+				at.X >= rect.x1 - margin
+				and at.X <= rect.x2 + margin
+				and at.Z >= rect.z1 - margin
+				and at.Z <= rect.z2 + margin
+				and size <= AreaWhole.TOWN_PIECE_MAX
+			then
+				table.insert(
+					town,
+					{ model = model, at = at, size = size, mode = model.ModelStreamingMode }
+				)
+			end
+		end
+	end
+	if #town > 0 then
+		chunks[AreaWhole.TOWN] = town
 	end
 end
 
@@ -611,7 +653,12 @@ local function standingIn(player: Player): string?
 	if not ok or world == nil then
 		return nil
 	end
-	return WorldBuilder.areaAt(world, (root :: BasePart).Position)
+	local at = (root :: BasePart).Position
+	local area = WorldBuilder.areaAt(world, at)
+	if area == nil and Layout.inTownSquare(at.X, at.Z) and at.Y < 40 then
+		return AreaWhole.TOWN -- Derek 2026-11-18: the Town Square counts as one
+	end
+	return area
 end
 
 local function apply(on: boolean)

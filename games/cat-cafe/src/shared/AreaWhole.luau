@@ -51,6 +51,13 @@ AreaWhole.SPREAD = 0.15 -- seconds; NightSpread's step, far enough apart to land
 -- FLIGHT_SPREAD seconds instead (a few frames apart, each step about 26 ms), so most of the area is in by touchdown.
 AreaWhole.FLIGHT_SPREAD = 0.05
 AreaWhole.CHUNK = "Chunk" -- the name of the Models AreaWholeService cuts a Set or Backdrop into
+-- Derek 2026-11-18 13:11 UTC ("everything while in town square should load while in town square"): the Town Square is
+-- held whole like an area, under this id: its own props cut into chunks, and each station Model whose middle is on the
+-- square (or within TOWN_MARGIN studs of its edge) kept whole as one chunk.
+AreaWhole.TOWN = "town"
+AreaWhole.TOWN_MARGIN = 16
+-- A station Model bigger than this is left to stream as before (it is not a station).
+AreaWhole.TOWN_PIECE_MAX = 3000
 
 export type Flight = { area: string, untilAt: number }
 

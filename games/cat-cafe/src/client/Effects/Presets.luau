@@ -7005,6 +7005,38 @@ Presets.boothFx = {
 	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
 }
 
+-- The advent calendar board (#5502, Effects/AdventFx): opened doors swing `openAngle` out to the front over
+-- `swingSeconds` with `overshoot`; the ready door breathes gold every `breathe` seconds (fill from `fillLow` to
+-- `fillHigh`, `fillCat` on a cat door); an open bursts `sparkles` (`catSparkles`), `snow` flakes and `confetti` of the
+-- budget; a cat door adds a ring, a column of light and a nook light for `catSeconds`. `catDoors` match shared/Advent.
+Presets.adventFx = {
+	flag = "adventCalendar",
+	board = "CatCafe_Square_AdventBoard",
+	doors = 24,
+	catDoors = { 6, 12, 18, 24 },
+	openAngle = math.rad(105),
+	swingSeconds = 0.55,
+	overshoot = 0.17,
+	breathe = 1.6,
+	fillLow = 0.15,
+	fillHigh = 0.4,
+	fillCat = 0.6,
+	sparkles = 10,
+	catSparkles = 24,
+	snow = 8,
+	confetti = 0.4,
+	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
+	gold = Presets.palette.golden,
+	ring = 4,
+	ringDrop = 1.5,
+	beamWidth = 1.2,
+	beamHeight = 10,
+	catSeconds = 3,
+	lightBrightness = 3,
+	lightRange = 8,
+	lookSeconds = 2,
+}
+
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters
 -- turn Neon `gold` (the room-complete burst's gold) and breathe to `bright` and back every `every` seconds, well
 -- under 3 Hz. `suffix` plus the area id ends the name of each plaque's Model in the museum; `rate` is the seconds

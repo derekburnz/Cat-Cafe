@@ -22,7 +22,7 @@ export type Area =
 -- #4251: "harvest" for a Harvest Hollow cat (the limited area, not one of the ten): kept, it earns like `earnsLike`.
 export type CatArea = Area | "spare" | "exclusive" | "secret" | "harvest"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
-export type CatSource = "free" | "shop" | "pass" | "booth" -- booth #4061: the Ticket Booth's prize cat
+export type CatSource = "free" | "shop" | "pass" | "booth" | "advent" -- advent #5502: a calendar door (shared/Advent); -- booth #4061: the Ticket Booth's prize cat
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -287,6 +287,7 @@ export type IndexPrize = {
 	tag: string?,
 	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
 	traitTokens: number?, -- Daily Treat v2 (bigTreats): Trait Tokens into the Mystic Pool's bank (Traits.give)
+	snowflakes: number?, -- #5502: the Christmas event's Snowflakes (profile.snowflakes; the advent calendar)
 }
 
 -- #2798: the Cozy Cafe bags given on `day` (a UTC day number)
@@ -1547,6 +1548,11 @@ export type PlayerProfile = {
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
+	-- #5502 (shared/Advent): the advent calendar's doors opened and catch-ups used, and the Christmas event's
+	-- Snowflakes. No VERSION bump: an older server drops them, so adventCalendar goes on only after the Christmas
+	-- restart.
+	advent: { year: number, opened: number, day: number, caught: number }?,
+	snowflakes: number?,
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
 	-- #3996 (shared/DailyDeal): the UTC day the player last bought Today's Deal, nil for never. No VERSION bump: an
 	-- older server dropping it only lets the same day's deal be bought once more, which pays as normal.
@@ -1701,6 +1707,9 @@ export type PlayerState = {
 	-- #2791 (retention-ideas.md 5a): the gift ladder's next two steps (PlaytimeGifts.upcoming), for the HUD's gift icon
 	-- and its countdown; empty once the ladder is done, nil from an older server
 	giftNext: { GiftStepView }?,
+	-- #5502: the advent calendar board (shared/Advent.view), nil while either switch is off
+	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
+	snowflakes: number?, -- #5502: the Christmas event's Snowflakes (the Gift Stall reads it)
 	-- #2797 (retention-ideas.md 5d): the invite card and the Friends button (shared/Invites.view); nil from an older server
 	invite: InviteView?,
 	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server

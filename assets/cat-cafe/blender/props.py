@@ -3740,11 +3740,163 @@ def tree_lights(ctx):
         G.ico(tuple(p + Vector((0, 0, 0.09))), 0.06, cols[k % len(cols)], scale=(1, 1, 1.3))
 
 
+# The Christmas Advent Calendar cats (#5502, Dec 2026): shown as Secret, so each has two props and lit parts.
+def peppermint_collar(ctx):
+    """Peppermint Swirl (Secret, door 6): a mint collar with a big round peppermint at the front, red swirl wedges
+    on white, its clear wrapper twisted at both sides."""
+    F = ctx.pen("face")
+    fw, fd, bot = ctx.fw, ctx.fd, ctx.fbot
+    lo, hi = bot - 0.008, bot + 0.05
+    F.box((0, 0.012, (lo + hi) / 2), (2 * fw + 0.03, 0.078, hi - lo), "mint")
+    for sx in (-1, 1):
+        F.box((sx * (fw - 0.0175), (fd - 0.07 - 0.027) / 2, (lo + hi) / 2), (0.065, fd - 0.07 + 0.027, hi - lo), "mint")
+    c = Vector((0, -0.05, bot - 0.1))
+    F.cyl(tuple(c), 0.13, 0.05, "milk", rot=_rx(90), segments=14)
+    for k in range(8):                                                     # straight red rays, wider at the rim
+        a = 45 * k
+        F.box(tuple(c + _ry(a) @ Vector((0.08, -0.027, 0))), (0.09, 0.012, 0.035), "shirt_red", rot=_ry(a))
+    F.cyl(tuple(c + Vector((0, -0.03, 0))), 0.028, 0.012, "milk", rot=_rx(90), segments=8)
+    W = ctx.gpen("face")
+    for sx in (-1, 1):                                                     # the wrapper's twists
+        W.pyramid(tuple(c + Vector((sx * 0.17, 0, 0))), 0.07, 0.1, "glass", rot=_ry(sx * 90))
+    G = ctx.piece("Glow", "face", tuple(c))
+    for x, z in ((-0.2, 0.1), (0.24, 0.04), (0.15, -0.16), (-0.16, -0.14)):
+        G.ico((c.x + x, c.y - 0.02, c.z + z), 0.022, "mint")
+
+
+def peppermint_swirl(ctx):
+    """Peppermint Swirl's second prop: a red and white candy ribbon spiralling up off its back, a little peppermint
+    at the top, with faint mint sparkles round it."""
+    P = ctx.pen("back")
+    G = ctx.piece("Sparkle_Glow", "back", (0, 0, 0.3))
+    P.cyl((0, 0.05, 0.03), 0.09, 0.06, "mint", segments=10)
+    P.cyl((0, 0.05, 0.3), 0.025, 0.5, "milk", segments=8)                 # the stick the ribbon winds up
+    n = 15
+    for k in range(n):
+        a = math.radians(36 * k)
+        r, z = 0.17 - 0.006 * k, 0.08 + 0.031 * k
+        P.box((r * math.cos(a), 0.05 + r * math.sin(a), z), (0.1, 0.075, 0.05), ("shirt_red", "milk")[(k // 2) % 2],
+              rot=_rz(math.degrees(a) + 90))
+    top = (0, 0.05, 0.08 + 0.031 * n + 0.1)
+    P.cyl(top, 0.08, 0.04, "milk", rot=_rx(90), segments=12)
+    for a in (0, 90):
+        P.box(tuple(Vector(top) + Vector((0, -0.022, 0))), (0.15, 0.01, 0.03), "shirt_red", rot=_ry(a + 45))
+    for x, y, z in ((0.26, -0.1, 0.3), (-0.24, 0.2, 0.42), (0.18, 0.28, 0.6), (-0.2, -0.06, 0.62)):
+        G.star((x, y, z), 0.05, 0.02, 0.02, "mint", rot=_rx(90))
+
+
+def nutcracker_shako(ctx):
+    """Nutcracker (Secret, door 12): a tall black soldier's hat with a gold band and rim, a red plume and a lit gold
+    badge, and a big white whisker moustache under the nose."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.03), 0.29, 0.06, "fur_black", segments=14)
+    P.cyl((0, 0, 0.3), 0.25, 0.5, "fur_black", r2=0.27, segments=14)
+    P.cyl((0, 0, 0.1), 0.262, 0.07, "rarity_legend", segments=14)
+    P.ring((0, 0, 0.55), 0.282, 0.04, 0.04, "rarity_legend", segments=14)
+    P.box((0, -0.02, 0.6), (0.06, 0.06, 0.06), "rarity_legend")
+    P.ico((0, -0.02, 0.72), 0.1, "bowl_red", scale=(0.8, 0.8, 1.4))       # the plume
+    P.ico((0, -0.02, 0.86), 0.06, "milk", scale=(0.8, 0.8, 1.2))
+    G = ctx.piece("Badge_Glow", "head", (0, -0.26, 0.32))
+    G.star((0, -0.265, 0.32), 0.11, 0.05, 0.03, "rarity_legend", rot=_rx(90))
+    G.ico((0, -0.285, 0.32), 0.035, "sparkle")
+    F = ctx.pen("face")
+    y = -0.07
+    F.box((0, y, -0.17), (0.18, 0.06, 0.08), "milk")
+    for sx in (-1, 1):
+        F.bar((sx * 0.07, y, -0.175), (sx * 0.27, y, -0.22), 0.09, 0.06, "milk", up=(0, -1, 0))
+        F.bar((sx * 0.26, y, -0.225), (sx * 0.34, y, -0.29), 0.06, 0.05, "milk", up=(0, -1, 0))
+
+
+def nutcracker_uniform(ctx):
+    """Nutcracker's second prop: the soldier's uniform on its back, gold fringed epaulettes at the shoulders, white
+    cross belts and a row of gold buttons."""
+    P = ctx.pen("back")
+    hw, L = ctx.back_w / 2, ctx.back_len
+    y0 = -L * 0.36
+    for sx in (-1, 1):
+        P.box((sx * hw * 0.78, y0, 0.03), (0.22, 0.2, 0.05), "rarity_legend")
+        for k in range(4):
+            P.box((sx * (hw * 0.78 + 0.1), y0 - 0.075 + 0.05 * k, -0.04), (0.03, 0.03, 0.1), "gold_mid")
+        P.bar((sx * hw * 0.7, y0 + 0.02, 0.025), (-sx * hw * 0.7, L * 0.3, 0.025), 0.07, 0.02, "milk")
+    for k in range(4):
+        P.ico((0, y0 + 0.12 + k * L * 0.16, 0.05), 0.035, "rarity_legend")
+    P.box((0, L * 0.38, 0.02), (hw * 1.6, 0.08, 0.03), "rarity_legend")
+
+
+def aurora_crown(ctx):
+    """Northern Lights (Secret, door 18): three ribbons of aurora arch over its head, green, mint and pink, lit all
+    night, with a few small stars between them."""
+    P = ctx.pen("head")
+    G = ctx.piece("Glow", "head", (0, 0, 0.3))
+    P.ico((0, 0.0, 0.03), 0.04, "fur_emerald")
+    for j, (y, r, sw) in enumerate(((0.12, 0.46, "fur_emerald"), (0.0, 0.52, "mint"), (-0.12, 0.42, "neon_pink"))):
+        n = 9
+        for k in range(n):
+            a = math.radians(20 + 140 * k / (n - 1))
+            wob = 0.03 * math.sin(k * 1.7 + j)
+            c = (r * math.cos(a), y + wob, 0.05 + r * math.sin(a) * 0.9)
+            G.box(c, (0.12, 0.03, 0.06 + 0.02 * (j == 1)), sw, rot=_ry(-(math.degrees(a) - 90)))
+    for x, z in ((0.2, 0.62), (-0.26, 0.56), (0.0, 0.72)):
+        G.star((x, 0.02, z), 0.05, 0.02, 0.02, "sparkle", rot=_rx(90))
+
+
+def aurora_curtain(ctx):
+    """Northern Lights' second prop: a curtain of aurora rising off its back in a slow wave, green at the bottom
+    through mint to pink at the top."""
+    P = ctx.pen("back")
+    G = ctx.piece("Curtain_Glow", "back", (0, 0, 0.3))
+    L = ctx.back_len
+    P.box((0, 0.0, 0.02), (0.06, L * 0.6, 0.03), "fur_emerald")
+    n = 8
+    for k in range(n):
+        y = -L * 0.32 + k * L * 0.64 / (n - 1)
+        x = 0.08 * math.sin(k * 1.1)
+        h = 0.34 + 0.12 * math.sin(k * 0.9 + 0.6)
+        for j, (sw, f0, f1) in enumerate((("fur_emerald", 0.0, 0.45), ("mint", 0.45, 0.75), ("neon_pink", 0.75, 1.0))):
+            z0, z1 = 0.06 + h * f0, 0.06 + h * f1
+            G.box((x, y, (z0 + z1) / 2), (0.03, L * 0.64 / (n - 1) * 0.9, z1 - z0), sw)
+
+
+def snow_halo(ctx):
+    """Silent Night (Secret, door 24): a soft halo of falling snow round its head, a faint silver ring with snowflakes
+    drifting down it, and one big snowflake on top."""
+    P, w = ctx.pen("head"), ctx.hw
+    G = ctx.piece("Glow", "head", (0, 0, 0.2))
+    G.ring((0, 0.02, 0.22), w + 0.16, 0.035, 0.03, "pastel_sky", rot=_rx(-8), segments=16)
+    for k in range(10):
+        a = math.radians(36 * k + 10)
+        r = w + 0.16 + 0.05 * math.sin(k * 2.3)
+        z = 0.22 - 0.05 - 0.12 * ((k * 7) % 5) / 4
+        (G if k % 2 else P).ico((r * math.cos(a), 0.02 + r * math.sin(a), z), 0.035 + 0.01 * (k % 3), "milk")
+    c = (0, 0.02, 0.36)                                                    # one big snowflake on top, facing front
+    for a in (0, 60, 120):
+        G.box(c, (0.03, 0.03, 0.26), "milk", rot=_ry(a))
+    G.ico(c, 0.035, "pastel_sky")
+
+
+def night_stars(ctx):
+    """Silent Night's second prop: tiny stars along its back from the shoulders to the tail, lit, with a few snow
+    specks drifting over them."""
+    P = ctx.pen("back")
+    G = ctx.piece("Stars_Glow", "back", (0, 0, 0.1))
+    L = ctx.back_len
+    P.box((0, 0.0, 0.015), (0.05, L * 0.8, 0.02), "fur_silver")
+    for k in range(6):
+        y = -L * 0.38 + k * L * 0.76 / 5
+        r = 0.07 if k % 2 else 0.05
+        G.star((0.03 * (-1) ** k, y, 0.08 + 0.02 * (k % 2)), r, r * 0.42, 0.025, "sparkle", rot=_rx(90))
+    for x, y, z in ((0.2, -0.1, 0.3), (-0.18, 0.12, 0.36), (0.1, 0.3, 0.44), (-0.12, -0.3, 0.4)):
+        G.ico((x, y, z), 0.03, "milk")
+
+
 PROPS = {
     # Snowglobe Village, the Christmas Event (Dec 1 2026)
     "Gingerbread": ("Face", icing_smile), "Snowball": ("Head", snow_pile), "CandyCane": ("Back", candy_cane),
     "Tinsel": ("Neck", tinsel_boa), "Jingle": ("Face", jingle_collar), "Mistletoe": ("Head", mistletoe_sprig),
     "SugarPlum": ("Head", sugar_tiara), "StarTopper": ("Head", tree_star),
+    # the Christmas Advent Calendar cats (#5502)
+    "PeppermintSwirl": ("Face", peppermint_collar), "Nutcracker": ("Head", nutcracker_shako),
+    "NorthernLights": ("Head", aurora_crown), "SilentNight": ("Head", snow_halo),
     # #4251 Harvest Hollow
     "PumpkinSpice": ("Head", spice_swirl), "Cranberry": ("Head", berry_sprig), "MapleLeaf": ("Head", maple_crest),
     "HayBale": ("Head", straw_hat), "AcornCap": ("Head", acorn_top), "ApplePie": ("Head", pie_top),
@@ -3811,6 +3963,8 @@ PROPS = {
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
 PROPS2 = {
     "SugarPlum": ("Back", sugar_wings), "StarTopper": ("Back", tree_lights),   # Christmas (Dec 1 2026)
+    "PeppermintSwirl": ("Back", peppermint_swirl), "Nutcracker": ("Back", nutcracker_uniform),   # #5502 advent
+    "NorthernLights": ("Back", aurora_curtain), "SilentNight": ("Back", night_stars),
     "MapleLeaf": ("Back", leaf_cape), "HarvestMoon": ("Back", wheat_cloak),   # #4251
     "Nebula": ("Back", star_trail), "Glitch": ("Back", error_sprite),   # #3470
     "LuckyClover": ("Back", rainbow_pot), "Moonstag": ("Back", spirit_grove), "Ooze": ("Back", toxic_barrel),
@@ -3857,6 +4011,10 @@ PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"
           # Snowglobe Village (Christmas, Dec 1 2026): the Jingle's bell and the lit gem, wings, star and bulbs
           "Jingle": {"Bell": "Prop"}, "SugarPlum": {"Gem_Glow": "Prop", "Wings_Glow": "Prop2"},
           "StarTopper": {"Star_Glow": "Prop", "Bulbs_Glow": "Prop2"},
+          # #5502 the Advent Calendar cats' lit parts
+          "PeppermintSwirl": {"Glow": "Prop", "Sparkle_Glow": "Prop2"}, "Nutcracker": {"Badge_Glow": "Prop"},
+          "NorthernLights": {"Glow": "Prop", "Curtain_Glow": "Prop2"},
+          "SilentNight": {"Glow": "Prop", "Stars_Glow": "Prop2"},
           # #4251 Harvest Hollow: the lit leaf and moon
           "MapleLeaf": {"Glow": "Prop", "Leaves_Glow": "Prop2"},
           "HarvestMoon": {"Glow": "Prop", "Wheat_Glow": "Prop2"},

@@ -25,6 +25,18 @@ local shownSetting = false
 local rings: { [Instance]: RBXScriptConnection } = {}
 local faded: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- what this module faded
 
+-- #5463 (Derek 2026-11-19: "pads and effects are there even if its not unlocked yet"): StationLockController marks
+-- the ring of a station still locked for this player with this attribute (set here only, switch lockedRingsHidden),
+-- and a marked ring stays hidden whatever else would show it. Before, this module put back the art it had faded once
+-- while StationLock, which hides each piece once, never hid it again.
+StationCircles.LOCKED_ATTRIBUTE = "StationLockedHere"
+StationCircles.FLAG = "lockedRingsHidden"
+
+-- Pure: whether a ring shows, given what the setting and townRings say (`shown`) and its lock mark.
+function StationCircles.shownHere(shown: boolean, lockedHere: unknown): boolean
+	return shown and lockedHere ~= true
+end
+
 -- Pure: whether the rings show for a `stationCircles` setting value (only an explicit true shows them).
 function StationCircles.visible(setting: unknown): boolean
 	return setting == true
@@ -41,6 +53,7 @@ local function paint(ring: Instance)
 		ring:GetAttribute(WalkUp.FULL_ATTRIBUTE),
 		ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.AREA_CANNON_FLAG) == true -- #5416
 	)
+	shown = StationCircles.shownHere(shown, ring:GetAttribute(StationCircles.LOCKED_ATTRIBUTE)) -- #5463
 	for _, child in ring:GetChildren() do
 		if child:IsA("SurfaceGui") then
 			for _, piece in child:GetChildren() do

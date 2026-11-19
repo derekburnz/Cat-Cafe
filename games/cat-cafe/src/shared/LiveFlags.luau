@@ -213,6 +213,7 @@ LiveFlags.KEYS = {
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
+	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
 	"nightLineNoArrow", -- #5459: the night line keeps its words but no ring or arrow on Upgrades (Components/NightLine); off by default
 	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
@@ -346,6 +347,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
+	lockedRingsHidden = true, -- #5463: on as soon as it merges
 	nightLineNoArrow = true, -- #5459: on as soon as it merges
 	secretCompanionBig = true, -- #5431
 	decorChipIcons = true, -- #5366: on after Review-QA, once the six pictures pass moderation

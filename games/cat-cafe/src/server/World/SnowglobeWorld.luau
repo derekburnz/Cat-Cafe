@@ -287,7 +287,10 @@ local function clear(cframe: CFrame, portal: Instance): boolean
 	local parts = game:GetService("Workspace")
 		:GetPartBoundsInBox(cframe * CFrame.new(0, box.Y / 2 + 0.6, 0), box, params)
 	for _, part in parts do
-		if part.Transparency < 1 and part.Position.Y + part.Size.Y / 2 > cframe.Position.Y + 0.6 then
+		if
+			part.Transparency < 1
+			and part.Position.Y + part.Size.Y / 2 > cframe.Position.Y + 0.6
+		then
 			return false
 		end
 	end

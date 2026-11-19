@@ -78,6 +78,38 @@ local HAND_W = 170
 local HAND_H = 210
 local ASK_SECONDS = 4 -- the special cats' "Tap again" waits this long
 local PURPLE = Color3.fromHex("9A6BE0") -- the Keep's dragon purple edge (the station menus picture)
+-- #5433 Binder, #5434 Sets, #5435 Slots (Derek 2026-11-19: "make the binder menu look a little better with symbols in
+-- the card for what set type it is", "make the set menu a bit cleaner", "make dragon keep menu better"): with
+-- `keepLook` on, every card, set row and slot shows its family picture, the slots show their bonus and the sets line
+-- is a row of family pictures with counts. Off, each tab is as before.
+local LOOK_FLAG = "LiveFlag_keepLook"
+local SLOT_ROW_H = 104
+local SLOT_ROW_LOOK_H = 150
+local SETS_LOOK_H = 66
+local MARK = 22 -- a Binder card's corner picture
+local GHOST = 48 -- a card not found yet: its family picture, faded, behind the words
+local GHOST_FADE = 0.6
+local SET_ICON = 32
+local PIP = 10
+local TAG_W = 58
+
+local function lookOn(): boolean
+	return ReplicatedStorage:GetAttribute(LOOK_FLAG) == true
+end
+
+-- a label that draws a card family's picture (Icon_DragonFamily_*), or nothing for no family
+local function familyArt(props: { [string]: any }): TextLabel
+	local merged: { [string]: any } = {
+		BackgroundTransparency = 1,
+		Text = "",
+		TextScaled = true,
+		Visible = false,
+	}
+	for key, value in props do
+		merged[key] = value
+	end
+	return Create("TextLabel", merged)
+end
 local COLOURS: { [string]: Color3 } = {
 	ruby = Color3.fromHex("D8344A"),
 	sapphire = Color3.fromHex("3C6FE0"),
@@ -323,7 +355,7 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 	local slotRow: Frame = Create("Frame", {
 		Name = "Slots",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 104),
+		Size = UDim2.new(1, 0, 0, SLOT_ROW_H),
 		LayoutOrder = 1,
 		Parent = right,
 	}, {
@@ -374,10 +406,24 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 			Parent = tile,
 		})
 		FitText.shrink(label)
+		local bonus = text({ -- #5435: the slotted card's words, with keepLook on
+			Name = "Bonus",
+			Position = UDim2.new(0, 6, 0, 66),
+			Size = UDim2.new(1, -12, 1, -70),
+			TextSize = Theme.sizes.textTiny + 1,
+			TextColor3 = CARD.subtext,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			TextYAlignment = Enum.TextYAlignment.Top,
+			Visible = false,
+			Parent = tile,
+		})
+		FitText.shrink(bonus)
 		tile.Activated:Connect(function()
 			self:_slotTapped(index)
 		end)
-		self._slotTiles[index] = { tile = tile, stroke = stroke, icon = icon, label = label }
+		self._slotTiles[index] =
+			{ tile = tile, stroke = stroke, icon = icon, label = label, bonus = bonus }
 	end
 	local colours: Frame = Create("Frame", {
 		Name = "Colours",
@@ -455,6 +501,53 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 		Parent = sets,
 	})
 	FitText.shrink(self._setsLine)
+	self._setsCard = sets
+	-- #5435: with keepLook on, the six families as pictures with their counts in place of the line
+	local chips: Frame = Create("Frame", {
+		Name = "Chips",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(6, 4),
+		Size = UDim2.new(1, -12, 1, -8),
+		Visible = false,
+		Parent = sets,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._setChipRow = chips
+	self._setChips = {} :: { [string]: any }
+	for order, family in DragonKeepLogic.FAMILIES do
+		local chip: Frame = Create("Frame", {
+			Name = "Chip_" .. family,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1 / #DragonKeepLogic.FAMILIES, 0, 1, 0),
+			LayoutOrder = order,
+			Parent = chips,
+		})
+		local art = familyArt({
+			Name = "Art",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.fromScale(0.5, 0),
+			Size = UDim2.fromOffset(SET_ICON, SET_ICON),
+			Visible = true,
+			Parent = chip,
+		})
+		IconArt.setImage(art, ShopIcons.dragonFamily(family))
+		local count = text({
+			Name = "Count",
+			Position = UDim2.new(0, 0, 0, SET_ICON),
+			Size = UDim2.new(1, 0, 1, -SET_ICON),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = PAL.subtext,
+			Parent = chip,
+		})
+		FitText.shrink(count)
+		self._setChips[family] = { art = art, count = count }
+	end
 	-- #4576: the line opens the Sets tab
 	local setsHit: TextButton = Create("TextButton", {
 		Name = "OpenSets",
@@ -567,6 +660,11 @@ function DragonKeep._paintSlots(self: any)
 		IconArt.setImage(tile.icon, if family then ShopIcons.dragonFamily(family) else nil)
 		tile.label.Text = slot.label
 		tile.label.TextColor3 = if slot.locked then CARD.subtext else CARD.text
+		-- #5435: with keepLook on, the name on one line and the card's bonus under it
+		local look = lookOn()
+		tile.bonus.Visible = look and def ~= nil
+		tile.bonus.Text = if def then def.text or "" else ""
+		tile.label.Size = if look then UDim2.new(1, -8, 0, 18) else UDim2.new(1, -8, 1, -50)
 		tile.tile.BackgroundColor3 = if slot.locked then PAL.card else CARD.card
 		local chosen = self._chosen ~= nil or self._handPick ~= nil
 		tile.stroke.Color = if family
@@ -581,6 +679,21 @@ function DragonKeep._paintSlots(self: any)
 		ring.Thickness = if view and view.colour == id then 3 else 0
 	end
 	self._setsLine.Text = DragonKeepLogic.setsLine(view)
+	-- #5435: the sets as pictures with counts, a lit set in gold
+	local look = lookOn()
+	self._slotRow.Size = UDim2.new(1, 0, 0, if look then SLOT_ROW_LOOK_H else SLOT_ROW_H)
+	self._setsCard.Size = UDim2.new(1, 0, 0, if look then SETS_LOOK_H else Scale.tapHeight(36))
+	self._setsLine.Visible = not look
+	self._setChipRow.Visible = look
+	if look then
+		for _, info in DragonKeepLogic.setRows(view) do
+			local chip = self._setChips[info.family]
+			if chip then
+				chip.count.Text = info.count
+				chip.count.TextColor3 = if info.level > 0 then Theme.colors.gold else PAL.subtext
+			end
+		end
+	end
 	local chosenName = nil
 	if self._chosen then
 		local def = SharedKeep.card(self._chosen)
@@ -719,21 +832,51 @@ function DragonKeep._buildBinder(self: any, pages: Frame)
 			Parent = cell,
 		})
 		FitText.shrink(words)
+		-- #5433: the family's picture in the corner, and big and faded behind a card not found yet
+		local picture = ShopIcons.dragonFamily(entry.family)
+		local mark = familyArt({
+			Name = "Mark",
+			Position = UDim2.fromOffset(4, 4),
+			Size = UDim2.fromOffset(MARK, MARK),
+			ZIndex = 2,
+			Parent = cell,
+		})
+		IconArt.setImage(mark, picture)
+		local ghost = familyArt({
+			Name = "Ghost",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(GHOST, GHOST),
+			ZIndex = 0,
+			Parent = cell,
+		})
+		IconArt.setImage(ghost, picture)
+		IconArt.setTransparency(ghost, GHOST_FADE)
 		cell.Activated:Connect(function()
 			self:_binderTapped(entry.id)
 		end)
-		self._binderCells[entry.id] =
-			{ cell = cell, stroke = stroke, name = name, rarity = rarity, words = words }
+		self._binderCells[entry.id] = {
+			cell = cell,
+			stroke = stroke,
+			name = name,
+			rarity = rarity,
+			words = words,
+			mark = mark,
+			ghost = ghost,
+		}
 	end
 end
 
 function DragonKeep._paintBinder(self: any)
 	local view = self._view
+	local look = lookOn()
 	for _, entry in DragonKeepLogic.binder(view) do
 		local cell = self._binderCells[entry.id]
 		if cell == nil then
 			continue
 		end
+		cell.mark.Visible = look and entry.owned
+		cell.ghost.Visible = look and not entry.owned
 		local family = DragonKeepLogic.FAMILY_NAMES[entry.family] or entry.family
 		if entry.owned then
 			cell.name.Text = entry.name
@@ -745,7 +888,7 @@ function DragonKeep._paintBinder(self: any)
 				else entry.text
 			cell.cell.BackgroundColor3 = CARD.card
 		else
-			cell.name.Text = "?"
+			cell.name.Text = if look then "" else "?" -- #5433: the faded picture says what it is
 			cell.rarity.Text = family
 			cell.rarity.TextColor3 = CARD.subtext
 			cell.words.Text = "Not found yet"
@@ -837,6 +980,61 @@ function DragonKeep._buildSets(self: any, pages: Frame)
 			Parent = row,
 		})
 		FitText.shrink(count)
+		-- #5434: with keepLook on, the family picture, the name beside it, pips for the cards in and tagged lines
+		local art = familyArt({
+			Name = "Art",
+			Position = UDim2.fromOffset(10, 8),
+			Size = UDim2.fromOffset(SET_ICON, SET_ICON),
+			Parent = row,
+		})
+		IconArt.setImage(art, ShopIcons.dragonFamily(family))
+		local pips: Frame = Create("Frame", {
+			Name = "Pips",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(10, 48),
+			Size = UDim2.fromOffset(5 * (PIP + 4), PIP),
+			Visible = false,
+			Parent = row,
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				Padding = UDim.new(0, 4),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+		local dots: { Frame } = {}
+		for index = 1, (SharedKeep.SET_FULL or SharedKeep.SET_SIZE) do
+			dots[index] = Create("Frame", {
+				Name = "Pip" .. index,
+				BackgroundColor3 = PAL.subtext,
+				BorderSizePixel = 0,
+				Size = UDim2.fromOffset(PIP, PIP),
+				LayoutOrder = index,
+				Parent = pips,
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		end
+		local function tag(name: string, words: string, y: number): Frame
+			local made: Frame = Create("Frame", {
+				Name = name,
+				BackgroundColor3 = colour,
+				BackgroundTransparency = 0.55,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(128, y + 6),
+				Size = UDim2.fromOffset(TAG_W, 20),
+				Visible = false,
+				Parent = row,
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+			text({
+				Name = "Words",
+				Size = UDim2.fromScale(1, 1),
+				FontFace = Theme.fonts.bodyBold,
+				TextSize = Theme.sizes.textTiny + 1,
+				TextColor3 = Theme.colors.white,
+				Text = words,
+				Parent = made,
+			})
+			return made
+		end
 		local function line(name: string, y: number): TextLabel
 			local label = text({
 				Name = name,
@@ -858,6 +1056,11 @@ function DragonKeep._buildSets(self: any, pages: Frame)
 			count = count,
 			three = line("Three", 4),
 			five = line("Five", 37),
+			art = art,
+			pips = pips,
+			dots = dots,
+			threeTag = tag("ThreeTag", SharedKeep.SET_SIZE .. " cards", 4),
+			fiveTag = tag("FiveTag", (SharedKeep.SET_FULL or SharedKeep.SET_SIZE) .. " cards", 37),
 		}
 	end
 end
@@ -869,16 +1072,40 @@ function DragonKeep._paintSets(self: any)
 		if made == nil then
 			continue
 		end
-		made.title.Text = info.title
+		-- #5434: keepLook on: picture, plain name, pips and tagged lines with the "N cards: " taken off
+		local look = lookOn()
+		local name = DragonKeepLogic.FAMILY_NAMES[info.family] or info.family
+		made.title.Text = if look then name else info.title
+		made.title.Position = UDim2.fromOffset(if look then 10 + SET_ICON + 6 else 10, 6)
+		made.title.Size = UDim2.new(0, if look then 110 - SET_ICON - 6 else 110, 0, 26)
+		made.title.TextColor3 = if look and info.level > 0 then lit else PAL.text
+		made.art.Visible = look
+		made.pips.Visible = look
+		made.count.Visible = not look
+		local inSlots = tonumber(string.match(info.count, "^(%d+)")) or 0
+		for index, dot in made.dots do
+			dot.BackgroundColor3 = if index <= inSlots then lit else PAL.cardStroke
+		end
+		local lineX = if look then 128 + TAG_W + 6 else 128
+		made.three.Position = UDim2.fromOffset(lineX, 4)
+		made.three.Size = UDim2.new(1, -(lineX + 10), 0, 32)
+		made.five.Position = UDim2.fromOffset(lineX, 37)
+		made.five.Size = UDim2.new(1, -(lineX + 10), 0, 32)
+		local function words(full: string): string
+			return if look then (string.gsub(full, "^%d+ cards: ", "")) else full
+		end
 		made.count.Text = info.count .. " in your slots"
 		made.count.TextColor3 = if info.level > 0 then lit else PAL.subtext
-		made.three.Text = (if info.level >= SharedKeep.SET_SIZE then "✓ " else "") .. info.three
+		made.three.Text = (if info.level >= SharedKeep.SET_SIZE then "✓ " else "")
+			.. words(info.three)
 		made.three.TextColor3 = if info.level >= SharedKeep.SET_SIZE then lit else PAL.text
+		made.threeTag.Visible = look
 		local five = info.five
 		made.five.Visible = five ~= nil
+		made.fiveTag.Visible = look and five ~= nil
 		if five ~= nil then
 			local full = info.level > SharedKeep.SET_SIZE
-			made.five.Text = (if full then "✓ " else "") .. five
+			made.five.Text = (if full then "✓ " else "") .. words(five)
 			made.five.TextColor3 = if full then lit else PAL.text
 		end
 		if made.stroke then

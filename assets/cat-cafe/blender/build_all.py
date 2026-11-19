@@ -753,6 +753,10 @@ for _st in doorsets.SETS:                       # F80 door sets: CafeService.ref
                         "open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain "
                         "when none is picked). "
                         "Nothing collides.")
+PIVOT_NOTES[doorsets.FRONT_DOOR] = "the foot of the front doorway at its inside face, plot (0, 0, -17); the street is -Z"
+STUDIO_NOTES[doorsets.FRONT_DOOR] = ("#5385: the cafe's own front doors, as DoorFront where no F80 door set is in use "
+                                     "(CafeService.refreshDoors). The leaves (_OpenL, _OpenR) stand open into the "
+                                     "cafe and never move; the threshold fills the wall's depth. Nothing collides.")
 for _fl in doorsets.FLAPS:                      # F80 cat flaps: on a back leaf's CatFlap attachment
     _n = f"CatCafe_CatFlap_{_fl}"
     PIVOT_NOTES[_n] = "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z"

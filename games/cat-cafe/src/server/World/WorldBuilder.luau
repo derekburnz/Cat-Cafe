@@ -563,7 +563,7 @@ function WorldBuilder.setBigTables(plot: Plot)
 	end
 	for n, point in Layout.plot.tablesBig do
 		local i = base + n
-		if plot.tableAnchors[i] == nil then
+		if #plot.tableAnchors < i then
 			plot.tableAnchors[i] =
 				anchor("table_" .. i, plot.cframe * CFrame.new(point.x, point.y, point.z), holder)
 		end

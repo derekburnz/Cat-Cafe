@@ -52,6 +52,7 @@ local PAL = MenuFamily.pal
 local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 export type Callbacks = {
 	buyDecor: (decorId: string) -> (),
@@ -108,6 +109,19 @@ local CHIP_ICONS: { [string]: string } = {
 	Plants = "🌿", -- #2015: no Unicode 12+ emoji (they draw blank in Roblox's font)
 	Floor = "⬜",
 	Walls = "🧱",
+}
+-- #5366 (Derek 2026-11-18: "redo the decor images to be more obvious/less plain looking"): with the decorChipIcons
+-- switch on, each chip draws Model-Agent's picture (decor_tabs.py, group owned) in front of its word at CHIP_PICTURE
+-- times the text size, the emoji showing until it loads. Read when the chips are built.
+local CHIP_FLAG = "decorChipIcons"
+local CHIP_PICTURE = 1.7
+local CHIP_IMAGES: { [string]: string } = {
+	All = "rbxassetid://101387394392524",
+	Style = "rbxassetid://100879474778439",
+	FrontLawn = "rbxassetid://85620990317201",
+	Plants = "rbxassetid://103065405928649",
+	Floor = "rbxassetid://132312977200233",
+	Walls = "rbxassetid://99441851311557",
 }
 -- Placeholder art colour per category until the asset thread delivers images.
 local CATEGORY_COLORS: { [string]: Color3 } = {
@@ -511,12 +525,19 @@ function DecorShop._build(self: any)
 			table.insert(categories, chip)
 		end
 	end
+	local pictures = LiveFlags.shown(
+		CHIP_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CHIP_FLAG)
+	)
 	for index, category in categories do
 		local lawn = category == LAWN_CHIP
+		local key = if lawn then "FrontLawn" else category
 		local button = Button.new({
-			name = if lawn then "FrontLawn" else category,
+			name = key,
 			text = if lawn then LAWN_TEXT else category,
-			icon = CHIP_ICONS[if lawn then "FrontLawn" else category],
+			icon = CHIP_ICONS[key],
+			image = if pictures then CHIP_IMAGES[key] else nil,
+			pictureScale = if pictures then CHIP_PICTURE else nil,
 			style = "ghost",
 			-- a share of the row (widths from _layoutChips), so Button measures its corners from the height
 			size = UDim2.new(1, 0, 0, self._chipHeight),

@@ -1041,9 +1041,13 @@ local function updatePiles()
 			end
 			local list: { Pile } = shown or {}
 			tipPiles[plot] = list
+			-- #5422 (Derek 2026-11-19: "sometimes coins get left on table"): the server takes its oldest pile off, so
+			-- with tipPileOldest on the oldest shown goes too. Dropping the newest left the first pile on its table for
+			-- as long as new ones kept coming (every pile in a cafe you visit, and every pile no cat could sweep).
+			local oldest = ReplicatedStorage:GetAttribute("LiveFlag_tipPileOldest") == true
 			while #list > count do
 				-- a pile a Waiter already swept to the till goes first (F90)
-				local drop = #list
+				local drop = if oldest then 1 else #list
 				for i, pile in list do
 					if pile.model.Parent == nil then
 						drop = i

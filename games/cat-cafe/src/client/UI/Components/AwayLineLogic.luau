@@ -1,7 +1,7 @@
 --!strict
 -- #5505 part 2 (Design-Agent's come-back-tomorrow-spec.md section 1, moved onto the Rewards list on Nov 19 so the phone
 -- HUD keeps its layout): from minute 4 of an account's play, a row on the Rewards list says what the cafe earns by
--- tomorrow while away, "Away: about $X by tomorrow", and in gold "Away: $X by tomorrow. Pays for Tier N!" when that
+-- tomorrow while away, "Away: about $X by tomorrow", and in gold "Away: $X by tomorrow. Covers Tier N's coins!" when that
 -- plus the coins held covers the next rank up's coins. X is a full away stretch at the cafe's rate (Economy.offlineGain
 -- over a day: OfflineRate up to OfflineCapSeconds, the pass's values with Long Nap). Behind the switch `awayPromise`.
 -- Pure, so the cloud specs check it.
@@ -56,7 +56,10 @@ function AwayLineLogic.line(view: View): (string?, boolean)
 		and cost > view.coins
 		and view.coins + amount >= cost
 	then
-		return ("Away: %s by tomorrow. Pays for Tier %d!"):format(money, view.nextTier :: number),
+		return ("Away: %s by tomorrow. Covers Tier %d's coins!"):format(
+			money,
+			view.nextTier :: number
+		),
 			true
 	end
 	return ("Away: about %s by tomorrow"):format(money), false

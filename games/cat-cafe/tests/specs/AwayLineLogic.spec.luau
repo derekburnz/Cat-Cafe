@@ -52,7 +52,7 @@ return function()
 				local line, gold =
 					AwayLineLogic.line(view({ coins = 100, nextTier = 3, nextCost = 100 + amount }))
 				expect(gold).to.equal(true)
-				expect(string.find(line :: string, "Pays for Tier 3!", 1, true) ~= nil).to.equal(
+				expect(string.find(line :: string, "Covers Tier 3's coins!", 1, true) ~= nil).to.equal(
 					true
 				)
 				local _, short =

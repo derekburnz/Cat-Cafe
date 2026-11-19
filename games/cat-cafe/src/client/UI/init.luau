@@ -3470,8 +3470,16 @@ function UI.bait.whenCalm(wanted: () -> boolean, show: () -> ())
 	end)
 end
 
-function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
+function UI.bait.arrived(cat: Types.BaitCat, bowl: number?, recorded: boolean?)
 	local index = if bowl == 2 then 2 else 1
+	-- Sync's clip takes (Nov 19): in Studio with RecordMode on, the "A CAT CAME TO YOUR BOWL!" card waits too, so
+	-- the cat's walk to the bowl reads before any card
+	if UI.recordMode() and not recorded then
+		task.delay(UI.RECORD_BOWL_DELAY, function()
+			UI.bait.arrived(cat, bowl, true)
+		end)
+		return
+	end
 	-- #5374 (Derek 2026-11-19: "all bowl options on yet I am still getting pop-ups"): with bowlTicks on and the Bowl
 	-- window's pop-ups tick set (settings.bowlNewCatCard false), a bowl cat after the first is a toast, not the card.
 	-- The bowl chip still shows it, and auto claim (when owned) tames it within a second.

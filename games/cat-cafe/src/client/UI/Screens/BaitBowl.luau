@@ -160,6 +160,10 @@ local ICON = 52 -- the food's picture with its grade gem
 local TEXT_LEFT = ICON + 24
 local TAB_H = 42 -- the bowl tabs (#1161), as tall as Details
 local LOCK_FLAG = "LiveFlag_bowlLockBig" -- #5455: the Bowl Options' big lock pictures
+-- #5472 (Derek 2026-11-19: "food bowl options missing from mobile"): with `bowlOptionsList` on, a column too short
+-- for the whole Bowl Options card (a phone, more so with a cat waiting or two bowls) puts the card at the top of the
+-- foods list instead, where it scrolls with the foods, rather than hiding it or squeezing it to one row
+local LIST_FLAG = "LiveFlag_bowlOptionsList"
 local PERK_LINE = 24 -- #1767: one of the locked bowl 2 card's three lines
 -- #3961 (batch 1 mock, station-menus-batch1-3558.png): with the family look the status card is a column down the
 -- left (the bowl's picture, what is in it, the wait chip, the buttons at its foot) and the foods are picture cards
@@ -855,18 +859,30 @@ function BaitBowl._renderAuto(self: any)
 	-- naming the pass
 	local offerH = AUTO_OFFER_H
 	local y, height = layout(offerH)
-	local short = selling and height > room
+	-- #5472: too short a column puts the whole card at the top of the foods list
+	local inList = shown and height > room and ReplicatedStorage:GetAttribute(LIST_FLAG) == true
+	local short = selling and height > room and not inList
 	if short then
 		offerH = AUTO_PAD + AUTO_ROW
 		y, height = layout(offerH)
 	end
-	if shown then
+	if shown and not inList then
 		-- a short phone's column shows what fits and scrolls the rest; at least a row's worth
 		shown = room >= math.min(height, pad + AUTO_PAD)
 	end
 	card.Visible = shown
 	if not shown then
 		return
+	end
+	if inList then
+		card.Parent = self._list
+		card.LayoutOrder = -1 -- over the locked bowl 2's card and the foods
+		card.AnchorPoint = Vector2.zero
+		card.Position = UDim2.new()
+		room = height
+	elseif card.Parent ~= self._status then
+		card.Parent = self._status
+		card.AnchorPoint = Vector2.new(0.5, 1)
 	end
 	self._autoOffer.Size = UDim2.new(1, 0, 0, offerH)
 	for _, name in { "Icon", "Name", "Line" } do
@@ -876,10 +892,12 @@ function BaitBowl._renderAuto(self: any)
 		end
 	end
 	local cardH = math.min(height, room)
-	card.Size = UDim2.new(1, -20, 0, cardH)
+	card.Size = if inList then UDim2.new(1, 0, 0, cardH) else UDim2.new(1, -20, 0, cardH)
 	self._autoBody.CanvasSize = UDim2.fromOffset(0, height)
 	self._autoBody.ScrollBarThickness = if cardH < height then 4 else 0
-	card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach)) -- clear of Refill's pad too
+	if not inList then
+		card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach)) -- clear of Refill's pad too
+	end
 	self._autoStroke.Color = if ticks
 		then Theme.colors.mintDark
 		elseif owned then Theme.colors.mintDark

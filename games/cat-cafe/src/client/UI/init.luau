@@ -12101,6 +12101,15 @@ function UI.tomorrowCard.try(): boolean
 	if not on then
 		return false
 	end
+	-- #5449: with the Daily Treat Board on the wall the card would say the same thing twice
+	if
+		LiveFlags.shown(
+			"tomorrowBoard",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "tomorrowBoard")
+		)
+	then
+		return false
+	end
 	-- Derek 2026-11-17 15:24 UTC: the tomorrowCard 50/50 (shared/ReturnAB): the off group never sees the card
 	if
 		not (require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ReturnAB")) :: any).allows(
@@ -12173,6 +12182,55 @@ function UI.tomorrowCard.show()
 	if askCard ~= nil then
 		UI.tomorrowCard.open(askCard)
 	end
+end
+
+-- #5449 (shared/TomorrowBoard, client/Controllers/TomorrowBoardController): the Daily Treat Board's card, opened by a
+-- tap on the board or the gift in the cafe. `title` and `line` say the next stamp's prize; `remind` adds the gold
+-- Remind me button (Roblox will prompt the notification opt-in). `answered(outcome)` gets "remind", "ok" or "closed".
+-- False when the slide-in card is not built yet.
+UI.tomorrowBoard = {}
+
+function UI.tomorrowBoard.open(
+	title: string,
+	line: string,
+	remind: boolean,
+	answered: (outcome: string) -> ()
+): boolean
+	local card = askCard
+	if card == nil then
+		return false
+	end
+	local done = false
+	local function finish(outcome: string)
+		if not done then
+			done = true
+			answered(outcome)
+		end
+	end
+	local choices: { AskCard.Choice } = if remind
+		then {
+			{ id = "remind", label = "Remind me", style = "gold" },
+			{ id = "ok", label = "OK!", style = "ghost" },
+		}
+		else { { id = "ok", label = "OK!", style = "primary" } }
+	card:show({
+		title = title,
+		lines = 2,
+		picture = "rbxassetid://101061912700342", -- ShopIcons Icon_Clean_Fish, the golden fish
+		line = line,
+		choices = choices,
+		answer = function(choice: string?)
+			if choice == "remind" or choice == "ok" then
+				finish(choice)
+			end
+		end,
+		ended = function(how: string)
+			if how ~= "answered" then
+				finish("closed")
+			end
+		end,
+	})
+	return true
 end
 
 -- Looks once a second until the line showed; a rebuilt UI (token) starts its own watcher and ends the old one.

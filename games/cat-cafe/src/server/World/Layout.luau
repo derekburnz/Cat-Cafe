@@ -484,6 +484,12 @@ Layout.plot = {
 	-- the queue's 3 studs either side of it, facing into the room so the owner sees him from the door. AnswerCollector
 	-- counts CollectorRangeStuds from here.
 	collectorSpot = { x = 4.5, y = 0, z = halfD - 6 } :: Point,
+	-- #5449 (tomorrowBoard): the Daily Treat Board's pivot, its back flat on the right wall facing into the room, and the
+	-- wrapped Tomorrow Gift on the floor under it (Model-Agent 2026-11-19: z 5.05 to 11.25 is clear of windows, prints,
+	-- perches, portals, cat trees and decor spots at y 3.6 to 6.4; only low beds under it; the gift sits between nap3
+	-- and bed6). The owner's client places both (client/Controllers/TomorrowBoardController).
+	treatBoard = { x = 21.8, y = 5, z = 8.15, rotY = 90 } :: Point,
+	tomorrowGift = { x = 20.6, y = 0, z = 8.15, rotY = 90 } :: Point,
 
 	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37), highest rating
 	-- first. Each is a cat bed in an owned cafe (Derek's 10-28 to 10-30 notes: cats slept on the floor), placed by

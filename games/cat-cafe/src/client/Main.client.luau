@@ -47,6 +47,7 @@ local StarterCatController = require(script.Parent.Controllers.StarterCatControl
 local StationCutController = require(script.Parent.Controllers.StationCutController)
 local StationLockController = require(script.Parent.Controllers.StationLockController)
 local StyleController = require(script.Parent.Controllers.StyleController)
+local TomorrowBoardController = require(script.Parent.Controllers.TomorrowBoardController)
 local TradeController = require(script.Parent.Controllers.TradeController)
 local UIController = require(script.Parent.Controllers.UIController)
 local WalkUpController = require(script.Parent.Controllers.WalkUpController)
@@ -137,6 +138,7 @@ BinController.start() -- #3050: the Rummage Bin's prompt and look, after the UI
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
+TomorrowBoardController.start() -- #5449: the Daily Treat Board on your cafe wall, after the UI
 CodesController.start()
 PetController.start() -- #3651: the Pet prompt on your own working cats, after the UI whose pill it uses
 FollowerController.start() -- #5172: the cat that follows each player (switch catFollower)

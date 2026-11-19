@@ -79,6 +79,7 @@ local M = {
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
 	MutationBoost = require(ReplicatedStorage.Shared.MutationBoost), -- #5493
+	CatchLost = require(ReplicatedStorage.Shared.CatchLost), -- #5500
 	StrayMeets = require(ReplicatedStorage.Shared.StrayMeets), -- onboarding_v9 near_stray
 	OpenSpot = require(script.Parent.Parent.World.OpenSpot), -- #5038: where a waiting Park stray may sit
 	Potions = require(ReplicatedStorage.Shared.Potions),
@@ -597,9 +598,36 @@ local function writeAreaRares()
 	end
 end
 
+-- #5500 (catchLostLog): a started net catch that ended with no cat, and why (shared/CatchLost)
+local function lostCatch(player: Player?, stray: Stray, reason: string)
+	if player == nil or not M.LiveFlagService.on(M.CatchLost.FLAG) then
+		return
+	end
+	local attempt = stray.attempt
+	local rings = if attempt ~= nil then #attempt.grades else 0
+	Telemetry.custom(
+		player,
+		"catch_lost", -- CatchLost.EVENT
+		rings,
+		{ reason, Telemetry.device(player) or "unknown", stray.area }
+	)
+end
+
 local function despawn(stray: Stray, catcher: Player?)
 	if not stray.alive then
 		return
+	end
+	if
+		stray.attempt ~= nil
+		and stray.lockedBy ~= 0
+		and (catcher == nil or catcher.UserId ~= stray.lockedBy)
+	then
+		-- #5500: the cat went while someone was catching it
+		lostCatch(
+			Players:GetPlayerByUserId(stray.lockedBy),
+			stray,
+			if catcher == nil then "gone" else "other_player"
+		)
 	end
 	stray.alive = false
 	local drop = stray.drop
@@ -2658,7 +2686,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	local profile = M.DataService.get(player)
 	if profile == nil or player.Parent ~= Players then
 		setLock(stray, 0)
-		return
+		return -- the leaving player's lost catch is logged by PlayerRemoving
 	end
 	Circles.expire(attempt, serverNow())
 	recordCircles(player, profile, attempt)
@@ -2682,6 +2710,9 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			return -- night came, or another server's catch puffed it meanwhile
 		end
 		if not kept then
+			stray.attempt = attempt -- #5500: so the log counts the rings
+			lostCatch(player, stray, "pity_lost")
+			stray.attempt = nil
 			setLock(stray, 0)
 			despawn(stray) -- puffs out of the net; PityService has told everyone who caught it
 			return
@@ -2712,6 +2743,21 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		perfect,
 		{ rarity, tostring(M.Economy.level(profile, "net")), result }
 	)
+	if not succeeded then
+		stray.attempt = attempt -- #5500: so the log counts the rings
+		lostCatch(
+			player,
+			stray,
+			M.CatchLost.missReason(
+				if forfeit == nil
+					then nil
+					elseif carrying[player] ~= nil then "carrying"
+					else "too_far",
+				Circles.firstMiss(attempt)
+			)
+		)
+		stray.attempt = nil
+	end
 
 	if succeeded then
 		-- no Perfect bonus for a scripted-looking profile, nor on a Dropped cat, which already has its charm
@@ -3072,6 +3118,9 @@ function startCatch(
 	-- Whatever happens, the lock never outlives its schedule.
 	task.delay(math.max(0, stray.lockUntil - now) + 0.05, function()
 		if stray.alive and stray.lockedBy == player.UserId and lockExpired(stray) then
+			if stray.attempt == attempt then
+				lostCatch(player, stray, "timeout") -- #5500
+			end
 			setLock(stray, 0)
 		end
 	end)
@@ -4214,6 +4263,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		startledUntil[player] = nil
 		for _, stray in strays do
 			if stray.lockedBy == player.UserId then
+				if stray.attempt ~= nil then
+					lostCatch(player, stray, "left") -- #5500
+				end
 				setLock(stray, 0)
 			end
 		end
@@ -4735,6 +4787,9 @@ function CatService.removePity(slot: number): number
 		local holder = if stray.lockedBy ~= 0
 			then Players:GetPlayerByUserId(stray.lockedBy)
 			else nil
+		if stray.attempt ~= nil then
+			lostCatch(holder, stray, "pity_lost") -- #5500
+		end
 		setLock(stray, 0)
 		despawn(stray)
 		if holder ~= nil then

@@ -107,6 +107,7 @@ LiveFlags.KEYS = {
 	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
 	"areasKept", -- #5381: with areaWhole on, every unlocked area loads once and stays on the device (shared/AreaWhole); off by default
 	"firstFlightQuick", -- #4920: the walk-through's flights out take 2/3 of every beat (shared/Cannon.flightScale)
+	"areasKeptRecent", -- Derek 2026-11-19: with areasKept and areasKeptBig, a phone or tablet keeps its 2 most recent areas, not one (shared/AreaWhole.keptLimit); off by default
 	"moneyCard", -- #4437: the HUD Money button's first tap opens the boost card (UI/Screens/MoneyCard); false prompts at once
 	"areasKeptBig", -- Sync 2026-11-19: with areasKept, only a PC or console keeps every area; a phone or tablet keeps one (shared/AreaWhole.keptFor); off by default
 	"firstFlightDirect", -- #4920: the walk-through's first flight goes straight to the Alleyway (UI/Components/WalkRingLogic)
@@ -232,6 +233,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	starterSuggest = true,
 	areasKeptBig = true, -- Sync 2026-11-19
 	updateFeature = true,
+	areasKeptRecent = true, -- Derek 2026-11-19
 	adminEvents = true,
 	secretAreas = true,
 	mailbox = true,

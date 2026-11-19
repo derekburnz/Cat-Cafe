@@ -306,9 +306,11 @@ function WalkUp.step(
 	stations: { Station },
 	blocked: boolean,
 	current: string?,
-	at: number?
+	at: number?,
+	retry: boolean?
 ): (string?, boolean)
 	local entered: Station? = nil
+	local enteredSince: number? = nil
 	local seen: { [string]: boolean } = {}
 	for _, station in stations do
 		seen[station.key] = true
@@ -322,7 +324,10 @@ function WalkUp.step(
 		end
 		local since = state.since[station.key]
 		if now and since ~= nil and (at == nil or at - since >= WalkUp.DWELL_SECONDS) then
-			state.since[station.key] = nil -- asked once per step in
+			-- asked once per step in; #5386 retry: a station that is off for now keeps its ask for later
+			if retry ~= true or station.off ~= true then
+				state.since[station.key] = nil
+			end
 			if
 				station.off ~= true
 				and (
@@ -331,6 +336,7 @@ function WalkUp.step(
 				)
 			then
 				entered = station
+				enteredSince = since
 			end
 		end
 	end
@@ -350,6 +356,12 @@ function WalkUp.step(
 		local station = entered :: Station
 		state.opened, state.openedWindow = station.key, station.window
 		return station.key, close
+	end
+	-- #5386 (Derek 2026-11-19: "after claiming cats in areas the next couple seconds even if you walk up to cannon it
+	-- doesnt give you a menu"): with `retry`, a step in that lands while busy or under another window keeps its ask,
+	-- so the window opens once the player is free, still standing in the ring
+	if retry == true and entered ~= nil and enteredSince ~= nil then
+		state.since[(entered :: Station).key] = enteredSince :: number
 	end
 	return nil, close
 end

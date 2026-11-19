@@ -149,6 +149,7 @@ LiveFlags.KEYS = {
 	"bowlTicks", -- #5263: the bowl's tick boxes, auto ones with the Second Bait Bowl pass (Screens/BaitBowl, BaitService); off by default
 	"foodByRarity", -- #5264: food lists sort by rarity before the catalog's sortOrder (Components/FoodOrder); off by default
 	"kingCatInfo", -- #5260: the Cat King Pack's gold chip and i sheet say how King Croissant earns (Components/StoreLogic); off by default
+	"walkUpRetry", -- #5386: a ring stepped into while busy opens once the player is free (Controllers/WalkUpController); off by default
 	"rankUpSteps", -- #5218: the Rank Up window's needs as numbered steps with a Go button (Screens/RankUp); off by default
 	"goalNeedLine", -- #5331: the folded goal chip and a takeover goal show the biggest Rank Up need (Components/GoalNeed); off by default
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
@@ -247,6 +248,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	-- #4543: on after Model's wall fit, Review-QA and Sync's Studio look at all five rooms. Turning it off again
 	-- shrinks every grown room at its next cafe refresh, and the cats, decor, tables and bait are built again in it.
 	cafeGrows = true,
+	walkUpRetry = true, -- #5386
 	fxAfterLoad = true, -- #5068: on after Review-QA and a phone read of client_load with it on
 	tomorrowCard = true, -- #3951: on after the Nov 16 and 17 day 1 read of the minute 6 line, a UTC day apart from the funnel switches
 	cannonCue = true, -- #5097: on with Derek's Nov 17 15:00 UTC "all tutorial switches on now"

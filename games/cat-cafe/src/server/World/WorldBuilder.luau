@@ -3038,6 +3038,9 @@ local function buildTownSquare(parent: Instance)
 				* CFrame.Angles(0, math.rad(prop.rotY or 0), 0)
 			local model = place(prop.asset, at, square)
 			model.Name = prop.asset
+			if prop.asset == SQUARE_PAVING then
+				CollectionService:AddTag(model, "TownGround") -- #5357: shared/TownGround.TAG, kept whole when on
+			end
 			placeRallyTwin(prop.asset, at, model, square)
 		end
 	end
@@ -3083,7 +3086,11 @@ local PAW_TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.
 -- when that stands up to PAW_LIFT above the floor Layout gave it, never on a canopy or a roof higher up.
 local PAW_LIFT = 1.5
 local function buildPawPaths(parent: Instance, sets: { Instance })
-	local paths = folder("PawPaths", parent)
+	-- #5357: a Model, not a Folder, tagged TownGround (shared/TownGround.TAG) so the townGround switch can keep it whole
+	local paths = Instance.new("Model")
+	paths.Name = "PawPaths"
+	paths.Parent = parent
+	CollectionService:AddTag(paths, "TownGround")
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = sets

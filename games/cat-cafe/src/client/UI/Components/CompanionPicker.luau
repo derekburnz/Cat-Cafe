@@ -112,8 +112,11 @@ function CompanionPicker.new(props: Props)
 	})
 	self._close = Button.new({
 		name = "Close",
-		text = "✕",
-		style = "ghost",
+		-- #5359 (Derek 2026-11-18: "in companion menu X is just a white box"): the menus' own close button (Panel),
+		-- not a ghost one with a ✕ the font draws as a blank box
+		text = "X",
+		style = "close",
+		textSize = Theme.sizes.textLarge + 2,
 		size = UDim2.fromOffset(BUTTON_H, BUTTON_H),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, -8, 0, 8),

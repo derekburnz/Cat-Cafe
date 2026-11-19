@@ -151,6 +151,7 @@ LiveFlags.KEYS = {
 	"goalNeedLine", -- #5331: the folded goal chip and a takeover goal show the biggest Rank Up need (Components/GoalNeed); off by default
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
+	"companionNudge", -- #5364: a red "!" on the Cats menu Companion button while none follows (Screens/CatRoom); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"nightLine", -- #5330: at night up to Tier 4 the strip says when the areas open, with an arrow to Upgrades (Components/NightLine); off by default
@@ -159,6 +160,7 @@ LiveFlags.KEYS = {
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"companionMenu", -- #5296: Cats window role symbols, the Companion button and picker, both boosts (shared/Follower); off by default
 	"companionTraits", -- #5303: Mystic Pool traits that raise the Cat Companion boosts (shared/Traits, CompanionTraits); off by default
+	"strayMeets", -- onboarding_v9: the Alleyway's waiting stray stands by the landing for a first catch by hand (shared/StrayMeets); off by default
 	"afkStay", -- #5322: AFK mode is saved until turned off and hops through a restart (shared/AfkCafe.STAY_FLAG); off by default
 	"afkQuick", -- #5310: AFK mode rests at once (2x within a second) and the cafe banner says Turn on AFK; off by default
 	"cardFollow", -- #5296: Follow and the boost square on the cat card (Screens/CatRoom); off by default, Derek wants the old row
@@ -171,6 +173,7 @@ LiveFlags.KEYS = {
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
 	"areaWhole", -- Derek 2026-11-18: the area a player is in (or flying to) loads whole on their device (shared/AreaWhole); off by default
 	"areasKept", -- #5381: with areaWhole on, every unlocked area loads once and stays on the device (shared/AreaWhole); off by default
+	"cannonAnywhere", -- #5382: a cannon launch is never refused for distance (shared/Cannon); off by default
 	"nextGoalBeat", -- #5202: a "What next?" card once after the first Park catch (shared/NextGoal); off by default
 	"milestoneFunnel", -- #5291: the milestones_v1 progression funnel for new accounts (shared/MilestoneFunnel); off by default
 	"tameCannonPoint", -- #5245: after the first bowl cat's card the Cannon button is dimmed and pointed at until pressed, and the picker's ringed Launch too (UI applyTutorial, Screens/Cannon); off by default
@@ -186,6 +189,7 @@ LiveFlags.KEYS = {
 	"bangRelayout", -- #5261: a "!" bubble showing with words but laid out blank lays its text out again (UI/Components/MarketBang); on by default
 	"phoneSmooth", -- #5285 A1: a new account on a touch screen starts in Smooth mode, no ask (shared/PerfSuggest.autoStart); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
+	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -257,6 +261,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	goalNeedLine = true, -- #5331: first-session flow (stall fix), on at its own minute after Sync's phone look
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
+	companionNudge = true, -- #5364: on as soon as it publishes (Derek 2026-11-18)
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	nightLine = true, -- #5330: on after Review-QA and Sync's phone look, 2 h from other switches
@@ -266,6 +271,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	companionMenu = true, -- #5296: on after Review-QA, Sync's pictures and Derek's look
 	companionTraits = true, -- #5303: a paid random item change, on after a restart publish and Review-QA's odds check
 	afkStay = true, -- #5322: on after Review-QA and a real restart with an AFK player watched
+	strayMeets = true, -- onboarding_v9 near_stray: on as soon as Review-QA passes (Derek's rule)
 	afkQuick = true, -- #5310: on once Review-QA passes
 	cardFollow = true, -- #5296: stays off; the Companion button replaces it
 	bigTreats = true, -- Derek 2026-11-18: on once Review-QA passes, 2 h from any other switch
@@ -277,6 +283,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device
 	areaWhole = true, -- Derek 2026-11-18: on after Review-QA and Sync's tablet and phone memory read in a long area
 	areasKept = true, -- #5381
+	cannonAnywhere = true, -- #5382
 	nightBright = true, -- #5240: on after Review-QA and a phone look at night
 	ringSolid = true, -- #5256: on after Review-QA and a Studio look at a double and a paw ring
 	quickFirstRings = true, -- #5232: first-session change; on at a clear minute after Review-QA
@@ -286,6 +293,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	christmasEvent = true, -- snowglobe-village-spec: on Nov 29 after Sync's look; the event dates still hold the portal shut until Dec 1
 	nextGoalBeat = true, -- #5202: on after Review-QA and Sync's pass, at a minute with no other switch within 2 hours
 	milestoneFunnel = true, -- #5291: analytics only; on after Review-QA, then Growth reads it from new accounts
+	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

@@ -270,6 +270,7 @@ return function()
 							or key == "christmasEvent" -- snowglobe-village-spec
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
+							or key == "catsArrowOff" -- #5485
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465
 							or key == "lockedRingsHidden" -- #5463

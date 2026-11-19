@@ -188,7 +188,12 @@ local function describe(uid: string): (string, string?, string?)
 	return name, perk, cat.catId
 end
 
+local CATS_ARROW_OFF = "catsArrowOff" -- #5485 (Derek 2026-11-19): no arrow at the Cats menu, ever
+
 local function arrow()
+	if ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CATS_ARROW_OFF) == true then
+		return
+	end
 	local u = ui()
 	local find: any = u.catsButton
 	local target: GuiObject? = if type(find) == "function"

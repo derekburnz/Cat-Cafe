@@ -60,7 +60,7 @@ return function()
 		it("keeps a valid field in the save and drops anything else", function()
 			local profile: any = ProfileSchema.template(1700000000)
 			profile.daysPlayed = { count = 3, last = 100, paid = 2 }
-			local kept = ProfileSchema.migrate(profile, 1700000000).daysPlayed
+			local kept = ProfileSchema.migrate(profile, 1700000000).daysPlayed :: any
 			expect(kept.count).to.equal(3)
 			expect(kept.paid).to.equal(2)
 			expect(DaysPlayed.sanitize({ count = "x", last = 1 })).to.equal(nil)

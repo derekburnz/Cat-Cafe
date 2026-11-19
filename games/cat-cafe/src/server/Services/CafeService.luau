@@ -51,6 +51,7 @@ local LiveFlagService = require(script.Parent.LiveFlagService)
 local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
+local Mover = require(ReplicatedStorage.Shared.Mover)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
@@ -65,6 +66,7 @@ local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway)
+local RecordMode = require(ReplicatedStorage.Shared.RecordMode)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
@@ -1265,6 +1267,23 @@ local FOOD_SCALE = 1.2 -- the food item sits in the bowl
 -- #2255: the food's base rests on the bowl's inner floor (CatCafe_Item_FoodBowl's tan disc, top 0.18 at scale 1), a
 -- hair above it; at 0.1 the bottom of every food sat inside the floor and Tuna, Sardines, Caviar and Star Treat sank.
 local FOOD_LIFT = 0.18 * BOWL_SCALE + 0.01
+-- Sync's clip recordings (shared/RecordMode, Studio only): a bowl cat starts RECORD_WALK_SIDE studs to the side of
+-- its spot and walks in at RECORD_WALK_SPEED, so a clip shows it arrive instead of popping in
+local RECORD_WALK_SIDE = 8
+local RECORD_WALK_SPEED = 4
+
+local function recordWalkIn(model: Model, spot: CFrame)
+	local from = spot.Position + spot.RightVector * RECORD_WALK_SIDE
+	model:PivotTo(CFrame.lookAt(from, Vector3.new(spot.Position.X, from.Y, spot.Position.Z)))
+	task.spawn(function()
+		local arrived = Mover.walkTo(model, spot.Position, RECORD_WALK_SPEED, function()
+			return model.Parent ~= nil
+		end)
+		if arrived and model.Parent ~= nil then
+			model:PivotTo(spot)
+		end
+	end)
+end
 -- #2476 (Derek2: "make the bait bowl to open if you walk outside the backdoor near it"): the first bowl's walk-up ring
 -- (World/WalkUpCircles, Controllers/WalkUpController) on its yard side, out from the back wall, in a warm peach with
 -- a bowl icon (#2449). BOWL_RANGE is the owner's prompt reach (UIController's BaitPrompt); RING_BOWL_RADIUS keeps it
@@ -1354,6 +1373,9 @@ local function refreshBowl(
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 		model:PivotTo(catAnchor.CFrame)
 		model.Parent = folder
+		if RecordMode.on() then
+			recordWalkIn(model, catAnchor.CFrame)
+		end
 	end
 end
 

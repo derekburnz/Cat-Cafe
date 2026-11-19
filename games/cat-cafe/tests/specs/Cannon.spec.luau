@@ -69,6 +69,18 @@ return function()
 			made.distance = nil
 			expect(Cannon.launchRefusal(made)).to.equal("Get closer to the cannon")
 		end)
+
+		it(
+			"lets any distance launch with cannonAnywhere on (#5382), but not no character",
+			function()
+				local made = check(nil)
+				made.anywhere = true
+				made.distance = 5000
+				expect(Cannon.launchRefusal(made)).to.equal(nil)
+				made.distance = nil
+				expect(Cannon.launchRefusal(made)).to.equal("Get closer to the cannon")
+			end
+		)
 	end)
 
 	describe("Cannon.flightScale (#4920)", function()

@@ -11,6 +11,10 @@ local Cooldown = require(script.Parent.Cooldown)
 local Cannon = {}
 
 Cannon.TOWN = "town" -- the Town Square cannon's id, and the destination that lands at its foot
+-- #5382 (Derek 2026-11-19: "remove the 'get closer to cannon' if they managed to get into cannon menu let them use it
+-- from anywhere"): with this LiveFlags key on, a launch is never refused for distance; the flight still starts in the
+-- cannon's seat. Off by default.
+Cannon.ANYWHERE_FLAG = "cannonAnywhere"
 -- Studs on top of CannonRangeStuds for a client-owned position. #4343 (Derek 2026-11-14: "sometimes when in circle it
 -- says get closer to cannon"): 2 to 4, as the camp stations' checks (CampExtraService), since a player at the ring's
 -- rim with the window still open (WalkUp.LEAVE_EXTRA) is already at the range, and the server sees them late.
@@ -106,6 +110,7 @@ export type LaunchCheck = {
 	areasOpen: boolean, -- day (F66)
 	duskWarning: boolean, -- the last DuskWarningSeconds of the day (section 3a)
 	distance: number?, -- Cannon.reach from the caller's root to the cannon's pivot; nil without a character or off it
+	anywhere: boolean?, -- #5382: the cannonAnywhere switch is on, so any distance is close enough (nil still is not)
 	carrying: boolean,
 	busy: boolean, -- holds a catch or rescue lock
 	flying: boolean, -- already in a flight or a cloud hop
@@ -143,7 +148,10 @@ function Cannon.launchRefusal(check: LaunchCheck): string?
 	end
 	if
 		check.distance == nil
-		or check.distance > Cannon.range(check.cannonId) + Cannon.RANGE_SLACK
+		or (
+			check.anywhere ~= true
+			and check.distance > Cannon.range(check.cannonId) + Cannon.RANGE_SLACK
+		)
 	then
 		return "Get closer to the cannon"
 	end

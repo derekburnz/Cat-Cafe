@@ -145,9 +145,12 @@ local function groupCharacters()
 		local character = player.Character
 		if character ~= nil then
 			local group = Shove.collisionGroup(on, Shove.shielded(shieldUntil[player], now))
-			for _, part in character:GetDescendants() do
-				if part:IsA("BasePart") and part.CollisionGroup ~= group then
-					part.CollisionGroup = group
+			for _, child in character:GetDescendants() do
+				if child:IsA("BasePart") then
+					local part = child :: BasePart
+					if part.CollisionGroup ~= group then
+						part.CollisionGroup = group
+					end
 				end
 			end
 		end

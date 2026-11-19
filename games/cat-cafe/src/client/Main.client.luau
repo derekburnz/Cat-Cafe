@@ -9,6 +9,7 @@ ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
 local AdminEventController = require(script.Parent.Controllers.AdminEventController)
+local AdventBoardController = require(script.Parent.Controllers.AdventBoardController)
 local AfkController = require(script.Parent.Controllers.AfkController)
 local AirMovesController = require(script.Parent.Controllers.AirMovesController)
 local Audio = require(script.Parent.Audio)
@@ -139,6 +140,7 @@ GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on 
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 TomorrowBoardController.start() -- #5449: the Daily Treat Board on your cafe wall, after the UI
+AdventBoardController.start() -- #5502: the advent calendar board's prompt and doors, after the UI
 CodesController.start()
 PetController.start() -- #3651: the Pet prompt on your own working cats, after the UI whose pill it uses
 FollowerController.start() -- #5172: the cat that follows each player (switch catFollower)

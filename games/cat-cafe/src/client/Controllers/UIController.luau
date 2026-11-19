@@ -1713,6 +1713,7 @@ local function applyState(s: Types.PlayerState)
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
 		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
+		advent = (s :: any).advent, -- #5502: the advent calendar board's view
 		-- F87 (#705): the tips seen, the one feedback ask and the help cards shown, so a tip the client finds itself
 		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
 		tipsSeen = s.tipsSeen,
@@ -2336,6 +2337,13 @@ local function wireIntents()
 	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
+	end)
+	-- #5502 the advent calendar: the server picks the door (the next one in order) and checks the dates and switches
+	UI.events.openAdventDoor:Connect(function()
+		Net.fire("OpenAdventDoor")
+	end)
+	UI.events.adventSeen:Connect(function()
+		Net.fire("TelemetryReport", "advent_board", "card")
 	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. A buy names the food
 	-- and the night the screen showed (else the last one sent; the screen calls it its window), so a buy sent for

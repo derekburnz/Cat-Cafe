@@ -175,6 +175,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
 	setCozy: (self: HUD, line: string?, ready: boolean) -> (), -- #2798
+	setAdvent: (self: HUD, line: string?, ready: boolean) -> (), -- #5502
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -1067,6 +1068,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._ladder = nil :: { GiftLadderLogic.Row }? -- #2791: the gift ladder's next steps (setGiftLadder)
 	self._cozy = nil :: string? -- #2798: the Cozy Cafe line (setCozy), and whether its bag waits
 	self._cozyReady = false
+	self._advent = nil :: string? -- #5502: the advent calendar's row (setAdvent), and whether a door is ready
+	self._adventReady = false
 	self._dailyDue = false
 	-- red count of what is ready to claim, on the tile's top right corner
 	local rewardsDot: Frame = Create("Frame", {
@@ -4912,13 +4915,28 @@ function HUD.setCozy(self: any, line: string?, ready: boolean)
 	self:_renderRewards()
 end
 
+-- #5502: the advent calendar's row of the Rewards list ("Advent door 7" with the red "!" while a door is ready, else
+-- "Advent calendar 6/24"); nil while the calendar is not live. A press opens its card.
+function HUD.setAdvent(self: any, line: string?, ready: boolean)
+	if line == self._advent and ready == self._adventReady then
+		return
+	end
+	local rows = (self._advent == nil) ~= (line == nil)
+	self._advent = line
+	self._adventReady = line ~= nil and ready
+	if rows and self._popFor == "rewards" then
+		self:_closePop()
+	end
+	self:_renderRewards()
+end
+
 -- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87), the gift
 -- ladder from the first second (#2791), and the Cozy Cafe line (#2798).
 function HUD._rewardParts(self: any): (boolean, boolean, boolean, boolean)
 	return self._giftsWanted == true and self:_open("gifts"),
 		self._dailyWanted == true and self:_open("daily"),
 		self._ladder ~= nil,
-		self._cozy ~= nil
+		self._cozy ~= nil or self._advent ~= nil -- #5502: the advent row is a list row, like Cozy
 end
 
 -- The Rewards tile: shown while it holds anything; "Rewards" and a red "!" of what waits (gifts ready, plus one for
@@ -4932,7 +4950,8 @@ function HUD._renderRewards(self: any)
 		else nil
 	local ready = (if summary then summary.ready else 0)
 		+ (if daily and self._dailyDue then 1 else 0)
-		+ (if cozy and self._cozyReady then 1 else 0)
+		+ (if self._cozyReady then 1 else 0)
+		+ (if self._adventReady then 1 else 0)
 	local nextIn: number? = if summary then summary.nextIn else nil
 	if ladder then
 		-- #2791: the sooner of the Tip Jar's next gift and the ladder's next step
@@ -5085,7 +5104,18 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 		local gifts, daily, _, cozy = self:_rewardParts()
 		-- #2798: the Cozy Cafe line first. #2854 (Derek2: "make it auto claim if clicked"): with a bag waiting a press
 		-- takes it from anywhere; the countdown's press only closes the list
-		if cozy then
+		-- #5502: the advent calendar on top while it is live
+		if self._advent ~= nil then
+			table.insert(rows, {
+				id = "Advent",
+				icon = Theme.icons.gifts,
+				style = "berry" :: Button.Style,
+				press = function()
+					callbacks.openScreen("AdventCalendar")
+				end,
+			})
+		end
+		if cozy and self._cozy ~= nil then
 			table.insert(rows, {
 				id = "Cozy",
 				icon = Theme.icons.home,
@@ -5194,6 +5224,8 @@ function HUD._popText(self: any, id: string): string
 		return "Daily treat"
 	elseif id == "Cozy" then
 		return self._cozy or "Cozy gift"
+	elseif id == "Advent" then
+		return self._advent or "Advent calendar"
 	elseif string.sub(id, 1, 6) == "Ladder" then
 		local row: GiftLadderLogic.Row? = (self._ladder or {})[tonumber(string.sub(id, 7)) or 0]
 		return if row then GiftLadderLogic.line(row) else "Gift"
@@ -5213,6 +5245,8 @@ function HUD._popReady(self: any, id: string): boolean
 		return self._dailyDue == true
 	elseif id == "Cozy" then
 		return self._cozyReady == true
+	elseif id == "Advent" then
+		return self._adventReady == true
 	end
 	return false
 end

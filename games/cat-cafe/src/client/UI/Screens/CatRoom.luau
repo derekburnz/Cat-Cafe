@@ -37,6 +37,7 @@ local CatLock = require(script.Parent.Parent.Components.CatLock)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
+local CompanionLogic = require(script.Parent.Parent.Components.CompanionLogic)
 local CompanionPicker = require(script.Parent.Parent.Components.CompanionPicker)
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
@@ -110,6 +111,7 @@ local FACE_TAP = Scale.tapHeight(36) -- a face's tap pad: 36 px with a mouse, a 
 -- of that role's cats) beside the gold Companion button, one button tall
 local MENU_FLAG = "LiveFlag_companionMenu"
 local NUDGE_FLAG = "LiveFlag_companionNudge" -- #5364: the "!" on the Companion button with no companion
+local BETTER_FLAG = "LiveFlag_companionBetter" -- #5457: the "!" also for a better cat not looked at yet
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
 local SEARCH_MIN = 110 -- #4028: the search box takes what the bar leaves, never less
 local SEG_W = 288 -- the All / Working / Resting switch
@@ -705,12 +707,19 @@ function CatRoom._buildCompanion(self: any, parent: Frame, crew: Frame, crewH: n
 		Parent = nudge,
 	})
 	self._compNudge = nudge
+	self._compSeen = {} :: { [string]: boolean } -- #5457: better cats already shown in the picker this session
+	self._compBetter = {} :: { string }
 	table.insert(
 		self._connections,
 		button.Activated:Connect(function()
 			self:_openRole(nil)
 			local state: Types.PlayerState? = self._state
 			local view = self:_followerView()
+			-- #5457: opening the picker counts as seeing every better cat, swapped or not
+			for _, better in self._compBetter or {} do
+				self._compSeen[better] = true
+			end
+			self._compNudge.Visible = false
 			self._picker:open(
 				if state then state.cats else nil,
 				self._catById,
@@ -1871,7 +1880,15 @@ function CatRoom._renderCompanion(self: any, state: Types.PlayerState, view: any
 	end
 	self._compArt.frame.Visible = def ~= nil
 	-- #5364: the "!" while the companion is open (Tier 2, so `view` is set) and no cat follows
-	self._compNudge.Visible = cat == nil and ReplicatedStorage:GetAttribute(NUDGE_FLAG) == true
+	local nudge = cat == nil and ReplicatedStorage:GetAttribute(NUDGE_FLAG) == true
+	-- #5457: with companionBetter on, also while a cat that beats the companion has not been seen in the picker
+	if ReplicatedStorage:GetAttribute(BETTER_FLAG) == true then
+		self._compBetter = CompanionLogic.better(cats, self._catById, uid)
+		nudge = nudge or (cat ~= nil and CompanionLogic.fresh(self._compBetter, self._compSeen))
+	else
+		self._compBetter = {}
+	end
+	self._compNudge.Visible = nudge
 	self._compLine.Text = if def ~= nil and cat ~= nil
 		then Follower.catBothText(cat, (def :: Types.CatDef).rarity) -- #5303: its trait included
 		else "Tap to pick one"

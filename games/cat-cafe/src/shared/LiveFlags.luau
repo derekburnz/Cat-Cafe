@@ -165,6 +165,7 @@ LiveFlags.KEYS = {
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
 	"bowlLockBig", -- #5455: the Bowl Options' locked tick boxes show a big lock picture (Screens/BaitBowl); off by default
+	"companionBetter", -- #5457: the Companion "!" also for a better cat not yet seen in the picker (Screens/CatRoom); off by default
 	"secretTraitTile", -- #5445: Secret trait cards in the Mystic Pool on the Secret night tile (Screens/MysticPool); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
@@ -304,6 +305,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	plushSecret = true, -- #5414: on as soon as it publishes (Derek 2026-11-19)
 	keepLook = true, -- #5433: on as soon as it publishes (Derek 2026-11-19)
 	bowlLockBig = true, -- #5455: on as soon as it publishes (Derek 2026-11-19)
+	companionBetter = true, -- #5457: on as soon as it publishes (Derek 2026-11-19)
 	secretTraitTile = true, -- #5445: on together with topTraitsMore
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read

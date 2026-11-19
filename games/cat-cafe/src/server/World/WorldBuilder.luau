@@ -3062,6 +3062,9 @@ local function buildTownSquare(parent: Instance)
 			square
 		)
 		model.Name = poster.asset
+		if poster.scale ~= nil then
+			model:ScaleTo(poster.scale) -- #5356: half size, about its pivot on the paving
+		end
 		CollectionService:AddTag(model, UPDATE_POSTER_TAG)
 	end
 end

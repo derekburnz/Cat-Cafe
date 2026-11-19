@@ -662,7 +662,7 @@ Onboarding.CLEAN_EVENTS = {
 	introDone = "intro_done", -- intro_cutscene, first play: finished or skipped
 	bowlHint = "bowl_hint", -- step_time tut_bowl_food: the strip asks for food in the bowl
 	tameAsk = "tame_ask", -- step_time tut_bowl_arrived: the cat is at the bowl and the strip asks for Tame
-	strayMarked = "stray_marked", -- step_time second_cat_trail_shown: the stray that waits is marked
+	strayMarked = "stray_marked", -- the stray that waits is marked and the player is in the Alleyway (CatService)
 	catchPrompt = "catch_prompt", -- catch_prompt_shown_first: the catch card on screen
 	rankReady = "rank_ready", -- rank_up_ready_first: Tier 2's every need met
 	rankCue = "rank_cue", -- step_time tut_rank_cue: the strip and the ring point at YOUR GOAL (#5108)
@@ -679,7 +679,6 @@ local FROM_CUSTOM: { [string]: string } = {
 local FROM_STEP_TIME: { [string]: string } = {
 	tut_bowl_food = Onboarding.CLEAN_EVENTS.bowlHint,
 	tut_bowl_arrived = Onboarding.CLEAN_EVENTS.tameAsk,
-	second_cat_trail_shown = Onboarding.CLEAN_EVENTS.strayMarked,
 	tut_rank_cue = Onboarding.CLEAN_EVENTS.rankCue,
 }
 function Onboarding.cleanFromCustom(name: string, fields: { string }): string?

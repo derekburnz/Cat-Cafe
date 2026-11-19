@@ -208,6 +208,7 @@ LiveFlags.KEYS = {
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
+	"bowlHintRetry", -- #5438: the tutorial strip is worked out again when a new server's switches arrive, so bowl first shows its food ask (Controllers/UIController); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -331,6 +332,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	secretCompanionBig = true, -- #5431
 	decorChipIcons = true, -- #5366: on after Review-QA, once the six pictures pass moderation
+	bowlHintRetry = true, -- #5438
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

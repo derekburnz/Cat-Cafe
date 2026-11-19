@@ -37,6 +37,19 @@ return function()
 			expect(Logic.cannonTrail(at, fx)).to.equal(false)
 		end)
 
+		it(
+			"#5370: the early clouds cover just after the boom and still hide the server's move",
+			function()
+				local early = Presets.clouds.cannonEarly
+				local at = Config.CannonTeleportAtSeconds
+				expect(early.coverFrom > fx.boomAt).to.equal(true)
+				expect(early.coverTo < pose.gone).to.equal(true)
+				expect(Logic.cloudCover(at, early)).to.equal(1)
+				expect(early.partFrom).to.be.near(plan.partFrom, 1e-9)
+				expect(early.partTo).to.be.near(plan.partTo, 1e-9)
+			end
+		)
+
 		it("lands the net swing at NetSmackDelay", function()
 			expect(Presets.netSmack.land).to.be.near(Config.NetSmackDelay, 1e-9)
 		end)

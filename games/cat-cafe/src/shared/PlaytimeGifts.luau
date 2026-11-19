@@ -72,11 +72,17 @@ local function ahead(profile: Types.PlayerProfile): { StepDef }
 	return out
 end
 
--- The step due at `played` seconds of play on the account, the earliest first, or nil.
-function PlaytimeGifts.due(profile: Types.PlayerProfile, played: number): Step?
-	local first = ahead(profile)[1]
-	if first ~= nil and played >= first.minutes * 60 then
-		return first.id
+-- The step due at `played` seconds of play on the account, the earliest first, or nil. #5506: `cardsOnly` (the
+-- dailyGifts switch on) passes over the small steps, so only the like and the favourite still pay.
+function PlaytimeGifts.due(profile: Types.PlayerProfile, played: number, cardsOnly: boolean?): Step?
+	for _, step in ahead(profile) do
+		if cardsOnly and not PlaytimeGifts.isCard(step.id) then
+			continue
+		end
+		if played >= step.minutes * 60 then
+			return step.id
+		end
+		return nil
 	end
 	return nil
 end

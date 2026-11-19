@@ -33,6 +33,33 @@ return function()
 			end
 		end)
 
+		it(
+			"looks down from above at every stage, the hatchling from over the yard (#5423)",
+			function()
+				for i, stage in Presets.dragonRise.stages do
+					local h = stage.height
+					local distance = math.max(c.minDistance, c.distance * h + 4)
+					local low = Vector3.new(c.side * distance, c.up * h + 1.5, -distance)
+					local look = Vector3.new(0, h * c.lookUp, 0)
+					local eye = KeepShot.above(low, look, c.above, c.aboveRange)
+					local flat = math.sqrt((eye.X - look.X) ^ 2 + (eye.Z - look.Z) ^ 2)
+					expect(math.abs(math.atan2(eye.Y - look.Y, flat) - c.above) < 1e-6).to.equal(
+						true
+					)
+					-- same way round as the low shot, and never lower than it
+					expect(eye.X * low.X >= 0).to.equal(true)
+					expect(eye.Z < 0).to.equal(true)
+					expect(eye.Y >= low.Y).to.equal(true)
+					expect(overWall(eye, look) >= walls.top + c.wallGap - 1e-6).to.equal(true)
+					if i == 1 then
+						-- the hatchling: the eye stands over the yard itself, inside the front wall
+						expect(math.abs(eye.Z) < walls.halfZ).to.equal(true)
+						expect(eye.Y > walls.top + c.wallGap).to.equal(true)
+					end
+				end
+			end
+		)
+
 		it("never lowers a shot already high enough", function()
 			local eye = Vector3.new(0, 80, -12)
 			expect(KeepShot.lift(eye, Vector3.new(0, 2, 0), walls, 2, 0.6).Y).to.equal(80)

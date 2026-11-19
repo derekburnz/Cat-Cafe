@@ -15,7 +15,7 @@
 --   local skip = DragonRise.play({ stage = 3, keep = yard.CFrame, colour = "ruby", dragon = cinder }, onDone)
 --
 -- `keep` is the yard centre on the ground, its LookVector out the gate (the camera stands out that way and, since #4612,
--- high over the walls looking down: Effects/KeepShot). `dragon` is the
+-- high over the walls looking down; since #5423 swung up over the yard: Effects/KeepShot). `dragon` is the
 -- owner's live Cinder, hidden on this client while the scene's own copies play and shown again after onDone (by
 -- then the caller has swapped it to the new look). onDone runs exactly once, whatever happens, and a hard cap
 -- (the plan's total plus Presets.dragonRise.cap) always gives the camera, controls, prompts and windows back.
@@ -856,10 +856,11 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 	-- where the standing dragon looks from: out by the gate, a little to one side, low
 	local function shot(height: number, push: number, drift: number): (Vector3, Vector3)
 		local distance = math.max(c.minDistance, c.distance * height + 4) * push
-		local eye = keep:PointToWorldSpace(
-			Vector3.new(c.side * distance + drift * height, c.up * height + 1.5, -distance)
-		)
-		return eye, keep.Position + Vector3.new(0, height * c.lookUp, 0)
+		local low = Vector3.new(c.side * distance + drift * height, c.up * height + 1.5, -distance)
+		local look = Vector3.new(0, height * c.lookUp, 0)
+		-- #5423: swung up to look down from above, so the Keep's front wall stays out of the frame
+		local eye = keep:PointToWorldSpace(KeepShot.above(low, look, c.above, c.aboveRange))
+		return eye, keep.Position + look
 	end
 
 	local function crack(now: number, ground: Vector3)

@@ -1255,7 +1255,7 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 end
 
 -- #5517 (shared/Tier3Trip, switch tier3TripLog): one stop of the Tier 3 to Neighbourhood trip, once per account.
--- `detail` is the refusal's words for "refused".
+-- `detail` is the refusal's words for "refused", in field 3 in place of day or night.
 function Telemetry.tier3Stop(player: Player, profile: Profile, stop: string, detail: string?)
 	local state = profile.telemetry
 	if
@@ -1269,8 +1269,8 @@ function Telemetry.tier3Stop(player: Player, profile: Profile, stop: string, det
 	Telemetry.custom(player, "tier3_trip", 1, {
 		stop,
 		(if session ~= nil then session.device else nil) or "unknown",
-		if ClockService.areasOpen() then "day" else "night",
-		detail or "-",
+		-- Roblox keeps three fields: a refusal's words (which name night when that was why), else day or night
+		detail or (if ClockService.areasOpen() then "day" else "night"),
 	})
 end
 

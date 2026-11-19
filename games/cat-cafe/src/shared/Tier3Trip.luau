@@ -2,8 +2,8 @@
 -- #5517 (Growth's Nov 19 read: 22 to 27% of Tier 3 players never arrive in the Neighbourhood, and those who catch
 -- there reach Tier 4 82 to 84% of the time): the stops between Tier 3 and the first Neighbourhood landing, behind the
 -- log switch `tier3TripLog` (LiveFlags.OFF_BY_DEFAULT). Each stop is logged once per account as the custom event
--- `tier3_trip` (value 1; fields the stop, the device, "day" or "night" by whether areas are open, and a detail: the
--- refusal's words for "refused"), while the account is at Tier 3 and has not landed there yet. The account's stops
+-- `tier3_trip` (value 1; fields the stop, the device, and "day" or "night" by whether areas are open, or for
+-- "refused" the refusal's words in their place), while the account is at Tier 3 and has not landed there yet. The account's stops
 -- are a bit mask in profile.telemetry.tier3Trip (optional, no save version: an older server dropping it can only log
 -- a stop twice). A session that ends at Tier 3 before the landing logs `tier3_left` (value the seconds in game this
 -- session; fields the furthest stop or "none", the device, "day" or "night").

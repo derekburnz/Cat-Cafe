@@ -38,6 +38,9 @@ Advent.DEC_2 = 1796169600 -- 2026-12-02 00:00:00 UTC
 Advent.CLOSES = 1799020800 -- 2027-01-04 00:00:00 UTC (doors open until Jan 3 23:59:59)
 Advent.CATCH_UP_PER_DAY = 2
 Advent.EVENT = "advent_door" -- value the door; fields on_time or catch_up, device, account age bucket
+-- advent_board report's values, each once a session: card (the calendar's card opened), board (the Town Square
+-- board's prompt opened it)
+Advent.BOARD_OUTCOMES = table.freeze({ "card", "board" }) :: { string }
 Advent.SOURCE = "advent" -- the calendar cats' CatDef.source
 Advent.REASON = "advent_calendar" -- Payout's sku
 

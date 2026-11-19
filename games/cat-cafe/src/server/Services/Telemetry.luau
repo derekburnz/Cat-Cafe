@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Advent = require(ReplicatedStorage.Shared.Advent)
 local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -319,6 +320,8 @@ export type CustomEvent =
 	-- #5449: the Daily Treat Board's card, value 1; its outcome (TomorrowBoard.OUTCOMES), the device, "first" or "later"
 	-- (the account's first UTC day, dayText "0", or not)
 	| "tomorrow_board"
+	-- #5502: the advent calendar's card, value 1; its outcome (Advent.BOARD_OUTCOMES), the device
+	| "advent_board"
 	-- #5202 (nextGoalBeat): the "What next?" card, value 1, each once a session; the variant (A or B) or the target
 	-- (cats, cafe or closed), the tier and the device
 	| "next_goal_shown"
@@ -593,6 +596,7 @@ local REPORTS = {
 	"return_hook_early", -- #4626: the minute 6 "come back tomorrow" line showed, its kind (ReturnHook.EARLY_KINDS)
 	"tomorrow_card", -- #3951: the come back tomorrow card's outcome (ReturnHook.CARD_OUTCOMES)
 	"tomorrow_board", -- #5449: the Daily Treat Board card's outcome (TomorrowBoard.OUTCOMES)
+	"advent_board", -- #5502: the advent calendar card opened, from the Rewards row or the board (Advent.BOARD_OUTCOMES)
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
@@ -2683,6 +2687,21 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				session.device or "unknown",
 				if dayText(profile) == "0" then "first" else "later",
 			})
+		end
+	elseif name == "advent_board" then
+		-- #5502: each outcome once a session, and only while the calendar is live (both switches and the dates)
+		local outcome = Guard.oneOf(rawValue, Advent.BOARD_OUTCOMES)
+		if
+			outcome ~= nil
+			and Advent.live(
+				LiveFlagService.on(Advent.FLAG),
+				LiveFlagService.on(Advent.EVENT_FLAG),
+				os.time()
+			)
+			and not session.nudges["advent_board:" .. outcome]
+		then
+			session.nudges["advent_board:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
+			Telemetry.custom(player, "advent_board", 1, { outcome, session.device or "unknown" })
 		end
 	elseif name == "event_rsvp" then
 		local kind = Guard.oneOf(rawValue, RSVP_KINDS)

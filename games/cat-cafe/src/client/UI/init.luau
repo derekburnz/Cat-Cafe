@@ -91,6 +91,9 @@ local WorldTags = require(script.Screens.WorldTags)
 
 local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
+-- #5502 the advent calendar's Rewards row and card (screen: Screens/AdventCalendar, made in UI.init), filled under
+-- Screens. No file-level locals for it: this file is at Luau's 200 local limit.
+UI.advent = { screen = nil :: any }
 UI._padHints = nil :: any -- #4224: the controller hint strip (Components/GamepadHints), made in UI.init
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
@@ -281,6 +284,9 @@ UI.events = {
 	pickStyle = Signal.new(), -- (kind, id)   a Style tab button: kind "sign" forwards as SetSignStyle(id or nil), "uniform" or "theme" as SetLook(kind, id)
 	-- F70
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
+	-- #5502
+	openAdventDoor = Signal.new(), -- ()   OPEN on the advent calendar card: forward as OpenAdventDoor (no door number)
+	adventSeen = Signal.new(), -- ()   the advent calendar card opened: forward as TelemetryReport advent_board
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
 	collectCampExtra = Signal.new(), -- (extraId)   #3082: Collect on a cannon picker card's strip (every player;
@@ -900,6 +906,10 @@ local function render()
 	if dailyTreatScreen then
 		dailyTreatScreen:render(state)
 	end
+	if UI.advent.screen then
+		UI.advent.screen:render(state)
+	end
+	UI.advent.refresh()
 	autoOpenDailyTreat()
 end
 
@@ -962,6 +972,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if dailyTreatScreen then
 		dailyTreatScreen:setCatalog(newCatalog)
+	end
+	if UI.advent.screen then
+		UI.advent.screen:setCatalog(newCatalog)
 	end
 	if popups then
 		popups:setCatalog(newCatalog)
@@ -1700,6 +1713,23 @@ function UI.init(config: Types.InitConfig)
 			dailyTreatView:render(state)
 		end,
 	})
+	-- #5502: the advent calendar card. Nothing opens it but the Rewards row and the board, and both show only while
+	-- the server's view says live (both switches on and the dates come)
+	local adventView = require(script.Screens.AdventCalendar).new({
+		open = function()
+			UI.events.openAdventDoor:Fire()
+		end,
+		close = closeModal,
+	})
+	UI.advent.screen = adventView
+	modalInstance:register("AdventCalendar", {
+		frame = adventView.frame,
+		onOpen = function()
+			adventView:render(state)
+			adventView:onOpen()
+			UI.events.adventSeen:Fire()
+		end,
+	})
 	collectorScreen = Collector.new(parent, {
 		answer = function(accept: boolean)
 			UI.events.answerCollector:Fire(accept)
@@ -2394,6 +2424,10 @@ function UI.destroy()
 		dailyTreatScreen:destroy()
 	end
 	dailyTreatScreen = nil
+	if UI.advent.screen then
+		UI.advent.screen:destroy()
+	end
+	UI.advent.screen = nil
 	dailyAutoOpen = nil
 	if introScreen then
 		introScreen:destroy()
@@ -2580,6 +2614,32 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Screens
 ----------------------------------------------------------------------------------------------------
+
+-- #5502: the advent calendar's row on the Rewards list (HUD.setAdvent, Components/AdventLogic), from the server's
+-- view in the state; no row while the calendar is not live. UI.advent.open is the board's prompt.
+
+function UI.advent.refresh()
+	local view = hud
+	if view == nil then
+		return
+	end
+	local AdventLogic = require(script.Components.AdventLogic)
+	local advent = (state :: any).advent
+	if AdventLogic.shows(advent) then
+		view:setAdvent(AdventLogic.rowLine(advent), advent.ready == true)
+	else
+		view:setAdvent(nil, false)
+	end
+end
+
+function UI.advent.open(): boolean
+	local AdventLogic = require(script.Components.AdventLogic)
+	if modal == nil or not AdventLogic.shows((state :: any).advent) then
+		return false
+	end
+	modal:open("AdventCalendar")
+	return true
+end
 
 function UI.open(name: Types.ScreenName)
 	if modal then

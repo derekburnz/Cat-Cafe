@@ -335,6 +335,8 @@ export type PlayerState = {
 	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
 	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
 	dailyTreat: DailyTreatView?, -- F70: the Daily Treat window's card and the HUD's Daily tile
+	-- #5502: the advent calendar (shared/Advent.view), nil while either switch is off
+	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
 	-- F87 (easy-start.md section 6): the context tips seen (tip id or "like_ask" to true); nil until ProfileSync
 	-- sends it, and the client-found tips, the help card and the feedback ask wait for it
 	tipsSeen: { [string]: boolean }?,
@@ -462,6 +464,7 @@ export type ScreenName =
 	| "Potions"
 	| "Quests"
 	| "DailyTreat"
+	| "AdventCalendar" -- #5502: the advent calendar card, from the Rewards list and the Town Square board
 	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
 	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
 	| "TradeLog" -- F102: the last 20 trades, opened from Settings

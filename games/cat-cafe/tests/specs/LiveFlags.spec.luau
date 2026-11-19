@@ -145,6 +145,7 @@ return function()
 							or key == "loadingScreen"
 							or key == "walkUpCarry" -- #5415
 							or key == "goldenDrops"
+							or key == "areaCannonRings" -- #5416
 							or key == "luckyCharm"
 							or key == "introSplit"
 							or key == "parkGateTrail"

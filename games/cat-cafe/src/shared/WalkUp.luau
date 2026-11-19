@@ -48,16 +48,20 @@ WalkUp.TOWN_FLAG = "townRings"
 -- #5367 (Derek 2026-11-18: "make the cannon circle bigger again"): a ring all the way round its station (a Cat Cannon,
 -- WalkUpCircles.around) carries FULL_ATTRIBUTE and keeps its full size on the Town Square; `full` is that attribute.
 WalkUp.FULL_ATTRIBUTE = "FullSize"
+-- #5416 (Derek 2026-11-19: "Add rings for cannon area back to area's"): with `areaCannon` (the areaCannonRings
+-- switch) an area's cannon ring (`full`) shows again at full size; the area's other rings stay hidden.
+WalkUp.AREA_CANNON_FLAG = "areaCannonRings"
 function WalkUp.ringLook(
 	on: boolean,
 	town: unknown,
 	setting: boolean,
-	full: unknown?
+	full: unknown?,
+	areaCannon: boolean?
 ): (boolean, number)
 	if on and town == true then
 		return true, if full == true then 1 else WalkUp.TOWN_SCALE
 	elseif on and town == false then
-		return false, 1
+		return areaCannon == true and full == true, 1
 	end
 	return setting, 1
 end

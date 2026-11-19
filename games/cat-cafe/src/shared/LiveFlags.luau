@@ -61,6 +61,7 @@ LiveFlags.STORE = "CatCafe_Flags"
 --   never rescued (RescueService), back to one cat a day there.
 LiveFlags.KEYS = {
 	"codes",
+	"areaCannonRings", -- #5416: with townRings, each area's cannon ring shows again (shared/WalkUp.ringLook); off by default
 	"perfectFlagged", -- #5379: a Perfect catch marks the cat even while the profile's scripted-press flag is set (CatService); off by default
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"walkUpCarry", -- #5415: with walkUpRetry, a ring stepped into during a carry opens once the carry clears (Controllers/WalkUpController); off by default
@@ -258,6 +259,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	-- #4543: on after Model's wall fit, Review-QA and Sync's Studio look at all five rooms. Turning it off again
 	-- shrinks every grown room at its next cafe refresh, and the cats, decor, tables and bait are built again in it.
 	cafeGrows = true,
+	areaCannonRings = true, -- #5416
 	walkUpRetry = true, -- #5386
 	fxAfterLoad = true, -- #5068: on after Review-QA and a phone read of client_load with it on
 	walkUpCarry = true, -- #5415

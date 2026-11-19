@@ -151,7 +151,7 @@ end
 local function onStepped(player: Player, from: number, to: number)
 	-- #4518: bowl first has no step moves: the bowl comes first by itself, and the walk-through ends at a camp
 	-- cannon, so the old move to the Town Square cannon at the last step would pull the player away from it
-	if TutorialOrder.bowlFirst() then
+	if TutorialOrder.bowlFirst(player) then
 		return
 	end
 	local target = TutorialMoves.target(from, to)

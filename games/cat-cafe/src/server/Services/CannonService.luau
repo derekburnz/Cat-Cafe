@@ -359,7 +359,7 @@ local function homeArrival(player: Player, character: Model)
 			Telemetry.introPlays(player, profile),
 			profile.tutorialStep,
 			Config.TutorialGuaranteedStrayStep,
-			require(ReplicatedStorage.Shared.TutorialOrder).bowlFirst() -- #4716: a new player starts home too
+			require(ReplicatedStorage.Shared.TutorialOrder).bowlFirst(player) -- #4716: a new player starts home too
 		)
 	then
 		return

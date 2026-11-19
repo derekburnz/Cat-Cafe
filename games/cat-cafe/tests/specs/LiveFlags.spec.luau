@@ -238,6 +238,8 @@ return function()
 							or key == "cannonAnywhere" -- #5382
 							or key == "nextGoalBeat" -- #5202
 							or key == "milestoneFunnel" -- #5291
+							or key == "topTraitCompanion" -- #5445
+							or key == "topTraitsMore" -- #5445
 							or key == "townGround" -- #5357
 							or key == "tipPileOldest" -- #5422
 							or key == "decorChipIcons" -- #5366

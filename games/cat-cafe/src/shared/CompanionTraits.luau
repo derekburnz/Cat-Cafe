@@ -24,8 +24,14 @@ function CompanionTraits.on(): boolean
 	)
 end
 
+local function flag(key: string): boolean
+	return LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
+end
+
 local function apply()
 	Traits.setCompanion(CompanionTraits.on())
+	Traits.setTopCompanion(flag(Traits.TOP_COMPANION_FLAG)) -- #5445
+	Traits.setTopMore(flag(Traits.TOP_MORE_FLAG)) -- #5445
 end
 
 function CompanionTraits.follow()
@@ -36,6 +42,10 @@ function CompanionTraits.follow()
 	following = true
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CompanionTraits.FLAG)
 		:Connect(apply)
+	for _, key in { Traits.TOP_COMPANION_FLAG, Traits.TOP_MORE_FLAG } do
+		ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			:Connect(apply)
+	end
 end
 
 return CompanionTraits

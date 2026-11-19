@@ -685,8 +685,9 @@ return function()
 			expect(Onboarding.cleanFromCustom("step_time", { "tut_bowl_arrived" })).to.equal(
 				EV.tameAsk
 			)
+			-- stray_marked is CatService's own, logged in the Alleyway: the trail's step_time starts in town
 			expect(Onboarding.cleanFromCustom("step_time", { "second_cat_trail_shown" })).to.equal(
-				EV.strayMarked
+				nil
 			)
 			expect(Onboarding.cleanFromCustom("step_time", { "tut_rank_cue" })).to.equal(EV.rankCue)
 			expect(Onboarding.cleanFromCustom("step_time", { "tut_bowl_waiting" })).to.equal(nil)

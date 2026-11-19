@@ -4399,10 +4399,14 @@ function UI.cannon.rummageBack()
 			end
 			task.wait(0.2)
 		end
-		task.wait(LOOT_SETTLE) -- the win's reveal, then its loot card
-		local untilAt = os.clock() + LOOT_WAIT
-		while ui.loot.card ~= nil and ui.loot.card:isShowing() and os.clock() < untilAt do
-			task.wait(0.2)
+		-- #5417 (Derek 2026-11-19: "make cannon menu pop back up immediately after finishing rummage minigame through
+		-- cannon menu"): with cannonReturnNow on, the picker comes back the moment the bar ends, the loot card beside it
+		if ReplicatedStorage:GetAttribute("LiveFlag_cannonReturnNow") ~= true then
+			task.wait(LOOT_SETTLE) -- the win's reveal, then its loot card
+			local untilAt = os.clock() + LOOT_WAIT
+			while ui.loot.card ~= nil and ui.loot.card:isShowing() and os.clock() < untilAt do
+				task.wait(0.2)
+			end
 		end
 		local again: (() -> string?)? = (UI.cannon :: any).nearest
 		if

@@ -879,8 +879,8 @@ local Config = {
 			title = "🔔 Next update Tue Dec 1: the CHRISTMAS EVENT! Want a reminder when it lands?",
 			name = "CHRISTMAS EVENT",
 			-- #5461 (Sync's look at the poster): the face's bottom name bar half hid the art's DEC 1 TO JAN 3 badge, so
-			-- the same art is fitted between the face's top band and name bar (was 75146631114839, Model-Agent #5288)
-			poster = "rbxassetid://103012343912449",
+			-- the same art is fitted inside the 800x450 face, dates 40 px above the name bar (was 103012343912449, then 75146631114839 before)
+			poster = "rbxassetid://123740140740442",
 		},
 		{
 			id = "6693355219203523122",

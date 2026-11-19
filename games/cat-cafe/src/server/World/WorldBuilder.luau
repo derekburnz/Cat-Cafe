@@ -3132,7 +3132,7 @@ local PAW_LIFT = 1.5
 local function buildPawPaths(parent: Instance, sets: { Instance })
 	-- #5357: a Model, not a Folder, tagged TownGround (shared/TownGround.TAG) so the townGround switch can keep it whole
 	local paths = Instance.new("Model")
-	paths.Name = "PawPaths"
+	paths.Name = "PawPaths" -- shared/TownGround.PATHS_NAME (World/PawFloor finds it by this)
 	paths.Parent = parent
 	CollectionService:AddTag(paths, "TownGround")
 	local params = RaycastParams.new()

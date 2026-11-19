@@ -217,6 +217,7 @@ LiveFlags.KEYS = {
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
+	"pawsInFloor", -- #5471: the Town Square's paw prints are drawn on the floor they lie on, so they stream with it (World/PawFloor); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
 	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
 	"nightLineNoArrow", -- #5459: the night line keeps its words but no ring or arrow on Upgrades (Components/NightLine); off by default
@@ -356,6 +357,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
+	pawsInFloor = true, -- #5471: on as soon as it merges
 	guideArrow = true, -- #5465: on as soon as it merges
 	lockedRingsHidden = true, -- #5463: on as soon as it merges
 	nightLineNoArrow = true, -- #5459: on as soon as it merges

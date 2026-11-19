@@ -4601,6 +4601,11 @@ function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
 end
 
+-- #5381: whether this profile has the area open (its gate, else its tier), for AreaWholeService's areasKept.
+function CatService.areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
+	return areaUnlocked(profile, areaId)
+end
+
 -- #4251: an area that is not one of the ten (Harvest Hollow, World/HarvestWorld), added once it is built: its
 -- AreaInfo (spawn points, floor, bounds, roam) and who may catch there. Its strays come only from spawnIn; no
 -- wave, top-up, bait, rescue or pity knows it.

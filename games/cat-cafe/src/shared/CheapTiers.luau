@@ -17,8 +17,13 @@
 -- of 22.5 min for the model player and 15 for an active one, coins first, and a quarter of model runs got no Legendary in
 -- 30 min): behind its own switch `tier4Easy`, Tier 4 asks 250,000 and an Epic or better (Tier 5 keeps the Legendary).
 -- It sits on top of whichever Tier 4 row is in use, so it works with cheapTiers on or off. Pace: 18 and 11.4 min.
+-- #5467 (Derek 2026-11-19: "lower the tier 2->tier3 requirements for money and different cats by a lot so people
+-- progress to tier 3 more often"; Growth's funnel: tier_3_ready loses 68% after park_catch): behind its own switch
+-- `tier3Easy`, Tier 3 asks 10,000 coins and 4 kinds (25,000 and 6 with cheapTiers, 50,000 and 6 without). The 2 Rares
+-- stay (the free Bellhop Cat is one). Like tier4Easy it sits on top of either Tier 3 row.
 --   on() -> boolean           cheapTiers
 --   easyFour() -> boolean     tier4Easy
+--   easyThree() -> boolean    tier3Easy
 --   needs() -> needs?         what setTierNeeds gets for the two switches now
 --   follow()                  sets the needs now and each time either switch flips
 
@@ -42,12 +47,22 @@ CheapTiers.NEEDS = {
 CheapTiers.TIER4_FLAG = "tier4Easy"
 CheapTiers.TIER4 = { cost = 250000, needsRarity = "Epic" } :: Catalog.TierNeeds
 
+CheapTiers.TIER3_FLAG = "tier3Easy"
+CheapTiers.TIER3 = { cost = 10000, distinctCats = 4 } :: Catalog.TierNeeds -- #5467: 25,000 and 6 kinds before
+
 local following = false
 
 function CheapTiers.on(): boolean
 	return LiveFlags.shown(
 		CheapTiers.FLAG,
 		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.FLAG)
+	)
+end
+
+function CheapTiers.easyThree(): boolean
+	return LiveFlags.shown(
+		CheapTiers.TIER3_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER3_FLAG)
 	)
 end
 
@@ -58,10 +73,15 @@ function CheapTiers.easyFour(): boolean
 	)
 end
 
--- The rows for the switches: NEEDS with cheapTiers, and Tier 4's row replaced by TIER4 with tier4Easy (its other
--- fields kept from the row it replaces). Pure on its two answers, so the spec can check every pair.
-function CheapTiers.needsFor(cheap: boolean, easy: boolean): { [number]: Catalog.TierNeeds }?
-	if not easy then
+-- The rows for the switches: NEEDS with cheapTiers, Tier 4's row replaced by TIER4 with tier4Easy and Tier 3's by
+-- TIER3 with tier3Easy (#5467), each keeping the other fields of the row it replaces. Pure on its answers, so the
+-- spec can check every case.
+function CheapTiers.needsFor(
+	cheap: boolean,
+	easy: boolean,
+	easyThree: boolean?
+): { [number]: Catalog.TierNeeds }?
+	if not easy and not easyThree then
 		return if cheap then CheapTiers.NEEDS else nil
 	end
 	local out: { [number]: Catalog.TierNeeds } = {}
@@ -70,16 +90,24 @@ function CheapTiers.needsFor(cheap: boolean, easy: boolean): { [number]: Catalog
 			out[tier] = row
 		end
 	end
-	local four: any = table.clone((out[4] or {}) :: any)
-	for field, value in CheapTiers.TIER4 :: any do
-		four[field] = value
+	local function lay(tier: number, over: Catalog.TierNeeds)
+		local row: any = table.clone((out[tier] or {}) :: any)
+		for field, value in over :: any do
+			row[field] = value
+		end
+		out[tier] = row
 	end
-	out[4] = four
+	if easy then
+		lay(4, CheapTiers.TIER4)
+	end
+	if easyThree then
+		lay(3, CheapTiers.TIER3)
+	end
 	return out
 end
 
 function CheapTiers.needs(): { [number]: Catalog.TierNeeds }?
-	return CheapTiers.needsFor(CheapTiers.on(), CheapTiers.easyFour())
+	return CheapTiers.needsFor(CheapTiers.on(), CheapTiers.easyFour(), CheapTiers.easyThree())
 end
 
 local function apply()
@@ -95,6 +123,8 @@ function CheapTiers.follow()
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.FLAG)
 		:Connect(apply)
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER4_FLAG)
+		:Connect(apply)
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER3_FLAG)
 		:Connect(apply)
 end
 

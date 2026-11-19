@@ -225,6 +225,7 @@ return function()
 							or key == "keepLook" -- #5433
 							or key == "bowlLockBig" -- #5455
 							or key == "companionBetter" -- #5457
+							or key == "tier3Easy" -- #5467
 							or key == "secretTraitTile" -- #5445
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258

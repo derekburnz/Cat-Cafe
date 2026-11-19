@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local PoolBang = require(script.Parent.Parent.UI.Components.PoolBang)
+local StationCircles = require(script.Parent.Parent.Effects.StationCircles)
 local StationTiers = require(Shared:WaitForChild("StationTiers"))
 local UIController = require(script.Parent.UIController)
 local WalkUp = require(Shared:WaitForChild("WalkUp"))
@@ -94,18 +95,35 @@ local function partsOf(model: Instance): { Instance }
 	return list
 end
 
+-- #5463: mark (or clear) the walk-up ring of `model` so Effects/StationCircles keeps it hidden while locked
+local function markRing(model: Instance, locked: boolean)
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local ring: Instance? = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	if
+		ring ~= nil
+		and ring:GetAttribute(StationCircles.LOCKED_ATTRIBUTE) ~= (if locked then true else nil)
+	then
+		ring:SetAttribute(StationCircles.LOCKED_ATTRIBUTE, if locked then true else nil)
+	end
+end
+
 local function sweep()
 	local state = UIController.state
 	if state == nil then
 		return
 	end
 	local on = switchOn()
+	local markOn = ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationCircles.FLAG)
+		== true
 	for tag in StationTiers.BY_TAG do
 		local locked = StationTiers.locked(tag, state.tier, on)
 		for _, model in CollectionService:GetTagged(tag) do
 			if not model:IsDescendantOf(Workspace) then
 				continue -- the templates in ReplicatedStorage.Assets carry the tags too
 			end
+			markRing(model, locked and markOn)
 			if locked then
 				for _, instance in partsOf(model) do
 					hideOne(instance)

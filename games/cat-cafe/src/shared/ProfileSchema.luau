@@ -10,6 +10,7 @@ local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
 local CozyCafe = require(script.Parent.CozyCafe)
 local DailyDeal = require(script.Parent.DailyDeal)
+local DailyGifts = require(script.Parent.DailyGifts)
 local DailyTreat = require(script.Parent.DailyTreat)
 local DragonKeep = require(script.Parent.DragonKeep)
 local EquipBest = require(script.Parent.EquipBest)
@@ -1238,6 +1239,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.favGift = raw.favGift == true
 	profile.cozy = CozyCafe.sanitize(raw.cozy) -- #2798, no version
 	profile.giftSteps = PlaytimeGifts.sanitize(raw.giftSteps) -- #2791, no version
+	profile.dailyGifts = DailyGifts.sanitize(raw.dailyGifts) -- #5506, no version
 	-- #2486 (version 43): the Cafe Event reward pieces (string ids of at most 64 characters, whole times) and the
 	-- last event rewarded
 	if type(raw.eventRewards) == "table" then

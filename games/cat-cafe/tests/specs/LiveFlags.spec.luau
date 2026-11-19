@@ -266,6 +266,7 @@ return function()
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "guideArrow" -- #5465
+							or key == "lockedRingsHidden" -- #5463
 							or key == "nightLineNoArrow" -- #5459
 							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)

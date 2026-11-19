@@ -393,7 +393,11 @@ def _roof(r, chimney):
     r.span((-0.7, RIDGE + t / cos - 0.2, FRONT - 1.7), (0.7, RIDGE + t / cos + 0.45, BACK + 1.7), "brick")   # ridge cap
     cx0, cx1, cz0, cz1 = CHIMNEY
     top = 24.5 + (HW - 19.0) * math.tan(PITCH)                                                    # rises with the ridge
-    r.span((cx0, RIDGE - cx1 * tan, cz0), (cx1, top, cz1), "brick")                               # chimney
+    # #5361 (Derek 11-18: the chimney's bottom showed through the ceiling): the stack starts on the roof's top at its
+    # uphill side, and a brick wedge on the roof's top fills under its downhill side, so nothing hangs below the roof
+    rt0, rt1 = RIDGE - cx0 * tan + t / cos, RIDGE - cx1 * tan + t / cos                             # roof top under it
+    r.span((cx0, rt0 - 0.05, cz0), (cx1, top, cz1), "brick")                                      # chimney
+    r.fan_z((cz0 + cz1) / 2, (cx1, rt0 - 0.05), [(cx0, rt0 - 0.05), (cx1, rt1 - 0.05)], cz1 - cz0, "brick")
     r.span((cx0 - 0.3, top, cz0 - 0.3), (cx1 + 0.3, top + 0.5, cz1 + 0.3), "concrete_dark")
     chimney.span((cx0 + 0.5, top + 0.5, cz0 + 0.5), (cx1 - 0.5, top + 0.6, cz1 - 0.5), "fur_black")   # smoke starts here
 

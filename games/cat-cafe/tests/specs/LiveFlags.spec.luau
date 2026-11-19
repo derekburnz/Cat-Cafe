@@ -221,6 +221,7 @@ return function()
 							or key == "cardFollow" -- #5296
 							or key == "companionScene" -- #5284
 							or key == "parkRankPoint" -- #5163
+							or key == "catchCurve" -- #5392
 							or key == "parkFirstEasy" -- #5182
 							or key == "areaWhole" -- Derek 2026-11-18
 							or key == "crateUnstick" -- #5394

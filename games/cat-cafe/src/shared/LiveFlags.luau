@@ -64,6 +64,7 @@ LiveFlags.KEYS = {
 	"perfectFlagged", -- #5379: a Perfect catch marks the cat even while the profile's scripted-press flag is set (CatService); off by default
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
+	"catchCurve", -- #5392: one smooth catch curve by net, area tier and coat, and a bigger net Perfect (shared/Circles); off by default
 	"walkUpSettle", -- Sync 2026-11-18: a walk-up ring stepped into while busy (the intro, a flight) or in the 2 s after waits until the player steps out and back in (WalkUpController); on by default
 	"lockedAreaQuiet", -- #5265: no rainbow, pity or Secret spawn beam, mark or toast from an area this player's tier has not opened (CatService RainbowSpawned, Effects Context.areaShut); on by default
 	"stationTiers", -- #4539: Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers)
@@ -265,6 +266,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankUpSteps = true, -- #5218: first-session flow, on after Sync's phone look with the first Rank Up pointer
 	goalNeedLine = true, -- #5331: first-session flow (stall fix), on at its own minute after Sync's phone look
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
+	catchCurve = true, -- #5392
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
 	companionNudge = true, -- #5364: on as soon as it publishes (Derek 2026-11-18)
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read

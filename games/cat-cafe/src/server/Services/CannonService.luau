@@ -193,6 +193,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		distance = if root ~= nil and model ~= nil
 			then Cannon.reach(root.Position, model:GetPivot().Position) -- #4343: flat, as the ring
 			else nil,
+		anywhere = LiveFlagService.on(Cannon.ANYWHERE_FLAG), -- #5382
 		carrying = CatService.isLoaded(player),
 		busy = CatService.inMinigame(player),
 		flying = CatService.inFlight(player),

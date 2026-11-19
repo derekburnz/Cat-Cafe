@@ -5779,6 +5779,18 @@ Presets.clouds = {
 		tintFrom = 2.6,
 		tintTo = 3.0,
 	},
+	-- #5370 (Derek 2026-11-18: "no need to see floating islands in the distance when shooting in cannon anymore as it
+	-- only shows them half rendered"): with cannonCloudsEarly on, the clouds cover just after the ball leaves the barrel
+	-- (the boom is at 0.5), so the chase up the sky never shows the far areas, and the destination loads behind them
+	cannonEarly = {
+		coverFrom = 0.75,
+		coverTo = 1.0,
+		partFrom = 3.0,
+		partTo = 3.4,
+		tintFrom = 2.6,
+		tintTo = 3.0,
+	},
+	earlyFlag = "cannonCloudsEarly",
 	hop = {
 		coverFrom = 0,
 		coverTo = 0.5,

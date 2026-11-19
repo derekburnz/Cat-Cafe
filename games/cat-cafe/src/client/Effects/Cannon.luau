@@ -18,9 +18,11 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Moments = require(script.Parent.Parent.Moments)
 
 local Clouds = require(script.Parent.Clouds)
@@ -408,14 +410,22 @@ local function launched(character: Model)
 	local spot = (root :: BasePart).Position
 	fly(character, at, REAL, false, findCannon(character, spot), spot)
 	if character == Players.LocalPlayer.Character then
-		Clouds.play(
-			at,
-			FlightClock.clouds(Presets.clouds.cannon, scale),
-			tintOf(character:GetAttribute("CannonTo"))
-		)
+		local plan = Cannon.cloudPlan()
+		Clouds.play(at, FlightClock.clouds(plan, scale), tintOf(character:GetAttribute("CannonTo")))
 		-- your own character glides through the clouds (Animation-Engineer), between the clouds behind and in front
 		local g, rider = glide, Clouds.rider()
-		if g ~= nil and rider ~= nil then
+		local staged: MountStaged? = if g ~= nil then (g :: any).mountStaged else nil
+		if plan == Presets.clouds.cannonEarly and staged ~= nil and rider ~= nil then
+			-- #5370: the clouds close a second early, so the flyer rises into them from then, not from cannonPose.gone
+			local from = plan.coverTo
+			staged(
+				rider,
+				Presets.clouds.riderZ,
+				character,
+				at + from * scale,
+				(Presets.cannonPose.drop - from) * scale
+			)
+		elseif g ~= nil and rider ~= nil then
 			g.mount(rider, Presets.clouds.riderZ, character, at)
 		end
 	end
@@ -622,6 +632,14 @@ function Cannon.stopStaged(model: Model)
 	if real == nil or real.staged then
 		Clouds.stop()
 	end
+end
+
+-- #5370: the cannon's cloud plan, the early one while cannonCloudsEarly is on (read straight).
+function Cannon.cloudPlan(): Logic.CloudPlan
+	local early = ReplicatedStorage:GetAttribute(
+		LiveFlags.ATTRIBUTE_PREFIX .. Presets.clouds.earlyFlag
+	) == true
+	return if early then Presets.clouds.cannonEarly else Presets.clouds.cannon
 end
 
 -- Hands in Animation-Engineer's CannonGlide (init.luau calls it once that module is in the build).

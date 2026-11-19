@@ -120,6 +120,7 @@ local StrayCall = require(script.StrayCall)
 local StuckCall = require(script.StuckCall)
 local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
+local TownPaws = require(script.TownPaws)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
 local TrailSparkle = require(script.TrailSparkle)
@@ -247,6 +248,7 @@ function Effects.start()
 		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,
+		TownPaws.start, -- #5471: the Town Square's paw path built on this client, with townPawsLocal on
 		GuideArrow.start, -- #5465: one arrow by the player in place of the trail, with guideArrow on
 		GoldenFind.start,
 		MoneyBag.start,

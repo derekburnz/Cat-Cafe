@@ -28,6 +28,7 @@ local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local StationIcons = require(ReplicatedStorage.Shared.StationIcons)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
+local TownGround = require(ReplicatedStorage.Shared.TownGround)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
@@ -3124,7 +3125,7 @@ local PAW_COLORS = {
 	sewer = Color3.fromRGB(86, 110, 150), -- slate blue
 	town = Color3.fromRGB(214, 84, 72), -- brick red, stands out on the cream paving
 } :: { [string]: Color3 }
-local PAW_TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.5 } }
+local PAW_TOES = TownGround.TOES
 
 -- `sets` are the area kit sets in place: a print over one sits on the set's own ground (a road, the Sewer's tiles)
 -- when that stands up to PAW_LIFT above the floor Layout gave it, never on a canopy or a roof higher up.
@@ -3132,12 +3133,13 @@ local PAW_LIFT = 1.5
 local function buildPawPaths(parent: Instance, sets: { Instance })
 	-- #5357: a Model, not a Folder, tagged TownGround (shared/TownGround.TAG) so the townGround switch can keep it whole
 	local paths = Instance.new("Model")
-	paths.Name = "PawPaths"
+	paths.Name = TownGround.PATHS_NAME
 	paths.Parent = parent
 	CollectionService:AddTag(paths, "TownGround")
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = sets
+	local listed: { TownGround.Print } = {} -- #5471: the same prints for the clients to build (Effects/TownPaws)
 	for _, paw in Layout.pawPrints() do
 		local color = PAW_COLORS[paw.area] or CREAM
 		local y = paw.y
@@ -3168,11 +3170,28 @@ local function buildPawPaths(parent: Instance, sets: { Instance })
 			p.CanTouch = false
 			p.CastShadow = false
 		end
-		pad("PawPad", 0.95, 0, 0)
+		pad("PawPad", TownGround.PAD, 0, 0)
 		for _, toe in PAW_TOES do
-			pad("PawToe", 0.38, toe[1], toe[2])
+			pad("PawToe", TownGround.TOE, toe[1], toe[2])
 		end
+		table.insert(listed, {
+			x = paw.x,
+			y = y + 0.015,
+			z = paw.z,
+			rotY = paw.rotY,
+			r = math.floor(color.R * 255 + 0.5),
+			g = math.floor(color.G * 255 + 0.5),
+			b = math.floor(color.B * 255 + 0.5),
+		})
 	end
+	local value = ReplicatedStorage:FindFirstChild(TownGround.PAWS_VALUE)
+	if value == nil or not value:IsA("StringValue") then
+		local made = Instance.new("StringValue")
+		made.Name = TownGround.PAWS_VALUE
+		made.Parent = ReplicatedStorage
+		value = made
+	end
+	(value :: StringValue).Value = TownGround.encode(listed)
 end
 
 -- The Cat Cannons (v4, F84, hometown-cannon.md section 3; Layout.cannons): CatCafe_Square_Cannon on the Town

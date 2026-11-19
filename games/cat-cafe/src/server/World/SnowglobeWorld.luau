@@ -315,7 +315,7 @@ function SnowglobeWorld.buildAdventBoard(parent: Instance, portal: Model): Model
 	board:PivotTo(chosen)
 	for _, part in board:GetDescendants() do
 		if part:IsA("BasePart") then
-			part.Anchored = true -- the doors swing by PivotTo on each client, so nothing is welded or unanchored
+			(part :: BasePart).Anchored = true -- the doors swing by PivotTo on each client, so nothing is welded or unanchored
 		end
 	end
 	board.Parent = parent

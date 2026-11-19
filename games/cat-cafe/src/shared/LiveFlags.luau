@@ -63,6 +63,7 @@ LiveFlags.KEYS = {
 	"codes",
 	"perfectFlagged", -- #5379: a Perfect catch marks the cat even while the profile's scripted-press flag is set (CatService); off by default
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
+	"walkUpCarry", -- #5415: with walkUpRetry, a ring stepped into during a carry opens once the carry clears (Controllers/WalkUpController); off by default
 	"rally",
 	"catchCurve", -- #5392: one smooth catch curve by net, area tier and coat, and a bigger net Perfect (shared/Circles); off by default
 	"walkUpSettle", -- Sync 2026-11-18: a walk-up ring stepped into while busy (the intro, a flight) or in the 2 s after waits until the player steps out and back in (WalkUpController); on by default
@@ -259,6 +260,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cafeGrows = true,
 	walkUpRetry = true, -- #5386
 	fxAfterLoad = true, -- #5068: on after Review-QA and a phone read of client_load with it on
+	walkUpCarry = true, -- #5415
 	tomorrowCard = true, -- #3951: on after the Nov 16 and 17 day 1 read of the minute 6 line, a UTC day apart from the funnel switches
 	cannonCue = true, -- #5097: on with Derek's Nov 17 15:00 UTC "all tutorial switches on now"
 	stationCut = true, -- #5112: on after Review-QA and Sync's phone and PC rank up runs

@@ -455,6 +455,18 @@ end
 -- no window. The settle starts only from the busy states it was made for (the intro, a flight, a carry, a catch or a
 -- rescue), never from the prompts being off on their own. The settleCutFree switch, on unless set false, turns this
 -- off (the prompts count again).
+-- #5415: busy with something that puts the player into a ring (the intro, a flight, a catch or a rescue), not a carry.
+local function putBusy(): boolean
+	local ui: any = UI
+	return flying() or ui.catch.circlesActive() or ui.rescue.isActive() or ui.intro.playing()
+end
+
+-- #5415: carrying a cat and nothing else that holds the prompts.
+local function carryOnly(): boolean
+	local state = UIController.state
+	return state ~= nil and state.carrying ~= nil and not putBusy()
+end
+
 local function settleBusy(): boolean
 	if ReplicatedStorage:GetAttribute("LiveFlag_settleCutFree") == false then
 		return blocked()
@@ -477,6 +489,11 @@ local SETTLE_FLAG = "LiveFlag_walkUpSettle"
 -- #5386: a step in while busy (just after a claim, a carry or under a card) keeps its ask and opens once free. Off by
 -- default (LiveFlags walkUpRetry).
 local RETRY_FLAG = "LiveFlag_walkUpRetry"
+-- #5415 (Derek 2026-11-19: "dropping off a cat in an area then trying to run into cannon and menu doesn't work"): the
+-- cannon's prompt hides while carrying (CannonController), so a step into its ring before the carry cleared started
+-- no ask, and the carry also put the ring on the settle list for 2 s more. With walkUpCarry on (and walkUpRetry), a
+-- carry is no longer counted as being put into a ring, and a ring that is off only for the carry keeps the step in.
+local CARRY_FLAG = "LiveFlag_walkUpCarry"
 
 function WalkUpController.start()
 	-- #2910: a press of a walk-up station's prompt, counted against the ring opens (shared/StationOpens)
@@ -506,11 +523,15 @@ function WalkUpController.start()
 			local at = rootPosition()
 			local busy = blocked()
 			local retry = ReplicatedStorage:GetAttribute(RETRY_FLAG) == true
+			local carry = retry and ReplicatedStorage:GetAttribute(CARRY_FLAG) == true
+			local carrying = carry and carryOnly()
 			if settleBusy() then
 				settleUntil = os.clock() + SETTLE_SECONDS
-				for key, inside in state.inside do
-					if inside then
-						settledIn[key] = true
+				if not carrying then
+					for key, inside in state.inside do
+						if inside then
+							settledIn[key] = true
+						end
 					end
 				end
 			elseif os.clock() >= settleUntil then
@@ -536,10 +557,11 @@ function WalkUpController.start()
 					setReach(prompt, hasRing)
 				end
 				local key = keyOf(model)
-				local off = (settling and (not retry or settledIn[key] == true))
-					or if prompt == nil
-						then not (loose == true and hasRing)
-						else not (prompt :: ProximityPrompt).Enabled
+				local settledOff = settling and (not retry or settledIn[key] == true)
+				local promptOff = if prompt == nil
+					then not (loose == true and hasRing)
+					else not (prompt :: ProximityPrompt).Enabled
+				local off = settledOff or promptOff
 				local position = if hasRing
 					then centre
 					elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
@@ -554,6 +576,7 @@ function WalkUpController.start()
 					window = window,
 					distance = distance,
 					off = off,
+					waits = carrying and not settledOff, -- #5415: off for the carry alone
 					radius = if hasRing
 						then ringRadius
 						elseif prompt ~= nil then (ownReach[prompt :: ProximityPrompt] or (

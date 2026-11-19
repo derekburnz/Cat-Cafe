@@ -261,6 +261,9 @@ export type Station = {
 	distance: number?,
 	radius: number,
 	off: boolean?,
+	-- #5415: off only for now (its prompt hidden while the player carries a cat), so a step in still starts its ask
+	-- (with `retry`) and the window opens once it is on, the player still in the ring
+	waits: boolean?,
 }
 
 -- What the controller keeps between looks: whether the character was at each station (nil before the first look at
@@ -319,7 +322,9 @@ function WalkUp.step(
 		state.inside[station.key] = now
 		if not now then
 			state.since[station.key] = nil
-		elseif was == false and station.off ~= true then
+		elseif
+			was == false and (station.off ~= true or (retry == true and station.waits == true))
+		then
 			state.since[station.key] = at or 0
 		end
 		local since = state.since[station.key]

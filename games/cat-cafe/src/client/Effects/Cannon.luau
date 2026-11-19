@@ -634,7 +634,6 @@ function Cannon.stopStaged(model: Model)
 	end
 end
 
--- Hands in Animation-Engineer's CannonGlide (init.luau calls it once that module is in the build).
 -- #5370: the cannon's cloud plan, the early one while cannonCloudsEarly is on (read straight).
 function Cannon.cloudPlan(): Logic.CloudPlan
 	local early = ReplicatedStorage:GetAttribute(
@@ -643,6 +642,7 @@ function Cannon.cloudPlan(): Logic.CloudPlan
 	return if early then Presets.clouds.cannonEarly else Presets.clouds.cannon
 end
 
+-- Hands in Animation-Engineer's CannonGlide (init.luau calls it once that module is in the build).
 function Cannon.setGlide(api: Glide)
 	glide = api
 end

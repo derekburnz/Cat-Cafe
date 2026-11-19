@@ -18,6 +18,7 @@ local Workspace = game:GetService("Workspace")
 
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local Config = require(ReplicatedStorage.Shared.Config)
+local RecordMode = require(ReplicatedStorage.Shared.RecordMode)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -85,10 +86,40 @@ local function publish(phase: Types.ClockPhase, secondsLeft: number)
 	ClockService.changed:Fire(phase, currentEndsAt)
 end
 
+-- Studio clip recordings (shared/RecordMode): while it is on the clock stands still. Each HOLD_STEP the clock's
+-- start and the phase's end move on by the time that passed, so the phase and its countdown hold, and the clock runs
+-- on from where it stood once the attribute is cleared (`tick` is declared below and set before the first hold).
+local HOLD_STEP = 1
+local tick: () -> ()
+local function hold(myGeneration: number)
+	task.spawn(function()
+		local last = os.clock()
+		while generation == myGeneration and RecordMode.on() do
+			task.wait(HOLD_STEP)
+			local now = os.clock()
+			startedAt += now - last
+			dayUntil += now - last
+			currentEndsAt += now - last
+			last = now
+			local folder = clockFolder
+			if folder ~= nil then
+				folder:SetAttribute("PhaseEndsAt", currentEndsAt)
+			end
+		end
+		if generation == myGeneration then
+			tick()
+		end
+	end)
+end
+
 -- Publishes the phase if it changed, then sleeps until it ends.
-local function tick()
+function tick()
 	generation += 1
 	local myGeneration = generation
+	if RecordMode.on() and published then
+		hold(myGeneration) -- Studio clip recordings: hold, then tick again once recording stops
+		return
+	end
 	local t = os.clock() - startedAt
 	local phase: Types.ClockPhase, secondsLeft: number = Clock.phaseAt(t)
 	local wake = secondsLeft
@@ -124,6 +155,14 @@ function ClockService.start()
 	startedAt = os.clock() - math.max(0, Workspace:GetServerTimeNow() - Config.ClockEpoch)
 	dayUntil = Clock.firstDayUntil(os.clock() - startedAt) -- #2184: a new server opens by day
 	tick()
+	if RunService:IsStudio() then
+		-- Studio clip recordings: setting RecordMode holds the clock at once, mid phase
+		Workspace:GetAttributeChangedSignal(RecordMode.ATTRIBUTE):Connect(function()
+			if RecordMode.on() then
+				tick()
+			end
+		end)
+	end
 end
 
 function ClockService.phase(): Types.ClockPhase

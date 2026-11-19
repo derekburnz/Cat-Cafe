@@ -1331,6 +1331,19 @@ do
 		end
 		Second.step(player, profile, SecondCat.SHOWN)
 		local root = rootPosition(player)
+		-- onboarding_v9's stray_marked counts only once the player stands in the Alleyway. The step_time above starts
+		-- at the first customer served, still in town, so it logged stray_marked (and the cannon steps before it)
+		-- before the flight and the drop showed at near_stray (Growth's read 2026-11-18)
+		if
+			root ~= nil
+			and WorldBuilder.areaAt(world, root) == SecondCat.AREA
+			and M.Onboarding.cleanWants(
+				profile.telemetry.cleanV9Step or 0,
+				M.Onboarding.CLEAN_EVENTS.strayMarked
+			)
+		then
+			Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.strayMarked)
+		end
 		if root ~= nil and SecondCat.followed(root, waiting.body.Position) then
 			Second.step(player, profile, SecondCat.FOLLOWED)
 			if

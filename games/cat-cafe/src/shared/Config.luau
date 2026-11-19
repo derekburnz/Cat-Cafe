@@ -851,7 +851,7 @@ local Config = {
 			id = "0",
 			startsAt = 1795006800, -- 2026-11-18 13:00 UTC
 			liveUntil = 1795291200, -- 2026-11-21 20:00 UTC
-			name = "CAT FOLLOWER",
+			name = "CAT COMPANION", -- #5356: the follower's new name (#5284)
 			poster = "rbxassetid://140613402107560", -- Model-Agent's v2 poster (#5213, 1024x576)
 		},
 		{

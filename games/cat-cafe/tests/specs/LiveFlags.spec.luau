@@ -222,6 +222,7 @@ return function()
 							or key == "areaWhole" -- Derek 2026-11-18
 							or key == "nextGoalBeat" -- #5202
 							or key == "milestoneFunnel" -- #5291
+							or key == "townGround" -- #5357
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
 							or key == "promptsAfter5" -- #5251

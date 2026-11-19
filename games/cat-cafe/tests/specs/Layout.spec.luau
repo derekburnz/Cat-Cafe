@@ -1303,10 +1303,11 @@ return function()
 			fishMarket = { x = -38.13, z = 50.32, rotY = -58.0, point = Layout.fishMarket },
 			bellhopStand = { x = -44.71, z = 15.27, rotY = -71.1, point = Layout.bellhopStand },
 			leaderboards = { x = -44.0, z = -17.0, rotY = -90.0, point = Layout.leaderboards },
+			-- #5356 (Derek 2026-11-18): off its ring spot, half size, by the west edge nearer the leaderboards
 			updatePoster = {
-				x = -37.99,
-				z = -49.80,
-				rotY = -142.7,
+				x = -45.0,
+				z = -40.5,
+				rotY = -120.5,
 				point = square.updatePoster :: any,
 			},
 			feedbackStand = { x = -33.51, z = -58.19, rotY = -150.1, point = Layout.feedbackStand },

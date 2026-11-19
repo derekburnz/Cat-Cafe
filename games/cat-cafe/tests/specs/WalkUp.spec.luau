@@ -36,6 +36,31 @@ return function()
 			expect(close).to.equal(true)
 		end)
 
+		it("with retry, a step in while busy or under a card opens once free (#5386)", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("cannon", 20, "Cannon") }, false, nil, 0, true)
+			-- walked in while the claim's card is up, then while busy
+			local open =
+				WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, "CatFound", 1, true)
+			expect(open).to.equal(nil)
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, true, nil, 2, true)
+			expect(open).to.equal(nil)
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, nil, 3, true)
+			expect(open).to.equal("cannon")
+			-- closed by hand while still standing there: it stays shut
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, nil, 4, true)
+			expect(open).to.equal(nil)
+		end)
+
+		it("without retry, a step in under a card is asked once (as before)", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("cannon", 20, "Cannon") }, false, nil, 0)
+			local open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, "CatFound", 1)
+			expect(open).to.equal(nil)
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, nil, 3)
+			expect(open).to.equal(nil)
+		end)
+
 		it("opens nothing for a player who spawns or lands already there", function()
 			local state = WalkUp.new()
 			expect((WalkUp.step(state, { at("cannon", 3, "Cannon") }, false, nil))).to.equal(nil)

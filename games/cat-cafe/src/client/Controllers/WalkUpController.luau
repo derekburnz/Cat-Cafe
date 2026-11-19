@@ -473,6 +473,9 @@ end
 -- dwell only on a step in to a ring that is on). The walkUpSettle switch, on unless set false, turns this off.
 local SETTLE_SECONDS = 2
 local SETTLE_FLAG = "LiveFlag_walkUpSettle"
+-- #5386: a step in while busy (just after a claim, a carry or under a card) keeps its ask and opens once free. Off by
+-- default (LiveFlags walkUpRetry).
+local RETRY_FLAG = "LiveFlag_walkUpRetry"
 
 function WalkUpController.start()
 	-- #2910: a press of a walk-up station's prompt, counted against the ring opens (shared/StationOpens)
@@ -493,13 +496,24 @@ function WalkUpController.start()
 		table.clear(state.inside)
 	end)
 	local settleUntil = 0
+	-- #5386: the rings the player stood in while busy; with walkUpRetry on, only these stay shut for the settle, so a
+	-- ring walked into after a claim or a carry opens (once free) and the intro's put-into ring still does not
+	local settledIn: { [string]: boolean } = {}
 	task.spawn(function()
 		while true do
 			task.wait(POLL_SECONDS)
 			local at = rootPosition()
 			local busy = blocked()
+			local retry = ReplicatedStorage:GetAttribute(RETRY_FLAG) == true
 			if settleBusy() then
 				settleUntil = os.clock() + SETTLE_SECONDS
+				for key, inside in state.inside do
+					if inside then
+						settledIn[key] = true
+					end
+				end
+			elseif os.clock() >= settleUntil then
+				table.clear(settledIn)
 			end
 			local settling = os.clock() < settleUntil
 				and ReplicatedStorage:GetAttribute(SETTLE_FLAG) ~= false
@@ -520,7 +534,8 @@ function WalkUpController.start()
 				if prompt ~= nil then
 					setReach(prompt, hasRing)
 				end
-				local off = settling
+				local key = keyOf(model)
+				local off = (settling and (not retry or settledIn[key] == true))
 					or if prompt == nil
 						then not (loose == true and hasRing)
 						else not (prompt :: ProximityPrompt).Enabled
@@ -531,7 +546,6 @@ function WalkUpController.start()
 				local distance = if at ~= nil and position ~= nil
 					then Vector2.new(at.X - position.X, at.Z - position.Z).Magnitude
 					else nil
-				local key = keyOf(model)
 				opener[key] = open
 				windowOf[key] = window
 				table.insert(stations, {
@@ -574,7 +588,7 @@ function WalkUpController.start()
 			local openedKey = state.opened
 			local ok, open, close = pcall(function()
 				local current = UI.isOpen()
-				local key, shut = WalkUp.step(state, stations, busy, current, os.clock())
+				local key, shut = WalkUp.step(state, stations, busy, current, os.clock(), retry)
 				return key, shut
 			end)
 			if not ok then

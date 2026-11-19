@@ -173308,7 +173308,7 @@
         "CatCafe_Square_Paving_LanePavers",
         "CatCafe_Square_Paving_WalkPavers"
       ],
-      "triangles": 5024,
+      "triangles": 4160,
       "budget": 20000,
       "size_studs": {
         "x": 108.0,
@@ -173341,7 +173341,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Paving.model.json",
-      "rbx_parts": 410,
+      "rbx_parts": 338,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Paving.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Paving.glb"
@@ -173353,10 +173353,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "5024/20000 tris",
+          "budget": "4160/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2576 faces on swatch centers",
+          "uv": "2144 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

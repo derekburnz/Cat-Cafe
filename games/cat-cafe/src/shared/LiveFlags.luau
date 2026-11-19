@@ -107,6 +107,7 @@ LiveFlags.KEYS = {
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
+	"cannonReturnNow", -- #5417: with cannonReturn, the Cannon picker comes back the moment a Rummage started from it ends (UI.cannon.rummageBack); off by default
 	"areasKept", -- #5381: with areaWhole on, every unlocked area loads once and stays on the device (shared/AreaWhole); off by default
 	"firstFlightQuick", -- #4920: the walk-through's flights out take 2/3 of every beat (shared/Cannon.flightScale)
 	"areasKeptRecent", -- Derek 2026-11-19: with areasKept and areasKeptBig, a phone or tablet keeps its 2 most recent areas, not one (shared/AreaWhole.keptLimit); off by default
@@ -156,10 +157,12 @@ LiveFlags.KEYS = {
 	"kingCatInfo", -- #5260: the Cat King Pack's gold chip and i sheet say how King Croissant earns (Components/StoreLogic); off by default
 	"walkUpRetry", -- #5386: a ring stepped into while busy opens once the player is free (Controllers/WalkUpController); off by default
 	"rankUpSteps", -- #5218: the Rank Up window's needs as numbered steps with a Go button (Screens/RankUp); off by default
+	"secretDouble", -- #5418: twice the share of rolled Mythicals that turn Secret, everywhere, and on every odds card (shared/Catching.secretShare); off by default
 	"goalNeedLine", -- #5331: the folded goal chip and a takeover goal show the biggest Rank Up need (Components/GoalNeed); off by default
 	"noRankOpens", -- #5258: the Rank Up window has no "It opens" section and is one shorter column (Screens/RankUp); off by default
 	"oneLadderRow", -- #5254: the Rewards list shows only the next gift ladder step, below Gifts and Daily treat (Screens/HUD); off by default
 	"companionNudge", -- #5364: a red "!" on the Cats menu Companion button while none follows (Screens/CatRoom); off by default
+	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"nightLine", -- #5330: at night up to Tier 4 the strip says when the areas open, with an arrow to Upgrades (Components/NightLine); off by default
@@ -184,6 +187,8 @@ LiveFlags.KEYS = {
 	"cannonAnywhere", -- #5382: a cannon launch is never refused for distance (shared/Cannon); off by default
 	"nextGoalBeat", -- #5202: a "What next?" card once after the first Park catch (shared/NextGoal); off by default
 	"milestoneFunnel", -- #5291: the milestones_v1 progression funnel for new accounts (shared/MilestoneFunnel); off by default
+	"topTraitCompanion", -- #5445: Legendary and Mythic traits add to their cat's Cat Companion boosts (shared/Traits); off by default
+	"topTraitsMore", -- #5445: three more Mythic and two more Secret traits in the Mystic Pool (shared/Traits); on only after a restart; off by default
 	"tameCannonPoint", -- #5245: after the first bowl cat's card the Cannon button is dimmed and pointed at until pressed, and the picker's ringed Launch too (UI applyTutorial, Screens/Cannon); off by default
 	"parkLead", -- #5248: after the Tier 2 rank up no Alleyway new kind line, the picker's Park Launch dimmed and pointed at until pressed, no marker in a flight (Screens/Cannon); off by default
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
@@ -195,13 +200,17 @@ LiveFlags.KEYS = {
 	"firstCatchWow", -- #5285 E2: the account's first net catch gets slow motion, a push in, a big pop, coins and a FIRST CATCH! banner (Effects/FirstCatchWow); off by default
 	"gemsShrink", -- Derek 2026-11-18: a stray's rarity gem gets smaller with distance so it stops covering far cats (Effects/Rarity, Logic.gemPixels); off by default
 	"christmasEvent", -- Snowglobe Village, Dec 1 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
+	"keepNoEvent", -- #5428: the Dragon Keep move in list leaves out event cats and the server refuses them (DragonKeep.eventCat); off by default
 	"bangRelayout", -- #5261: a "!" bubble showing with words but laid out blank lays its text out again (UI/Components/MarketBang); on by default
 	"phoneSmooth", -- #5285 A1: a new account on a touch screen starts in Smooth mode, no ask (shared/PerfSuggest.autoStart); off by default
 	"bangFixedText", -- #5390: the "!" bubbles' words sized by hand, not TextScaled (UI/Components/MarketBang); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
+	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
+	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
+	"bowlHintRetry", -- #5438: the tutorial strip is worked out again when a new server's switches arrive, so bowl first shows its food ask (Controllers/UIController); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
 }
@@ -234,6 +243,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	dailyDeal = true,
 	perfectFlagged = true, -- #5379
 	starterSuggest = true,
+	cannonReturnNow = true, -- #5417
 	areasKeptBig = true, -- Sync 2026-11-19
 	updateFeature = true,
 	areasKeptRecent = true, -- Derek 2026-11-19
@@ -284,7 +294,9 @@ LiveFlags.OFF_BY_DEFAULT = {
 	noRankOpens = true, -- #5258: first-session flow, on after Review-QA's phone check with the first Rank Up pointer
 	catchCurve = true, -- #5392
 	oneLadderRow = true, -- #5254: on after Review-QA's phone check of the Rewards list
+	secretDouble = true, -- #5418
 	companionNudge = true, -- #5364: on as soon as it publishes (Derek 2026-11-18)
+	plushSecret = true, -- #5414: on as soon as it publishes (Derek 2026-11-19)
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	nightLine = true, -- #5330: on after Review-QA and Sync's phone look, 2 h from other switches
@@ -315,11 +327,17 @@ LiveFlags.OFF_BY_DEFAULT = {
 	firstCatchWow = true, -- #5285 E2: first-session change; on after Review-QA and Sync's look at a first catch
 	gemsShrink = true, -- Derek 2026-11-18: on after Review-QA and Sync's phone and PC look at far gems
 	christmasEvent = true, -- snowglobe-village-spec: on Nov 29 after Sync's look; the event dates still hold the portal shut until Dec 1
+	keepNoEvent = true, -- #5428
 	nextGoalBeat = true, -- #5202: on after Review-QA and Sync's pass, at a minute with no other switch within 2 hours
 	milestoneFunnel = true, -- #5291: analytics only; on after Review-QA, then Growth reads it from new accounts
+	topTraitCompanion = true, -- #5445
+	topTraitsMore = true, -- #5445: on only once every server runs the new ids (a restart)
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
+	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
+	secretCompanionBig = true, -- #5431
 	decorChipIcons = true, -- #5366: on after Review-QA, once the six pictures pass moderation
+	bowlHintRetry = true, -- #5438
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 	bowlWalkQuiet = true, -- #5436
 } :: { [string]: boolean }

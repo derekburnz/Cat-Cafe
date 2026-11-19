@@ -2444,7 +2444,7 @@ Catalog.lures = {
 	-- #4900 (Derek 2026-11-16: "a new secret tier of bait bowl food ... night market and coin shop ... assume people are
 	-- making 1B a second so make it really expensive", then "make the price 10x"): a late game money sink at a flat
 	-- $20T (about 5.5 hours at $1B a second), used up by one bowl. A tenth of its Mythicals turn Secret
-	-- (secretShare; 1 in 100 for every other food), so its card reads Legendary 50%, Mythical 45%, Secret 5%. Sold by
+	-- (secretShare; 1 in 100 for every other food), so its card reads Legendary 50%, Mythical 45%, Secret 5% (40% and 10% with secretDouble, #5418). Sold by
 	-- the night dealer and the Day Cart from Tier 8. It wears the Comet Treat's model until its own is made.
 	{
 		id = "eclipse_treat",

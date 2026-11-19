@@ -652,7 +652,17 @@ DragonKeep.Messages = {
 	lastCat = "Keep at least one cat",
 	confirm = "Confirm the special cats first",
 	pending = "Choose that cat's new trait first",
+	eventCat = "Event cats can't move into the Keep",
 }
+
+-- #5428 (Derek 2026-11-19: "don't let people or even show the event cats inside the dragon sacrafice menu"): with
+-- keepNoEvent on, an event cat (a Harvest Hollow cat, area "harvest", as Quests counts them) is left out of the move
+-- in list and refused by giveBlocker.
+DragonKeep.NO_EVENT_FLAG = "keepNoEvent"
+function DragonKeep.eventCat(catId: string): boolean
+	local def = Catalog.getCat(catId)
+	return def ~= nil and def.area == "harvest"
+end
 
 -- Why the cats `uids` cannot all move in, or nil. `trading` an open trade or offer. `confirmed` the player's yes to a
 -- gold, rainbow or Legendary and better cat in the set. Duplicate uids count once.
@@ -661,7 +671,8 @@ function DragonKeep.giveBlocker(
 	tier: number,
 	uids: { string },
 	trading: boolean,
-	confirmed: boolean
+	confirmed: boolean,
+	noEvent: boolean? -- #5428: keepNoEvent is on
 ): string?
 	if not DragonKeep.open(tier) then
 		return DragonKeep.Messages.shut
@@ -681,6 +692,9 @@ function DragonKeep.giveBlocker(
 			end
 			if instance.locked == true then
 				return DragonKeep.Messages.locked
+			end
+			if noEvent == true and DragonKeep.eventCat(instance.catId) then
+				return DragonKeep.Messages.eventCat
 			end
 			if CatStats.atSpa(profile, uid) then
 				return DragonKeep.Messages.atSpa
@@ -708,7 +722,11 @@ end
 -- The quick buttons' picks: "commons" (every Common) or "repeats" (every copy past the first of its cat), both
 -- skipping locked, working, at the spa, gold, rainbow and Legendary or better cats, and the last copy of any cat.
 -- Weakest first. Never the player's last cat.
-function DragonKeep.quickPlan(profile: Types.PlayerProfile, kind: string): { string }
+function DragonKeep.quickPlan(
+	profile: Types.PlayerProfile,
+	kind: string,
+	noEvent: boolean?
+): { string }
 	local byCat: { [string]: { Types.CatInstance } } = {}
 	local total = 0
 	for _, instance in profile.cats do
@@ -723,7 +741,11 @@ function DragonKeep.quickPlan(profile: Types.PlayerProfile, kind: string): { str
 	local picks: { Types.CatInstance } = {}
 	for catId, list in byCat do
 		local def = Catalog.getCat(catId)
-		if def == nil or (kind == "commons" and def.rarity ~= "Common") then
+		if
+			def == nil
+			or (kind == "commons" and def.rarity ~= "Common")
+			or (noEvent == true and def.area == "harvest") -- #5428
+		then
 			continue
 		end
 		local free: { Types.CatInstance } = {}

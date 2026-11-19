@@ -171,7 +171,8 @@ local function useLure(
 			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
 				then Catching.baitAreas(Economy.tier(profile))
 				else nil,
-			lure.secretShare -- #4900: the Eclipse Treat's 1 in 10
+			-- #4900: the Eclipse Treat's 1 in 10; #5418: twice that with secretDouble
+			Catching.secretShare(lure.secretShare, LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG))
 		)
 		else nil
 	if secret ~= nil then

@@ -183,7 +183,8 @@ local function describe(uid: string): (string, string?, string?)
 			and (state :: any).follower.boost == "luck"
 		then "luck"
 		else "money"
-	local perk = Follower.text(Follower.amount(def.rarity, boost, cat.variant), boost)
+	local perk =
+		Follower.text(Follower.amount(def.rarity, boost, cat.variant, Follower.areaOf(def)), boost)
 	return name, perk, cat.catId
 end
 

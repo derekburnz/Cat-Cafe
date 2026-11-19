@@ -163,6 +163,7 @@ return function()
 							or key == "afkButton" -- #4346
 							or key == "tier8" -- #3997
 							or key == "tier9" -- #4070
+							or key == "cannonReturnNow" -- #5417
 							or key == "areasKept" -- #5381
 							or key == "tier10" -- #4184
 							or key == "areasKeptBig" -- Sync 2026-11-19
@@ -186,6 +187,7 @@ return function()
 							or key == "palDay" -- #4913
 							or key == "areaOnly" -- #5026
 							or key == "harvestPieLow" -- #4251
+							or key == "secretDouble" -- #5418
 							or key == "walkUpRetry" -- #5386
 							or key == "cafeGrows" -- #4543
 							or key == "fxAfterLoad" -- #5068
@@ -217,6 +219,7 @@ return function()
 							or key == "cheapTiers" -- #5249
 							or key == "tier4Easy" -- #5285 E
 							or key == "companionNudge" -- #5364
+							or key == "plushSecret" -- #5414
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
 							or key == "kingCatInfo" -- #5260
@@ -235,8 +238,12 @@ return function()
 							or key == "cannonAnywhere" -- #5382
 							or key == "nextGoalBeat" -- #5202
 							or key == "milestoneFunnel" -- #5291
+							or key == "topTraitCompanion" -- #5445
+							or key == "topTraitsMore" -- #5445
 							or key == "townGround" -- #5357
+							or key == "tipPileOldest" -- #5422
 							or key == "decorChipIcons" -- #5366
+							or key == "bowlHintRetry" -- #5438
 							or key == "chipPickedWord" -- #5406
 							or key == "bowlWalkQuiet" -- #5436
 							or key == "tameCannonPoint" -- #5245
@@ -251,7 +258,9 @@ return function()
 							or key == "firstCatchWow" -- #5285
 							or key == "gemsShrink" -- Derek 2026-11-18
 							or key == "christmasEvent" -- snowglobe-village-spec
+							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
+							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

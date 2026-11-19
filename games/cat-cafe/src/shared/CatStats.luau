@@ -242,9 +242,28 @@ function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
 	return best
 end
 
+-- #5414 (Derek 2026-11-19: "make him as good as the tier 9 secret"): with the `plushSecret` switch on, the Booth
+-- Plush Cat earns exactly like the Water Park's Secret (PLUSH_LIKE): its rate and its lift from the owner's best area.
+-- It stays an Exclusive cat everywhere else (Derek: "he can stay in exclusive tho").
+CatStats.PLUSH_ID = "booth_plush"
+CatStats.PLUSH_LIKE = "abyss"
+CatStats.PLUSH_FLAG = "plushSecret"
+-- The CatDef `def` earns as: PLUSH_LIKE's for the Booth Plush Cat when `on`, else its own. `on` nil reads the switch.
+function CatStats.earnsAs(def: Types.CatDef, on: boolean?): Types.CatDef
+	if def.id ~= CatStats.PLUSH_ID then
+		return def
+	end
+	local switched = if on ~= nil
+		then on
+		else game:GetService("ReplicatedStorage")
+			:GetAttribute("LiveFlag_" .. CatStats.PLUSH_FLAG) == true
+	return if switched then Catalog.getCat(CatStats.PLUSH_LIKE) or def else def
+end
+
 -- A cat's base rate for an owner at `tier`: its rarity's rate times areaMultiplier. Its CatDef's incomePerSecond
 -- without a tier, or when it does not keep up.
-local function baseRate(def: Types.CatDef, tier: number?): number
+local function baseRate(catDef: Types.CatDef, tier: number?): number
+	local def = CatStats.earnsAs(catDef)
 	local own = def.incomePerSecond
 	local multiplier = CatStats.areaMultiplier(def, tier)
 	local base = rarityRate(def)

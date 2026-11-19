@@ -105,6 +105,14 @@ return function()
 			i = { catId = "ginger", locked = true },
 			j = { catId = "smoke" },
 		}
+		it("leaves out event cats only with keepNoEvent on (#5428)", function()
+			local mixed = { a = { catId = "tabby" }, k = { catId = "hay_bale" } }
+			expect(#Logic.candidates(mixed, nil)).to.equal(2)
+			local list = Logic.candidates(mixed, nil, true)
+			expect(#list).to.equal(1)
+			expect(list[1].uid).to.equal("a")
+		end)
+
 		it("leaves out locked and busy cats and sorts weakest first", function()
 			local list = Logic.candidates(cats, { j = true })
 			expect(#list).to.equal(8)

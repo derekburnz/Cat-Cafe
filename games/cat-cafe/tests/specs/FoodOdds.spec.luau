@@ -37,6 +37,18 @@ return function()
 		end)
 	end)
 
+	describe("a Secret tier food's odds with secretDouble on (#5418)", function()
+		it("shows the doubled share the bowl rolls (Catching.secretShare)", function()
+			local Catching = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catching")
+			) :: any
+			local odds = { Common = 0, Rare = 0, Epic = 0, Legendary = 50, Mythical = 50 }
+			expect(FoodOdds.line(odds, Catching.secretShare(0.1, true))).to.equal(
+				"Odds: 0% Common · 0% Rare · 0% Epic · 50% Legendary · 40% Mythical · 10% Secret"
+			)
+		end)
+	end)
+
 	describe("FoodOdds.split", function()
 		it("adds each rarity's per-cat shares back up to its share (N69)", function()
 			local Catalog = require(

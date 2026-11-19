@@ -1113,7 +1113,11 @@ function DragonKeep._giveCell(self: any, index: number): any
 end
 
 function DragonKeep._candidates(self: any): { DragonKeepLogic.Candidate }
-	return DragonKeepLogic.candidates(self._cats, self._busy)
+	return DragonKeepLogic.candidates(
+		self._cats,
+		self._busy,
+		ReplicatedStorage:GetAttribute("LiveFlag_" .. SharedKeep.NO_EVENT_FLAG) == true -- #5428
+	)
 end
 
 function DragonKeep._paintGive(self: any)

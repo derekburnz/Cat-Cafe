@@ -76,6 +76,7 @@ local M = {
 	PlotService = require(script.Parent.PlotService),
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	StrayMeets = require(ReplicatedStorage.Shared.StrayMeets), -- onboarding_v9 near_stray
 	OpenSpot = require(script.Parent.Parent.World.OpenSpot), -- #5038: where a waiting Park stray may sit
 	Potions = require(ReplicatedStorage.Shared.Potions),
 	RallyService = require(script.Parent.RallyService),
@@ -1331,12 +1332,23 @@ do
 		end
 		Second.step(player, profile, SecondCat.SHOWN)
 		local root = rootPosition(player)
+		local inAlley = root ~= nil and WorldBuilder.areaAt(world, root) == SecondCat.AREA
+		-- onboarding_v9 (switch strayMeets): for a first catch by hand the stray walks over to stand by the landing
+		if
+			inAlley
+			and M.LiveFlagService.on(M.StrayMeets.FLAG)
+			and M.StrayMeets.due(SecondCat.caught(profile.stats))
+		then
+			local meet = M.StrayMeets.point(pad, waiting.home)
+			if (meet - waiting.home).Magnitude > 0.5 then
+				waiting.home = meet
+			end
+		end
 		-- onboarding_v9's stray_marked counts only once the player stands in the Alleyway. The step_time above starts
 		-- at the first customer served, still in town, so it logged stray_marked (and the cannon steps before it)
 		-- before the flight and the drop showed at near_stray (Growth's read 2026-11-18)
 		if
-			root ~= nil
-			and WorldBuilder.areaAt(world, root) == SecondCat.AREA
+			inAlley
 			and M.Onboarding.cleanWants(
 				profile.telemetry.cleanV9Step or 0,
 				M.Onboarding.CLEAN_EVENTS.strayMarked

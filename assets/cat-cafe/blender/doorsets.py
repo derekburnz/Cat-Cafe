@@ -8,6 +8,7 @@ also"). A door set restyles the cafe's front and back doors together; a cat flap
   #2651 adds the Desert's ArchGate set and SunDisc flap and the Ruins' TempleGate set and Keyhole flap.
   The Snowy Crate (tier8-snowy-mountain.md section 6) adds the Chalet set and the Igloo flap.
   The Water Park Crate adds the TicketGate set and the Slide flap.
+  CatCafe_Plot_FrontDoor        #5385: the cafe's own front doors where no door set is in use, standing open for good
 
 Pivots are where CafeService.refreshDoors puts each model, facing out (-Z):
   _Front   the foot of the front doorway on the wall's inside face, plot (0, 0, -14); the street is -Z
@@ -727,6 +728,34 @@ class Drawbridge:
         L.span(b, ring[0] - 0.2, ring[0] + 0.2, ring[1] - 0.06, ring[1] + 0.06, L.inn - 0.12, L.inn, self.IRON)
         L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.07 if L.back else 0.06, self.IRON)
 
+class CafeOwn:
+    """The cafe's own front doors (#5385, Derek 2026-11-19: "doors missing at front of cafe"): wood leaves in the
+    cafe's back door colours, four panes up top, a moulded panel below, iron straps and a brass knob. Not a door
+    set: CatCafe_Plot_FrontDoor stands them open into the cafe for good (build_front_open)."""
+    NAME, SILL = "CafeOwn", "dark_wood"
+
+    def leaf(self, L, b, g):
+        w, y1 = L.w, L.y1
+        win = (0.45, w - 0.45, 3.9, y1 - 0.5)
+        u0, u1, ga, gb = win
+        L.body(b, [win], doors.WOOD)
+        L.glass(g, win)
+        cu, cy = (u0 + u1) / 2, (ga + gb) / 2                       # glazing bars, recessed from both faces
+        L.span(b, cu - 0.06, cu + 0.06, ga, gb, L.mid - 0.07, L.mid + 0.07, doors.TRIM)
+        L.span(b, u0, u1, cy - 0.06, cy + 0.06, L.mid - 0.06, L.mid + 0.06, doors.TRIM)
+        for n0, n1 in L.faces(0.05):
+            L.outline(b, u0 - 0.1, u1 + 0.1, ga - 0.1, gb + 0.1, 0.1, n0, n1, doors.TRIM)    # bead round the panes
+            L.outline(b, 0.45, w - 0.45, 0.6, 3.3, 0.14, n0, n1, doors.MOULD)             # the raised panel
+        for y in (0.95, y1 - 0.6):                                  # iron straps outside, knuckles on the hinge edge
+            L.span(b, 0.02, 1.3, y - 0.12, y + 0.12, L.out, L.out + 0.04, doors.IRON)
+        L.knuckles(b, (0.95, y1 - 0.6), 0.06, doors.IRON)
+        hu, hy = w - 0.35, 3.6
+        for zf, s in ((L.out, 1), (L.inn, -1)):                     # a brass knob on a rose, each face
+            L.cyl(b, hu, hy, zf + s * 0.015, 0.11, 0.03, doors.BRASS, segments=10)
+            L.cyl(b, hu, hy, zf + s * 0.08, 0.04, 0.1, doors.BRASS, segments=8)
+            L.cyl(b, hu, hy, zf + s * 0.15, 0.1, 0.06, doors.BRASS, segments=10)
+
+
 SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), PanedGlass(), Medal(), ArchGate(),
         TempleGate(), Chalet(), TicketGate(), Drawbridge())
 
@@ -1069,7 +1098,31 @@ FLAPS = {"Plain": build_flap_plain, "NeonPaw": build_flap_neon_paw, "Birdhouse":
          "Keyhole": build_flap_keyhole, "Igloo": build_flap_igloo, "Slide": build_flap_slide,
          "Portcullis": build_flap_portcullis}
 
-ASSETS = {}
+
+FRONT_DOOR = "CatCafe_Plot_FrontDoor"
+
+
+def build_front_open(mat):
+    """#5385: the cafe's own front doors, where no door set is in use (CafeService.refreshDoors puts it as DoorFront,
+    pivot as a door set's _Front). The leaves stand open into the cafe, turned as a door set's by day (-90 and +90
+    about Y), and never move, so the doorway stays as open as the bare arch was. The threshold fills the front wall's
+    depth (z -1..0), where grass showed between the path and the floor. Nothing collides (CafeService)."""
+    style = CafeOwn()
+    root = RB()
+    root.span((-3.48, 0.0, -1.0), (3.48, 0.05, 0.0), style.SILL)              # the threshold, over the gap
+    objs = [root.finalize(FRONT_DOOR, mat)]
+    for side, sx, hx, turn in (("L", -1, -F_HINGE, -1), ("R", 1, F_HINGE, 1)):
+        b, g = RB(), RB()
+        style.leaf(Leaf(sx, F_W, F_Y0, F_Y1, F_T, F_T, False), b, g)
+        for ob in (_place(b.finalize(f"{FRONT_DOOR}_Open{side}", mat), (hx, 0.0, F_ZIN)),
+                   _place(g.finalize(f"{FRONT_DOOR}_Open{side}_Glass", mat), (hx, 0.0, F_ZIN))):
+            ob.matrix_world = (Matrix.Translation(Vector(RB.p(hx, 0.0, F_ZIN)))      # Roblox Y is Blender Z,
+                               @ Matrix.Rotation(math.radians(90 * turn), 4, "Z"))  # the same turn
+            bake_transform(ob)
+            objs.append(ob)
+    return objs
+
+ASSETS = {FRONT_DOOR: (build_front_open, 4000)}
 for _s in SETS:
     ASSETS[f"CatCafe_Door_{_s.NAME}_Front"] = (lambda m, s=_s: build_front(s, m), 4000)
     ASSETS[f"CatCafe_Door_{_s.NAME}_Back"] = (lambda m, s=_s: build_back(s, m), 4000)

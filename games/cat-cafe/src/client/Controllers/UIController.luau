@@ -1074,7 +1074,12 @@ end
 refreshTutorial = function(s: Types.PlayerState)
 	nightLine.showing = false
 	nightLine.body(s)
-	nightLine.arrow(if nightLine.showing then UI.upgradesButton() else nil)
+	-- #5459: no ring or arrow on Upgrades with nightLineNoArrow on (the line's words stay)
+	local NightLine = require(script.Parent.Parent.UI.Components.NightLine) :: any
+	local noArrow = ReplicatedStorage:GetAttribute("LiveFlag_" .. NightLine.NO_ARROW_FLAG) == true
+	nightLine.arrow(
+		if NightLine.arrow(nightLine.showing, noArrow) then UI.upgradesButton() else nil
+	)
 end
 
 -- #5202 (UI.nextGoal, Design-Agent): variant A's "Collect cats". A rarity still short (`rarity`): the trail to the

@@ -26,6 +26,13 @@ return function()
 			expect(NightLine.shows(false, 2, 5, false, false)).to.equal(false)
 		end)
 
+		it("drops the ring and arrow on Upgrades with nightLineNoArrow on (#5459)", function()
+			expect(NightLine.NO_ARROW_FLAG).to.equal("nightLineNoArrow")
+			expect(NightLine.arrow(true, false)).to.equal(true)
+			expect(NightLine.arrow(true, true)).to.equal(false)
+			expect(NightLine.arrow(false, false)).to.equal(false)
+		end)
+
 		it("counts down in minutes and seconds", function()
 			expect(NightLine.text(42)).to.equal(
 				"Areas open at sunrise in 0:42. Upgrade your cafe while you wait"

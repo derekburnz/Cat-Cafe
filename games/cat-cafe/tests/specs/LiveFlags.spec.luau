@@ -232,6 +232,7 @@ return function()
 							or key == "bowlOptionsList" -- #5472
 							or key == "companionBetter" -- #5457
 							or key == "tier3Easy" -- #5467
+							or key == "tiersEasy" -- Derek 2026-11-19
 							or key == "secretTraitTile" -- #5445
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258

@@ -125,4 +125,36 @@ return function()
 			end
 		)
 	end)
+
+	describe("tiersEasy (Derek 2026-11-19)", function()
+		it("lays Tiers 4 to 7 on any rows, keeps 3 and 8, and each tier is a step up", function()
+			local plain = Catalog.PLAIN_TIER_NEEDS
+			for _, cheap in { false, true } do
+				for _, four in { false, true } do
+					Catalog.setTierNeeds(CheapTiers.needsFor(cheap, four, true, true))
+					expect(Catalog.getTier(3).cost).to.equal(10000)
+					for tier, row in CheapTiers.EASY do
+						local def = Catalog.getTier(tier)
+						expect(def.cost).to.equal(row.cost)
+						expect(def.distinctCats).to.equal(row.distinctCats)
+						expect(def.needsRarity).to.equal(row.needsRarity)
+						expect(def.needsRarityCount).to.equal(row.needsRarityCount)
+					end
+					expect(Catalog.getTier(8).cost).to.equal(
+						if cheap then CheapTiers.NEEDS[8].cost else plain[8].cost
+					)
+					for tier = 3, 8 do
+						local below, def = Catalog.getTier(tier - 1), Catalog.getTier(tier)
+						expect(def.cost > below.cost).to.equal(true)
+						expect(def.distinctCats >= below.distinctCats).to.equal(true)
+					end
+				end
+			end
+			Catalog.setTierNeeds(CheapTiers.needsFor(true, true, true, false))
+			expect(Catalog.getTier(4).cost).to.equal(250000)
+			expect(Catalog.getTier(7).cost).to.equal(CheapTiers.NEEDS[7].cost)
+			Catalog.setTierNeeds(nil)
+			expect(Catalog.getTier(5).cost).to.equal(plain[5].cost)
+		end)
+	end)
 end

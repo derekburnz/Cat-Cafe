@@ -21,9 +21,18 @@
 -- progress to tier 3 more often"; Growth's funnel: tier_3_ready loses 68% after park_catch): behind its own switch
 -- `tier3Easy`, Tier 3 asks 10,000 coins and 4 kinds (25,000 and 6 with cheapTiers, 50,000 and 6 without). The 2 Rares
 -- stay (the free Bellhop Cat is one). Like tier4Easy it sits on top of either Tier 3 row.
+-- Derek 2026-11-19 21:11 UTC (the audit's Tier 4 wall): "it's fine to lower the costs of tiers we want to get people to
+-- later game most of the fun content doesn't even come till later make 3-7 super easy": behind its own switch
+-- `tiersEasy`, Tiers 4 to 7 ask EASY, laid on top of whichever rows are in use (Tier 3 keeps tier3Easy's 10,000):
+--   Tier 4   60,000, 7 kinds, 1 Epic           (250,000, 10 kinds with tier4Easy)
+--   Tier 5   400,000, 10 kinds, 1 Legendary    (5,000,000, 13 kinds, 2 Legendaries)
+--   Tier 6   3,000,000, 13 kinds, 2 Legendaries (50,000,000, 17 kinds, 2 Mythicals)
+--   Tier 7   30,000,000, 17 kinds, 1 Mythical  (1,000,000,000, 22 kinds, 2 Mythicals)
+-- Each step is 6 to 10 times the one before, and no tier before 7 waits on a Mythical. Tier 8 is untouched.
 --   on() -> boolean           cheapTiers
 --   easyFour() -> boolean     tier4Easy
 --   easyThree() -> boolean    tier3Easy
+--   easyAll() -> boolean      tiersEasy
 --   needs() -> needs?         what setTierNeeds gets for the two switches now
 --   follow()                  sets the needs now and each time either switch flips
 
@@ -50,6 +59,14 @@ CheapTiers.TIER4 = { cost = 250000, needsRarity = "Epic" } :: Catalog.TierNeeds
 CheapTiers.TIER3_FLAG = "tier3Easy"
 CheapTiers.TIER3 = { cost = 10000, distinctCats = 4 } :: Catalog.TierNeeds -- #5467: 25,000 and 6 kinds before
 
+CheapTiers.EASY_FLAG = "tiersEasy"
+CheapTiers.EASY = {
+	[4] = { cost = 60000, distinctCats = 7, needsRarity = "Epic", needsRarityCount = 1 },
+	[5] = { cost = 400000, distinctCats = 10, needsRarity = "Legendary", needsRarityCount = 1 },
+	[6] = { cost = 3000000, distinctCats = 13, needsRarity = "Legendary", needsRarityCount = 2 },
+	[7] = { cost = 30000000, distinctCats = 17, needsRarity = "Mythical", needsRarityCount = 1 },
+} :: { [number]: Catalog.TierNeeds }
+
 local following = false
 
 function CheapTiers.on(): boolean
@@ -73,15 +90,23 @@ function CheapTiers.easyFour(): boolean
 	)
 end
 
+function CheapTiers.easyAll(): boolean
+	return LiveFlags.shown(
+		CheapTiers.EASY_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.EASY_FLAG)
+	)
+end
+
 -- The rows for the switches: NEEDS with cheapTiers, Tier 4's row replaced by TIER4 with tier4Easy and Tier 3's by
 -- TIER3 with tier3Easy (#5467), each keeping the other fields of the row it replaces. Pure on its answers, so the
 -- spec can check every case.
 function CheapTiers.needsFor(
 	cheap: boolean,
 	easy: boolean,
-	easyThree: boolean?
+	easyThree: boolean?,
+	easyAll: boolean?
 ): { [number]: Catalog.TierNeeds }?
-	if not easy and not easyThree then
+	if not easy and not easyThree and not easyAll then
 		return if cheap then CheapTiers.NEEDS else nil
 	end
 	local out: { [number]: Catalog.TierNeeds } = {}
@@ -103,11 +128,21 @@ function CheapTiers.needsFor(
 	if easyThree then
 		lay(3, CheapTiers.TIER3)
 	end
+	if easyAll then
+		for tier, row in CheapTiers.EASY do
+			lay(tier, row)
+		end
+	end
 	return out
 end
 
 function CheapTiers.needs(): { [number]: Catalog.TierNeeds }?
-	return CheapTiers.needsFor(CheapTiers.on(), CheapTiers.easyFour(), CheapTiers.easyThree())
+	return CheapTiers.needsFor(
+		CheapTiers.on(),
+		CheapTiers.easyFour(),
+		CheapTiers.easyThree(),
+		CheapTiers.easyAll()
+	)
 end
 
 local function apply()
@@ -125,6 +160,8 @@ function CheapTiers.follow()
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER4_FLAG)
 		:Connect(apply)
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER3_FLAG)
+		:Connect(apply)
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.EASY_FLAG)
 		:Connect(apply)
 end
 

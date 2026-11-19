@@ -666,6 +666,7 @@ local FIELD_KEYS = {
 }
 
 type Session = {
+	joinAge: string?, -- #5438: the server's age bucket when this session began (serverAgeBucket)
 	accounted: number, -- lifetimeCoins already logged, as tips or as a Source of its own
 	joinedAt: number,
 	joinedClock: number, -- #4307: os.clock() at the join, for client_boot's fractions of a second
@@ -763,6 +764,17 @@ type ShownGoal = { goal: Types.ReturnGoalView, mode: string, at: number }
 type StoreVisit = { id: string, step: number, sku: string?, landing: string? }
 
 local sessions: { [Player]: Session } = {}
+
+-- #5438 (Growth, for the bowl hint leak): first_move and tut_bowl_food carry the server's age when the player joined
+-- and whether its switches were read yet, "0-60s ready", "60-300s waiting" and so on, so the leak can be split by
+-- joins before and after a new server's first switch read. Analytics only.
+local serverStart = os.clock()
+local function serverAgeBucket(): string
+	local age = os.clock() - serverStart
+	local bucket = if age < 60 then "0-60s" elseif age < 300 then "60-300s" else "300s+"
+	return bucket .. (if LiveFlagService.ready() then " ready" else " waiting")
+end
+local JOIN_AGE_STEPS: { [string]: boolean } = { first_move = true, tut_bowl_food = true }
 local addedClock: { [Player]: number } = {} -- #4783: os.clock() as each player joined the server (client_load)
 local studio = RunService:IsStudio()
 local log: { LogEntry } = {}
@@ -1326,7 +1338,14 @@ end
 -- #2774: a step_time event, value the seconds of play on the account when `name` came. Onboarding steps log theirs
 -- above; #3022's three second cat steps (shared/SecondCat.STEPS) come through here from CatService.
 function Telemetry.stepTime(player: Player, profile: Profile, name: string)
-	Telemetry.custom(player, "step_time", math.floor(PlayTime.seconds(player, profile)), { name })
+	local session = sessions[player]
+	local joinAge = if JOIN_AGE_STEPS[name] and session ~= nil then session.joinAge else nil
+	Telemetry.custom(
+		player,
+		"step_time",
+		math.floor(PlayTime.seconds(player, profile)),
+		if joinAge ~= nil then { name, joinAge } else { name }
+	)
 end
 
 -- #4821: the account's first bowl cat was just tamed (BaitService, once an account): first_cat_owned.
@@ -3168,6 +3187,7 @@ local function onLoaded(player: Player, profile: Profile)
 		loadLogged = false,
 		fpsLogged = {},
 		liteLogged = false,
+		joinAge = nil,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any
@@ -3186,6 +3206,7 @@ local function onLoaded(player: Player, profile: Profile)
 			session.joinEvent = text
 		end
 	end
+	session.joinAge = serverAgeBucket() -- #5438
 	sessions[player] = session
 	if firstSession then
 		-- #4544: the FirstTenMinutes journey, a first session only

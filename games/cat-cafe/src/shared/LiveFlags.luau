@@ -61,6 +61,7 @@ LiveFlags.STORE = "CatCafe_Flags"
 --   never rescued (RescueService), back to one cat a day there.
 LiveFlags.KEYS = {
 	"codes",
+	"perfectFlagged", -- #5379: a Perfect catch marks the cat even while the profile's scripted-press flag is set (CatService); off by default
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
 	"walkUpSettle", -- Sync 2026-11-18: a walk-up ring stepped into while busy (the intro, a flight) or in the 2 s after waits until the player steps out and back in (WalkUpController); on by default
@@ -220,6 +221,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tier10 = true,
 	rareCustomers = true,
 	dailyDeal = true,
+	perfectFlagged = true, -- #5379
 	starterSuggest = true,
 	updateFeature = true,
 	adminEvents = true,

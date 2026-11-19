@@ -2739,9 +2739,15 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local bonusXp = if finishKind == "purrfect" and not profile.flags.autoPress
 			then M.Config.CatXpBase
 			else nil
-		-- #5300: every ring Perfect (not while AutoPress is set) marks the cat while the perfectCatch switch is on
+		-- #5300: every ring Perfect (not while AutoPress is set) marks the cat while the perfectCatch switch is on.
+		-- #5379 (Derek 2026-11-19: "even when getting all perfect circles it sometimes doesnt give the perfect
+		-- bonus"): a good player who lands over 95% Perfect across 50 rings gets the scripted-press flag, which held
+		-- the mark back until they fell under 85%. With perfectFlagged on the flag no longer blocks the mark; it
+		-- still holds back the charm, the bonus XP and the badge count.
+		local flagBlocks = profile.flags.autoPress
+			and not M.LiveFlagService.on(PerfectCatch.FLAGGED_FLAG)
 		local perfectMark = M.LiveFlagService.on(PerfectCatch.FLAG)
-			and (PerfectCatch.marks(finishKind, profile.flags.autoPress) or stray.perfect == true)
+			and (PerfectCatch.marks(finishKind, flagBlocks) or stray.perfect == true)
 		startCarry(
 			player,
 			def,

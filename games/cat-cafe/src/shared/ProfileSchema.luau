@@ -485,8 +485,11 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 		local def = if type(id) == "string" then Catalog.getUpgrade(id) else nil
 		if def ~= nil then
 			-- #5441: Tables 7 and 8 are kept with the tablesEight switch off (or not read yet at load)
+			-- #5491 (a player: "everytime there's an update, i need to upgrade my net to maxed again"): Net 4 and 5 are kept
+			-- too, with netTiers off or not read yet when a fresh server loads the save
 			local top = if def.id == "tables"
 				then math.max(def.maxLevel, Catalog.TABLES_MAX_EIGHT)
+				elseif def.id == "net" then math.max(def.maxLevel, Catalog.NET_MAX_TIERS)
 				else def.maxLevel
 			profile.upgradeLevels[def.id] =
 				math.clamp(asInt(lvl, def.startLevel), def.startLevel, top)

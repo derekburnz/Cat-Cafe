@@ -54,6 +54,17 @@ return function()
 			expect(AreaWhole.take({ 300 }, 400, false)).to.equal(1)
 		end)
 
+		it("keeps every area only on a PC or console with areasKeptBig", function()
+			-- Sync 2026-11-19: areasKept held about 4x the parts, too much for a phone
+			expect(AreaWhole.keptFor("phone", false)).to.equal(true)
+			expect(AreaWhole.keptFor(nil, false)).to.equal(true)
+			expect(AreaWhole.keptFor("pc", true)).to.equal(true)
+			expect(AreaWhole.keptFor("console", true)).to.equal(true)
+			expect(AreaWhole.keptFor("phone", true)).to.equal(false)
+			expect(AreaWhole.keptFor("tablet", true)).to.equal(false)
+			expect(AreaWhole.keptFor(nil, true)).to.equal(false)
+		end)
+
 		it("cuts the ground into cells", function()
 			expect(AreaWhole.cell(Vector3.new(10, 50, 10), 128)).to.equal("0,0")
 			expect(AreaWhole.cell(Vector3.new(-10, 0, 130), 128)).to.equal("-1,1")

@@ -49,6 +49,17 @@ local keptHave: { [Player]: { [Model]: boolean } } = {} -- chunks on this player
 local keptQueue: { [Player]: { Chunk } } = {} -- chunks still to add, in order
 local keptAreas: { [Player]: { [string]: boolean } } = {} -- areas whose chunks are on or queued
 local keptCurrent: { [Player]: string } = {} -- the area last put at the front
+local keptBigOnly = false -- areasKeptBig: only a PC or console keeps every area (shared/AreaWhole.keptFor)
+
+-- Whether this player's device keeps every unlocked area now.
+local function keptFor(player: Player): boolean
+	if not keptOn then
+		return false
+	end
+	local Telemetry = require(script.Parent.Telemetry) :: any
+	local ok, device = pcall(Telemetry.device, player)
+	return AreaWhole.keptFor(if ok and type(device) == "string" then device else nil, keptBigOnly)
+end
 
 -- A piece's middle. Not its pivot: a kit set's pieces all pivot at the area's centre (Sync's re-test).
 local function pieceAt(item: Instance): Vector3?
@@ -365,24 +376,58 @@ local function keptRelease()
 	table.clear(keptCurrent)
 end
 
--- #5381: areasKept on: what the player's held area already has stays on and counts as kept.
-local function keptTake()
-	for player, hold in holds do
-		local have = keptHave[player] or {}
-		keptHave[player] = have
+-- #5381: one player starts keeping: what their held area already has stays on and counts as kept.
+local function keptTakeFor(player: Player)
+	local have = keptHave[player] or {}
+	keptHave[player] = have
+	local hold = holds[player]
+	if hold ~= nil then
 		for _, chunk in hold.added do
 			have[chunk.model] = true
 		end
-		local queue = dropping[player]
-		if queue ~= nil then
-			-- a let-go area's chunks still waiting to come off stay on now
-			for _, chunk in queue do
-				have[chunk.model] = true
-			end
-			dropping[player] = nil
+	end
+	local queue = dropping[player]
+	if queue ~= nil then
+		-- a let-go area's chunks still waiting to come off stay on now
+		for _, chunk in queue do
+			have[chunk.model] = true
+		end
+		dropping[player] = nil
+	end
+	holds[player] = nil
+end
+
+-- #5381: areasKept on: every player whose device keeps (keptFor) takes over what it holds.
+local function keptTake()
+	for _, player in Players:GetPlayers() do
+		if keptFor(player) then
+			keptTakeFor(player)
 		end
 	end
-	table.clear(holds)
+end
+
+-- areasKeptBig: one player stops keeping (a phone once the switch goes on): what it kept comes off a few at a time,
+-- and from the next step it keeps one area whole, as areaWhole alone does.
+local function keptReleaseFor(player: Player)
+	local have = keptHave[player]
+	if have ~= nil then
+		local queue = dropping[player] or {}
+		for model in have do
+			table.insert(queue, {
+				model = model,
+				at = Vector3.zero,
+				size = sizeOf(model),
+				mode = model.ModelStreamingMode,
+			})
+		end
+		if #queue > 0 then
+			dropping[player] = queue
+		end
+	end
+	keptHave[player] = nil
+	keptQueue[player] = nil
+	keptAreas[player] = nil
+	keptCurrent[player] = nil
 end
 
 -- One SPREAD step: each player gets the next few waiting chunks, up to AreaWhole.BUDGET instances, and with what
@@ -397,7 +442,7 @@ local function spread(tick: number)
 		local hold = holds[player]
 		local spent = 0
 		local kept = keptQueue[player]
-		if keptOn and kept ~= nil and #kept > 0 then
+		if kept ~= nil and #kept > 0 and keptFor(player) then
 			local have = keptHave[player] or {}
 			keptHave[player] = have
 			local sizes: { number } = {}
@@ -523,9 +568,15 @@ local function step()
 		if not flightStands then
 			flying[player] = nil
 		end
-		if keptOn then
+		if keptFor(player) then
+			if keptHave[player] == nil then
+				keptTakeFor(player) -- the device reported itself a PC or console after it joined
+			end
 			keptStep(player, area)
 		else
+			if keptHave[player] ~= nil then
+				keptReleaseFor(player)
+			end
 			keep(player, area)
 		end
 	end
@@ -541,7 +592,7 @@ function AreaWholeService.heading(player: Player, areaId: string): boolean
 	end
 	flying[player] = { area = areaId, untilAt = os.clock() + AreaWhole.FLIGHT_HOLD }
 	outSince[player] = nil
-	if keptOn then
+	if keptFor(player) then
 		keptFront(player, areaId)
 	else
 		keep(player, areaId)
@@ -551,7 +602,7 @@ end
 
 -- The area this player's device is keeping whole (or getting), or nil (Debug and specs).
 function AreaWholeService.heldBy(player: Player): string?
-	if keptOn then
+	if keptFor(player) then
 		return keptCurrent[player]
 	end
 	local hold = holds[player]
@@ -593,6 +644,9 @@ function AreaWholeService.start()
 			local kept = on
 				and table.find(LiveFlags.KEYS, AreaWhole.KEPT_FLAG) ~= nil
 				and LiveFlagService.on(AreaWhole.KEPT_FLAG)
+			keptBigOnly = kept
+				and table.find(LiveFlags.KEYS, AreaWhole.KEPT_BIG_FLAG) ~= nil
+				and LiveFlagService.on(AreaWhole.KEPT_BIG_FLAG)
 			if on and kept ~= keptOn then
 				keptOn = kept
 				if kept then

@@ -163,6 +163,7 @@ return function()
 							or key == "tier9" -- #4070
 							or key == "areasKept" -- #5381
 							or key == "tier10" -- #4184
+							or key == "areasKeptBig" -- Sync 2026-11-19
 							or key == "deviceFixes"
 							or key == "mailbox" -- #4249
 							or key == "fusion" -- #4104

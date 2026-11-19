@@ -32,9 +32,18 @@ TownGround.TOE = 0.38
 TownGround.TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.5 } }
 TownGround.BOX = 2 -- studs: the square each print is drawn in, round its middle
 
+-- How a Top face SurfaceGui lies on its part, in the part's own frame (#5471 playtest, Sync 2026-11-19: the canvas
+-- is 2950 x 640 px on a 32 x 147.5 stud street half, so its X runs along the part's Z, not its X): canvas X runs
+-- along part axis `xAxis` with sign `xSign`, canvas Y (down) along `yAxis` with `ySign`. Probed in Studio the same
+-- day: the canvas's top left is the part's (-X, +Z) corner, its +X the part's -Z, its +Y the part's +X.
+TownGround.CANVAS = { xAxis = "Z", xSign = -1, yAxis = "X", ySign = 1 }
+
+local function along(axis: string, x: number, z: number): number
+	return if axis == "X" then x else z
+end
+
 -- Pure: where a point `x`, `z` studs off a part's middle (its own frame) lies on that part's top face canvas, in
--- pixels from the canvas's top left, for a part `sizeX` by `sizeZ` studs. A Top SurfaceGui runs its X along the
--- part's +X and its Y along the part's +Z.
+-- pixels from the canvas's top left, for a part `sizeX` by `sizeZ` studs.
 function TownGround.pixel(
 	x: number,
 	z: number,
@@ -42,18 +51,19 @@ function TownGround.pixel(
 	sizeZ: number,
 	pixels: number
 ): (number, number)
-	return (x + sizeX / 2) * pixels, (z + sizeZ / 2) * pixels
+	local c = TownGround.CANVAS
+	local u = c.xSign * along(c.xAxis, x, z) + along(c.xAxis, sizeX, sizeZ) / 2
+	local v = c.ySign * along(c.yAxis, x, z) + along(c.yAxis, sizeX, sizeZ) / 2
+	return u * pixels, v * pixels
 end
 
--- Pure: a print's turn about Y (degrees, its front -Z turned toward its way) as a Top canvas rotation, which turns
--- the other way (clockwise as seen from above).
-function TownGround.canvasTurn(rotY: number): number
-	return -rotY
-end
-
--- Pure: the turn about Y (degrees) of a frame whose LookVector is (`lookX`, `lookZ`) flat.
-function TownGround.turnOf(lookX: number, lookZ: number): number
-	return math.deg(math.atan2(-lookX, -lookZ))
+-- Pure: the canvas Rotation (degrees, clockwise on the canvas) that points a print drawn toes up (canvas -Y) along
+-- (`lookX`, `lookZ`), a flat way in the part's own frame.
+function TownGround.facing(lookX: number, lookZ: number): number
+	local c = TownGround.CANVAS
+	local u = c.xSign * along(c.xAxis, lookX, lookZ)
+	local v = c.ySign * along(c.yAxis, lookX, lookZ)
+	return math.deg(math.atan2(u, -v))
 end
 
 return TownGround

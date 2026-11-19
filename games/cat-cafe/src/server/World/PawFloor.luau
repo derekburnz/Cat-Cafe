@@ -16,6 +16,7 @@ local TownGround = require(ReplicatedStorage.Shared.TownGround)
 local PawFloor = {}
 
 local LIFT = 1 -- studs over a print the ray down to its floor starts
+local TRIES = 4 -- parts the ray may look through on its way to the floor
 local hidden: { [BasePart]: number } = {} -- each PawPaths part made see-through, with its Transparency before
 
 local function paths(): Instance?
@@ -60,15 +61,32 @@ local function draw(pad: BasePart, skip: { Instance }): boolean
 	local frame = pad.CFrame * CFrame.Angles(0, 0, math.rad(-90))
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = skip
+	local passed = table.clone(skip)
+	params.FilterDescendantsInstances = passed
 	local from = frame.Position + Vector3.new(0, LIFT, 0)
-	local hit = Workspace:Raycast(from, Vector3.new(0, -LIFT - 1, 0), params)
-	if hit == nil or hit.Normal.Y < 0.9 or not hit.Instance:IsA("BasePart") then
-		return false
+	local floor: BasePart? = nil
+	-- the first flat, upright floor under the print; trim on its side over it (the fountain's paving wedges, Sync
+	-- 2026-11-19) is looked through
+	for _ = 1, TRIES do
+		local hit = Workspace:Raycast(from, Vector3.new(0, -LIFT - 1, 0), params)
+		if hit == nil then
+			break
+		end
+		local part = hit.Instance
+		if
+			hit.Normal.Y >= 0.9
+			and part:IsA("Part")
+			and (part :: Part).Shape == Enum.PartType.Block
+			and part.CFrame.UpVector.Y >= 0.99 -- its Top face up
+		then
+			floor = part :: BasePart
+			break
+		end
+		table.insert(passed, part)
+		params.FilterDescendantsInstances = passed
 	end
-	local floor = hit.Instance :: BasePart
-	if math.abs(floor.CFrame.UpVector.Y) < 0.99 then
-		return false -- a tilted floor's Top canvas is not flat under the print
+	if floor == nil then
+		return false
 	end
 	local here = floor.CFrame:PointToObjectSpace(frame.Position)
 	local look = floor.CFrame:VectorToObjectSpace(frame.LookVector)
@@ -80,7 +98,7 @@ local function draw(pad: BasePart, skip: { Instance }): boolean
 	box.Size =
 		UDim2.fromOffset(TownGround.BOX * TownGround.PIXELS, TownGround.BOX * TownGround.PIXELS)
 	box.BackgroundTransparency = 1
-	box.Rotation = TownGround.canvasTurn(TownGround.turnOf(look.X, look.Z))
+	box.Rotation = TownGround.facing(look.X, look.Z)
 	round(box, TownGround.PAD, 0, 0, pad.Color)
 	for _, toe in TownGround.TOES do
 		round(box, TownGround.TOE, toe[1], toe[2], pad.Color)

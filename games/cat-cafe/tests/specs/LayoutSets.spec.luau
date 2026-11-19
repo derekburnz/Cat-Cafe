@@ -787,11 +787,11 @@ return function()
 					fail("the bin at (%g, %g) is not inside the Alleyway camp", x, z)
 				end
 				expect(Layout.campAt(x, z)).to.equal("alley")
-				-- in plain view of the landing pad: level with it and within 28 studs (#3458: 15 before the bin moved
-				-- out of the entrance), but past its landing spots
+				-- in plain view of the landing pad: level with it and within 34 studs (#3458: 15 before the bin moved
+				-- out of the entrance; #5453: 28 before it moved back off the walk to the cannon), but past its landing spots
 				local pad = Layout.landingPads.alley.centre
 				local toPad = far(x, z, pad.x, pad.z)
-				expect(toPad <= 28).to.equal(true)
+				expect(toPad <= 34).to.equal(true)
 				expect(toPad > W.LandingPadRadius + 3).to.equal(true)
 				-- #3458: outside the width of the camp's way out, so it is off every walk from the pad to the arch,
 				-- on the side away from the basket and the Index Board

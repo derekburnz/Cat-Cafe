@@ -78,6 +78,7 @@ local M = {
 	PlotService = require(script.Parent.PlotService),
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	MutationBoost = require(ReplicatedStorage.Shared.MutationBoost), -- #5493
 	StrayMeets = require(ReplicatedStorage.Shared.StrayMeets), -- onboarding_v9 near_stray
 	OpenSpot = require(script.Parent.Parent.World.OpenSpot), -- #5038: where a waiting Park stray may sit
 	Potions = require(ReplicatedStorage.Shared.Potions),
@@ -386,11 +387,11 @@ local function rollStrayCoat(def: Types.CatDef, areaId: string): string
 		def,
 		rng:NextNumber(),
 		M.IndexRewards.rainbowChance(
-			M.Clock.rainbowChance(M.Config.RainbowChanceNet, kinds),
+			M.Clock.rainbowChance(M.MutationBoost.rainbow(), kinds), -- #5493: twice with mutationBoost on
 			CatService.rainbowLuckFor(areaId)
 		),
 		M.IndexRewards.rollChance(
-			M.Clock.goldChance(M.Config.GoldChanceNet, kinds),
+			M.Clock.goldChance(M.MutationBoost.gold(), kinds),
 			CatService.goldLuckFor(areaId)
 		)
 	)

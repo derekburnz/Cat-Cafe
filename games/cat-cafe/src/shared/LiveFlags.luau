@@ -105,6 +105,7 @@ LiveFlags.KEYS = {
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
+	"cannonReturnNow", -- #5417: with cannonReturn, the Cannon picker comes back the moment a Rummage started from it ends (UI.cannon.rummageBack); off by default
 	"areasKept", -- #5381: with areaWhole on, every unlocked area loads once and stays on the device (shared/AreaWhole); off by default
 	"firstFlightQuick", -- #4920: the walk-through's flights out take 2/3 of every beat (shared/Cannon.flightScale)
 	"areasKeptRecent", -- Derek 2026-11-19: with areasKept and areasKeptBig, a phone or tablet keeps its 2 most recent areas, not one (shared/AreaWhole.keptLimit); off by default
@@ -231,6 +232,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	dailyDeal = true,
 	perfectFlagged = true, -- #5379
 	starterSuggest = true,
+	cannonReturnNow = true, -- #5417
 	areasKeptBig = true, -- Sync 2026-11-19
 	updateFeature = true,
 	areasKeptRecent = true, -- Derek 2026-11-19

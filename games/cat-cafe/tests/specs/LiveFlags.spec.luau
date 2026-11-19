@@ -161,6 +161,7 @@ return function()
 							or key == "afkButton" -- #4346
 							or key == "tier8" -- #3997
 							or key == "tier9" -- #4070
+							or key == "cannonReturnNow" -- #5417
 							or key == "areasKept" -- #5381
 							or key == "tier10" -- #4184
 							or key == "areasKeptBig" -- Sync 2026-11-19

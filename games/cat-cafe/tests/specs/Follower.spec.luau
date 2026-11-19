@@ -183,5 +183,33 @@ return function()
 			profile.follower.boost = "money"
 			expect(luckOf(profile)).to.equal(0)
 		end)
+		it(
+			"puts every Secret far above any Mythical and grows with the area, with secretCompanionBig on (#5431)",
+			function()
+				Follower.setSecretBig(false)
+				expect(Follower.amount("Secret", "money")).to.equal(0.2)
+				expect(Follower.amount("Mythical", "money", nil, "castle")).to.equal(0.16)
+				Follower.setSecretBig(true)
+				expect(Follower.amount("Secret", "money")).to.equal(0.6)
+				expect(Follower.amount("Secret", "luck")).to.equal(0.9)
+				expect(Follower.amount("Secret", "money", "rainbow")).to.equal(0.9)
+				expect(Follower.amount("Mythical", "money")).to.equal(0.16)
+				expect(Follower.areaMult("alley")).to.equal(1)
+				expect(Follower.areaMult("castle")).to.equal(1.9)
+				expect(Follower.amount("Mythical", "money", nil, "castle")).to.equal(0.304)
+				-- in every area a plain Secret beats a rainbow Mythical with the best companion trait (+0.12, +0.25)
+				for area in Follower.AREA_INDEX do
+					for _, boost in { "money", "luck" } :: { any } do
+						local best = Follower.amount("Mythical", boost, "rainbow", area)
+							+ (if boost == "luck" then 0.25 else 0.12)
+						expect(Follower.amount("Secret", boost, nil, area) > best).to.equal(true)
+					end
+				end
+				expect(Follower.areaOf({ area = "secret", secretArea = "woods" })).to.equal("woods")
+				expect(Follower.areaOf({ area = "park" })).to.equal("park")
+				expect(Follower.areaOf({ area = "harvest" })).to.equal(nil)
+				Follower.setSecretBig(nil)
+			end
+		)
 	end)
 end

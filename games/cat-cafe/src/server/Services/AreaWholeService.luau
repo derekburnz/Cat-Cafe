@@ -96,6 +96,9 @@ local function cut(container: Instance, into: { Chunk }, depth: number?)
 	local level = depth or 0
 	local groups: { [string]: { Instance } } = {}
 	for _, child in container:GetChildren() do
+		if CollectionService:HasTag(child, TownGround.TAG) then
+			continue -- #5411: the paving stays where it is, kept whole by townGround (Review-QA)
+		end
 		local at = pieceAt(child)
 		if
 			at ~= nil

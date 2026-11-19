@@ -228,6 +228,7 @@ return function()
 							or key == "shieldNoBump" -- #5476
 							or key == "parkFirstCalm" -- #5496
 							or key == "orderSplit" -- #5498
+							or key == "dailyGifts" -- #5506
 							or key == "catchLostLog" -- #5500
 							or key == "tier3TripLog" -- #5517
 							or key == "mutationBoost" -- #5493
@@ -275,6 +276,7 @@ return function()
 							or key == "firstCatchWow" -- #5285
 							or key == "gemsShrink" -- Derek 2026-11-18
 							or key == "christmasEvent" -- snowglobe-village-spec
+							or key == "adventCalendar" -- #5502
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "catsArrowOff" -- #5485

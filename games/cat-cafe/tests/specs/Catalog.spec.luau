@@ -419,9 +419,9 @@ return function()
 		}
 
 		it(
-			"has exactly 134 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin, the Booth Plush Cat, the 10 Secret cats and the 8 harvest cats",
+			"has exactly 138 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin, the Booth Plush Cat, the 10 Secret cats, the 8 harvest cats and the 4 advent calendar cats",
 			function()
-				expect(#Catalog.cats).to.equal(134)
+				expect(#Catalog.cats).to.equal(138)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -434,7 +434,7 @@ return function()
 							or def.id == "sprinkles" -- #1625: the Starter Bundle's cat
 							or def.id == "maple_muffin" -- #1626: the Cafe Pass season cat
 							or def.id == "booth_plush" -- #4061: the Ticket Booth's prize cat
-							or def.rarity == "Secret" -- #3470 and #4221: the ten Secret cats
+							or def.rarity == "Secret" -- #3470 and #4221: the ten Secret cats; #5502 the four advent cats
 							or def.area == "harvest" -- #4251: Harvest Hollow's eight
 					).to.equal(true)
 				end

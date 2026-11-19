@@ -146,6 +146,7 @@ export type CustomEvent =
 	-- #5500 (shared/CatchLost, switch catchLostLog): a started net catch that ended with no cat, value the rings judged;
 	-- reason, device, area
 	| "catch_lost"
+	| "daily_gift" -- #5506 (shared/DailyGifts): a daily playtime gift paid, value the minutes played today; step, device, first_day or later_day
 	-- #5300 (shared/PerfectCatch): the perfectCatch switch's one charm migration for a save, value the cats it marked
 	-- Perfect (charm 80+); fields: the cats at charm 51 to 79 (they now earn a little less), the cats owned
 	| "perfect_migrate"
@@ -220,6 +221,7 @@ export type CustomEvent =
 	| "quest_set" -- F73: kind, when the last quest of a full set is claimed and the set prize paid
 	| "achievement_claimed" -- F73: achievement id, size
 	| "daily_treat" -- F70: the day stamped (1 to 7)
+	| "advent_door" -- #5502 (shared/Advent): value the door; fields on_time or catch_up, device, first_day/first_week/older
 	-- Derek's 10-31 research notes: where early players stop. On leaving before Tier 2: the furthest onboarding step,
 	-- the tutorial step ("intro" while the intro has never finished) and where they were; the value is the session's
 	-- seconds

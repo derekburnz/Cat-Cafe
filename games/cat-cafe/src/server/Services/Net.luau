@@ -20,6 +20,7 @@ local defaultLimiter = RateLimiter.new(Config.RemoteRateLimitPerSecond, 1)
 local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SwingNet = RateLimiter.new(3, 1), -- F93: a flood guard; CatService holds NetSwingCooldown from each swing
 	RescueBegin = RateLimiter.new(1, 1),
+	OpenAdventDoor = RateLimiter.new(1, 1), -- #5502: one a second
 	RescueCancel = RateLimiter.new(1, 1),
 	MouseDashStart = RateLimiter.new(1, 1), -- #3296
 	MouseDashTap = RateLimiter.new(12, 1),

@@ -9,6 +9,7 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local AdminDropService = require(script.Parent.Services.AdminDropService)
 local AdminWheelService = require(script.Parent.Services.AdminWheelService)
+local AdventService = require(script.Parent.Services.AdventService)
 local AfkCafeService = require(script.Parent.Services.AfkCafeService)
 local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
@@ -158,6 +159,7 @@ QuietStartService.start() -- #4005: a new player's quiet start, before DataServi
 NameService.start()
 TipJarService.start()
 DailyTreatService.start()
+AdventService.start() -- #5502
 IndexRewardService.start()
 ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip Jar
 SpinService.start()

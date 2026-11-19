@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local Advent = require(script.Parent.Advent)
 local BagColours = require(script.Parent.BagColours)
 local CafePass = require(script.Parent.CafePass)
 local CampExtras = require(script.Parent.CampExtras)
@@ -10,6 +11,7 @@ local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
 local CozyCafe = require(script.Parent.CozyCafe)
 local DailyDeal = require(script.Parent.DailyDeal)
+local DailyGifts = require(script.Parent.DailyGifts)
 local DailyTreat = require(script.Parent.DailyTreat)
 local DragonKeep = require(script.Parent.DragonKeep)
 local EquipBest = require(script.Parent.EquipBest)
@@ -1102,6 +1104,14 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.harvest = HarvestSave.sanitize(raw.harvest)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
+	-- #5502 (no version: see Types.PlayerProfile.advent): the advent calendar and the Snowflakes
+	profile.advent = Advent.sanitize(raw.advent)
+	local flakes = raw.snowflakes
+	profile.snowflakes = if type(flakes) == "number"
+			and flakes == flakes
+			and flakes > 0
+		then math.min(math.floor(flakes), 1000000000)
+		else nil
 	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)
 	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
@@ -1242,6 +1252,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.favGift = raw.favGift == true
 	profile.cozy = CozyCafe.sanitize(raw.cozy) -- #2798, no version
 	profile.giftSteps = PlaytimeGifts.sanitize(raw.giftSteps) -- #2791, no version
+	profile.dailyGifts = DailyGifts.sanitize(raw.dailyGifts) -- #5506, no version
 	-- #2486 (version 43): the Cafe Event reward pieces (string ids of at most 64 characters, whole times) and the
 	-- last event rewarded
 	if type(raw.eventRewards) == "table" then

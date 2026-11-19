@@ -1623,6 +1623,9 @@ export type PlayerProfile = {
 	-- VERSION bump (an automatic publish restarts every server on one): an older server dropping it can only start
 	-- that day's ladder again, so the dailyGifts switch goes on only after a restart Derek calls.
 	dailyGifts: { day: number, seconds: number, claimed: number }?,
+	-- #5505 (shared/DaysPlayed): the UTC days played, the last one counted and the highest milestone paid. No VERSION
+	-- bump (an automatic publish restarts every server on one); the awayPromise switch goes on after Derek's restart.
+	daysPlayed: { count: number, last: number, paid: number }?,
 	-- #2486 (save version 43, live-events.md section 2e): each Cafe Event reward piece given, cosmeticId -> os.time()
 	-- it was first given, and the last event (its reward key, CafeEvents.rewardKey) this account was rewarded in, ""
 	-- for none; the "Cafe Party Guest" badge reads it

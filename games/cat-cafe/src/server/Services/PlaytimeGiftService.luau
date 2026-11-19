@@ -168,6 +168,9 @@ local function dailyGift(player: Player): boolean
 	})
 	CafeService.sync(player)
 	Net.toast(player, "Daily gift! " .. table.concat(paid, ", "), "good")
+	return true
+end
+
 -- #5505 part 1 (shared/DaysPlayed, switch awayPromise): counts each UTC day the player is loaded on, once, and pays
 -- the next milestone reached, marked before paying. A cat milestone gives the rule's pick into the cafe. True when one
 -- was paid this tick.

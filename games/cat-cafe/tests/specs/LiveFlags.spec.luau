@@ -161,6 +161,7 @@ return function()
 							or key == "afkButton" -- #4346
 							or key == "tier8" -- #3997
 							or key == "tier9" -- #4070
+							or key == "areasKept" -- #5381
 							or key == "tier10" -- #4184
 							or key == "deviceFixes"
 							or key == "mailbox" -- #4249

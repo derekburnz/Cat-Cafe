@@ -105,6 +105,7 @@ LiveFlags.KEYS = {
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
+	"areasKept", -- #5381: with areaWhole on, every unlocked area loads once and stays on the device (shared/AreaWhole); off by default
 	"firstFlightQuick", -- #4920: the walk-through's flights out take 2/3 of every beat (shared/Cannon.flightScale)
 	"moneyCard", -- #4437: the HUD Money button's first tap opens the boost card (UI/Screens/MoneyCard); false prompts at once
 	"firstFlightDirect", -- #4920: the walk-through's first flight goes straight to the Alleyway (UI/Components/WalkRingLogic)
@@ -244,6 +245,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankUpRightAway = true, -- #5031: on after Review-QA and Sync's Studio pass
 	parkRingEarly = true, -- #5034: on at least a UTC day apart from rankUpRightAway (Design)
 	parkTrailBack = true, -- #5045: on after Sync's look at a Park rest
+	areasKept = true, -- #5381
 	tier3Path = true, -- #5038: on after Review-QA and Sync's Studio pass, a UTC day apart from the other funnel switches
 	-- #4543: on after Model's wall fit, Review-QA and Sync's Studio look at all five rooms. Turning it off again
 	-- shrinks every grown room at its next cafe refresh, and the cats, decor, tables and bait are built again in it.

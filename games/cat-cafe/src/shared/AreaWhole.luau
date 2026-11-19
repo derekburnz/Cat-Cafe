@@ -21,6 +21,10 @@
 local AreaWhole = {}
 
 AreaWhole.FLAG = "areaWhole" -- shared/LiveFlags, off by default
+-- #5381 (Derek 2026-11-19: "it might be better to just have them render all areas they have unlocked that way it
+-- doesn't need to spike each time they visit them"): with areaWhole on too, every area a player has unlocked loads
+-- onto their device once, the one they are in (or flying to) first, the rest after, and nothing is let go again.
+AreaWhole.KEPT_FLAG = "areasKept" -- shared/LiveFlags, off by default
 AreaWhole.STEP = 1 -- seconds between the service's checks of where each player stands
 -- A cannon flight's destination is held this long at most (the longest flight is about 6 s), so a flight cut short
 -- (a respawn, a leave) never pins an area.

@@ -102,7 +102,7 @@ return function()
 			expect(clean.claimed).to.equal(#DailyGifts.STEPS)
 			local profile: any = ProfileSchema.template(1700000000)
 			profile.dailyGifts = { day = 100, seconds = 120, claimed = 1 }
-			local kept = ProfileSchema.migrate(profile, 1700000000).dailyGifts
+			local kept = ProfileSchema.migrate(profile, 1700000000).dailyGifts :: any
 			expect(kept.seconds).to.equal(120)
 			expect(kept.claimed).to.equal(1)
 		end)

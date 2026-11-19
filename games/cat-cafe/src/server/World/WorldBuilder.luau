@@ -2855,6 +2855,9 @@ end
 -- ThanksBoard. Its part "Screen" carries UI-Engineer's SurfaceGui of IdeaCreditsService's rows; nothing here draws
 -- them. Persistent, so the face fills from anywhere in the square. Left out while the art is missing (no placeholder).
 local THANKS_BOARD = "CatCafe_Street_ThanksBoard"
+-- #5413 (Derek 2026-11-19: "make thank you for ideas board half as big"): half size about its pivot on the paving. The
+-- client's face (Screens/ThanksBoard pixelsFor) reads the Screen's width, so the page keeps its pixel canvas and fits
+local THANKS_BOARD_SCALE = 0.5
 
 local function buildThanksBoard(parent: Instance): Model?
 	if not AssetRegistry.known(THANKS_BOARD) then
@@ -2867,6 +2870,7 @@ local function buildThanksBoard(parent: Instance): Model?
 		parent
 	)
 	model.Name = "ThanksBoard"
+	model:ScaleTo(THANKS_BOARD_SCALE)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(model, "ThanksBoard")
 	return model

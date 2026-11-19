@@ -92,4 +92,37 @@ return function()
 			Catalog.setTierNeeds(nil)
 		end)
 	end)
+
+	describe("tier3Easy (#5467)", function()
+		it(
+			"asks 10,000 and 4 kinds at Tier 3 on any row, keeps the 2 Rares, and puts the old ones back",
+			function()
+				local plain = Catalog.PLAIN_TIER_NEEDS
+				for _, cheap in { false, true } do
+					for _, four in { false, true } do
+						Catalog.setTierNeeds(CheapTiers.needsFor(cheap, four, true))
+						expect(Catalog.getTier(3).cost).to.equal(10000)
+						expect(Catalog.getTier(3).distinctCats).to.equal(4)
+						expect(Catalog.getTier(3).needsRarity).to.equal(plain[3].needsRarity)
+						expect(Catalog.getTier(3).needsRarityCount).to.equal(
+							plain[3].needsRarityCount
+						)
+						expect(Catalog.getTier(4).cost).to.equal(
+							if four then 250000 elseif cheap then 400000 else plain[4].cost
+						)
+						-- still a step up from Tier 2, in coins and in kinds
+						expect(Catalog.getTier(3).cost > Catalog.getTier(2).cost).to.equal(true)
+						expect(Catalog.getTier(3).distinctCats >= Catalog.getTier(2).distinctCats).to.equal(
+							true
+						)
+					end
+				end
+				Catalog.setTierNeeds(CheapTiers.needsFor(true, false, false))
+				expect(Catalog.getTier(3).cost).to.equal(25000)
+				expect(Catalog.getTier(3).distinctCats).to.equal(plain[3].distinctCats)
+				Catalog.setTierNeeds(nil)
+				expect(Catalog.getTier(3).cost).to.equal(plain[3].cost)
+			end
+		)
+	end)
 end

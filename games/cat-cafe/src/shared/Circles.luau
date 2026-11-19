@@ -36,6 +36,7 @@ export type Attempt = {
 	need: number?,
 	caught: boolean,
 	forgive: boolean?, -- #4447: the Dragon Keep's Steady Claw, until the first Miss uses it
+	perfectGain: number?, -- #5392 (catchCurve): a Perfect's trust, in place of Config.TrustPerfect
 }
 
 -- #1884: the trust bar an attempt starts with and the trust that catches the cat.
@@ -122,6 +123,61 @@ function Circles.ringSpeed(rarity: Types.Rarity, areaId: string?): number
 	return Config.QuickRingScale[rarity] or 1
 end
 
+-- #5392 (catchCurve): the curve's tier for `areaId`, 1 to #W; nil for no area or one the catalog does not know.
+function Circles.curveTier(areaId: string?): number?
+	local area = if areaId ~= nil then Catalog.getArea(areaId) else nil
+	if area == nil or type(area.tier) ~= "number" then
+		return nil
+	end
+	return math.clamp(math.floor(area.tier), 1, #Config.CatchCurve.W)
+end
+
+-- #5392: the bands with catchCurve on, before the early, touch and Park scales: base x net x area x rarity x coat.
+function Circles.curveWindows(
+	netLevel: number,
+	rarity: Types.Rarity,
+	areaId: string?,
+	variant: string?
+): Types.NetWindows
+	local curve = Config.CatchCurve
+	local tier = Circles.curveTier(areaId)
+	local scale = (1 + curve.netStep * clampNetLevel(netLevel))
+		* (if tier ~= nil then curve.W[tier] else 1)
+		* Catalog.rarities[rarity].catchWindow
+	if variant ~= nil then
+		scale *= Config.CoatDifficulty[variant] or 1
+	end
+	return { perfect = curve.perfect * scale, good = curve.good * scale }
+end
+
+-- #5392: both bands held to CatchCurve.maxBand after every scale, so a ring never overlaps the next.
+function Circles.capped(windows: Types.NetWindows): Types.NetWindows
+	local most = Config.CatchCurve.maxBand
+	return { perfect = math.min(windows.perfect, most), good = math.min(windows.good, most) }
+end
+
+-- #5392: what the rarity's shrink time is multiplied by with catchCurve on: the area's S and the coat's speed.
+function Circles.curveSpeed(_rarity: Types.Rarity, areaId: string?, variant: string?): number
+	local tier = Circles.curveTier(areaId)
+	local speed = if tier ~= nil then Config.CatchCurve.S[tier] else 1
+	if variant ~= nil then
+		speed *= Config.CoatSpeed[variant] or 1
+	end
+	return speed
+end
+
+-- #5392: a Perfect's trust with catchCurve on, rounded half up, held under what would catch from `start` on one
+-- press (need - start - 1), and never under Config.TrustPerfect's 1.
+function Circles.perfectGain(netLevel: number, areaId: string?, start: number, need: number): number
+	local curve = Config.CatchCurve
+	local tier = Circles.curveTier(areaId)
+	local boost = if tier ~= nil then (curve.heartArea[tier] or 1) else 1
+	local gain = math.floor(
+		Config.TrustPerfect * (1 + curve.heartNet * clampNetLevel(netLevel) * boost) + 0.5
+	)
+	return math.max(1, math.min(gain, need - start - 1))
+end
+
 -- What CatchSchedule sends: the two half-widths the UI draws as bands.
 function Circles.publicWindows(windows: Types.NetWindows): Types.CatchWindows
 	return { perfect = windows.perfect, good = windows.good }
@@ -140,11 +196,12 @@ function Circles.schedule(
 	now: number,
 	roll: () -> number,
 	areaId: string?,
-	slow: number? -- #4447: the Dragon Keep's Quick Paws, the share the shrink time grows by
+	slow: number?, -- #4447: the Dragon Keep's Quick Paws, the share the shrink time grows by
+	speed: number? -- #5392 (catchCurve): Circles.curveSpeed, in place of ringSpeed
 ): { Types.CatchCircle }
 	local def = Catalog.rarities[rarity]
 	local shrink = def.shrinkSeconds
-		* Circles.ringSpeed(rarity, areaId)
+		* (if speed ~= nil then speed else Circles.ringSpeed(rarity, areaId))
 		* (1 + math.max(0, slow or 0))
 	local jitter = Config.CircleJitter
 	local cap = Circles.ringCap(rarity)
@@ -417,6 +474,8 @@ local function settle(attempt: Attempt, grade: Types.RingGrade)
 	end
 	if grade == "miss" and attempt.forgive == true then
 		attempt.forgive = nil -- #4447: Steady Claw forgives this Miss's trust once a catch
+	elseif grade == "perfect" and attempt.perfectGain ~= nil then
+		trust += attempt.perfectGain :: number -- #5392 (catchCurve)
 	else
 		trust += Circles.trustDelta(grade)
 	end

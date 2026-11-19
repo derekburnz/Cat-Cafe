@@ -29,6 +29,8 @@ local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local PerfectCatch = require(ReplicatedStorage.Shared.PerfectCatch)
+local CATCH_CURVE_FLAG = "catchCurve" -- #5392: shared/Circles curveWindows, curveSpeed and perfectGain
+local CATCH_PERFECT_ATTRIBUTE = "CatchPerfectGain" -- #5392: the running catch's Perfect trust (UI/Components/CatchTrust)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SecretCalm = require(ReplicatedStorage.Shared.SecretCalm)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -2913,12 +2915,17 @@ function startCatch(
 	local tutorial = easyCatch(player, profile, stray) -- #2774: any rarity, until the first check-in
 	local dragonFx = M.DragonKeep.of(profile) -- #4447: Quick Paws and Steady Claw
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
+	-- #5392 (catchCurve): one smooth curve by net, area tier and coat, in place of NetWindows, catchWindowScale and
+	-- QuickRing; the early, touch and Park scales, slow rings and potions stay on top
+	local curve = not tutorial and M.LiveFlagService.on(CATCH_CURVE_FLAG)
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
 		-- #2322: wider in the first area; #3135: a little narrower for a gold or rainbow coat
 		-- #2913 follow-up: a little wider for a player's first few catches by hand
 		else Circles.scaled(
-			Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
+			if curve
+				then Circles.curveWindows(netLevel, stray.def.rarity, stray.area, stray.variant)
+				else Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
 			-- #4299: or wider on a phone or tablet, whichever is wider
 			math.max(
 				Circles.earlyScale(SecondCat.caught(profile.stats)),
@@ -2931,6 +2938,9 @@ function startCatch(
 					M.LiveFlagService.on(M.ParkFirstEasy.FLAG)
 				)
 		)
+	if curve then
+		windows = Circles.capped(windows)
+	end
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up
 	-- Derek 2026-11-14: and every free catch on a phone, tablet or console below Tier 2 (shared/FreeCatch)
@@ -2950,8 +2960,9 @@ function startCatch(
 			now,
 			roll,
 			stray.area,
-			dragonFx.slowRings
-		) -- #3140, #4447
+			dragonFx.slowRings,
+			if curve then Circles.curveSpeed(stray.def.rarity, stray.area, stray.variant) else nil
+		) -- #3140, #4447, #5392
 	-- #4814 (Derek 2026-11-16): the first catch by hand ignores every press before its ring is in the Good band
 	if SecondCat.caught(profile.stats) == 0 then
 		for _, circle in circles do
@@ -2972,6 +2983,11 @@ function startCatch(
 		)
 	end
 	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
+	-- #5392: a bigger Perfect from a better net, more so in the first areas; the client's bar reads the attribute
+	attempt.perfectGain = if curve
+		then Circles.perfectGain(netLevel, stray.area, trust.start, trust.need)
+		else nil
+	player:SetAttribute(CATCH_PERFECT_ATTRIBUTE, attempt.perfectGain)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	CatService.refreshSpeed(player) -- #2052: the catcher stands still until the circles end

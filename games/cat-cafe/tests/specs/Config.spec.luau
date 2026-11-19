@@ -530,6 +530,8 @@ return function()
 				Badges = true, -- #1934: a table, checked in Badges.spec
 				ForcedDays = true, -- #1974: a table of drop windows, checked in Luck.spec
 				NetWindows = true, -- a table, checked below
+				CatchCurve = true, -- #5392: a table, checked in CatchCurve.spec
+				CoatSpeed = true, -- #5392: a table, checked in CatchCurve.spec
 				CharmStarOdds = true, -- a table, checked below
 				RescueBarSpeed = true, -- a table, checked below
 				RescueZoneWidth = true, -- a table, checked below

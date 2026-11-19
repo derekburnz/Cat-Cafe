@@ -23,6 +23,14 @@ end
 -- One grade's change: "perfect", "good", "miss", or "left" for a paw ring nobody tapped (7c).
 function CatchTrust.delta(grade: string): number
 	if grade == "perfect" then
+		-- #5392 (catchCurve): the server's Perfect for this catch, set on the player at its start
+		local ok, gain = pcall(function(): unknown
+			local player = game:GetService("Players").LocalPlayer
+			return if player ~= nil then player:GetAttribute("CatchPerfectGain") else nil
+		end)
+		if ok and type(gain) == "number" then
+			return gain
+		end
 		return step("TrustPerfect", 2)
 	elseif grade == "good" then
 		return step("TrustGood", 1)

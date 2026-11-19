@@ -752,6 +752,21 @@ local Config = {
 	-- to hit, only quicker to come; the ring count, the gaps and the rarer cats are unchanged.
 	QuickRingTier = 5,
 	QuickRingScale = { Common = 0.80, Rare = 0.85 } :: { [string]: number },
+	-- #5392 (Derek 2026-11-19, Design-Agent's catch-curve spec; switch catchCurve): one smooth curve. Bands are
+	-- base x (1 + netStep x net) x W[tier] x rarity catchWindow x coat, capped at maxBand; ring shrink is the
+	-- rarity's x S[tier] x CoatSpeed (replaces QuickRing); a Perfect adds TrustPerfect x (1 + heartNet x net x
+	-- heartArea[tier]) trust, rounded, never enough to catch on one press. W and S only fall with tier.
+	CatchCurve = {
+		perfect = 0.06,
+		good = 0.14,
+		netStep = 0.15,
+		maxBand = 0.5,
+		W = { 1.25, 1.20, 1.12, 1.05, 1.00, 0.97, 0.94, 0.91, 0.88, 0.85 },
+		S = { 1.15, 1.10, 1.05, 1.00, 0.975, 0.95, 0.925, 0.90, 0.875, 0.85 },
+		heartNet = 0.10,
+		heartArea = { 2, 2, 1.5, 1.5 }, -- tiers 1 to 4; 1 from tier 5
+	},
+	CoatSpeed = { gold = 0.95, rainbow = 0.88 } :: { [string]: number }, -- #5392: ring shrink times, with catchCurve
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty"; no tablet got past the first
 	-- rescue): the first two areas' bars for every rarity. `zone` times RescueZoneWidth, `speed` times RescueBarSpeed

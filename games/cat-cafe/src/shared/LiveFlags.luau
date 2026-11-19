@@ -170,6 +170,7 @@ LiveFlags.KEYS = {
 	"parkRankPoint", -- #5163: after a Park cat checks in at Tier 2 the screen dims round the goal card, once a session (UI.parkRankPoint); off by default
 	"parkFirstEasy", -- #5182: Park catches keep the Alleyway's 1.2 wider bands until the first Park catch (shared/ParkFirstEasy); off by default
 	"areaWhole", -- Derek 2026-11-18: the area a player is in (or flying to) loads whole on their device (shared/AreaWhole); off by default
+	"catchCurve", -- #5392: one smooth catch curve by net, area tier and coat, and a bigger net Perfect (shared/Circles); off by default
 	"nextGoalBeat", -- #5202: a "What next?" card once after the first Park catch (shared/NextGoal); off by default
 	"milestoneFunnel", -- #5291: the milestones_v1 progression funnel for new accounts (shared/MilestoneFunnel); off by default
 	"tameCannonPoint", -- #5245: after the first bowl cat's card the Cannon button is dimmed and pointed at until pressed, and the picker's ringed Launch too (UI applyTutorial, Screens/Cannon); off by default
@@ -276,6 +277,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkRankPoint = true, -- #5163: on after Review-QA and Sync's Studio pass
 	parkFirstEasy = true, -- #5182: on after Review-QA; Growth reads park_catch by device
 	areaWhole = true, -- Derek 2026-11-18: on after Review-QA and Sync's tablet and phone memory read in a long area
+	catchCurve = true, -- #5392
 	nightBright = true, -- #5240: on after Review-QA and a phone look at night
 	ringSolid = true, -- #5256: on after Review-QA and a Studio look at a double and a paw ring
 	quickFirstRings = true, -- #5232: first-session change; on at a clear minute after Review-QA

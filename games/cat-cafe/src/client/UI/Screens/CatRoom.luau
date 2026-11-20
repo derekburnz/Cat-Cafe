@@ -2213,10 +2213,7 @@ function CatRoom._renderFeed(self: any): boolean
 		local shown = {}
 		for _, food in foods do
 			local mark = sent[food.id]
-			if mark ~= nil and mark.base ~= food.count then
-				sent[food.id] = nil -- the server's count moved: it is the truth again
-				mark = nil
-			end
+			mark = CatRoom.feedSettle(sent, food.id, food.count)
 			local left = food.count - (if mark ~= nil then mark.n else 0)
 			if left > 0 then
 				local copy = table.clone(food)
@@ -2335,6 +2332,29 @@ function CatRoom._placeFeed(self: any)
 	self._detailDesc.Visible = not squeezed
 end
 
+-- #5578: the feeds of `foodId` still in flight once the server's count is `count`: the ones it has taken since
+-- (its count went down by them) come off, a count that went up (food bought) leaves them, and none left drops it.
+function CatRoom.feedSettle(
+	sent: { [string]: { base: number, n: number } },
+	foodId: string,
+	count: number
+): { base: number, n: number }?
+	local mark = sent[foodId]
+	if mark == nil or mark.base == count then
+		return mark
+	end
+	local taken = mark.base - count
+	mark.base = count
+	if taken > 0 then
+		mark.n -= taken
+	end
+	if mark.n <= 0 then
+		sent[foodId] = nil
+		return nil
+	end
+	return mark
+end
+
 -- One food's tile: a tap feeds one; held, it feeds again every FEED_REPEAT seconds while the food and the cat's
 -- levels last (the server's FeedCat allows 4 a second).
 function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
@@ -2350,8 +2370,8 @@ function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
 			-- #5578: count this feed off the shown number now; nothing left to show, nothing more to send
 			local sent: { [string]: { base: number, n: number } } = self._feedSent or {}
 			self._feedSent = sent
-			local mark = sent[foodId]
-			if mark == nil or mark.base ~= have then
+			local mark = CatRoom.feedSettle(sent, foodId, have)
+			if mark == nil then
 				mark = { base = have, n = 0 }
 				sent[foodId] = mark
 			end

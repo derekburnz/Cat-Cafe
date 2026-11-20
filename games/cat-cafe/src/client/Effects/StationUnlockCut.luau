@@ -21,10 +21,14 @@
 -- A station StationLockController hid below its tier (`locked`) comes back fully shown, never as it was hidden. The
 -- HUD, toasts and cards are the caller's to put away (UI.tips.clearStage, as ContextCut's caller does): nothing here
 -- touches another ScreenGui (Review-QA, #5127).
+--
+-- #5550 (switch `cutsQuick`, read as the cut starts): the quick cut of Presets.stationCut.quick, about 2 s with no skip
+-- and over by `cap` seconds past its end whatever happens. Off keeps the cut above exactly.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -38,6 +42,7 @@ local StationUnlockCut = {}
 
 local STEP = "EffectsStationUnlockCut"
 local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
+local QUICK_FLAG = "LiveFlag_cutsQuick"
 
 local running = false
 local revealListeners: { (tier: number) -> () } = {}
@@ -96,6 +101,19 @@ function StationUnlockCut.at(
 		label = math.max(0, 1 - (t - p.endAt) / p.fade)
 	end
 	return math.clamp(fade, 0, 1), there, push, grow, label
+end
+
+-- The numbers a cut plays with: Presets.stationCut, with its `quick` fields over them when `quick`. Pure.
+function StationUnlockCut.preset(quick: boolean): typeof(Presets.stationCut)
+	local base = Presets.stationCut
+	if not quick then
+		return base
+	end
+	local out = table.clone(base) :: { [string]: any }
+	for key, value in base.quick :: { [string]: any } do
+		out[key] = value
+	end
+	return out :: any
 end
 
 -- The whole cut's length.
@@ -367,7 +385,7 @@ function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boo
 	if model == nil then
 		return false
 	end
-	local p = Presets.stationCut
+	local p = StationUnlockCut.preset(ReplicatedStorage:GetAttribute(QUICK_FLAG) == true)
 	local reduced = Context.reducedMotion()
 	local pivot = model:GetPivot()
 	local frame, size = model:GetBoundingBox()
@@ -462,7 +480,7 @@ function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boo
 
 	input = UserInputService.InputBegan:Connect(function(event: InputObject)
 		local t = os.clock() - began
-		if skipAt ~= nil or t < p.skipAfter then
+		if not p.skip or skipAt ~= nil or t < p.skipAfter then
 			return
 		end
 		local kind = event.UserInputType
@@ -492,7 +510,7 @@ function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boo
 				timeline = p.endAt -- still fading in: go straight to the fade out
 			end
 		end
-		if timeline >= length or t >= length + 1 then
+		if timeline >= length or t >= length + p.cap then
 			finish(at ~= nil)
 			return
 		end

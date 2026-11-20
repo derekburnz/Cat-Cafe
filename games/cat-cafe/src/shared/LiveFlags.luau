@@ -208,6 +208,7 @@ LiveFlags.KEYS = {
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
 	"upgradesInstant", -- #5253: an Upgrades buy shows in the window at once and the server syncs before the plot rebuild (Screens/UpgradeShop, CafeService); off by default
 	"nightBright", -- #5240: a slightly lighter night sky and shade (shared/DayLight.BRIGHT_NIGHT); off by default
+	"decorNoBang", -- #5574: new decor lights no "!" on the HUD's Decor tile (Screens/HUD); off by default
 	"frontDoors", -- #5385: the cafe's own front doors stand open in the front doorway where no door set is in use (CafeService.refreshDoors); off by default
 	"ringSolid", -- #5256: a double's second half and a paw catch ring drop the dark rim that read as a gap (UI CatchCircles); off by default
 	"quickFirstRings", -- #5232: a player's held first-catch rings shrink in 0.7 s, not 1.6 (shared/Circles.tutorialSchedule); off by default
@@ -220,6 +221,7 @@ LiveFlags.KEYS = {
 	"phoneSmooth", -- #5285 A1: a new account on a touch screen starts in Smooth mode, no ask (shared/PerfSuggest.autoStart); off by default
 	"bangFixedText", -- #5390: the "!" bubbles' words sized by hand, not TextScaled (UI/Components/MarketBang); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
+	"giftBangMine", -- #5576: the red "!" over a waiting Mystery gift only on the player's own cafe (Effects/Mystery); off by default
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
@@ -238,6 +240,7 @@ LiveFlags.KEYS = {
 	"rankOneTap", -- #5533: a ready goal card is a gold RANK UP button, one tap ranks up, no window (UI/Components/RankOneTap); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
+	"bowlNoPops", -- #5571: with No cat pop-ups ticked, a bowl tame shows no big rare card and the walk-up ring no waiting cat card (UI.securedRare, Controllers/UIController); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -366,6 +369,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	crateUnstick = true, -- #5394
 	cannonAnywhere = true, -- #5382
 	nightBright = true, -- #5240: on after Review-QA and a phone look at night
+	decorNoBang = true, -- #5574
 	frontDoors = true, -- #5385: on in the hour its PR publishes
 	ringSolid = true, -- #5256: on after Review-QA and a Studio look at a double and a paw ring
 	quickFirstRings = true, -- #5232: first-session change; on at a clear minute after Review-QA
@@ -379,6 +383,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	milestoneFunnel = true, -- #5291: analytics only; on after Review-QA, then Growth reads it from new accounts
 	topTraitCompanion = true, -- #5445
 	topTraitsMore = true, -- #5445: on only once every server runs the new ids (a restart)
+	giftBangMine = true, -- #5576
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
@@ -397,6 +402,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankOneTap = true, -- #5533: on once Review-QA and a phone look pass (Derek 2026-11-20)
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 	bowlWalkQuiet = true, -- #5436
+	bowlNoPops = true, -- #5571
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

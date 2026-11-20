@@ -1317,7 +1317,10 @@ function UIController.openBowl(index: number, walked: boolean?)
 		and waiting ~= nil
 		and type(settings) == "table"
 		and settings.bowlNewCatCard == false
-		and ReplicatedStorage:GetAttribute("LiveFlag_bowlWalkQuiet") == true
+		and (
+			ReplicatedStorage:GetAttribute("LiveFlag_bowlWalkQuiet") == true
+			or ReplicatedStorage:GetAttribute("LiveFlag_bowlNoPops") == true
+		)
 	then
 		return
 	end
@@ -3418,6 +3421,12 @@ local function wireServerEvents()
 				(info :: any).source = "bowl" -- UI.showCatFound: a toast instead with settings.bowlNewCatCard off
 			end
 			extra = info
+		end
+		-- #5571 (Derek 2026-11-20: the No cat pop-ups tick "doesnt work", a LEGENDARY card still popped): a bowl tame
+		-- of a Legendary or better also sends SecuredRare (BaitService fires it right after this), and that big card
+		-- skips this cat while the tick is set (UI.securedRare)
+		if fromBowl then
+			(UI :: any).bowlTamed = { catId = catId, at = os.clock() }
 		end
 		pendingCharmGain = 0
 		UI.showCatFound(catId, isNew, extra)

@@ -4883,6 +4883,11 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 			then indexReady > 0
 			elseif screen == "Upgrades" then #keys > 0
 			else Notices.hasNew(keys, self._seen[screen] or {})
+		-- #5574 (Derek 2026-11-20: "no need since it already auto equips best"): with decorNoBang on, new decor lights
+		-- no "!" on the Decor tile
+		if screen == "Decor" and ReplicatedStorage:GetAttribute("LiveFlag_decorNoBang") == true then
+			show = false
+		end
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 			lit = true

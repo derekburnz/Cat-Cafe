@@ -304,6 +304,7 @@ return function()
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "nightLineNoArrow" -- #5459
+							or key == "rankDimTwo" -- #5609
 							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)

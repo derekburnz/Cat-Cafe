@@ -4752,6 +4752,11 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 		"rankSpotPlain",
 		ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "rankSpotPlain")
 	) == true
+	-- #5609 (rankDimTwo): the new start sees this dim and arrow too (shared/FreeStart.LOUD_ATTR)
+	target:SetAttribute(
+		"PointEvenQuiet",
+		if ReplicatedStorage:GetAttribute("LiveFlag_rankDimTwo") == true then true else nil
+	)
 	UI.rankSpot.close = SpotlightGuide.show(
 		target,
 		if onStrip or plain then "" else words or "",

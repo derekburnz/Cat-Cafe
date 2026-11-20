@@ -21,6 +21,11 @@ RankFirst.PRESSES = 3 -- the press that puts it away for good
 -- ready: a press outside only rests them STAY_REST seconds, however many presses, and a walk-through put away in an
 -- earlier session shows again (RankSpot.due's `stay`).
 RankFirst.STAY_FLAG = "rankSpotStay"
+-- #5609 (Derek 2026-11-20: "I see some people still missing the tier 2 rankup on the side maybe just for tier 2 dim
+-- screen and point to it until people rankup to tier 2"): with this switch the Tier 2 Rank Up's dim and arrow show
+-- wherever the player stands (an area's street too), on the new start too (FreeStart.LOUD_ATTR on the button), and a
+-- press on the dim only rests them, until the rank up
+RankFirst.DIM_TWO_FLAG = "rankDimTwo"
 RankFirst.STAY_REST = 8
 -- Sync's phone look (#5524): a player walking with the thumbstick saw it come back about every 10 s, which nags. Each
 -- press this session rests it STAY_REST longer, up to STAY_REST_MAX: 8, 16, 24, then 30 s.

@@ -78,7 +78,7 @@ local function show(next: any)
 				report("closed")
 				Net.fire("TipSeen", RankSpot.SEEN, false)
 			else
-				restUntil = os.clock() + RankFirst.rest(stay)
+				restUntil = os.clock() + RankFirst.rest(stay, presses)
 			end
 		end
 		rankSpot.set("none")

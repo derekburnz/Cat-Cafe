@@ -66,6 +66,13 @@ return function()
 			expect(RankFirst.rest(true)).to.equal(RankFirst.STAY_REST)
 			expect(RankFirst.rest(false)).to.equal(RankFirst.REST_SECONDS)
 			expect(RankFirst.STAY_REST < RankFirst.REST_SECONDS).to.equal(true)
+			-- each press rests it longer, up to the cap
+			expect(RankFirst.rest(true, 1)).to.equal(8)
+			expect(RankFirst.rest(true, 2)).to.equal(16)
+			expect(RankFirst.rest(true, 3)).to.equal(24)
+			expect(RankFirst.rest(true, 4)).to.equal(30)
+			expect(RankFirst.rest(true, 40)).to.equal(30)
+			expect(RankFirst.rest(false, 4)).to.equal(RankFirst.REST_SECONDS)
 		end)
 	end)
 end

@@ -22,6 +22,9 @@ RankFirst.PRESSES = 3 -- the press that puts it away for good
 -- earlier session shows again (RankSpot.due's `stay`).
 RankFirst.STAY_FLAG = "rankSpotStay"
 RankFirst.STAY_REST = 8
+-- Sync's phone look (#5524): a player walking with the thumbstick saw it come back about every 10 s, which nags. Each
+-- press this session rests it STAY_REST longer, up to STAY_REST_MAX: 8, 16, 24, then 30 s.
+RankFirst.STAY_REST_MAX = 30
 -- #4836 (Sync's pointer audit: the strip said "Tap YOUR GOAL" while the arrow pointed at the green RANK UP button):
 -- the line names the button the arrow and the strip's own button show
 -- #4926 (Derek 2026-11-16: what to do and why): and what the rank up opens
@@ -71,8 +74,12 @@ function RankFirst.forGood(presses: number, stay: boolean?): boolean
 end
 
 -- How long a press outside the spotlight rests it.
-function RankFirst.rest(stay: boolean?): number
-	return if stay == true then RankFirst.STAY_REST else RankFirst.REST_SECONDS
+-- `presses` is how many such presses this session, this one included (1 when left out).
+function RankFirst.rest(stay: boolean?, presses: number?): number
+	if stay ~= true then
+		return RankFirst.REST_SECONDS
+	end
+	return math.min(RankFirst.STAY_REST * math.max(presses or 1, 1), RankFirst.STAY_REST_MAX)
 end
 
 return RankFirst

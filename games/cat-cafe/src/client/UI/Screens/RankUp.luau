@@ -289,21 +289,23 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 		)
 		requirements[#requirements].kind = "coins"
 		requirements[#requirements].step = "Save " .. Format.money(nextTier.cost)
-		table.insert(
-			requirements,
-			requirement(
-				(if nextTier.anyCats == true then "%d cats" else "%d different cats"):format(
-					nextTier.distinctCats
-				),
-				if nextTier.anyCats == true then "Cats" else "Different cats", -- #4809
-				needs.catsHave,
-				needs.catsNeed
+		if nextTier.distinctCats > 0 then -- #5533: coinsOnly asks no cats, so no row
+			table.insert(
+				requirements,
+				requirement(
+					(if nextTier.anyCats == true then "%d cats" else "%d different cats"):format(
+						nextTier.distinctCats
+					),
+					if nextTier.anyCats == true then "Cats" else "Different cats", -- #4809
+					needs.catsHave,
+					needs.catsNeed
+				)
 			)
-		)
-		requirements[#requirements].kind = "cats"
-		requirements[#requirements].step = (if nextTier.anyCats == true
-			then "Catch %d cats"
-			else "Catch %d different cats"):format(nextTier.distinctCats)
+			requirements[#requirements].kind = "cats"
+			requirements[#requirements].step = (if nextTier.anyCats == true
+				then "Catch %d cats"
+				else "Catch %d different cats"):format(nextTier.distinctCats)
+		end
 		local needsRarity = needs.rarity
 		if needsRarity then
 			local count = needs.rarityNeed

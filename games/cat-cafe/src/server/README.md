@@ -5,8 +5,7 @@ Owner: luau-engineer. One system per ModuleScript, one bootstrap script.
 ```
 Main.server.luau          builds assets and world, then starts Net, PlotService, CafeService, CatService, DataService
 World/
-  Placeholders.luau       Part models for every asset name (cats, customers, furniture, decor, alley, park, items)
-  AssetRegistry.luau      ReplicatedStorage.Assets access: ensurePlaceholders(), clone(name)
+  AssetRegistry.luau      ReplicatedStorage.Assets access: clone(name), a plain block if missing
   Layout.luau             pure numbers: plot placement, spots, anchors, tables, area spawn and lure points
   WorldBuilder.luau       builds workspace.World (ground, street, 8 plots, alley, park, gate, spawn)
 Services/

@@ -111,7 +111,6 @@ for _, player in Players:GetPlayers() do
 end
 
 local started = os.clock()
-local placeholders = AssetRegistry.ensurePlaceholders()
 -- #3743: the area sets and backdrops leave ReplicatedStorage before anyone joins, so no client is sent them
 local stowed = AssetRegistry.stowServerOnly()
 -- #4763: the tables caps follow the tablesSpread switch (shared/TablesSpread)
@@ -248,10 +247,9 @@ end
 
 print(
 	string.format(
-		"[CatCafe] server ready in %.2fs: %d plots, %d placeholder models, %d server-only templates",
+		"[CatCafe] server ready in %.2fs: %d plots, %d server-only templates",
 		os.clock() - started,
 		#world.plots,
-		placeholders,
 		stowed
 	)
 )

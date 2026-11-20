@@ -1106,6 +1106,10 @@ function UI.init(config: Types.InitConfig)
 			local PassShop = require(script.Components.PassShop)
 			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
 		end,
+		-- #5533 (rankOneTap): the goal card's RANK UP button; the server checks every need again
+		rankNow = function()
+			UI.events.rankUp:Fire()
+		end,
 		-- #5516 (rankTapLog): UIController's tap log, set once it starts
 		rankTap = function(from: string)
 			local note: ((string) -> ())? = (UI :: any).rankTapNote
@@ -12909,6 +12913,15 @@ function UI.autoRank.check()
 	local readyTier = if ready then tier else nil
 	if player ~= nil and player:GetAttribute(AutoRankUp.ATTRIBUTE) ~= readyTier then
 		player:SetAttribute(AutoRankUp.ATTRIBUTE, readyTier)
+	end
+	-- #5533 (rankOneTap; Sync on #5534): the goal card is the Rank Up button, so the window never opens itself
+	if
+		LiveFlags.shown(
+			"rankOneTap",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankOneTap")
+		)
+	then
+		return
 	end
 	if not on() or not ready or auto.opened[tier] then
 		return

@@ -96,7 +96,12 @@ return function()
 				)
 				-- #5174 (Derek 2026-11-17: all the hype on Christmas): it rolls straight on to the Christmas Event, past
 				-- Harvest Hollow (no entry), then Cherry Blossom Grove
+				-- Derek 2026-11-20: Device Improvements (Sat Nov 21 20:00 UTC) first, then Christmas
 				expect((EventRsvp.next(Config.UpdateEvents, 1794945600 + 600))).to.equal(
+					"8108785197822116451"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1795291200 + 300))).to.equal(nil)
+				expect((EventRsvp.next(Config.UpdateEvents, 1795291200 + 600))).to.equal(
 					"3056428113926947439"
 				)
 				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(

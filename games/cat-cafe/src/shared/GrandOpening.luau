@@ -137,7 +137,8 @@ function GrandOpening.met(profile: Types.PlayerProfile, n: number): boolean
 	elseif n == 2 then
 		return profile.stats.baitsTamed + profile.stats.baitsLetGo >= 1
 	elseif n == 3 then
-		return Economy.distinctCats(profile) >= Catalog.tiers[2].distinctCats -- #4188: 3 (4 for #4098, 5 before)
+		-- #4188: 3 (4 for #4098, 5 before); #5533: the plain need, whatever coinsOnly sets
+		return Economy.distinctCats(profile) >= (Catalog.PLAIN_TIER_NEEDS[2].distinctCats :: number)
 	elseif n == 4 then
 		return Economy.tier(profile) >= 2
 	elseif n == 5 then

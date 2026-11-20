@@ -1392,7 +1392,7 @@ do
 		end
 		picnic.stray = nil
 		player:SetAttribute("PicnicCat" .. picnic.n, true)
-		Telemetry.custom(player, "picnic_cat_caught", picnic.n, { stray.def.rarity, stray.def.id })
+		Telemetry.custom(player, "picnic_cat_caught", picnic.n, { tostring(stray.def.rarity), stray.def.id })
 		local userId = player.UserId
 		task.delay(M.PicnicParty.CAT_NEXT_SECONDS, function()
 			if Street.picnics[userId] == picnic then

@@ -87,6 +87,7 @@ export type Callbacks = {
 	showCat: (bowl: number) -> (), -- reopens that bowl's Tame or Let go card
 	buySecond: () -> (), -- #1161: Roblox's purchase window for the Second Bait Bowl pass
 	buyAuto: (() -> ())?, -- #4266: Roblox's purchase window for the Auto Bowl pass
+	toast: ((text: string) -> ())?, -- bowlAutoFree: a locked tick's "Free at Tier 2"
 	setSetting: ((key: string, on: boolean) -> ())?, -- #4266: an Auto Bowl switch, as SetSetting
 	close: () -> (),
 }
@@ -693,7 +694,8 @@ function BaitBowl._buildAuto(self: any)
 		parent = offer,
 		onClick = function()
 			local buy: (() -> ())? = self._callbacks.buyAuto
-			if buy then
+			-- bowlAutoFree: the pass's two ticks are free, so it is never sold
+			if buy and ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true then
 				buy()
 			end
 		end,
@@ -804,6 +806,11 @@ function BaitBowl._tapAuto(self: any, key: string)
 		-- bowlAutoFree (Derek 2026-11-20): the ticks are free from Tier 2, so a lock before then sells nothing
 		if ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true then
 			self._callbacks.buySecond()
+		else
+			local toast: ((string) -> ())? = self._callbacks.toast
+			if toast then
+				toast("Free at Tier 2")
+			end
 		end
 		return
 	end

@@ -172,6 +172,11 @@ return function()
 				-- every later bait: as its timer ends
 				expect(Bait.catOutAt(1000, 1600, 1)).to.equal(1600)
 				expect(Bait.catOutAt(1000, 1003, 9)).to.equal(1003)
+				-- #5548 (baitCutQuick): the first bait's cat goes out as the food lands; other baits are unchanged
+				expect(Bait.catOutAt(1000, 1005, 1, true)).to.equal(1000)
+				expect(Bait.catOutAt(1000, 1600, 1, true)).to.equal(1600)
+				expect(Bait.catOutAt(1000, 1003, 9, true)).to.equal(1003)
+				expect(Bait.quickOn()).to.equal(false)
 				-- and it is never out after the timer, whatever the lead
 				for wait = 0, 5 do
 					local out = Bait.catOutAt(1000, 1000 + wait, 1)

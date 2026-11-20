@@ -557,7 +557,13 @@ local function checkArrivals()
 				local readyAt = CafeService.baitReadyAt(profile, bait)
 				if
 					now < readyAt
-					and now >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
+					and now
+						>= Bait.catOutAt(
+							bait.placedAt,
+							readyAt,
+							profile.stats.luresUsed,
+							Bait.quickOn()
+						)
 				then
 					if early == nil then
 						early = {}

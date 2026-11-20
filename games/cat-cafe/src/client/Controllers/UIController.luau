@@ -2554,6 +2554,30 @@ local function wireIntents()
 			rankWindow.pressed = true
 		end
 	end)
+	-- #5516 (rankTapLog): each tap on the goal card or the strip's rank up button at Tier 1, with the window open half
+	-- a second later (none when the tap opened nothing) and whether the rank up was ready; the server caps and checks
+	local tapUI: any = UI
+	tapUI.rankTapNote = function(from: string)
+		local s = state
+		if s == nil or (s :: any).tier ~= 1 then
+			return
+		end
+		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+		local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+		local ready = nextTier ~= nil and RankUpNeeds.of(nextTier, s :: any).ready == true
+		task.delay(0.5, function()
+			Net.fire(
+				"TelemetryReport",
+				"rank_tap",
+				("%s:%s:%s"):format(
+					from,
+					UI.isOpen() or "none",
+					if ready then "ready" else "not_ready"
+				)
+			)
+		end)
+	end
 	UI.events.screenOpened:Connect(function(name: string?)
 		local autoRank: any = UI.autoRank
 		if rankWindow.open and name ~= "RankUp" then

@@ -116,6 +116,7 @@ export type Callbacks = {
 	setSetting: ((key: string, value: boolean) -> ())?,
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
+	rankTap: ((from: string) -> ())?, -- #5516 (rankTapLog): a tap on the goal card or the strip's rank up button
 	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
 	openAway: (() -> ())?, -- #5505: the Rewards list's away row opens what comes tomorrow
 }
@@ -1631,6 +1632,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
 	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
+		local tapped = callbacks.rankTap
+		if tapped then
+			tapped("goal") -- #5516: the log looks at what opened a moment later
+		end
 		local openAt = callbacks.openIndexAt
 		if openAt and self._goal:nudging() then
 			openAt(self._goalArea) -- #1919
@@ -2424,6 +2429,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		onClick = function()
 			-- #3951 read (Nov 15 data: 431 ready, 283 pressed): beside a rank up line it opens the rank up window
 			if self._stripRank then
+				local tapped = callbacks.rankTap
+				if tapped then
+					tapped("strip") -- #5516
+				end
 				callbacks.openScreen("RankUp")
 				return
 			end

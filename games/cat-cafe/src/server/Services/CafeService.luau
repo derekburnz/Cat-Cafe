@@ -1378,7 +1378,8 @@ local function refreshBowl(
 	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
 	-- #3161: the account's first bait's cat stands at the bowl a few seconds before its timer ends (Bait.catOutAt)
 	local ready = bait ~= nil
-		and os.time() >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
+		and os.time()
+			>= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed, Bait.quickOn()) -- #5548
 
 	if folder:FindFirstChild("Bowl") == nil then
 		local bowl = AssetRegistry.clone("CatCafe_Item_FoodBowl")

@@ -137,11 +137,26 @@ end
 -- When the bait's cat stands at the bowl for everyone to see: as its wait ends, or for the account's first bait
 -- FirstBaitCatLeadSeconds sooner (never less than a second after the food went in), so the first bait's cutscene
 -- shows it walking in and eating while the timer runs down (#3161). The Tame card still waits for `readyAt`.
-function Bait.catOutAt(placedAt: number, readyAt: number, luresUsed: number): number
+-- #5548 (switch baitCutQuick, `quick`): the first bait's cat goes out as the food lands, at placedAt.
+function Bait.catOutAt(
+	placedAt: number,
+	readyAt: number,
+	luresUsed: number,
+	quick: boolean?
+): number
 	if not Bait.isFirst(placedAt, readyAt, luresUsed) then
 		return readyAt
 	end
+	if quick == true then
+		return math.min(readyAt, placedAt)
+	end
 	return math.min(readyAt, math.max(placedAt + 1, readyAt - Config.FirstBaitCatLeadSeconds))
+end
+
+-- #5548: the baitCutQuick switch, read as its replicated attribute (true only, so a place without the key reads off).
+Bait.QUICK_FLAG = "baitCutQuick"
+function Bait.quickOn(): boolean
+	return game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. Bait.QUICK_FLAG) == true
 end
 
 -- #3161: whether a player `distance` studs from their own bowl counts as away from it (nil: not known, so away), for

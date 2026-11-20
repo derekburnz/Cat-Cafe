@@ -79,7 +79,8 @@ local CLEAR = 8 -- the gap kept under anything in `avoid` (#2393)
 local CLEAN_FLAG = "askClean"
 local CLEAN_BAR_H = 4
 local CLEAN_BAR_FOOT = 5 -- the bar's gap over the card's foot
-local CLEAN_UP = 4 -- the disc, line and X sit this far over the middle, clear of the bar
+local CLEAN_UP = 5 -- the disc, line and X sit this far over the middle, clear of the bar
+local CLEAN_LINE_TRIM = 18 -- the line's box is this much shorter than the card, so two lines clear the bar too
 local CLEAN_X_RADIUS = 8
 local CLEAN_GOLD = ColorSequence.new(Theme.button.gold.top, Theme.button.gold.bottom)
 local CLEAN_RED = ColorSequence.new(Theme.button.close.top, Theme.button.close.bottom)
@@ -191,11 +192,20 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -10, 0.5, -1),
 		Size = UDim2.fromOffset(L.x, L.x),
+		Text = "",
+		Parent = card,
+	})
+	-- the letter is its own label over the square: a UIGradient on a TextLabel tints its text too, which hid the X
+	-- on the clean look's red face (Sync 2026-11-20)
+	Create("TextLabel", {
+		Name = "Letter",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
 		TextSize = L.xText,
 		TextColor3 = Theme.colors.white,
 		Text = "X",
-		Parent = card,
+		Parent = x,
 	})
 	self._xCorner = Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = x })
 	self._xFace = Create("UIGradient", {
@@ -289,6 +299,12 @@ function TipCard._paint(self: any, clean: boolean, luck: boolean)
 	self._discFace.Enabled = clean and not luck
 	local line: TextLabel = self._line
 	line.Position = UDim2.new(0, L.pad + L.icon + L.pad, 0.5, up)
+	line.Size = UDim2.new(
+		1,
+		-(L.pad + L.icon + L.pad + 10 + L.x + 10),
+		1,
+		if clean then -CLEAN_LINE_TRIM else -12
+	)
 	local x: TextLabel = self._x
 	x.Position = UDim2.new(1, -10, 0.5, up)
 	x.BackgroundColor3 = if clean then Color3.new(1, 1, 1) else Theme.colors.red

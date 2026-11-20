@@ -205,7 +205,6 @@ return function()
 							or key == "nightSpread" -- #5164
 							or key == "netTiers" -- #5170
 							or key == "tablesEight" -- #5441
-							or key == "plainFallback" -- #4656
 							or key == "nightLine" -- #5330
 							or key == "companionMenu" -- #5296
 							or key == "companionTraits" -- #5303

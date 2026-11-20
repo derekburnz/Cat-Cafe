@@ -87,6 +87,7 @@ export type Callbacks = {
 	showCat: (bowl: number) -> (), -- reopens that bowl's Tame or Let go card
 	buySecond: () -> (), -- #1161: Roblox's purchase window for the Second Bait Bowl pass
 	buyAuto: (() -> ())?, -- #4266: Roblox's purchase window for the Auto Bowl pass
+	toast: ((text: string) -> ())?, -- bowlAutoFree: a locked tick's "Free at Tier 2"
 	setSetting: ((key: string, on: boolean) -> ())?, -- #4266: an Auto Bowl switch, as SetSetting
 	close: () -> (),
 }
@@ -693,7 +694,8 @@ function BaitBowl._buildAuto(self: any)
 		parent = offer,
 		onClick = function()
 			local buy: (() -> ())? = self._callbacks.buyAuto
-			if buy then
+			-- bowlAutoFree: the pass's two ticks are free, so it is never sold
+			if buy and ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true then
 				buy()
 			end
 		end,
@@ -801,7 +803,15 @@ end
 function BaitBowl._tapAuto(self: any, key: string)
 	-- #5263: a locked tick opens the Second Bait Bowl pass's purchase in place of a change
 	if key ~= "popups" and ticksOn() and not self:_autoOwns(true) then
-		self._callbacks.buySecond()
+		-- bowlAutoFree (Derek 2026-11-20): the ticks are free from Tier 2, so a lock before then sells nothing
+		if ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true then
+			self._callbacks.buySecond()
+		else
+			local toast: ((string) -> ())? = self._callbacks.toast
+			if toast then
+				toast("Free at Tier 2")
+			end
+		end
 		return
 	end
 	local settingKey = AUTO_KEYS[key]
@@ -1457,7 +1467,8 @@ function BaitBowl._renderPerks(self: any, luck: number)
 	local options = ReplicatedStorage:GetAttribute("LiveFlag_bowlPassOptions") == true
 		and ReplicatedStorage:GetAttribute("LiveFlag_bowlTicks") == true
 	perks[4].Text = PERK_MARK .. "Bowl options: auto refill and auto claim"
-	perks[4].Visible = options
+	-- Derek 2026-11-20 (bowlAutoFree): the bowl options are free from Tier 2, so the pass no longer lists them
+	perks[4].Visible = options and ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true
 end
 
 -- #1161: each tab's state, "Bowl 1 · 4m 10s", "Bowl 2 · Empty" or "Bowl 2 · Cat!", the chosen one in gold.

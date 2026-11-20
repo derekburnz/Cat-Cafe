@@ -107,6 +107,11 @@ local function onBuy(player: Player, rawKey: unknown, rawShown: unknown)
 	if item == nil or (item.flag ~= nil and not LiveFlagService.on(item.flag)) then
 		return
 	end
+	-- bowlAutoFree (Derek 2026-11-20): Auto refill and Auto claim are free, so the Auto Bowl pass is never sold
+	local itemKey: string = item.key -- a plain string, so the check does not narrow item.key below
+	if itemKey == "autoBowl" and LiveFlagService.on("bowlAutoFree") then
+		return
+	end
 	local price = FishStore.price(item)
 	if price > shown then
 		refuse(player, "The price changed, have a look again")

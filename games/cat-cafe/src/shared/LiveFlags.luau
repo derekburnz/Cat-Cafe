@@ -245,6 +245,7 @@ LiveFlags.KEYS = {
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
 	"baitCutQuick", -- #5548: the first bait scene is about 1.5 s with no skip (Effects/FirstBaitCut) and the first bait cat comes out as the food lands (shared/Bait); off by default
+	"bowlAutoFree", -- Derek 2026-11-20 21:00 UTC: Auto refill and Auto claim free for everyone from Tier 2, and gone from the Second Bait Bowl pass text (shared/AutoBowl); off by default
 	"bowlPassOptions", -- #5606: the locked second bowl's What you get card also lists the bowl options (auto refill and auto claim) it brings with bowlTicks (Screens/BaitBowl); off by default
 	"firstCatArrow", -- #5594: a gold arrow points down over the nearest catchable cat until the first catch (Controllers/FirstCatArrowController); off by default
 	"codesRingTown", -- #5605: the Codes Cat's circle counts as a Town Square ring, so it shows with townRings as the other Town rings do (Effects/StationCircles); off by default
@@ -431,6 +432,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	catsArrowOff = true, -- #5485: on as soon as it merges
 	baitCutQuick = true, -- #5548: on with the new start, after Review-QA and Sync's phone look
+	bowlAutoFree = true, -- Derek 2026-11-20 21:00 UTC: on as soon as it publishes
 	bowlPassOptions = true, -- #5606: on as soon as it publishes (Derek 2026-11-20)
 	firstCatArrow = true, -- #5594: on as soon as it publishes (Derek 2026-11-20)
 	codesRingTown = true, -- #5605: on as soon as it publishes (Derek 2026-11-20)

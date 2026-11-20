@@ -1950,7 +1950,11 @@ function Store._showInfo(self: any, row: StoreLogic.Row?)
 		return
 	end
 	local lines: { StoreLogic.PackLine } = if row
-		then StoreLogic.infoLines(row, kingInfo(), shownFlag("bowlTicks"))
+		then StoreLogic.infoLines(
+			row,
+			kingInfo(),
+			shownFlag("bowlTicks") and not shownFlag("bowlAutoFree")
+		)
 		else {}
 	local shown = row ~= nil and #lines > 0
 	info.shade.Visible = shown

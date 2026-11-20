@@ -20,15 +20,25 @@ AutoBowl.KEYS = { claim = "autoBowlClaim", refill = "autoBowlRefill" } :: { [str
 -- #5263 (Derek 2026-11-18, OK 14:48 UTC): with the bowlTicks switch on, auto claim and auto refill come with the 2nd
 -- Bowl pass too, not only the Auto Bowl pass. Off until the store holds true; a key LiveFlags does not know reads off.
 AutoBowl.TICKS_FLAG = "bowlTicks"
+-- Derek 2026-11-20 21:00 UTC ("changes the autofill with best and auto claim bowl cats to be free and remove that from
+-- the text from the 2nd bowl gamepass ... make the game easier to play"): with the switch `bowlAutoFree` on, every
+-- player from Tier 2 gets both ticks, pass or not, so the first bowl cats of the new start are still tapped by hand.
+AutoBowl.FREE_FLAG = "bowlAutoFree"
+AutoBowl.FREE_TIER = 2
 
--- Whether the player counts as an Auto Bowl owner: the Auto Bowl pass, or the 2nd Bowl pass with bowlTicks on. Pure.
+-- Whether the player counts as an Auto Bowl owner: the Auto Bowl pass, or the 2nd Bowl pass with bowlTicks on, or
+-- anyone at FREE_TIER or past it with bowlAutoFree on (`free`, nil reads off). Pure.
 function AutoBowl.owner(
 	ownsAuto: boolean,
 	ownsSecond: boolean,
 	ticksKnown: boolean,
-	ticksOn: boolean
+	ticksOn: boolean,
+	free: boolean?,
+	tier: number?
 ): boolean
-	return ownsAuto or (ticksKnown and ticksOn and ownsSecond)
+	return ownsAuto
+		or (ticksKnown and ticksOn and ownsSecond)
+		or (ticksKnown and ticksOn and free == true and (tier or 1) >= AutoBowl.FREE_TIER)
 end
 
 function AutoBowl.passId(): number

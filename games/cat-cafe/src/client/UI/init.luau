@@ -1451,8 +1451,14 @@ function UI.init(config: Types.InitConfig)
 			api.buySecond()
 		end,
 		buyAuto = function()
+			if ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") == true then
+				return -- bowlAutoFree: the Auto Bowl pass is not sold while its ticks are free
+			end
 			local api: any = UI.bait
 			api.buyAuto()
+		end,
+		toast = function(text: string)
+			UI.toast(text, "info")
 		end,
 		setSetting = function(key: string, on: boolean)
 			UI.events.setSetting:Fire(key, on) -- #4266: autoBowlClaim, autoBowlRefill
@@ -3469,7 +3475,7 @@ do
 	-- #4266: the Auto Bowl offer's price button: Roblox's purchase window; the server saves the pass
 	function UI.bait.buyAuto()
 		local id: number = Config.AutoBowlPassId or 0
-		if id ~= 0 then
+		if id ~= 0 and ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true then -- bowlAutoFree: not sold
 			PassShop.prompt(id, "bait")
 		end
 	end
@@ -11590,6 +11596,7 @@ do
 				"bowlTicks",
 				ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "bowlTicks")
 			)
+			or ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "bowlAutoFree") == true -- Derek 2026-11-20
 		then
 			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })
 		end

@@ -92,7 +92,7 @@ end
 -- #5582 (Derek 2026-11-20: "random floating rich tips outside my cafe and cant even collect"): whether `position` is
 -- over the cafe's floor (its footprint, with a stud of slack), so a bag never waits outside the walls.
 local function onFloor(plot: WorldBuilder.Plot, position: Vector3): boolean
-	local floor = plot.floor
+	local floor: BasePart? = (plot :: any).floor
 	if floor == nil or floor.Parent == nil then
 		return true -- nothing to measure by: keep the table's place
 	end

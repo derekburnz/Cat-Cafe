@@ -157,4 +157,63 @@ return function()
 			expect(Catalog.getTier(5).cost).to.equal(plain[5].cost)
 		end)
 	end)
+
+	describe("coinsOnly (#5533)", function()
+		it("starts off", function()
+			expect(CheapTiers.coinsOnly()).to.equal(false)
+		end)
+
+		it("asks coins only at every tier, whatever the other switches", function()
+			local plain = Catalog.PLAIN_TIER_NEEDS
+			for _, cheap in { false, true } do
+				for _, all in { false, true } do
+					Catalog.setTierNeeds(CheapTiers.needsFor(cheap, true, true, all, true))
+					for tier = 2, Catalog.maxTier do
+						local def = Catalog.getTier(tier)
+						expect(def.distinctCats).to.equal(0)
+						expect(def.needsRarity).to.equal(nil)
+						expect(def.needsRarityCount).to.equal(nil)
+						local cost = CheapTiers.COINS[tier]
+						if cost ~= nil then
+							expect(def.cost).to.equal(cost)
+						end
+						if tier > 2 then
+							expect(def.cost > Catalog.getTier(tier - 1).cost).to.equal(true)
+						end
+					end
+					expect(Catalog.getTier(8).cost).to.equal(
+						if cheap then CheapTiers.NEEDS[8].cost else plain[8].cost
+					)
+				end
+			end
+			expect(Catalog.getTier(2).cost).to.equal(CheapTiers.COINS[2])
+			Catalog.setTierNeeds(nil)
+			for tier = 2, Catalog.maxTier do
+				local def = Catalog.getTier(tier)
+				expect(def.cost).to.equal(plain[tier].cost)
+				expect(def.distinctCats).to.equal(plain[tier].distinctCats)
+				expect(def.needsRarity).to.equal(plain[tier].needsRarity)
+				expect(def.needsRarityCount).to.equal(plain[tier].needsRarityCount)
+			end
+			expect(Catalog.getTier(2).cost).to.equal(1500)
+		end)
+
+		it("lets a player with the coins and one cat rank up at every tier", function()
+			local Economy = require(Shared.Economy) :: any
+			Catalog.setTierNeeds(CheapTiers.needsFor(false, false, false, false, true))
+			for tier = 1, 6 do
+				local nextDef = Catalog.getTier(tier + 1)
+				local profile: any = {
+					tier = tier,
+					coins = nextDef.cost,
+					collection = {},
+					cats = {},
+				}
+				expect(Economy.rankUpBlocker(profile)).to.equal(nil)
+				profile.coins = nextDef.cost - 1
+				expect(Economy.rankUpBlocker(profile)).to.equal("Not enough coins")
+			end
+			Catalog.setTierNeeds(nil)
+		end)
+	end)
 end

@@ -8,6 +8,8 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       a mug and a plate of sandwiches; beside it a chalk A-frame sign reading PICNIC.
                                       Attachments: PromptAnchor (the table's front, 1.5 up), BangAnchor (2 over the
                                       sign), GlowAnchor (under the parasol, for VFX's ready glow, #1328), Steam.
+                                      #5572: the basket's lid is the child `_Lid`, pivoted on its back edge (the
+                                      hinge); a positive turn about its X axis lifts it open toward the back.
   CatCafe_Camp_Neighbourhood_YardSaleStall (#1154, section 3) a folding table with a gingham cloth under a little
                                       pastel blue and white striped awning on four posts; on it the crates the lucky pick
                                       lands on (#3615: a Classic crate, a golden one on a riser with a FREE card, the
@@ -188,17 +190,16 @@ def _on_table(b):
     b.span((bx - 0.75, y, bz - 0.45), (bx + 0.75, y + 0.8, bz + 0.45), WOOD)
     for dy in (0.3, 0.58):
         b.span((bx - 0.78, y + dy, bz - 0.48), (bx + 0.78, y + dy + 0.08, bz + 0.48), "kibble")
-    b.span((bx - 0.79, y + 0.8, bz - 0.49), (bx + 0.79, y + 0.88, bz + 0.49), DARK)
-    b.span((bx - 0.66, y + 0.88, bz - 0.36), (bx + 0.05, y + 0.98, bz + 0.36), "blush")    # the cloth
-    b.span((bx, y + 0.88, bz - 0.49), (bx + 0.79, y + 0.95, bz + 0.49), WOOD)             # the closed half lid
-    b.span((bx - 0.79, y + 0.88, bz + 0.42), (bx, y + 1.6, bz + 0.5), WOOD)               # the open half
-    for x in (bx - 0.55, bx + 0.55):
-        b.span((x - 0.04, y + 0.95, bz - 0.04), (x + 0.04, y + 1.45, bz + 0.04), DARK)
-    b.span((bx - 0.59, y + 1.45, bz - 0.04), (bx + 0.59, y + 1.53, bz + 0.04), DARK)
+    b.span((bx - 0.79, y + 0.8, bz - 0.49), (bx + 0.79, y + 0.84, bz + 0.49), DARK)       # the rim
+    for k in range(6):                                                                      # the checked cloth inside
+        x0 = bx - 0.7 + k * 1.4 / 6
+        b.span((x0, y + 0.84, bz - 0.4), (x0 + 1.4 / 6, y + 0.86, bz + 0.4), ("bowl_red", "offwhite")[k % 2])
+    for sx in (-1, 1):                                                                      # side handles
+        b.span((bx + sx * 0.79 - 0.03, y + 0.45, bz - 0.2), (bx + sx * 0.79 + 0.03 * sx + sx * 0.06, y + 0.53, bz + 0.2),
+               DARK)
     px, pz = bx - 0.35, bz - 0.05                                                           # the Money Potion
-    b.cyl((px, y + 1.08, pz), 0.17, 0.32, "gold_light", segments=10)
-    b.cyl((px, y + 1.31, pz), 0.07, 0.14, "glass", segments=8)
-    b.cyl((px, y + 1.42, pz), 0.08, 0.08, "kibble", segments=8)
+    b.cyl((px, y + 0.7, pz), 0.17, 0.32, "gold_light", segments=10)                       # its neck and cork under
+    b.cyl((px, y + 0.85, pz), 0.06, 0.03, "kibble", segments=8)                             # the closed lid
     tx, tz = 1.45, 0.45                                                                     # thermos: Steam
     b.cyl((tx, y + 0.42, tz), 0.22, 0.84, "sign_teal", segments=12)
     b.cyl((tx, y + 0.9, tz), 0.24, 0.12, "cream", segments=12)
@@ -251,8 +252,28 @@ def _a_frame(b):
     return top
 
 
+LID_HINGE = (-1.3, TOP_Y + 0.86, 0.25 + 0.49)     # the basket lid's back edge (+Z is the back, away from the prompt)
+
+
+def _basket_lid(lid):
+    """The basket's lid, drawn about its hinge (the `_Lid` pivot): it lies flat toward the front (-Z); a turn about X
+    lifts it (positive turns open it upward, toward the back). Wicker top with a darker frame and a leather clasp."""
+    w, d = 0.8, 0.98
+    lid.span((-w, 0.0, -d), (w, 0.07, 0.0), WOOD)
+    lid.span((-w - 0.01, 0.07, -d - 0.01), (w + 0.01, 0.1, -d + 0.08), DARK)
+    lid.span((-w - 0.01, 0.07, -0.08), (w + 0.01, 0.1, 0.0), DARK)
+    for x in (-w + 0.04, w - 0.12):
+        lid.span((x, 0.07, -d + 0.08), (x + 0.08, 0.1, -0.08), DARK)
+    for k in range(3):                                                                      # wicker weave
+        z0 = -d + 0.18 + k * 0.24
+        lid.span((-w + 0.14, 0.07, z0), (w - 0.14, 0.09, z0 + 0.1), "kibble")
+    lid.span((-0.09, -0.16, -d - 0.04), (0.09, 0.1, -d - 0.01), "choco")                    # the clasp strap
+    lid.span((-0.05, -0.1, -d - 0.06), (0.05, -0.02, -d - 0.04), "brass")
+
+
 def build_picnic_station(mat):
-    b = RB()
+    b, lid = RB(), RB()
+    _basket_lid(lid)
     _blanket(b)
     _picnic_table(b)
     _parasol(b)
@@ -261,7 +282,7 @@ def build_picnic_station(mat):
     _anchor(PIC, "PromptAnchor", (0.0, 1.5, -SEAT_Z - SEAT_D / 2 - 0.6))
     _anchor(PIC, "BangAnchor", (SIGN_X, top[1] + 2.0, top[2]))
     _anchor(PIC, "GlowAnchor", (0.0, CAN_RIM - 0.4, 0.0))
-    return [b.finalize(PIC, mat)]
+    return [b.finalize(PIC, mat), lid.finalize(PIC + "_Lid", mat, location=LID_HINGE)]
 
 
 # ------------------------------------------------------------------------------------------ yard sale --

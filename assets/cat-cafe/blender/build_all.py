@@ -126,6 +126,7 @@ import harvestdecor  # noqa: E402
 import harvestset  # noqa: E402
 import d1props  # noqa: E402
 import advent  # noqa: E402
+import picnicprops  # noqa: E402
 import snowglobeset  # noqa: E402
 import christmasitems  # noqa: E402
 import waterparkshelf  # noqa: E402
@@ -151,7 +152,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
            arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, snowglobeset, christmasitems, dragon,
            updateposter, decorstand, mysterysign,
-           waterparkshelf, wallperch, plotsizes, d1props, advent]
+           waterparkshelf, wallperch, plotsizes, d1props, advent, picnicprops]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},

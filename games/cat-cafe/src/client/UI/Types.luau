@@ -244,6 +244,7 @@ export type CatInstance = {
 	caughtAt: number?,
 	spotId: string?, -- the role slot it works ("barista_1"), nil when resting in the cat room
 	rescued: boolean?,
+	perfect: boolean?, -- #5300: caught with every ring Perfect (x1.5 while the perfectCatch switch is on)
 	name: string?, -- the player's name for it, filtered by the server; nil shows the catalog name
 	method: CatchMethod?, -- how it was found
 	locked: boolean?, -- F62: true cannot be sold or traded; the lock shows once the server sends it as a boolean
@@ -334,6 +335,8 @@ export type PlayerState = {
 	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
 	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
 	dailyTreat: DailyTreatView?, -- F70: the Daily Treat window's card and the HUD's Daily tile
+	-- #5502: the advent calendar (shared/Advent.view), nil while either switch is off
+	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
 	-- F87 (easy-start.md section 6): the context tips seen (tip id or "like_ask" to true); nil until ProfileSync
 	-- sends it, and the client-found tips, the help card and the feedback ask wait for it
 	tipsSeen: { [string]: boolean }?,
@@ -424,6 +427,7 @@ export type PartialState = {
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 	-- #3022: the goal card's "Catch a 2nd cat", false once it ends (UI.update skips a nil, so the card would stay)
 	secondCat: (SharedTypes.SecondCatView | false)?,
+	startGoals: (SharedTypes.StartGoalsView | false)?, -- #5567: the play first start's two goals (HUD._secondGoal)
 	-- #2912: the goal card's "Free a stuck cat" while the pointer is up (UIController; false once it ends)
 	stuckGoal: boolean?,
 	-- #3529: the kinds owned for the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal
@@ -461,6 +465,7 @@ export type ScreenName =
 	| "Potions"
 	| "Quests"
 	| "DailyTreat"
+	| "AdventCalendar" -- #5502: the advent calendar card, from the Rewards list and the Town Square board
 	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
 	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
 	| "TradeLog" -- F102: the last 20 trades, opened from Settings

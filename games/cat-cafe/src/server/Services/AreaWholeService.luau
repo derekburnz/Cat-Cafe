@@ -10,11 +10,14 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local AreaWhole = require(ReplicatedStorage.Shared.AreaWhole)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local PlotService = require(script.Parent.PlotService)
+local TownGround = require(ReplicatedStorage.Shared.TownGround)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local AreaWholeService = {}
@@ -42,6 +45,34 @@ local holds: { [Player]: Hold } = {}
 local dropping: { [Player]: { Chunk } } = {} -- chunks of an area let go, taken off a few at a time
 local flying: { [Player]: AreaWhole.Flight } = {} -- a cannon flight's destination, until they stand in it
 local outSince: { [Player]: number } = {} -- when they left their held area for the street or a cafe
+-- #5381 areasKept: every unlocked area stays on the device. Chunks only ever go on, the area stood in first.
+local keptOn = false
+local keptHave: { [Player]: { [Model]: boolean } } = {} -- chunks on this player's list
+local keptQueue: { [Player]: { Chunk } } = {} -- chunks still to add, in order
+local keptAreas: { [Player]: { [string]: boolean } } = {} -- areas whose chunks are on or queued
+local keptCurrent: { [Player]: string } = {} -- the area last put at the front
+local keptBigOnly = false -- areasKeptBig: only a PC or console keeps every area (shared/AreaWhole.keptFor)
+local keptRecentOn = false -- areasKeptRecent: the others keep their AreaWhole.KEPT_RECENT most recent areas
+local keptRecent: { [Player]: { string } } = {} -- a limited device's kept areas, most recent first
+
+-- How many areas this player's device keeps now (AreaWhole.keptLimit): nil for every unlocked one, 0 for none.
+local function keptLimit(player: Player): number?
+	if not keptOn then
+		return 0
+	end
+	local Telemetry = require(script.Parent.Telemetry) :: any
+	local ok, device = pcall(Telemetry.device, player)
+	return AreaWhole.keptLimit(
+		if ok and type(device) == "string" then device else nil,
+		keptBigOnly,
+		keptRecentOn
+	)
+end
+
+-- Whether this player's device keeps areas now (every unlocked one, or its most recent few).
+local function keptFor(player: Player): boolean
+	return keptLimit(player) ~= 0
+end
 
 -- A piece's middle. Not its pivot: a kit set's pieces all pivot at the area's centre (Sync's re-test).
 local function pieceAt(item: Instance): Vector3?
@@ -65,6 +96,9 @@ local function cut(container: Instance, into: { Chunk }, depth: number?)
 	local level = depth or 0
 	local groups: { [string]: { Instance } } = {}
 	for _, child in container:GetChildren() do
+		if CollectionService:HasTag(child, TownGround.TAG) then
+			continue -- #5411: the paving stays where it is, kept whole by townGround (Review-QA)
+		end
 		local at = pieceAt(child)
 		if
 			at ~= nil
@@ -157,6 +191,52 @@ local function cutAll()
 		end
 		chunks[id] = list
 	end
+	-- Derek 2026-11-18: the Town Square, held while they stand on it (Layout.inTownSquare)
+	local town: { Chunk } = {}
+	local square = world.folder:FindFirstChild("TownSquare")
+	if square ~= nil then
+		cut(square, town)
+	end
+	local rect = Layout.townSquare.floor
+	local margin = AreaWhole.TOWN_MARGIN
+	for _, holder in { world.folder :: Instance, Workspace :: Instance } do
+		for _, child in holder:GetChildren() do
+			if not child:IsA("Model") or Players:GetPlayerFromCharacter(child :: Model) ~= nil then
+				continue
+			end
+			local model = child :: Model
+			-- Review-QA: never an area or a plot that sits near the square
+			if
+				model.ModelStreamingMode ~= Enum.ModelStreamingMode.Default
+				or model:GetAttribute("Area") ~= nil
+				or CollectionService:HasTag(model, "Plot")
+				-- #5411 (Derek 2026-11-19: "cat footprints in town square still dont render in fully"): the paving and
+				-- the paw print paths belong to townGround, which keeps them Persistent on every device. At start
+				-- they are still Default, so they used to join the town's chunks here and turn PersistentPerPlayer:
+				-- kept only for a player on the square, and the prints out on the street streamed away
+				or CollectionService:HasTag(model, TownGround.TAG)
+			then
+				continue
+			end
+			local at = model:GetBoundingBox().Position
+			local size = sizeOf(model)
+			if
+				at.X >= rect.x1 - margin
+				and at.X <= rect.x2 + margin
+				and at.Z >= rect.z1 - margin
+				and at.Z <= rect.z2 + margin
+				and size <= AreaWhole.TOWN_PIECE_MAX
+			then
+				table.insert(
+					town,
+					{ model = model, at = at, size = size, mode = model.ModelStreamingMode }
+				)
+			end
+		end
+	end
+	if #town > 0 then
+		chunks[AreaWhole.TOWN] = town
+	end
 end
 
 -- Lets go of the player's held area: its chunks come off a few at a time too (Sync: Snowy's Set, let go in one
@@ -247,6 +327,268 @@ local function keep(player: Player, areaId: string?)
 	holds[player] = { area = areaId, added = kept, waiting = waiting }
 end
 
+-- #5381: the areas this player has unlocked (CatService's gate or tier), in a fixed order.
+local function unlockedAreas(player: Player): { string }
+	local DataService = require(script.Parent.DataService) :: any
+	local CatService = require(script.Parent.CatService) :: any
+	local profile = DataService.get(player)
+	local list: { string } = {}
+	if profile == nil then
+		return list
+	end
+	for id in chunks do
+		local ok, open = pcall(CatService.areaUnlocked, profile, id)
+		if ok and open == true then
+			table.insert(list, id)
+		end
+	end
+	table.sort(list)
+	return list
+end
+
+-- #5381: puts `areaId`'s chunks that are not on the device yet at the front of the player's queue, nearest the
+-- character (or the landing pad on a flight) first.
+local function keptFront(player: Player, areaId: string)
+	local list = chunks[areaId]
+	if list == nil then
+		return
+	end
+	keptCurrent[player] = areaId
+	local have = keptHave[player] or {}
+	keptHave[player] = have
+	local areas = keptAreas[player] or {}
+	keptAreas[player] = areas
+	local inArea: { [Model]: boolean } = {}
+	for _, chunk in list do
+		inArea[chunk.model] = true
+	end
+	local front: { Chunk } = {}
+	local rest: { Chunk } = {}
+	local queued: { Chunk } = keptQueue[player] or {}
+	for _, chunk in queued do
+		if inArea[chunk.model] then
+			table.insert(front, chunk)
+		else
+			table.insert(rest, chunk)
+		end
+	end
+	if not areas[areaId] then
+		areas[areaId] = true
+		-- a chunk of this area still waiting to come off (an area let go, then back) stays on and is not sent again
+		local leaving = dropping[player]
+		if leaving ~= nil then
+			local still: { Chunk } = {}
+			for _, chunk in leaving do
+				if inArea[chunk.model] then
+					have[chunk.model] = true
+				else
+					table.insert(still, chunk)
+				end
+			end
+			if #still > 0 then
+				dropping[player] = still
+			else
+				dropping[player] = nil
+			end
+		end
+		for _, chunk in list do
+			if not have[chunk.model] then
+				table.insert(front, chunk)
+			end
+		end
+	end
+	local aim = aimFor(player, areaId)
+	if aim ~= nil then
+		local from = aim :: Vector3
+		table.sort(front, function(a: Chunk, b: Chunk): boolean
+			return (a.at - from).Magnitude < (b.at - from).Magnitude
+		end)
+	end
+	for _, chunk in rest do
+		table.insert(front, chunk)
+	end
+	keptQueue[player] = front
+end
+
+-- areasKeptRecent: one area's kept chunks come off this player's device a few at a time, and its queued ones stop.
+local function keptDropArea(player: Player, areaId: string)
+	local list = chunks[areaId]
+	local areas = keptAreas[player]
+	if areas ~= nil then
+		areas[areaId] = nil
+	end
+	if list == nil then
+		return
+	end
+	local inArea: { [Model]: boolean } = {}
+	for _, chunk in list do
+		inArea[chunk.model] = true
+	end
+	local queued = keptQueue[player]
+	if queued ~= nil then
+		local still: { Chunk } = {}
+		for _, chunk in queued do
+			if not inArea[chunk.model] then
+				table.insert(still, chunk)
+			end
+		end
+		keptQueue[player] = still
+	end
+	local have = keptHave[player]
+	if have == nil then
+		return
+	end
+	local leaving = dropping[player] or {}
+	for _, chunk in list do
+		if have[chunk.model] then
+			have[chunk.model] = nil
+			table.insert(leaving, chunk)
+		end
+	end
+	if #leaving > 0 then
+		dropping[player] = leaving
+	end
+end
+
+-- areasKeptRecent: keeps only this player's `limit` most recent areas (the current one first) and lets the rest go,
+-- including every area kept before the device counted as limited.
+local function keptTrim(player: Player, limit: number)
+	local current = keptCurrent[player]
+	local list: { string } = keptRecent[player] or {}
+	if current ~= nil then
+		local trimmed, gone = AreaWhole.recent(list, current, limit)
+		list = trimmed
+		for _, id in gone do
+			keptDropArea(player, id)
+		end
+	end
+	keptRecent[player] = list
+	local areas = keptAreas[player]
+	if areas == nil then
+		return
+	end
+	local keep: { [string]: boolean } = {}
+	for _, id in list do
+		keep[id] = true
+	end
+	local extra: { string } = {}
+	for id in areas do
+		if not keep[id] then
+			table.insert(extra, id)
+		end
+	end
+	for _, id in extra do
+		keptDropArea(player, id)
+	end
+end
+
+-- #5381: the area stood in (or flown to) goes first; every other unlocked area not queued yet goes on the end.
+local function keptStep(player: Player, area: string?)
+	if area ~= nil and keptCurrent[player] ~= area then
+		keptFront(player, area)
+	end
+	local have = keptHave[player] or {}
+	keptHave[player] = have
+	local areas = keptAreas[player] or {}
+	keptAreas[player] = areas
+	local queue = keptQueue[player] or {}
+	keptQueue[player] = queue
+	local limit = keptLimit(player)
+	if limit ~= nil then
+		keptTrim(player, limit)
+		return -- areasKeptRecent: only the areas stood in or flown to, never the rest ahead of time
+	end
+	keptRecent[player] = nil
+	for _, id in unlockedAreas(player) do
+		if not areas[id] then
+			areas[id] = true
+			for _, chunk in chunks[id] do
+				if not have[chunk.model] then
+					table.insert(queue, chunk)
+				end
+			end
+		end
+	end
+end
+
+-- #5381: areasKept off (or areaWhole off): everything kept comes off a few at a time, as a let-go area does.
+local function keptRelease()
+	for player, have in keptHave do
+		local queue = dropping[player] or {}
+		for model in have do
+			table.insert(queue, {
+				model = model,
+				at = Vector3.zero,
+				size = sizeOf(model),
+				mode = model.ModelStreamingMode,
+			})
+		end
+		if #queue > 0 then
+			dropping[player] = queue
+		end
+	end
+	table.clear(keptHave)
+	table.clear(keptQueue)
+	table.clear(keptAreas)
+	table.clear(keptCurrent)
+	table.clear(keptRecent)
+end
+
+-- #5381: one player starts keeping: what their held area already has stays on and counts as kept.
+local function keptTakeFor(player: Player)
+	local have = keptHave[player] or {}
+	keptHave[player] = have
+	local hold = holds[player]
+	if hold ~= nil then
+		for _, chunk in hold.added do
+			have[chunk.model] = true
+		end
+	end
+	local queue = dropping[player]
+	if queue ~= nil then
+		-- a let-go area's chunks still waiting to come off stay on now
+		for _, chunk in queue do
+			have[chunk.model] = true
+		end
+		dropping[player] = nil
+	end
+	holds[player] = nil
+end
+
+-- #5381: areasKept on: every player whose device keeps (keptFor) takes over what it holds.
+local function keptTake()
+	for _, player in Players:GetPlayers() do
+		if keptFor(player) then
+			keptTakeFor(player)
+		end
+	end
+end
+
+-- areasKeptBig: one player stops keeping (a phone once the switch goes on): what it kept comes off a few at a time,
+-- and from the next step it keeps one area whole, as areaWhole alone does.
+local function keptReleaseFor(player: Player)
+	local have = keptHave[player]
+	if have ~= nil then
+		local queue = dropping[player] or {}
+		for model in have do
+			table.insert(queue, {
+				model = model,
+				at = Vector3.zero,
+				size = sizeOf(model),
+				mode = model.ModelStreamingMode,
+			})
+		end
+		if #queue > 0 then
+			dropping[player] = queue
+		end
+	end
+	keptHave[player] = nil
+	keptQueue[player] = nil
+	keptAreas[player] = nil
+	keptCurrent[player] = nil
+	keptRecent[player] = nil
+end
+
 -- One SPREAD step: each player gets the next few waiting chunks, up to AreaWhole.BUDGET instances, and with what
 -- is left of it the next few of a let-go area come off (one at least when none went on).
 -- `tick` counts FLIGHT_SPREAD steps: a player on a cannon flight is fed every one, everyone else every SPREAD.
@@ -258,7 +600,25 @@ local function spread(tick: number)
 		end
 		local hold = holds[player]
 		local spent = 0
-		if hold ~= nil and #hold.waiting > 0 then
+		local kept = keptQueue[player]
+		if kept ~= nil and #kept > 0 and keptFor(player) then
+			local have = keptHave[player] or {}
+			keptHave[player] = have
+			local sizes: { number } = {}
+			for _, chunk in kept do
+				table.insert(sizes, chunk.size)
+			end
+			for _ = 1, AreaWhole.take(sizes) do
+				local chunk = table.remove(kept, 1) :: Chunk
+				spent += chunk.size
+				local ok = pcall(function()
+					chunk.model:AddPersistentPlayer(player)
+				end)
+				if ok then
+					have[chunk.model] = true
+				end
+			end
+		elseif hold ~= nil and #hold.waiting > 0 then
 			local sizes: { number } = {}
 			for _, chunk in hold.waiting do
 				table.insert(sizes, chunk.size)
@@ -302,7 +662,12 @@ local function standingIn(player: Player): string?
 	if not ok or world == nil then
 		return nil
 	end
-	return WorldBuilder.areaAt(world, (root :: BasePart).Position)
+	local at = (root :: BasePart).Position
+	local area = WorldBuilder.areaAt(world, at)
+	if area == nil and Layout.inTownSquare(at.X, at.Z) and at.Y < 40 then
+		return AreaWhole.TOWN -- Derek 2026-11-18: the Town Square counts as one
+	end
+	return area
 end
 
 local function apply(on: boolean)
@@ -320,10 +685,23 @@ local function apply(on: boolean)
 				dropNow(player, chunk)
 			end
 		end
+		for player, have in keptHave do
+			for model in have do
+				pcall(function()
+					model:RemovePersistentPlayer(player)
+				end)
+			end
+		end
 		table.clear(holds)
 		table.clear(dropping)
 		table.clear(flying)
 		table.clear(outSince)
+		table.clear(keptHave)
+		table.clear(keptQueue)
+		table.clear(keptAreas)
+		table.clear(keptCurrent)
+		table.clear(keptRecent)
+		keptOn = false
 	end
 	for _, list in chunks do
 		for _, chunk in list do
@@ -355,7 +733,17 @@ local function step()
 		if not flightStands then
 			flying[player] = nil
 		end
-		keep(player, area)
+		if keptFor(player) then
+			if keptHave[player] == nil then
+				keptTakeFor(player) -- the device reported itself a PC or console after it joined
+			end
+			keptStep(player, area)
+		else
+			if keptHave[player] ~= nil then
+				keptReleaseFor(player)
+			end
+			keep(player, area)
+		end
 	end
 end
 
@@ -369,12 +757,19 @@ function AreaWholeService.heading(player: Player, areaId: string): boolean
 	end
 	flying[player] = { area = areaId, untilAt = os.clock() + AreaWhole.FLIGHT_HOLD }
 	outSince[player] = nil
-	keep(player, areaId)
+	if keptFor(player) then
+		keptFront(player, areaId)
+	else
+		keep(player, areaId)
+	end
 	return true
 end
 
 -- The area this player's device is keeping whole (or getting), or nil (Debug and specs).
 function AreaWholeService.heldBy(player: Player): string?
+	if keptFor(player) then
+		return keptCurrent[player]
+	end
 	local hold = holds[player]
 	return if hold ~= nil then hold.area else nil
 end
@@ -386,6 +781,11 @@ function AreaWholeService.start()
 		dropping[player] = nil
 		flying[player] = nil
 		outSince[player] = nil
+		keptHave[player] = nil
+		keptQueue[player] = nil
+		keptAreas[player] = nil
+		keptCurrent[player] = nil
+		keptRecent[player] = nil
 	end)
 	task.spawn(function()
 		local tick = 0
@@ -406,6 +806,23 @@ function AreaWholeService.start()
 			if on ~= last then
 				last = on
 				apply(on)
+			end
+			local kept = on
+				and table.find(LiveFlags.KEYS, AreaWhole.KEPT_FLAG) ~= nil
+				and LiveFlagService.on(AreaWhole.KEPT_FLAG)
+			keptBigOnly = kept
+				and table.find(LiveFlags.KEYS, AreaWhole.KEPT_BIG_FLAG) ~= nil
+				and LiveFlagService.on(AreaWhole.KEPT_BIG_FLAG)
+			keptRecentOn = kept
+				and table.find(LiveFlags.KEYS, AreaWhole.RECENT_FLAG) ~= nil
+				and LiveFlagService.on(AreaWhole.RECENT_FLAG)
+			if on and kept ~= keptOn then
+				keptOn = kept
+				if kept then
+					keptTake()
+				else
+					keptRelease()
+				end
 			end
 			if on then
 				xpcall(step, function(err: unknown)

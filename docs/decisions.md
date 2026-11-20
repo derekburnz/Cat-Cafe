@@ -1263,3 +1263,10 @@ Derek, Nov 18 16:47 UTC: "remove the harvest hollow event stuff for now put it i
 - **Christmas Event:** Snowglobe Village, Tue Dec 1 2026 20:00 UTC to Sun Jan 3 2027 23:59 UTC, portal at Tier 2. It has 8 kept Christmas cats in Harvest's rarity shape, a Snowflake patch on Harvest's numbers and an 8-item Gift Stall at 1,800 Snowflakes in all. The stall has fixed prices, nothing random and nothing for Robux. It sits behind the `christmasEvent` switch. The code was Dec 12 before.
 - **Why this shape:** GE generalises Harvest's code into one EventArea driven by a config row, so this event and Cherry Blossom Grove are content jobs. All three teams estimated about 3 working days plus a day of fixes. The plan is to publish with the switch off on Nov 26, run Sync's look Nov 27 to 28 and switch on Nov 29. The dates keep it closed until Dec 1.
 - **Spec:** project files Design-Agent/christmas-2026-12-12/snowglobe-village-spec.md.
+
+## 2026-11-19: Tiers 4 to 7 much cheaper (`tiersEasy`)
+Derek, 21:11 UTC, answering the Nov 19 audit's Tier 4 wall: "it's fine to lower the costs of tiers we want to get people to later game most of the fun content doesn't even come till later make 3-7 super easy".
+- **What:** behind `tiersEasy` (shared/CheapTiers, off by default, on as it publishes), on top of the other tier rows: Tier 4 60,000 coins, 7 kinds and 1 Epic; Tier 5 400,000, 10 kinds and 1 Legendary; Tier 6 3,000,000, 13 kinds and 2 Legendaries; Tier 7 30,000,000, 17 kinds and 1 Mythical. Tier 3 keeps tier3Easy's 10,000 and 4 kinds. Tier 8 and up are untouched.
+- **Why this shape:** each step is 6 to 10 times the one before, and no tier before 7 waits on a Mythical, so luck does not block the climb.
+- **Not checked in the Pace sim.** Tier 8 (7,000,000,000 with cheapTiers) is now about 230 times Tier 7, so the wall moves there.
+- **Read:** Growth compares tier_4 to tier_7 reach one UTC day before and after the on-minute.

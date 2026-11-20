@@ -19,6 +19,7 @@
 local AdminAir = require(script.AdminAir)
 local AdminDrops = require(script.AdminDrops)
 local AdminFlash = require(script.AdminFlash)
+local AdventFx = require(script.AdventFx)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
 local ArcadeScreen = require(script.ArcadeScreen)
@@ -32,6 +33,7 @@ local BoothFx = require(script.BoothFx)
 local BowlFrenzyFx = require(script.BowlFrenzyFx)
 local BulbChase = require(script.BulbChase)
 local CafeWalk = require(script.CafeWalk)
+local CampCoinFly = require(script.CampCoinFly)
 local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
 local CampGlow = require(script.CampGlow)
@@ -41,6 +43,7 @@ local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
 local CannonCue = require(script.CannonCue)
 local CannonGlide = require(script.CannonGlide)
+local CatNames = require(script.CatNames) -- #5586
 local Catch = require(script.Catch)
 local CatchReact = require(script.CatchReact)
 local Cats = require(script.Cats)
@@ -61,6 +64,7 @@ local Follower = require(script.Follower)
 local FusionFx = require(script.FusionFx)
 local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
+local GuideArrow = require(script.GuideArrow)
 local HarvestFx = require(script.HarvestFx)
 local HoldPulse = require(script.HoldPulse)
 local Intro = require(script.Intro)
@@ -86,6 +90,7 @@ local PalWave = require(script.PalWave)
 local PassThanks = require(script.PassThanks)
 local PawTrail = require(script.PawTrail)
 local PetCat = require(script.PetCat)
+local PicnicParty = require(script.PicnicParty)
 local Pity = require(script.Pity)
 local Plots = require(script.Plots)
 local PoolBeacon = require(script.PoolBeacon)
@@ -106,6 +111,7 @@ local Shove = require(script.Shove)
 local Signature = require(script.Signature)
 local Sky = require(script.Sky)
 local SlotWalk = require(script.SlotWalk)
+local SnowglobeFlakes = require(script.SnowglobeFlakes)
 local SnowglobeFx = require(script.SnowglobeFx)
 local SpeedShoes = require(script.SpeedShoes)
 local Splash = require(script.Splash)
@@ -124,6 +130,7 @@ local TrailSparkle = require(script.TrailSparkle)
 local Trampoline = require(script.Trampoline)
 local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
+local WorldGlow = require(script.WorldGlow)
 local WowBaitGlow = require(script.WowBaitGlow)
 
 local Effects = {}
@@ -180,6 +187,7 @@ function Effects.start()
 		Mystery.start,
 		Levels.start,
 		Rarity.start,
+		CatNames.start, -- #5586: names over the nearest strays
 		SecretStray.start,
 		SecretGlow.start,
 		BigTraitCut.watchPool, -- #3942: other players' big trait rolls, seen from nearby
@@ -214,6 +222,10 @@ function Effects.start()
 		AreaFx.start,
 		LateStationFx.start,
 		BoothFx.start, -- #4061: the Ticket Booth's buy moment
+		CampCoinFly.start, -- #5533 v2: coins to the counter at the new start's first camp check-ins
+		PicnicParty.start, -- #5572: the Picnic Party's ready look, pop, blanket and pack away (picnicParty)
+		WorldGlow.start, -- #5533 v2: the new start's world glows (stall, cannon, door)
+		AdventFx.start, -- #5502: the advent calendar board's doors, glow and bursts
 		DragonStageCut.start, -- #4062: the Dragon Keep stage-up cutscene on each DragonStage
 		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
 		KeepDragon.start, -- #4567: your own stage's dragon stands in the Dragon Keep
@@ -241,9 +253,11 @@ function Effects.start()
 		StationCircles.start, -- #4668: the walk-up rings hidden unless Station circles is on
 		HarvestFx.start, -- #4251: Harvest Hollow's falling leaves and the pumpkin patch's pops
 		SnowglobeFx.start, -- Christmas Event: Snowglobe Village's snow and the Town Square globe's swirl (idle until tagged)
+		SnowglobeFlakes.start, -- Christmas Event: the Snowflake patch's bob, pick sparkle and "+N Snowflakes" pop
 		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,
+		GuideArrow.start, -- #5465: one arrow by the player in place of the trail, with guideArrow on
 		GoldenFind.start,
 		MoneyBag.start,
 		StationBuild.start,
@@ -322,6 +336,7 @@ function Effects.applySettings(settings: { [string]: unknown }?)
 	Context.applySettings(settings)
 	Sky.refresh()
 	StationCircles.set(if settings ~= nil then settings.stationCircles else nil) -- #4668
+	CatNames.set(if settings ~= nil then settings.catNames else nil) -- #5586
 end
 
 return Effects

@@ -298,7 +298,8 @@ export type Candidate = {
 -- Working cats may (they leave their role); the quick picks skip them.
 function DragonKeepLogic.candidates(
 	cats: { [string]: any }?,
-	busy: { [string]: boolean }?
+	busy: { [string]: boolean }?,
+	noEvent: boolean? -- #5428: keepNoEvent is on, so event cats are not shown
 ): { Candidate }
 	local all: { [string]: any } = cats or {} -- one type, for the CI luau-lsp
 	local copies: { [string]: number } = {}
@@ -308,6 +309,9 @@ function DragonKeepLogic.candidates(
 	local out: { Candidate } = {}
 	for uid, instance in all do
 		if instance.locked == true or (busy and busy[uid]) then
+			continue
+		end
+		if noEvent == true and DragonKeep.eventCat(instance.catId) then
 			continue
 		end
 		local def = Catalog.getCat(instance.catId)

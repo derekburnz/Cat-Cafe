@@ -16,6 +16,8 @@ local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Create)
+local FreeStart =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart"))
 local Theme = require(script.Parent.Parent.Theme)
 local TutorialArrow = require(script.Parent.TutorialArrow)
 
@@ -36,6 +38,10 @@ function TutorialGlow.set(
 )
 	if target == nil then
 		return
+	end
+	-- #5533 (shared/FreeStart): no ring, dim or arrow for a save on the play first start until Tier 3
+	if on and FreeStart.quietFor(target) then -- #5599: but a target marked LOUD_ATTR
+		on = false
 	end
 	local existing = target:FindFirstChild(TutorialGlow.NAME)
 	if not on then

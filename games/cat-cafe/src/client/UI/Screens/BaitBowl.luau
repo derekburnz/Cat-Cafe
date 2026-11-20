@@ -137,7 +137,7 @@ local TICK_ORDER = { "refill", "claim", "popups" }
 local TICK_WORDS: { [string]: string } = {
 	refill = "Auto refill with best",
 	claim = "Auto claim bowl cats",
-	popups = "No new cat pop-ups",
+	popups = "No cat pop-ups", -- #5571 (Derek 2026-11-20: "not cat pop ups from no new cat pop ups")
 }
 local AUTO_HOLD = 5 -- SettingsList.HOLD_SECONDS: a tap holds until the server agrees
 local AUTO_ROW = 36 -- a switch row, the tap height a mouse needs; touch Hit pads reach 44
@@ -159,6 +159,16 @@ local DETAILS_H = 42 -- a 37 px face, over the 36 px a mouse needs (the UI gate'
 local ICON = 52 -- the food's picture with its grade gem
 local TEXT_LEFT = ICON + 24
 local TAB_H = 42 -- the bowl tabs (#1161), as tall as Details
+local LOCK_FLAG = "LiveFlag_bowlLockBig" -- #5455: the Bowl Options' big lock pictures
+-- #5472 (Derek 2026-11-19: "food bowl options missing from mobile"): with `bowlOptionsList` on, a column too short
+-- for the whole Bowl Options card (a phone, more so with a cat waiting or two bowls) puts the card at the top of the
+-- foods list instead, where it scrolls with the foods, rather than hiding it or squeezing it to one row
+local LIST_FLAG = "LiveFlag_bowlOptionsList"
+-- #5488 (Derek 2026-11-19: "for mobile instead of having an options at the top of food put an options button in the
+-- space above refill"): with `bowlOptionsButton` on, that too short column shows an Options button over Refill
+-- instead, and a tap lays the whole card over the top of the foods (the list itself never moves); a tap again closes
+-- it, and so does closing the window
+local BUTTON_FLAG = "LiveFlag_bowlOptionsButton"
 local PERK_LINE = 24 -- #1767: one of the locked bowl 2 card's three lines
 -- #3961 (batch 1 mock, station-menus-batch1-3558.png): with the family look the status card is a column down the
 -- left (the bowl's picture, what is in it, the wait chip, the buttons at its foot) and the foods are picture cards
@@ -454,7 +464,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 		Parent = oddsCard,
 	})
 	local perks: { TextLabel } = {}
-	for index = 1, 3 do
+	for index = 1, 4 do -- #5606: the fourth only with bowlPassOptions
 		perks[index] = text({
 			Name = "Perk" .. tostring(index),
 			AutomaticSize = Enum.AutomaticSize.Y,
@@ -595,6 +605,28 @@ function BaitBowl._buildAuto(self: any)
 		{ Color = Theme.colors.gold, Thickness = Theme.sizes.stroke, Parent = card }
 	)
 	self._autoCard = card
+	-- #5488: the Options button over Refill, shown only while the column is too short for the card
+	self._optionsOpen = false
+	self._optionsButton = Button.new({
+		name = "BowlOptions",
+		text = "Options",
+		style = "sky",
+		size = UDim2.new(1, -20, 0, REFILL.Y),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -10),
+		textSize = Theme.sizes.textSmall,
+		parent = self._status,
+		onClick = function()
+			self._optionsOpen = not self._optionsOpen
+			self:_renderAuto()
+		end,
+	})
+	self._optionsButton.instance.Visible = false
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not self.frame.Visible then
+			self._optionsOpen = false
+		end
+	end)
 	-- what the card holds scrolls where a short phone's column has less room than it needs
 	local body: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "Body",
@@ -680,6 +712,7 @@ function BaitBowl._buildAuto(self: any)
 	self._autoRows = {} :: { [string]: Frame }
 	self._autoWords = {} :: { [string]: TextLabel } -- #5263: the words change with bowlTicks
 	self._autoPills = {} :: { [string]: Button.Button }
+	self._autoLocks = {} :: { [string]: TextLabel } -- #5455
 	for _, key in AUTO_ORDER do
 		local row: Frame = Create("Frame", {
 			Name = AUTO_NAMES[key] .. "Row",
@@ -711,6 +744,21 @@ function BaitBowl._buildAuto(self: any)
 				self:_tapAuto(key)
 			end,
 		})
+		-- #5455 (Derek 2026-11-19: "make the lock symbols a little easier to see"): with `bowlLockBig` on, a locked
+		-- tick box shows a big lock picture over it in place of the button's small 🔒 text
+		local lock = text({
+			Name = "BigLock",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(0.72, 0.72),
+			TextScaled = true,
+			Text = Theme.icons.lock,
+			Visible = false,
+			ZIndex = self._autoPills[key].instance.ZIndex + 2,
+			Parent = self._autoPills[key].instance,
+		})
+		IconArt.set(lock, Theme.icons.lock)
+		self._autoLocks[key] = lock
 	end
 end
 
@@ -838,18 +886,58 @@ function BaitBowl._renderAuto(self: any)
 	-- naming the pass
 	local offerH = AUTO_OFFER_H
 	local y, height = layout(offerH)
-	local short = selling and height > room
+	-- #5472: too short a column puts the whole card at the top of the foods list
+	local asButton: boolean = shown == true
+		and height > room
+		and ReplicatedStorage:GetAttribute(BUTTON_FLAG) == true -- #5488
+	local inList = shown
+		and height > room
+		and not asButton
+		and ReplicatedStorage:GetAttribute(LIST_FLAG) == true
+	local optionsButton: Button.Button = self._optionsButton
+	optionsButton.instance.Visible = asButton
+	if asButton then
+		optionsButton.instance.Position =
+			UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach))
+		optionsButton:setText(if self._optionsOpen then "Close" else "Options")
+		if not self._optionsOpen then
+			shown = false
+		end
+	end
+	local short = selling and height > room and not inList and not asButton
 	if short then
 		offerH = AUTO_PAD + AUTO_ROW
 		y, height = layout(offerH)
 	end
-	if shown then
+	if shown and not inList and not asButton then
 		-- a short phone's column shows what fits and scrolls the rest; at least a row's worth
 		shown = room >= math.min(height, pad + AUTO_PAD)
 	end
 	card.Visible = shown
 	if not shown then
 		return
+	end
+	if asButton then
+		-- #5488: over the top of the foods, the column (and the Options button) left clear
+		card.Parent = self._list.Parent
+		card.ZIndex = 50
+		card.Active = true -- a tap on its background never reaches the food card under it
+		card.AnchorPoint = Vector2.zero
+		card.Position = self._list.Position + UDim2.fromOffset(4, 4)
+		room = height
+	elseif inList then
+		card.Parent = self._list
+		card.ZIndex = 1
+		card.Active = false
+		card.LayoutOrder = -1 -- over the locked bowl 2's card and the foods
+		card.AnchorPoint = Vector2.zero
+		card.Position = UDim2.new()
+		room = height
+	elseif card.Parent ~= self._status then
+		card.Parent = self._status
+		card.ZIndex = 1
+		card.Active = false
+		card.AnchorPoint = Vector2.new(0.5, 1)
 	end
 	self._autoOffer.Size = UDim2.new(1, 0, 0, offerH)
 	for _, name in { "Icon", "Name", "Line" } do
@@ -859,10 +947,15 @@ function BaitBowl._renderAuto(self: any)
 		end
 	end
 	local cardH = math.min(height, room)
-	card.Size = UDim2.new(1, -20, 0, cardH)
+	card.Size = if asButton
+		then UDim2.new(self._list.Size.X.Scale, -8, 0, cardH)
+		elseif inList then UDim2.new(1, 0, 0, cardH)
+		else UDim2.new(1, -20, 0, cardH)
 	self._autoBody.CanvasSize = UDim2.fromOffset(0, height)
 	self._autoBody.ScrollBarThickness = if cardH < height then 4 else 0
-	card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach)) -- clear of Refill's pad too
+	if not inList and not asButton then
+		card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach)) -- clear of Refill's pad too
+	end
 	self._autoStroke.Color = if ticks
 		then Theme.colors.mintDark
 		elseif owned then Theme.colors.mintDark
@@ -891,7 +984,11 @@ function BaitBowl._renderAuto(self: any)
 				pill.instance.AnchorPoint = Vector2.new(0, 0)
 				pill.instance.Position = UDim2.fromScale(0, 0)
 				pill:setStyle(if ticked and not locked then "primary" else "slate")
-				pill:setText(if locked then "🔒" elseif ticked then "✓" else "")
+				local bigLock = locked and ReplicatedStorage:GetAttribute(LOCK_FLAG) == true -- #5455
+				pill:setText(
+					if bigLock then "" elseif locked then "🔒" elseif ticked then "✓" else ""
+				)
+				self._autoLocks[key].Visible = bigLock
 				pill.instance:SetAttribute("On", ticked and not locked)
 				pill.instance:SetAttribute("Locked", locked)
 				words.Text = TICK_WORDS[key]
@@ -903,6 +1000,7 @@ function BaitBowl._renderAuto(self: any)
 				pill.instance.Position = UDim2.fromScale(1, 0)
 				pill:setStyle(if on then "primary" else "slate")
 				pill:setText(if on then "ON" else "OFF")
+				self._autoLocks[key].Visible = false
 				pill.instance:SetAttribute("On", on)
 				pill.instance:SetAttribute("Locked", nil)
 				words.Text = AUTO_WORDS[key]
@@ -1354,6 +1452,12 @@ function BaitBowl._renderPerks(self: any, luck: number)
 				)
 				else "Same foods and odds as bowl 1"
 		)
+	-- #5606 (Derek 2026-11-20: "add to the second bait bowl notes in the what you get menu to have the options for auto
+	-- refill/claim unlock also be there", switch bowlPassOptions): with bowlTicks (#5263) the pass brings them
+	local options = ReplicatedStorage:GetAttribute("LiveFlag_bowlPassOptions") == true
+		and ReplicatedStorage:GetAttribute("LiveFlag_bowlTicks") == true
+	perks[4].Text = PERK_MARK .. "Bowl options: auto refill and auto claim"
+	perks[4].Visible = options
 end
 
 -- #1161: each tab's state, "Bowl 1 · 4m 10s", "Bowl 2 · Empty" or "Bowl 2 · Cat!", the chosen one in gold.
@@ -1581,6 +1685,7 @@ function BaitBowl.destroy(self: any)
 	self._action:destroy()
 	self._refill:destroy()
 	self._refillFood:destroy()
+	self._optionsButton:destroy()
 	if self._autoBuy then
 		self._autoBuy:destroy()
 		for _, pill in self._autoPills do

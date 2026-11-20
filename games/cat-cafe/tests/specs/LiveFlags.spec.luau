@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, luckyCharm, introSplit, parkGateTrail, rareCustomers, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion, giftCard, storeGuard, noIntro, fxOneAdded, rankUpRightAway, parkRingEarly, tier3Path, parkTrailBack, areaOnly, cafeGrows, palDay, fxAfterLoad, tomorrowCard, cannonCue, harvestPieLow, tablesSpread, strayWalkSlow, stationCut, firstRankLock, likeAskEarly and nightSlice alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, luckyCharm, introSplit, parkGateTrail, rareCustomers, updateFeature, starterSuggest, ticketBooth, deviceFixes, afkButton, autoBowl, mailbox, giftCard, storeGuard, noIntro, fxOneAdded, rankUpRightAway, parkRingEarly, tier3Path, parkTrailBack, areaOnly, cafeGrows, palDay, fxAfterLoad, tomorrowCard, cannonCue, harvestPieLow, tablesSpread, strayWalkSlow, stationCut, firstRankLock, likeAskEarly and nightSlice alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -141,29 +141,31 @@ return function()
 					expect(
 						key == "tradeFish"
 							or key == "nightCatch"
+							or key == "townFast" -- #5584
+							or key == "perfectFlagged" -- #5379
+							or key == "decorNoBang" -- #5574
 							or key == "loadingScreen"
+							or key == "feedInstant" -- #5578
+							or key == "walkUpCarry" -- #5415
 							or key == "goldenDrops"
+							or key == "richInside" -- #5582
+							or key == "areaCannonRings" -- #5416
 							or key == "luckyCharm"
 							or key == "introSplit"
 							or key == "parkGateTrail"
-							or key == "fishStore"
 							or key == "ticketBooth"
-							or key == "dragonKeep"
 							or key == "rareCustomers"
-							or key == "dailyDeal"
 							or key == "starterSuggest"
 							or key == "updateFeature"
-							or key == "adminEvents"
-							or key == "secretAreas"
 							or key == "autoBowl"
 							or key == "padControls"
 							or key == "afkButton" -- #4346
-							or key == "tier8" -- #3997
-							or key == "tier9" -- #4070
-							or key == "tier10" -- #4184
+							or key == "cannonReturnNow" -- #5417
+							or key == "areasKept" -- #5381
+							or key == "areasKeptBig" -- Sync 2026-11-19
 							or key == "deviceFixes"
+							or key == "areasKeptRecent" -- Derek 2026-11-19
 							or key == "mailbox" -- #4249
-							or key == "fusion" -- #4104
 							or key == "earlyKindBonus" -- #4624
 							or key == "returnHookEarly" -- #4626
 							or key == "journeys" -- #4544
@@ -172,7 +174,10 @@ return function()
 							or key == "noIntro" -- #4929
 							or key == "firstFlightQuick" -- #4920
 							or key == "backdropsNear" -- #4857
+							or key == "catNames" -- #5586
 							or key == "fxOneAdded" -- #5000
+							or key == "picnicParty" -- #5572
+							or key == "cherryGrove" -- #5339
 							or key == "rankUpRightAway" -- #5031
 							or key == "parkRingEarly" -- #5034
 							or key == "tier3Path" -- #5038
@@ -180,6 +185,8 @@ return function()
 							or key == "palDay" -- #4913
 							or key == "areaOnly" -- #5026
 							or key == "harvestPieLow" -- #4251
+							or key == "secretDouble" -- #5418
+							or key == "walkUpRetry" -- #5386
 							or key == "cafeGrows" -- #4543
 							or key == "fxAfterLoad" -- #5068
 							or key == "tomorrowCard" -- #3951
@@ -195,42 +202,126 @@ return function()
 							or key == "spinCat" -- #5171
 							or key == "nightSpread" -- #5164
 							or key == "netTiers" -- #5170
+							or key == "tablesEight" -- #5441
+							or key == "nightLine" -- #5330
+							or key == "companionMenu" -- #5296
+							or key == "companionTraits" -- #5303
+							or key == "perfectCatch" -- #5300
+							or key == "easyKeep" -- #5311
+							or key == "bangFixedText" -- #5390
 							or key == "afkQuick" -- #5310
+							or key == "afkStay" -- #5322
+							or key == "strayMeets" -- onboarding_v9
 							or key == "bigTreats" -- Derek 2026-11-18
+							or key == "tomorrowBoard" -- #5449
+							or key == "walkUpCardWait" -- Derek 2026-11-19
 							or key == "bigNet" -- #5309
 							or key == "cannonReturn" -- #5304
 							or key == "cheapTiers" -- #5249
 							or key == "tier4Easy" -- #5285 E
+							or key == "companionNudge" -- #5364
+							or key == "plushSecret" -- #5414
+							or key == "keepLook" -- #5433
+							or key == "bowlLockBig" -- #5455
+							or key == "shieldNoBump" -- #5476
+							or key == "parkFirstCalm" -- #5496
+							or key == "missKeepsCommon" -- #5500
+							or key == "orderSplit" -- #5498
+							or key == "dailyGifts" -- #5506
+							or key == "awayPromise" -- #5505
+							or key == "holdout" -- #5499
+							or key == "catchLostLog" -- #5500
+							or key == "tier3TripLog" -- #5517
+							or key == "returnMoment" -- #5505
+							or key == "rankCueLog" -- #5516
+							or key == "hoodTrail" -- #5517
+							or key == "rankTapLog" -- #5516
+							or key == "mutationBoost" -- #5493
+							or key == "bowlOptionsButton" -- #5488
+							or key == "bowlOptionsList" -- #5472
+							or key == "companionBetter" -- #5457
+							or key == "tier3Easy" -- #5467
+							or key == "tiersEasy" -- Derek 2026-11-19
+							or key == "freeStart" -- #5533
+							or key == "streetCats" -- #5533
+							or key == "goalChip" -- #5533
+							or key == "coinsOnly" -- #5533
+							or key == "secretTraitTile" -- #5445
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
 							or key == "kingCatInfo" -- #5260
 							or key == "foodByRarity" -- #5264
 							or key == "bowlTicks" -- #5263
 							or key == "rankUpSteps" -- #5218
+							or key == "rankSpotStay" -- #5516
+							or key == "goalNeedLine" -- #5331
 							or key == "catFollower" -- #5172
 							or key == "cardFollow" -- #5296
 							or key == "companionScene" -- #5284
 							or key == "parkRankPoint" -- #5163
+							or key == "catchCurve" -- #5392
 							or key == "parkFirstEasy" -- #5182
 							or key == "areaWhole" -- Derek 2026-11-18
+							or key == "crateUnstick" -- #5394
+							or key == "cannonAnywhere" -- #5382
 							or key == "nextGoalBeat" -- #5202
+							or key == "milestoneFunnel" -- #5291
+							or key == "topTraitCompanion" -- #5445
+							or key == "topTraitsMore" -- #5445
+							or key == "townGround" -- #5357
+							or key == "tipPileOldest" -- #5422
+							or key == "decorChipIcons" -- #5366
+							or key == "bowlHintRetry" -- #5438
+							or key == "giftBangMine" -- #5576
+							or key == "rankOneTap" -- #5533
+							or key == "rankTapLook" -- #5592
+							or key == "askClean" -- #5597
+							or key == "chipPickedWord" -- #5406
+							or key == "bowlWalkQuiet" -- #5436
+							or key == "bowlNoPops" -- #5571
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
 							or key == "promptsAfter5" -- #5251
 							or key == "upgradesInstant" -- #5253
 							or key == "nightBright" -- #5240
+							or key == "frontDoors" -- #5385
 							or key == "ringSolid" -- #5256
 							or key == "phoneSmooth" -- #5285
 							or key == "quickFirstRings" -- #5232
 							or key == "firstCatchWow" -- #5285
 							or key == "gemsShrink" -- Derek 2026-11-18
 							or key == "christmasEvent" -- snowglobe-village-spec
+							or key == "adventCalendar" -- #5502
+							or key == "keepNoEvent" -- #5428
+							or key == "cannonCloudsEarly" -- #5370
+							or key == "catsArrowOff" -- #5485
+							or key == "baitCutQuick" -- #5548
+							or key == "firstCatchCoins" -- #5596
+							or key == "stallGlow" -- #5533
+							or key == "cannonGlow" -- #5533
+							or key == "rankPicker" -- #5599
+							or key == "cutsQuick" -- #5550
+							or key == "steadySoft" -- #5601
+							or key == "pawsInFloor" -- #5471
+							or key == "firstCatArrow" -- #5594
+							or key == "guideArrow" -- #5465
+							or key == "codesRingTown" -- #5605
+							or key == "lockedRingsHidden" -- #5463
+							or key == "bowlPassOptions" -- #5606
+							or key == "nightLineNoArrow" -- #5459
+							or key == "spawnAlley" -- #5616
+							or key == "tier3Up" -- #5617
+							or key == "spotHeld" -- #5622
+							or key == "secondCatQuiet" -- #5620
+							or key == "catNamesLow" -- #5620
+							or key == "rankDimTwo" -- #5609
+							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
 				-- 2026-11-18 train (Review-QA): a minimum, so parallel switch PRs stop clashing on one number; 83 with the
 				-- train (cardFollow, bigTreats, bigNet, rankUpSteps, companionScene, phoneSmooth, #5301, cannonReturn, #5313)
-				expect(count >= 83).to.equal(true) -- christmasEvent; #5232 quickFirstRings; #5256 ringSolid; #5263 bowlTicks; #5264 foodByRarity; #5260 kingCatInfo; #5258 noRankOpens; #5254 oneLadderRow; #5249 cheapTiers; #5240 nightBright; #5245 tameCannonPoint; #5248 parkLead; Derek 2026-11-18: townRings; #5251 promptsAfter5; #5253 upgradesInstant; #5240 nightBright; Derek 2026-11-18: rankSpotPlain; Derek 2026-11-18: less tradeSpot (removed); #5202 nextGoalBeat; Derek 2026-11-18 areaWhole; #4656: less goldTone; #5182 parkFirstEasy; #5163 parkRankPoint; #5172 catFollower; #5170 netTiers; #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
+				expect(count >= 84).to.equal(true) -- strayMeets; christmasEvent; #5232 quickFirstRings; #5256 ringSolid; #5263 bowlTicks; #5264 foodByRarity; #5260 kingCatInfo; #5258 noRankOpens; #5254 oneLadderRow; #5249 cheapTiers; #5240 nightBright; #5245 tameCannonPoint; #5248 parkLead; Derek 2026-11-18: townRings; #5251 promptsAfter5; #5253 upgradesInstant; #5240 nightBright; Derek 2026-11-18: rankSpotPlain; Derek 2026-11-18: less tradeSpot (removed); #5202 nextGoalBeat; Derek 2026-11-18 areaWhole; #4656: less goldTone; #5182 parkFirstEasy; #5163 parkRankPoint; #5172 catFollower; #5170 netTiers; #5164 nightSpread; #5171 spinCat; #5164 nightSlice; #5158 tradeSpot; #5152 likeAskEarly; firstRankLock (Derek 2026-11-17); #5112 stationCut; #4601 strayWalkSlow; #4763 tablesSpread; #3572: less storeRework; #5097 cannonCue; #4251 harvestPieLow; #3951 tomorrowCard; #5068 fxAfterLoad; #4543 cafeGrows; #5026 areaOnly; #5045 parkTrailBack; #5038 tier3Path; #5031 rankUpRightAway, #5034 parkRingEarly; #4913 palDay; #4654: less swiftPaws10; #5000 fxOneAdded; #4857 backdropsNear; #4920 firstFlightQuick; #4929 noIntro; #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
 				-- #4654: the shipped stuckCall and fxLite switches are gone
 				expect(table.find(LiveFlags.KEYS, "stuckCall")).to.equal(nil)
 				expect(table.find(LiveFlags.KEYS, "fxLite")).to.equal(nil)

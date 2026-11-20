@@ -122,6 +122,30 @@ function Potions.netLevel(profile: Types.PlayerProfile, netLevel: number, now: n
 	return if Potions.running(profile, Potions.STEADY, now) then netLevel + 1 else netLevel
 end
 
+-- #5601 (switch steadySoft, Derek 2026-11-20: "the potion that makes circle radius bigger is a little too strong"):
+-- the Steady Paw Potion widens the catch bands STEADY_SOFT of the way from the save's own net to the next (a third
+-- less than the whole next level). steadySoften takes `windows` (judged at the next level, every other scale on top)
+-- and the plain bands at the next level (`nextBase`) and at the save's own (`ownBase`), and moves each band back.
+Potions.STEADY_SOFT_FLAG = "steadySoft"
+Potions.STEADY_SOFT = 2 / 3
+
+function Potions.steadySoften(
+	windows: Types.NetWindows,
+	nextBase: Types.NetWindows,
+	ownBase: Types.NetWindows
+): Types.NetWindows
+	local function band(value: number, high: number, low: number): number
+		if high <= 0 then
+			return value
+		end
+		return value * (low + (high - low) * Potions.STEADY_SOFT) / high
+	end
+	return {
+		perfect = band(windows.perfect, nextBase.perfect, ownBase.perfect),
+		good = band(windows.good, nextBase.good, ownBase.good),
+	}
+end
+
 -- Why UsePotion refuses, or nil: an unknown potion, none in the bag, or (v0.13.8) the potion's minutes on top of the
 -- time left would go over PotionMaxMinutes, which is refused whole so nothing is wasted.
 function Potions.useBlocker(profile: Types.PlayerProfile, potionId: string, now: number): string?

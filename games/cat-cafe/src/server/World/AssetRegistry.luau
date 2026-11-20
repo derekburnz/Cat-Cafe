@@ -1,6 +1,6 @@
 --!strict
 -- The one place models are fetched from. ReplicatedStorage.Assets is Rojo-synced from assets/cat-cafe/rbx/;
--- anything missing there gets a Part placeholder at startup. The templates no client needs are moved to
+-- anything missing there clones as a plain grey block with one warning (#4656). The templates no client needs are moved to
 -- ServerStorage.Assets at start-up (stowServerOnly). Swapping a real model in = dropping a file in that folder.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -8,7 +8,7 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local GoldTone = require(ReplicatedStorage.Shared.GoldTone)
-local Placeholders = require(script.Parent.Placeholders)
+local HeldAssets = require(script.Parent.HeldAssets)
 local ServerOnlyAssets = require(script.Parent.ServerOnlyAssets)
 
 local AssetRegistry = {}
@@ -16,6 +16,8 @@ local AssetRegistry = {}
 local folder: Folder? = nil
 -- ServerStorage.Assets once stowServerOnly has run: the templates no client needs (#3743)
 local vault: Folder? = nil
+-- ServerStorage.HeldAssets: models merged behind an off switch (HeldAssets); find() never reads it
+local held: Folder? = nil
 
 function AssetRegistry.folder(): Folder
 	if folder ~= nil then
@@ -59,7 +61,16 @@ function AssetRegistry.stowServerOnly(): number
 	end
 	local moved = 0
 	for _, child in assets:GetChildren() do
-		if ServerOnlyAssets.matches(child.Name) then
+		if HeldAssets.switchFor(child.Name) ~= nil then
+			if held == nil then
+				local made = Instance.new("Folder")
+				made.Name = "HeldAssets"
+				made.Parent = ServerStorage
+				held = made
+			end
+			child.Parent = held
+			moved += 1
+		elseif ServerOnlyAssets.matches(child.Name) then
 			child.Parent = store
 			moved += 1
 		end
@@ -67,45 +78,62 @@ function AssetRegistry.stowServerOnly(): number
 	return moved
 end
 
--- Fills in a placeholder for every asset name that has no real model yet. Returns how many were created.
-function AssetRegistry.ensurePlaceholders(): number
-	local assets = AssetRegistry.folder()
-	local created = 0
-	for _, name in Placeholders.names() do
-		-- #4656: a door set whose art is a _Front and a _Back model needs no plain stand-in (CafeService and the
-		-- client's ItemIcon ask for the sided models first)
-		local sided = find(name .. "_Front") ~= nil and find(name .. "_Back") ~= nil
-		if find(name) == nil and not sided then
-			local model = Placeholders.build(name)
-			if model ~= nil then
-				model.Parent = assets
-				created += 1
-			end
+-- Puts the templates `switch` holds back (HeldAssets) into ReplicatedStorage.Assets, for the code that places them to
+-- call once that switch is on. Returns how many came back.
+function AssetRegistry.release(switch: string): number
+	local source = held
+	if source == nil then
+		return 0
+	end
+	local back = 0
+	for _, name in HeldAssets.names(switch) do
+		local child = source:FindFirstChild(name)
+		if child ~= nil then
+			child.Parent = AssetRegistry.folder()
+			back += 1
 		end
 	end
-	return created
+	return back
 end
 
 function AssetRegistry.has(name: string): boolean
 	return find(name) ~= nil
 end
 
--- True when the named model is in the folder or can be built as a placeholder, so `clone` will not error.
-function AssetRegistry.known(name: string): boolean
-	return AssetRegistry.has(name) or table.find(Placeholders.names(), name) ~= nil
+-- #4656: every asset name has a real model (0 placeholder models at start-up since #4662, and a clean 21 minute
+-- run over every area with the old plainFallback switch on), so the Part placeholder builders are gone. A missing
+-- model clones as a plain grey block with one warning per name, so `clone` still never throws.
+local warned: { [string]: boolean } = {}
+
+-- A 2 x 2 x 2 grey block named `name`, its PrimaryPart at the pivot, for a model the folders do not have.
+function AssetRegistry.plainBlock(name: string): Model
+	local model = Instance.new("Model")
+	model.Name = name
+	local part = Instance.new("Part")
+	part.Name = "Block"
+	part.Size = Vector3.new(2, 2, 2)
+	part.Anchored = true
+	part.Color = Color3.fromRGB(160, 160, 160)
+	part.Material = Enum.Material.SmoothPlastic
+	part.Parent = model
+	model.PrimaryPart = part
+	return model
 end
 
--- Clones the named model. Builds a placeholder on the spot if the name is unknown to the folder but known to us.
+-- True when the named model is in a folder, so `clone` returns the real model and not a plain block.
+function AssetRegistry.known(name: string): boolean
+	return AssetRegistry.has(name)
+end
+
+-- Clones the named model, or a plain grey block (and a warning the first time) when no folder has it.
 function AssetRegistry.clone(name: string): Model
-	local assets = AssetRegistry.folder()
 	local source = find(name)
 	if source == nil then
-		local built = Placeholders.build(name)
-		if built == nil then
-			error(string.format("[AssetRegistry] no asset or placeholder named %s", name))
+		if not warned[name] then
+			warned[name] = true
+			warn(string.format("[AssetRegistry] no model named %s, using a plain block", name))
 		end
-		built.Parent = assets
-		source = built
+		return AssetRegistry.plainBlock(name)
 	end
 	local clone = (source :: Instance):Clone()
 	if not clone:IsA("Model") then

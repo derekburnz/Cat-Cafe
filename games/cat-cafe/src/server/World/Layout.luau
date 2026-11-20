@@ -43,7 +43,7 @@ export type RescuePoint = {
 	rotY: number?,
 }
 -- y is the height above the area floor (0 when omitted); wall props set it.
-export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
+export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number?, scale: number? }
 -- #2687 part 2: an area's hidden nook (Model-Agent's CatCafe_Nook_<Area>, assets/cat-cafe/blender/nooks.py), a little
 -- walled corner against a side wall of its set with one extra rescue spot inside. The model stands at (x, floor + y,
 -- z) turned by rotY with its gate open; `trap` is its rescue spot, which holds a trap every day on top of the area's
@@ -391,6 +391,16 @@ Layout.plot = {
 		{ x = -12.83, y = 0, z = 4.86, lane = 1.09 },
 		{ x = 12.22, y = 0, z = 4.86, lane = 1.09 },
 	} :: { TableSpot },
+	-- #5441 (switch tablesEight): Tables 7 and 8, a fourth row in the back of the 60 x 46 room of Tiers 9 and 10, in
+	-- line with the columns above. These are that room's plot-local places (CafeRoom.offset does not move them), and
+	-- they stand only while the room is tablesBigRoom (WorldBuilder.setRoom). The band between the cat trees and
+	-- waiters by the third row (z up to 10.9) and the counter's row moved back 12 (z from 21.2) is clear: each table
+	-- is 2.5 from the cat tree in front of it, and the lane behind runs 1.05 from the table and the back cat tree.
+	tablesBig = {
+		{ x = -12.22, y = 0, z = 15.5, lane = 19.4 },
+		{ x = 12.22, y = 0, z = 15.5, lane = 19.4 },
+	} :: { TableSpot },
+	tablesBigRoom = { width = 60, depth = 46 },
 	-- How far either side of the aisle's middle customers walk to and from a lane, clear of the waiters at 5.5.
 	aisleX = 2,
 
@@ -474,6 +484,12 @@ Layout.plot = {
 	-- the queue's 3 studs either side of it, facing into the room so the owner sees him from the door. AnswerCollector
 	-- counts CollectorRangeStuds from here.
 	collectorSpot = { x = 4.5, y = 0, z = halfD - 6 } :: Point,
+	-- #5449 (tomorrowBoard): the Daily Treat Board's pivot, its back flat on the right wall facing into the room, and the
+	-- wrapped Tomorrow Gift on the floor under it (Model-Agent 2026-11-19: z 5.05 to 11.25 is clear of windows, prints,
+	-- perches, portals, cat trees and decor spots at y 3.6 to 6.4; only low beds under it; the gift sits between nap3
+	-- and bed6). The owner's client places both (client/Controllers/TomorrowBoardController).
+	treatBoard = { x = 21.8, y = 5, z = 8.15, rotY = 90 } :: Point,
+	tomorrowGift = { x = 20.6, y = 0, z = 8.15, rotY = 90 } :: Point,
 
 	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37), highest rating
 	-- first. Each is a cat bed in an owned cafe (Derek's 10-28 to 10-30 notes: cats slept on the floor), placed by
@@ -2620,12 +2636,19 @@ Layout.townSquare = {
 	-- It stands beside the street now, 8 studs west of both lines, still facing the spawn.
 	-- #4667: the east edge spot nearest the spawn, across from the pity sign, facing straight in
 	-- #5224 (v5): the south-west of the ring, near the spawn
+	-- #5356 (Derek 2026-11-18: "move the sign a bit to the side its blocking part of the walkway", "about 50% smaller",
+	-- "more left closer to leaderboards not that close to feedback"): half size, back by the west edge between the
+	-- bench at z -35.9 and the lamp at z -45, 23 studs from the leaderboard row and 20 from the Feedback stand, still
+	-- facing the spawn (0, -14). It was at (-37.99, -49.80), turned -142.7.
+	-- #5461 (Derek 2026-11-19: "update this sign to be a little bigger"): 0.65 (6.0 wide) on the same spot; its ends
+	-- stay 4 studs off the west bench and 9 off the lamp.
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
-		x = -37.99,
+		x = -45.0,
 		y = 0.1,
-		z = -49.80,
-		rotY = -142.7,
+		z = -40.5,
+		rotY = -120.5,
+		scale = 0.65,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
@@ -2983,7 +3006,11 @@ end
 -- front -Z, no turn of its own) stands in its area's set space, the space the camp set is placed in (origin the area's
 -- centre on its floor, turned by the camp's turn): in the camp beside the way out, across from the Index Board.
 Layout.campExtras = {
-	park = { x = 19, y = 0, z = -160.5 }, -- F85: in the long camp, left of the flower bed (Model-Agent 11-02)
+	-- F85: in the long camp (Model-Agent 11-02). #5572 (Picnic Party, Design 2026-11-20): moved from (19, -160.5) to
+	-- the gate's left, as near the landing facing as the camp extras' rules allow (outside the opening by 2, 2 to 12 in
+	-- from the gate line): world (-14.5, -1842.5), 18 studs from the pad and 54 degrees left of the landing facing (68
+	-- before), near the left edge of a landscape phone's first view (Sync checks it)
+	park = { x = 14.5, y = 0, z = -157.5 },
 	neighbourhood = { x = 22, y = 0, z = -220.5 }, -- F85: in the long camp, clear of its mailbox (Model-Agent)
 	woods = { x = 21.5, y = 0, z = -250 }, -- F85: the Fish Pond beside the long camp's way out (Model-Agent)
 	sewer = { x = 20, y = 0, z = -289.5 }, -- F85: the Lost and Found 3.5 inside the long camp's gate line (Model-Agent)
@@ -3001,7 +3028,15 @@ Layout.campExtras = {
 -- basket and the Index Board, its front turned to the pad. Model-Agent's spot against the real parts (Design's
 -- (26, -14) put the camp bench between the pad and the bin): 4.5 off the gate wall's flower bed, 8.3 off the arch
 -- pier, 9 or more off the bench, no other prompt within 12. Derek OK'd it on the picture.
-Layout.rummageBin = { area = "alley", x = 26, z = -10, rotY = 83.4 }
+-- #5453 (Derek 2026-11-19: "move rummage bin back a little so people don't step on it accidently when going to
+-- cannon"): its walk-up pad (Config.BinPadRadius 7, in front of the bin toward the landing pad) reached in to x 10.6,
+-- over the walk from the right of the way out to the camp cannon. The bin stands 7 studs further back along its own
+-- line, so the pad's near edge is at x 17.6, clear of that walk; 7 off the side flower bed and its front still turned
+-- to the landing pad.
+-- Sync's Play check of that spot: the pad's top edge came within 0.1 of the gate wall's flower bed (x 25 to 30, z to
+-- -3.7), so the bin stands 2.5 further from the gate line, still turned to the pad: the pad's edge 2 off that bed and
+-- 3.9 off the walk from the way out to the cannon.
+Layout.rummageBin = { area = "alley", x = 33, z = -12.5, rotY = 89.1 }
 
 -- Where the Rummage Bin stands in the world: x, the floor's y, z and its turn about Y, or nil without that camp.
 function Layout.rummageBinAt(): (number?, number?, number?, number?)

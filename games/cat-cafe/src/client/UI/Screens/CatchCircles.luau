@@ -67,6 +67,7 @@ local Types = require(script.Parent.Parent.Types)
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
+local PerfectCatch = require(Shared:WaitForChild("PerfectCatch"))
 
 export type Header = {
 	catName: string?,
@@ -174,6 +175,10 @@ local LATENCY_CAP: number = Config.CatchLatencyCapSeconds
 local RESULT = {
 	caught = { seconds = 0.4, fadeAt = 0.25 },
 	missed = { seconds = 0.8, fadeAt = 0.5 },
+	-- #5300 (Derek 2026-11-18: "make the purrrfect pop up in top middle after a catch stay for 1.5-2 seconds and show
+	-- the +50% after it"): with the perfectCatch switch on, PURRFECT! holds, turns to "+50%" at `plusAt` and fades
+	-- from 1.75 s
+	perfect = { seconds = 2.05, fadeAt = 1.75, plusAt = 0.9 },
 }
 -- the strip steps back under the result word so the word reads, then both fade from RESULT's fadeAt
 local UNDER_WORD = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -1262,7 +1267,21 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 		self._header.Visible = false
 	end
 
-	local timing = if success then RESULT.caught else RESULT.missed
+	local perfectHold = success and result == "purrfect" and PerfectCatch.on()
+	local timing = if perfectHold
+		then RESULT.perfect
+		elseif success then RESULT.caught
+		else RESULT.missed
+	if perfectHold then
+		task.delay(delay + RESULT.perfect.plusAt, function()
+			if self._token ~= token then
+				return
+			end
+			word.Text = "+50%"
+			word.TextColor3 = PerfectCatch.COLOR
+			Tween.popIn(word, 0.35)
+		end)
+	end
 	local fade = TweenInfo.new(
 		timing.seconds - timing.fadeAt,
 		Enum.EasingStyle.Quad,

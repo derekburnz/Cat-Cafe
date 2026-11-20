@@ -366,6 +366,29 @@ local function oddsLines(parent: Instance, top: number, z: number)
 	end
 end
 
+-- #5447 follow-up (Design-Agent): with `secretTraitTile` on, a Secret trait's card is the Secret page's night tile
+-- (Screens/SecretPage, the Booth Plush card in #5426): a deep purple to night gradient, a starlight edge and white
+-- words. Mythic and below keep their rarity's wash.
+local SECRET_TILE_FLAG = "LiveFlag_secretTraitTile"
+local NIGHT_TOP = Color3.fromHex("3A2F6B")
+local NIGHT = Color3.fromHex("16161D")
+local STAR = Color3.fromHex("E2D6FF")
+
+local function nightTile(card: TraitCard, on: boolean)
+	local gradient: any = card.frame:FindFirstChild("SecretNight")
+	if gradient == nil and on then
+		gradient = Create("UIGradient", {
+			Name = "SecretNight",
+			Rotation = 90,
+			Color = ColorSequence.new(NIGHT_TOP, NIGHT),
+			Parent = card.frame,
+		})
+	end
+	if gradient ~= nil then
+		gradient.Enabled = on
+	end
+end
+
 -- `rarity` is the line under the name: the trait's rarity, or `none` for a card without one ("Now: no trait").
 local function fill(card: TraitCard, trait: MysticPoolLogic.Card, head: string?, none: string?)
 	local color = Color3.fromHex(trait.color)
@@ -387,6 +410,22 @@ local function fill(card: TraitCard, trait: MysticPoolLogic.Card, head: string?,
 	if stroke then
 		stroke.Color = if trait.has then color else CARD.cardStroke
 		stroke.Thickness = if trait.has then 4 else Theme.sizes.stroke
+	end
+	local night = trait.has
+		and trait.rarity == "Secret"
+		and ReplicatedStorage:GetAttribute(SECRET_TILE_FLAG) == true
+	nightTile(card, night)
+	for _, label in card.lines do
+		label.TextColor3 = if night then STAR else CARD.text
+	end
+	if night then
+		card.frame.BackgroundColor3 = Theme.colors.white -- under the night gradient
+		card.name.TextColor3 = Theme.colors.white
+		card.rarity.BackgroundColor3 = STAR
+		card.rarity.TextColor3 = NIGHT
+		if stroke then
+			stroke.Color = STAR
+		end
 	end
 end
 

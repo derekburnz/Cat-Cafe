@@ -45,11 +45,23 @@ WalkUp.TOWN_SCALE = 0.7
 WalkUp.TOWN_FLAG = "townRings"
 -- How a ring looks with the townRings switch `on`: shown or not, and at what scale. `town` is its TOWN_ATTRIBUTE,
 -- `setting` the Station circles setting's answer.
-function WalkUp.ringLook(on: boolean, town: unknown, setting: boolean): (boolean, number)
+-- #5367 (Derek 2026-11-18: "make the cannon circle bigger again"): a ring all the way round its station (a Cat Cannon,
+-- WalkUpCircles.around) carries FULL_ATTRIBUTE and keeps its full size on the Town Square; `full` is that attribute.
+WalkUp.FULL_ATTRIBUTE = "FullSize"
+-- #5416 (Derek 2026-11-19: "Add rings for cannon area back to area's"): with `areaCannon` (the areaCannonRings
+-- switch) an area's cannon ring (`full`) shows again at full size; the area's other rings stay hidden.
+WalkUp.AREA_CANNON_FLAG = "areaCannonRings"
+function WalkUp.ringLook(
+	on: boolean,
+	town: unknown,
+	setting: boolean,
+	full: unknown?,
+	areaCannon: boolean?
+): (boolean, number)
 	if on and town == true then
-		return true, WalkUp.TOWN_SCALE
+		return true, if full == true then 1 else WalkUp.TOWN_SCALE
 	elseif on and town == false then
-		return false, 1
+		return areaCannon == true and full == true, 1
 	end
 	return setting, 1
 end
@@ -253,6 +265,9 @@ export type Station = {
 	distance: number?,
 	radius: number,
 	off: boolean?,
+	-- #5415: off only for now (its prompt hidden while the player carries a cat), so a step in still starts its ask
+	-- (with `retry`) and the window opens once it is on, the player still in the ring
+	waits: boolean?,
 }
 
 -- What the controller keeps between looks: whether the character was at each station (nil before the first look at
@@ -298,9 +313,11 @@ function WalkUp.step(
 	stations: { Station },
 	blocked: boolean,
 	current: string?,
-	at: number?
+	at: number?,
+	retry: boolean?
 ): (string?, boolean)
 	local entered: Station? = nil
+	local enteredSince: number? = nil
 	local seen: { [string]: boolean } = {}
 	for _, station in stations do
 		seen[station.key] = true
@@ -309,12 +326,17 @@ function WalkUp.step(
 		state.inside[station.key] = now
 		if not now then
 			state.since[station.key] = nil
-		elseif was == false and station.off ~= true then
+		elseif
+			was == false and (station.off ~= true or (retry == true and station.waits == true))
+		then
 			state.since[station.key] = at or 0
 		end
 		local since = state.since[station.key]
 		if now and since ~= nil and (at == nil or at - since >= WalkUp.DWELL_SECONDS) then
-			state.since[station.key] = nil -- asked once per step in
+			-- asked once per step in; #5386 retry: a station that is off for now keeps its ask for later
+			if retry ~= true or station.off ~= true then
+				state.since[station.key] = nil
+			end
 			if
 				station.off ~= true
 				and (
@@ -323,6 +345,7 @@ function WalkUp.step(
 				)
 			then
 				entered = station
+				enteredSince = since
 			end
 		end
 	end
@@ -342,6 +365,12 @@ function WalkUp.step(
 		local station = entered :: Station
 		state.opened, state.openedWindow = station.key, station.window
 		return station.key, close
+	end
+	-- #5386 (Derek 2026-11-19: "after claiming cats in areas the next couple seconds even if you walk up to cannon it
+	-- doesnt give you a menu"): with `retry`, a step in that lands while busy or under another window keeps its ask,
+	-- so the window opens once the player is free, still standing in the ring
+	if retry == true and entered ~= nil and enteredSince ~= nil then
+		state.since[(entered :: Station).key] = enteredSince :: number
 	end
 	return nil, close
 end

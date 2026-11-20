@@ -11,11 +11,11 @@
 -- now: the Castle and its Keep are not placed yet. The cards' effects (#4447) are read where each one acts; Golden
 -- Breath's timed pay runs here.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
+local EasyKeep = require(ReplicatedStorage.Shared.EasyKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
@@ -45,11 +45,7 @@ end
 
 local function ready(player: Player): Types.PlayerProfile?
 	local profile = DataService.get(player)
-	if
-		profile == nil
-		or not LiveFlagService.on(DragonKeep.FLAG)
-		or not DragonKeep.open(Economy.tier(profile))
-	then
+	if profile == nil or not DragonKeep.open(Economy.tier(profile)) then
 		return nil
 	end
 	return profile
@@ -103,7 +99,8 @@ local function onGive(player: Player, rawUids: unknown, rawConfirmed: unknown)
 		Economy.tier(profile),
 		uids,
 		TradeService.isTrading(player) or offered,
-		Guard.bool(rawConfirmed) == true
+		Guard.bool(rawConfirmed) == true,
+		LiveFlagService.on(DragonKeep.NO_EVENT_FLAG) -- #5428
 	)
 	if blocker ~= nil then
 		refuse(player, blocker)
@@ -158,14 +155,10 @@ local function applyReach(player: Player, profile: Types.PlayerProfile)
 	player:SetAttribute("DoubleJump", if fx.doubleJump then true else nil)
 	player:SetAttribute("Glide", if fx.glide then true else nil)
 	-- #4558: Fire Trail is a look only; every client draws the embers off this attribute (client/Effects/FireTrail)
-	local trail = LiveFlagService.on(DragonKeep.FLAG)
-		and table.find(profile.dragon.slots, "fireTrail") ~= nil
+	local trail = table.find(profile.dragon.slots, "fireTrail") ~= nil
 	player:SetAttribute("FireTrail", if trail then true else nil)
-	-- #4569: the lit sets for their looks (client Effects): "flame5,claw3", nil with none or the switch off
-	player:SetAttribute(
-		"DragonSets",
-		if LiveFlagService.on(DragonKeep.FLAG) then DragonKeep.setsTag(profile.dragon) else nil
-	)
+	-- #4569: the lit sets for their looks (client Effects): "flame5,claw3", nil with none
+	player:SetAttribute("DragonSets", DragonKeep.setsTag(profile.dragon))
 end
 
 local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)
@@ -244,7 +237,7 @@ local function onLoaded(player: Player)
 	if profile ~= nil then
 		applyReach(player, profile) -- #4447: the swing cards' NetCooldown (the reach is also set by the Market)
 	end
-	if profile ~= nil and LiveFlagService.on(DragonKeep.FLAG) and #profile.dragon.hand == 0 then
+	if profile ~= nil and #profile.dragon.hand == 0 then
 		deal(player, profile)
 	end
 end
@@ -295,20 +288,27 @@ function DragonKeepService.start()
 	Net.on("SlotDragonCard", onSlot)
 	Net.on("SetDragonColour", onColour)
 	DataService.onLoaded:Connect(onLoaded)
-	DataService.beforeRelease(function(player)
-		breathAt[player] = nil
-	end)
-	-- the Fire Trail and set looks (and the air cards) follow the dragonKeep switch the moment it flips, not at each
-	-- player's next card or rejoin
-	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. DragonKeep.FLAG)
+	-- #5311: with the easyKeep switch on mid-session, a Keep whose Warmth already reaches a lowered goal gets that
+	-- stage and its hand now (a join does it in DragonKeep.sanitize). EasyKeep.follow sets the goals first.
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. EasyKeep.FLAG)
 		:Connect(function()
-			for _, player in Players:GetPlayers() do
+			if not EasyKeep.on() then
+				return
+			end
+			DragonKeep.setEasy(true) -- signal order is not promised, so the goals are set before the grow
+			for _, player in DataService.loadedPlayers() do
 				local profile = DataService.get(player)
-				if profile ~= nil then
-					applyReach(player, profile)
+				if profile ~= nil and DragonKeep.regrow(profile.dragon) then
+					if #profile.dragon.hand == 0 then
+						deal(player, profile)
+					end
+					CafeService.sync(player)
 				end
 			end
 		end)
+	DataService.beforeRelease(function(player)
+		breathAt[player] = nil
+	end)
 	task.spawn(function()
 		while true do
 			task.wait(BREATH_TICK)

@@ -14,9 +14,13 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
+local DailyGifts = require(ReplicatedStorage.Shared.DailyGifts)
 local DataService = require(script.Parent.DataService)
+local DaysPlayed = require(ReplicatedStorage.Shared.DaysPlayed)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
@@ -31,6 +35,7 @@ local PlaytimeGiftService = {}
 local CHECK_SECONDS = 1
 
 local lastPaidAt: { [Player]: number } = {} -- os.clock() of this session's last gift
+local dailyAt: { [Player]: number } = {} -- #5506: os.clock() of this player's last daily gift tick
 local noticed: { [Player]: string } = {} -- #3420: the gift id whose "a gift is coming" banner this player was sent
 
 -- #2997: the Saturday update gift (shared/UpdateGift), once per account per id, on the first second the player is
@@ -131,6 +136,83 @@ local function returnGift(player: Player): boolean
 	return true
 end
 
+-- #5506 (shared/DailyGifts, switch dailyGifts): counts today's play and pays today's next gift once its minutes are
+-- played, marked before paying. Only the seconds since this player's last tick count (at most a few, so a stalled
+-- loop never pays a burst), and only while they are loaded on this server. True when a gift was paid this tick.
+local DAILY_MAX_STEP = 5
+
+local function dailyGift(player: Player): boolean
+	local profile = DataService.get(player)
+	local clock = os.clock()
+	local last = dailyAt[player]
+	dailyAt[player] = clock
+	if profile == nil or not LiveFlagService.on(DailyGifts.FLAG, player) then
+		return false
+	end
+	local now = os.time()
+	local day = DailyGifts.day(now)
+	local step = if last ~= nil then math.clamp(clock - last, 0, DAILY_MAX_STEP) else 0
+	local state = DailyGifts.add(DailyGifts.fresh(profile.dailyGifts, day), day, step)
+	profile.dailyGifts = state
+	local index = DailyGifts.due(state)
+	if index == nil then
+		return false
+	end
+	local def = DailyGifts.STEPS[index]
+	state.claimed = index
+	local paid = Payout.pay(player, profile, table.clone(def.prize), "daily_gift")
+	Telemetry.custom(player, "daily_gift", math.floor(state.seconds / 60), {
+		def.id,
+		Telemetry.device(player) or "unknown",
+		if day == profile.telemetry.firstDay then "first_day" else "later_day",
+	})
+	CafeService.sync(player)
+	Net.toast(player, "Daily gift! " .. table.concat(paid, ", "), "good")
+	return true
+end
+
+-- #5505 part 1 (shared/DaysPlayed, switch awayPromise): counts each UTC day the player is loaded on, once, and pays
+-- the next milestone reached, marked before paying. A cat milestone gives the rule's pick into the cafe. True when one
+-- was paid this tick.
+local function daysPlayed(player: Player): boolean
+	local profile = DataService.get(player)
+	if profile == nil or not LiveFlagService.on(DaysPlayed.FLAG, player) then
+		return false
+	end
+	local state = DaysPlayed.note(profile.daysPlayed, DaysPlayed.day(os.time()))
+	profile.daysPlayed = state
+	local milestone = DaysPlayed.due(state)
+	if milestone == nil then
+		return false
+	end
+	state.paid = milestone.days
+	local words: { string } = {}
+	if milestone.cat ~= nil then
+		local catId = DaysPlayed.pickCat(milestone.cat, Economy.tier(profile), profile.collection)
+		local def = if catId ~= nil then Catalog.getCat(catId) else nil
+		if def ~= nil then
+			CafeService.addCaughtCat(player, def, true, profile, 50, "starter")
+			table.insert(words, "a " .. milestone.cat .. " cat, " .. def.name)
+		end
+	end
+	if milestone.prize ~= nil then
+		for _, line in Payout.pay(player, profile, table.clone(milestone.prize), "days_played") do
+			table.insert(words, line)
+		end
+	end
+	Telemetry.custom(player, "days_played", milestone.days, {
+		if milestone.cat ~= nil then "cat" else "prize",
+		Telemetry.device(player) or "unknown",
+	})
+	CafeService.sync(player)
+	Net.toast(
+		player,
+		string.format("Day %d played! %s", milestone.days, table.concat(words, ", ")),
+		"good"
+	)
+	return true
+end
+
 -- true when a gift was paid this tick
 local function check(player: Player): boolean
 	local profile = DataService.get(player)
@@ -142,7 +224,9 @@ local function check(player: Player): boolean
 		return false
 	end
 	local played = PlayTime.seconds(player, profile)
-	local due: PlaytimeGifts.Step? = PlaytimeGifts.due(profile, played)
+	-- #5506: with the daily ladder on, the once-per-account small steps stop paying; the like and favourite stay
+	local due: PlaytimeGifts.Step? =
+		PlaytimeGifts.due(profile, played, LiveFlagService.on(DailyGifts.FLAG, player))
 	if due == nil then
 		return false
 	end
@@ -171,6 +255,7 @@ function PlaytimeGiftService.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastPaidAt[player] = nil
 		noticed[player] = nil
+		dailyAt[player] = nil
 	end)
 	task.spawn(function()
 		while true do
@@ -187,6 +272,14 @@ function PlaytimeGiftService.start()
 				local awayOk, awayErr = pcall(giveaways, player)
 				if not awayOk then
 					warn("[PlaytimeGiftService] giveaway: " .. tostring(awayErr))
+				end
+				local dailyOk, dailyErr = pcall(dailyGift, player)
+				if not dailyOk then
+					warn("[PlaytimeGiftService] daily gift: " .. tostring(dailyErr))
+				end
+				local daysOk, daysErr = pcall(daysPlayed, player)
+				if not daysOk then
+					warn("[PlaytimeGiftService] days played: " .. tostring(daysErr))
 				end
 				local returnOk, returnErr = pcall(returnGift, player)
 				if not returnOk then

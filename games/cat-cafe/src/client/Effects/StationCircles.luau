@@ -25,6 +25,18 @@ local shownSetting = false
 local rings: { [Instance]: RBXScriptConnection } = {}
 local faded: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- what this module faded
 
+-- #5463 (Derek 2026-11-19: "pads and effects are there even if its not unlocked yet"): StationLockController marks
+-- the ring of a station still locked for this player with this attribute (set here only, switch lockedRingsHidden),
+-- and a marked ring stays hidden whatever else would show it. Before, this module put back the art it had faded once
+-- while StationLock, which hides each piece once, never hid it again.
+StationCircles.LOCKED_ATTRIBUTE = "StationLockedHere"
+StationCircles.FLAG = "lockedRingsHidden"
+
+-- Pure: whether a ring shows, given what the setting and townRings say (`shown`) and its lock mark.
+function StationCircles.shownHere(shown: boolean, lockedHere: unknown): boolean
+	return shown and lockedHere ~= true
+end
+
 -- Pure: whether the rings show for a `stationCircles` setting value (only an explicit true shows them).
 function StationCircles.visible(setting: unknown): boolean
 	return setting == true
@@ -34,7 +46,24 @@ local function paint(ring: Instance)
 	-- Derek 2026-11-18 (#5224, the townRings switch, shared/WalkUp.ringLook): a Town Square ring always shows, smaller,
 	-- and an area's never does; the rest follow the setting
 	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.TOWN_FLAG) == true
-	local shown, scale = WalkUp.ringLook(on, ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE), shownSetting)
+	local town = ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE)
+	-- #5605 (Derek 2026-11-20: "the codes stand circle is missing", switch codesRingTown): the Codes Cat's circle
+	-- stands on the Town Square but carries no Town mark, so with townRings on it followed the Station circles setting
+	-- (off by default) and hid while every other Town ring showed. It counts as a Town ring now, at its full size.
+	local codes = town == nil
+		and ring.Name ~= WalkUp.CIRCLE
+		and ReplicatedStorage:GetAttribute("LiveFlag_codesRingTown") == true
+	if codes then
+		town = true
+	end
+	local shown, scale = WalkUp.ringLook(
+		on,
+		town,
+		shownSetting,
+		if codes then true else ring:GetAttribute(WalkUp.FULL_ATTRIBUTE),
+		ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.AREA_CANNON_FLAG) == true -- #5416
+	)
+	shown = StationCircles.shownHere(shown, ring:GetAttribute(StationCircles.LOCKED_ATTRIBUTE)) -- #5463
 	for _, child in ring:GetChildren() do
 		if child:IsA("SurfaceGui") then
 			for _, piece in child:GetChildren() do

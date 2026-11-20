@@ -37,6 +37,8 @@ local CatLock = require(script.Parent.Parent.Components.CatLock)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
+local CompanionLogic = require(script.Parent.Parent.Components.CompanionLogic)
+local CompanionPicker = require(script.Parent.Parent.Components.CompanionPicker)
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -58,6 +60,7 @@ local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
 
 -- #5172: the follower's boost by rarity and coat, as the server pays it
+local CatStats = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CatStats"))
 local Follower = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Follower")) :: any
 
 -- #3717: the trait row reads the `traits` switch and the trait's name
@@ -104,6 +107,11 @@ local CREW_FACE_GAP = 6
 local CREW_FACE_TOP = 4 + CREW_NAME_H + 4
 local CREW_H = 2 * CREW_PAD + CREW_FACE_TOP + SQUARE + 2 + CREW_NOTE_H
 local FACE_TAP = Scale.tapHeight(36) -- a face's tap pad: 36 px with a mouse, a finger's 44 on touch
+-- #5296 (Derek 2026-11-18, switch companionMenu): the team strip is four role symbols with counts (a tap opens a strip
+-- of that role's cats) beside the gold Companion button, one button tall
+local MENU_FLAG = "LiveFlag_companionMenu"
+local NUDGE_FLAG = "LiveFlag_companionNudge" -- #5364: the "!" on the Companion button with no companion
+local BETTER_FLAG = "LiveFlag_companionBetter" -- #5457: the "!" also for a better cat not looked at yet
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
 local SEARCH_MIN = 110 -- #4028: the search box takes what the bar leaves, never less
 local SEG_W = 288 -- the All / Working / Resting switch
@@ -115,6 +123,9 @@ local EQUIP_W = 144 -- Equip Best
 local AUTO_W = 68 -- #4256: the AUTO switch, its own button right of Equip Best (it sat inside it)
 local CONFIRM_SECONDS = 3 -- Unequip All asks a second tap within this
 local COUNT_W = 40 -- a role's green "2/4"
+local COMP_W = 240 -- #5296: the Companion button
+local ROLE_SYMBOL_SIZE = 32 -- #5358: a role's symbol with companionMenu on (it was the 20 px name line's)
+local ROLE_STRIP_H = 2 * CREW_PAD + SQUARE + 2 + CREW_NOTE_H -- #5296: a role's cats under its symbol
 local DETAIL_W = 236
 local DETAIL_ART = 64
 local CARD = Vector2.new(104, 134)
@@ -242,15 +253,19 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	-- per role, so all four fit on any screen without scrolling. Each column has the role's icon and name, a green
 	-- "2/4" (working / open slots), the faces of the cats working there and a ring per free slot, then one small line
 	-- for what opens next ("+2 at Tier 5"); locked slots take no room. _layoutCrew sizes the faces to the column.
+	-- #5296: with companionMenu on, read as the window is built, the strip is one button tall
+	local menuOn = ReplicatedStorage:GetAttribute(MENU_FLAG) == true
+	self._menuOn = menuOn
+	local crewH = if menuOn then 2 * CREW_PAD + Scale.tapHeight(Theme.sizes.touchMin) else CREW_H
 	local crew = card({
 		Name = "Crew",
-		Size = UDim2.new(1, 0, 0, CREW_H),
+		Size = UDim2.new(1, 0, 0, crewH),
 		Parent = parent,
 	})
 	local roles: Frame = Create("Frame", {
 		Name = "Roles",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
+		Size = if menuOn then UDim2.new(1, -(COMP_W + CREW_PAD), 1, 0) else UDim2.fromScale(1, 1),
 		Parent = crew,
 	}, {
 		Create("UIListLayout", {
@@ -276,7 +291,10 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	-- #4028: one bar under the strip: search (with the count), All / Working / Resting as one switch, Sort (a pop-up
 	-- with the orders and Unequip All behind a confirm), Equip Best and its AUTO switch (#4256: beside it, no longer
 	-- inside it; without the switch Equip Best takes its room)
-	local toolTop = CREW_H + GAP
+	local toolTop = crewH + GAP
+	if menuOn then
+		self:_buildCompanion(parent, crew, crewH)
+	end
 	local toolbar: Frame = Create("Frame", {
 		Name = "Toolbar",
 		BackgroundTransparency = 1,
@@ -608,6 +626,189 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	end)
 
 	return self :: CatRoom
+end
+
+-- #5296: the gold Companion button at the strip's right (the companion's picture and both boosts), the strip of a
+-- role's cats that opens under its symbol, and the picker the button opens
+function CatRoom._buildCompanion(self: any, parent: Frame, crew: Frame, crewH: number)
+	local button: TextButton = Create("TextButton", {
+		Name = "Companion",
+		AutoButtonColor = true,
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -CREW_PAD, 0.5, 0),
+		Size = UDim2.new(0, COMP_W, 1, -2 * CREW_PAD),
+		Text = "",
+		Visible = false,
+		Parent = crew,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+	})
+	Outline.border(button, Theme.sizes.stroke, Theme.colors.outline)
+	local side = crewH - 2 * CREW_PAD - 6
+	self._compArt = CatPortrait.new({
+		parent = button,
+		size = UDim2.fromOffset(side, side),
+		anchorPoint = Vector2.new(0, 0.5),
+		position = UDim2.new(0, 4, 0.5, 0),
+		still = true,
+		zIndex = 2,
+	})
+	self._compTitle = text({
+		Name = "Title",
+		Position = UDim2.new(0, side + 10, 0, 2),
+		Size = UDim2.new(1, -(side + 14), 0.5, 0),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.outline,
+		Text = "Companion",
+		ZIndex = 2,
+		Parent = button,
+	})
+	self._compLine = text({
+		Name = "Boosts",
+		Position = UDim2.new(0, side + 10, 0.5, 0),
+		Size = UDim2.new(1, -(side + 14), 0.5, -2),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.outline,
+		ZIndex = 2,
+		Parent = button,
+	})
+	FitText.shrink(self._compLine)
+	self._compButton = button
+	self._compCat = nil :: string?
+	-- #5364 (Derek 2026-11-18: "show an exclamation mark on the companion box in cats menu if they don't current have one
+	-- equipped"): the HUD's red "!" (#1074) on the button's top right corner, while companionNudge is on and nothing
+	-- follows (_renderCompanion)
+	local nudge: Frame = Create("Frame", {
+		Name = "Nudge",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -6, 0, 6), -- inside the strip's 6 px pad, so a clipping parent keeps it whole
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = 4,
+		Parent = button,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(nudge, 2)
+	text({
+		Name = "Mark",
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "!",
+		ZIndex = 5,
+		Parent = nudge,
+	})
+	self._compNudge = nudge
+	self._compSeen = {} :: { [string]: boolean } -- #5457: better cats already shown in the picker this session
+	self._compBetter = {} :: { string }
+	table.insert(
+		self._connections,
+		button.Activated:Connect(function()
+			self:_openRole(nil)
+			local state: Types.PlayerState? = self._state
+			local view = self:_followerView()
+			-- #5457: opening the picker counts as seeing every better cat, swapped or not
+			for _, better in self._compBetter or {} do
+				self._compSeen[better] = true
+			end
+			self._compNudge.Visible = false
+			self._picker:open(
+				if state then state.cats else nil,
+				self._catById,
+				if view ~= nil then view.uid else nil
+			)
+		end)
+	)
+	-- a role's cats, under the symbols: "Waiters:" and the faces (the role's own slot squares, moved in)
+	local strip = card({
+		Name = "RoleStrip",
+		Position = UDim2.fromOffset(0, crewH + 2),
+		Size = UDim2.new(1, -(COMP_W + CREW_PAD), 0, ROLE_STRIP_H),
+		BackgroundColor3 = PAL.panel,
+		Visible = false,
+		ZIndex = 15,
+		Parent = parent,
+	})
+	local stroke = strip:FindFirstChildOfClass("UIStroke")
+	if stroke ~= nil then
+		(stroke :: UIStroke).Color = Theme.colors.gold;
+		(stroke :: UIStroke).Thickness = 3
+	end
+	self._stripTitle = text({
+		Name = "Title",
+		Position = UDim2.fromOffset(10, CREW_PAD),
+		Size = UDim2.new(0, 96, 0, SQUARE),
+		FontFace = Theme.fonts.bodyBold,
+		ZIndex = 16,
+		Parent = strip,
+	})
+	FitText.shrink(self._stripTitle)
+	self._roleStrip = strip
+	self._openRoleIndex = nil :: number?
+	self._picker = CompanionPicker.new({
+		parent = parent,
+		follow = function(uid: string)
+			local setFollower: ((string) -> ())? = self._callbacks.setFollower
+			if setFollower ~= nil and self:_followerView() ~= nil then
+				(setFollower :: (string) -> ())(uid)
+				self:_say(
+					if uid == "" then "Sent home to the cafe." else "Now following you!",
+					true
+				)
+			end
+		end,
+	})
+end
+
+-- #5296: opens the strip of the role at `index` under its symbol (again on the same one, or nil, closes it). The
+-- role's own slot squares move into the strip, so a tap on a face works as it did on the old strip.
+function CatRoom._openRole(self: any, index: number?)
+	local strip: Frame? = self._roleStrip
+	if strip == nil then
+		return
+	end
+	local was: number? = self._openRoleIndex
+	if was ~= nil then
+		local old = self._roles[was]
+		if old ~= nil then
+			old.slotsFrame.Parent = nil
+			old.note.Parent = nil
+			local oldStroke = old.frame:FindFirstChildOfClass("UIStroke")
+			if oldStroke ~= nil then
+				oldStroke.Color = PAL.cardStroke
+			end
+		end
+	end
+	if index == was then
+		index = nil
+	end
+	self._openRoleIndex = index
+	local role = if index ~= nil then self._roles[index] else nil
+	strip.Visible = role ~= nil
+	if role == nil then
+		return
+	end
+	self._stripTitle.Text = role.name .. ":"
+	role.slotsFrame.Position = UDim2.fromOffset(110, CREW_PAD)
+	role.slotsFrame.Size = UDim2.new(1, -(110 + 10), 0, SQUARE)
+	role.slotsFrame.ZIndex = 16
+	role.slotsFrame.Parent = strip
+	role.note.Position = UDim2.new(0, 110, 1, -2)
+	role.note.ZIndex = 16
+	role.note.Parent = strip
+	local stroke = role.frame:FindFirstChildOfClass("UIStroke")
+	if stroke ~= nil then
+		stroke.Color = Theme.colors.gold
+	end
+	self:_layoutCrew()
 end
 
 function CatRoom._buildDetail(self: any, parent: Frame, top: number)
@@ -981,10 +1182,16 @@ function CatRoom._buildCrew(self: any)
 		for _, square in role.squares do
 			square.portrait:destroy()
 		end
+		role.slotsFrame:Destroy() -- #5296: it may sit in the role strip, outside its column
+		role.note:Destroy()
 		role.frame:Destroy()
 	end
 	table.clear(self._roles)
 	local catalog: Types.Catalog? = self._catalog
+	self._openRoleIndex = nil -- #5296: the strip's squares go with their roles
+	if self._roleStrip ~= nil then
+		self._roleStrip.Visible = false
+	end
 	if not catalog then
 		return
 	end
@@ -1003,20 +1210,26 @@ function CatRoom._buildCrew(self: any)
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		})
 		Outline.border(group, Theme.sizes.stroke, PAL.cardStroke)
+		local small = self._menuOn == true -- #5296: the symbol and the count, centred, the whole pill a tap
+		-- #5358 (Derek 2026-11-18: "make the role symbols much bigger since no cats are showing beside it"): with
+		-- companionMenu on, the symbol fills the pill's height left of the count, centred in the space it had alone
 		local label = text({
 			Name = "Role",
-			Position = UDim2.fromOffset(8, 4),
-			Size = UDim2.new(1, -(8 + COUNT_W + 8), 0, CREW_NAME_H),
+			Position = if small then UDim2.fromOffset(4, 2) else UDim2.fromOffset(8, 4),
+			Size = if small
+				then UDim2.new(1, -(4 + COUNT_W + 10), 1, -4)
+				else UDim2.new(1, -(8 + COUNT_W + 8), 0, CREW_NAME_H),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
+			TextSize = if small then ROLE_SYMBOL_SIZE else Theme.sizes.textBody,
+			TextXAlignment = if small then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left,
 			Text = (Theme.roleIcons[row.role] or "") .. " " .. row.name,
 			Parent = group,
 		})
 		FitText.shrink(label)
 		local count = text({
 			Name = "Count",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -6, 0, 4),
+			AnchorPoint = if small then Vector2.new(1, 0.5) else Vector2.new(1, 0),
+			Position = if small then UDim2.new(1, -6, 0.5, 0) else UDim2.new(1, -6, 0, 4),
 			Size = UDim2.fromOffset(COUNT_W, CREW_NAME_H),
 			BackgroundTransparency = 0,
 			BackgroundColor3 = Theme.colors.good,
@@ -1041,7 +1254,6 @@ function CatRoom._buildCrew(self: any)
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		})
-		squaresFrame.Parent = group
 		local note = text({
 			Name = "Next",
 			AnchorPoint = Vector2.new(0, 1),
@@ -1049,8 +1261,28 @@ function CatRoom._buildCrew(self: any)
 			Size = UDim2.new(1, -16, 0, CREW_NOTE_H),
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = PAL.subtext,
-			Parent = group,
 		})
+		if small then
+			-- the faces and the note wait for the strip (_openRole); the pill opens it
+			local open: TextButton = Create("TextButton", {
+				Name = "Open",
+				Text = "",
+				AutoButtonColor = false,
+				BackgroundTransparency = 1,
+				Size = UDim2.fromScale(1, 1),
+				ZIndex = 3,
+				Parent = group,
+			})
+			table.insert(
+				self._connections,
+				open.Activated:Connect(function()
+					self:_openRole(index)
+				end)
+			)
+		else
+			squaresFrame.Parent = group
+			note.Parent = group
+		end
 		local squares = {}
 		for slotIndex, slot in row.slots do
 			-- the face itself takes no input; its Hit pad (a finger's 44 px on touch) does
@@ -1213,13 +1445,23 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		bow.AnchorPoint = Vector2.new(1, 0)
 		bow.Position = UDim2.new(1, -4, 0, 4)
 	end
+	-- #5300 (shared/PerfectCatch): a Perfect cat's white star on the picture's top right, under the coat's badge, while
+	-- the perfectCatch switch is on
+	local topRight = if shiny or rainbow then 28 else 4
+	if instance.perfect == true and CatStats.perfectCatch() then
+		local star = badge(button, "★", Color3.fromRGB(143, 211, 255), Theme.colors.white)
+		star.Name = "PerfectBadge"
+		star.AnchorPoint = Vector2.new(1, 0)
+		star.Position = UDim2.new(1, -4, 0, topRight)
+		topRight += 24
+	end
 	-- F97 section 6: a spare cat (out of every area, F78) has no Index page any more, so its card says "Classic" on
 	-- the picture's top right, under the sparkle on a gold one
 	if def ~= nil and def.area == IndexRewards.SPARE_AREA then
 		local classic = badge(button, "Classic", Theme.areaColors.spare, Theme.colors.white)
 		classic.Name = "Classic"
 		classic.AnchorPoint = Vector2.new(1, 0)
-		classic.Position = UDim2.new(1, -4, 0, if shiny or rainbow then 28 else 4)
+		classic.Position = UDim2.new(1, -4, 0, topRight)
 	end
 	-- F62: on the picture's lower right corner while the cat is locked
 	local lock = badge(button, Theme.icons.lock, Theme.colors.cocoaDeep, Theme.colors.white)
@@ -1616,8 +1858,49 @@ function CatRoom._showSortMenu(self: any, open: boolean)
 end
 
 -- Cancels a half-done pick or rename and closes the food tiles (the tab was switched or the window closed).
+-- #5296: the Companion button's picture and words, and the open picker's Follow and Following
+function CatRoom._renderCompanion(self: any, state: Types.PlayerState, view: any?)
+	local button: TextButton? = self._compButton
+	if button == nil then
+		return
+	end
+	button.Visible = view ~= nil
+	if view == nil then
+		self._picker:close()
+		return
+	end
+	local cats: { [string]: Types.CatInstance } = state.cats or {}
+	local uid: string? = view.uid
+	local cat = if uid ~= nil and uid ~= "" then cats[uid] else nil
+	local def: Types.CatDef? = if cat ~= nil then self._catById[cat.catId] else nil
+	local key = if cat ~= nil then cat.uid .. (cat.variant or "") else ""
+	if self._compCat ~= key then
+		self._compCat = key
+		self._compArt:set(def, cat ~= nil and cat.variant == "gold")
+	end
+	self._compArt.frame.Visible = def ~= nil
+	-- #5364: the "!" while the companion is open (Tier 2, so `view` is set) and no cat follows
+	local nudge = cat == nil and ReplicatedStorage:GetAttribute(NUDGE_FLAG) == true
+	-- #5457: with companionBetter on, also while a cat that beats the companion has not been seen in the picker
+	if ReplicatedStorage:GetAttribute(BETTER_FLAG) == true then
+		self._compBetter = CompanionLogic.better(cats, self._catById, uid)
+		nudge = nudge or (cat ~= nil and CompanionLogic.fresh(self._compBetter, self._compSeen))
+	else
+		self._compBetter = {}
+	end
+	self._compNudge.Visible = nudge
+	self._compLine.Text = if def ~= nil and cat ~= nil
+		then Follower.catBothText(cat, (def :: Types.CatDef).rarity) -- #5303: its trait included
+		else "Tap to pick one"
+	self._picker:render(cats, self._catById, uid)
+end
+
 function CatRoom.reset(self: any)
 	self:_showSortMenu(false)
+	if self._picker ~= nil then -- #5296
+		self._picker:close()
+		self:_openRole(nil)
+	end
 	self._placing = false
 	self._partnerPick = false -- a pick left open when the menu closed must not turn the next tap into a follow
 	self._feedOpen = false
@@ -1674,9 +1957,13 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	end
 	-- the partner square, while the follower slot is open; the search makes room for it
 	local partner: TextButton = self._partner
-	partner.Visible = followView ~= nil
-	self._followOpen = followView ~= nil
+	local menuOn = self._menuOn == true -- #5296: the Companion button in place of the partner square
+	partner.Visible = followView ~= nil and not menuOn
+	self._followOpen = followView ~= nil and not menuOn
 	self:_placeSearch()
+	if menuOn then
+		self:_renderCompanion(state, followView)
+	end
 	if followView == nil then
 		self._partnerPick = false
 	else
@@ -1732,7 +2019,7 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		local boost = if followView.boost == "luck" then "luck" else "money"
 		boostOf = function(instance: Types.CatInstance): number
 			local def = self._catById[instance.catId]
-			return Follower.amount(if def then def.rarity else nil, boost, instance.variant)
+			return Follower.catAmount(instance, if def then def.rarity else nil, boost) -- #5303
 		end
 	end
 	local shown = CatRoomList.list(
@@ -1851,8 +2138,7 @@ function CatRoom._renderCrew(
 		end
 		local loves = placingDef ~= nil and placingDef.favoriteRole == row.role
 		role.label.Text = (Theme.roleIcons[row.role] or "")
-			.. " "
-			.. row.name
+			.. (if self._menuOn then "" else " " .. row.name) -- #5296: the symbol alone
 			.. (if loves then " ★" else "")
 		role.label.TextColor3 = if loves then PAL.caramel else PAL.text
 		-- #4028: working / open slots, and what the next tier opens
@@ -1919,6 +2205,32 @@ function CatRoom._renderFeed(self: any): boolean
 		if catalog then catalog.catFood else nil,
 		if state then state.catFood else nil
 	)
+	-- #5578 (Derek 2026-11-20: the food left "is delayed"): with feedInstant on, the feeds sent since the server's
+	-- count last moved come off the shown count at once, and a food at 0 loses its tile
+	local sent: { [string]: { base: number, n: number } } = self._feedSent or {}
+	self._feedSent = sent
+	if ReplicatedStorage:GetAttribute("LiveFlag_feedInstant") == true then
+		local shown = {}
+		for _, food in foods do
+			local mark: { base: number, n: number }? = CatRoom.feedSettle(sent, food.id, food.count)
+			local left = food.count - (if mark ~= nil then mark.n else 0)
+			if left > 0 then
+				local copy = table.clone(food)
+				copy.count = left
+				table.insert(shown, copy)
+			end
+		end
+		for id in sent do
+			local still = false
+			for _, food in foods do
+				still = still or food.id == id
+			end
+			if not still then
+				sent[id] = nil
+			end
+		end
+		foods = shown
+	end
 	local level = if instance and type(instance.level) == "number" then instance.level else 1
 	local feeds = self._callbacks.feedCat ~= nil and instance ~= nil
 	local can = feeds and #foods > 0 and BagLogic.canFeed(level) and self._feedOpen == true
@@ -2019,6 +2331,29 @@ function CatRoom._placeFeed(self: any)
 	self._detailDesc.Visible = not squeezed
 end
 
+-- #5578: the feeds of `foodId` still in flight once the server's count is `count`: the ones it has taken since
+-- (its count went down by them) come off, a count that went up (food bought) leaves them, and none left drops it.
+function CatRoom.feedSettle(
+	sent: { [string]: { base: number, n: number } },
+	foodId: string,
+	count: number
+): { base: number, n: number }?
+	local mark = sent[foodId]
+	if mark == nil or mark.base == count then
+		return mark
+	end
+	local taken = mark.base - count
+	mark.base = count
+	if taken > 0 then
+		mark.n -= taken
+	end
+	if mark.n <= 0 then
+		sent[foodId] = nil
+		return nil
+	end
+	return mark
+end
+
 -- One food's tile: a tap feeds one; held, it feeds again every FEED_REPEAT seconds while the food and the cat's
 -- levels last (the server's FeedCat allows 4 a second).
 function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
@@ -2029,6 +2364,21 @@ function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
 		local have = if state and state.catFood then state.catFood[foodId] else nil
 		if feed == nil or picked == nil or type(have) ~= "number" or have < 1 then
 			return false
+		end
+		if ReplicatedStorage:GetAttribute("LiveFlag_feedInstant") == true then
+			-- #5578: count this feed off the shown number now; nothing left to show, nothing more to send
+			local sent: { [string]: { base: number, n: number } } = self._feedSent or {}
+			self._feedSent = sent
+			local entry: { base: number, n: number } = CatRoom.feedSettle(sent, foodId, have)
+				or { base = have, n = 0 }
+			sent[foodId] = entry
+			if entry.n >= have then
+				return false
+			end
+			entry.n += 1
+			feed(foodId, picked)
+			self:_refresh()
+			return true
 		end
 		feed(foodId, picked)
 		return true
@@ -2202,6 +2552,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 				favourite = favorite,
 				gold = shiny,
 				rainbow = rainbow,
+				perfect = instance.perfect == true, -- #5300
 				level = instance.level,
 			}),
 			role
@@ -2209,7 +2560,8 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	end
 	self._detailInfo.Visible = not showBuffs
 	self._detailBuffs.Visible = showBuffs
-	self._detailDesc.Text = if def then def.description or "" else ""
+	-- #5299 (Derek 2026-11-18: "remove the random descriptions of cats in their profiles"): none with companionMenu
+	self._detailDesc.Text = if def and not self._menuOn then def.description or "" else ""
 	-- #3717: the trait row (#4654 batch 3: the pool is always open, so it always shows)
 	local traitTitle, traitEffects = CatCardLogic.traitRow(instance.trait, true)
 	local hasTrait = traitTitle ~= nil and traitEffects ~= ""
@@ -2260,7 +2612,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._follow:setStyle(if following then "gold" else "ghost")
 		self._boost:setText(if follow.boost == "luck" then Theme.icons.luck else "$")
 		-- what this cat brings as the follower, with the boost picked and its coat: "Follows +18% money (Rainbow x1.5)"
-		local amount = Follower.amount(rarity, follow.boost, instance.variant)
+		local amount = Follower.catAmount(instance, rarity, follow.boost) -- #5303: its trait included
 		local coat = Follower.coatText(instance.variant)
 		local line = "Follows "
 			.. Follower.text(amount, follow.boost)
@@ -2295,6 +2647,7 @@ local BUFF_LOOK: { [string]: { fill: Color3, text: Color3 } } = {
 	gold = { fill = Theme.colors.gold, text = Theme.colors.goldText },
 	rainbow = { fill = Theme.colors.white, text = Theme.colors.ink },
 	level = { fill = Theme.colors.sky, text = Theme.colors.white },
+	perfect = { fill = Color3.fromRGB(143, 211, 255), text = Theme.colors.ink }, -- #5300: shared/PerfectCatch.COLOR
 }
 
 -- The detail's buff chips, built again only when their words change.
@@ -2373,6 +2726,10 @@ end
 
 function CatRoom.destroy(self: any)
 	self._gone = true
+	if self._picker ~= nil then
+		self._picker:destroy()
+		self._compArt:destroy()
+	end
 	for _, tile in self._feedTiles do
 		tile.held = false
 		tile.button:destroy()

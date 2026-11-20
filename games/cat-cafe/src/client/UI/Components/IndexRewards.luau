@@ -130,6 +130,16 @@ IndexRewards.GOLD_CHANCE = (Config.GoldChanceNet or 0.05) :: number
 -- a net stray's or a bait cat's rainbow roll before luck (F99)
 IndexRewards.RAINBOW_CHANCE = (Config.RainbowChanceNet or 0.005) :: number
 
+-- #5493: a wild stray's coat chances are doubled with mutationBoost on (shared/MutationBoost)
+local function boost(): number
+	local module = ReplicatedStorage:WaitForChild("Shared"):FindFirstChild("MutationBoost")
+	if module == nil or not module:IsA("ModuleScript") then
+		return 1
+	end
+	local MutationBoost = require(module) :: any
+	return MutationBoost.scale(MutationBoost.on())
+end
+
 -- How many cats a milestone needs: `needs` (F54) or `need` (F48).
 -- A milestone marked `whole` (F97, Design-Agent: decor10 needs the whole Decor page, "All 16" on the Classic page and
 -- "All 12" elsewhere) needs the page's `total` when that is more, as the server asks max(needs, page size).
@@ -538,11 +548,11 @@ function IndexRewards.perkLabel(perk: string, amount: number): string?
 		return pattern:format(value)
 	end
 	if perk == "goldLuck" then
-		local chance = IndexRewards.goldChance(IndexRewards.GOLD_CHANCE, amount)
+		local chance = IndexRewards.goldChance(IndexRewards.GOLD_CHANCE * boost(), amount)
 		return ("+%s gold luck (gold %s)"):format(percent(amount), percent(chance))
 	elseif perk == "rainbowLuck" then
 		-- the chance in hundredths, as the food card's line: "0.75%", not "0.8%"
-		local chance = IndexRewards.rainbowChance(IndexRewards.RAINBOW_CHANCE, amount)
+		local chance = IndexRewards.rainbowChance(IndexRewards.RAINBOW_CHANCE * boost(), amount)
 		local fine = string.format("%.2f", chance * 100):gsub("0+$", ""):gsub("%.$", "")
 		return ("+%s rainbow luck (rainbow %s%%)"):format(percent(amount), fine)
 	elseif perk == "baitSpeed" then

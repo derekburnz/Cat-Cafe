@@ -16,13 +16,23 @@
 -- away, or when walls block every camera spot; the cat then just arrives. It swings back early when the cat does not
 -- come within `waitCat` seconds. Its outcome goes to the server as TelemetryReport("first_bait_cutscene", "shown",
 -- "skipped" or "none"). It never fires anything else.
+--
+-- A freeStart save (shared/FreeStart) puts its first food in at the Alleyway check-in, far from its bowl, so with
+-- baitCutQuick on the scene is owed instead of reported "none": it plays once the player first comes within
+-- `lateNear` studs of the bowl with the cat there and is not mid catch, carry or flight (Logic.firstBaitLate), and is
+-- dropped ("none") if the cat goes first or play refuses. While it runs, or is owed with the player near the bowl,
+-- UI.bait.cutting is true, so the cat's card (Gameplay-Engineer's hold for those saves, at the 8 stud walk-up ring)
+-- waits for it.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+
+local FreeStart = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart"))
 
 local Context = require(script.Parent.Context)
 local ContextCut = require(script.Parent.ContextCut)
@@ -38,6 +48,15 @@ local FirstBaitCut = {}
 local STEP = "EffectsFirstBaitCut"
 FirstBaitCut.EATING = "FirstBaitEatingLocal" -- on the bait cat, this client only: when it started eating (os.clock)
 local EATING = FirstBaitCut.EATING
+-- #5548 (Derek 2026-11-20: "do the make bait scene quicker and no skip allowed"), switch `baitCutQuick` read straight:
+-- the scene's quick numbers (Presets.firstBaitCut.quick) and no skip at all. Off keeps today's scene exactly.
+FirstBaitCut.QUICK_FLAG = "baitCutQuick"
+FirstBaitCut.EATING_QUICK = "FirstBaitEatQuickLocal" -- on the bait cat with EATING: Cats.luau eats at the quick pace
+local EATING_QUICK = FirstBaitCut.EATING_QUICK
+
+-- The scene's numbers and its outcome words (pure, in Logic: Logic.firstBaitPreset, Logic.firstBaitOutcome).
+FirstBaitCut.preset = Logic.firstBaitPreset
+FirstBaitCut.outcome = Logic.firstBaitOutcome
 local HAPPY = Color3.fromRGB(255, 150, 190)
 local SKIP_FONT = Font.new(
 	"rbxasset://fonts/families/FredokaOne.json",
@@ -46,6 +65,7 @@ local SKIP_FONT = Font.new(
 )
 
 local running = false
+local owed = false -- a freeStart save's scene waits for the player to come to the bowl
 local started = false
 local wasFirst: boolean? = nil -- the last ProfileSync's firstBait
 local ui: any = nil
@@ -234,7 +254,8 @@ function FirstBaitCut.play(): boolean
 	if folder == nil or bowlAnchor == nil or catAnchor == nil then
 		return false
 	end
-	local p = Presets.firstBaitCut
+	local quick = ReplicatedStorage:GetAttribute("LiveFlag_" .. FirstBaitCut.QUICK_FLAG) == true
+	local p = FirstBaitCut.preset(quick)
 	local bowlAt = (bowlAnchor :: BasePart).Position
 	local catAt = (catAnchor :: BasePart).Position
 	if Context.distance(bowlAt) > p.maxDistance then
@@ -261,7 +282,7 @@ function FirstBaitCut.play(): boolean
 	setControls(module, false)
 	ProximityPromptService.Enabled = false
 	camera.CameraType = Enum.CameraType.Scriptable
-	local skipGui = skipLabel()
+	local skipGui = if quick then nil else skipLabel() -- #5548: no skip line on the quick scene
 
 	local began = os.clock()
 	local walk: Walk? = nil
@@ -276,6 +297,7 @@ function FirstBaitCut.play(): boolean
 		local w = walk
 		if w ~= nil and w.cat.Parent ~= nil then
 			w.cat:SetAttribute(EATING, nil)
+			w.cat:SetAttribute(EATING_QUICK, nil)
 		end
 	end
 
@@ -315,8 +337,8 @@ function FirstBaitCut.play(): boolean
 	end
 
 	inputConnection = UserInputService.InputBegan:Connect(function(input: InputObject)
-		if outFrom ~= nil or os.clock() - began < p.skipAfter then
-			return
+		if quick or outFrom ~= nil or os.clock() - began < p.skipAfter then
+			return -- #5548: nothing ends the quick scene but its own end or the cap
 		end
 		local kind = input.UserInputType
 		if
@@ -337,7 +359,7 @@ function FirstBaitCut.play(): boolean
 		local now = os.clock()
 		local t = now - began
 		if cam == nil or character == nil or character.Parent == nil or t >= p.cap then
-			finish(if skipped then "skipped" else "none")
+			finish(FirstBaitCut.outcome(skipped, false, quick))
 			return
 		end
 		-- the weight of the camera's swing over to the bowl, 0 to 1
@@ -348,7 +370,7 @@ function FirstBaitCut.play(): boolean
 			local k = math.clamp((now - back) / span, 0, 1)
 			w = outWeight * (1 - Logic.smoothstep01(k))
 			if k >= 1 then
-				finish(if skipped then "skipped" elseif walk ~= nil then "shown" else "none")
+				finish(FirstBaitCut.outcome(skipped, walk ~= nil, quick))
 				return
 			end
 		else
@@ -380,6 +402,7 @@ function FirstBaitCut.play(): boolean
 				then
 					eatAt = now
 					current.eatAt = now
+					current.cat:SetAttribute(EATING_QUICK, if quick then true else nil)
 					current.cat:SetAttribute(EATING, now) -- Cats.luau dips its head (Logic.eatPose)
 					Moments.FirstBaitEat:Fire(bowlAt, p.eat)
 				end
@@ -409,9 +432,78 @@ function FirstBaitCut.play(): boolean
 	return true
 end
 
--- Whether the cutscene is on screen now (UI.bait.busy holds the bait cards while it is).
+-- Whether the cutscene is on screen now.
 function FirstBaitCut.playing(): boolean
 	return running
+end
+
+-- The player's distance to its own bowl, nil when its plot or bowl is not here.
+local function bowlDistance(): number?
+	local plot = ownPlot()
+	local bowl = if plot ~= nil then part(plot, "BaitBowl") else nil
+	return if bowl ~= nil then Context.distance((bowl :: BasePart).Position) else nil
+end
+
+-- Whether it is on screen, or owed with the player near the bowl (UI.bait.busy holds the bait cards then). Owed and
+-- far away holds nothing, so the rest of the start's cards are not held up while the save is out catching.
+function FirstBaitCut.holding(): boolean
+	if running then
+		return true
+	end
+	if not owed then
+		return false
+	end
+	local distance = bowlDistance()
+	return distance ~= nil
+		and distance <= Presets.firstBaitCut.lateNear + Presets.firstBaitCut.lateMargin
+end
+
+-- Whether the player is mid catch, carrying a cat or flying: an owed scene waits for that to end.
+local function midPlay(): boolean
+	local character = Players.LocalPlayer.Character
+	if
+		character ~= nil
+		and (
+			character:GetAttribute("CarryingCatId") ~= nil
+			or character:GetAttribute("Launching") == true
+		)
+	then
+		return true
+	end
+	local catch = if type(ui) == "table" then ui.catch else nil
+	local circles = if type(catch) == "table" then catch.circlesActive else nil
+	return type(circles) == "function" and (circles :: () -> unknown)() == true
+end
+
+-- Owes the scene to a freeStart save until it comes to its bowl: plays it then, or drops it (see the top).
+local function owe()
+	if owed then
+		return
+	end
+	owed = true
+	local seen = false
+	task.spawn(function()
+		local p = Presets.firstBaitCut
+		while owed do
+			task.wait(p.lateCheck)
+			local plot = ownPlot()
+			local folder = if plot ~= nil then plot:FindFirstChild("Bait") else nil
+			local cat = if folder ~= nil then catIn(folder) else nil
+			seen = seen or cat ~= nil
+			local distance = bowlDistance()
+			local near = distance ~= nil and distance <= p.lateNear
+			local step = Logic.firstBaitLate(near, cat ~= nil, seen)
+			if step == "drop" then
+				owed = false
+				report("none")
+			elseif step == "play" and not midPlay() then
+				owed = false
+				if not FirstBaitCut.play() then
+					report("none")
+				end
+			end
+		end
+	end)
 end
 
 -- `ui` is the client UI (UI.close, UI.bait): its bait cards wait while the cutscene runs.
@@ -423,7 +515,7 @@ function FirstBaitCut.start(clientUi: any)
 	ui = clientUi
 	local bait = if type(clientUi) == "table" then clientUi.bait else nil
 	if type(bait) == "table" then
-		bait.cutting = FirstBaitCut.playing
+		bait.cutting = FirstBaitCut.holding
 	end
 	Net.on("ProfileSync", function(state: unknown)
 		if type(state) ~= "table" then
@@ -443,7 +535,13 @@ function FirstBaitCut.start(clientUi: any)
 				if ui ~= nil and type(ui.close) == "function" then
 					pcall(ui.close)
 				end
-				report("none")
+				local quick = ReplicatedStorage:GetAttribute("LiveFlag_" .. FirstBaitCut.QUICK_FLAG)
+					== true
+				if quick and FreeStart.of(nil) then
+					owe() -- the food went in at the check-in: the scene waits for the bowl
+				else
+					report("none")
+				end
 			end
 		end
 	end)

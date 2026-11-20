@@ -91,6 +91,9 @@ local WorldTags = require(script.Screens.WorldTags)
 
 local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
+-- #5502 the advent calendar's Rewards row and card (screen: Screens/AdventCalendar, made in UI.init), filled under
+-- Screens. No file-level locals for it: this file is at Luau's 200 local limit.
+UI.advent = { screen = nil :: any }
 UI._padHints = nil :: any -- #4224: the controller hint strip (Components/GamepadHints), made in UI.init
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
@@ -160,6 +163,14 @@ end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
+UI.giftStall = {} -- the Christmas Event's Gift Stall window, filled at the end of the file
+-- Sync's clip recordings (Nov 18): in Studio only, Workspace's RecordMode attribute (set from the command bar) holds
+-- the "Thanks for playing!" gift card and shows a bowl cat's card `RECORD_BOWL_DELAY` s late, so the walk-in reads.
+-- Never true in a live server.
+function UI.recordMode(): boolean
+	return RunService:IsStudio() and Workspace:GetAttribute("RecordMode") == true
+end
+UI.RECORD_BOWL_DELAY = 2
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
 
@@ -273,6 +284,9 @@ UI.events = {
 	pickStyle = Signal.new(), -- (kind, id)   a Style tab button: kind "sign" forwards as SetSignStyle(id or nil), "uniform" or "theme" as SetLook(kind, id)
 	-- F70
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
+	-- #5502
+	openAdventDoor = Signal.new(), -- ()   OPEN on the advent calendar card: forward as OpenAdventDoor (no door number)
+	adventSeen = Signal.new(), -- ()   the advent calendar card opened: forward as TelemetryReport advent_board
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
 	collectCampExtra = Signal.new(), -- (extraId)   #3082: Collect on a cannon picker card's strip (every player;
@@ -290,6 +304,7 @@ UI.events = {
 	-- #1920 (first-hour.md section 6), analytics only: the session recap card showed, then went after this many seconds
 	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
+	returnCard = Signal.new(), -- (value)   #5505: the welcome back card showed: forward as TelemetryReport("return_card", "<kind>:<yes|no>")
 	returnHookEarly = Signal.new(), -- (kind)   #4626: the minute 6 "come back tomorrow" line showed: forward as TelemetryReport("return_hook_early", kind)
 	tomorrowCard = Signal.new(), -- (outcome)   #3951: the come back tomorrow card: forward as TelemetryReport("tomorrow_card", outcome)
 	nextGoal = Signal.new(), -- (value)   #5202: shared/NextGoal.encode's "shown:A" and the like: forward as TelemetryReport("next_goal", value)
@@ -629,10 +644,29 @@ function applyTutorial()
 			end)
 		end
 	end
+	-- #5505 (returnMoment): after the welcome back card, "You can Rank Up!" while it is in reach, on an empty strip
+	local returning: any = UI.returnMoment
+	if
+		text == nil
+		and returning ~= nil
+		and returning.line ~= nil
+		and os.clock() < returning.untilAt
+		and returning.ready()
+	then
+		text = returning.line
+	end
 	-- #4973: the beat after a walk-through catch's result (UI.catch.retry.stripUntil, finishCatch)
 	local catchBeat: any = UI.catch
 	if catchBeat ~= nil and catchBeat.retry ~= nil and os.clock() < catchBeat.retry.stripUntil then
 		text = nil
+	end
+	-- #5533 (shared/FreeStart): no strip, marker or trail for a save on the play first start until Tier 3
+	if
+		(require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any).quiet(
+			state.tier
+		)
+	then
+		text, target = nil, nil
 	end
 	if hud then
 		hud:holdTutorial(introPending)
@@ -841,6 +875,7 @@ local function render()
 	UI.mailbox.render(state)
 	UI.nursery.render(state)
 	UI.harvest.render(state)
+	UI.giftStall.render(state)
 	UI.store.render()
 	UI.pass.render()
 	if cannonHint() ~= hintShown then
@@ -891,6 +926,10 @@ local function render()
 	if dailyTreatScreen then
 		dailyTreatScreen:render(state)
 	end
+	if UI.advent.screen then
+		UI.advent.screen:render(state)
+	end
+	UI.advent.refresh()
 	autoOpenDailyTreat()
 end
 
@@ -953,6 +992,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if dailyTreatScreen then
 		dailyTreatScreen:setCatalog(newCatalog)
+	end
+	if UI.advent.screen then
+		UI.advent.screen:setCatalog(newCatalog)
 	end
 	if popups then
 		popups:setCatalog(newCatalog)
@@ -1063,6 +1105,17 @@ function UI.init(config: Types.InitConfig)
 			end
 			local PassShop = require(script.Components.PassShop)
 			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
+		end,
+		-- #5533 (rankOneTap): the goal card's RANK UP button; the server checks every need again
+		rankNow = function()
+			UI.events.rankUp:Fire()
+		end,
+		-- #5516 (rankTapLog): UIController's tap log, set once it starts
+		rankTap = function(from: string)
+			local note: ((string) -> ())? = (UI :: any).rankTapNote
+			if note ~= nil then
+				note(from)
+			end
 		end,
 		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
 		openIndexAt = function(areaId: string?)
@@ -1691,6 +1744,23 @@ function UI.init(config: Types.InitConfig)
 			dailyTreatView:render(state)
 		end,
 	})
+	-- #5502: the advent calendar card. Nothing opens it but the Rewards row and the board, and both show only while
+	-- the server's view says live (both switches on and the dates come)
+	local adventView = require(script.Screens.AdventCalendar).new({
+		open = function()
+			UI.events.openAdventDoor:Fire()
+		end,
+		close = closeModal,
+	})
+	UI.advent.screen = adventView
+	modalInstance:register("AdventCalendar", {
+		frame = adventView.frame,
+		onOpen = function()
+			adventView:render(state)
+			adventView:onOpen()
+			UI.events.adventSeen:Fire()
+		end,
+	})
 	collectorScreen = Collector.new(parent, {
 		answer = function(accept: boolean)
 			UI.events.answerCollector:Fire(accept)
@@ -2061,6 +2131,7 @@ function UI.init(config: Types.InitConfig)
 	UI.mailbox.start() -- the Mailbox window, behind the `mailbox` switch (#4249)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.harvest.start() -- the Harvest Stall window, opened from its stall's prompt (#4251)
+	UI.giftStall.start() -- the Christmas Event's Gift Stall window, from its stall's prompt (christmasEvent)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
 	worldTags = WorldTags.new(UI.settings.value("catIncome")) -- #2551: the Cat income switch as it stands now
@@ -2327,6 +2398,7 @@ function UI.destroy()
 	UI.mailbox.reset()
 	UI.nursery.reset()
 	UI.harvest.reset()
+	UI.giftStall.reset()
 	UI.store.reset()
 	UI.pass.reset()
 	UI.bubbles.reset()
@@ -2383,6 +2455,10 @@ function UI.destroy()
 		dailyTreatScreen:destroy()
 	end
 	dailyTreatScreen = nil
+	if UI.advent.screen then
+		UI.advent.screen:destroy()
+	end
+	UI.advent.screen = nil
 	dailyAutoOpen = nil
 	if introScreen then
 		introScreen:destroy()
@@ -2570,6 +2646,32 @@ end
 -- Screens
 ----------------------------------------------------------------------------------------------------
 
+-- #5502: the advent calendar's row on the Rewards list (HUD.setAdvent, Components/AdventLogic), from the server's
+-- view in the state; no row while the calendar is not live. UI.advent.open is the board's prompt.
+
+function UI.advent.refresh()
+	local view = hud
+	if view == nil then
+		return
+	end
+	local AdventLogic = require(script.Components.AdventLogic)
+	local advent = (state :: any).advent
+	if AdventLogic.shows(advent) then
+		view:setAdvent(AdventLogic.rowLine(advent), advent.ready == true)
+	else
+		view:setAdvent(nil, false)
+	end
+end
+
+function UI.advent.open(): boolean
+	local AdventLogic = require(script.Components.AdventLogic)
+	if modal == nil or not AdventLogic.shows((state :: any).advent) then
+		return false
+	end
+	modal:open("AdventCalendar")
+	return true
+end
+
 function UI.open(name: Types.ScreenName)
 	if modal then
 		modal:open(name)
@@ -2594,6 +2696,12 @@ end
 -- #5284 (CompanionSceneController): whether a card is up or waiting in the pop-ups' queue
 function UI.popupsShowing(): boolean
 	return popups ~= nil and popups:isShowing()
+end
+
+-- #5330: the HUD's Upgrades button, for the night line's arrow; nil while it is not on screen
+function UI.upgradesButton(): GuiObject?
+	local board: any = hud
+	return if board ~= nil then board:upgradesButton() else nil
 end
 
 -- #5284: the HUD's Cats button, for the Cat Companion's soft arrow; nil while it is not on screen
@@ -2649,6 +2757,14 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Messages
 ----------------------------------------------------------------------------------------------------
+
+-- #5550: a short banner with a cat's face in the toast stack (Toasts.cat): no dim and nothing held; card.tapCloses
+-- puts it away on a tap. The quick Cat Companion unlocked line.
+function UI.catBanner(card: any)
+	if toasts then
+		toasts:cat(card)
+	end
+end
 
 -- `seconds` (optional) keeps the toast up that long in place of the usual 2.4 s.
 function UI.toast(text: string, kind: Types.ToastKind?, seconds: number?)
@@ -3050,7 +3166,16 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
-		popups:showCatFound(def, isNew, info)
+		if extra and extra.source == "bowl" and UI.recordMode() then
+			local shown = popups
+			task.delay(UI.RECORD_BOWL_DELAY, function()
+				if shown ~= nil then
+					shown:showCatFound(def, isNew, info)
+				end
+			end)
+		else
+			popups:showCatFound(def, isNew, info)
+		end
 	else
 		UI.toast("Caught a cat!", "good")
 	end
@@ -3075,6 +3200,19 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 		local note = WelcomeBack.note(state.longNap)
 		-- #2123: the reason to play today, from Gameplay's ReturnHook pick (nil: no line)
 		local hook = WelcomeBack.hookLine((state :: any).returnHook)
+		-- #5505 (returnMoment): the days played line comes first (CafeService's DaysMoment attributes)
+		local moment = UI.returnMoment.on()
+		local kind = if hook ~= nil then "hook" else "none"
+		local me = game:GetService("Players").LocalPlayer
+		local daysText = me:GetAttribute("DaysMomentText")
+		local daysKind = me:GetAttribute("DaysMomentKind")
+		if
+			moment
+			and type(daysText) == "string"
+			and (daysKind == "milestone" or daysKind == "next")
+		then
+			hook, kind = daysText, daysKind :: string
+		end
 		-- #2916: with no pick, Gameplay's nearest goal (the one the last session's recap led with)
 		if hook == nil then
 			hook = require(script.Components.ReturnGoalWords).welcomeLine(
@@ -3082,11 +3220,52 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 				Format.money
 			)
 		end
+		local ready = UI.returnMoment.ready()
+		-- Growth: a held save logs it too, as "held", so held and live compare
+		if ReplicatedStorage:GetAttribute("LiveFlag_returnMoment") == true then
+			local logged = if moment then kind else "held"
+			UI.events.returnCard:Fire(logged .. ":" .. (if ready then "yes" else "no"))
+		end
 		popups:showOffline(amount, seconds, function()
 			Sound.play("offlineClaim")
 			UI.events.claimOffline:Fire()
+			-- #5505: after the card, "You can Rank Up!" on the strip at Tier 2 and up while it is in reach
+			if moment and (state.tier or 1) >= 2 and UI.returnMoment.ready() then
+				UI.returnMoment.line = UI.returnMoment.LINE
+				UI.returnMoment.untilAt = os.clock() + UI.returnMoment.SECONDS
+				applyTutorial()
+				task.delay(UI.returnMoment.SECONDS + 0.1, applyTutorial)
+			end
 		end, UI.tips.offlineLine(seconds), note, hook)
 	end
+end
+
+-- #5505 (shared/DaysPlayed.moment, switch returnMoment): the return moment's pieces (init.luau is at Luau's 200
+-- locals, so they live here). The strip line shows for SECONDS after the welcome back card, while the rank up is in
+-- reach; nothing opens by itself.
+UI.returnMoment = {
+	LINE = "You can Rank Up!",
+	SECONDS = 45,
+	line = nil :: string?,
+	untilAt = 0,
+}
+
+function UI.returnMoment.on(): boolean
+	-- a held save (shared/Holdout, the Holdout attribute) does not get it
+	return ReplicatedStorage:GetAttribute("LiveFlag_returnMoment") == true
+		and game:GetService("Players").LocalPlayer:GetAttribute("Holdout") ~= true
+end
+
+-- The next tier's rank up in reach now (the goal card's own check)
+function UI.returnMoment.ready(): boolean
+	local s: any = state
+	if s == nil or currentCatalog == nil then
+		return false
+	end
+	local GoalLines = require(script.Components.GoalLines) :: any
+	local RankUpNeeds = require(script.Components.RankUpNeeds) :: any
+	local nextTier = GoalLines.nextTier((currentCatalog :: any).tiers, s.tier)
+	return nextTier ~= nil and RankUpNeeds.of(nextTier, s).ready == true
 end
 
 -- Rising text at a world point ("+$8"). Cheap enough for customers' coin pops. #1562 (Derek2: "the money pop-up ticks
@@ -3332,6 +3511,12 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	-- calm like arrived. The bowlCardHold switch, on unless set false, turns this off.
 	local held = (UI.cutscene.held() or (introScreen ~= nil and introScreen:playing()))
 		and ReplicatedStorage:GetAttribute("LiveFlag_bowlCardHold") ~= false
+	-- #5562 (Motion-FX's #5564): a play first start save below Tier 3 waits for calm too (UI.bait.busy, which holds
+	-- while the quick first bait scene runs or is owed near the bowl), so its walk to the bowl plays the scene and then
+	-- the card
+	local FreeStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any
+	held = held or (FreeStart.quiet(state.tier) and UI.bait.busy())
 	if held or (modal ~= nil and modal:current() == "Store") then
 		renderBait()
 		UI.bait.whenCalm(function()
@@ -3444,8 +3629,47 @@ function UI.bait.whenCalm(wanted: () -> boolean, show: () -> ())
 	end)
 end
 
-function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
+function UI.bait.arrived(cat: Types.BaitCat, bowl: number?, recorded: boolean?)
 	local index = if bowl == 2 then 2 else 1
+	-- Sync's clip takes (Nov 19): in Studio with RecordMode on, the "A CAT CAME TO YOUR BOWL!" card waits too, so
+	-- the cat's walk to the bowl reads before any card
+	if UI.recordMode() and not recorded then
+		task.delay(UI.RECORD_BOWL_DELAY, function()
+			UI.bait.arrived(cat, bowl, true)
+		end)
+		return
+	end
+	-- #5562 (Sync's new start look 2026-11-20: the card popped right after the first check-in): a play first start save
+	-- below FreeStart.UNTIL_TIER gets no card by itself; the cat waits at the bowl (its chip shows it) and the card
+	-- comes when the player walks up to the bowl or taps the chip (showReady)
+	if
+		(require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any).quiet(
+			state.tier
+		)
+	then
+		bowls.cats[index] = cat
+		renderBait()
+		return
+	end
+	-- #5374 (Derek 2026-11-19: "all bowl options on yet I am still getting pop-ups"): with bowlTicks on and the Bowl
+	-- window's pop-ups tick set (settings.bowlNewCatCard false), a bowl cat after the first is a toast, not the card.
+	-- The bowl chip still shows it, and auto claim (when owned) tames it within a second.
+	local settings: { [string]: boolean | number | string } = state.settings or {}
+	local stats: any = (state :: any).stats or {}
+	if
+		settings.bowlNewCatCard == false
+		and ReplicatedStorage:GetAttribute("LiveFlag_bowlTicks") == true
+		and state.tutorialStep ~= 4
+		and (stats.baitsTamed or 0) > 0
+	then
+		bowls.cats[index] = cat
+		renderBait()
+		local def = lookupCat(cat.catId)
+		if def ~= nil then
+			UI.toast(string.format("%s came to bowl %d!", def.name, index), "info")
+		end
+		return
+	end
 	if not UI.bait.busy() then
 		UI.bait.showReady(cat, index)
 		return
@@ -4346,10 +4570,14 @@ function UI.cannon.rummageBack()
 			end
 			task.wait(0.2)
 		end
-		task.wait(LOOT_SETTLE) -- the win's reveal, then its loot card
-		local untilAt = os.clock() + LOOT_WAIT
-		while ui.loot.card ~= nil and ui.loot.card:isShowing() and os.clock() < untilAt do
-			task.wait(0.2)
+		-- #5417 (Derek 2026-11-19: "make cannon menu pop back up immediately after finishing rummage minigame through
+		-- cannon menu"): with cannonReturnNow on, the picker comes back the moment the bar ends, the loot card beside it
+		if ReplicatedStorage:GetAttribute("LiveFlag_cannonReturnNow") ~= true then
+			task.wait(LOOT_SETTLE) -- the win's reveal, then its loot card
+			local untilAt = os.clock() + LOOT_WAIT
+			while ui.loot.card ~= nil and ui.loot.card:isShowing() and os.clock() < untilAt do
+				task.wait(0.2)
+			end
 		end
 		local again: (() -> string?)? = (UI.cannon :: any).nearest
 		if
@@ -4391,6 +4619,7 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
+	hood = false, -- #5517 (hoodTrail): the walk to the Neighbourhood is due (ParkTrailController)
 	led = false, -- #4836: the tutorial marker stands on the walk's own target (the nearest cannon)
 	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
 	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
@@ -4523,6 +4752,11 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 		"rankSpotPlain",
 		ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "rankSpotPlain")
 	) == true
+	-- #5609 (rankDimTwo): the new start sees this dim and arrow too (shared/FreeStart.LOUD_ATTR)
+	target:SetAttribute(
+		"PointEvenQuiet",
+		if ReplicatedStorage:GetAttribute("LiveFlag_rankDimTwo") == true then true else nil
+	)
 	UI.rankSpot.close = SpotlightGuide.show(
 		target,
 		if onStrip or plain then "" else words or "",
@@ -4726,6 +4960,19 @@ function UI.cannon.open(cannonId: string?)
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
 		)
 	)
+	-- #5533 cannonGlow (shared/CannonGlow): after a rank up that opens an area, the first walk in flies straight there
+	-- #5599 (rankPicker, Derek 2026-11-20: "stop making cannon instantly teleport to new areas on rankup just stay
+	-- with the opens cannon menu and shows the unlock animation for the new area and let them decide where to go"):
+	-- with the switch on the walk in opens the picker, where the new card's lock breaks and the Park's Launch is ringed
+	if direct == nil and ReplicatedStorage:GetAttribute("LiveFlag_rankPicker") ~= true then
+		local CannonGlow =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CannonGlow")) :: any
+		direct = CannonGlow.direct(
+			CannonGlow.on(),
+			game:GetService("Players").LocalPlayer:GetAttribute(CannonGlow.ATTR),
+			cannonId or CannonLogic.TOWN
+		)
+	end
 	if direct ~= nil and not UI.cannon.direct.off then
 		UI.cannon.direct.pending = true
 		UI.events.launchCannon:Fire(cannonId or CannonLogic.TOWN, direct)
@@ -4744,9 +4991,13 @@ function UI.cannon.open(cannonId: string?)
 			local due = type(state.tier) == "number"
 				and state.tier >= 2
 				and not UI.parkTrail.reached
-			screen:setRing(if due then parkFirst.AREA else nil)
+			-- #5517 (hoodTrail): at Tier 3 until the first Neighbourhood landing, its card's Launch wears the ring
+			screen:setRing(
+				if due then parkFirst.AREA elseif UI.parkTrail.hood then "neighbourhood" else nil
+			)
 		end
 	end
+	screen:setFirst(if UI.parkTrail.hood then "neighbourhood" else nil) -- #5517: and its card is listed first
 	windows:open("Cannon")
 end
 
@@ -6753,6 +7004,13 @@ do
 	-- for something: it skips the pace and does not hold the next ask back.
 	-- #4946: `back` is a news card that already showed and stepped aside for a window (#3620); it comes back without
 	-- waiting for UI.popPace, as it is still the same pop-up
+	-- #5572 (Sync's phone pass): no slide-in card over a Picnic Party while its Picnic Time runs (PicnicEndsAt, set by
+	-- the server's CampExtraService); the asks come again once it is over.
+	function UI.asks.picnicHeld(): boolean
+		local ends = Players.LocalPlayer:GetAttribute("PicnicEndsAt")
+		return type(ends) == "number" and ends > Workspace:GetServerTimeNow()
+	end
+
 	function UI.asks.card(ask: any, news: boolean?, back: boolean?): boolean
 		local card = askCard
 		local pace: any = UI.asks -- #2880: paced and shown are set further down the file
@@ -6765,7 +7023,7 @@ do
 		end
 		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
 		-- no ask card while a roll or its reveal plays (UI.rollBusy)
-		if UI.rollBusy.held() then
+		if UI.rollBusy.held() or UI.asks.picnicHeld() then
 			return false
 		end
 		card:show(ask)
@@ -7504,7 +7762,7 @@ do
 	-- The "Need a hand?" card for this step, saved as shown at once.
 	local function askHelp(step: number)
 		local card = askCard
-		if card == nil then
+		if card == nil or UI.asks.picnicHeld() then -- #5572: not over a Picnic Party; asked again on a later stall
 			return
 		end
 		stall.asked = true
@@ -7749,6 +8007,41 @@ function UI.giftLadder.refresh()
 	)
 end
 
+-- #5505 (Components/AwayLineLogic): the Rewards list's away row, worked out each second with the ladder's play clock
+function UI.giftLadder.away()
+	local view = hud
+	if view == nil then
+		return
+	end
+	local AwayLineLogic = require(script.Components.AwayLineLogic)
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local ladder = UI.giftLadder
+	local s = state :: any
+	local catalog: any = currentCatalog
+	local nextDef = if type(s.tier) == "number"
+			and catalog ~= nil
+			and catalog.tiers ~= nil
+		then catalog.tiers[s.tier + 1]
+		else nil
+	local line, gold = AwayLineLogic.line({
+		-- #5499: never for a player the holdout holds back this session (the Holdout attribute, shared/Holdout)
+		on = LiveFlags.shown(
+			AwayLineLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AwayLineLogic.FLAG)
+		) and Players.LocalPlayer:GetAttribute("Holdout") ~= true,
+		played = if ladder.played ~= nil
+			then (ladder.played :: number) + (os.clock() - ladder.playedAt)
+			else nil,
+		rate = tonumber(s.incomePerSecond) or 0,
+		longNap = s.longNap == true,
+		coins = tonumber(s.coins) or 0,
+		nextTier = if nextDef ~= nil then nextDef.tier else nil,
+		nextCost = if nextDef ~= nil then nextDef.cost else nil,
+	})
+	view:setAway(line, gold)
+end
+
 function UI.giftLadder.tick(dt: number)
 	local ladder = UI.giftLadder
 	ladder.clock += dt
@@ -7757,6 +8050,7 @@ function UI.giftLadder.tick(dt: number)
 		if (state :: any).giftNext ~= nil then
 			UI.giftLadder.refresh()
 		end
+		UI.giftLadder.away()
 		UI.cozy.refresh()
 	end
 end
@@ -7963,6 +8257,18 @@ do
 		variant: string?
 	)
 		if not BigPullLogic.mine(userId, Players.LocalPlayer.UserId) then
+			return
+		end
+		-- #5571: a cat just tamed at a bowl with the No cat pop-ups tick set gets no big card (its toast said it)
+		local tamed: any = (UI :: any).bowlTamed
+		local settings: { [string]: boolean | number | string } = state.settings or {}
+		if
+			ReplicatedStorage:GetAttribute("LiveFlag_bowlNoPops") == true
+			and settings.bowlNewCatCard == false
+			and type(tamed) == "table"
+			and tamed.catId == catId
+			and os.clock() - tamed.at < 5
+		then
 			return
 		end
 		local card: BigPullLogic.Card? = BigPullLogic.forCat(rarity, gold, variant)
@@ -9052,7 +9358,12 @@ do
 	-- #3715: whether the server runs Picnic Treats (the basket's view carries its treats).
 	function UI.campExtras.treats(): boolean
 		local current = camp.state
-		return current ~= nil and current.picnic ~= nil and current.picnic.treats ~= nil
+		return current ~= nil
+			and current.picnic ~= nil
+			and current.picnic.treats ~= nil
+			-- #5572 (Sync's phone pass): never the treats card while the Picnic Party's switch is on, even on a view
+			-- sent before the switch went on
+			and ReplicatedStorage:GetAttribute("LiveFlag_picnicParty") ~= true
 	end
 
 	-- #3715: the Picnic Basket's ring, prompt or Cat Cannon strip: its pick card.
@@ -10170,8 +10481,8 @@ end
 -- 22:54 UTC ("the ui is still on the screen too much in the events"): no bar or timer of its own; the event's splash
 -- and its one strip are Motion-FX's (Effects/AdminFlash). The window opens by itself once an event, AUTO_OPEN seconds
 -- after the wheel comes up for this account (after the splash), when no window is open and no catch runs; after that
--- UI.admin.open() opens it (the strip's tap, the chat line). UI.admin.result takes AdminWheelResult. All of it waits
--- on the server's switch `adminEvents`: off, no attribute names an event. Its own block, as the module is short of
+-- UI.admin.open() opens it (the strip's tap, the chat line). UI.admin.result takes AdminWheelResult. With no admin
+-- event no attribute names one. Its own block, as the module is short of
 -- locals.
 UI.admin = {
 	spin = Signal.new(), -- ()   Spin on the Admin Wheel window: forward as AdminWheelSpin
@@ -10934,6 +11245,202 @@ do
 			notes:destroy()
 		end
 		harvest.notes = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Gift Stall (the Christmas Event, snowglobe-village-spec section 5)
+--
+-- The stall in Snowglobe Village (tag SnowglobeStall, World/SnowglobeWorld) carries a ProximityPrompt named
+-- SnowglobeStallPrompt; while the christmasEvent switch is on, triggering it opens the Gift Stall window in the modal,
+-- and walking more than FAR_STUDS from the stall closes it. The window reads a view (Components/GiftStallLogic): the
+-- one the event row sets with UI.giftStall.setView, else PlayerState.snowflakes with nothing owned. A Buy calls the
+-- handler UI.giftStall.setBuy installs (the event row's remote); with none yet it only says the stall opens soon.
+do
+	local GiftStall = require(script.Screens.GiftStall)
+	local GiftStallLogic = require(script.Components.GiftStallLogic)
+	local LiveFlagsGift =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local STALL_TAG = "SnowglobeStall"
+	local PROMPT_NAME = "SnowglobeStallPrompt"
+	local FLAG = "christmasEvent"
+	local FAR_STUDS = 18
+	local gift = {
+		window = nil :: GiftStall.GiftStall?,
+		view = nil :: GiftStallLogic.View?, -- the event row's view, nil until it sets one
+		buy = nil :: ((id: string) -> ())?,
+		connections = {} :: { RBXScriptConnection },
+		prompts = {} :: { [ProximityPrompt]: boolean },
+	}
+
+	local function switchOn(): boolean
+		return ReplicatedStorage:GetAttribute(LiveFlagsGift.ATTRIBUTE_PREFIX .. FLAG) == true
+	end
+
+	local function currentView(): GiftStallLogic.View
+		return gift.view or GiftStallLogic.defaultView(state)
+	end
+
+	local function stallDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			if stall:IsA("Model") and stall:IsDescendantOf(Workspace) then
+				local distance = (
+					(stall :: Model):GetPivot().Position - (root :: BasePart).Position
+				).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	local function open()
+		local window = gift.window
+		local modalView = modal
+		if window == nil or modalView == nil or not switchOn() then
+			return
+		end
+		window:render(currentView())
+		modalView:open("GiftStall")
+	end
+
+	-- the stall's prompt, waited for if it streams in later
+	local function track(stall: Instance)
+		if not stall:IsDescendantOf(Workspace) then
+			return
+		end
+		local found = stall:FindFirstChild(PROMPT_NAME, true)
+		if found == nil or not found:IsA("ProximityPrompt") then
+			local waiting: RBXScriptConnection
+			waiting = stall.DescendantAdded:Connect(function(child: Instance)
+				if child.Name == PROMPT_NAME and child:IsA("ProximityPrompt") then
+					waiting:Disconnect()
+					track(stall)
+				end
+			end)
+			table.insert(gift.connections, waiting)
+			return
+		end
+		local prompt = found :: ProximityPrompt
+		if gift.prompts[prompt] then
+			return
+		end
+		gift.prompts[prompt] = true
+		table.insert(gift.connections, prompt.Triggered:Connect(open))
+		table.insert(
+			gift.connections,
+			prompt.AncestryChanged:Connect(function()
+				if not prompt:IsDescendantOf(Workspace) then
+					gift.prompts[prompt] = nil
+				end
+			end)
+		)
+	end
+
+	function UI.giftStall.start()
+		UI.giftStall.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local window = GiftStall.new({
+			buy = function(id: string)
+				local handler = gift.buy
+				if handler ~= nil then
+					handler(id)
+				else
+					UI.toast("The Gift Stall opens soon!", "info")
+				end
+			end,
+			close = function()
+				if modalView:current() == "GiftStall" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = stallDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		gift.window = window
+		modalView:register("GiftStall", {
+			frame = window.frame,
+			onOpen = function()
+				window:render(currentView())
+				window:opened()
+			end,
+			onClose = function()
+				window:closed()
+			end,
+		})
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			track(stall)
+		end
+		table.insert(
+			gift.connections,
+			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(function(stall: Instance)
+				track(stall)
+			end)
+		)
+	end
+
+	-- The window, as the stall's prompt opens it (still only while christmasEvent is on); the UI gate's scenes call
+	-- this too.
+	function UI.giftStall.open(tab: string?)
+		local window = gift.window
+		if window and (tab == "outfit" or tab == "decor") then
+			window:showTab(tab :: any)
+		end
+		open()
+	end
+
+	-- The event row's view of the stall (nil goes back to PlayerState.snowflakes with nothing owned).
+	function UI.giftStall.setView(view: GiftStallLogic.View?)
+		gift.view = view
+		local window = gift.window
+		if window then
+			window:render(currentView())
+		end
+	end
+
+	-- The event row's buy (its remote); nil takes it away.
+	function UI.giftStall.setBuy(handler: ((id: string) -> ())?)
+		gift.buy = handler
+	end
+
+	-- Repaints only while the window shows (Review-QA on #5348): defaultView is a new table each sync, and opening it
+	-- paints it fresh anyway.
+	function UI.giftStall.render(_playerState: Types.PlayerState)
+		local window = gift.window
+		local modalView = modal
+		if
+			window
+			and gift.view == nil
+			and modalView ~= nil
+			and modalView:current() == "GiftStall"
+		then
+			window:render(currentView())
+		end
+	end
+
+	function UI.giftStall.reset()
+		for _, connection in gift.connections do
+			connection:Disconnect()
+		end
+		table.clear(gift.connections)
+		table.clear(gift.prompts)
+		local window = gift.window
+		if window then
+			window:destroy()
+		end
+		gift.window = nil
 	end
 end
 
@@ -11848,6 +12355,15 @@ function UI.tomorrowCard.try(): boolean
 	if not on then
 		return false
 	end
+	-- #5449: with the Daily Treat Board on the wall the card would say the same thing twice
+	if
+		LiveFlags.shown(
+			"tomorrowBoard",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "tomorrowBoard")
+		)
+	then
+		return false
+	end
 	-- Derek 2026-11-17 15:24 UTC: the tomorrowCard 50/50 (shared/ReturnAB): the off group never sees the card
 	if
 		not (require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ReturnAB")) :: any).allows(
@@ -11920,6 +12436,55 @@ function UI.tomorrowCard.show()
 	if askCard ~= nil then
 		UI.tomorrowCard.open(askCard)
 	end
+end
+
+-- #5449 (shared/TomorrowBoard, client/Controllers/TomorrowBoardController): the Daily Treat Board's card, opened by a
+-- tap on the board or the gift in the cafe. `title` and `line` say the next stamp's prize; `remind` adds the gold
+-- Remind me button (Roblox will prompt the notification opt-in). `answered(outcome)` gets "remind", "ok" or "closed".
+-- False when the slide-in card is not built yet.
+UI.tomorrowBoard = {}
+
+function UI.tomorrowBoard.open(
+	title: string,
+	line: string,
+	remind: boolean,
+	answered: (outcome: string) -> ()
+): boolean
+	local card = askCard
+	if card == nil then
+		return false
+	end
+	local done = false
+	local function finish(outcome: string)
+		if not done then
+			done = true
+			answered(outcome)
+		end
+	end
+	local choices: { AskCard.Choice } = if remind
+		then {
+			{ id = "remind", label = "Remind me", style = "gold" },
+			{ id = "ok", label = "OK!", style = "ghost" },
+		}
+		else { { id = "ok", label = "OK!", style = "primary" } }
+	card:show({
+		title = title,
+		lines = 2,
+		picture = "rbxassetid://101061912700342", -- ShopIcons Icon_Clean_Fish, the golden fish
+		line = line,
+		choices = choices,
+		answer = function(choice: string?)
+			if choice == "remind" or choice == "ok" then
+				finish(choice)
+			end
+		end,
+		ended = function(how: string)
+			if how ~= "answered" then
+				finish("closed")
+			end
+		end,
+	})
+	return true
 end
 
 -- Looks once a second until the line showed; a rebuilt UI (token) starts its own watcher and ends the old one.
@@ -12408,6 +12973,15 @@ function UI.autoRank.check()
 	if player ~= nil and player:GetAttribute(AutoRankUp.ATTRIBUTE) ~= readyTier then
 		player:SetAttribute(AutoRankUp.ATTRIBUTE, readyTier)
 	end
+	-- #5533 (rankOneTap; Sync on #5534): the goal card is the Rank Up button, so the window never opens itself
+	if
+		LiveFlags.shown(
+			"rankOneTap",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankOneTap")
+		)
+	then
+		return
+	end
 	if not on() or not ready or auto.opened[tier] then
 		return
 	end
@@ -12517,6 +13091,9 @@ local function giftTry(): boolean
 	if not tutorialButtonOn then
 		table.remove(UI.gift.queue, 1) -- #4483: the Tutorial tile X'd: the gift is paid, its thank-you card is not shown
 		return #UI.gift.queue == 0
+	end
+	if UI.recordMode() then
+		return false -- Studio recording: the thank-you card waits until RecordMode is off
 	end
 	local GiftCardLogic = require(script.Components.GiftCardLogic)
 	local busy = (modal ~= nil and modal:current() ~= nil)

@@ -9,6 +9,7 @@
 --   TicketBooth.new(callbacks)   built hidden; the UI registers its frame as the "TicketBooth" modal
 --   :setView(view) :opened() :closed() :destroy()
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -55,6 +56,13 @@ local CELL_MIN = 140 -- a card no narrower than this (design px), so four fit on
 local STROKE = 2
 local EDGE = Color3.fromHex("F29A3A") -- the booth's ticket orange on its cards' edge (the station menus picture)
 local TICK_SECONDS = 15 -- the Rush line's minutes while the window is up
+-- #5414 (Derek 2026-11-19: "give him that background style"): with `plushSecret` on, the Booth Plush Cat's picture
+-- sits on the Secret page's night tile (Screens/SecretPage) and its card has the starlight edge
+local PLUSH_ID = "boothPlush"
+local PLUSH_FLAG = "LiveFlag_plushSecret"
+local NIGHT_TOP = Color3.fromHex("3A2F6B")
+local NIGHT = Color3.fromHex("16161D")
+local STAR = Color3.fromHex("E2D6FF")
 
 -- a prize id's picture: the glyph and, once loaded, its image
 local PICTURES: { [string]: { glyph: string, rarity: string, image: (() -> string?)?, potion: string? } } =
@@ -93,6 +101,13 @@ local PICTURES: { [string]: { glyph: string, rarity: string, image: (() -> strin
 			rarity = "Legendary",
 			image = function()
 				return ShopIcons.food("moon_milk")
+			end,
+		},
+		boothPlush = { -- #5414: the plush's own picture (it showed the ticket glyph)
+			glyph = "🐱",
+			rarity = "Legendary",
+			image = function()
+				return ShopIcons.booth("BoothPlush")
 			end,
 		},
 		bestGolden = {
@@ -292,7 +307,7 @@ function TicketBooth._card(self: any, id: string, order: number): any
 		Parent = self._grid,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = CARD.cardStroke, Thickness = STROKE }),
+		Create("UIStroke", { Name = "Edge", Color = CARD.cardStroke, Thickness = STROKE }),
 	})
 	local picture = PICTURES[id]
 	local icon = ItemIcon.new({
@@ -386,6 +401,15 @@ function TicketBooth._card(self: any, id: string, order: number): any
 			self:_press(id)
 		end,
 	})
+	if id == PLUSH_ID then
+		made.night = Create("UIGradient", {
+			Name = "Night",
+			Rotation = 90,
+			Color = ColorSequence.new(NIGHT_TOP, NIGHT),
+			Enabled = false,
+			Parent = icon.frame,
+		})
+	end
 	made.frame = frame
 	made.icon = icon
 	made.name = name
@@ -428,11 +452,40 @@ function TicketBooth._paint(self: any)
 		entry.buy:setStyle(card.style :: any)
 		entry.buy:setEnabled(card.enabled)
 		entry.action = card.action
+		if entry.night ~= nil then
+			TicketBooth._paintPlush(entry, ReplicatedStorage:GetAttribute(PLUSH_FLAG) == true)
+		end
 	end
 	for id, entry in self._cards do
 		if not shown[id] then
 			entry.frame.Visible = false
 		end
+	end
+end
+
+-- #5414: the Booth Plush Cat's card on the Secret night tile (`plushSecret` on) or as it was (off).
+function TicketBooth._paintPlush(entry: any, secret: boolean)
+	local tile: Frame = entry.icon.frame
+	local border: UIStroke? = entry.icon._border
+	if secret then
+		tile.BackgroundColor3 = Theme.colors.white -- under the night gradient
+		if border then
+			border.Color = STAR
+		end
+	else
+		local picture = PICTURES[PLUSH_ID]
+		entry.icon:set(
+			nil,
+			picture.glyph,
+			picture.rarity,
+			if picture.image then picture.image() else nil
+		)
+	end
+	entry.night.Enabled = secret
+	local edge = entry.frame:FindFirstChild("Edge")
+	if edge ~= nil and edge:IsA("UIStroke") then
+		edge.Color = if secret then STAR else CARD.cardStroke
+		edge.Thickness = if secret then STROKE + 1 else STROKE
 	end
 end
 

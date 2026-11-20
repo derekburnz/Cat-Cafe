@@ -21,6 +21,7 @@ local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
+local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
 local Clock = require(ReplicatedStorage.Shared.Clock)
@@ -31,8 +32,10 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
+local PicnicParty = require(ReplicatedStorage.Shared.PicnicParty)
 local PotionService = require(script.Parent.PotionService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RareMomentService = require(script.Parent.RareMomentService)
@@ -81,6 +84,25 @@ local function anchorOf(def: Types.CampExtraDef): Vector3?
 	return nil
 end
 
+-- #5572: the extra's station pivot (the client's Effects/PicnicParty lays the blanket from the same one), or its
+-- Layout spot when the model is missing.
+local function pivotOf(def: Types.CampExtraDef): CFrame?
+	for _, instance in CollectionService:GetTagged(CampExtras.TAG) do
+		if
+			instance:IsA("Model")
+			and instance:IsDescendantOf(Workspace)
+			and instance:GetAttribute("ExtraId") == def.id
+		then
+			return (instance :: Model):GetPivot()
+		end
+	end
+	local x, y, z, turn = Layout.campExtraAt(def.area)
+	if x ~= nil and y ~= nil and z ~= nil then
+		return CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn or 0), 0)
+	end
+	return nil
+end
+
 -- True when the player stands within reach of the extra's prompt.
 local function inReach(player: Player, def: Types.CampExtraDef): boolean
 	local position, anchor = rootPosition(player), anchorOf(def)
@@ -107,8 +129,12 @@ end
 
 -- #3715: Picnic Treats: the basket fills by the treats' rule and is taken with a pick (#4654: the picnicTreats
 -- switch shipped, always on).
+local function partyOn(): boolean
+	return LiveFlagService.on(PicnicParty.FLAG) -- #5572
+end
+
 local function treatsOn(): boolean
-	return true
+	return not partyOn() -- #5572: the Picnic Party takes the basket's place while its switch is on
 end
 
 -- #3614: with the pick on, the Yard Sale's view carries this player's rows: what the board shows is what is rolled.
@@ -122,15 +148,29 @@ end
 local function refresh(player: Player, profile: Types.PlayerProfile, force: boolean)
 	local now = os.time()
 	local tier = Economy.tier(profile)
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
-	local state =
-		CampExtras.view(profile.campExtras, tier, now, pondTimes(player), yardHours(), treatsOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
+	local state = CampExtras.view(
+		profile.campExtras,
+		tier,
+		now,
+		pondTimes(player),
+		yardHours(),
+		treatsOn(),
+		partyOn()
+	)
 	addPick(state, tier)
 	-- #1537: the Yard Sale's second panel, the day's lawn rows (lawn-nursery.md section 7)
 	local day = YardSale.dayAt(now)
 	YardSale.refresh(profile.yardDecor, day)
 	state.yardSale.decor = YardSale.view(profile, profile.yardDecor, day)
 	state.yardSale.decorAt = YardSale.restocksAt(day)
+	-- #5572: the party's attributes for the client's basket (shared/PicnicParty)
+	local party = partyOn() and state.picnic.open
+	player:SetAttribute(PicnicParty.READY, party and state.picnic.held > 0)
+	player:SetAttribute(
+		PicnicParty.NEXT_AT,
+		if party and state.picnic.held <= 0 then state.picnic.nextAt else nil
+	)
 	local encoded = HttpService:JSONEncode(state)
 	if force or sent[player] ~= encoded then
 		sent[player] = encoded
@@ -221,6 +261,113 @@ local function refuse(player: Player, extraId: string, reason: string)
 	Net.fire(player, "CampExtraResult", extraId, false, {})
 end
 
+-- #5572: the Picnic Party. Each player's party in this session: when Picnic Time ends (os.time) and the seconds of
+-- play at its start, for picnic_ended. Not saved: Picnic Time is a potion, which the save keeps.
+local parties: { [Player]: { endsAt: number, startedPlay: number } } = {}
+local seenReady: { [Player]: boolean } = {} -- picnic_ready_seen, once a ready basket
+local emptyAt: { [Player]: number } = {} -- picnic_ring_empty, at most once a minute
+
+local function playSeconds(profile: Types.PlayerProfile): number
+	return math.floor(profile.stats.playtimeSeconds or 0)
+end
+
+-- Starts a party for `player` at the basket when one waits: the slot empties, Picnic Time runs at once and the
+-- client's attributes say so. False (and logged as picnic_ring_empty) when none waits.
+local function startParty(player: Player, profile: Types.PlayerProfile): boolean
+	local tier = Economy.tier(profile)
+	local now = os.time()
+	CampExtras.settle(profile.campExtras, tier, now, false, true)
+	if not PicnicParty.start(profile.campExtras.picnic, now) then
+		if now - (emptyAt[player] or 0) >= 60 then
+			emptyAt[player] = now
+			Telemetry.custom(player, "picnic_ring_empty", 1, { tostring(tier) })
+		end
+		return false
+	end
+	local running = PotionService.give(player, profile, PicnicParty.POTION)
+	local endsAt = now + PicnicParty.SECONDS
+	seenReady[player] = nil
+	if running then
+		parties[player] = { endsAt = endsAt, startedPlay = playSeconds(profile) }
+		player:SetAttribute(PicnicParty.ENDS_AT, endsAt)
+		local def = Catalog.getCampExtra("picnic")
+		local pivot = if def ~= nil then pivotOf(def) else nil
+		if pivot ~= nil then
+			CatService.picnicCats(player, profile, pivot) -- the cats come to the blanket
+		end
+	else
+		-- the potion timer is full (PotionMaxMinutes): Picnic Time waits in the bag, so no party look plays
+		Net.toast(player, "Your money boost timer is full, so Picnic Time went in your bag", "warn")
+	end
+	Telemetry.custom(
+		player,
+		"picnic_started",
+		1,
+		{ tostring(tier), tostring(playSeconds(profile)), if running then "running" else "bagged" }
+	)
+	Telemetry.custom(player, "camp_extra", 1, { "picnic", "party", tostring(tier) })
+	Net.fire(
+		player,
+		"CampExtraResult",
+		"picnic",
+		true,
+		{ if running then "Picnic Time!" else "Picnic Time went in your bag" },
+		{}
+	)
+	CafeService.sync(player)
+	refresh(player, profile, true)
+	return true
+end
+
+-- Every RING_SECONDS: a player stepping into the ready basket's ring starts the party (their own step, as any
+-- walk-up), a ready basket in sight is logged once, and a party whose Picnic Time is over ends.
+local RING_SECONDS = 0.25
+local function watchParties()
+	local def = Catalog.getCampExtra("picnic")
+	local anchor = if def ~= nil then anchorOf(def) else nil
+	local now = os.time()
+	for player, party in parties do
+		if now >= party.endsAt then
+			parties[player] = nil
+			player:SetAttribute(PicnicParty.ENDS_AT, nil)
+			CatService.picnicClear(player)
+			local profile = DataService.get(player)
+			if profile ~= nil then
+				Telemetry.custom(player, "picnic_ended", 1, {
+					tostring(Economy.tier(profile)),
+					tostring(playSeconds(profile) - party.startedPlay),
+				})
+			end
+		end
+	end
+	if def == nil or anchor == nil or not partyOn() then
+		return
+	end
+	for _, player in DataService.loadedPlayers() do
+		if player:GetAttribute(PicnicParty.READY) ~= true or parties[player] ~= nil then
+			continue
+		end
+		local position = rootPosition(player)
+		local profile = DataService.get(player)
+		if position == nil or profile == nil then
+			continue
+		end
+		local distance = (position - anchor).Magnitude
+		if distance <= PicnicParty.SEEN_STUDS and not seenReady[player] then
+			seenReady[player] = true
+			Telemetry.custom(
+				player,
+				"picnic_ready_seen",
+				1,
+				{ tostring(Economy.tier(profile)), tostring(playSeconds(profile)) }
+			)
+		end
+		if distance <= Config.CampExtraRangeStuds and not CatService.isCarrying(player) then
+			startParty(player, profile)
+		end
+	end
+end
+
 local function onCollect(player: Player, rawExtraId: unknown)
 	local extraId = Guard.oneOf(rawExtraId, CampExtras.COLLECT)
 	local profile = DataService.get(player)
@@ -244,13 +391,22 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		refuse(player, extraId, string.format("Walk up to the %s first", def.name))
 		return
 	end
+	if extraId == "picnic" and partyOn() then
+		-- #5572: the party happens at the basket, because the point is the place
+		if not inReach(player, def) then
+			refuse(player, extraId, "Walk up to the Picnic Basket for the party")
+		elseif not startParty(player, profile) then
+			refuse(player, extraId, "The next picnic is not ready yet")
+		end
+		return
+	end
 	if extraId == "picnic" and treatsOn() then
 		-- #3715: the basket is a pick now; an old button or a made-up call never takes it as potions
 		refuse(player, extraId, "Pick a treat at the Picnic Basket")
 		refresh(player, profile, true)
 		return
 	end
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
 	local blocker = CampExtras.collectBlocker(profile.campExtras, extraId, tier, now)
 	if blocker ~= nil then
 		refuse(player, extraId, blocker)
@@ -367,7 +523,7 @@ local function onYardSalePick(player: Player)
 	local def = Catalog.getCampExtra(CampExtras.YARD_SALE) :: Types.CampExtraDef
 	local tier = Economy.tier(profile)
 	local now = os.time()
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
 	if
 		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
 		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
@@ -417,7 +573,7 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 	local def = Catalog.getCampExtra(CampExtras.YARD_SALE) :: Types.CampExtraDef
 	local tier = Economy.tier(profile)
 	local now = os.time()
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
 	if
 		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
 		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
@@ -474,6 +630,18 @@ function CampExtraService.start()
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		sent[player] = nil
+		parties[player] = nil -- #5572
+		CatService.picnicClear(player)
+		seenReady[player] = nil
+		emptyAt[player] = nil
+	end)
+	task.spawn(function() -- #5572: the Picnic Party's ring
+		while true do
+			task.wait(RING_SECONDS)
+			xpcall(watchParties, function(problem: unknown)
+				warn("[CampExtraService] picnic party: " .. tostring(problem))
+			end)
+		end
 	end)
 	task.spawn(function()
 		while true do
@@ -502,7 +670,15 @@ function CampExtraService.debugAway(
 	save.yardSale.lastClaimAt = math.max(0, save.yardSale.lastClaimAt - seconds)
 	refresh(player, profile, true)
 	local tier = Economy.tier(profile)
-	local state = CampExtras.view(save, tier, os.time(), pondTimes(player), yardHours(), treatsOn())
+	local state = CampExtras.view(
+		save,
+		tier,
+		os.time(),
+		pondTimes(player),
+		yardHours(),
+		treatsOn(),
+		partyOn()
+	)
 	addPick(state, tier)
 	return state
 end

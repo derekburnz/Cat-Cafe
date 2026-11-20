@@ -163,7 +163,15 @@ local function giftAdded(instance: Instance)
 				Presets.palette.sparkle
 			)
 		end
-		if CollectionService:HasTag(model, "MysteryGift") and model:IsDescendantOf(Workspace) then
+		-- #5576 (Derek 2026-11-20: "don't show exclamation marks for other cafe's gifts"): with giftBangMine on, the
+		-- "!" is drawn over this player's own gift only
+		local others = ReplicatedStorage:GetAttribute("LiveFlag_giftBangMine") == true
+			and ownerOf(model) ~= Players.LocalPlayer.UserId
+		if
+			CollectionService:HasTag(model, "MysteryGift")
+			and model:IsDescendantOf(Workspace)
+			and not others
+		then
 			addBang(model, spot)
 		end
 		if ownerOf(model) ~= Players.LocalPlayer.UserId then

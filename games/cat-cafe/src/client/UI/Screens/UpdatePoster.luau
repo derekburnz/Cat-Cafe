@@ -37,6 +37,7 @@ type Face = {
 	countdown: TextLabel,
 	hint: TextLabel,
 	prompt: ProximityPrompt,
+	promptSpot: Attachment,
 }
 
 local TAG = "UpdatePoster"
@@ -153,7 +154,9 @@ function UpdatePoster._attach(self: any, model: Instance)
 		Adornee = screen,
 		Face = Enum.NormalId.Front,
 		SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud,
-		PixelsPerStud = PIXELS_PER_STUD,
+		-- #5356: the poster stands at half size (Model:ScaleTo), so the face keeps its pixel canvas and its words fit
+		PixelsPerStud = PIXELS_PER_STUD
+			/ math.max(if model:IsA("Model") then (model :: Model):GetScale() else 1, 0.1),
 		MaxDistance = MAX_DISTANCE,
 		LightInfluence = 0,
 		ResetOnSpawn = false,
@@ -239,6 +242,12 @@ function UpdatePoster._attach(self: any, model: Instance)
 		Parent = gui,
 	})
 	Outline.text(hint, 3)
+	-- #5461: the prompt hangs 1.3 studs under the face, so its pill clears the picture and countdown on a phone
+	local promptSpot: Attachment = Create("Attachment", {
+		Name = "UpdatePosterPromptSpot",
+		Position = Vector3.new(0, -screen.Size.Y / 2 - 1.3, -screen.Size.Z / 2 - 0.05),
+		Parent = screen,
+	})
 	local prompt: ProximityPrompt = Create("ProximityPrompt", {
 		Name = "UpdatePosterPrompt",
 		ActionText = UpdatePosterLogic.ACTION,
@@ -247,7 +256,7 @@ function UpdatePoster._attach(self: any, model: Instance)
 		MaxActivationDistance = PROMPT_DISTANCE,
 		RequiresLineOfSight = false,
 		Enabled = false,
-		Parent = screen,
+		Parent = promptSpot,
 	})
 	prompt.Triggered:Connect(function()
 		self:_ask()
@@ -261,6 +270,7 @@ function UpdatePoster._attach(self: any, model: Instance)
 		countdown = countdown,
 		hint = hint,
 		prompt = prompt,
+		promptSpot = promptSpot,
 	}
 	self._faces[model] = face
 	self:_paint(face, self:_view())
@@ -276,6 +286,7 @@ function UpdatePoster._detach(self: any, model: Instance)
 	if face then
 		face.gui:Destroy()
 		face.prompt:Destroy()
+		face.promptSpot:Destroy()
 		self._faces[model] = nil
 	end
 end

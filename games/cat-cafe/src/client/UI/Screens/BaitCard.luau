@@ -418,8 +418,9 @@ function BaitCard.show(
 	self._name.TextColor3 = if rarity == "Common" then Theme.colors.white else color
 	self._stars.Visible = false -- F97 section 5: no charm stars; charm shows as a percent in the line below
 	local metaParts: { string } = { rarity }
-	if cat.charm then
-		table.insert(metaParts, CatBuffs.charmText(cat.charm))
+	local charmWords = if cat.charm then CatBuffs.charmText(cat.charm) else "" -- "" with perfectCatch on (#5300)
+	if charmWords ~= "" then
+		table.insert(metaParts, charmWords)
 	end
 	table.insert(metaParts, Format.rate(def.incomePerSecond) .. " working")
 	self._meta.Text = table.concat(metaParts, "  ·  ")

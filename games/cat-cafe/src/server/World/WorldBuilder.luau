@@ -18,7 +18,6 @@ local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
-local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
@@ -543,6 +542,33 @@ end
 -- Hiding keeps each part's own transparency in an attribute and puts it back after; nothing on an awning collides.
 local AWNING_TRANSPARENCY = "ThemeTransparency"
 
+-- #5441 (switch tablesEight): Tables 7 and 8's anchors (TableAnchors/table_7 and table_8, Layout.plot.tablesBig) stand
+-- while the room is Layout.plot.tablesBigRoom and come down in any other room, so #plot.tableAnchors is how many
+-- tables the room holds. They are placed in that room's own plot-local spots and kept out of roomBase.
+function WorldBuilder.setBigTables(plot: Plot)
+	local big = Layout.plot.tablesBigRoom
+	local wanted = plot.room.width == big.width and plot.room.depth == big.depth
+	local base = #Layout.plot.tables
+	local holder = plot.model:FindFirstChild("TableAnchors")
+	if holder == nil then
+		return
+	end
+	if not wanted then
+		while #plot.tableAnchors > base do
+			local extra = table.remove(plot.tableAnchors) :: BasePart
+			extra:Destroy()
+		end
+		return
+	end
+	for n, point in Layout.plot.tablesBig do
+		local i = base + n
+		if #plot.tableAnchors < i then
+			plot.tableAnchors[i] =
+				anchor("table_" .. i, plot.cframe * CFrame.new(point.x, point.y, point.z), holder)
+		end
+	end
+end
+
 -- #4543 (behind cafeGrows): the room grows to `width` x `depth` (CafeRoom.size, Config.World.CafeRoomByTier). The
 -- front wall stays where it is and the room reaches further back: the shell, interior and yard fence swap for
 -- Model-Agent's sized art (`<asset>_WxD`, centred on the room), the floor and the Cafe zone grow, and every piece the
@@ -687,6 +713,7 @@ function WorldBuilder.setRoom(plot: Plot, width: number, depth: number): boolean
 	end
 
 	plot.room = { width = width, depth = depth }
+	WorldBuilder.setBigTables(plot)
 	plot.model:SetAttribute("RoomWidth", width)
 	plot.model:SetAttribute("RoomDepth", depth)
 	return true
@@ -1179,6 +1206,11 @@ local function buildPlot(index: number, parent: Instance): Plot
 	-- the Cat Collector's spot (F63): CollectorService measures range from it and clients stand him on it
 	local collectorSpot =
 		anchor("CollectorSpot", localCFrame(cframe, Layout.plot.collectorSpot), model)
+	-- #5449: the Daily Treat Board and the Tomorrow Gift (shared/TomorrowBoard), placed by the owner's client
+	local treatBoardAnchor =
+		anchor("TreatBoardAnchor", localCFrame(cframe, Layout.plot.treatBoard), model)
+	local tomorrowGiftAnchor =
+		anchor("TomorrowGiftAnchor", localCFrame(cframe, Layout.plot.tomorrowGift), model)
 
 	local napFolder = folder("NapSpots", model)
 	local napSpots: { BasePart } = {}
@@ -1257,6 +1289,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 		baitCat2,
 		richTipAnchor,
 		collectorSpot,
+		treatBoardAnchor,
+		tomorrowGiftAnchor,
 	}
 	for _, list in
 		{ spots, spotFurniture, decorAnchors, decorSpots, tableAnchors, expansions } :: { any }
@@ -2343,7 +2377,7 @@ local function buildCampStation(
 	turn: number?,
 	name: string,
 	title: string,
-	flag: string,
+	flag: string?, -- its live switch; nil: always open (a retired switch, #4656)
 	inFront: number,
 	ringRadius: number -- #4628: Layout's ring for this station, so it clears the camp's landing pad
 )
@@ -2381,6 +2415,11 @@ local function buildCampStation(
 	local ringHome = if ringPart ~= nil then ringPart.Parent else nil
 	if ringPart ~= nil and ringPart:IsA("BasePart") then
 		table.insert(campStationRings, ringPart :: BasePart) -- #4619: the SAFE ZONE words keep off it, shown or not
+	end
+	if flag == nil then
+		prompt.Enabled = true
+		prompt.Parent = anchor
+		return
 	end
 	local attribute = LiveFlags.ATTRIBUTE_PREFIX .. flag
 	local function follow()
@@ -2424,7 +2463,7 @@ local function buildCampStations(parent: Instance)
 		turn,
 		"DragonKeep",
 		"Dragon Keep",
-		DragonKeep.FLAG,
+		nil, -- the dragonKeep switch is retired (#4656)
 		8.5,
 		Layout.dragonKeep.ring
 	)
@@ -2440,7 +2479,7 @@ local function buildCampStations(parent: Instance)
 		turn,
 		"FusionObservatory",
 		"Fusion Observatory",
-		"fusion", -- shared/Fusion.FLAG
+		nil, -- the fusion switch is retired (#4656)
 		7.3,
 		Layout.fusionObservatory.ring
 	)
@@ -2855,6 +2894,9 @@ end
 -- ThanksBoard. Its part "Screen" carries UI-Engineer's SurfaceGui of IdeaCreditsService's rows; nothing here draws
 -- them. Persistent, so the face fills from anywhere in the square. Left out while the art is missing (no placeholder).
 local THANKS_BOARD = "CatCafe_Street_ThanksBoard"
+-- #5413 (Derek 2026-11-19: "make thank you for ideas board half as big"): half size about its pivot on the paving. The
+-- client's face (Screens/ThanksBoard pixelsFor) reads the Screen's width, so the page keeps its pixel canvas and fits
+local THANKS_BOARD_SCALE = 0.5
 
 local function buildThanksBoard(parent: Instance): Model?
 	if not AssetRegistry.known(THANKS_BOARD) then
@@ -2867,6 +2909,7 @@ local function buildThanksBoard(parent: Instance): Model?
 		parent
 	)
 	model.Name = "ThanksBoard"
+	model:ScaleTo(THANKS_BOARD_SCALE)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(model, "ThanksBoard")
 	return model
@@ -2973,6 +3016,11 @@ function WorldBuilder.setRally(on: boolean)
 	local holder = rallyHolder()
 	for _, swap in rallySwaps do
 		local plain = swap.plain
+		-- Review-QA on #5229: areaWhole cuts the square into Chunk Models, so the swap goes back to where the plain
+		-- prop stands now, not the TownSquare folder
+		if on and plain ~= nil and plain.Parent ~= nil and plain.Parent ~= (holder :: Instance) then
+			swap.home = plain.Parent :: Instance
+		end
 		if plain ~= nil then
 			plain.Parent = if on then holder else swap.home
 		end
@@ -3038,6 +3086,9 @@ local function buildTownSquare(parent: Instance)
 				* CFrame.Angles(0, math.rad(prop.rotY or 0), 0)
 			local model = place(prop.asset, at, square)
 			model.Name = prop.asset
+			if prop.asset == SQUARE_PAVING then
+				CollectionService:AddTag(model, "TownGround") -- #5357: shared/TownGround.TAG, kept whole when on
+			end
 			placeRallyTwin(prop.asset, at, model, square)
 		end
 	end
@@ -3062,6 +3113,9 @@ local function buildTownSquare(parent: Instance)
 			square
 		)
 		model.Name = poster.asset
+		if poster.scale ~= nil then
+			model:ScaleTo(poster.scale) -- #5356: half size, about its pivot on the paving
+		end
 		CollectionService:AddTag(model, UPDATE_POSTER_TAG)
 	end
 end
@@ -3080,7 +3134,11 @@ local PAW_TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.
 -- when that stands up to PAW_LIFT above the floor Layout gave it, never on a canopy or a roof higher up.
 local PAW_LIFT = 1.5
 local function buildPawPaths(parent: Instance, sets: { Instance })
-	local paths = folder("PawPaths", parent)
+	-- #5357: a Model, not a Folder, tagged TownGround (shared/TownGround.TAG) so the townGround switch can keep it whole
+	local paths = Instance.new("Model")
+	paths.Name = "PawPaths" -- shared/TownGround.PATHS_NAME (World/PawFloor finds it by this)
+	paths.Parent = parent
+	CollectionService:AddTag(paths, "TownGround")
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = sets

@@ -107,6 +107,23 @@ function Shove.shieldUntil(joinedAt: number, played: unknown): number?
 	return joinedAt + left
 end
 
+-- #5476 (Derek 2026-11-19: "make players immune to knockback from other players ... during the tackle immune phase
+-- also so their catch doesn't get interrupted while they are learning"): with the switch `shieldNoBump` on, every
+-- character is in CHARACTERS and a shielded one in SHIELDED, which never collides with another character (the world
+-- still holds it up). Off, every character goes back to Default.
+Shove.NO_BUMP_FLAG = "shieldNoBump"
+Shove.CHARACTERS = "Characters"
+Shove.SHIELDED_GROUP = "ShieldedCharacters"
+Shove.DEFAULT_GROUP = "Default"
+
+-- The collision group a character's parts belong in: `on` the switch, `shielded` the shield still runs.
+function Shove.collisionGroup(on: boolean, shielded: boolean): string
+	if not on then
+		return Shove.DEFAULT_GROUP
+	end
+	return if shielded then Shove.SHIELDED_GROUP else Shove.CHARACTERS
+end
+
 -- #3342: whether the shield ending at `untilAt` still runs at `now`.
 function Shove.shielded(untilAt: number?, now: number): boolean
 	return untilAt ~= nil and now < untilAt

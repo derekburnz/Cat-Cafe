@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AdminWheel = require(ReplicatedStorage.Shared.AdminWheel)
+local Advent = require(ReplicatedStorage.Shared.Advent)
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
@@ -23,8 +24,10 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
 local DailyDeal = require(ReplicatedStorage.Shared.DailyDeal)
+local DailyGifts = require(ReplicatedStorage.Shared.DailyGifts) -- #5506
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
+local DaysPlayed = require(ReplicatedStorage.Shared.DaysPlayed)
 local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -51,6 +54,7 @@ local LiveFlagService = require(script.Parent.LiveFlagService)
 local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
+local Mover = require(ReplicatedStorage.Shared.Mover)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
@@ -65,6 +69,7 @@ local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway)
+local RecordMode = require(ReplicatedStorage.Shared.RecordMode)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
@@ -97,7 +102,9 @@ end
 
 -- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
 -- the achievements view; QuestService and Claim all reach Quests through it)
-Quests.setFlagReader(LiveFlagService.on)
+Quests.setFlagReader(function(key: string): boolean
+	return LiveFlagService.on(key)
+end)
 -- #3995: a player who joins through a friend this session gets no intro by itself, and the save stays out of the intro
 -- test (the ? Tutorial tile still plays it on a tap)
 Telemetry.setIntroSkip(function(player: Player): boolean
@@ -118,6 +125,11 @@ local function ownsPassOf(player: Player): (number) -> boolean
 end
 
 local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for a door set with none picked (F80)
+-- #5385 (Derek 2026-11-19: "doors missing at front of cafe and a little patch of grass is showing"): the cafe's own
+-- front doors, standing open into the cafe for good, and a threshold over the front wall's depth, where the bare arch
+-- showed the grass between the path and the floor. DoorFront where no door set is in use, behind FRONT_DOOR_FLAG.
+local OWN_FRONT_DOOR = "CatCafe_Plot_FrontDoor"
+local FRONT_DOOR_FLAG = "frontDoors"
 
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
 -- #2123: the welcome back card's line, picked once at the join from the save as it was left (ReturnHook "join")
@@ -298,11 +310,8 @@ function CafeService.dealCratesOk(player: Player): boolean
 	return policy ~= nil and policy.ArePaidRandomItemsRestricted == false
 end
 
--- #3996: PlayerState.dailyDeal, false while the dailyDeal switch is off
+-- #3996: PlayerState.dailyDeal (false below DailyDeal.MIN_TIER; the dailyDeal switch is retired, #4656)
 local function dealView(player: Player, profile: Profile, now: number): Types.DailyDealView | false
-	if not LiveFlagService.on(DailyDeal.FLAG) then
-		return false
-	end
 	return DailyDeal.view(
 		profile,
 		now,
@@ -341,7 +350,8 @@ local function followerViewOf(player: Player, profile: Profile): Types.FollowerV
 		amount = Follower.amount(
 			if def ~= nil then def.rarity else nil,
 			boost,
-			if cat ~= nil then cat.variant else nil
+			if cat ~= nil then cat.variant else nil,
+			Follower.areaOf(def) -- #5431
 		),
 		switchIn = math.max(0, Follower.SWITCH_SECONDS - since),
 	}
@@ -361,6 +371,20 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 	local now = os.time()
 	local totals = IndexRewards.totals(profile)
 	local luck, luckSources = luckView(profile, now)
+	-- #5533 goalChip (shared/FreeStart): a play first start save's two first goals, from its paid bits
+	local startGoals: Types.StartGoalsView? = nil
+	do
+		local FreeStart = require(ReplicatedStorage.Shared.FreeStart) :: any
+		local paid = profile.telemetry.startPaid
+		if LiveFlagService.on(FreeStart.GOAL_FLAG) then
+			startGoals = FreeStart.goals(
+				profile.telemetry.freeStart,
+				Economy.tier(profile),
+				if FreeStart.unpaid(paid, FreeStart.PAID_CAUGHT) then 0 else 1,
+				if FreeStart.unpaid(paid, FreeStart.PAID_HOME) then 0 else 1
+			)
+		end
+	end
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
@@ -395,16 +419,15 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bagColours = profile.bagColours, -- #3699
 		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
-		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
+		fishStore = FishStore.view(profile), -- #4055
 		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG)
 				and TicketBooth.open(Economy.tier(profile))
 			then TicketBooth.view(profile.tickets, now)
 			else nil, -- #4061
-		dragon = if LiveFlagService.on(DragonKeep.FLAG)
-				and DragonKeep.open(Economy.tier(profile))
+		dragon = if DragonKeep.open(Economy.tier(profile))
 			then DragonKeep.view(profile.dragon)
 			else nil, -- #4062
-		fusion = if LiveFlagService.on(Fusion.FLAG) and Fusion.open(Economy.tier(profile))
+		fusion = if Fusion.open(Economy.tier(profile))
 			then Fusion.view(profile.fusion, now, Fusion.hasElderLore(profile))
 			else nil, -- #4104
 		goldLuck = totals.goldLuck,
@@ -417,15 +440,31 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
-		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
+		-- #2791: the gift icon's next step and the popover's two; #5506: today's ladder while dailyGifts is on
+		giftNext = if LiveFlagService.on(DailyGifts.FLAG, player)
+			then DailyGifts.upcoming(
+				DailyGifts.fresh(profile.dailyGifts, DailyGifts.day(os.time())),
+				PlayTime.seconds(player, profile),
+				2
+			)
+			else PlaytimeGifts.upcoming(profile, 2),
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
+		-- #5502: the advent calendar board, only while both switches are on (the dates still hold it shut till Dec 1)
+		advent = if LiveFlagService.on(Advent.FLAG) and LiveFlagService.on(Advent.EVENT_FLAG)
+			then Advent.view(
+				Advent.fresh(profile.advent),
+				-- Sync's Studio look: AdventService's clock, which Studio may move (it requires this module)
+				if (CafeService :: any).adventNow ~= nil
+					then (CafeService :: any).adventNow()
+					else os.time(),
+				true,
+				true
+			)
+			else nil,
+		snowflakes = profile.snowflakes or 0, -- #5502: the Gift Stall's count
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
 		-- #4195: the Admin Wheel that is up and whether this account has spun it
-		adminWheel = AdminWheel.view(
-			profile.codesRedeemed,
-			EventService.admin(),
-			LiveFlagService.on("adminEvents")
-		),
+		adminWheel = AdminWheel.view(profile.codesRedeemed, EventService.admin(), true), -- adminEvents retired, #4656
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		-- #4626: the minute 6 line for a player before Tier 3, behind returnHookEarly (the client times it)
@@ -434,7 +473,13 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			then ReturnHook.early(profile, now, true) -- #4654: returnGift shipped
 			else nil,
 		returnGoals = joinGoals[player], -- #2916
-		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
+		-- #3022, #4624; #5533: a play first start save's two first goals take the card's place instead (goalChip)
+		-- Sync's run (#5620, switch secondCatQuiet): nor ever after, once the start's goals have gone at Tier 3
+		secondCat = if startGoals ~= nil
+				or (LiveFlagService.on("secondCatQuiet") and profile.telemetry.freeStart == true)
+			then nil
+			else SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)),
+		startGoals = startGoals,
 		-- #5031: Tier 2's cats still short after the first check-in, behind rankUpRightAway (the goal card's line)
 		rankUpShort = if LiveFlagService.on(RankUpRightAway.FLAG)
 			then RankUpRightAway.catsShort(profile)
@@ -950,11 +995,22 @@ local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile): (string?
 		local named = doorDef.asset .. "_" .. side
 		return if AssetRegistry.has(named) then named else doorDef.asset
 	end
-	local frontModel = showStyleModel(plot, "DoorFront", doorAsset("Front"), doorId, front)
+	local ownFront: string? = nil
+	if LiveFlagService.on(FRONT_DOOR_FLAG) and AssetRegistry.has(OWN_FRONT_DOOR) then
+		ownFront = OWN_FRONT_DOOR
+	end
+	local frontAsset = doorAsset("Front")
+	local frontModel = showStyleModel(
+		plot,
+		"DoorFront",
+		frontAsset or ownFront,
+		if frontAsset ~= nil then doorId else nil,
+		front
+	)
 	local backModel = showStyleModel(plot, "DoorBack", doorAsset("Back"), doorId, back)
-	if doorId ~= nil and (frontModel == nil or backModel == nil) then
+	if doorId ~= nil and (frontAsset == nil or frontModel == nil or backModel == nil) then
 		-- half a door set is no door set: the cafe keeps both its own doors
-		showStyleModel(plot, "DoorFront", nil, nil, front)
+		showStyleModel(plot, "DoorFront", ownFront, nil, front)
 		showStyleModel(plot, "DoorBack", nil, nil, back)
 		frontModel, backModel, doorId = nil, nil, nil
 	end
@@ -1026,7 +1082,8 @@ end
 local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	local count = math.min(Economy.level(profile, "tables"), #plot.tableAnchors)
 	for i, anchor in plot.tableAnchors do
-		local spot = Layout.plot.tables[i]
+		-- #5441: Tables 7 and 8 (tablesEight) are the grown room's fourth row
+		local spot = Layout.plot.tables[i] or Layout.plot.tablesBig[i - #Layout.plot.tables]
 		local name = "table_" .. i
 		local existing = plot.tables:FindFirstChild(name)
 		if i > count then
@@ -1249,6 +1306,51 @@ local FOOD_SCALE = 1.2 -- the food item sits in the bowl
 -- #2255: the food's base rests on the bowl's inner floor (CatCafe_Item_FoodBowl's tan disc, top 0.18 at scale 1), a
 -- hair above it; at 0.1 the bottom of every food sat inside the floor and Tuna, Sardines, Caviar and Star Treat sank.
 local FOOD_LIFT = 0.18 * BOWL_SCALE + 0.01
+-- Sync's clip recordings (shared/RecordMode, Studio only): a bowl cat starts RECORD_WALK_SIDE studs from its spot and
+-- walks in at RECORD_WALK_SPEED, so a clip shows it arrive instead of popping in. The side is the first of right, back,
+-- front and left with nothing in the way for RECORD_WALK_CLEAR studs (Sync 2026-11-19: Plot_1's bowl sits against the
+-- cafe wall on its right, so a fixed side walked the cat through the wall)
+local RECORD_WALK_SIDE = 8
+local RECORD_WALK_CLEAR = 10
+local RECORD_WALK_SPEED = 4
+
+local function recordWalkFrom(model: Model, spot: CFrame): Vector3
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.RespectCanCollide = true -- only what would really block a walk
+	local skip: { Instance } = { model.Parent or model } -- the bowl's own folder: its bowl, food and ring
+	for _, other in Players:GetPlayers() do
+		if other.Character ~= nil then
+			table.insert(skip, other.Character)
+		end
+	end
+	params.FilterDescendantsInstances = skip
+	local eye = spot.Position + Vector3.new(0, 1.5, 0)
+	local sides = { spot.RightVector, spot.LookVector, -spot.LookVector, -spot.RightVector }
+	for _, side in sides do
+		local flat = Vector3.new(side.X, 0, side.Z)
+		if flat.Magnitude > 0.01 then
+			flat = flat.Unit
+			if Workspace:Raycast(eye, flat * RECORD_WALK_CLEAR, params) == nil then
+				return spot.Position + flat * RECORD_WALK_SIDE
+			end
+		end
+	end
+	return spot.Position + spot.RightVector * RECORD_WALK_SIDE
+end
+
+local function recordWalkIn(model: Model, spot: CFrame)
+	local from = recordWalkFrom(model, spot)
+	model:PivotTo(CFrame.lookAt(from, Vector3.new(spot.Position.X, from.Y, spot.Position.Z)))
+	task.spawn(function()
+		local arrived = Mover.walkTo(model, spot.Position, RECORD_WALK_SPEED, function()
+			return model.Parent ~= nil
+		end)
+		if arrived and model.Parent ~= nil then
+			model:PivotTo(spot)
+		end
+	end)
+end
 -- #2476 (Derek2: "make the bait bowl to open if you walk outside the backdoor near it"): the first bowl's walk-up ring
 -- (World/WalkUpCircles, Controllers/WalkUpController) on its yard side, out from the back wall, in a warm peach with
 -- a bowl icon (#2449). BOWL_RANGE is the owner's prompt reach (UIController's BaitPrompt); RING_BOWL_RADIUS keeps it
@@ -1278,7 +1380,8 @@ local function refreshBowl(
 	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
 	-- #3161: the account's first bait's cat stands at the bowl a few seconds before its timer ends (Bait.catOutAt)
 	local ready = bait ~= nil
-		and os.time() >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
+		and os.time()
+			>= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed, Bait.quickOn()) -- #5548
 
 	if folder:FindFirstChild("Bowl") == nil then
 		local bowl = AssetRegistry.clone("CatCafe_Item_FoodBowl")
@@ -1338,6 +1441,9 @@ local function refreshBowl(
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 		model:PivotTo(catAnchor.CFrame)
 		model.Parent = folder
+		if RecordMode.on() then
+			recordWalkIn(model, catAnchor.CFrame)
+		end
 	end
 end
 
@@ -1612,7 +1718,8 @@ function CafeService.addCaughtCat(
 	knownProfile: Profile?,
 	charm: number?,
 	method: Types.CatchMethod?,
-	variant: string?
+	variant: string?,
+	perfect: boolean? -- #5300: caught with every ring Perfect while the perfectCatch switch is on
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
@@ -1632,6 +1739,9 @@ function CafeService.addCaughtCat(
 	local howText: string = how -- analytics fields are plain strings
 	if method == "rescue" then
 		instance.rescued = true
+	end
+	if perfect == true then
+		instance.perfect = true
 	end
 	local firstGold = false
 	local firstRainbow = false
@@ -1846,7 +1956,7 @@ end
 -- and the move into the Park come right after it. Behind the same `tier2TopUp` switch.
 function CafeService.tier2ReadyTopUp(player: Player, profile: Profile)
 	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
-	if not TutorialOrder.bowlFirst() then
+	if not TutorialOrder.bowlFirst(player) then
 		return
 	end
 	local SecondCatHelp = require(ReplicatedStorage.Shared.SecondCatHelp)
@@ -2291,6 +2401,11 @@ local function onRankUp(player: Player)
 		CafeService.sync(player)
 		return
 	end
+	-- #5551 first_five_v1: a ready RANK UP pressed, for Tier 2 and for Tier 3
+	local from = Economy.tier(profile)
+	if from == 1 or from == 2 then
+		Telemetry.firstFive(player, profile, if from == 1 then "rank_tapped" else "rank_tapped_3")
+	end
 	local def = Catalog.getTier(Economy.tier(profile) + 1) :: Types.TierDef
 	if not Economy.trySpend(profile, def.cost) then
 		Net.toast(player, "Not enough coins", "warn")
@@ -2299,6 +2414,26 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
+	do -- #5533 cannonGlow (shared/CannonGlow): the Town Square cannon glows for the area this rank up opens
+		local CannonGlow = require(ReplicatedStorage.Shared.CannonGlow) :: any
+		local been: { [string]: boolean } = {}
+		for catId in profile.collection do
+			local cat = Catalog.getCat(catId)
+			if cat ~= nil then
+				been[cat.area] = true
+			end
+		end
+		local opened = if CannonGlow.on()
+			then CannonGlow.opened(def.tier, Catalog.areas, been)
+			else nil
+		-- #5595 (Review-QA on #5600): a later Rank Up never replaces an area still waiting for its first flight, so a
+		-- quick Tier 3 before the first Park trip keeps the Park lit
+		local waiting = player:GetAttribute(CannonGlow.ATTR)
+		if opened ~= nil and not (type(waiting) == "string" and waiting ~= "") then
+			player:SetAttribute(CannonGlow.ATTR, opened)
+			Telemetry.firstFive(player, profile, "cannon_glow_shown") -- #5551
+		end
+	end
 	do -- #4815: the tutorial's bigger net ends at Tier 2, so the client's reach glow (NetExtraStuds) shrinks with it
 		local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 		local extra = NetSwing.extraForProfile(profile)
@@ -2342,7 +2477,7 @@ local function onRankUp(player: Player)
 	-- #4674: under bowl first the rank up to Tier 2 takes the player into the Park (TutorialMoveService)
 	local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
 	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
-	if TutorialMoves.parkAfterRankUp(def.tier, TutorialOrder.bowlFirst()) then
+	if TutorialMoves.parkAfterRankUp(def.tier, TutorialOrder.bowlFirst(player)) then
 		CafeService.tutorialMove:Fire(player, "park")
 	end
 end
@@ -2662,6 +2797,10 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	if profile == nil or value == nil then
 		return
 	end
+	-- #5322: AFK mode's saved mark is the server's (the AfkMode remote sets it)
+	if rawKey == "afkMode" then
+		return
+	end
 	-- #4266: the Auto Bowl switches change only for a pass owner
 	if
 		(rawKey == AutoBowl.KEYS.claim or rawKey == AutoBowl.KEYS.refill)
@@ -2718,6 +2857,15 @@ local function onLoaded(player: Player, profile: Profile)
 	-- #2123: before anything this join changes the save (lastSeen is still the last session's), and only for a
 	-- returning player: a first join has nothing waiting from before
 	if profile.stats.sessions > 1 then
+		-- #5505 return moment (switch returnMoment, read by the client): the welcome back card's days played line,
+		-- worked out before PlaytimeGiftService counts today. Attributes, so the client reads them with the card.
+		if LiveFlagService.on(DaysPlayed.FLAG, player) then
+			local moment = DaysPlayed.moment(profile.daysPlayed, DaysPlayed.day(os.time()))
+			if moment ~= nil then
+				player:SetAttribute("DaysMomentKind", moment.kind)
+				player:SetAttribute("DaysMomentText", moment.text)
+			end
+		end
 		local hook = ReturnHook.pick(profile, os.time(), "join")
 		if hook ~= nil then
 			joinHooks[player] = hook

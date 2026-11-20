@@ -50,9 +50,10 @@ function RankSpot.due(
 	tier: number,
 	seen: boolean,
 	blocker: string?,
-	area: string?
+	area: string?,
+	stay: boolean? -- #5516 (RankFirst.STAY_FLAG): a walk-through put away before shows again
 ): boolean
-	return on and tier == 1 and not seen and blocker == nil and area == nil
+	return on and tier == 1 and (stay == true or not seen) and blocker == nil and area == nil
 end
 
 -- What the client shows. `was` is what it shows now, `freeSeconds` how long nothing else has been going on (0 while

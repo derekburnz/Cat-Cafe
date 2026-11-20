@@ -10,6 +10,11 @@
 -- reveal), no banner across the top and no tutorial glow (the Rank Up walk-through, the Cannon point and the like).
 -- It waits for the next check-in after the rank up (the first Park catch) or SESSION_AFTER seconds into the session
 -- first (Design-Agent). A player who never gets free in FREE_MOST seconds still gets their companion and the card.
+-- #5550 (Derek 2026-11-20 13:20 UTC: "cutout cat companion scene and just have it when they hit tier 2 to just show a
+-- quick cat companion unlocked pop up and auto equip their best cat companion"; Motion-FX's switch cutsQuick, #5554):
+-- with cutsQuick on there is no scene and no wait for a check-in. As soon as the player is free for SETTLE after the
+-- rank up, the best cat follows and a short banner with its face shows in the toast stack (Toasts.cat): no dim, no
+-- hold on moving or catching, gone after QUICK_SECONDS or on a tap. No Cats arrow for a freeStart save.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,6 +23,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local CompanionScene = require(Shared:WaitForChild("CompanionScene"))
 local Follower = require(Shared:WaitForChild("Follower"))
+local FreeStart = require(Shared:WaitForChild("FreeStart"))
 local IntroController = require(script.Parent.IntroController)
 local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
@@ -38,6 +44,8 @@ local CARD_WAIT = 0.5 -- seconds after the card closes before the arrow, so it l
 local BAIT_CARD = "CatCafeBaitCard" -- UI/Screens/BaitCard's ScreenGui
 local AREA_TITLE = "CatCafeAreaTitle" -- UI Screens/AreaTitle
 local CUT = "CompanionUnlockCut" -- Motion-FX's Effects module, looked for by name so neither PR waits on the other
+local QUICK_FLAG = "cutsQuick" -- #5554 (Motion-FX's switch), read from its replicated attribute so neither PR waits
+local QUICK_SECONDS = 3
 
 local started = false
 local startedAt = os.clock() -- the session start, near enough (the controller starts at join)
@@ -183,11 +191,17 @@ local function describe(uid: string): (string, string?, string?)
 			and (state :: any).follower.boost == "luck"
 		then "luck"
 		else "money"
-	local perk = Follower.text(Follower.amount(def.rarity, boost, cat.variant), boost)
+	local perk =
+		Follower.text(Follower.amount(def.rarity, boost, cat.variant, Follower.areaOf(def)), boost)
 	return name, perk, cat.catId
 end
 
+local CATS_ARROW_OFF = "catsArrowOff" -- #5485 (Derek 2026-11-19): no arrow at the Cats menu, ever
+
 local function arrow()
+	if ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CATS_ARROW_OFF) == true then
+		return
+	end
 	local u = ui()
 	local find: any = u.catsButton
 	local target: GuiObject? = if type(find) == "function"
@@ -200,6 +214,41 @@ local function arrow()
 	task.delay(ARROW_SECONDS, function()
 		TutorialGlow.set(target, false)
 	end)
+end
+
+-- #5550: whether the quick unlock is on (the switch's ReplicatedStorage attribute; off until it says true).
+local function quick(): boolean
+	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. QUICK_FLAG) == true
+end
+
+-- #5550: the quick banner. A cat that follows shows its face, name and perk; with no cat it says to pick one in Cats.
+local function quickCard(uid: string?)
+	local u = ui()
+	local banner: any = u.catBanner
+	local title = CompanionScene.NAME .. " unlocked!"
+	local name, perk, catId = "", nil, nil
+	if uid ~= nil then
+		name, perk, catId = describe(uid :: string)
+	end
+	local def = if catId ~= nil then Catalog.getCat(catId :: string) else nil
+	local line = if uid ~= nil then CompanionScene.line(name, perk) else "Pick one in Cats."
+	if type(banner) == "function" then
+		(banner :: (any) -> ())({
+			def = def,
+			title = title,
+			-- the banner's line is rich text, and a player's own cat name may hold < or &
+			line = (
+				string.gsub(string.gsub(string.gsub(line, "&", "&amp;"), "<", "&lt;"), ">", "&gt;")
+			),
+			seconds = QUICK_SECONDS,
+			tapCloses = true,
+		})
+	else
+		u.toast(title .. " " .. line, "info", QUICK_SECONDS)
+	end
+	if uid == nil and not FreeStart.of(nil) then
+		task.delay(QUICK_SECONDS + CARD_WAIT, arrow)
+	end
 end
 
 local function card(uid: string?)
@@ -248,6 +297,27 @@ local function ranked(tier: number)
 	asked = true
 	task.spawn(function()
 		task.wait(LATE)
+		if quick() then
+			waitFree()
+			local now = UIController.state
+			local follower: any = if now ~= nil then (now :: any).follower else nil
+			local uid: string? = nil
+			if
+				type(follower) == "table"
+				and type(follower.uid) == "string"
+				and follower.uid ~= Follower.HOME
+			then
+				uid = follower.uid -- a player who already picked a companion keeps theirs
+			else
+				uid = CompanionScene.pick(if now ~= nil then now.cats :: any else nil)
+				if uid ~= nil then
+					Net.fire("SetFollower", uid)
+				end
+			end
+			quickCard(uid)
+			Net.fire("TipSeen", CompanionScene.KEY, false)
+			return
+		end
 		-- Design-Agent (first-90s spec): not straight after the rank up, which puts it between the player and the Park
 		-- inside the first 90 s; after the next check-in (the first Park catch) or SESSION_AFTER into the session
 		local checkedIn = false

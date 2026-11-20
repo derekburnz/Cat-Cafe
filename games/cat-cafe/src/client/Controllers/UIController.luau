@@ -43,6 +43,7 @@ local MysticPool = require(script.Parent.Parent.Effects.MysticPool)
 local Net = require(script.Parent.Parent.Net)
 local NewKind = require(Shared:WaitForChild("NewKind"))
 local NewKindEconomy = require(Shared:WaitForChild("Economy"))
+local PerfectCatch = require(Shared:WaitForChild("PerfectCatch"))
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local RiftRun = require(script.Parent.Parent.Effects.RiftRun)
 local SecondCat = require(Shared:WaitForChild("SecondCat"))
@@ -680,7 +681,31 @@ local rareGuide =
 	{ target = nil :: BasePart?, untilAt = 0, line = "", label = "", from = nil :: string? }
 local RARE_GUIDE_SECONDS = 30
 
-local function refreshTutorial(s: Types.PlayerState)
+-- #5330 (Components/NightLine): the night line's ring and arrow on Upgrades, and whether the line shows now
+local nightLine = { target = nil :: GuiObject?, showing = false } :: any
+function nightLine.arrow(target: GuiObject?)
+	if nightLine.target == target then
+		return
+	end
+	local TutorialGlow = require(script.Parent.Parent.UI.Components.TutorialGlow) :: any
+	local was = nightLine.target
+	if was ~= nil then
+		TutorialGlow.set(was, false)
+	end
+	nightLine.target = target
+	if target ~= nil then
+		TutorialGlow.set(target, true, nil, true) -- ring and arrow, no dim: nothing is required
+	end
+end
+
+function nightLine.now(s: Types.PlayerState): boolean
+	local NightLine = require(script.Parent.Parent.UI.Components.NightLine) :: any
+	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. NightLine.FLAG) == true
+	return NightLine.shows(on, s.tier, s.tutorialStep, not areasShutForMe(), UI.isOpen() ~= nil)
+end
+
+local refreshTutorial: (s: Types.PlayerState) -> ()
+function nightLine.body(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
 		tutorialWatch.connection = nil
@@ -973,6 +998,14 @@ local function refreshTutorial(s: Types.PlayerState)
 			then "touch"
 			else "keyboard"
 		showTutorial(s, RankFirst.line(device))
+	elseif nightLine.now(s) then
+		-- #5330: the night stall's line, counted down by the night line loop below
+		local NightLine = require(script.Parent.Parent.UI.Components.NightLine) :: any
+		local clock = ReplicatedStorage:FindFirstChild("Clock")
+		local endsAt = if clock ~= nil then clock:GetAttribute("PhaseEndsAt") else nil
+		local left = if type(endsAt) == "number" then endsAt - Workspace:GetServerTimeNow() else 0
+		nightLine.showing = true
+		showTutorial(s, NightLine.text(left))
 	elseif stuckGoalActive(s) then
 		-- #2912: after the walk-through, to the Alleyway's stuck cat (the cannon first from town); nothing at night,
 		-- when the goal card says the cats come back at sunrise
@@ -1035,6 +1068,18 @@ local function refreshTutorial(s: Types.PlayerState)
 	else
 		UI.tutorial.hide()
 	end
+end
+
+-- The strip's line for this state, and the night line's arrow with it (#5330)
+refreshTutorial = function(s: Types.PlayerState)
+	nightLine.showing = false
+	nightLine.body(s)
+	-- #5459: no ring or arrow on Upgrades with nightLineNoArrow on (the line's words stay)
+	local NightLine = require(script.Parent.Parent.UI.Components.NightLine) :: any
+	local noArrow = ReplicatedStorage:GetAttribute("LiveFlag_" .. NightLine.NO_ARROW_FLAG) == true
+	nightLine.arrow(
+		if NightLine.arrow(nightLine.showing, noArrow) then UI.upgradesButton() else nil
+	)
 end
 
 -- #5202 (UI.nextGoal, Design-Agent): variant A's "Collect cats". A rarity still short (`rarity`): the trail to the
@@ -1250,9 +1295,38 @@ local function ownBowlPart(index: number): BasePart?
 	return if bowl ~= nil and bowl:IsA("BasePart") then bowl :: BasePart else nil
 end
 
+-- #5551: a start_side kind only the screen sees, sent once a session (the server allowlists and keeps it once a save)
+local startSideSent: { [string]: boolean } = {}
+local function reportStartSide(kind: string)
+	if not startSideSent[kind] then
+		startSideSent[kind] = true
+		Net.fire("TelemetryReport", "start_side", kind)
+	end
+end
+
 -- A bowl's window, as its prompt or its walk-up ring (#2476) opens it: the cat waiting there, else the food picker.
-function UIController.openBowl(index: number)
+function UIController.openBowl(index: number, walked: boolean?)
 	local waiting = if state ~= nil then baitCat(bowlBait(state, index)) else nil
+	-- #5436 (Derek 2026-11-19: "the no new cat pop-ups sometimes doesn't work"): the tick was checked as a cat came
+	-- and as it was tamed, but standing in the bowl's walk-up ring (walkUpRetry opens it again without stepping out)
+	-- showed the waiting cat's card anyway. With bowlWalkQuiet on and the tick set, a walk-up open shows nothing for a
+	-- waiting cat (the bowl chip and the prompt still open it, and auto claim tames it).
+	local settings: any = if state ~= nil then (state :: any).settings else nil
+	if
+		walked == true
+		and waiting ~= nil
+		and type(settings) == "table"
+		and settings.bowlNewCatCard == false
+		and (
+			ReplicatedStorage:GetAttribute("LiveFlag_bowlWalkQuiet") == true
+			or ReplicatedStorage:GetAttribute("LiveFlag_bowlNoPops") == true
+		)
+	then
+		return
+	end
+	if walked == true then
+		reportStartSide("bowl_walked") -- #5551: once a session; the server keeps the play first start's first one
+	end
 	if waiting ~= nil then
 		baitUI.showReady(waiting, index)
 	else
@@ -1478,6 +1552,7 @@ local function applySettings()
 		screenShake = setting("screenShake"),
 		lowPerformance = setting("lowPerformance"),
 		stationCircles = setting("stationCircles"), -- #4668: the walk-up rings, off by default
+		catNames = setting("catNames"), -- #5586: the names over strays, on by default
 	})
 end
 
@@ -1608,6 +1683,9 @@ local function applyState(s: Types.PlayerState)
 		-- #3022: the goal card's "Catch a 2nd cat" (PlayerState.secondCat). Sent but never copied, so the card never
 		-- showed; false once it ends, as UI.update skips a nil and the card would stay
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
+		-- #5567 (Sync's recheck 2026-11-20: the card showed the coin goal, never "Catch a cat +100"): the play first
+		-- start's two goals (PlayerState.startGoals) were sent but never copied; false once they end, as above
+		startGoals = if s.startGoals ~= nil then s.startGoals else false,
 		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.done(s.stats),
 		-- #5031 (switch rankUpRightAway, shared/RankUpRightAway): the goal card's short and ready lines
@@ -1654,6 +1732,7 @@ local function applyState(s: Types.PlayerState)
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
 		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
+		advent = (s :: any).advent, -- #5502: the advent calendar board's view
 		-- F87 (#705): the tips seen, the one feedback ask and the help cards shown, so a tip the client finds itself
 		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
 		tipsSeen = s.tipsSeen,
@@ -2278,6 +2357,13 @@ local function wireIntents()
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
 	end)
+	-- #5502 the advent calendar: the server picks the door (the next one in order) and checks the dates and switches
+	UI.events.openAdventDoor:Connect(function()
+		Net.fire("OpenAdventDoor")
+	end)
+	UI.events.adventSeen:Connect(function()
+		Net.fire("TelemetryReport", "advent_board", "card")
+	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. A buy names the food
 	-- and the night the screen showed (else the last one sent; the screen calls it its window), so a buy sent for
 	-- another night is refused (S42).
@@ -2354,6 +2440,12 @@ local function wireIntents()
 				nudged[key] = true
 				Net.fire("TelemetryReport", "stuck_nudge", kind)
 			end
+		end)
+	end
+	-- #5505: the welcome back card showed (once a session; the server checks the switch and the time away)
+	if events.returnCard ~= nil then
+		events.returnCard:Connect(function(value: string)
+			Net.fire("TelemetryReport", "return_card", value)
 		end)
 	end
 	-- #4626: the minute 6 "come back tomorrow" line showed (once a session; the server checks the kind and the switch)
@@ -2487,6 +2579,30 @@ local function wireIntents()
 			rankWindow.pressed = true
 		end
 	end)
+	-- #5516 (rankTapLog): each tap on the goal card or the strip's rank up button at Tier 1, with the window open half
+	-- a second later (none when the tap opened nothing) and whether the rank up was ready; the server caps and checks
+	local tapUI: any = UI
+	tapUI.rankTapNote = function(from: string)
+		local s = state
+		if s == nil or (s :: any).tier ~= 1 then
+			return
+		end
+		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+		local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+		local ready = nextTier ~= nil and RankUpNeeds.of(nextTier, s :: any).ready == true
+		task.delay(0.5, function()
+			Net.fire(
+				"TelemetryReport",
+				"rank_tap",
+				("%s:%s:%s"):format(
+					from,
+					UI.isOpen() or "none",
+					if ready then "ready" else "not_ready"
+				)
+			)
+		end)
+	end
 	UI.events.screenOpened:Connect(function(name: string?)
 		local autoRank: any = UI.autoRank
 		if rankWindow.open and name ~= "RankUp" then
@@ -2519,6 +2635,27 @@ local function wireIntents()
 				"rank_up_open",
 				if at ~= nil and os.clock() - at < 1 then "auto" else "button"
 			)
+		end
+		if
+			name == "Cannon"
+			and state ~= nil
+			and (state :: any).tier == 3
+			and not stepsReported["tier3:cannon"]
+		then
+			-- #5517 (shared/Tier3Trip): the Cannon menu at Tier 3, once a session; the server logs it once an account
+			stepsReported["tier3:cannon"] = true
+			Net.fire("TelemetryReport", "tier3_cannon", true)
+		end
+		if
+			name ~= nil
+			and stepsReported["bowl:rankCue"]
+			and not stepsReported["rank:cueNext"]
+			and state ~= nil
+			and (state :: any).tier == 1
+		then
+			-- #5516: the first window opened after the Tier 1 rank cue, once a session (rank_cue_next)
+			stepsReported["rank:cueNext"] = true
+			Net.fire("TelemetryReport", "rank_cue_next", name)
 		end
 		if name == "Store" then
 			-- #1888: every Store visit starts a Store funnel, with where the UI said it was opened from
@@ -3286,6 +3423,12 @@ local function wireServerEvents()
 			end
 			extra = info
 		end
+		-- #5571 (Derek 2026-11-20: the No cat pop-ups tick "doesnt work", a LEGENDARY card still popped): a bowl tame
+		-- of a Legendary or better also sends SecuredRare (BaitService fires it right after this), and that big card
+		-- skips this cat while the tick is set (UI.securedRare)
+		if fromBowl then
+			(UI :: any).bowlTamed = { catId = catId, at = os.clock() }
+		end
 		pendingCharmGain = 0
 		UI.showCatFound(catId, isNew, extra)
 		-- CatCaught comes from a check-in or a tamed bait cat, so a bump that drops the carried cat plays no
@@ -3502,7 +3645,10 @@ local function wireServerEvents()
 				local model = strayModel(strayId)
 				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil
 				Moments.CatchSuccess:Fire(strayId, if type(rarity) == "string" then rarity else nil)
-				pendingCharmGain = charmGain
+				-- #5300: with the perfectCatch switch on the reveal's line is "PERFECT! +50% money", for a purrfect finish only
+				pendingCharmGain = if PerfectCatch.on()
+					then (if type(finish) == "table" and finish.finish == "purrfect" then 1 else 0)
+					else charmGain
 				if allPerfect and charmGain > 0 then
 					Moments.Purrfect:Fire(charmGain)
 				end
@@ -3920,6 +4066,28 @@ function UIController.start()
 	do
 		task.wait(0.1)
 	end
+	-- #5438 (Derek 2026-11-19 on the funnel: "how are they not getting bowl hint"): a new server answers every switch
+	-- from its defaults until its first store read, and catchFirst is on by default, so a joiner whose first sync came
+	-- before that read got the catch first strip (the back door and the alley) instead of the bowl's food ask, and
+	-- nothing worked the strip out again when the real switches came, so bowl_hint never fired. With bowlHintRetry
+	-- on the strip is worked out again when the switches arrive (the ready mark) and whenever catchFirst flips.
+	local function bowlOrderChanged()
+		task.defer(function()
+			local current = state
+			if
+				current ~= nil
+				and ReplicatedStorage:GetAttribute("LiveFlag_bowlHintRetry") == true
+			then
+				refreshTutorial(current)
+			end
+		end)
+	end
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlagsShared.READY_ATTRIBUTE)
+		:Connect(bowlOrderChanged)
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlagsShared.ATTRIBUTE_PREFIX .. "catchFirst")
+		:Connect(bowlOrderChanged)
+	-- #5498: the player's arm in the walk-through order test arrives as their TutorialOrder attribute
+	Players.LocalPlayer:GetAttributeChangedSignal("TutorialOrder"):Connect(bowlOrderChanged) -- TutorialOrder.GROUP_ATTR
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,
@@ -3950,6 +4118,20 @@ function UIController.start()
 				refreshTutorial(current)
 			end
 		end)
+	end)
+	-- #5330: the night line counts down each second, and comes and goes with windows
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local current = state
+			if
+				current ~= nil
+				and ReplicatedStorage:GetAttribute("LiveFlag_nightLine") == true
+				and (nightLine.showing or nightLine.now(current))
+			then
+				refreshTutorial(current)
+			end
+		end
 	end)
 	-- #2912: the stuck cat pointer follows the player (town or the Alleyway), the cat streaming in and its own
 	-- TRAIL_SECONDS; looked at once a second, and only while the save waits for its first rescue
@@ -4104,6 +4286,9 @@ end
 -- (UI.calmForMoment) for CALM seconds, and tries again while play refuses (another of the effects' cutscenes). Tiers
 -- only go up, so a rank up through it comes once per account; a rejoin above it plays nothing.
 local TRADE_UNLOCK = { FIRST_WAIT = 4, CALM = 1.5, STEP = 0.25, GIVE_UP = 600 }
+-- #5550 (Derek 2026-11-20 13:21 UTC: "make the trade unlocked faster"): with Motion-FX's cutsQuick switch on (#5554,
+-- its replicated attribute) the moment starts sooner after the rank up; it still waits for a calm screen
+local TRADE_QUICK = { FIRST_WAIT = 1.5, CALM = 0.8 }
 local tradeUnlockQueued = false
 
 function UIController.tradeUnlock(from: number, to: number)
@@ -4120,7 +4305,9 @@ function UIController.tradeUnlock(from: number, to: number)
 	task.spawn(function()
 		local TradeUnlock = require(script.Parent.Parent.Effects.TradeUnlock) :: any
 		local ui: any = UI
-		task.wait(TRADE_UNLOCK.FIRST_WAIT)
+		local fast = ReplicatedStorage:GetAttribute("LiveFlag_cutsQuick") == true
+		local calm = if fast then TRADE_QUICK.CALM else TRADE_UNLOCK.CALM
+		task.wait(if fast then TRADE_QUICK.FIRST_WAIT else TRADE_UNLOCK.FIRST_WAIT)
 		local calmSince: number? = nil
 		local started = os.clock()
 		while os.clock() - started < TRADE_UNLOCK.GIVE_UP do
@@ -4128,7 +4315,7 @@ function UIController.tradeUnlock(from: number, to: number)
 				calmSince = nil
 			elseif calmSince == nil then
 				calmSince = os.clock()
-			elseif os.clock() - (calmSince :: number) >= TRADE_UNLOCK.CALM then
+			elseif os.clock() - (calmSince :: number) >= calm then
 				-- Derek 2026-11-18 13:05 UTC ("remove the pointing and dimming for trade unlocked asap"): no spotlight on
 				-- the tile after the moment (#5158's tradeSpot is gone)
 				if TradeUnlock.play(ui.tradeTile(), nil) then

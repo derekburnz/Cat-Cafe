@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local Advent = require(script.Parent.Advent)
 local BagColours = require(script.Parent.BagColours)
 local CafePass = require(script.Parent.CafePass)
 local CampExtras = require(script.Parent.CampExtras)
@@ -10,16 +11,20 @@ local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
 local CozyCafe = require(script.Parent.CozyCafe)
 local DailyDeal = require(script.Parent.DailyDeal)
+local DailyGifts = require(script.Parent.DailyGifts)
 local DailyTreat = require(script.Parent.DailyTreat)
+local DaysPlayed = require(script.Parent.DaysPlayed)
 local DragonKeep = require(script.Parent.DragonKeep)
 local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
 local FishStore = require(script.Parent.FishStore)
 local Follower = require(script.Parent.Follower)
+local FreeStart = require(script.Parent.FreeStart)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Fusion = require(script.Parent.Fusion)
 local GrandOpening = require(script.Parent.GrandOpening)
 local HarvestSave = require(script.Parent.HarvestSave)
+local Holdout = require(script.Parent.Holdout)
 local IntroSplit = require(script.Parent.IntroSplit)
 local Invites = require(script.Parent.Invites)
 local Jukebox = require(script.Parent.Jukebox)
@@ -35,12 +40,15 @@ local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
 local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
+local StartFunnel = require(script.Parent.StartFunnel)
 local StarterCat = require(script.Parent.StarterCat)
 local StoreTabs = require(script.Parent.StoreTabs)
 local TicketBooth = require(script.Parent.TicketBooth)
+local Tier3Trip = require(script.Parent.Tier3Trip)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
 local Traits = require(script.Parent.Traits)
+local TutorialOrder = require(script.Parent.TutorialOrder)
 local Types = require(script.Parent.Types)
 local YardSale = require(script.Parent.YardSale)
 
@@ -484,8 +492,15 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 	for id, lvl in rawLevels do
 		local def = if type(id) == "string" then Catalog.getUpgrade(id) else nil
 		if def ~= nil then
+			-- #5441: Tables 7 and 8 are kept with the tablesEight switch off (or not read yet at load)
+			-- #5491 (a player: "everytime there's an update, i need to upgrade my net to maxed again"): Net 4 and 5 are kept
+			-- too, with netTiers off or not read yet when a fresh server loads the save
+			local top = if def.id == "tables"
+				then math.max(def.maxLevel, Catalog.TABLES_MAX_EIGHT)
+				elseif def.id == "net" then math.max(def.maxLevel, Catalog.NET_MAX_TIERS)
+				else def.maxLevel
 			profile.upgradeLevels[def.id] =
-				math.clamp(asInt(lvl, def.startLevel), def.startLevel, def.maxLevel)
+				math.clamp(asInt(lvl, def.startLevel), def.startLevel, top)
 		end
 	end
 end
@@ -574,6 +589,7 @@ local function catFrom(
 			CatStats.MAX_CHARM
 		),
 		rescued = if entry.rescued == true then true else nil,
+		perfect = if entry.perfect == true then true else nil, -- #5300: no version bump, older saves have none
 		name = if fromVersion >= 3 then sanitizeName(entry.name) else nil,
 		method = if fromVersion >= 3
 			then sanitizeMethod(entry.method)
@@ -934,6 +950,14 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	telemetry.cleanV9Step = if type(cleanV9Step) == "number"
 		then math.clamp(asInt(cleanV9Step, 0), 0, Onboarding.CLEAN_COUNT)
 		else Onboarding.cleanStart(telemetry)
+	-- #5533: onboarding_v10 (cleanV10Step), only for a save on the play first start; nil reads as 0
+	local cleanV10Step = value.cleanV10Step
+	telemetry.cleanV10Step = if type(cleanV10Step) == "number"
+		then math.clamp(asInt(cleanV10Step, 0), 0, Onboarding.V10_COUNT)
+		else nil
+	-- #5551: first_five_v1 and its start_side bits (shared/StartFunnel); nil reads as 0
+	telemetry.firstFiveStep = StartFunnel.validStep(value.firstFiveStep)
+	telemetry.startSide = StartFunnel.validSide(value.startSide)
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"
 		then math.clamp(asInt(playtimeStep, 0), 0, Onboarding.PLAYTIME_COUNT)
@@ -941,6 +965,19 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		else 0
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
+	telemetry.orderGroup = TutorialOrder.valid(value.orderGroup) -- #5498
+	telemetry.holdout = Holdout.valid(value.holdout) -- #5499
+	telemetry.tier3Trip = Tier3Trip.sanitize(value.tier3Trip) -- #5517
+	telemetry.freeStart = if value.freeStart == true then true else nil -- #5533 (shared/FreeStart)
+	telemetry.startPaid = FreeStart.validPaid(value.startPaid) -- #5533
+	-- #5291: milestones_v1's mask (MilestoneFunnel.sanitize, kept here as a number check so this module needs no
+	-- Economy): a whole number from -1 (out) to 4095 (all 12 steps), nil for none
+	local milestoneMask = value.milestoneMask
+	if type(milestoneMask) == "number" and milestoneMask == milestoneMask then
+		telemetry.milestoneMask = if milestoneMask < 0
+			then -1
+			else math.min(math.floor(milestoneMask), 4095)
+	end
 	return telemetry
 end
 
@@ -1082,6 +1119,14 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.harvest = HarvestSave.sanitize(raw.harvest)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
+	-- #5502 (no version: see Types.PlayerProfile.advent): the advent calendar and the Snowflakes
+	profile.advent = Advent.sanitize(raw.advent)
+	local flakes = raw.snowflakes
+	profile.snowflakes = if type(flakes) == "number"
+			and flakes == flakes
+			and flakes > 0
+		then math.min(math.floor(flakes), 1000000000)
+		else nil
 	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)
 	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
@@ -1222,6 +1267,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.favGift = raw.favGift == true
 	profile.cozy = CozyCafe.sanitize(raw.cozy) -- #2798, no version
 	profile.giftSteps = PlaytimeGifts.sanitize(raw.giftSteps) -- #2791, no version
+	profile.dailyGifts = DailyGifts.sanitize(raw.dailyGifts) -- #5506, no version
+	profile.daysPlayed = DaysPlayed.sanitize(raw.daysPlayed) -- #5505, no version
 	-- #2486 (version 43): the Cafe Event reward pieces (string ids of at most 64 characters, whole times) and the
 	-- last event rewarded
 	if type(raw.eventRewards) == "table" then

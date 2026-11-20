@@ -30,6 +30,8 @@ local SpotlightGuide = {}
 
 SpotlightGuide.CAPTION = "SpotlightCaption"
 SpotlightGuide.TAG = "ReadyTag"
+-- #5622 (spotHeld): on the target while its spotlight is up, so the HUD's own ring pass leaves its glow alone
+SpotlightGuide.HELD = "SpotlightHeld"
 local Z = 61 -- over the tutorial's arrow (60) and its dim (59)
 local CAPTION_HEIGHT = 40
 local CAPTION_WIDTH = 280
@@ -37,6 +39,8 @@ local TAG_SIZE = Vector2.new(58, 22)
 local READY_GREEN = Color3.fromHex("4CB86B")
 local BREATHE = TweenInfo.new(0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 
+local FreeStart =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart"))
 local closeCurrent: (() -> ())? = nil
 
 -- Lights `target` with `words` beside it; see the top of this file. Returns the function that closes it.
@@ -47,6 +51,10 @@ function SpotlightGuide.show(
 	ringOutside: boolean?,
 	noDim: boolean? -- Derek 2026-11-16: ring and arrow only, nothing dimmed (the rank up window's button)
 ): () -> ()
+	-- #5533 (shared/FreeStart): no spotlight for a save on the play first start until Tier 3
+	if FreeStart.quietFor(target) then -- #5599: but a target marked LOUD_ATTR
+		return function() end
+	end
 	local previous = closeCurrent
 	if previous ~= nil then
 		previous()
@@ -56,6 +64,7 @@ function SpotlightGuide.show(
 	-- first, so this dim never showed. Its own glow replaces any; the HUD puts its ring back on its next render.
 	TutorialGlow.set(target, false)
 	TutorialGlow.set(target, true, ringOutside, noDim) -- outside: for a card whose words reach its edge
+	target:SetAttribute(SpotlightGuide.HELD, true)
 	local caption: TextLabel? = nil
 	if gui ~= nil and words ~= "" then
 		local made: TextLabel = Create("TextLabel", {
@@ -139,6 +148,7 @@ function SpotlightGuide.show(
 		if caption ~= nil then
 			caption:Destroy()
 		end
+		target:SetAttribute(SpotlightGuide.HELD, nil)
 		TutorialGlow.set(target, false)
 		if closeCurrent == close then
 			closeCurrent = nil

@@ -20,6 +20,20 @@ return function()
 		end)
 	end)
 
+	describe("ringLook", function()
+		it("shows an area's cannon ring again only with areaCannonRings (#5416)", function()
+			expect((WalkUp.ringLook(true, false, true, true))).to.equal(false)
+			expect((WalkUp.ringLook(true, false, true, true, true))).to.equal(true)
+			local _, scale = WalkUp.ringLook(true, false, true, true, true)
+			expect(scale).to.equal(1)
+			-- an area's other rings stay hidden
+			expect((WalkUp.ringLook(true, false, true, nil, true))).to.equal(false)
+			-- the town and the switch-off look are unchanged
+			expect((WalkUp.ringLook(true, true, false, true, true))).to.equal(true)
+			expect((WalkUp.ringLook(false, false, false, true, true))).to.equal(false)
+		end)
+	end)
+
 	describe("step", function()
 		it("opens on walking up, once, and closes on walking away", function()
 			local state = WalkUp.new()
@@ -34,6 +48,57 @@ return function()
 			open, close = WalkUp.step(state, { at("spin", 12, "Spin") }, false, "Spin")
 			expect(open).to.equal(nil)
 			expect(close).to.equal(true)
+		end)
+
+		it("with retry, a step in while busy or under a card opens once free (#5386)", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("cannon", 20, "Cannon") }, false, nil, 0, true)
+			-- walked in while the claim's card is up, then while busy
+			local open =
+				WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, "CatFound", 1, true)
+			expect(open).to.equal(nil)
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, true, nil, 2, true)
+			expect(open).to.equal(nil)
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, nil, 3, true)
+			expect(open).to.equal("cannon")
+			-- closed by hand while still standing there: it stays shut
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, nil, 4, true)
+			expect(open).to.equal(nil)
+		end)
+
+		it(
+			"with retry, a step in while the ring is off for a carry opens once it is on (#5415)",
+			function()
+				local function cannon(distance: number, off: boolean?, waits: boolean?): any
+					local station = at("cannon", distance, "Cannon")
+					station.off = off
+					station.waits = waits
+					return station
+				end
+				local state = WalkUp.new()
+				WalkUp.step(state, { cannon(20, true, true) }, true, nil, 0, true)
+				-- ran in while the prompt is still hidden for the carry
+				local open = WalkUp.step(state, { cannon(5, true, true) }, true, nil, 1, true)
+				expect(open).to.equal(nil)
+				-- the carry clears: the ring opens with no step out
+				open = WalkUp.step(state, { cannon(5) }, false, nil, 2, true)
+				expect(open).to.equal("cannon")
+				-- without `waits` (a put-into ring) the same step in still waits for out and back in
+				state = WalkUp.new()
+				WalkUp.step(state, { cannon(20, true) }, true, nil, 0, true)
+				WalkUp.step(state, { cannon(5, true) }, true, nil, 1, true)
+				open = WalkUp.step(state, { cannon(5) }, false, nil, 2, true)
+				expect(open).to.equal(nil)
+			end
+		)
+
+		it("without retry, a step in under a card is asked once (as before)", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("cannon", 20, "Cannon") }, false, nil, 0)
+			local open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, "CatFound", 1)
+			expect(open).to.equal(nil)
+			open = WalkUp.step(state, { at("cannon", 5, "Cannon") }, false, nil, 3)
+			expect(open).to.equal(nil)
 		end)
 
 		it("opens nothing for a player who spawns or lands already there", function()

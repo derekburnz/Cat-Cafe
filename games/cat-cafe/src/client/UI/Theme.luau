@@ -435,6 +435,7 @@ Theme.potionColors = {
 	big_gold_rush_potion = Color3.fromHex("FFD24D"),
 	mega_tip_potion = Color3.fromHex("F2932B"),
 	admin_money_potion = Color3.fromHex("F2932B"), -- #4195: the Admin Wheel's 3x money, as Mega Money until it has its own
+	picnic_time = Color3.fromHex("E2574C"), -- #5572: Picnic Time, the blanket's check red, apart from the orange money potions
 } :: { [string]: Color3 }
 
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets

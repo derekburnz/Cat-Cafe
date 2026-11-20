@@ -279,9 +279,6 @@ local KINDS: { Kind } = {
 		tag = "DragonKeep",
 		prompt = "DragonKeepPrompt",
 		window = "DragonKeep",
-		only = function()
-			return ReplicatedStorage:GetAttribute("LiveFlag_dragonKeep") == true
-		end,
 		open = function()
 			UI.lateStations.openKeep()
 		end,
@@ -291,9 +288,6 @@ local KINDS: { Kind } = {
 		tag = "FusionObservatory",
 		prompt = "FusionObservatoryPrompt",
 		window = "FusionObservatory",
-		only = function()
-			return ReplicatedStorage:GetAttribute("LiveFlag_fusion") == true
-		end,
 		open = function()
 			-- the window comes with #4107; until then the ring opens nothing
 			local stations: any = (UI :: any).lateStations
@@ -397,7 +391,8 @@ local function ringOf(model: Instance): (boolean, Vector3?, number)
 	local _, scale = WalkUp.ringLook(
 		game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. WalkUp.TOWN_FLAG) == true,
 		ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE),
-		true
+		true,
+		ring:GetAttribute(WalkUp.FULL_ATTRIBUTE)
 	)
 	return true, (ring :: BasePart).Position, size * scale
 end
@@ -454,6 +449,18 @@ end
 -- no window. The settle starts only from the busy states it was made for (the intro, a flight, a carry, a catch or a
 -- rescue), never from the prompts being off on their own. The settleCutFree switch, on unless set false, turns this
 -- off (the prompts count again).
+-- #5415: busy with something that puts the player into a ring (the intro, a flight, a catch or a rescue), not a carry.
+local function putBusy(): boolean
+	local ui: any = UI
+	return flying() or ui.catch.circlesActive() or ui.rescue.isActive() or ui.intro.playing()
+end
+
+-- #5415: carrying a cat and nothing else that holds the prompts.
+local function carryOnly(): boolean
+	local state = UIController.state
+	return state ~= nil and state.carrying ~= nil and not putBusy()
+end
+
 local function settleBusy(): boolean
 	if ReplicatedStorage:GetAttribute("LiveFlag_settleCutFree") == false then
 		return blocked()
@@ -473,6 +480,20 @@ end
 -- dwell only on a step in to a ring that is on). The walkUpSettle switch, on unless set false, turns this off.
 local SETTLE_SECONDS = 2
 local SETTLE_FLAG = "LiveFlag_walkUpSettle"
+-- #5386: a step in while busy (just after a claim, a carry or under a card) keeps its ask and opens once free. Off by
+-- default (LiveFlags walkUpRetry).
+local RETRY_FLAG = "LiveFlag_walkUpRetry"
+-- #5415 (Derek 2026-11-19: "dropping off a cat in an area then trying to run into cannon and menu doesn't work"): the
+-- cannon's prompt hides while carrying (CannonController), so a step into its ring before the carry cleared started
+-- no ask, and the carry also put the ring on the settle list for 2 s more. With walkUpCarry on (and walkUpRetry), a
+-- carry is no longer counted as being put into a ring, and a ring that is off only for the carry keeps the step in.
+local CARRY_FLAG = "LiveFlag_walkUpCarry"
+-- Derek 2026-11-19 14:34 UTC ("if you checked in a cat to safezone recently causes the cannon menu to not be able to
+-- open"; Sync's runs): a check-in's new cat card (Popups, DisplayOrder 40) covers the windows (DisplayOrder 20), so a
+-- step into the cannon's ring right after opened the menu hidden behind the card and its dim; a close while it was
+-- hidden left the player in the ring with no way to open it but stepping out and back. With walkUpCardWait on (and
+-- walkUpRetry), a step in while a card is up keeps its ask and the window opens once the card has gone.
+local CARD_WAIT_FLAG = "LiveFlag_walkUpCardWait"
 
 function WalkUpController.start()
 	-- #2910: a press of a walk-up station's prompt, counted against the ring opens (shared/StationOpens)
@@ -493,13 +514,28 @@ function WalkUpController.start()
 		table.clear(state.inside)
 	end)
 	local settleUntil = 0
+	-- #5386: the rings the player stood in while busy; with walkUpRetry on, only these stay shut for the settle, so a
+	-- ring walked into after a claim or a carry opens (once free) and the intro's put-into ring still does not
+	local settledIn: { [string]: boolean } = {}
 	task.spawn(function()
 		while true do
 			task.wait(POLL_SECONDS)
 			local at = rootPosition()
 			local busy = blocked()
+			local retry = ReplicatedStorage:GetAttribute(RETRY_FLAG) == true
+			local carry = retry and ReplicatedStorage:GetAttribute(CARRY_FLAG) == true
+			local carrying = carry and carryOnly()
 			if settleBusy() then
 				settleUntil = os.clock() + SETTLE_SECONDS
+				if not carrying then
+					for key, inside in state.inside do
+						if inside then
+							settledIn[key] = true
+						end
+					end
+				end
+			elseif os.clock() >= settleUntil then
+				table.clear(settledIn)
 			end
 			local settling = os.clock() < settleUntil
 				and ReplicatedStorage:GetAttribute(SETTLE_FLAG) ~= false
@@ -520,10 +556,12 @@ function WalkUpController.start()
 				if prompt ~= nil then
 					setReach(prompt, hasRing)
 				end
-				local off = settling
-					or if prompt == nil
-						then not (loose == true and hasRing)
-						else not (prompt :: ProximityPrompt).Enabled
+				local key = keyOf(model)
+				local settledOff = settling and (not retry or settledIn[key] == true)
+				local promptOff = if prompt == nil
+					then not (loose == true and hasRing)
+					else not (prompt :: ProximityPrompt).Enabled
+				local off = settledOff or promptOff
 				local position = if hasRing
 					then centre
 					elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
@@ -531,7 +569,6 @@ function WalkUpController.start()
 				local distance = if at ~= nil and position ~= nil
 					then Vector2.new(at.X - position.X, at.Z - position.Z).Magnitude
 					else nil
-				local key = keyOf(model)
 				opener[key] = open
 				windowOf[key] = window
 				table.insert(stations, {
@@ -539,6 +576,7 @@ function WalkUpController.start()
 					window = window,
 					distance = distance,
 					off = off,
+					waits = carrying and not settledOff, -- #5415: off for the carry alone
 					radius = if hasRing
 						then ringRadius
 						elseif prompt ~= nil then (ownReach[prompt :: ProximityPrompt] or (
@@ -568,13 +606,17 @@ function WalkUpController.start()
 			local bowl = UIController.ownBowlModel()
 			if bowl ~= nil then
 				add(bowl, UIController.bowlPrompt(), "Bait", function()
-					UIController.openBowl(1)
+					UIController.openBowl(1, true) -- #5436: a walk-up open
 				end)
 			end
 			local openedKey = state.opened
+			local cardWait = retry and ReplicatedStorage:GetAttribute(CARD_WAIT_FLAG) == true
 			local ok, open, close = pcall(function()
 				local current = UI.isOpen()
-				local key, shut = WalkUp.step(state, stations, busy, current, os.clock())
+				if current == nil and cardWait and UI.popupsShowing() then
+					current = "Popups" -- a card is over the windows: the step in waits for it to go
+				end
+				local key, shut = WalkUp.step(state, stations, busy, current, os.clock(), retry)
 				return key, shut
 			end)
 			if not ok then

@@ -35,7 +35,6 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Grant = require(ReplicatedStorage.Shared.Grant)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IdeaCreditsService = require(script.Parent.IdeaCreditsService)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
@@ -298,12 +297,12 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 	return Enum.ProductPurchaseDecision.NotProcessedYet
 end
 
--- #3996: Today's Deal's Buy button. The server checks it is today's deal, not bought today, from Tier 2 and with the
--- switch on, then opens Roblox's own prompt; the receipt pays it (above).
+-- #3996: Today's Deal's Buy button. The server checks it is today's deal, not bought today and from Tier 2 (the
+-- dailyDeal switch is retired, #4656), then opens Roblox's own prompt; the receipt pays it (above).
 local function onPromptDeal(player: Player, rawProduct: unknown)
 	local productId = Guard.id(rawProduct)
 	local profile = DataService.get(player)
-	if profile == nil or productId == nil or not LiveFlagService.on(DailyDeal.FLAG) then
+	if profile == nil or productId == nil then
 		return
 	end
 	local blocker = DailyDeal.promptBlocker(

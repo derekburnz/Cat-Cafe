@@ -1,5 +1,6 @@
 --!strict
--- LateTiers: the three new worlds' switches (Derek 2026-11-14: all 3 areas go live together).
+-- LateTiers: Tiers 8 to 10 launched together (Derek 2026-11-14) and their switches were retired (#4656), so no late
+-- tier waits for a switch now; the specs' setOpen override still closes them for tests.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local LateTiers = require(Shared.LateTiers)
@@ -11,27 +12,16 @@ return function()
 	end
 
 	describe("LateTiers.throughFor", function()
-		it("opens Tiers 8 to 10 together, only when every switch is on", function()
-			expect(LateTiers.TOGETHER).to.equal(true)
-			expect(LateTiers.throughFor(reader({}))).to.equal(7)
-			expect(LateTiers.throughFor(reader({ tier8 = true }))).to.equal(7)
-			expect(LateTiers.throughFor(reader({ tier8 = true, tier9 = true }))).to.equal(7)
-			expect(LateTiers.throughFor(reader({ tier9 = true, tier10 = true }))).to.equal(7)
-			expect(LateTiers.throughFor(reader({ tier10 = true }))).to.equal(7)
-			expect(LateTiers.throughFor(reader({ tier8 = true, tier9 = true, tier10 = true }))).to.equal(
-				math.huge
-			)
+		it("opens every tier with no switch on, since no late tier has one now", function()
+			expect(next(LateTiers.FLAGS)).to.equal(nil)
+			expect(LateTiers.throughFor(reader({}))).to.equal(math.huge)
 		end)
 
-		it("covers every late tier from FIRST with no gap", function()
-			local count = 0
-			for tier = LateTiers.FIRST, LateTiers.FIRST + 10 do
-				if LateTiers.FLAGS[tier] ~= nil then
-					count += 1
-					expect(tier).to.equal(LateTiers.FIRST + count - 1)
-				end
-			end
-			expect(count).to.equal(3)
+		it("opens Tiers 8 to 10 with the specs' override cleared", function()
+			LateTiers.setOpen(nil)
+			expect(LateTiers.tierOpen(8)).to.equal(true)
+			expect(LateTiers.tierOpen(9)).to.equal(true)
+			expect(LateTiers.tierOpen(10)).to.equal(true)
 		end)
 	end)
 end

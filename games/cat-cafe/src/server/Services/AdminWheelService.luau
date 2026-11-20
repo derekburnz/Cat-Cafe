@@ -1,6 +1,6 @@
 --!strict
 -- The Admin Wheel on the server (#4195; shared/AdminWheel for the rules). While an admin event with the `wheel`
--- effect runs (EventService.admin(), behind the adminEvents switch), AdminWheelSpin() spins it for the caller: once
+-- effect runs (EventService.admin(); the adminEvents switch is retired), AdminWheelSpin() spins it for the caller: once
 -- per account per event (#4876: or the event's wheelSpins, `/admin wheel <spins>`), with the server's own Random and
 -- nothing read from the client. The spin is marked in the
 -- save (codesRedeemed, AdminWheel.key) before anything is paid, the prize is paid at once, so leaving mid-animation
@@ -23,7 +23,6 @@ local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventService = require(script.Parent.EventService)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local Payout = require(script.Parent.Payout)
@@ -39,11 +38,8 @@ local SKU = "admin_wheel"
 local random = Random.new()
 local forcedPrize: { [Player]: string } = {} -- Studio only (debugForce): the prize this player's next spin lands on
 
--- The wheel that is up, or nil: the switch on and a running admin event with the wheel.
+-- The wheel that is up, or nil: a running admin event with the wheel.
 local function wheelUp(): CafeEvents.AdminEvent?
-	if not LiveFlagService.on("adminEvents") then
-		return nil
-	end
 	local event = EventService.admin()
 	return if event ~= nil and event.effects.wheel then event else nil
 end
@@ -86,7 +82,7 @@ local function pay(
 			Economy.tier(profile),
 			true, -- #4654 batch 5: the `secretCats` switch is retired
 			random:NextNumber(),
-			LiveFlagService.on("secretAreas") -- #4221: the seven new Secrets wait for it
+			true -- #4221: the seven new Secrets (the secretAreas switch is retired, #4656)
 		)
 		if def ~= nil then
 			CafeService.addGiftCat(player, profile, def, CatStats.DEFAULT_CHARM)

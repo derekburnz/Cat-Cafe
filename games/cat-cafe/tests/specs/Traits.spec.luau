@@ -186,6 +186,49 @@ return function()
 		end)
 	end)
 
+	describe(
+		"Legendary and up companion parts and the extra Mythic and Secret traits (#5445)",
+		function()
+			it("adds and removes the companion parts with topTraitCompanion", function()
+				local trait = { id = "cosmicFortune" }
+				expect(Traits.amount(trait, "companionMoney")).to.equal(0)
+				Traits.setTopCompanion(true)
+				expect(Traits.amount(trait, "companionMoney")).to.equal(0.1)
+				expect(Traits.amount({ id = "eternalNight" }, "companionLuck")).to.equal(0.2)
+				Traits.setTopCompanion(true) -- twice changes nothing
+				expect(Traits.amount(trait, "companionMoney")).to.equal(0.1)
+				Traits.setTopCompanion(false)
+				expect(Traits.amount(trait, "companionMoney")).to.equal(0)
+				for id in Traits.TOP_COMPANION do
+					expect(Traits.get(id) ~= nil).to.equal(true)
+				end
+			end)
+
+			it(
+				"puts the extra traits in their rarity's pick only with topTraitsMore, and always knows their ids",
+				function()
+					local mythic = #Traits.ofRarity("mythic")
+					local secret = #Traits.ofRarity("secret")
+					expect(Traits.sanitize({ id = "starforged" }) ~= nil).to.equal(true)
+					Traits.setTopMore(true)
+					expect(#Traits.ofRarity("mythic")).to.equal(mythic + 3)
+					expect(#Traits.ofRarity("secret")).to.equal(secret + 2)
+					Traits.setTopMore(false)
+					expect(#Traits.ofRarity("mythic")).to.equal(mythic)
+					expect(#Traits.ofRarity("secret")).to.equal(secret)
+					-- every new Secret keeps every cafe kind at Eclipse's amount
+					for _, kind in
+						{ "income", "nightIncome", "xp", "bowlLuck", "speed", "rareCustomer" } :: { any }
+					do
+						expect(Traits.amount({ id = "voidCrown" }, kind)).to.equal(
+							Traits.amount({ id = "eclipse" }, kind)
+						)
+					end
+				end
+			)
+		end
+	)
+
 	describe("a saved trait (spec section 6)", function()
 		it("keeps a known id and drops anything else", function()
 			expect(Traits.sanitize({ id = "nightOwl_rare" }) :: any).to.deepEqual({

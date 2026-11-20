@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Bellhop = require(script.Parent.Bellhop)
+local ChristmasCats = require(script.Parent.ChristmasCats)
 local Context = require(script.Parent.Context)
 local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Logic = require(script.Parent.Logic)
@@ -64,6 +65,7 @@ type Entry = {
 	napGui: BillboardGui?,
 	floats: boolean, -- a cat that bobs as if it might float off (motion.float.cats: Balloon Cat)
 	bellhop: boolean, -- the Bellhop Cat (F96): its bell, cap and bow on top (Bellhop.layer)
+	christmas: boolean, -- a Christmas cat with a beat (ChristmasCats.layer: Jingle's bell, the glows)
 	propBounce: number, -- degrees its head prop bounces as it walks (motion.propBounce), 0 for none
 	making: number, -- how far into the working bob it is (F90), 0 to 1, easing with its Making attribute
 	makingAt: number, -- os.clock() its current making started, for the bob's loop
@@ -558,6 +560,7 @@ local function bind(model: Model): Entry?
 		napGui = nil,
 		floats = canFloat(model),
 		bellhop = Bellhop.is(model),
+		christmas = ChristmasCats.is(model),
 		propBounce = propBounceOf(model),
 		making = 0,
 		drawn = nil,
@@ -911,6 +914,9 @@ local function step(dt: number)
 		if entry.bellhop then
 			Bellhop.layer(model, o, entry.style, now)
 		end
+		if entry.christmas then
+			ChristmasCats.layer(model, o, entry.style, now)
+		end
 		-- F90: a Barista making an order bobs where it sits (CafeOrders sets Making on this client only)
 		local makingNow = model:GetAttribute("Making") ~= nil
 		if makingNow and entry.making <= 0 then
@@ -926,7 +932,11 @@ local function step(dt: number)
 		-- #2946: the first bait's cat eating in its cutscene (Effects/FirstBaitCut sets this on this client only)
 		local eatingAt = model:GetAttribute("FirstBaitEatingLocal")
 		if type(eatingAt) == "number" then
-			Logic.eatPose(o, os.clock() - eatingAt)
+			Logic.eatPose(
+				o,
+				os.clock() - eatingAt,
+				model:GetAttribute("FirstBaitEatQuickLocal") == true
+			)
 		end
 		Pose.draw(rig, o, alpha)
 		-- a hiss hop too: a missed catch hisses and flees at once, and the flee's first writes landed on the skipped

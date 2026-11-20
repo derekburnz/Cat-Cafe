@@ -9,6 +9,7 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local AdminDropService = require(script.Parent.Services.AdminDropService)
 local AdminWheelService = require(script.Parent.Services.AdminWheelService)
+local AdventService = require(script.Parent.Services.AdventService)
 local AfkCafeService = require(script.Parent.Services.AfkCafeService)
 local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
@@ -110,16 +111,19 @@ for _, player in Players:GetPlayers() do
 end
 
 local started = os.clock()
-local placeholders = AssetRegistry.ensurePlaceholders()
 -- #3743: the area sets and backdrops leave ReplicatedStorage before anyone joins, so no client is sent them
 local stowed = AssetRegistry.stowServerOnly()
 -- #4763: the tables caps follow the tablesSpread switch (shared/TablesSpread)
 require(ReplicatedStorage.Shared.TablesSpread).follow()
+require(ReplicatedStorage.Shared.TablesEight).follow() -- #5441: Tables 7 and 8 follow the tablesEight switch
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch (shared/SpinCat)
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
+require(ReplicatedStorage.Shared.PerfectCatch).follow() -- #5300: the pay rule follows the perfectCatch switch
+require(ReplicatedStorage.Shared.EasyKeep).follow() -- #5311: the Dragon Keep's goals follow the easyKeep switch
 require(ReplicatedStorage.Shared.BigTreats).follow() -- Derek 2026-11-18: the Daily Treat rows follow bigTreats
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
+require(ReplicatedStorage.Shared.CompanionTraits).follow() -- #5303: the companion traits follow the companionTraits switch
 local world = WorldBuilder.build()
 
 Net.start()
@@ -151,9 +155,11 @@ QuestService.start() -- F73: after the services whose counters its quests read
 PotionService.start()
 ShoveService.start()
 QuietStartService.start() -- #4005: a new player's quiet start, before DataService (onLoaded)
+require(script.Parent.Services.StartGoalService).start() -- #5533 goalChip: the play first start's two first goals
 NameService.start()
 TipJarService.start()
 DailyTreatService.start()
+AdventService.start() -- #5502
 IndexRewardService.start()
 ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip Jar
 SpinService.start()
@@ -170,9 +176,11 @@ DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
+require(script.Parent.Services.PerfectCatchService).start() -- #5300: the charm 80+ cats marked Perfect once
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags
 require(script.Parent.Services.LeaveCleanupService).start() -- server memory: old characters and leavers destroyed
 require(script.Parent.Services.AreaOnlyService).start() -- #5026: fences, camp cannons and other cafes stream (areaOnly switch)
+require(script.Parent.Services.TownGroundService).start() -- #5357: Town paving and paw paths kept whole (townGround)
 require(script.Parent.Services.AreaWholeService).start() -- Derek 2026-11-18: the area you are in loads whole (areaWhole switch)
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
@@ -239,10 +247,9 @@ end
 
 print(
 	string.format(
-		"[CatCafe] server ready in %.2fs: %d plots, %d placeholder models, %d server-only templates",
+		"[CatCafe] server ready in %.2fs: %d plots, %d server-only templates",
 		os.clock() - started,
 		#world.plots,
-		placeholders,
 		stowed
 	)
 )

@@ -12,6 +12,7 @@
 local GuiService = game:GetService("GuiService")
 local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -40,6 +41,11 @@ local LIT, DIM, STILL = 0.05, 0.75, 0.3 -- dot transparency at the comet's head,
 local DOT_SIZE = Vector3.new(0.15, 1.1, 1.1) -- a flat disc: a cylinder's length runs along X
 local FLAT = CFrame.Angles(0, 0, math.rad(90)) -- stands the cylinder's axis upright so the disc lies flat
 local LIFT = 0.12 -- studs above the floor, so the dots do not flicker into it
+-- #5465 (Derek 2026-11-19: the paws are "cute but laggy"): with switch guideArrow on, no dots and no route; the
+-- target and colour go on the folder as these attributes, and Effects/GuideArrow draws one arrow by the player
+local ARROW_FLAG = "LiveFlag_guideArrow"
+local TARGET_ATTRIBUTE = "GuideTarget"
+local COLOUR_ATTRIBUTE = "GuideColour"
 
 local GuideTrail = {}
 GuideTrail.__index = GuideTrail
@@ -196,12 +202,32 @@ function GuideTrail._step(self: any)
 	local target: Target? = self._target
 	local finish = if target ~= nil then targetPosition(target) else nil
 	local start = feet()
+	local arrow = ReplicatedStorage:GetAttribute(ARROW_FLAG) == true
+	local folder: Folder = self._folder
 	if finish == nil or start == nil or (finish - start).Magnitude < ARRIVED then
 		self:_lay({})
 		self._lastStart = nil
+		if folder:GetAttribute(TARGET_ATTRIBUTE) ~= nil then
+			folder:SetAttribute(TARGET_ATTRIBUTE, nil)
+		end
 		return
 	end
 	assert(finish and start, "trail ends")
+	if arrow then
+		if self._count > 0 then
+			self:_lay({})
+		end
+		self._lastStart = nil
+		if folder:GetAttribute(TARGET_ATTRIBUTE) ~= finish then
+			folder:SetAttribute(TARGET_ATTRIBUTE, finish)
+		end
+		if folder:GetAttribute(COLOUR_ATTRIBUTE) ~= self._color then
+			folder:SetAttribute(COLOUR_ATTRIBUTE, self._color)
+		end
+		return
+	elseif folder:GetAttribute(TARGET_ATTRIBUTE) ~= nil then
+		folder:SetAttribute(TARGET_ATTRIBUTE, nil)
+	end
 	local last: Vector3? = self._lastStart
 	local moved = last == nil or (start - last).Magnitude >= REPATH_MOVE
 	if moved and not self._computing and os.clock() - self._lastPathAt >= REPATH_SECONDS then
@@ -263,6 +289,7 @@ function GuideTrail.hide(self: any)
 	self._lastStart = nil
 	self._lastPathAt = -math.huge
 	self:_lay({})
+	self._folder:SetAttribute(TARGET_ATTRIBUTE, nil)
 	self._folder.Parent = nil
 end
 

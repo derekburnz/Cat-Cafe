@@ -1,0 +1,53 @@
+--!strict
+-- shared/Tier3Trip.luau: the stops between Tier 3 and the first Neighbourhood landing (#5517).
+return function()
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Tier3Trip =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tier3Trip")) :: any
+
+	describe("Tier3Trip", function()
+		it("logs each stop once, only at Tier 3", function()
+			expect(Tier3Trip.due(nil, "cannon_open", 3)).to.equal(true)
+			expect(Tier3Trip.due(nil, "cannon_open", 2)).to.equal(false)
+			expect(Tier3Trip.due(nil, "cannon_open", 4)).to.equal(false)
+			expect(Tier3Trip.due(nil, "unknown", 3)).to.equal(false)
+			local mask = Tier3Trip.mark(nil, "cannon_open")
+			expect(Tier3Trip.due(mask, "cannon_open", 3)).to.equal(false)
+			expect(Tier3Trip.due(mask, "picked", 3)).to.equal(true)
+			expect(Tier3Trip.mark(mask, "cannon_open")).to.equal(mask)
+		end)
+
+		it("stops logging once the landing is in", function()
+			local mask = Tier3Trip.mark(Tier3Trip.mark(nil, "picked"), "landed")
+			expect(Tier3Trip.due(mask, "cannon_open", 3)).to.equal(false)
+			expect(Tier3Trip.due(mask, "refused", 3)).to.equal(false)
+			expect(Tier3Trip.leftDue(mask, 3)).to.equal(false)
+			expect(Tier3Trip.leftDue(Tier3Trip.mark(nil, "picked"), 3)).to.equal(true)
+			expect(Tier3Trip.leftDue(nil, 4)).to.equal(false)
+		end)
+
+		it("names the furthest stop before the landing", function()
+			expect(Tier3Trip.furthest(nil)).to.equal("none")
+			expect(Tier3Trip.furthest(Tier3Trip.mark(nil, "cannon_open"))).to.equal("cannon_open")
+			local mask = Tier3Trip.mark(Tier3Trip.mark(nil, "cannon_open"), "refused")
+			expect(Tier3Trip.furthest(mask)).to.equal("refused")
+			expect(Tier3Trip.furthest(Tier3Trip.mark(mask, "picked"))).to.equal("picked")
+		end)
+
+		it("keeps only a whole mask in range from a save", function()
+			expect(Tier3Trip.sanitize(nil)).to.equal(nil)
+			expect(Tier3Trip.sanitize("x")).to.equal(nil)
+			expect(Tier3Trip.sanitize(0)).to.equal(nil)
+			expect(Tier3Trip.sanitize(5.5)).to.equal(5)
+			expect(Tier3Trip.sanitize(999)).to.equal(Tier3Trip.MASK_MAX)
+		end)
+	end)
+	describe("Tier3Trip.landed (#5517)", function()
+		it("reads the landing bit only", function()
+			expect(Tier3Trip.landed(nil)).to.equal(false)
+			expect(Tier3Trip.landed(Tier3Trip.mark(nil, "picked"))).to.equal(false)
+			expect(Tier3Trip.landed(Tier3Trip.mark(nil, "landed"))).to.equal(true)
+			expect(Tier3Trip.landed(Tier3Trip.MASK_MAX)).to.equal(true)
+		end)
+	end)
+end

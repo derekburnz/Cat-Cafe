@@ -615,6 +615,7 @@ function Trade.arrival(instance: Types.CatInstance, now: number): Types.CatInsta
 		xp = instance.xp,
 		charm = instance.charm,
 		rescued = if instance.rescued == true then true else nil,
+		perfect = if instance.perfect == true then true else nil, -- #5300: a Perfect cat keeps its mark
 		name = nil,
 		method = "trade",
 		locked = nil, -- #2906: never auto-locked

@@ -111,6 +111,12 @@ local OPENS_TOP = LIST_TOP + LIST_H + 10 -- the tall window's "It opens", under 
 -- button take, on every screen: TALL less the section's 128 px (its label, teaser and cards), no taller than the room.
 RankUp.NO_OPENS_FLAG = "noRankOpens"
 local BARE_HEIGHT = TALL.Y - 128
+-- Sync's phone look (rankUpSteps): the steps window was BARE_HEIGHT for any count, so two steps left 88 px empty (one
+-- row and STEPS_SLACK under the last). It now loses a row's height for each step under three and the slack, so the
+-- Rank Up button sits right under the last step (RankUp.stepsHeight).
+-- #5368 (Derek 2026-11-18: "rankup button shows on top of goals"): taking STEPS_SLACK off every count put the button
+-- over step 3, since the steps view's "N steps left" line uses that room. The window now loses only the missing rows.
+local STEPS_SLACK = 0
 -- #5218 (Derek 2026-11-18: "goal should be to show steps clearly"): with the switch `rankUpSteps` on, the window is
 -- the same one column (it implies noRankOpens), titled "Rank up to <tier>" over "N steps left" (gold "Ready!" once
 -- all are met). The needs are numbered steps in rankUpBlocker's order (cats, rarity, coins) in plain words; a met step
@@ -118,6 +124,16 @@ local BARE_HEIGHT = TALL.Y - 128
 -- reads "Rank Up (N steps left)".
 RankUp.STEPS_FLAG = "rankUpSteps"
 local GO_W = 64
+-- Sync's portrait read (rankUpSteps): the steps window is about 420 px wide at the 0.75 touch floor, so on a 360 px
+-- portrait phone it ran past the edge. It is now no wider than STEPS_MAX_W of the room, and a step's words wrap
+-- (never under STEP_MIN_TEXT) instead of shrinking away.
+local STEPS_MAX_W = 0.92
+local STEP_MIN_TEXT = 14
+-- The status box's width and its inset from the row's right edge, plus the gap kept between it and the label (the
+-- label ran 8 px into the status before).
+local STATUS_W = 170
+local STATUS_IN = 14
+local LABEL_GAP = 8
 local function flagOn(key: string): boolean
 	return LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 end
@@ -273,21 +289,23 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 		)
 		requirements[#requirements].kind = "coins"
 		requirements[#requirements].step = "Save " .. Format.money(nextTier.cost)
-		table.insert(
-			requirements,
-			requirement(
-				(if nextTier.anyCats == true then "%d cats" else "%d different cats"):format(
-					nextTier.distinctCats
-				),
-				if nextTier.anyCats == true then "Cats" else "Different cats", -- #4809
-				needs.catsHave,
-				needs.catsNeed
+		if nextTier.distinctCats > 0 then -- #5533: coinsOnly asks no cats, so no row
+			table.insert(
+				requirements,
+				requirement(
+					(if nextTier.anyCats == true then "%d cats" else "%d different cats"):format(
+						nextTier.distinctCats
+					),
+					if nextTier.anyCats == true then "Cats" else "Different cats", -- #4809
+					needs.catsHave,
+					needs.catsNeed
+				)
 			)
-		)
-		requirements[#requirements].kind = "cats"
-		requirements[#requirements].step = (if nextTier.anyCats == true
-			then "Catch %d cats"
-			else "Catch %d different cats"):format(nextTier.distinctCats)
+			requirements[#requirements].kind = "cats"
+			requirements[#requirements].step = (if nextTier.anyCats == true
+				then "Catch %d cats"
+				else "Catch %d different cats"):format(nextTier.distinctCats)
+		end
 		local needsRarity = needs.rarity
 		if needsRarity then
 			local count = needs.rarityNeed
@@ -559,6 +577,12 @@ function RankUp._watchRoom(self: any)
 	end
 end
 
+-- The steps window's height for `count` steps (1 to 3): BARE_HEIGHT less each missing row and STEPS_SLACK.
+function RankUp.stepsHeight(count: number): number
+	local missing = math.clamp(3 - count, 0, 2)
+	return BARE_HEIGHT - missing * (ROW_HEIGHT + Theme.sizes.gap) - STEPS_SLACK
+end
+
 -- TALL where it fits, WIDE (no bigger than the room) where it does not.
 function RankUp._fit(self: any)
 	local holder = self.frame.Parent
@@ -571,8 +595,12 @@ function RankUp._fit(self: any)
 	end
 	local noOpens = bare()
 	local wide = not noOpens and room.Y < TALL.Y
+	local bareHeight = if steps() then RankUp.stepsHeight(self._stepCount or 3) else BARE_HEIGHT
 	local size = if noOpens
-		then Vector2.new(math.min(TALL.X, room.X), math.min(BARE_HEIGHT, room.Y))
+		then Vector2.new(
+			math.min(TALL.X, if steps() then room.X * STEPS_MAX_W else room.X),
+			math.min(bareHeight, room.Y)
+		)
 		elseif wide then Vector2.new(math.min(WIDE.X, room.X), math.min(WIDE.Y, room.Y))
 		else TALL
 	self.frame.Size = UDim2.fromOffset(math.floor(size.X), math.floor(size.Y))
@@ -664,21 +692,28 @@ function RankUp._row(
 	})
 	Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = tile })
 	left = 46
-	text({
+	-- Sync's portrait read (rankUpSteps): a step's label takes only the width left after the status and the Go button,
+	-- with LABEL_GAP between, and wraps onto a second line
+	local labelRight = if asStep then STATUS_IN + STATUS_W + LABEL_GAP else 176
+	local label = text({
 		Name = "Label",
 		Position = UDim2.fromOffset(left, 0),
-		Size = UDim2.new(1, -(left + 176 + goRoom), 1, -6),
+		Size = UDim2.new(1, -(left + labelRight + goRoom), 1, -6),
 		FontFace = Theme.fonts.bodyBold,
 		TextColor3 = CARD.text,
 		Text = if asStep then (item.step or item.label) else item.label,
 		Parent = row,
 	})
+	if asStep then
+		label.TextWrapped = true
+		label.TextTruncate = Enum.TextTruncate.None
+	end
 	text({
 		Name = "Status",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -(14 + goRoom), 0, 0),
+		Position = UDim2.new(1, -(STATUS_IN + goRoom), 0, 0),
 		-- room for "$45,000 / $80,000" at full size (the economy pass of 2026-10-28 put ranks at $8K to $5M)
-		Size = UDim2.new(0, 170, 1, -6),
+		Size = UDim2.new(0, STATUS_W, 1, -6),
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextColor3 = if item.met then CARD.good else CARD.warn,
@@ -707,7 +742,7 @@ function RankUp._row(
 	end
 	-- #4479 (Derek 2026-11-15: "in the rankup cards on mobile the coins don't show the full ... $##/..."): the need and
 	-- its numbers shrink to fit on a phone instead of ending in "..."
-	FitText.shrink(row:FindFirstChild("Label") :: TextLabel)
+	FitText.shrink(label, if asStep then STEP_MIN_TEXT else nil)
 	if not item.met then
 		FitText.shrink(row:FindFirstChild("Status") :: TextLabel)
 	end
@@ -829,7 +864,9 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	end
 	-- #5258: with noRankOpens on, no "It opens" section; a flip of the switch fits the window again
 	local noOpens = bare()
-	if noOpens ~= self._bare then
+	local stepCount = if stepsOn then #shownRows else nil
+	if noOpens ~= self._bare or stepCount ~= self._stepCount then
+		self._stepCount = stepCount
 		self:_fit()
 	end
 	self._opensLabel.Visible = not noOpens

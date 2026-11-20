@@ -15,14 +15,14 @@
 --   local skip = DragonRise.play({ stage = 3, keep = yard.CFrame, colour = "ruby", dragon = cinder }, onDone)
 --
 -- `keep` is the yard centre on the ground, its LookVector out the gate (the camera stands out that way and, since #4612,
--- high over the walls looking down: Effects/KeepShot). `dragon` is the
+-- high over the walls looking down; since #5423 swung up over the yard: Effects/KeepShot). `dragon` is the
 -- owner's live Cinder, hidden on this client while the scene's own copies play and shown again after onDone (by
 -- then the caller has swapped it to the new look). onDone runs exactly once, whatever happens, and a hard cap
 -- (the plan's total plus Presets.dragonRise.cap) always gives the camera, controls, prompts and windows back.
 -- Nothing random, and nothing flashes but the one crack. Model-Agent's dragons (ReplicatedStorage.Assets.Dragon,
 -- CatCafe_Dragon_<Stage>, #4081: joints are child Models pivoted at their hinge, named ending _Neck, _Head, _Jaw,
--- _Tail1 to 3, _WingL, _WingR and four legs; `_Scale` parts take the scale colour) are used when they are there, else a stand-in with the same joints is drawn here. Switch
--- `dragonKeep` (shared/LiveFlags, Gameplay-Engineer's); in Studio the Workspace attribute DragonRiseTest (1 to 5)
+-- _Tail1 to 3, _WingL, _WingR and four legs; `_Scale` parts take the scale colour) are used when they are there, else a stand-in with the same joints is drawn here. Its switch
+-- `dragonKeep` is retired (#4656); in Studio the Workspace attribute DragonRiseTest (1 to 5)
 -- plays it in front of you with the switch off. Client only; it sends nothing.
 
 local CollectionService = game:GetService("CollectionService")
@@ -32,8 +32,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
-
-local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 local Context = require(script.Parent.Context)
 local CutsceneShell = require(script.Parent.CutsceneShell)
@@ -70,7 +68,6 @@ export type Info = {
 local listeners: { (beat: Beat, stage: number) -> () } = {}
 local holds: { (on: boolean) -> () } = {}
 
-local SWITCH = "dragonKeep"
 local TEST_ATTRIBUTE = "DragonRiseTest"
 local STEP = "EffectsDragonRise"
 local KIT = "Dragon"
@@ -130,16 +127,9 @@ function DragonRise.testStage(): number?
 	return if stage ~= nil and Logic.dragonPlan(stage, false) ~= nil then stage else nil
 end
 
--- Whether a stage up gets its cutscene now: the Keep's switch on (or the Studio test) and none already running.
+-- Whether a stage up gets its cutscene now: none already running.
 function DragonRise.wanted(): boolean
-	if running then
-		return false
-	end
-	if DragonRise.testStage() ~= nil then
-		return true
-	end
-	-- on only when the switch says so: before the key exists in LiveFlags an unset switch must not count as on
-	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SWITCH) == true
+	return not running -- the dragonKeep switch is retired (#4656)
 end
 
 function DragonRise.playing(): boolean
@@ -799,6 +789,21 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 		return look + way * reach
 	end
 
+	-- #5480: the hill or floor height under `at` (nil when there is none in reach)
+	local function groundUnder(at: Vector3): number?
+		local hit = Workspace:Raycast(at + Vector3.new(0, 200, 0), Vector3.new(0, -400, 0), rays)
+		return if hit ~= nil then hit.Position.Y else nil
+	end
+	-- #5480: the flight from `from` to `to` at `k`, humped up over the straight line and kept over the ground
+	local function flight(from: CFrame, to: CFrame, k: number): CFrame
+		local frame = from:Lerp(to, k)
+		local distance = (to.Position - from.Position).Magnitude
+		local eye = frame.Position
+			+ Vector3.new(0, KeepShot.hop(k, distance, c.hopLift, c.hopMost), 0)
+		eye = KeepShot.overGround(eye, groundUnder(eye), c.groundGap * math.sin(math.pi * k))
+		return frame.Rotation + eye
+	end
+
 	local function finish()
 		if finished then
 			return
@@ -856,10 +861,11 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 	-- where the standing dragon looks from: out by the gate, a little to one side, low
 	local function shot(height: number, push: number, drift: number): (Vector3, Vector3)
 		local distance = math.max(c.minDistance, c.distance * height + 4) * push
-		local eye = keep:PointToWorldSpace(
-			Vector3.new(c.side * distance + drift * height, c.up * height + 1.5, -distance)
-		)
-		return eye, keep.Position + Vector3.new(0, height * c.lookUp, 0)
+		local low = Vector3.new(c.side * distance + drift * height, c.up * height + 1.5, -distance)
+		local look = Vector3.new(0, height * c.lookUp, 0)
+		-- #5423: swung up to look down from above, so the Keep's front wall stays out of the frame
+		local eye = keep:PointToWorldSpace(KeepShot.above(low, look, c.above, c.aboveRange))
+		return eye, keep.Position + look
 	end
 
 	local function crack(now: number, ground: Vector3)
@@ -1264,7 +1270,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 		local scene = CFrame.lookAt(wantEye, lookAt)
 		local frame: CFrame
 		if t < plan.swing then
-			frame = start:Lerp(scene, Logic.smoothstep01(t / plan.swing))
+			frame = flight(start, scene, Logic.smoothstep01(t / plan.swing))
 			fov = fovWas + (c.fov - fovWas) * Logic.smoothstep01(t / plan.swing)
 		elseif t >= plan.backAt then
 			if not backing then
@@ -1274,7 +1280,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 				-- he is back in the yard for the hand over, in his new look (the caller's live one takes over)
 			end
 			local k = Logic.smoothstep01((t - plan.backAt) / (plan.total - plan.backAt))
-			frame = backFrom:Lerp(start, k)
+			frame = flight(backFrom, start, k)
 			fov = fov + (fovWas - fov) * k
 		else
 			frame = scene

@@ -10,6 +10,9 @@
 --                        FiresideRug in the lodge, the 12 patch snowflakes (SnowglobeFlake, each with an invisible
 --                        Touch part), the arrival pad (SnowglobeArrival) and the village's middle (SnowglobeCentre, the
 --                        part Effects/SnowglobeFx's snowfall centres on).
+--   buildAdventBoard(parent, portal)  #5502: the advent calendar board (CatCafe_Square_AdventBoard, #5511) beside the
+--                        globe, facing the cannon like it, on the first side whose spot is clear, tagged AdventBoard.
+--                        Its doors stay anchored and unwelded: the client's Effects/AdventFx swings them.
 --   landing()            where a trip in lands: the player spawn, facing the tree.
 --   areaInfo(folder)     the area as CatService knows the others (WorldBuilder.AreaInfo, id "snowglobe"): the 14 stray
 --                        spots and the nook (zone "rare") as invisible parts in `folder`, and five roam boxes inside
@@ -20,6 +23,7 @@
 local CollectionService = game:GetService("CollectionService")
 
 local AssetRegistry = require(script.Parent.AssetRegistry)
+local HarvestWorld = require(script.Parent.HarvestWorld)
 
 local SnowglobeWorld = {}
 
@@ -30,6 +34,13 @@ SnowglobeWorld.STALL = "CatCafe_Snowglobe_Stall"
 SnowglobeWorld.FLAKE = "CatCafe_Snowglobe_Snowflake"
 SnowglobeWorld.FIREPLACE = "CatCafe_Decor_StoneFireplace"
 SnowglobeWorld.RUG = "CatCafe_Decor_FiresideRug"
+SnowglobeWorld.ADVENT_BOARD = "CatCafe_Square_AdventBoard" -- #5502: 7.4 wide, 14.2 tall, pivot at the base centre
+SnowglobeWorld.ADVENT_TAG = "AdventBoard" -- Controllers/AdventBoardController finds it
+-- Board pivots in globe space (front -Z, toward the cannon): the globe is 26.2 wide, so 13.1 + 2 clear + 3.7 out to
+-- either side, a little ahead of the globe's middle. The first spot with nothing standing in it wins.
+SnowglobeWorld.ADVENT_SPOTS =
+	{ Vector3.new(18.8, 0, -2), Vector3.new(-18.8, 0, -2), Vector3.new(0, 0, 16) }
+SnowglobeWorld.ADVENT_BOX = Vector3.new(8.4, 14, 3)
 
 SnowglobeWorld.PORTAL_TAG = "SnowglobePortal" -- Effects/SnowglobeFx (Presets.snowglobeFx.portalTag)
 SnowglobeWorld.PORTAL_TOUCH_TAG = "SnowglobePortalTouch"
@@ -44,10 +55,10 @@ SnowglobeWorld.CENTER = Vector3.new(-2400, 0, 2400)
 -- The set is 128 x 128 (Model-Agent), ground paint only, so the area gets its own Floor slab, its top at CENTER.Y.
 SnowglobeWorld.FLOOR_SIZE = Vector3.new(128, 4, 128)
 SnowglobeWorld.BARRIER_RADIUS = 57.8 -- the barrier ring's middle (CatCafe_Snowglobe_Set_002_Edge_Barrier, 1.6 thick)
--- The globe stands where Harvest Hollow's arch stood (HarvestWorld.ARCH_AT; Harvest is vaulted, so the arch is never
--- built): the Town Square's open north-west middle, 30 studs from the Spin Wheel and the Rally board, facing the
--- cannon. The globe is 26.2 wide, its way in 5.2 in front of its pivot and its back 12.8 behind.
-SnowglobeWorld.PORTAL_AT = Vector3.new(-21, 0.1, 55)
+-- The globe stands on Harvest Hollow's arch spot (HarvestWorld.ARCH_AT; Harvest is vaulted, so the arch is never
+-- built), facing the cannon, and follows it when the Town Square layout moves it (#5224 v5 put it at (-24, 35), clear
+-- of the Day Cart). The globe is 26.2 wide, its way in 5.2 in front of its pivot and its back 12.8 behind.
+SnowglobeWorld.PORTAL_AT = HarvestWorld.ARCH_AT
 SnowglobeWorld.PORTAL_WAY_IN = Vector3.new(0, 4.45, -5.2) -- CatCafe_Snowglobe_Portal_Portal_Glow, globe space
 
 -- CatCafe_Snowglobe_Set points_roblox (set space, front -Z): x, y, z, and for the stall, fireplace and rug a fourth
@@ -264,6 +275,52 @@ function SnowglobeWorld.buildPortal(parent: Instance): Model?
 	CollectionService:AddTag(touch, SnowglobeWorld.PORTAL_TOUCH_TAG)
 	CollectionService:AddTag(portal, SnowglobeWorld.PORTAL_TAG)
 	return portal
+end
+
+-- #5502: whether nothing but ground stands in a board's box at `cframe` (the globe left out). Ground (a part whose
+-- top is under 0.6 studs above the spot) and invisible touch parts do not count.
+local function clear(cframe: CFrame, portal: Instance): boolean
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { portal }
+	local box = SnowglobeWorld.ADVENT_BOX
+	local parts = game:GetService("Workspace")
+		:GetPartBoundsInBox(cframe * CFrame.new(0, box.Y / 2 + 0.6, 0), box, params)
+	for _, part in parts do
+		if
+			part.Transparency < 1
+			and part.Position.Y + part.Size.Y / 2 > cframe.Position.Y + 0.6
+		then
+			return false
+		end
+	end
+	return true
+end
+
+-- The advent calendar board beside the globe, or nil while its model is not in the assets (#5511).
+function SnowglobeWorld.buildAdventBoard(parent: Instance, portal: Model): Model?
+	if not AssetRegistry.known(SnowglobeWorld.ADVENT_BOARD) then
+		return nil
+	end
+	local base = portal:GetPivot()
+	local chosen = base * CFrame.new(SnowglobeWorld.ADVENT_SPOTS[1])
+	for _, spot in SnowglobeWorld.ADVENT_SPOTS do
+		local cframe = base * CFrame.new(spot)
+		if clear(cframe, portal) then
+			chosen = cframe
+			break
+		end
+	end
+	local board = AssetRegistry.clone(SnowglobeWorld.ADVENT_BOARD)
+	board:PivotTo(chosen)
+	for _, part in board:GetDescendants() do
+		if part:IsA("BasePart") then
+			(part :: BasePart).Anchored = true -- the doors swing by PivotTo on each client, so nothing is welded or unanchored
+		end
+	end
+	board.Parent = parent
+	CollectionService:AddTag(board, SnowglobeWorld.ADVENT_TAG)
+	return board
 end
 
 -- The area: the set, its stall, lodge pieces and snowflakes, the arrival pad, the centre mark and the stray spots.

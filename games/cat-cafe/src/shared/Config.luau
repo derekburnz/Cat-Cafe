@@ -752,6 +752,21 @@ local Config = {
 	-- to hit, only quicker to come; the ring count, the gaps and the rarer cats are unchanged.
 	QuickRingTier = 5,
 	QuickRingScale = { Common = 0.80, Rare = 0.85 } :: { [string]: number },
+	-- #5392 (Derek 2026-11-19, Design-Agent's catch-curve spec; switch catchCurve): one smooth curve. Bands are
+	-- base x (1 + netStep x net) x W[tier] x rarity catchWindow x coat, capped at maxBand; ring shrink is the
+	-- rarity's x S[tier] x CoatSpeed (replaces QuickRing); a Perfect adds TrustPerfect x (1 + heartNet x net x
+	-- heartArea[tier]) trust, rounded, never enough to catch on one press. W and S only fall with tier.
+	CatchCurve = {
+		perfect = 0.06,
+		good = 0.14,
+		netStep = 0.15,
+		maxBand = 0.5,
+		W = { 1.25, 1.20, 1.12, 1.05, 1.00, 0.97, 0.94, 0.91, 0.88, 0.85 },
+		S = { 1.15, 1.10, 1.05, 1.00, 0.975, 0.95, 0.925, 0.90, 0.875, 0.85 },
+		heartNet = 0.10,
+		heartArea = { 2, 2, 1.5, 1.5 }, -- tiers 1 to 4; 1 from tier 5
+	},
+	CoatSpeed = { gold = 0.95, rainbow = 0.88 } :: { [string]: number }, -- #5392: ring shrink times, with catchCurve
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty"; no tablet got past the first
 	-- rescue): the first two areas' bars for every rarity. `zone` times RescueZoneWidth, `speed` times RescueBarSpeed
@@ -850,9 +865,23 @@ local Config = {
 		{
 			id = "0",
 			startsAt = 1795006800, -- 2026-11-18 13:00 UTC
-			liveUntil = 1795291200, -- 2026-11-21 20:00 UTC
-			name = "CAT FOLLOWER",
-			poster = "rbxassetid://140613402107560", -- Model-Agent's v2 poster (#5213, 1024x576)
+			-- #5461 (Derek 2026-11-19: "switch to christmas"): OUT NOW ends 14:00 UTC Nov 19 (was Nov 21 20:00 UTC), so
+			-- the poster shows the Christmas Event's DEC 1 TO JAN 3 art, the Roblox event card's picture
+			liveUntil = 1795096800, -- 2026-11-19 14:00 UTC
+			name = "CAT COMPANION",
+			-- Derek 2026-11-18 (#5284: the follower is the Cat Companion now): the CAT COMPANION! picture, group owned
+			poster = "rbxassetid://74687423272088", -- was 140613402107560, the CAT FOLLOWER! one (#5213)
+		},
+		-- Derek 2026-11-20 11:43 UTC ("post an event/update card with "device improvements" ... for saturday at a good
+		-- peak time and switch the sign in game and notifys to be that event for now"): Growth's Roblox Event, Sat Nov 21
+		-- 20:00 to 22:00 UTC. It starts before Christmas, so the poster and the Notify Me ask take it first and roll on
+		-- to Christmas by themselves once it starts. Poster: Model-Agent's art, group owned.
+		{
+			id = "8108785197822116451",
+			startsAt = 1795291200, -- "Device Improvements", Saturday 2026-11-21 20:00 UTC (3 PM ET)
+			title = "🔔 Next update Saturday: DEVICE IMPROVEMENTS and a quick Rank Up! Want a reminder?",
+			name = "DEVICE IMPROVEMENTS",
+			poster = "rbxassetid://120464533836665",
 		},
 		{
 			id = "3056428113926947439",
@@ -860,7 +889,9 @@ local Config = {
 			startsAt = 1796155200, -- "Christmas Event", Tuesday 2026-12-01 20:00 UTC
 			title = "🔔 Next update Tue Dec 1: the CHRISTMAS EVENT! Want a reminder when it lands?",
 			name = "CHRISTMAS EVENT",
-			poster = "rbxassetid://75146631114839", -- DEC 1 TO JAN 3 banner (1024x576, Model-Agent #5288)
+			-- #5461 (Sync's look at the poster): the face's bottom name bar half hid the art's DEC 1 TO JAN 3 badge, so
+			-- the same art is fitted inside the 800x450 face, dates 40 px above the name bar (was 103012343912449, then 75146631114839 before)
+			poster = "rbxassetid://123740140740442",
 		},
 		{
 			id = "6693355219203523122",

@@ -32,6 +32,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FreeStart = require(ReplicatedStorage.Shared.FreeStart)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -43,6 +44,7 @@ local PlotService = require(script.Parent.PlotService)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local StreamAround = require(script.Parent.Parent.Util.StreamAround)
 local Telemetry = require(script.Parent.Telemetry)
+local Tier3Trip = require(ReplicatedStorage.Shared.Tier3Trip)
 local TravelService = require(script.Parent.TravelService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -157,6 +159,14 @@ local function refuse(player: Player, destination: string, reason: string)
 	Net.fire(player, "CannonLaunch", destination, nil)
 end
 
+-- #5533 cannonGlow (shared/CannonGlow): a launch to, or a landing in, the glowing area ends the glow
+local function clearGlow(player: Player, destination: string)
+	local CannonGlow = require(ReplicatedStorage.Shared.CannonGlow) :: any
+	if CannonGlow.clears(player:GetAttribute(CannonGlow.ATTR), destination) then
+		player:SetAttribute(CannonGlow.ATTR, nil)
+	end
+end
+
 local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestination: unknown)
 	local cannonId, destination = Guard.id(rawCannonId), Guard.id(rawDestination)
 	local profile = DataService.get(player)
@@ -193,6 +203,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		distance = if root ~= nil and model ~= nil
 			then Cannon.reach(root.Position, model:GetPivot().Position) -- #4343: flat, as the ring
 			else nil,
+		anywhere = LiveFlagService.on(Cannon.ANYWHERE_FLAG), -- #5382
 		carrying = CatService.isLoaded(player),
 		busy = CatService.inMinigame(player),
 		flying = CatService.inFlight(player),
@@ -206,6 +217,9 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		-- #4544: a pick refused because the area's Tier is above the player's (the AreaVisit journey)
 		if area ~= nil and area.tier > Economy.tier(profile) then
 			Telemetry.tripPicked(player, profile, destination, true)
+		end
+		if destination == Tier3Trip.AREA then
+			Telemetry.tier3Stop(player, profile, "refused", reason or "Still loading") -- #5517
 		end
 		refuse(player, destination, reason or "Still loading")
 		return
@@ -231,11 +245,24 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonLaunchAt", now)
 	flyer:SetAttribute("CannonFrom", cannonId)
 	flyer:SetAttribute("CannonTo", destination)
+	-- #5551: the flight to the Park, from the lit cannon (CannonGlowArea names it) or a pick
+	if destination == Tier3Trip.AREA then
+		Telemetry.startFlight(
+			player,
+			profile,
+			cannonId == Cannon.TOWN,
+			player:GetAttribute("CannonGlowArea") == destination
+		)
+	end
+	clearGlow(player, destination) -- #5533 cannonGlow: the first flight there ends the glow
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	-- Derek 2026-11-18 (areaWhole): the destination area starts streaming in whole now, during the flight
 	local wholeTakes = AreaWholeService.heading(player, destination)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	if destination == Tier3Trip.AREA then
+		Telemetry.tier3Stop(player, profile, "picked") -- #5517
+	end
 	if area ~= nil then
 		Telemetry.tripPicked(player, profile, destination, false) -- #4544: the AreaVisit journey
 	end
@@ -307,9 +334,13 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		landedAt[player] = serverNow()
 		NightService.landed(player) -- a flight into an area that lands after night start is swept at once
 		local lander = if area ~= nil then DataService.get(player) else nil
+		clearGlow(player, destination) -- #5533 cannonGlow: arrived
 		if lander ~= nil then
 			Telemetry.cleanEvent(player, lander, Telemetry.arrivedEvent(destination)) -- #4504: arrived
 			Telemetry.tripArrived(player, destination) -- #4544
+			if destination == Tier3Trip.AREA then
+				Telemetry.tier3Stop(player, lander, "landed") -- #5517
+			end
 		end
 	end)
 end
@@ -332,6 +363,7 @@ end
 -- a moment after the character (PlotService assigns the plot once the profile has loaded), so this waits for both,
 -- up to Cannon.HOME_WAIT_SECONDS, and then moves only a character that still stands at the spawn. The landing's
 -- position goes in the player's Cannon.HOME_ATTRIBUTE so their client can put the camera behind them.
+local FREE_STRAY_WAIT = 3 -- #5533: seconds a freeStart join waits for its waiting stray before it lands anyway
 local function homeArrival(player: Player, character: Model)
 	local started = os.clock()
 	local profile = DataService.get(player)
@@ -351,6 +383,45 @@ local function homeArrival(player: Player, character: Model)
 	if profile == nil then
 		return
 	end
+	-- #5533 (shared/FreeStart): a new save on the play first start begins at the Alleyway landing by day, facing its
+	-- waiting stray, as a flight would land it but with no flight; at night (areas shut) it starts as before
+	Telemetry.orderJoin(player, profile)
+	if
+		player:GetAttribute("FreeStart") == true
+		and (profile.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
+		and (
+			ClockService.areasOpen()
+			-- #5616 spawnAlley: a first session's night pass keeps the Alleyway open for it, so it lands there too
+			or (
+				LiveFlagService.on(FreeStart.SPAWN_FLAG)
+				and NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
+			)
+		)
+	then
+		local waited = 0
+		while CatService.firstLandingStray(player, "alley") == nil and waited < FREE_STRAY_WAIT do
+			task.wait(0.25) -- the stray tick puts the save's waiting stray on its near point within a second
+			waited += 0.25
+		end
+		local root = rootOf(character)
+		local landing = landingFor(player, "alley")
+		if
+			landing ~= nil
+			and root ~= nil
+			and player.Character == character
+			and character.Parent ~= nil
+			and character:GetAttribute("Launching") ~= true
+			and not CatService.isLoaded(player)
+		then
+			StreamAround.wait(player, (landing :: CFrame).Position)
+			if player.Character == character and character.Parent ~= nil then
+				character:PivotTo(landing :: CFrame)
+				Cannon.noteMove(player, landing :: CFrame) -- the camera goes behind the character there
+				Telemetry.cleanEvent(player, profile, Telemetry.arrivedEvent("alley"))
+				return
+			end
+		end
+	end
 	if
 		not Cannon.joinsAtHome(
 			profile.introSeen,
@@ -358,7 +429,7 @@ local function homeArrival(player: Player, character: Model)
 			Telemetry.introPlays(player, profile),
 			profile.tutorialStep,
 			Config.TutorialGuaranteedStrayStep,
-			require(ReplicatedStorage.Shared.TutorialOrder).bowlFirst() -- #4716: a new player starts home too
+			require(ReplicatedStorage.Shared.TutorialOrder).bowlFirst(player) -- #4716: a new player starts home too
 		)
 	then
 		return
@@ -491,6 +562,7 @@ function CannonService.landOnPad(player: Player, destination: string): boolean
 		return false
 	end
 	character:PivotTo(landing)
+	clearGlow(player, destination) -- #5533 cannonGlow: arrived
 	return true
 end
 

@@ -25,6 +25,7 @@ local Types = require(script.Parent.Parent.Types)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Bait = require(Shared:WaitForChild("Bait"))
+local Catching = require(Shared:WaitForChild("Catching"))
 local Config = require(Shared:WaitForChild("Config"))
 local LateTiers = require(Shared:WaitForChild("LateTiers")) :: any -- #3997: no area behind a live switch is named
 local Luck = require(Shared:WaitForChild("Luck"))
@@ -55,6 +56,13 @@ FoodOdds.percent = percent
 type Share = { rarity: string, share: number }
 
 local function shares(odds: Types.LureOdds, secretShare: number?): { Share }
+	if secretShare ~= nil then
+		-- #5418: the share the servers roll with secretDouble on (Catching.secretShare)
+		secretShare = Catching.secretShare(
+			secretShare,
+			ReplicatedStorage:GetAttribute("LiveFlag_" .. Catching.SECRET_DOUBLE_FLAG) == true
+		)
+	end
 	local out: { Share } = {}
 	for _, rarity in RARITIES do
 		local name: string = rarity

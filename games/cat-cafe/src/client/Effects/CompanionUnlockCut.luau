@@ -14,6 +14,11 @@
 -- caller shows the card instead. Otherwise done(outcome) comes once, "played" or "skipped". onCat(listener) tells
 -- Sound when the cat reaches the player. This client only; no remotes. The walking cat is a local copy, anchored and
 -- not hit by anything, gone when the scene ends.
+--
+-- #5550 (switch `cutsQuick`, read as the scene starts): the quick scene of Presets.companionCut.quick, about 3 s with no
+-- skip and a shorter line, over by `cap` seconds past its end whatever happens. Off keeps the scene above exactly.
+-- Derek 2026-11-20 13:20 UTC then cut the scene: with `cutsQuick` on, CompanionSceneController shows its quick card
+-- instead and play returns false (the caller's card), so the quick numbers stay only for a later call.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -38,6 +43,7 @@ local CompanionUnlockCut = {}
 
 local STEP = "EffectsCompanionUnlockCut"
 local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
+local QUICK_FLAG = "LiveFlag_cutsQuick"
 
 local running = false
 local catListeners: { (at: Vector3) -> () } = {}
@@ -70,17 +76,31 @@ function CompanionUnlockCut.at(
 	return math.clamp(fade, 0, 1), there, push, walk, label
 end
 
+-- The numbers a scene plays with: Presets.companionCut, with its `quick` fields over them when `quick`. Pure.
+function CompanionUnlockCut.preset(quick: boolean): typeof(Presets.companionCut)
+	local base = Presets.companionCut
+	if not quick then
+		return base
+	end
+	local out = table.clone(base) :: { [string]: any }
+	for key, value in base.quick :: { [string]: any } do
+		out[key] = value
+	end
+	return out :: any
+end
+
 -- The whole scene's length.
 function CompanionUnlockCut.length(p: typeof(Presets.companionCut)): number
 	return p.endAt + p.fade * 2
 end
 
--- The line under the title for a cat called `name` (nil: no name known). Pure.
-function CompanionUnlockCut.line(name: string?): string
+-- The line under the title for a cat called `name` (nil: no name known); `quick`, the quick scene's shorter line. Pure.
+function CompanionUnlockCut.line(name: string?, quick: boolean?): string
+	local p = CompanionUnlockCut.preset(quick == true)
 	if name == nil or name == "" then
-		return Presets.companionCut.lineNoName
+		return p.lineNoName
 	end
-	return (Presets.companionCut.line :: string):format(name)
+	return (p.line :: string):format(name)
 end
 
 function CompanionUnlockCut.onCat(listener: (at: Vector3) -> ())
@@ -153,7 +173,7 @@ local function label(
 	return made
 end
 
-local function makeScreen(catName: string?): Screen?
+local function makeScreen(catName: string?, quick: boolean): Screen?
 	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	if playerGui == nil then
 		return nil
@@ -198,7 +218,7 @@ local function makeScreen(catName: string?): Screen?
 		line = label(
 			gui,
 			"Line",
-			CompanionUnlockCut.line(catName),
+			CompanionUnlockCut.line(catName, quick),
 			math.floor(p.lineSize * k),
 			p.lineY,
 			Color3.new(1, 1, 1)
@@ -247,6 +267,9 @@ function CompanionUnlockCut.play(
 	if type(catId) ~= "string" or running then
 		return false
 	end
+	if ReplicatedStorage:GetAttribute(QUICK_FLAG) == true then
+		return false -- #5550: no companion scene with cutsQuick on
+	end
 	local camera = Workspace.CurrentCamera
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -272,7 +295,8 @@ function CompanionUnlockCut.play(
 		model:Destroy()
 		return false
 	end
-	local p = Presets.companionCut
+	local quick = ReplicatedStorage:GetAttribute(QUICK_FLAG) == true
+	local p = CompanionUnlockCut.preset(quick)
 	local reduced = Context.reducedMotion()
 	local rootPart = root :: BasePart
 	local humanoid = (character :: Model):FindFirstChildOfClass("Humanoid")
@@ -318,7 +342,7 @@ function CompanionUnlockCut.play(
 	local promptsWere = ProximityPromptService.Enabled
 	CutsceneShell.setControls(module, false)
 	ProximityPromptService.Enabled = false
-	local screen = makeScreen(catName)
+	local screen = makeScreen(catName, quick)
 	model.Parent = Workspace
 	local began = os.clock()
 	local length = CompanionUnlockCut.length(p)
@@ -373,7 +397,7 @@ function CompanionUnlockCut.play(
 
 	input = UserInputService.InputBegan:Connect(function(event: InputObject)
 		local t = os.clock() - began
-		if skipAt ~= nil or t < p.skipAfter then
+		if not p.skip or skipAt ~= nil or t < p.skipAfter then
 			return
 		end
 		local kind = event.UserInputType
@@ -406,7 +430,7 @@ function CompanionUnlockCut.play(
 				timeline = p.endAt
 			end
 		end
-		if timeline >= length or t >= length + 1 then
+		if timeline >= length or t >= length + p.cap then
 			finish(at ~= nil)
 			return
 		end

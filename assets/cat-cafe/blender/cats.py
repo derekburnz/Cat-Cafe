@@ -477,6 +477,25 @@ ROSTER["PetalDragon"] = dict(rarity="Mythical", fur="fur_bubblegum", second="mil
                              sparkle=True, socks="milk", tip="milk", scale=1.3, body_scale=(1.08, 1.12, 1.04),
                              tail_thick=0.3, nose="nose_pink", mark=("star", "milk"), eye_k=1.08)
 
+# The Christmas Advent Calendar (#5502, advent-calendar-spec section 4): four limited cats behind doors 6, 12, 18 and
+# 24, shown as Secret and built a step above the Snowglobe eight (two props, lit parts, glowing eyes). Only from the
+# calendar, so no gold or rainbow twins (exclusive).
+ROSTER["PeppermintSwirl"] = dict(rarity="Secret", fur="milk", second="shirt_red", third="mint", eyes="mint",
+                                 pattern="stripes", muzzle="milk", glow_eyes=True, sparkle=True,
+                                 socks="shirt_red", tip="shirt_red", nose="nose_pink", curl=True, eye_k=1.08,
+                                 exclusive=True)
+ROSTER["Nutcracker"] = dict(rarity="Secret", fur="shirt_red", second="bowl_red", third="rarity_legend",
+                            eyes="fish_blue", pattern="solid", muzzle="milk", glow_eyes=True, socks="fur_black",
+                            cuff="rarity_legend", tip="fur_black", ruff="milk", nose="nose_dark", eye_k=1.08,
+                            body_scale=(1.0, 1.0, 1.06), exclusive=True)
+ROSTER["NorthernLights"] = dict(rarity="Secret", fur="night_sky", second="fur_emerald", third="neon_pink",
+                                eyes="mint", pattern="stripes", stripes2=True, muzzle=None, glow_eyes=True,
+                                sparkle=True, socks="galaxy_blue", tip="mint", nose="nose_dark", eye_k=1.1, exclusive=True)
+ROSTER["SilentNight"] = dict(rarity="Secret", fur="galaxy_blue", second="fur_silver", third="night_sky",
+                             eyes="sparkle", pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True,
+                             socks="fur_silver", tip="fur_silver", nose="nose_dark", lids=True, eye_k=1.08,
+                             mark=("star", "sparkle"), exclusive=True)
+
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze", "cuff")
 
 

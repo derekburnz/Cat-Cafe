@@ -1,0 +1,57 @@
+--!strict
+-- #5572 (Derek 2026-11-20: "rework the picnic basket into being something cool and clean because its where a lot of
+-- people leave so it has to be something that hooks"; Design's Picnic Party spec): behind the switch `picnicParty`.
+-- A ready Picnic Basket starts Picnic Time when the player steps into its ring: +100% money for SECONDS, running at
+-- once (the potion POTION, shown as the HUD's potion chip). Then it is ready again EVERY seconds later, holding one,
+-- and always on the first settle of a new UTC day (shared/CampExtras.settle with `party`). The first is ready the
+-- moment the Park opens, as every extra's first fill is.
+--
+-- Restart safe: the save is the picnic slot every server knows ({ at, held }); an older server reads a ready party as
+-- a ready Picnic Treats pick. Picnic Time is a potion an older server drops (it runs out in minutes anyway).
+--
+-- The client reads these Player attributes (the server sets them; nothing is sent):
+--   PicnicReady   boolean   a party waits at the basket
+--   PicnicNextAt  number    os.time() the next one is ready (nil while one waits)
+--   PicnicEndsAt  number    os.time() Picnic Time ends, set when a party starts (nil or past when none runs)
+
+local PicnicParty = {}
+
+PicnicParty.FLAG = "picnicParty"
+PicnicParty.EVERY = 20 * 60 -- seconds from one party's start to the next one ready
+PicnicParty.HOLD = 1
+PicnicParty.SECONDS = 3 * 60 -- Picnic Time
+PicnicParty.POTION = "picnic_time" -- Catalog.potions: +100% money (tipsOver 1) for 3 minutes
+PicnicParty.CAT_NEXT_SECONDS = 2 -- the next picnic cat sits down this long after the one before is caught
+PicnicParty.SEEN_STUDS = 60 -- picnic_ready_seen: a ready basket this near counts as seen
+
+PicnicParty.READY = "PicnicReady"
+PicnicParty.NEXT_AT = "PicnicNextAt"
+PicnicParty.ENDS_AT = "PicnicEndsAt"
+
+local DAY = 86400
+
+-- Pure: a picnic slot `slot` brought up to `now` under the party's day rule: an empty basket whose clock is from an
+-- earlier UTC day is ready now. Call before the fill. Returns whether it filled.
+function PicnicParty.dayFill(slot: { at: number, held: number }, now: number): boolean
+	if slot.held >= PicnicParty.HOLD then
+		return false
+	end
+	if math.floor(slot.at / DAY) < math.floor(now / DAY) then
+		slot.held = PicnicParty.HOLD
+		slot.at = now
+		return true
+	end
+	return false
+end
+
+-- Pure: starts a party from `slot` at `now` when one waits: empties it and starts its clock. False when none waits.
+function PicnicParty.start(slot: { at: number, held: number }, now: number): boolean
+	if slot.held < 1 then
+		return false
+	end
+	slot.held = 0
+	slot.at = now
+	return true
+end
+
+return PicnicParty

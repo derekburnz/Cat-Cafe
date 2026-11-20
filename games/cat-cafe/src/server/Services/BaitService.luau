@@ -168,10 +168,9 @@ local function useLure(
 			rng:NextNumber(),
 			rng:NextNumber(),
 			true,
-			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
-				then Catching.baitAreas(Economy.tier(profile))
-				else nil,
-			lure.secretShare -- #4900: the Eclipse Treat's 1 in 10
+			Catching.baitAreas(Economy.tier(profile)), -- #4221 (secretAreas retired, #4656)
+			-- #4900: the Eclipse Treat's 1 in 10; #5418: twice that with secretDouble
+			Catching.secretShare(lure.secretShare, LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG))
 		)
 		else nil
 	if secret ~= nil then
@@ -248,6 +247,7 @@ local function useLure(
 	Bait.setState(profile, bowl, bait)
 	profile.stats.luresUsed += 1
 	Telemetry.onboarding(player, profile, "first_bait")
+	Telemetry.startSide(player, profile, "bowl_food") -- #5551
 	Telemetry.custom(player, "bait_rolled", 1, { lureId, rarity, lucky or "none" })
 	-- #3158 (Derek2 2026-11-10: "the bait bowl animation doesn't even come because its interupted by foodbowl finished
 	-- instantly into a cannon teleport"): the account's first bait holds the tutorial's last step until its cat is
@@ -314,7 +314,7 @@ local function resolveBait(
 	elseif
 		profile.tutorialStep < TutorialOrder.BOWL_STEP_BELOW
 		and profile.stats.luresUsed <= 1
-		and TutorialOrder.bowlFirst()
+		and TutorialOrder.bowlFirst(player)
 	then
 		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway.
 		-- #4777: no longer moved; the HUD's Cannon button is lit for the player to press
@@ -330,6 +330,9 @@ local function resolveBait(
 	local def = Catalog.getCat(bait.catId)
 	local rarityText = if def ~= nil then def.rarity :: string else "unknown"
 	Telemetry.custom(player, "bait_resolved", 1, { bait.lureId, rarityText, choice })
+	if choice == "tame" then
+		Telemetry.startSide(player, profile, "bowl_cat_tamed") -- #5551
+	end
 	-- #2774: how long the account's first bait really took, food in to resolve
 	if profile.stats.luresUsed == 1 then
 		Telemetry.custom(
@@ -383,12 +386,16 @@ end
 -- each empty bowl that takes food, never buying any. The tutorial's bait step (4) is left to the player.
 local function autoBowl(player: Player, profile: Types.PlayerProfile, now: number)
 	local known = table.find(LiveFlags.KEYS, AutoBowl.FLAG) ~= nil
+	local owns = PassService.ownsAutoBowl(player) -- #5263: or the 2nd Bowl pass, with bowlTicks
+	-- #5374 (Derek 2026-11-19: "all bowl options on ... still not auto claiming ... not auto refilling"): with bowlTicks
+	-- on, the ticks work for an owner even while the separate `autoBowl` offer switch is off
+	local ticksKnown = table.find(LiveFlags.KEYS, AutoBowl.TICKS_FLAG) ~= nil
+	local ticks = ticksKnown and LiveFlagService.on(AutoBowl.TICKS_FLAG)
 	if
 		profile.tutorialStep == 4
-		or not AutoBowl.active(
-			known,
-			known and LiveFlagService.on(AutoBowl.FLAG),
-			PassService.ownsAutoBowl(player) -- #5263: or the 2nd Bowl pass, with bowlTicks
+		or not (
+			AutoBowl.active(known, known and LiveFlagService.on(AutoBowl.FLAG), owns)
+			or (ticks and owns)
 		)
 	then
 		return
@@ -552,7 +559,13 @@ local function checkArrivals()
 				local readyAt = CafeService.baitReadyAt(profile, bait)
 				if
 					now < readyAt
-					and now >= Bait.catOutAt(bait.placedAt, readyAt, profile.stats.luresUsed)
+					and now
+						>= Bait.catOutAt(
+							bait.placedAt,
+							readyAt,
+							profile.stats.luresUsed,
+							Bait.quickOn()
+						)
 				then
 					if early == nil then
 						early = {}

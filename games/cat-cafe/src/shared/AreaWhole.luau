@@ -21,6 +21,20 @@
 local AreaWhole = {}
 
 AreaWhole.FLAG = "areaWhole" -- shared/LiveFlags, off by default
+-- #5381 (Derek 2026-11-19: "it might be better to just have them render all areas they have unlocked that way it
+-- doesn't need to spike each time they visit them"): with areaWhole on too, every area a player has unlocked loads
+-- onto their device once, the one they are in (or flying to) first, the rest after, and nothing is let go again.
+AreaWhole.KEPT_FLAG = "areasKept" -- shared/LiveFlags, off by default
+-- Sync 2026-11-19 (Tier 10, all areas): areasKept held about 4x the parts of areaWhole alone (88k against 21k) and
+-- about +300 MB, too much for a low-memory phone. With areasKeptBig on, only a PC or console keeps every area; a
+-- phone, a tablet and a device not reported yet keep one area whole, as areaWhole alone does.
+AreaWhole.KEPT_BIG_FLAG = "areasKeptBig" -- shared/LiveFlags, off by default
+AreaWhole.KEPT_DEVICES = { pc = true, console = true } :: { [string]: boolean }
+-- Derek 2026-11-19 ("phone and tablet might also need to load all unlocked to stop spikes"): with areasKeptRecent on
+-- too, a device areasKeptBig leaves out keeps its KEPT_RECENT most recent areas instead of one, so a trip back to
+-- the area it just left (the usual back and forth) never loads it again. The oldest comes off when one more is added.
+AreaWhole.RECENT_FLAG = "areasKeptRecent" -- shared/LiveFlags, off by default
+AreaWhole.KEPT_RECENT = 2
 AreaWhole.STEP = 1 -- seconds between the service's checks of where each player stands
 -- A cannon flight's destination is held this long at most (the longest flight is about 6 s), so a flight cut short
 -- (a respawn, a leave) never pins an area.
@@ -37,6 +51,13 @@ AreaWhole.SPREAD = 0.15 -- seconds; NightSpread's step, far enough apart to land
 -- FLIGHT_SPREAD seconds instead (a few frames apart, each step about 26 ms), so most of the area is in by touchdown.
 AreaWhole.FLIGHT_SPREAD = 0.05
 AreaWhole.CHUNK = "Chunk" -- the name of the Models AreaWholeService cuts a Set or Backdrop into
+-- Derek 2026-11-18 13:11 UTC ("everything while in town square should load while in town square"): the Town Square is
+-- held whole like an area, under this id: its own props cut into chunks, and each station Model whose middle is on the
+-- square (or within TOWN_MARGIN studs of its edge) kept whole as one chunk.
+AreaWhole.TOWN = "town"
+AreaWhole.TOWN_MARGIN = 16
+-- A station Model bigger than this is left to stream as before (it is not a station).
+AreaWhole.TOWN_PIECE_MAX = 3000
 
 export type Flight = { area: string, untilAt: number }
 
@@ -92,6 +113,39 @@ function AreaWhole.take(sizes: { number }, budget: number?, atLeastOne: boolean?
 		total += size
 	end
 	return count
+end
+
+-- Whether a device keeps every unlocked area (areasKept): any device, or with `bigOnly` (areasKeptBig) only a PC or
+-- console. `device` is what the client reported (Telemetry.device), nil before it has.
+function AreaWhole.keptFor(device: string?, bigOnly: boolean): boolean
+	if not bigOnly then
+		return true
+	end
+	return device ~= nil and AreaWhole.KEPT_DEVICES[device] == true
+end
+
+-- How many areas a device keeps with areasKept on: nil for every unlocked area, a count for only that many of the
+-- most recent (areasKeptRecent), 0 for none (areaWhole's one-area hold).
+function AreaWhole.keptLimit(device: string?, bigOnly: boolean, recentOn: boolean): number?
+	if AreaWhole.keptFor(device, bigOnly) then
+		return nil
+	end
+	return if recentOn then AreaWhole.KEPT_RECENT else 0
+end
+
+-- `list` (most recent first) with `areaId` moved to the front, cut to `limit`, and the areas cut off it, oldest last.
+function AreaWhole.recent(list: { string }, areaId: string, limit: number): ({ string }, { string })
+	local out: { string } = { areaId }
+	for _, id in list do
+		if id ~= areaId then
+			table.insert(out, id)
+		end
+	end
+	local gone: { string } = {}
+	while #out > math.max(1, limit) do
+		table.insert(gone, table.remove(out) :: string)
+	end
+	return out, gone
 end
 
 return AreaWhole

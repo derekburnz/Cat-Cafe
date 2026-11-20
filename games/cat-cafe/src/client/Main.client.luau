@@ -9,6 +9,7 @@ ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
 local AdminEventController = require(script.Parent.Controllers.AdminEventController)
+local AdventBoardController = require(script.Parent.Controllers.AdventBoardController)
 local AfkController = require(script.Parent.Controllers.AfkController)
 local AirMovesController = require(script.Parent.Controllers.AirMovesController)
 local Audio = require(script.Parent.Audio)
@@ -23,6 +24,7 @@ local CompanionSceneController = require(script.Parent.Controllers.CompanionScen
 local CustomerController = require(script.Parent.Controllers.CustomerController)
 local DoorController = require(script.Parent.Controllers.DoorController)
 local Effects = require(script.Parent.Effects)
+local FirstCatArrowController = require(script.Parent.Controllers.FirstCatArrowController)
 local FollowerController = require(script.Parent.Controllers.FollowerController)
 local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
@@ -43,10 +45,12 @@ local RankSpotController = require(script.Parent.Controllers.RankSpotController)
 local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local SpaPoolController = require(script.Parent.Controllers.SpaPoolController)
+local StartStallController = require(script.Parent.Controllers.StartStallController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
 local StationCutController = require(script.Parent.Controllers.StationCutController)
 local StationLockController = require(script.Parent.Controllers.StationLockController)
 local StyleController = require(script.Parent.Controllers.StyleController)
+local TomorrowBoardController = require(script.Parent.Controllers.TomorrowBoardController)
 local TradeController = require(script.Parent.Controllers.TradeController)
 local UIController = require(script.Parent.Controllers.UIController)
 local WalkUpController = require(script.Parent.Controllers.WalkUpController)
@@ -67,11 +71,15 @@ do
 end
 -- #4763: the tables caps follow the tablesSpread switch, like the server's (shared/TablesSpread)
 require(ReplicatedStorage.Shared.TablesSpread).follow()
+require(ReplicatedStorage.Shared.TablesEight).follow() -- #5441: Tables 7 and 8 follow the tablesEight switch
 -- #5171: the Spin Wheel's cat slice follows the spinCat switch, like the server's (shared/SpinCat)
 require(ReplicatedStorage.Shared.SpinCat).follow()
 require(ReplicatedStorage.Shared.NetTiers).follow() -- #5170: the net caps follow the netTiers switch
+require(ReplicatedStorage.Shared.PerfectCatch).follow() -- #5300: the ratings shown follow the perfectCatch switch
+require(ReplicatedStorage.Shared.EasyKeep).follow() -- #5311: the Dragon Keep's goals follow the easyKeep switch
 require(ReplicatedStorage.Shared.BigTreats).follow() -- Derek 2026-11-18: the Daily Treat rows follow bigTreats
 require(ReplicatedStorage.Shared.CheapTiers).follow() -- #5249: what Tiers 3 to 8 ask follows the cheapTiers switch
+require(ReplicatedStorage.Shared.CompanionTraits).follow() -- #5303: the companion traits follow the companionTraits switch
 do
 	-- #5264: food lists sort by rarity first while foodByRarity is on (read before the UI builds its lists; a list
 	-- already built keeps its order until it is built again)
@@ -127,18 +135,22 @@ ParkFirstController.start() -- #2915: the first Park landing toast and the stray
 CafeGrewController.start() -- #4543: "Your cafe grew!" on the Rank Up card, after the UI
 ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
 RankSpotController.start() -- #3555: the first rank up's walk-through, behind rankUpSpotlight
-AdminEventController.start() -- #4195: the admin event's banner, timer and the Admin Wheel, behind adminEvents
+AdminEventController.start() -- #4195: the admin event's banner, timer and the Admin Wheel
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
 BinController.start() -- #3050: the Rummage Bin's prompt and look, after the UI
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
+TomorrowBoardController.start() -- #5449: the Daily Treat Board on your cafe wall, after the UI
+AdventBoardController.start() -- #5502: the advent calendar board's prompt and doors, after the UI
 CodesController.start()
 PetController.start() -- #3651: the Pet prompt on your own working cats, after the UI whose pill it uses
 FollowerController.start() -- #5172: the cat that follows each player (switch catFollower)
 AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
 StationLockController.start() -- #4539: Mystery Market, Cat Arcade and Mystic Pool hidden below their tiers
 StationCutController.start() -- #5112: a rank up's cut to the station it unlocks, behind stationCut
+StartStallController.start() -- #5562: the play first start's stall glow (Effects/WorldGlow.stall)
+FirstCatArrowController.start() -- #5594: the arrow over the nearest cat until the first catch, behind firstCatArrow
 CompanionSceneController.start() -- #5284: the Cat Companion unlock scene after the Tier 2 rank up, behind companionScene
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat

@@ -15,6 +15,7 @@ local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Net = require(script.Parent.Net)
+local RecordMode = require(ReplicatedStorage.Shared.RecordMode)
 local RescueService = require(script.Parent.RescueService)
 local TravelService = require(script.Parent.TravelService)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -38,6 +39,9 @@ end
 -- Everyone in a wild area goes home by cloud hop (v4, F84), unless their catch or rescue is still running or they
 -- are mid flight or hop; the next sweep gets them. A carried cat is checked in on arrival.
 local function sweep()
+	if RecordMode.on() then
+		return -- Studio clip recordings hold the night (shared/RecordMode)
+	end
 	for _, player in Players:GetPlayers() do
 		if
 			areaOf(player) == nil
@@ -59,7 +63,8 @@ end
 -- F84 (section 5): a flight that lands in a wild area after night start is swept the moment it lands.
 function NightService.landed(player: Player)
 	if
-		not ClockService.areasOpen()
+		not RecordMode.on()
+		and not ClockService.areasOpen()
 		and areaOf(player) ~= nil
 		and not CatService.inMinigame(player)
 		and not CatService.nightPass(player) -- #2692

@@ -1,6 +1,6 @@
 --!strict
 -- Admin events (#4195): the second lane in the events schedule (shared/CafeEvents `admin = true` records), Bowl
--- Frenzy's bait wait (Bait.eventWait), the adminEvents switch and the owner's /admin command (shared/OwnerTest).
+-- Frenzy's bait wait (Bait.eventWait), the retired adminEvents switch and the owner's /admin command (shared/OwnerTest).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Bait = require(Shared.Bait)
@@ -492,13 +492,9 @@ return function()
 	end)
 
 	describe("the adminEvents switch", function()
-		it("is off until the store holds an explicit true", function()
-			expect(ADMIN.flag).to.equal("adminEvents")
-			expect(table.find(LiveFlags.KEYS, ADMIN.flag) ~= nil).to.equal(true)
-			expect(LiveFlags.defaults()[ADMIN.flag]).to.equal(false)
-			expect(LiveFlags.parse({})[ADMIN.flag]).to.equal(false)
-			expect(LiveFlags.parse({ adminEvents = "yes" })[ADMIN.flag]).to.equal(false)
-			expect(LiveFlags.parse({ adminEvents = true })[ADMIN.flag]).to.equal(true)
+		it("is retired (#4656): admin events need no switch", function()
+			expect(table.find(LiveFlags.KEYS, "adminEvents")).to.equal(nil)
+			expect(LiveFlags.OFF_BY_DEFAULT["adminEvents"]).to.equal(nil)
 		end)
 	end)
 end

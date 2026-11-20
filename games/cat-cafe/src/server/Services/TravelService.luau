@@ -260,6 +260,10 @@ end
 function TravelService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	Net.on("Travel", function(player: Player, rawDestination: unknown)
+		local profile = if rawDestination == "home" then DataService.get(player) else nil
+		if profile ~= nil then
+			Telemetry.startSide(player, profile, "home_tapped") -- #5551: the My Cafe tile
+		end
 		onTravel(player, rawDestination)
 	end)
 	for _, touch in CollectionService:GetTagged(HarvestWorld.ARCH_TOUCH_TAG) do

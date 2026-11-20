@@ -115,6 +115,14 @@ SettingsList.SECTIONS = {
 				name = "Station circles",
 				detail = "The glowing rings in front of stations",
 			},
+			{
+				-- #5586 (a player's feedback, Derek 2026-11-20): on by default
+				key = "catNames",
+				kind = "switch",
+				icon = "🏷️",
+				name = "Cat names",
+				detail = "The names over wild cats near you",
+			},
 		},
 	},
 } :: { Section }
@@ -197,6 +205,7 @@ SettingsList.OTHER_KEYS = {
 	autoBowlClaim = true, -- #4266: the Bait bowl window's Auto Bowl switches set these three
 	autoBowlRefill = true,
 	bowlNewCatCard = true,
+	afkMode = true, -- #5322: AFK mode's saved mark, the server's (the AFK button)
 } :: { [string]: boolean }
 
 -- Every row in screen order.

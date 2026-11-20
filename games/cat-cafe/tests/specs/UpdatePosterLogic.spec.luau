@@ -71,12 +71,22 @@ return function()
 						expect(#entry.name <= 24).to.equal(true)
 					end
 				end
-				-- the Cat Follower update shows as out now (Derek 2026-11-18), then the poster rolls on to Christmas
+				-- the Cat Companion (was Cat Follower) update shows as out now (Derek 2026-11-18), then the poster rolls on to Christmas
 				local out = Logic.view(Config.UpdateEvents, 1795006800 + 3600)
-				expect(out.name).to.equal("CAT FOLLOWER")
+				expect(out.name).to.equal("CAT COMPANION") -- #5356: the follower's new name
 				expect(out.live).to.equal(true)
 				expect(out.countdown).to.equal(Logic.LIVE_LINE)
+				-- Derek 2026-11-20: Device Improvements first, Sat Nov 21 20:00 UTC, then Christmas
+				expect(Logic.view(Config.UpdateEvents, 1795291200 - 60).name).to.equal(
+					"DEVICE IMPROVEMENTS"
+				)
 				expect(Logic.view(Config.UpdateEvents, 1795291200).name).to.equal("CHRISTMAS EVENT")
+				-- #5461 (Derek 2026-11-19: "switch to christmas"): Christmas from 14:00 UTC Nov 19
+				-- then Device Improvements once the Cat Companion's OUT NOW ends (Derek 2026-11-20)
+				expect(Logic.view(Config.UpdateEvents, 1795096800).name).to.equal("DEVICE IMPROVEMENTS")
+				expect(Logic.view(Config.UpdateEvents, 1795096800 - 60).name).to.equal(
+					"CAT COMPANION"
+				)
 				-- 3 New Worlds is on the poster until Sunday 2026-11-15 20:00 UTC
 				local view = Logic.view(Config.UpdateEvents, 1794772800 - 3600)
 				expect(view.name).to.equal("3 NEW WORLDS")

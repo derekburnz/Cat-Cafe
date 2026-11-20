@@ -23,6 +23,21 @@ CatStats.MAX_CHARM = 100
 CatStats.DEFAULT_CHARM = 50 -- exactly a 1.0x multiplier
 CatStats.MIN_LEVEL = 1
 CatStats.OLD_MAX_LEVEL = 10 -- the cap before v0.12 (frozen: old saves are remapped from it)
+-- #5300 (Derek 2026-11-18: "remove charm from game and just have it if you perfect catch a cat make it give +50%
+-- money"): while the perfectCatch switch is on (shared/PerfectCatch sets it), charm counts 1x for every cat and a cat
+-- marked `perfect` (caught with every ring Perfect) earns PERFECT_MULTIPLIER, multiplied with its coat.
+CatStats.PERFECT_MULTIPLIER = 1.5
+CatStats.PERFECT_CHARM = 80 -- the switch's one migration marks owned cats with this much charm or more
+
+local perfectOn = false
+
+function CatStats.setPerfectCatch(on: boolean)
+	perfectOn = on == true
+end
+
+function CatStats.perfectCatch(): boolean
+	return perfectOn
+end
 
 -- Readers -------------------------------------------------------------------------------------------------
 
@@ -112,6 +127,18 @@ function CatStats.variantMultiplier(variant: string?): number
 		else 1
 end
 
+-- #5300: x1.5 for a cat marked perfect while the switch is on, else 1.
+function CatStats.perfectMultiplier(instance: Types.CatInstance): number
+	return if perfectOn and (instance :: any).perfect == true
+		then CatStats.PERFECT_MULTIPLIER
+		else 1
+end
+
+-- The charm factor in the rating: charmMultiplier(charm), or 1 for every cat while the perfectCatch switch is on.
+function CatStats.charmFactor(charm: number): number
+	return if perfectOn then 1 else CatStats.charmMultiplier(charm)
+end
+
 -- Stars 1 to 5 for the UI: charm 0-19 one star, 20-39 two, 40-59 three, 60-79 four, 80-100 five.
 function CatStats.stars(charm: number): number
 	local band = (CatStats.MAX_CHARM - CatStats.MIN_CHARM) / 5
@@ -196,6 +223,16 @@ function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
 	local opened: number
 	-- #3470: a Secret earns at the owner's best area; #4251: so does a harvest cat
 	local newest = def.exclusive == true or def.rarity == "Secret" or def.area == "harvest"
+	if def.source == "advent" then
+		-- #5502: an advent calendar cat earns like a Secret whose home is the owner's newest area (Catalog.advent)
+		local top = 1
+		for _, area in Catalog.areas do
+			if area.tier <= math.floor(tier) and area.incomeMultiplier > top then
+				top = area.incomeMultiplier
+			end
+		end
+		return own * top
+	end
 	if newest then
 		opened = math.floor(tier)
 	elseif Config.KeepUpRarities[def.rarity] == true then
@@ -215,9 +252,28 @@ function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
 	return best
 end
 
+-- #5414 (Derek 2026-11-19: "make him as good as the tier 9 secret"): with the `plushSecret` switch on, the Booth
+-- Plush Cat earns exactly like the Water Park's Secret (PLUSH_LIKE): its rate and its lift from the owner's best area.
+-- It stays an Exclusive cat everywhere else (Derek: "he can stay in exclusive tho").
+CatStats.PLUSH_ID = "booth_plush"
+CatStats.PLUSH_LIKE = "abyss"
+CatStats.PLUSH_FLAG = "plushSecret"
+-- The CatDef `def` earns as: PLUSH_LIKE's for the Booth Plush Cat when `on`, else its own. `on` nil reads the switch.
+function CatStats.earnsAs(def: Types.CatDef, on: boolean?): Types.CatDef
+	if def.id ~= CatStats.PLUSH_ID then
+		return def
+	end
+	local switched = if on ~= nil
+		then on
+		else game:GetService("ReplicatedStorage")
+			:GetAttribute("LiveFlag_" .. CatStats.PLUSH_FLAG) == true
+	return if switched then Catalog.getCat(CatStats.PLUSH_LIKE) or def else def
+end
+
 -- A cat's base rate for an owner at `tier`: its rarity's rate times areaMultiplier. Its CatDef's incomePerSecond
 -- without a tier, or when it does not keep up.
-local function baseRate(def: Types.CatDef, tier: number?): number
+local function baseRate(catDef: Types.CatDef, tier: number?): number
+	local def = CatStats.earnsAs(catDef)
 	local own = def.incomePerSecond
 	local multiplier = CatStats.areaMultiplier(def, tier)
 	local base = rarityRate(def)
@@ -235,9 +291,10 @@ function CatStats.rating(instance: Types.CatInstance, tier: number?): number
 		return 0
 	end
 	return baseRate(def, tier)
-		* CatStats.charmMultiplier(CatStats.charm(instance))
+		* CatStats.charmFactor(CatStats.charm(instance))
 		* CatStats.levelMultiplier(CatStats.level(instance))
 		* CatStats.variantMultiplier(instance.variant)
+		* CatStats.perfectMultiplier(instance)
 		* CatStats.rescuedMultiplier(instance.rescued)
 end
 
@@ -249,7 +306,9 @@ function CatStats.maxRating(catId: string, tier: number?): number
 		return 0
 	end
 	return baseRate(def, tier)
-		* CatStats.charmMultiplier(CatStats.MAX_CHARM)
+		* (if perfectOn
+			then CatStats.PERFECT_MULTIPLIER
+			else CatStats.charmMultiplier(CatStats.MAX_CHARM))
 		* CatStats.levelMultiplier(Config.CatMaxLevel)
 end
 
@@ -324,6 +383,7 @@ function CatStats.view(instance: Types.CatInstance, tier: number?): Types.CatVie
 		caughtAt = instance.caughtAt,
 		spotId = instance.spotId,
 		rescued = instance.rescued,
+		perfect = if instance.perfect == true then true else nil, -- #5300
 		name = instance.name,
 		method = instance.method,
 		locked = instance.locked == true,

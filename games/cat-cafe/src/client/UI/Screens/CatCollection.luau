@@ -52,15 +52,6 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
-local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-
--- #4221: the Secret tab and one Secret per area, while the `secretAreas` switch is on
-local function secretAreasOn(): boolean
-	return LiveFlags.shown(
-		SecretTabLogic.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SecretTabLogic.FLAG)
-	) == true
-end
 
 export type Callbacks = {
 	claimIndexReward: (areaId: string, milestoneId: string) -> (),
@@ -70,7 +61,7 @@ export type Callbacks = {
 
 -- "Index" is the Cats tab (the name init and the Index Boards already use). The Top tab (F98 leaderboards) went on
 -- 2026-11-03 (Derek: "no need to put "top" inside index"); the town's boards still show them.
--- #4221: "Secret" while the `secretAreas` switch is on (Screens/SecretPage)
+-- #4221: "Secret", one Secret per area (Screens/SecretPage)
 export type Tab = "Index" | "Gold" | "Rainbow" | "Secret" | "Decor"
 
 export type CatCollection = {
@@ -319,7 +310,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._rainbowTab.instance.Visible = false -- until the catalog has the Rainbow track
 	self._secretTab, self._secretBadge, self._secretBadgeCount =
 		tabButton("SecretTab", SecretTabLogic.TAB, "✨", 4, "Secret")
-	self._secretTab.instance.Visible = false -- #4221: while the secretAreas switch is on
+	self._secretTab.instance.Visible = false -- #4221: shown at the first render, then fitted
 	self._decorTab, self._decorBadge, self._decorBadgeCount =
 		tabButton("DecorTab", "Decor", Theme.icons.decor, 5, "Decor")
 	self._decorTab.instance.Visible = false
@@ -1078,23 +1069,7 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			section.hint.Text = area.note or IndexBook.EXCLUSIVE_NOTE
 		end
 	end
-	-- #3470: the Secret page only for a player who has found one, with nothing to claim and no total
-	local secretArea = if secretAreasOn() then nil else IndexBook.secret(catalog, state, kind)
-	local secretPage = self._sections[IndexBook.SECRET]
-	if secretArea and secretPage then
-		shown[IndexBook.SECRET] = true
-		self:_paintHeader(
-			secretPage,
-			secretArea.have,
-			secretArea.total,
-			IndexBook.count(secretArea),
-			{ state = "none", ready = 0 },
-			false,
-			IndexBook.SECRET,
-			state
-		)
-		secretPage.hint.Text = IndexBook.EXCLUSIVE_NOTE
-	end
+	-- #3470's Secret page in the Index stays empty: Secrets have their own tab since #4221 (secretAreas retired, #4656)
 	-- the line over the areas: the All Cats track on the Cats tab, its gold track as Gold cats on the Gold tab (#1772)
 	-- and the Rainbow track on the Rainbow tab
 	local lineId: string? = if tab == "Index" or gold
@@ -1133,7 +1108,7 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 		local isFound = found[catId] == true
 		if def.area == IndexBook.SECRET then
 			-- #3470: a Secret cat not yet found has no tile at all; #4221: none at all with the Secret tab
-			cell.frame.Visible = isFound and secretArea ~= nil
+			cell.frame.Visible = false
 			if not isFound then
 				continue
 			end
@@ -1384,14 +1359,9 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	self:_syncClaimAll()
 	self:_renderPerks(state)
 
-	-- #4221: the Secret tab comes and goes with its switch
-	local secretOn = secretAreasOn()
-	if self._secretTab.instance.Visible ~= secretOn then
-		self._secretTab.instance.Visible = secretOn
-		if not secretOn and self._tab == "Secret" then
-			self._tab = "Index"
-			self:_paintTabs()
-		end
+	-- #4221: the Secret tab shows from the first render (the secretAreas switch is retired, #4656)
+	if not self._secretTab.instance.Visible then
+		self._secretTab.instance.Visible = true
 		self:_fitTabs()
 	end
 	if self._tab == "Decor" then

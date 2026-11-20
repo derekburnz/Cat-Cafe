@@ -28,6 +28,9 @@ local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
+local PerfectCatch = require(ReplicatedStorage.Shared.PerfectCatch)
+local CATCH_CURVE_FLAG = "catchCurve" -- #5392: shared/Circles curveWindows, curveSpeed and perfectGain
+local CATCH_PERFECT_ATTRIBUTE = "CatchPerfectGain" -- #5392: the running catch's Perfect trust (UI/Components/CatchTrust)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SecretCalm = require(ReplicatedStorage.Shared.SecretCalm)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -44,6 +47,7 @@ local M = {
 	-- and the hooks told of every stray caught by net, with the area it was caught in (CatService.onCaught)
 	areaGates = {} :: { [string]: (Types.PlayerProfile) -> boolean },
 	caughtHooks = {} :: { (Player, Types.CatDef, string) -> () },
+	campHooks = {} :: { (Player, string) -> () }, -- #5533: told of every camp check-in (CatService.onCampCheckIn)
 	-- #4251: checks in a cat caught or picked up in an added area with no camp (set below finishCheckIn)
 	homeFromCampless = nil :: ((Player, string) -> ())?,
 	AssetRegistry = require(script.Parent.Parent.World.AssetRegistry),
@@ -59,12 +63,14 @@ local M = {
 	DataService = require(script.Parent.DataService),
 	DragonKeep = require(ReplicatedStorage.Shared.DragonKeep),
 	Economy = require(ReplicatedStorage.Shared.Economy),
+	FreeStart = require(ReplicatedStorage.Shared.FreeStart), -- #5533 streetCats
 	EventRewardService = require(script.Parent.EventRewardService),
 	GoldenFish = require(ReplicatedStorage.Shared.GoldenFish),
 	Guard = require(script.Parent.Parent.Util.Guard),
 	IndexRewards = require(ReplicatedStorage.Shared.IndexRewards),
 	Layout = require(script.Parent.Parent.World.Layout),
 	LiveFlagService = require(script.Parent.LiveFlagService),
+	PlayTime = require(script.Parent.Parent.Util.PlayTime), -- #5533 streetCats
 	NightSpread = require(ReplicatedStorage.Shared.NightSpread), -- #5164
 	Moods = require(ReplicatedStorage.Shared.Moods),
 	Onboarding = require(ReplicatedStorage.Shared.Onboarding),
@@ -75,6 +81,11 @@ local M = {
 	PlotService = require(script.Parent.PlotService),
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	PicnicSeats = require(ReplicatedStorage.Shared.PicnicSeats), -- #5572
+	PicnicParty = require(ReplicatedStorage.Shared.PicnicParty),
+	MutationBoost = require(ReplicatedStorage.Shared.MutationBoost), -- #5493
+	CatchLost = require(ReplicatedStorage.Shared.CatchLost), -- #5500
+	StrayMeets = require(ReplicatedStorage.Shared.StrayMeets), -- onboarding_v9 near_stray
 	OpenSpot = require(script.Parent.Parent.World.OpenSpot), -- #5038: where a waiting Park stray may sit
 	Potions = require(ReplicatedStorage.Shared.Potions),
 	RallyService = require(script.Parent.RallyService),
@@ -109,6 +120,7 @@ type Stray = {
 	missStreak: { [number]: Catching.MissStreak },
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
+	perfect: boolean?, -- #5300: a Dropped stray that was a Perfect catch keeps its mark for whoever checks it in
 	-- "rainbow" (RainbowChanceNet with rainbow luck, F99) or "gold" (GoldChanceNet with gold luck), rolled at spawn
 	-- and shown on the model (the Variant attribute; Gold too for a gold one), else "base"
 	variant: string,
@@ -139,6 +151,12 @@ type Stray = {
 	-- plot's `near` point. Not reserved: anyone out at night may catch it. It leaves by night once that player's pass
 	-- ends, and is an ordinary stray from the sunrise.
 	nightFor: number?,
+	-- #5533 (streetCats, shared/FreeStart): a Common put on an Alleyway `near` point for a play first start save's
+	-- first minutes. Anyone may catch it; it leaves once no such save is in its first minutes.
+	street: boolean?,
+	-- #5572 (picnicParty): the user id of the player whose Picnic Party seated it on the blanket (the model's PicnicFor
+	-- attribute). Theirs alone, an easy catch that cannot be lost, and it never wanders off the blanket.
+	picnic: number?,
 	-- #1884 (catch-rework.md 7a): its mood, rolled at spawn (the Mood attribute); a Curious one's walk toward a
 	-- player (server time, nil until it notices one) and a Skittish one's last hop (server time)
 	mood: Types.CatMood,
@@ -148,6 +166,9 @@ type Stray = {
 	walk: number, -- bumped by every walk that starts, so an older walk stops where it is
 	alive: boolean,
 }
+
+-- #5572: a player's picnic cats while their Picnic Party runs (Street.picnics)
+type Picnic = { pivot: CFrame, defs: { Types.CatDef }, n: number, stray: Stray? }
 
 -- variant is "gold" or "rainbow" (F99) for those coats (a rescue rolls it at night start, data-model section 4); nil
 -- is the base.
@@ -166,6 +187,7 @@ type Carry = {
 	knocks: number, -- F84: times tackles knocked it loose since it was first caught (camp_checkin)
 	pity: boolean?, -- #2567: a pity or shower cat, so its check-in line stays in this server
 	bonusXp: number?, -- #1884 (catch-rework.md 7d): a PURRFECT catch's XP, given as it checks in
+	perfect: boolean?, -- #5300 (shared/PerfectCatch): every ring Perfect with the perfectCatch switch on
 }
 
 -- What a Dropped cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
@@ -178,6 +200,7 @@ type Kept = {
 	returning: boolean?, -- F67: let go with the Drop button, so it walks back to homePos
 	knocks: number?, -- F84: times tackles knocked it loose so far
 	pity: boolean?, -- #2567
+	perfect: boolean?, -- #5300: a Perfect cat keeps its mark through a drop
 }
 
 local world: WorldBuilder.World
@@ -379,11 +402,11 @@ local function rollStrayCoat(def: Types.CatDef, areaId: string): string
 		def,
 		rng:NextNumber(),
 		M.IndexRewards.rainbowChance(
-			M.Clock.rainbowChance(M.Config.RainbowChanceNet, kinds),
+			M.Clock.rainbowChance(M.MutationBoost.rainbow(), kinds), -- #5493: twice with mutationBoost on
 			CatService.rainbowLuckFor(areaId)
 		),
 		M.IndexRewards.rollChance(
-			M.Clock.goldChance(M.Config.GoldChanceNet, kinds),
+			M.Clock.goldChance(M.MutationBoost.gold(), kinds),
 			CatService.goldLuckFor(areaId)
 		)
 	)
@@ -589,9 +612,36 @@ local function writeAreaRares()
 	end
 end
 
+-- #5500 (catchLostLog): a started net catch that ended with no cat, and why (shared/CatchLost)
+local function lostCatch(player: Player?, stray: Stray, reason: string)
+	if player == nil or not M.LiveFlagService.on(M.CatchLost.FLAG) then
+		return
+	end
+	local attempt = stray.attempt
+	local rings = if attempt ~= nil then #attempt.grades else 0
+	Telemetry.custom(
+		player,
+		"catch_lost", -- CatchLost.EVENT
+		rings,
+		{ reason, Telemetry.device(player) or "unknown", stray.area }
+	)
+end
+
 local function despawn(stray: Stray, catcher: Player?)
 	if not stray.alive then
 		return
+	end
+	if
+		stray.attempt ~= nil
+		and stray.lockedBy ~= 0
+		and (catcher == nil or catcher.UserId ~= stray.lockedBy)
+	then
+		-- #5500: the cat went while someone was catching it
+		lostCatch(
+			Players:GetPlayerByUserId(stray.lockedBy),
+			stray,
+			if catcher == nil then "gone" else "other_player"
+		)
 	end
 	stray.alive = false
 	local drop = stray.drop
@@ -656,6 +706,7 @@ local function canWander(stray: Stray): boolean
 		and stray.lockedBy == 0
 		and not stray.jumping
 		and stray.drop == nil
+		and stray.picnic == nil -- #5572: a picnic cat stays on its seat
 		and anyoneNear(stray.home)
 end
 
@@ -825,6 +876,7 @@ local function spawnStray(
 		returning = kept ~= nil and kept.returning == true,
 		knocks = if kept ~= nil then kept.knocks or 0 else 0,
 		pity = kept ~= nil and kept.pity == true,
+		perfect = if kept ~= nil and kept.perfect == true then true else nil, -- #5300
 		recaught = false,
 		beginner = beginner,
 		mood = mood,
@@ -1010,7 +1062,8 @@ local function spawnAt(
 			rng:NextNumber(),
 			rng:NextNumber(),
 			true,
-			if M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil
+			{ areaId }, -- #4221 (secretAreas retired, #4656)
+			Catching.secretShare(nil, M.LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)) -- #5418
 		)
 		else nil
 	local def = secret
@@ -1181,6 +1234,202 @@ local function tutorialTick()
 	end
 end
 
+-- #5533 (streetCats, shared/FreeStart): while a play first start save is in its first STREET_SECONDS of play, by day,
+-- the Alleyway keeps STREET_COUNT Commons on its `near` points (the save's own point first, then the nearest free
+-- ones, never another loaded player's own point), refilled each tick (5 s). Each is a kind the save lacks when it
+-- can be. Its first EASY_CATCHES catches by hand, and its first EASY_CATCHES in the Park this session, are the easy
+-- kind (Street.easy, in easyCatch). One table, as the module is short of locals.
+local Street = {}
+do
+	local parkCaught: { [Player]: number } = {}
+
+	function Street.tick()
+		local on = M.LiveFlagService.on(M.FreeStart.STREET_FLAG)
+		local day = M.ClockService.areasOpen()
+		local near = tutorialPoints()
+		local area = world.areas[TUTORIAL_AREA]
+		local occupied = occupiedPoints[TUTORIAL_AREA] or {}
+		local owned: { [number]: boolean } = {} -- near points of loaded players not on their street minutes
+		local due: { { profile: Types.PlayerProfile, own: number? } } = {}
+		for _, player in M.DataService.loadedPlayers() do
+			local profile = M.DataService.get(player)
+			local plot = M.PlotService.get(player)
+			if profile == nil or plot == nil then
+				continue
+			end
+			local own = near[plot.index]
+			if
+				on
+				and day
+				and M.FreeStart.active(profile.telemetry.freeStart, M.Economy.tier(profile))
+				and M.FreeStart.streetDue(
+					profile.telemetry.freeStart,
+					M.PlayTime.seconds(player, profile)
+				)
+			then
+				table.insert(due, { profile = profile, own = own })
+			elseif own ~= nil then
+				owned[own] = true
+			end
+		end
+		if #due == 0 then
+			-- nobody in their first minutes: the street's extra Commons go, unless held, dropped or reserved
+			for _, stray in strays do
+				if
+					stray.street
+					and stray.alive
+					and stray.beginner == nil
+					and stray.drop == nil
+					and (stray.lockedBy == 0 or lockExpired(stray))
+				then
+					despawn(stray)
+				end
+			end
+			return
+		end
+		local live = 0
+		for _, index in near do
+			local strayId = occupied[index]
+			local stray = if strayId ~= nil then strays[strayId] else nil
+			if stray ~= nil and stray.alive then
+				live += 1
+			end
+		end
+		local first = due[1]
+		local from = if first.own ~= nil then area.spawnPoints[first.own].Position else nil
+		local free: { number } = {}
+		for _, index in near do
+			if occupied[index] == nil and not owned[index] then
+				table.insert(free, index)
+			end
+		end
+		if from ~= nil then
+			table.sort(free, function(a: number, b: number): boolean
+				return (area.spawnPoints[a].Position - from).Magnitude
+					< (area.spawnPoints[b].Position - from).Magnitude
+			end)
+		end
+		local i = 1
+		while live < M.FreeStart.STREET_COUNT and free[i] ~= nil do
+			spawnAt(TUTORIAL_AREA, free[i], "Common", nil, first.profile.collection).street = true
+			live += 1
+			i += 1
+		end
+	end
+
+	-- Whether `stray` is one of the save's easy first catches (shared/FreeStart.easyDue).
+	function Street.easy(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
+		local joined = profile.telemetry.freeStart
+		if
+			joined ~= true
+			or not M.LiveFlagService.on(M.FreeStart.STREET_FLAG)
+			or not M.FreeStart.active(joined, M.Economy.tier(profile))
+		then
+			return false
+		end
+		local park = stray.area == M.Tier3Path.AREA
+		local done = if park then parkCaught[player] or 0 else SecondCat.caught(profile.stats)
+		return M.FreeStart.easyDue(joined, done, stray.def.rarity, stray.variant, park)
+	end
+
+	function Street.caught(player: Player, area: string)
+		if area == M.Tier3Path.AREA then
+			parkCaught[player] = (parkCaught[player] or 0) + 1
+		end
+	end
+
+	function Street.forget(player: Player)
+		parkCaught[player] = nil
+	end
+
+	-- #5572 (picnicParty, Design's spec item 4): each player's picnic cats while their Picnic Party runs, by user id:
+	-- the basket station's pivot, the cats to seat in order, how many are seated so far and the one on the blanket.
+	-- One at a time: the next sits down a moment after the one before is caught. Not saved.
+	Street.picnics = {} :: { [number]: Picnic }
+
+	-- Seats picnic cat n + 1 for `userId`, when one is still to come.
+	function Street.picnicSeat(userId: number)
+		local picnic: Picnic? = Street.picnics[userId]
+		if picnic == nil or picnic.stray ~= nil then
+			return
+		end
+		local def: Types.CatDef? = picnic.defs[picnic.n + 1]
+		local seat: CFrame? = M.PicnicSeats.seat(picnic.pivot, picnic.n + 1)
+		if def == nil or seat == nil then
+			return
+		end
+		picnic.n += 1
+		local stray = spawnStray(def, M.Tier3Path.AREA, seat.Position, nil, nil, nil, nil, nil)
+		stray.picnic = userId
+		stray.mood = "Sleepy" -- curled up on the blanket
+		stray.model:SetAttribute("Mood", "Sleepy")
+		stray.model:SetAttribute("PicnicFor", userId)
+		stray.model:SetAttribute("PicnicSeat", picnic.n)
+		stray.model:PivotTo(seat)
+		picnic.stray = stray
+	end
+
+	-- Takes `stray` away once nobody holds a catch on it.
+	function Street.picnicGo(stray: Stray)
+		task.spawn(function()
+			while stray.alive and stray.lockedBy ~= 0 and not lockExpired(stray) do
+				task.wait(0.5)
+			end
+			if stray.alive then
+				despawn(stray)
+			end
+		end)
+	end
+
+	-- A picnic cat was caught (by its player; nobody else may start a catch on one).
+	function Street.picnicCaught(player: Player, stray: Stray)
+		if stray.picnic == nil then
+			return
+		end
+		local picnic: Picnic? = Street.picnics[stray.picnic :: number]
+		if picnic == nil or picnic.stray ~= stray then
+			return
+		end
+		picnic.stray = nil
+		player:SetAttribute("PicnicCat" .. picnic.n, true)
+		Telemetry.custom(
+			player,
+			"picnic_cat_caught",
+			picnic.n,
+			{ tostring(stray.def.rarity), stray.def.id }
+		)
+		local userId = player.UserId
+		task.delay(M.PicnicParty.CAT_NEXT_SECONDS, function()
+			if Street.picnics[userId] == picnic then
+				Street.picnicSeat(userId)
+			end
+		end)
+	end
+
+	-- The cats for a party: the first picnic (the save has not caught the named Park Rare yet) two Commons (the spec's
+	-- Uncommon; the game has no such rarity) and that Rare; later ones two from the Park's normal table.
+	function Street.picnicDefs(profile: Types.PlayerProfile): { Types.CatDef }
+		local park = M.Tier3Path.AREA
+		local named: Types.CatDef? = Catching.candidates("Rare", park)[1]
+		if named ~= nil and profile.collection[named.id] == nil then
+			return {
+				Catching.pickCat("Common", park, rng:NextNumber()),
+				Catching.pickCat("Common", park, rng:NextNumber()),
+				named :: Types.CatDef,
+			}
+		end
+		local areaDef = M.Catalog.getArea(park)
+		local out: { Types.CatDef } = {}
+		for _ = 1, 2 do
+			local rarity: Types.Rarity = if areaDef ~= nil
+				then Catching.pickRarity(areaDef.odds, rng:NextNumber())
+				else "Common"
+			table.insert(out, Catching.pickCat(rarity, park, rng:NextNumber()))
+		end
+		return out
+	end
+end
+
 -- #3022 (shared/SecondCat; Derek2 2026-11-10: "A lot of people stop before catching second cat"): from a player's
 -- first customer served until their second cat is checked in, a stray waits for them near the Alleyway camp's
 -- landing. The free stray nearest the landing within SecondCat.SEARCH_STUDS is theirs: it turns Curious, so it walks
@@ -1326,6 +1575,30 @@ do
 		end
 		Second.step(player, profile, SecondCat.SHOWN)
 		local root = rootPosition(player)
+		local inAlley = root ~= nil and WorldBuilder.areaAt(world, root) == SecondCat.AREA
+		-- onboarding_v9 (switch strayMeets): for a first catch by hand the stray walks over to stand by the landing
+		if
+			inAlley
+			and M.LiveFlagService.on(M.StrayMeets.FLAG)
+			and M.StrayMeets.due(SecondCat.caught(profile.stats))
+		then
+			local meet = M.StrayMeets.point(pad, waiting.home)
+			if (meet - waiting.home).Magnitude > 0.5 then
+				waiting.home = meet
+			end
+		end
+		-- onboarding_v9's stray_marked counts only once the player stands in the Alleyway. The step_time above starts
+		-- at the first customer served, still in town, so it logged stray_marked (and the cannon steps before it)
+		-- before the flight and the drop showed at near_stray (Growth's read 2026-11-18)
+		if
+			inAlley
+			and M.Onboarding.cleanWants(
+				profile.telemetry.cleanV9Step or 0,
+				M.Onboarding.CLEAN_EVENTS.strayMarked
+			)
+		then
+			Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.strayMarked)
+		end
 		if root ~= nil and SecondCat.followed(root, waiting.body.Position) then
 			Second.step(player, profile, SecondCat.FOLLOWED)
 			if
@@ -1370,10 +1643,14 @@ do
 	type ParkNeed = "kinds" | "rare" -- shared/Tier3Path.Need
 	local parkSpawned: { [Player]: number } = {}
 
+	-- #5487 (Derek 2026-11-19: "those cats with paws on top that only take one hit in park still exist remove that"):
+	-- no Park stray waits any more (no gold paw badge, no one circle catch); tier3Path keeps its goal line and gift
+	local PARK_WAITS = false
 	local function parkNeed(player: Player): (Types.PlayerProfile?, ParkNeed?)
 		local profile = M.DataService.get(player)
 		if
-			profile == nil
+			not PARK_WAITS
+			or profile == nil
 			or not M.LiveFlagService.on(M.Tier3Path.FLAG)
 			or carrying[player] ~= nil
 			or packed[player] ~= nil
@@ -1550,7 +1827,8 @@ do
 
 	-- #5038: the waiting Park stray's catch is the first catch's slow circle too (easyCatch)
 	function Second.parkWaits(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
-		return stray.waitsFor == player.UserId
+		return PARK_WAITS
+			and stray.waitsFor == player.UserId
 			and stray.area == M.Tier3Path.AREA
 			and M.LiveFlagService.on(M.Tier3Path.FLAG)
 			and M.Tier3Path.need(profile) ~= nil
@@ -1869,9 +2147,8 @@ local function huntTick()
 	then
 		return
 	end
-	-- #4221: with secretAreas on each area hides only its own Secret, so the hunt picks among the open areas that
-	-- have one and spawns that area's Secret there
-	local perArea = M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
+	-- #4221: each area hides only its own Secret, so the hunt picks among the open areas that have one and spawns
+	-- that area's Secret there (the secretAreas switch is retired, #4656)
 	local own: { [string]: { Types.CatDef } } = {}
 	for _, secretDef in M.Catalog.secretCats do
 		local home = secretDef.secretArea
@@ -1892,7 +2169,7 @@ local function huntTick()
 					tier >= areaDef.tier
 					and not seen[areaDef.id]
 					and world.areas[areaDef.id] ~= nil
-					and (not perArea or own[areaDef.id] ~= nil)
+					and own[areaDef.id] ~= nil
 				then
 					seen[areaDef.id] = true
 					table.insert(open, areaDef.id)
@@ -1908,7 +2185,7 @@ local function huntTick()
 	if point == nil then
 		return -- that area is full; another next second
 	end
-	local choices: { Types.CatDef } = if perArea then own[areaId] else M.Catalog.secretCats
+	local choices: { Types.CatDef } = own[areaId]
 	local def = choices[rng:NextInteger(1, #choices)]
 	local stray = spawnStray(def, areaId, world.areas[areaId].spawnPoints[point].Position, point)
 	stray.model:SetAttribute(HUNT_ATTRIBUTE, true)
@@ -2256,7 +2533,8 @@ local function startCarry(
 	homePos: Vector3?,
 	knocks: number?,
 	bonusXp: number?,
-	pity: boolean?
+	pity: boolean?,
+	perfect: boolean?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -2299,6 +2577,7 @@ local function startCarry(
 		knocks = knocks or 0,
 		bonusXp = bonusXp,
 		pity = pity,
+		perfect = if perfect == true then true else nil,
 	}
 	if packed[player] == nil and hasBackpack(player) then
 		-- #2565: the first cat rides in the Backpack and the net stays out; the walk speed doesn't change
@@ -2530,11 +2809,17 @@ local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
 end
 
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
+	if stray.picnic == player.UserId then
+		return true -- #5572: a picnic cat cannot be lost
+	end
 	if stray.waitsFor == player.UserId and Second.waitsForCat(profile) then
 		return true
 	end
 	if Second.parkWaits(player, profile, stray) then
 		return true -- #5038
+	end
+	if Street.easy(player, profile, stray) then
+		return true -- #5533 streetCats
 	end
 	-- #3662 (Derek 2026-11-12: "the first cat catch where it used to stop the circle and wait for you to click/guide
 	-- you should now be for the second catch not first because first is the free one from food bowl"): the
@@ -2617,7 +2902,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	local profile = M.DataService.get(player)
 	if profile == nil or player.Parent ~= Players then
 		setLock(stray, 0)
-		return
+		return -- the leaving player's lost catch is logged by PlayerRemoving
 	end
 	Circles.expire(attempt, serverNow())
 	recordCircles(player, profile, attempt)
@@ -2641,6 +2926,9 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			return -- night came, or another server's catch puffed it meanwhile
 		end
 		if not kept then
+			stray.attempt = attempt -- #5500: so the log counts the rings
+			lostCatch(player, stray, "pity_lost")
+			stray.attempt = nil
 			setLock(stray, 0)
 			despawn(stray) -- puffs out of the net; PityService has told everyone who caught it
 			return
@@ -2671,6 +2959,22 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		perfect,
 		{ rarity, tostring(M.Economy.level(profile, "net")), result }
 	)
+	if not succeeded then
+		Telemetry.startMiss(player, profile, stray.area) -- #5551
+		stray.attempt = attempt -- #5500: so the log counts the rings
+		lostCatch(
+			player,
+			stray,
+			M.CatchLost.missReason(
+				if forfeit == nil
+					then nil
+					elseif carrying[player] ~= nil then "carrying"
+					else "too_far",
+				Circles.firstMiss(attempt)
+			)
+		)
+		stray.attempt = nil
+	end
 
 	if succeeded then
 		-- no Perfect bonus for a scripted-looking profile, nor on a Dropped cat, which already has its charm
@@ -2707,7 +3011,29 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local bonusXp = if finishKind == "purrfect" and not profile.flags.autoPress
 			then M.Config.CatXpBase
 			else nil
-		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp, pity)
+		-- #5300: every ring Perfect (not while AutoPress is set) marks the cat while the perfectCatch switch is on.
+		-- #5379 (Derek 2026-11-19: "even when getting all perfect circles it sometimes doesnt give the perfect
+		-- bonus"): a good player who lands over 95% Perfect across 50 rings gets the scripted-press flag, which held
+		-- the mark back until they fell under 85%. With perfectFlagged on the flag no longer blocks the mark; it
+		-- still holds back the charm, the bonus XP and the badge count.
+		local flagBlocks = profile.flags.autoPress
+			and not M.LiveFlagService.on(PerfectCatch.FLAGGED_FLAG)
+		local perfectMark = M.LiveFlagService.on(PerfectCatch.FLAG)
+			and (PerfectCatch.marks(finishKind, flagBlocks) or stray.perfect == true)
+		startCarry(
+			player,
+			def,
+			method,
+			charm,
+			variant,
+			nil,
+			funnel,
+			homePos,
+			knocks,
+			bonusXp,
+			pity,
+			perfectMark
+		)
 		if waitedFor ~= nil and waitedFor ~= player.UserId then
 			-- #3181: the beginner it waited for gets a new one at their point now, not at the next 5 s tick
 			task.defer(tutorialTick)
@@ -2722,6 +3048,8 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		if area == "park" then
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
+		Street.caught(player, area) -- #5533 streetCats
+		Street.picnicCaught(player, stray) -- #5572
 		if M.Catalog.getArea(area) ~= nil then
 			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
 		end
@@ -2740,7 +3068,17 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	-- #4815 (Derek 2026-11-16): in the walk-through (Tier 1) a missed catch never scares the cat either: it stays put
 	-- with no sprint or wait, as a beginner's tutorial stray does
 	local easy = easyCatch(player, profile, stray)
-	if easy or NetSwing.calm(M.Economy.tier(profile)) then
+	-- #5496 (parkFirstCalm): on a phone, tablet or console a Park miss leaves the cat put until the first Park catch
+	local parkCalm = M.ParkFirstEasy.calm(
+		stray.area,
+		M.Onboarding.reached(profile.telemetry, "first_park_catch"), -- ParkFirstEasy.STEP
+		Telemetry.device(player),
+		M.LiveFlagService.on(M.ParkFirstEasy.CALM_FLAG)
+	)
+	-- #5500 (missKeepsCommon, plan A fix 2): a missed Common, in any area on any device, stays put with no bolt, slow
+	-- or wait; the Perfect bonus is lost with the catch. Rares and up keep the chase
+	local commonCalm = rarity == "Common" and M.LiveFlagService.on("missKeepsCommon")
+	if easy or parkCalm or commonCalm or NetSwing.calm(M.Economy.tier(profile)) then
 		if not easy then
 			-- a Tier 1 miss that would have bolted before, so the bolt read can tell the two apart
 			Telemetry.custom(
@@ -2797,6 +3135,7 @@ local function knockLoose(target: Player, shoverUserId: number, areaId: string):
 		homePos = carry.homePos,
 		knocks = carry.knocks + (if shoverUserId ~= 0 then 1 else 0),
 		pity = carry.pity,
+		perfect = carry.perfect,
 	})
 end
 
@@ -2846,6 +3185,9 @@ function startCatch(
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
 	end
+	if stray.picnic ~= nil and stray.picnic ~= player.UserId then
+		return "That cat is at someone's picnic" -- #5572
+	end
 	if not withinRange(player, stray.body.Position, catchRange()) then
 		return "Too far away"
 	end
@@ -2876,12 +3218,17 @@ function startCatch(
 	local tutorial = easyCatch(player, profile, stray) -- #2774: any rarity, until the first check-in
 	local dragonFx = M.DragonKeep.of(profile) -- #4447: Quick Paws and Steady Claw
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
+	-- #5392 (catchCurve): one smooth curve by net, area tier and coat, in place of NetWindows, catchWindowScale and
+	-- QuickRing; the early, touch and Park scales, slow rings and potions stay on top
+	local curve = not tutorial and M.LiveFlagService.on(CATCH_CURVE_FLAG)
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
 		-- #2322: wider in the first area; #3135: a little narrower for a gold or rainbow coat
 		-- #2913 follow-up: a little wider for a player's first few catches by hand
 		else Circles.scaled(
-			Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
+			if curve
+				then Circles.curveWindows(netLevel, stray.def.rarity, stray.area, stray.variant)
+				else Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
 			-- #4299: or wider on a phone or tablet, whichever is wider
 			math.max(
 				Circles.earlyScale(SecondCat.caught(profile.stats)),
@@ -2894,6 +3241,22 @@ function startCatch(
 					M.LiveFlagService.on(M.ParkFirstEasy.FLAG)
 				)
 		)
+	-- #5601 (steadySoft, Derek 2026-11-20: "the potion that makes circle radius bigger is a little too strong"): a
+	-- Steady Paw Potion's bands go Potions.STEADY_SOFT of the way from the save's own net to the next, not all of it
+	if not tutorial and M.LiveFlagService.on(M.Potions.STEADY_SOFT_FLAG) then
+		local own = M.Economy.level(profile, "net")
+		if netLevel > own then
+			local function base(level: number): Types.NetWindows
+				return if curve
+					then Circles.curveWindows(level, stray.def.rarity, stray.area, stray.variant)
+					else Circles.windowsFor(level, stray.def.rarity, stray.area, stray.variant)
+			end
+			windows = M.Potions.steadySoften(windows, base(netLevel), base(own))
+		end
+	end
+	if curve then
+		windows = Circles.capped(windows)
+	end
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up
 	-- Derek 2026-11-14: and every free catch on a phone, tablet or console below Tier 2 (shared/FreeCatch)
@@ -2913,8 +3276,9 @@ function startCatch(
 			now,
 			roll,
 			stray.area,
-			dragonFx.slowRings
-		) -- #3140, #4447
+			dragonFx.slowRings,
+			if curve then Circles.curveSpeed(stray.def.rarity, stray.area, stray.variant) else nil
+		) -- #3140, #4447, #5392
 	-- #4814 (Derek 2026-11-16): the first catch by hand ignores every press before its ring is in the Good band
 	if SecondCat.caught(profile.stats) == 0 then
 		for _, circle in circles do
@@ -2935,6 +3299,11 @@ function startCatch(
 		)
 	end
 	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
+	-- #5392: a bigger Perfect from a better net, more so in the first areas; the client's bar reads the attribute
+	attempt.perfectGain = if curve
+		then Circles.perfectGain(netLevel, stray.area, trust.start, trust.need)
+		else nil
+	player:SetAttribute(CATCH_PERFECT_ATTRIBUTE, attempt.perfectGain)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	CatService.refreshSpeed(player) -- #2052: the catcher stands still until the circles end
@@ -2956,6 +3325,14 @@ function startCatch(
 	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
 	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
+	-- #5551 first_five_v1: the first swing, then the first Park swing once at Tier 2
+	Telemetry.firstFive(
+		player,
+		profile,
+		if stray.area == M.Tier3Path.AREA and M.Economy.tier(profile) >= 2
+			then "park_catch_started"
+			else "catch_started"
+	)
 	Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.catchStart) -- #4504: catch_2_started
 
 	-- A circle nobody presses is a Miss at its deadline (#1884: trust lost, and the catch ends only if the cat bolts);
@@ -2987,6 +3364,9 @@ function startCatch(
 	-- Whatever happens, the lock never outlives its schedule.
 	task.delay(math.max(0, stray.lockUntil - now) + 0.05, function()
 		if stray.alive and stray.lockedBy == player.UserId and lockExpired(stray) then
+			if stray.attempt == attempt then
+				lostCatch(player, stray, "timeout") -- #5500
+			end
 			setLock(stray, 0)
 		end
 	end)
@@ -3020,6 +3400,12 @@ local function onCatchPress(
 	-- #4597: the tap's own time when the client sent one (held to a short bound), else arrival less half the ping
 	local pressTime = Circles.pressTime(arrival, player:GetNetworkPing(), rawStamp)
 	local before = attempt.nextIndex
+	if before == 1 then
+		local pressed = M.DataService.get(player)
+		if pressed ~= nil then
+			Telemetry.firstFive(player, pressed, "ring_try") -- #5551: the first ring press
+		end
+	end
 	Circles.press(attempt, index, pressTime, arrival)
 	-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
 	sendJudged(player, strayId, attempt, before)
@@ -3065,9 +3451,10 @@ local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray
 	local method: Types.CatchMethod = stray.method
 	local def, charm, variant, homePos = stray.def, stray.charm, stray.variant, stray.homePos
 	local knocks, pity = stray.knocks, stray.pity
+	local perfect = stray.perfect == true -- #5300: the mark rides with the cat
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
 	local area = stray.area
-	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks, nil, pity)
+	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks, nil, pity, perfect)
 	local home = M.homeFromCampless
 	if home ~= nil then
 		home(player, area)
@@ -3316,7 +3703,8 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 		profile,
 		carry.charm,
 		carry.method,
-		carry.variant
+		carry.variant,
+		carry.perfect
 	)
 	local bonusXp = carry.bonusXp
 	if bonusXp ~= nil and bonusXp > 0 then
@@ -3424,6 +3812,7 @@ local function leaveAtDusk(stray: Stray)
 		funnel = nil,
 		knocks = stray.knocks,
 		pity = stray.pity,
+		perfect = stray.perfect, -- #5300
 	}
 	despawn(stray, owner)
 	checkIn(owner, carry, true)
@@ -3466,7 +3855,18 @@ local function campCheckIn(player: Player, campId: string)
 		math.floor(serverNow() - carry.startedAt),
 		{ campId, carry.def.rarity, tostring(carry.knocks) }
 	)
+	local profile = M.DataService.get(player)
+	if profile ~= nil then
+		-- #5551: onto the camp ring with the cat (the server checks in as the carrier enters the camp), and the Park's
+		Telemetry.firstFive(player, profile, "camp_ring")
+		if campId == M.Tier3Path.AREA and M.Economy.tier(profile) >= 2 then
+			Telemetry.firstFive(player, profile, "park_home")
+		end
+	end
 	finishCheckIn(player, true)
+	for _, hook in M.campHooks do
+		task.spawn(hook, player, campId)
+	end
 end
 
 -- How near the straight path from `from` to `to` passes `point`.
@@ -3718,6 +4118,7 @@ local function dropAtNight(player: Player, carry: Carry, root: Vector3?)
 		homePos = carry.homePos,
 		knocks = carry.knocks,
 		pity = carry.pity,
+		perfect = carry.perfect,
 	})
 	local areaDef = M.Catalog.getArea(homeId)
 	Net.toast(
@@ -3809,6 +4210,7 @@ local function dropCarry(player: Player, died: boolean)
 			returning = true,
 			knocks = carry.knocks,
 			pity = carry.pity,
+			perfect = carry.perfect,
 		}
 	)
 	task.spawn(walkHome, stray, home)
@@ -4109,6 +4511,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		purrfectStreak[player] = nil
+		Street.forget(player) -- #5533
 		-- endCarry (via the finalizer above) clears the carry record; this only mops up when the profile is
 		-- already gone, so the handler order between services does not matter.
 		if carrying[player] ~= nil and M.DataService.get(player) == nil then
@@ -4124,6 +4527,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		startledUntil[player] = nil
 		for _, stray in strays do
 			if stray.lockedBy == player.UserId then
+				if stray.attempt ~= nil then
+					lostCatch(player, stray, "left") -- #5500
+				end
 				setLock(stray, 0)
 			end
 		end
@@ -4138,6 +4544,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			-- the tutorial rule for the server's life
 			xpcall(Second.tick, function(err: unknown)
 				warn("[CatService] second cat tick: " .. tostring(err))
+			end)
+			xpcall(Street.tick, function(err: unknown) -- #5533 streetCats
+				warn("[CatService] street tick: " .. tostring(err))
 			end)
 		end
 	end)
@@ -4439,6 +4848,10 @@ function CatService.packedOf(player: Player): string?
 	return if carry ~= nil then carry.def.id else nil
 end
 
+-- #5584 (Derek 2026-11-20: "increase speed while in town square by a decent amount so people don't get bored of
+-- running"): with switch townFast on, the Town Square bonus is this instead of TownWalkSpeedBonus (20 + 10)
+local TOWN_FAST = 10
+
 -- A Swift Potion started or ran out (PotionService, F64), or a Startled slow (F57): the character's speed follows at
 -- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither). #2706: with no cat, on the Town
 -- Square (the character's OnSquare, kept by markCamps), TownWalkSpeedBonus more.
@@ -4453,9 +4866,10 @@ function CatService.refreshSpeed(player: Player)
 	local carry = carrying[player]
 	local startled = startledUntil[player]
 	-- #2706: a little faster on the Town Square
-	local square = if (character :: Model):GetAttribute("OnSquare") == true
-		then M.Config.TownWalkSpeedBonus
-		else 0
+	local square = if (character :: Model):GetAttribute("OnSquare") ~= true
+		then 0
+		elseif ReplicatedStorage:GetAttribute("LiveFlag_townFast") == true then TOWN_FAST -- #5584
+		else M.Config.TownWalkSpeedBonus
 	local base = if carry == nil
 		then M.Config.NormalWalkSpeed + pawsBonus(player) + square
 		elseif
@@ -4572,6 +4986,11 @@ function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
 end
 
+-- #5381: whether this profile has the area open (its gate, else its tier), for AreaWholeService's areasKept.
+function CatService.areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
+	return areaUnlocked(profile, areaId)
+end
+
 -- #4251: an area that is not one of the ten (Harvest Hollow, World/HarvestWorld), added once it is built: its
 -- AreaInfo (spawn points, floor, bounds, roam) and who may catch there. Its strays come only from spawnIn; no
 -- wave, top-up, bait, rescue or pity knows it.
@@ -4597,8 +5016,35 @@ end
 -- #4251: `hook(player, def, areaId)` runs (in its own thread) after every successful net catch, as the cat goes
 -- into the catcher's arms; not for a cat let go that walked home first (`recaught`), so Harvest pumpkins and the pie
 -- count each cat once (Sync's Harvest run, 2026-11-17: a drop then a late re-catch paid +1 twice).
+-- #5572: a Picnic Party started for `player` at the basket station whose pivot is `pivot`: its cats come to the
+-- blanket one after another (shared/PicnicSeats), the first now. A party already running keeps its cats.
+function CatService.picnicCats(player: Player, profile: Types.PlayerProfile, pivot: CFrame)
+	if Street.picnics[player.UserId] ~= nil then
+		return
+	end
+	for n = 1, #M.PicnicSeats.SPOTS do
+		player:SetAttribute("PicnicCat" .. n, nil)
+	end
+	Street.picnics[player.UserId] = { pivot = pivot, defs = Street.picnicDefs(profile), n = 0 }
+	Street.picnicSeat(player.UserId)
+end
+
+-- #5572: the party is over (or the player left): the cat still on the blanket goes once nobody is catching it.
+function CatService.picnicClear(player: Player)
+	local picnic: Picnic? = Street.picnics[player.UserId]
+	Street.picnics[player.UserId] = nil
+	if picnic ~= nil and picnic.stray ~= nil then
+		Street.picnicGo(picnic.stray :: Stray)
+	end
+end
+
 function CatService.onCaught(hook: (Player, Types.CatDef, string) -> ())
 	table.insert(M.caughtHooks, hook)
+end
+
+-- #5533: `hook` hears of every cat checked in at a camp, with the camp's id
+function CatService.onCampCheckIn(hook: (Player, string) -> ())
+	table.insert(M.campHooks, hook)
 end
 
 -- #1572 (luck-and-rare-moments.md 1h): spawns slot `slot`'s pity cat `catId` (`kind`) at a free hiding spot of the
@@ -4640,6 +5086,9 @@ function CatService.removePity(slot: number): number
 		local holder = if stray.lockedBy ~= 0
 			then Players:GetPlayerByUserId(stray.lockedBy)
 			else nil
+		if stray.attempt ~= nil then
+			lostCatch(holder, stray, "pity_lost") -- #5500
+		end
 		setLock(stray, 0)
 		despawn(stray)
 		if holder ~= nil then

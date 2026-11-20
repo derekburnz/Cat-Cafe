@@ -18,7 +18,6 @@ local CafeService = require(script.Parent.CafeService)
 local ClockService = require(script.Parent.ClockService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
 local TradeService = require(script.Parent.TradeService)
@@ -27,11 +26,7 @@ local FusionService = {}
 
 local function ready(player: Player): Types.PlayerProfile?
 	local profile = DataService.get(player)
-	if
-		profile == nil
-		or not LiveFlagService.on(Fusion.FLAG)
-		or not Fusion.open(Economy.tier(profile))
-	then
+	if profile == nil or not Fusion.open(Economy.tier(profile)) then
 		return nil
 	end
 	return profile

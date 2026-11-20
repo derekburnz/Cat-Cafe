@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Advent = require(ReplicatedStorage.Shared.Advent)
 local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -41,6 +42,7 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Holdout = require(ReplicatedStorage.Shared.Holdout)
 local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
@@ -49,6 +51,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
 local MemoryWatch = require(ReplicatedStorage.Shared.MemoryWatch)
+local MilestoneFunnel = require(ReplicatedStorage.Shared.MilestoneFunnel)
 local MoneyCard = require(ReplicatedStorage.Shared.MoneyCard)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
@@ -68,10 +71,13 @@ local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
+local StartFunnel = require(ReplicatedStorage.Shared.StartFunnel)
 local StarterSuggest = require(ReplicatedStorage.Shared.StarterSuggest)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
+local Tier3Trip = require(ReplicatedStorage.Shared.Tier3Trip)
+local TomorrowBoard = require(ReplicatedStorage.Shared.TomorrowBoard)
 local Types = require(ReplicatedStorage.Shared.Types)
 local UpgradePace = require(ReplicatedStorage.Shared.UpgradePace)
 
@@ -90,6 +96,12 @@ export type CustomEvent =
 	-- #4314: the seconds the loading screen was up for a test save (0 "off" or never shown); fields: arm, device
 	| "ab_loading_seen"
 	| "session_end"
+	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
+	| "hood_trail" -- #5517 (hoodTrail): the walk to the Neighbourhood at Tier 3 shown or entered (value 1; fields kind, device)
+	| "rank_tap" -- #5516 (rankTapLog): a Tier 1 tap on the goal card or strip's rank up button (value the tap's number this session; fields from, window open after, ready)
+	| "return_card" -- #5505 (returnMoment): the welcome back card on a join 4 h+ after the last leave (value hours away, max 72; fields rank up in reach, device, line kind or "held")
+	| "tier3_left" -- #5517: a session ended at Tier 3 before that landing (value seconds; fields furthest stop, device, day or night)
+	| "rank_cue_next" -- #5516 (switch rankCueLog): the first window opened after the Tier 1 rank cue (value seconds since the cue; fields screen or "left", device)
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
 	-- (else since the join); fields: "1", "2", "3", "4" or "5+" (the account's nth buy), the upgrade id, the new level
 	| "upgrade_bought"
@@ -110,8 +122,26 @@ export type CustomEvent =
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "first_catch_coins" -- #5596 (StartGoalService.topUp): coins a Tier 1 save's first net catch topped up to the Tier 2 cost (value the coins)
+	| "free_start" -- #5533 (shared/FreeStart): a new save joined the play first start (value 1; field "joined"), or
+	-- its first net catch (value: play seconds; field "first_catch", onboarding_v10)
+	| "start_goal" -- #5533 goalChip: one of its two first goals paid (value: FreeStart.PAID_CAUGHT or PAID_HOME)
+	-- #5551 (shared/StartFunnel), first_five_v1's side events, only for a save on the play first start:
+	| "start_time" -- a milestone reached (value: seconds of play; field: the step, StartFunnel.TIMED)
+	| "start_side" -- an optional thing in the first 5 minutes, once each (value: seconds of play; field: StartFunnel.SIDE)
+	| "start_miss" -- a miss on one of the first three catches in a place (value 1; field "alley_1" to "park_3")
+	| "start_cannon" -- the flight to the Park (value: seconds of play; fields: "town" or "camp", "lit_walk" or "picker")
+	| "start_window" -- a window opened in the first 3 minutes of play (value: seconds of play; field: the window)
+	| "holdout_group" -- #5499 (shared/Holdout): a new save joined the holdout (value 1; field: "holdout" or "live")
+	| "order_group" -- #5498 (shared/TutorialOrder): a new save joined the walk-through order test (value 1; field: its arm)
 	| "cat_pet" -- #3651 (shared/Pet): a cat was petted (value 1; field: first, same or moved)
 	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
+	-- #5572 (shared/PicnicParty, switch picnicParty), each value 1:
+	| "picnic_ready_seen" -- a ready basket within 60 studs, once a ready basket (fields: tier, seconds of play)
+	| "picnic_started" -- a party started (fields: tier, seconds of play, "running" or "bagged")
+	| "picnic_cat_caught" -- #5572: a picnic cat caught (value 1 to 3, its seat; fields: rarity, cat id)
+	| "picnic_ended" -- Picnic Time ran out (fields: tier, seconds of play since its start)
+	| "picnic_ring_empty" -- the basket's ring with nothing ready, at most once a minute (field: tier)
 	| "afk_start"
 	| "afk_end"
 	| "afk_pay"
@@ -137,6 +167,14 @@ export type CustomEvent =
 	| "catch_circles" -- value the Perfect rings; rarity, net level, result (#2913: a miss is missed_early, missed_late or missed_none)
 	-- #1884 (catch-rework.md 7d): a net catch's end, value the rings judged; purrfect, great, nice or bolt, rarity, mood
 	| "catch_finish"
+	-- #5500 (shared/CatchLost, switch catchLostLog): a started net catch that ended with no cat, value the rings judged;
+	-- reason, device, area
+	| "catch_lost"
+	| "daily_gift" -- #5506 (shared/DailyGifts): a daily playtime gift paid, value the minutes played today; step, device, first_day or later_day
+	| "days_played" -- #5505 (shared/DaysPlayed): a days played milestone paid, value its day; cat or prize, device
+	-- #5300 (shared/PerfectCatch): the perfectCatch switch's one charm migration for a save, value the cats it marked
+	-- Perfect (charm 80+); fields: the cats at charm 51 to 79 (they now earn a little less), the cats owned
+	| "perfect_migrate"
 	| "rescue_attempt"
 	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
@@ -208,6 +246,7 @@ export type CustomEvent =
 	| "quest_set" -- F73: kind, when the last quest of a full set is claimed and the set prize paid
 	| "achievement_claimed" -- F73: achievement id, size
 	| "daily_treat" -- F70: the day stamped (1 to 7)
+	| "advent_door" -- #5502 (shared/Advent): value the door; fields on_time or catch_up, device, first_day/first_week/older
 	-- Derek's 10-31 research notes: where early players stop. On leaving before Tier 2: the furthest onboarding step,
 	-- the tutorial step ("intro" while the intro has never finished) and where they were; the value is the session's
 	-- seconds
@@ -302,6 +341,11 @@ export type CustomEvent =
 	| "event_rsvp" -- #2766
 	| "return_hook_early_shown" -- #4626
 	| "tomorrow_card" -- #3951: the come back tomorrow card, value 1; its outcome (ReturnHook.CARD_OUTCOMES), the device
+	-- #5449: the Daily Treat Board's card, value 1; its outcome (TomorrowBoard.OUTCOMES), the device, "first" or "later"
+	-- (the account's first UTC day, dayText "0", or not)
+	| "tomorrow_board"
+	-- #5502: the advent calendar's card, value 1; its outcome (Advent.BOARD_OUTCOMES), the device
+	| "advent_board"
 	-- #5202 (nextGoalBeat): the "What next?" card, value 1, each once a session; the variant (A or B) or the target
 	-- (cats, cafe or closed), the tier and the device
 	| "next_goal_shown"
@@ -541,12 +585,18 @@ local LEFT_AFTER_SHOVE_SECONDS = 120
 local LEFT_AFTER_RESTART_WARNING_SECONDS = 120 -- #2720
 local REPORTS = {
 	"device",
+	"start_side", -- #5551: StartFunnel.CLIENT_SIDE, what only the screen sees (the bowl's walk-up ring)
 	"ui_opened",
 	"intro_choice",
 	"stuck_nudge",
 	"step",
 	"screen",
 	"tutorial_closed",
+	"rank_cue_next", -- #5516: the first window opened after the Tier 1 rank cue, its ScreenName (the server checks the tier)
+	"hood_trail", -- #5517: the walk to the Neighbourhood shown or entered (UI/Components/ParkTrailLogic, hoodTrail)
+	"rank_tap", -- #5516: "<goal|strip>:<ScreenName or none>:<ready|not_ready>", a Tier 1 rank up tap and what it opened
+	"return_card", -- #5505: the welcome back card showed, "<milestone|next|hook|none>:<yes|no>" (line kind, rank up in reach)
+	"tier3_cannon", -- #5517: the Cannon menu opened at Tier 3 (shared/Tier3Trip; the server checks the tier)
 	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
 	"rank_up_end", -- #5031: how that window ended, "pressed" or "closed" (rank_up_window)
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
@@ -575,6 +625,8 @@ local REPORTS = {
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"return_hook_early", -- #4626: the minute 6 "come back tomorrow" line showed, its kind (ReturnHook.EARLY_KINDS)
 	"tomorrow_card", -- #3951: the come back tomorrow card's outcome (ReturnHook.CARD_OUTCOMES)
+	"tomorrow_board", -- #5449: the Daily Treat Board card's outcome (TomorrowBoard.OUTCOMES)
+	"advent_board", -- #5502: the advent calendar card opened, from the Rewards row or the board (Advent.BOARD_OUTCOMES)
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
@@ -662,6 +714,7 @@ local FIELD_KEYS = {
 }
 
 type Session = {
+	joinAge: string?, -- #5438: the server's age bucket when this session began (serverAgeBucket)
 	accounted: number, -- lifetimeCoins already logged, as tips or as a Source of its own
 	joinedAt: number,
 	joinedClock: number, -- #4307: os.clock() at the join, for client_boot's fractions of a second
@@ -689,6 +742,7 @@ type Session = {
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
+	hoodTrail: { [string]: boolean }, -- #5517: hood_trail logged this session, by kind
 	parkSeconds: number, -- #5034: seconds stood in the Park this session with no Park cat yet (park_left)
 	parkClosest: number?, -- #5034: the closest a free Park stray came meanwhile, in studs
 	parkOwned: boolean?, -- #5034: the save has a Park cat (worked out once, then latched by first_park_catch)
@@ -696,6 +750,14 @@ type Session = {
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
 	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
 	rankWindows: number, -- #5031: rank_up_window events logged this session
+	awaySeconds: number?, -- #5505: seconds since the last leave, at this join (nil on a first session)
+	returnCard: boolean, -- #5505: return_card logged this session
+	rankCueAt: number?, -- #5516: when the Tier 1 rank cue showed this session (bowl_step rankCue)
+	rankCueNext: boolean, -- #5516: rank_cue_next logged this session
+	rankTaps: number, -- #5516: rank_tap events logged this session (6 at most)
+	startCaught: { [string]: number }, -- #5551: catches this session by StartFunnel.MISS_PLACES place
+	startMisses: { [string]: number }, -- #5551: start_miss logged this session, by field ("alley_1")
+	startWindows: { [string]: boolean }, -- #5551: start_window logged this session, by window
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -759,6 +821,17 @@ type ShownGoal = { goal: Types.ReturnGoalView, mode: string, at: number }
 type StoreVisit = { id: string, step: number, sku: string?, landing: string? }
 
 local sessions: { [Player]: Session } = {}
+
+-- #5438 (Growth, for the bowl hint leak): first_move and tut_bowl_food carry the server's age when the player joined
+-- and whether its switches were read yet, "0-60s ready", "60-300s waiting" and so on, so the leak can be split by
+-- joins before and after a new server's first switch read. Analytics only.
+local serverStart = os.clock()
+local function serverAgeBucket(): string
+	local age = os.clock() - serverStart
+	local bucket = if age < 60 then "0-60s" elseif age < 300 then "60-300s" else "300s+"
+	return bucket .. (if LiveFlagService.ready() then " ready" else " waiting")
+end
+local JOIN_AGE_STEPS: { [string]: boolean } = { first_move = true, tut_bowl_food = true }
 local addedClock: { [Player]: number } = {} -- #4783: os.clock() as each player joined the server (client_load)
 local studio = RunService:IsStudio()
 local log: { LogEntry } = {}
@@ -987,7 +1060,17 @@ end
 
 -- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
 local function grouped(profile: Profile, fields: { string }): { string }
-	return IntroSplit.fields(profile.telemetry.introGroup, fields)
+	-- #5498: a save in the walk-through order test carries its arm there instead (the intro test takes nobody new)
+	-- #5499: and a save in neither carries its holdout group ("holdout" or "live"); a held save is never in the order test.
+	-- Both come ahead of introGroup: every new save still takes intro_short (#4252), which hid them (Sync 2026-11-20)
+	local state = profile.telemetry
+	-- #5533: a save on the play first start reads "free" there, ahead of its catch first arm
+	return IntroSplit.fields(
+		if state.freeStart == true
+			then "free"
+			else state.orderGroup or state.holdout or state.introGroup,
+		fields
+	)
 end
 
 -- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
@@ -1004,7 +1087,78 @@ function Telemetry.setIntroSkip(skip: (Player) -> boolean)
 	introSkip = skip
 end
 
+-- #5498 (shared/TutorialOrder): a new save joins the walk-through order test once, and its arm (or none) goes on the
+-- Player as the TutorialOrder attribute, so the client and the server read the same order. Checked once a session,
+-- before the intro check, so the switch going on mid session moves nobody.
+local orderChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
+function Telemetry.orderJoin(player: Player, profile: Profile)
+	if orderChecked[player] then
+		return
+	end
+	orderChecked[player] = true
+	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
+	local FreeStart = require(ReplicatedStorage.Shared.FreeStart) :: any -- #5533
+	local state = profile.telemetry
+	-- #5499 (shared/Holdout): the holdout first, so a held save reads orderSplit off below and keeps the bowl first arm
+	if
+		Holdout.joins(
+			LiveFlagService.on(Holdout.FLAG),
+			profile.stats.sessions,
+			profile.tutorialStep or 0,
+			state.holdout
+		)
+	then
+		state.holdout = Holdout.group(player.UserId)
+		Telemetry.custom(player, "holdout_group", 1, { state.holdout :: string }) -- Holdout.EVENT
+	end
+	-- (Derek 2026-11-20 13:04 UTC: the A/B tests end, so a save is held only while the holdout switch is on)
+	player:SetAttribute(
+		Holdout.ATTR,
+		LiveFlagService.on(Holdout.FLAG) and Holdout.held(state.holdout, state.firstDay, os.time())
+	)
+	-- #5533 (shared/FreeStart): a new save on the play first start takes the catch first order, so orderSplit below
+	-- never puts it in the bowl first arm; a save already in an arm keeps it, and a held save (the holdout's control
+	-- group) keeps today's start
+	if
+		player:GetAttribute(Holdout.ATTR) ~= true
+		and FreeStart.joins(
+			LiveFlagService.on(FreeStart.FLAG, player),
+			profile.stats.sessions,
+			profile.tutorialStep or 0,
+			state.freeStart,
+			state.orderGroup,
+			LiveFlagService.on(FreeStart.SPAWN_FLAG)
+		)
+	then
+		state.freeStart = true
+		state.orderGroup = TutorialOrder.CATCH
+		Telemetry.custom(player, FreeStart.EVENT, 1, { "joined" }) -- FreeStart.EVENT
+	end
+	player:SetAttribute(FreeStart.ATTR, if state.freeStart == true then true else nil)
+	if
+		TutorialOrder.joins(
+			LiveFlagService.on(TutorialOrder.SPLIT_FLAG, player),
+			profile.stats.sessions,
+			profile.tutorialStep or 0,
+			state.orderGroup
+		)
+	then
+		-- Studio only (Sync 2026-11-20): ReplicatedStorage's StudioOrderArm attribute, set in edit mode before Play,
+		-- picks the arm for a fresh test save so the bowl arm's telemetry can be walked too
+		local forced = if studio
+			then TutorialOrder.valid(ReplicatedStorage:GetAttribute("StudioOrderArm"))
+			else nil
+		state.orderGroup = forced or TutorialOrder.group(player.UserId)
+		Telemetry.custom(player, "order_group", 1, { state.orderGroup :: string }) -- TutorialOrder.EVENT
+	end
+	player:SetAttribute(TutorialOrder.GROUP_ATTR, state.orderGroup)
+	-- #5517 (hoodTrail, UI/Components/ParkTrailLogic.HOOD_LANDED_ATTR): the account's first Neighbourhood landing
+	player:SetAttribute("HoodLanded", Tier3Trip.landed(state.tier3Trip))
+end
+
 function Telemetry.introJoin(player: Player, profile: Profile)
+	Telemetry.orderJoin(player, profile)
 	if introChecked[player] ~= nil then
 		return
 	end
@@ -1119,13 +1273,141 @@ local function logCleanV7(player: Player, profile: Profile, areas: { [string]: b
 	end
 end
 
+-- #5533: onboarding_v10, for a save on the play first start (Onboarding.v10Due). The step that logs first_catch also
+-- sends free_start with that save's play seconds and field "first_catch".
+local function logCleanV10(
+	player: Player,
+	profile: Profile,
+	areas: { [string]: boolean },
+	event: string?
+)
+	local state = profile.telemetry
+	local logged = state.cleanV10Step or 0
+	if logged >= Onboarding.V10_COUNT then
+		return
+	end
+	saveAreas(profile, areas) -- a Park cat from bait never passes caughtIn
+	local caught: unknown, tamed: unknown = profile.stats.catsCaught, profile.stats.baitsTamed
+	local tier = Economy.tier(profile)
+	local facts: Onboarding.V10Facts = {
+		tier = tier,
+		handCats = if type(caught) == "number"
+			then caught - (if type(tamed) == "number" then tamed else 0)
+			else 0,
+		parkCatch = areas.park == true,
+		nextReady = tier == 1 and Economy.rankUpBlocker(profile) == nil,
+	}
+	for _, step in Onboarding.v10Due(state, logged, facts, event) do
+		state.cleanV10Step = step
+		sendClean(player, profile, Onboarding.V10_FUNNEL, step, Onboarding.V10_STEPS[step])
+		Telemetry.firstFive(player, profile, Onboarding.V10_STEPS[step]) -- #5551: v10's milestones are its steps too
+		if step == 3 then
+			Telemetry.custom(
+				player,
+				"free_start",
+				math.floor(PlayTime.seconds(player, profile)),
+				{ "first_catch" }
+			)
+		end
+	end
+	-- #5551: first_five_v1's own steps from the same facts (a later step fills these, so they may already be logged)
+	if facts.handCats >= 2 then
+		Telemetry.firstFive(player, profile, "catch_2")
+	end
+	if tier == 2 and Economy.rankUpBlocker(profile) == nil then
+		Telemetry.firstFive(player, profile, "rank_ready_3")
+	end
+end
+
+-- #5551: first_five_v1 (shared/StartFunnel) for a save on the play first start: step `name` and every one before it not
+-- yet logged, field 3 "free" as v10. A timed milestone reached as itself (not filled by a later one) also sends
+-- start_time with the seconds of play.
+function Telemetry.firstFive(player: Player, profile: Profile, name: string)
+	local state = profile.telemetry
+	local step = StartFunnel.INDEX[name]
+	if state.freeStart ~= true or step == nil then
+		return
+	end
+	for _, index in StartFunnel.due(state.firstFiveStep or 0, step) do
+		state.firstFiveStep = index
+		local stepName = StartFunnel.STEPS[index]
+		sendClean(player, profile, StartFunnel.FUNNEL, index, stepName)
+		if index == step and StartFunnel.TIMED[stepName] then
+			Telemetry.custom(
+				player,
+				"start_time",
+				math.floor(PlayTime.seconds(player, profile)),
+				{ stepName }
+			)
+		end
+	end
+end
+
+-- #5551: start_side `kind` (StartFunnel.SIDE) once per save, in the first StartFunnel.SIDE_SECONDS of play.
+function Telemetry.startSide(player: Player, profile: Profile, kind: string)
+	local state = profile.telemetry
+	local bit = StartFunnel.sideBit(kind)
+	if state.freeStart ~= true or bit == nil or StartFunnel.has(state.startSide, bit) then
+		return
+	end
+	local played = PlayTime.seconds(player, profile)
+	if played >= StartFunnel.SIDE_SECONDS then
+		return
+	end
+	state.startSide = (state.startSide or 0) + bit
+	Telemetry.custom(player, "start_side", math.floor(played), { kind })
+end
+
+-- #5551: a missed catch in `area` (CatService): start_miss for the first StartFunnel.MISS_CATCHES catches in the Alley
+-- and the Park, at most StartFunnel.MISS_MOST a catch.
+function Telemetry.startMiss(player: Player, profile: Profile, area: string)
+	local session = sessions[player]
+	local place = StartFunnel.MISS_PLACES[area]
+	if profile.telemetry.freeStart ~= true or session == nil or place == nil then
+		return
+	end
+	local catch = (session.startCaught[place] or 0) + 1
+	if catch > StartFunnel.MISS_CATCHES then
+		return
+	end
+	local field = place .. "_" .. catch
+	local logged = session.startMisses[field] or 0
+	if logged >= StartFunnel.MISS_MOST then
+		return
+	end
+	session.startMisses[field] = logged + 1
+	Telemetry.custom(player, "start_miss", 1, { field })
+end
+
+-- #5551: the flight to the Park (CannonService): park_flight and start_cannon (which cannon, and whether it was the lit
+-- one the player walked into or a pick in the Areas window).
+function Telemetry.startFlight(player: Player, profile: Profile, town: boolean, lit: boolean)
+	if
+		profile.telemetry.freeStart ~= true
+		or (profile.telemetry.firstFiveStep or 0) >= StartFunnel.INDEX.park_flight
+	then
+		return
+	end
+	Telemetry.firstFive(player, profile, "park_flight")
+	Telemetry.custom(
+		player,
+		"start_cannon",
+		math.floor(PlayTime.seconds(player, profile)),
+		{ if town then "town" else "camp", if lit then "lit_walk" else "picker" }
+	)
+end
+
 local function logClean(player: Player, profile: Profile, event: string?)
 	local session = sessions[player]
 	if session == nil or session.areasCaught == nil then
 		return -- joined is not logged yet (logJoined calls this once the session is set up)
 	end
 	local areas: { [string]: boolean } = session.areasCaught
-	if not Onboarding.v8On() then
+	if profile.telemetry.freeStart == true then
+		logCleanV10(player, profile, areas, event) -- #5533
+		return
+	end
+	if not Onboarding.v8On(player) then
 		logCleanV7(player, profile, areas)
 		return
 	end
@@ -1167,6 +1449,9 @@ end
 -- the service where it happens. Logs nothing unless the save stands right before that step.
 function Telemetry.cleanEvent(player: Player, profile: Profile, event: string)
 	logClean(player, profile, event)
+	if MilestoneFunnel.isLaterArrival(event) then
+		Telemetry.milestones(player, profile, true) -- #5291: second_area_entered
+	end
 end
 -- (the event names, for services that do not require Onboarding)
 Telemetry.CLEAN_EVENTS = Onboarding.CLEAN_EVENTS
@@ -1184,6 +1469,10 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 		trip.caught = true
 		Telemetry.journey(player, Journeys.AREA, Journeys.AreaNodes.caught, trip.id, { area })
 	end
+	local place = StartFunnel.MISS_PLACES[area] -- #5551: start_miss numbers the catches in each place
+	if place ~= nil then
+		session.startCaught[place] = (session.startCaught[place] or 0) + 1
+	end
 	local areas = session.areasCaught
 	if areas == nil then
 		return -- joined is not logged yet: logJoined reads the save's areas, and the cat joins them at check-in
@@ -1192,6 +1481,27 @@ function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
 		areas[area] = true
 		logClean(player, profile)
 	end
+end
+
+-- #5517 (shared/Tier3Trip, switch tier3TripLog): one stop of the Tier 3 to Neighbourhood trip, once per account.
+-- `detail` is the refusal's words for "refused", in field 3 in place of day or night.
+function Telemetry.tier3Stop(player: Player, profile: Profile, stop: string, detail: string?)
+	local state = profile.telemetry
+	if
+		not LiveFlagService.on(Tier3Trip.FLAG)
+		or not Tier3Trip.due(state.tier3Trip, stop, Economy.tier(profile))
+	then
+		return
+	end
+	state.tier3Trip = Tier3Trip.mark(state.tier3Trip, stop)
+	player:SetAttribute("HoodLanded", Tier3Trip.landed(state.tier3Trip)) -- #5517: ends the hoodTrail walk
+	local session = sessions[player]
+	Telemetry.custom(player, "tier3_trip", 1, {
+		stop,
+		(if session ~= nil then session.device else nil) or "unknown",
+		-- Roblox keeps three fields: a refusal's words (which name night when that was why), else day or night
+		detail or (if ClockService.areasOpen() then "day" else "night"),
+	})
 end
 
 -- #4544: the AreaVisit journey's first node. The cannon fired at `area` (CannonService checked it), or with `locked`
@@ -1319,7 +1629,14 @@ end
 -- #2774: a step_time event, value the seconds of play on the account when `name` came. Onboarding steps log theirs
 -- above; #3022's three second cat steps (shared/SecondCat.STEPS) come through here from CatService.
 function Telemetry.stepTime(player: Player, profile: Profile, name: string)
-	Telemetry.custom(player, "step_time", math.floor(PlayTime.seconds(player, profile)), { name })
+	local session = sessions[player]
+	local joinAge = if JOIN_AGE_STEPS[name] and session ~= nil then session.joinAge else nil
+	Telemetry.custom(
+		player,
+		"step_time",
+		math.floor(PlayTime.seconds(player, profile)),
+		if joinAge ~= nil then { name, joinAge } else { name }
+	)
 end
 
 -- #4821: the account's first bowl cat was just tamed (BaitService, once an account): first_cat_owned.
@@ -1671,6 +1988,45 @@ local function logFirstHour(player: Player, profile: Profile)
 				{ arm, name, session.device or "unknown" }
 			)
 		end
+	end
+end
+
+-- #5291: the milestones_v1 funnel (shared/MilestoneFunnel), one run per account with the user id as its session:
+-- every step the save has reached and not logged before, in step order, with the account's play minutes and the
+-- device. A save first seen here past MilestoneFunnel.ENTRY_SECONDS of play stays out. Off (`milestoneFunnel`),
+-- nothing is logged and the save is left as it is. `arrivedLater` is a landing after the Alleyway just now.
+function Telemetry.milestones(player: Player, profile: Profile, arrivedLater: boolean?)
+	if not LiveFlagService.on(MilestoneFunnel.FLAG) then
+		return
+	end
+	local state = profile.telemetry
+	local played = PlayTime.seconds(player, profile)
+	local saved = state.milestoneMask
+	local mask: number = if saved ~= nil then saved else MilestoneFunnel.entry(played)
+	state.milestoneMask = mask
+	if mask == MilestoneFunnel.OUT then
+		return
+	end
+	local due = MilestoneFunnel.due(mask, MilestoneFunnel.reached(profile, arrivedLater))
+	if #due == 0 then
+		return
+	end
+	local fields = { MilestoneFunnel.minuteMark(played), Telemetry.device(player) or "unknown" }
+	for _, step in due do
+		mask = MilestoneFunnel.mark(mask, step)
+		state.milestoneMask = mask
+		local name = MilestoneFunnel.STEPS[step]
+		remember(player, "funnel", MilestoneFunnel.NAME .. " " .. name, step, fields)
+		send(player, "funnel " .. MilestoneFunnel.NAME, function()
+			AnalyticsService:LogFunnelStepEvent(
+				player,
+				MilestoneFunnel.NAME,
+				tostring(player.UserId),
+				step,
+				name,
+				customFields(fields)
+			)
+		end)
 	end
 end
 
@@ -2398,6 +2754,7 @@ local function logJoined(player: Player)
 		end
 	end
 	logFirstHour(player, profile)
+	Telemetry.milestones(player, profile) -- #5291
 	session.rarityStep = 0 -- #3876
 	logRarity(player, profile)
 	if session.returnedNextDay then
@@ -2458,7 +2815,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		return
 	end
 	session.activeAt = os.clock() -- #3098: a report counts as activity for quit_snapshot's idle
-	if name == "device" then
+	if name == "start_side" then
+		local kind = Guard.oneOf(rawValue, StartFunnel.CLIENT_SIDE) -- #5551
+		if kind ~= nil then
+			Telemetry.startSide(player, profile, kind)
+		end
+	elseif name == "device" then
 		local device = Guard.oneOf(rawValue, DEVICES)
 		if device ~= nil and session.device == nil then
 			session.device = device
@@ -2475,7 +2837,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		-- #4674: once a session each, as step_time, and only in the bowl first order
 		local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
 		local step = if type(rawValue) == "string" then TutorialOrder.BOWL_STEPS[rawValue] else nil
-		if step ~= nil and TutorialOrder.bowlFirst() and not session.nudges["bowl:" .. step] then
+		if rawValue == "rankCue" and session.rankCueAt == nil then
+			session.rankCueAt = os.time() -- #5516: rank_cue_next times the next window from here
+		end
+		if
+			step ~= nil
+			and TutorialOrder.bowlFirst(player)
+			and not session.nudges["bowl:" .. step]
+		then
 			session.nudges["bowl:" .. step] = true
 			Telemetry.stepTime(player, profile, step)
 		end
@@ -2541,6 +2910,36 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		then
 			session.nudges["tomorrow_card:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "tomorrow_card", 1, { outcome, session.device or "unknown" })
+		end
+	elseif name == "tomorrow_board" then
+		-- #5449: each outcome once a session, with the switch on
+		local outcome = Guard.oneOf(rawValue, TomorrowBoard.OUTCOMES)
+		if
+			outcome ~= nil
+			and LiveFlagService.on(TomorrowBoard.FLAG)
+			and not session.nudges["tomorrow_board:" .. outcome]
+		then
+			session.nudges["tomorrow_board:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
+			Telemetry.custom(player, "tomorrow_board", 1, {
+				outcome,
+				session.device or "unknown",
+				if dayText(profile) == "0" then "first" else "later",
+			})
+		end
+	elseif name == "advent_board" then
+		-- #5502: each outcome once a session, and only while the calendar is live (both switches and the dates)
+		local outcome = Guard.oneOf(rawValue, Advent.BOARD_OUTCOMES)
+		if
+			outcome ~= nil
+			and Advent.live(
+				LiveFlagService.on(Advent.FLAG),
+				LiveFlagService.on(Advent.EVENT_FLAG),
+				os.time()
+			)
+			and not session.nudges["advent_board:" .. outcome]
+		then
+			session.nudges["advent_board:" .. outcome] = true -- the stuck nudges' once-a-session set, keyed apart
+			Telemetry.custom(player, "advent_board", 1, { outcome, session.device or "unknown" })
 		end
 	elseif name == "event_rsvp" then
 		local kind = Guard.oneOf(rawValue, RSVP_KINDS)
@@ -2769,6 +3168,85 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
 			end
 		end
+	elseif name == "rank_cue_next" then
+		-- #5516: once a session, only after the cue and only at Tier 1; a screen not in the lists reads "other"
+		local raw = if type(rawValue) == "string" and #rawValue <= SCREEN_NAME_MAX
+			then rawValue
+			else nil
+		local cueAt = session.rankCueAt
+		if
+			raw ~= nil
+			and cueAt ~= nil
+			and not session.rankCueNext
+			and Economy.tier(profile) == 1
+			and LiveFlagService.on("rankCueLog")
+		then
+			session.rankCueNext = true
+			Telemetry.custom(player, "rank_cue_next", math.max(0, os.time() - cueAt), {
+				SCREENS[raw] or MORE_SCREENS[raw] or "other",
+				session.device or "unknown",
+			})
+		end
+	elseif name == "rank_tap" then
+		-- #5516: "<from>:<screen>:<ready>", a few a session, only at Tier 1 and with the switch on
+		local raw = if type(rawValue) == "string" and #rawValue <= 64 then rawValue else nil
+		local from, screen, ready
+		if raw ~= nil then
+			from, screen, ready = string.match(raw, "^(%a+):(%w+):([%a_]+)$")
+		end
+		if
+			(from == "goal" or from == "strip")
+			and screen ~= nil
+			and (ready == "ready" or ready == "not_ready")
+			and session.rankTaps < 6
+			and Economy.tier(profile) == 1
+			and LiveFlagService.on("rankTapLog")
+		then
+			session.rankTaps += 1
+			local opened = if screen == "none"
+				then "none"
+				else SCREENS[screen :: string] or MORE_SCREENS[screen :: string] or "other"
+			Telemetry.custom(
+				player,
+				"rank_tap",
+				session.rankTaps,
+				{ from :: string, opened, ready :: string }
+			)
+		end
+	elseif name == "return_card" then
+		-- #5505: once a session, only 4 hours or more after the last leave, with the switch on
+		local raw = if type(rawValue) == "string" and #rawValue <= 24 then rawValue else nil
+		local kind, ready
+		if raw ~= nil then
+			kind, ready = string.match(raw, "^(%a+):(%a+)$")
+		end
+		local away = session.awaySeconds
+		if
+			(
+				kind == "milestone"
+				or kind == "next"
+				or kind == "hook"
+				or kind == "none"
+				or kind == "held"
+			)
+			and (ready == "yes" or ready == "no")
+			and away ~= nil
+			and away >= 4 * 3600
+			and not session.returnCard
+			and LiveFlagService.on("returnMoment")
+		then
+			session.returnCard = true
+			-- a held save (shared/Holdout) is always "held", whatever the client said, and a live one never is
+			local held = player:GetAttribute(Holdout.ATTR) == true
+			local line = if held then "held" elseif kind == "held" then "none" else kind :: string
+			Telemetry.custom(player, "return_card", math.min(72, math.floor(away / 3600)), {
+				ready :: string,
+				session.device or "unknown",
+				line,
+			})
+		end
+	elseif name == "tier3_cannon" then
+		Telemetry.tier3Stop(player, profile, "cannon_open") -- #5517: Tier3Trip.due checks the tier and the stop
 	elseif name == "rank_up_open" then
 		-- #5031: step 15 logs the moment the window opens, so one closed inside the screen report's 5 s counts too
 		local how = Guard.oneOf(rawValue, RankUpRightAway.HOWS)
@@ -2801,6 +3279,18 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if kind ~= nil and event ~= nil and not session.parkTrail[kind] and profile.tier >= 2 then
 			session.parkTrail[kind] = true
 			Telemetry.custom(player, (event :: any) :: CustomEvent, 1, { tierText(profile) })
+		end
+	elseif name == "hood_trail" then
+		-- #5517: once a session each, only at Tier 3 and with the switch on
+		local kind = Guard.oneOf(rawValue, { "shown", "entered" })
+		if
+			kind ~= nil
+			and not session.hoodTrail[kind]
+			and Economy.tier(profile) == Tier3Trip.TIER
+			and LiveFlagService.on("hoodTrail")
+		then
+			session.hoodTrail[kind] = true
+			Telemetry.custom(player, "hood_trail", 1, { kind, session.device or "unknown" })
 		end
 	elseif name == "rank_spot" then
 		local kind = Guard.oneOf(rawValue, { "shown", "closed" })
@@ -2837,6 +3327,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if outcome ~= nil and not session.firstBaitCut then
 			session.firstBaitCut = true
 			Telemetry.custom(player, "first_bait_cutscene", 1, { outcome })
+			-- #5551: shown or skipped is a scene that showed
+			Telemetry.startSide(
+				player,
+				profile,
+				if outcome == "none" then "bait_scene_none" else "bait_scene_shown"
+			)
 		end
 	elseif name == "store_opened" then
 		-- #1888: a new Store funnel session for each visit, up to StoreFunnel.VISITS_MAX a session
@@ -2999,6 +3495,23 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		-- #4544: a window opened as an act of the first ten minutes (the Store, the trade and the cannon's Areas window
 		-- count where they are used; the Bait window is the bowl)
 		local window = screen or more
+		-- #5551: the play first start's windows in its first minutes (StartFunnel)
+		if raw == "Upgrades" then
+			Telemetry.startSide(player, profile, "upgrades_opened")
+		elseif raw == "Store" then
+			Telemetry.startSide(player, profile, "store_opened")
+		end
+		local played = PlayTime.seconds(player, profile)
+		local named = window or "other"
+		if
+			raw ~= nil
+			and profile.telemetry.freeStart == true
+			and played < StartFunnel.WINDOW_SECONDS
+			and not session.startWindows[named]
+		then
+			session.startWindows[named] = true
+			Telemetry.custom(player, "start_window", math.floor(played), { named })
+		end
 		if window == "bait" then
 			Telemetry.firstAct(player, "bowl")
 		elseif window ~= nil and window ~= "store" and window ~= "trade" and window ~= "areas" then
@@ -3074,6 +3587,7 @@ local function onLoaded(player: Player, profile: Profile)
 		tutorialClosed = false,
 		parkHints = {},
 		parkTrail = {},
+		hoodTrail = {},
 		parkSeconds = 0,
 		parkClosest = nil,
 		parkOwned = nil,
@@ -3081,6 +3595,16 @@ local function onLoaded(player: Player, profile: Profile)
 		rankSpot = {},
 		rankWindow = nil,
 		rankWindows = 0,
+		awaySeconds = if not firstSession and profile.lastSeen > 0
+			then math.max(0, now - profile.lastSeen)
+			else nil,
+		returnCard = false,
+		rankCueAt = nil,
+		rankCueNext = false,
+		rankTaps = 0,
+		startCaught = {},
+		startMisses = {},
+		startWindows = {},
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",
@@ -3121,6 +3645,7 @@ local function onLoaded(player: Player, profile: Profile)
 		loadLogged = false,
 		fpsLogged = {},
 		liteLogged = false,
+		joinAge = nil,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any
@@ -3139,6 +3664,7 @@ local function onLoaded(player: Player, profile: Profile)
 			session.joinEvent = text
 		end
 	end
+	session.joinAge = serverAgeBucket() -- #5438
 	sessions[player] = session
 	if firstSession then
 		-- #4544: the FirstTenMinutes journey, a first session only
@@ -3405,6 +3931,26 @@ local function onRelease(player: Player, profile: Profile)
 	if session.rankWindow ~= nil then
 		rankWindowEnd(player, session, "left") -- #5031: left with the Rank Up window open
 	end
+	-- #5516: the rank cue showed and no window opened after it before the session ended
+	local cueAt = session.rankCueAt
+	if cueAt ~= nil and not session.rankCueNext and LiveFlagService.on("rankCueLog") then
+		session.rankCueNext = true
+		Telemetry.custom(player, "rank_cue_next", math.max(0, now - cueAt), {
+			if Economy.tier(profile) == 1 then "left" else "ranked",
+			session.device or "unknown",
+		})
+	end
+	-- #5517: a session that ends at Tier 3 before the first Neighbourhood landing, with how far the trip got
+	if
+		LiveFlagService.on(Tier3Trip.FLAG)
+		and Tier3Trip.leftDue(profile.telemetry.tier3Trip, Economy.tier(profile))
+	then
+		Telemetry.custom(player, "tier3_left", math.max(0, now - session.joinedAt), {
+			Tier3Trip.furthest(profile.telemetry.tier3Trip),
+			session.device or "unknown",
+			if ClockService.areasOpen() then "day" else "night",
+		})
+	end
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),
 		tierText(profile),
@@ -3654,6 +4200,7 @@ local function watchOnboarding(player: Player, session: Session)
 	end
 	if session.joinLogged then
 		logFirstHour(player, profile)
+		Telemetry.milestones(player, profile) -- #5291
 		logRarity(player, profile) -- #3876: a cat from a trade or a switch turned on mid session
 	end
 	watchFirstFive(player, session, profile)
@@ -3670,6 +4217,7 @@ local function watchOnboarding(player: Player, session: Session)
 				Vector3.new(at.X - origin.X, 0, at.Z - origin.Z).Magnitude >= FIRST_MOVE_STUDS
 			then
 				Telemetry.onboarding(player, profile, "first_move")
+				Telemetry.firstFive(player, profile, "first_move") -- #5551
 			end
 		end
 	end

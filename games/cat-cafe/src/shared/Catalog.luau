@@ -191,6 +191,16 @@ local function exclusive(def: Types.CatDef, source: Types.CatSource): Types.CatD
 	return def
 end
 
+-- #5502: an advent calendar cat (shared/Advent). An exclusive cat with source "advent" and a Secret's rate for an
+-- alley home (SecretNextMythicTimes times the Park's Mythical); CatStats.areaMultiplier lifts that by the owner's
+-- newest area, so it earns like a Secret whose home is that area.
+local function advent(def: Types.CatDef): Types.CatDef
+	def.incomePerSecond = Config.SecretNextMythicTimes
+		* Catalog.rarities.Mythical.incomePerSecond
+		* (AREA_INCOME.park or 3)
+	return exclusive(def, "advent")
+end
+
 -- #3470: a Secret cat. It belongs to no area (`area = "secret"`), so no wave, bait or rescue table and no Index page
 -- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
 -- an owner's best open area multiplies it (CatStats.areaMultiplier). #4221: `home` is the one area whose rolled
@@ -1701,12 +1711,63 @@ Catalog.cats = {
 			"Glows like the big orange moon over the patch."
 		)
 	),
+	-- #5502 the four advent calendar cats (doors 6, 12, 18 and 24; Model-Agent's CatCafe_Cat_PeppermintSwirl and the
+	-- rest, with _Sit and _Work, no gold or rainbow coats). Exclusive: never spawned, rolled or sold, and no trade,
+	-- fusion, Index page, count or Dragon Keep. Each earns like a Secret whose home is the owner's newest area.
+	advent(
+		cat(
+			"peppermint_swirl",
+			"Peppermint Swirl",
+			"Secret",
+			"alley",
+			"waiter",
+			"stripes",
+			{ 245, 240, 240 },
+			"Spins three times before every nap."
+		)
+	),
+	advent(
+		cat(
+			"nutcracker",
+			"Nutcracker",
+			"Secret",
+			"alley",
+			"greeter",
+			"solid",
+			{ 196, 40, 48 },
+			"Stands guard by the door, very seriously."
+		)
+	),
+	advent(
+		cat(
+			"northern_lights",
+			"Northern Lights",
+			"Secret",
+			"alley",
+			"entertainer",
+			"gradient",
+			{ 24, 40, 96 },
+			"The sky followed it home one winter."
+		)
+	),
+	advent(
+		cat(
+			"silent_night",
+			"Silent Night",
+			"Secret",
+			"alley",
+			"barista",
+			"gradient",
+			{ 40, 48, 110 },
+			"Arrives with the first quiet snow on Christmas Eve."
+		)
+	),
 } :: { Types.CatDef }
 
 -- #3470: the Secret cats, in catalog order
 Catalog.secretCats = {} :: { Types.CatDef }
 for _, def in Catalog.cats do
-	if def.rarity == "Secret" then
+	if def.rarity == "Secret" and def.source ~= "advent" then -- #5502: the calendar cats never roll
 		table.insert(Catalog.secretCats, def)
 	end
 end
@@ -2018,15 +2079,17 @@ Catalog.maxTier = #Catalog.tiers
 
 -- #5249: what Tiers 3 to 8 ask for plainly (coins, kinds of cats, their rare cats), and what they ask while
 -- `cheapTiers` is on (shared/CheapTiers): `needs` nil puts the plain ones back, and a field a tier's entry leaves out
--- stays plain. Returns whether any changed.
+-- stays plain. Returns whether any changed. #5533 (coinsOnly): every tier from 2 up has a plain row, and `noRarity`
+-- true takes the rarity need away (needsRarity and needsRarityCount nil) whatever the plain row asks.
 export type TierNeeds = {
 	cost: number?,
 	distinctCats: number?,
 	needsRarity: string?,
 	needsRarityCount: number?,
+	noRarity: boolean?,
 }
 Catalog.PLAIN_TIER_NEEDS = {} :: { [number]: TierNeeds }
-for tier = 3, 8 do
+for tier = 2, Catalog.maxTier do
 	local def = Catalog.tiers[tier] :: Types.TierDef
 	Catalog.PLAIN_TIER_NEEDS[tier] = {
 		cost = def.cost,
@@ -2042,7 +2105,11 @@ function Catalog.setTierNeeds(needs: { [number]: TierNeeds }?): boolean
 		local want: TierNeeds = if needs ~= nil and needs[tier] ~= nil then needs[tier] else {}
 		for _, field in { "cost", "distinctCats", "needsRarity", "needsRarityCount" } do
 			local value = (want :: any)[field]
-			if value == nil then
+			if
+				want.noRarity == true and (field == "needsRarity" or field == "needsRarityCount")
+			then
+				value = nil
+			elseif value == nil then
 				value = (plain :: any)[field]
 			end
 			if def[field] ~= value then
@@ -2188,6 +2255,50 @@ function Catalog.setTablesSpread(on: boolean): boolean
 	end
 	for _, def in Catalog.upgrades do
 		if def.id == "tables" then
+			local perLevel: { [number]: number } = {}
+			for level = 1, def.maxLevel do
+				local tier = Catalog.tierForLevel(def.id, level)
+				if tier ~= nil and tier > 1 then
+					perLevel[level] = tier
+				end
+			end
+			def.requiresTierAtLevel = perLevel
+		end
+	end
+	return changed
+end
+
+-- #5441 (Derek 2026-11-19: "the tier 10 cafe now feels a little empty make it so there are 2 more table upgrades",
+-- switch tablesEight, shared/TablesEight): Tables 7 and 8 open at Tiers 9 and 10, where the room has grown to 60 x 46
+-- (Layout.plot.tablesBig). Their costs are Espresso 9 and 10's, the same share of those tiers. Off, Tables 6 is the
+-- top as before. A level owned above the cap is kept.
+Catalog.TABLES_EIGHT = table.freeze({ [9] = 7, [10] = 8 })
+Catalog.TABLES_SIX = table.freeze({ [9] = 6, [10] = 6 })
+Catalog.TABLES_MAX_PLAIN = 6
+Catalog.TABLES_MAX_EIGHT = 8
+Catalog.TABLES_EIGHT_COSTS = table.freeze({ [7] = 25000000000, [8] = 150000000000 })
+
+function Catalog.setTablesEight(on: boolean): boolean
+	local caps: { [number]: number } = if on then Catalog.TABLES_EIGHT else Catalog.TABLES_SIX
+	local changed = false
+	for tier, cap in caps do
+		local def = Catalog.tiers[tier]
+		if def ~= nil and (def.caps :: any).tables ~= cap then
+			(def.caps :: any).tables = cap
+			changed = true
+		end
+	end
+	for _, def in Catalog.upgrades do
+		if def.id == "tables" then
+			local top = if on then Catalog.TABLES_MAX_EIGHT else Catalog.TABLES_MAX_PLAIN
+			if def.maxLevel ~= top then
+				def.maxLevel = top
+				changed = true
+			end
+			local costs: any = def.costs -- a level past maxLevel is taken away (nil) with the switch off
+			for level, cost in Catalog.TABLES_EIGHT_COSTS do
+				costs[level] = if on then cost else nil
+			end
 			local perLevel: { [number]: number } = {}
 			for level = 1, def.maxLevel do
 				local tier = Catalog.tierForLevel(def.id, level)
@@ -2444,7 +2555,7 @@ Catalog.lures = {
 	-- #4900 (Derek 2026-11-16: "a new secret tier of bait bowl food ... night market and coin shop ... assume people are
 	-- making 1B a second so make it really expensive", then "make the price 10x"): a late game money sink at a flat
 	-- $20T (about 5.5 hours at $1B a second), used up by one bowl. A tenth of its Mythicals turn Secret
-	-- (secretShare; 1 in 100 for every other food), so its card reads Legendary 50%, Mythical 45%, Secret 5%. Sold by
+	-- (secretShare; 1 in 100 for every other food), so its card reads Legendary 50%, Mythical 45%, Secret 5% (40% and 10% with secretDouble, #5418). Sold by
 	-- the night dealer and the Day Cart from Tier 8. It wears the Comet Treat's model until its own is made.
 	{
 		id = "eclipse_treat",
@@ -2709,6 +2820,17 @@ Catalog.potions = {
 		minutes = 60,
 		effect = "3x money",
 		tipsOver = 2,
+		shopOnly = true,
+	},
+	-- #5572 (switch picnicParty, shared/PicnicParty): Picnic Time, the Picnic Party's +100% money for 3 minutes, started
+	-- at the basket (PotionService.give). Never sold, never in a gift. Its +100% sits inside TimedTipsMax with the other
+	-- money potions (Design 2026-11-20: never past the most potions can add).
+	{
+		id = "picnic_time",
+		name = "Picnic Time",
+		minutes = 3,
+		effect = "2x money",
+		tips = 1,
 		shopOnly = true,
 	},
 } :: { Types.PotionDef }
@@ -4438,8 +4560,7 @@ table.freeze(Catalog.indexPrizes)
 -- Codes (F65, data-model section 11d), keyed by the lowercased code a player types at the Codes Cat. The prize uses
 -- the Index prize shape and pays once per player. #1118 (the friend, 11-04, for the store page's codes line):
 -- `release` is the release code, `playtest` and `playtest2` stay active for everyone, and `group` is open to members
--- of the community group only (requiresGroup, Config.GroupId; a non-member keeps it unused). `launch` switches on that
--- day. F64 adds the potions to playtest and group, and `playtest2` with two of each so
+-- of the community group only (requiresGroup, Config.GroupId; a non-member keeps it unused). F64 adds the potions to playtest and group, and `playtest2` with two of each so
 -- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
 -- new code.
 Catalog.codes = {
@@ -4471,14 +4592,9 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 60, potions = { tip_potion = 2 } },
 	},
-	launch = {
-		id = "launch",
-		active = false,
-		prize = { coins = 1000, coinSeconds = 300, fish = 10 }, -- F94 (was also 2 spins and 3 Tuna); #2497: fish was 25
-	},
 	-- #1937 (release.md section 4): the first four weeks' codes, coins only (about 10 minutes of income at most, no
 	-- fish, spins, potions or crates). Each ships off; that week's small PR turns it on, on its day. Each ends 60 days
-	-- after that day (launch-ops.md section 1), at 00:00 UTC. The old `launch` row above stays off and unused.
+	-- after that day (launch-ops.md section 1), at 00:00 UTC. The old `launch` row was never switched on, so no save holds it; #4656 removed it.
 	opening = {
 		id = "opening",
 		active = false, -- go wide, Thursday 2026-11-12

@@ -214,8 +214,20 @@ local function coinImage(coin: GuiObject): string?
 	return nil
 end
 
+-- What a coin fly needs (Presets.firstCatchWow, Presets.campCoinFly).
+export type CoinFly = {
+	coins: number,
+	coinSeconds: number,
+	coinStagger: number,
+	coinSpread: number,
+	coinLift: number,
+	coinMin: number,
+	gold: Color3,
+}
+
 -- About `coins` coins from `from` (pixels in `gui`) in arcs to the money coin, landing over `coinSeconds`. One loop.
-local function flyCoins(gui: ScreenGui, from: Vector2, p: typeof(Presets.firstCatchWow))
+-- Also Effects/CampCoinFly's (#5533).
+function FirstCatchWow.flyCoins(gui: ScreenGui, from: Vector2, p: CoinFly)
 	local target = moneyCoin()
 	if target == nil then
 		return
@@ -291,6 +303,26 @@ local function flyCoins(gui: ScreenGui, from: Vector2, p: typeof(Presets.firstCa
 	end)
 end
 
+-- The speed to set a track to while the slow motion holds: `slow` of its own speed. `seen` is the speed it had when
+-- last looked at, `set` what we set it to then (both nil the first time). A track whose speed is not what we set was
+-- changed by someone else since (the Animate script sets the walk's speed as you move, a new pose starts at 1), so
+-- its new speed becomes its own speed. Returns the speed to set and its own speed. Pure.
+function FirstCatchWow.holdSpeed(
+	now: number,
+	own: number?,
+	set: number?,
+	slow: number
+): (number, number)
+	if own == nil or set == nil or math.abs(now - set) > 1e-3 then
+		own = now
+	end
+	return (own :: number) * slow, own :: number
+end
+
+-- #5341 recheck (Sync, Nov 18): slowing the playing tracks once was undone at once (the Animate script sets the
+-- speed again and the carry pose starts a new track at full speed), so the slow is held each frame for the window,
+-- last in the render step, on every playing track including ones that start inside it; each goes back to its own
+-- speed after, unless something else changed it since.
 local function slowAnimations(p: typeof(Presets.firstCatchWow))
 	local character = Players.LocalPlayer.Character
 	local animator = if character ~= nil
@@ -299,14 +331,36 @@ local function slowAnimations(p: typeof(Presets.firstCatchWow))
 	if animator == nil then
 		return
 	end
-	local was: { [AnimationTrack]: number } = {}
-	for _, track in (animator :: Animator):GetPlayingAnimationTracks() do
-		was[track] = track.Speed
-		track:AdjustSpeed(track.Speed * p.slowSpeed)
+	local own: { [AnimationTrack]: number } = {}
+	local set: { [AnimationTrack]: number } = {}
+	local slowed = 0
+	local who = character :: Model
+	local function hold()
+		for _, track in (animator :: Animator):GetPlayingAnimationTracks() do
+			if own[track] == nil then
+				slowed += 1
+			end
+			local speed, base =
+				FirstCatchWow.holdSpeed(track.Speed, own[track], set[track], p.slowSpeed)
+			own[track] = base
+			if math.abs(track.Speed - speed) > 1e-3 then
+				track:AdjustSpeed(speed)
+			end
+			set[track] = speed
+		end
+		-- for Sync's Studio check: how many of your character's playing tracks were slowed, and the speed while it lasts
+		who:SetAttribute("FirstCatchSlowTracks", slowed)
 	end
+	who:SetAttribute("FirstCatchSlowSpeed", p.slowSpeed)
+	hold()
+	local name = "FirstCatchWowSlow"
+	RunService:BindToRenderStep(name, Enum.RenderPriority.Last.Value, hold)
 	task.delay(p.slowSeconds, function()
-		for track, speed in was do
-			if track.IsPlaying then
+		RunService:UnbindFromRenderStep(name)
+		who:SetAttribute("FirstCatchSlowSpeed", nil)
+		for track, speed in own do
+			local mine = set[track]
+			if track.IsPlaying and mine ~= nil and math.abs(track.Speed - mine) <= 1e-3 then
 				track:AdjustSpeed(speed)
 			end
 		end
@@ -365,7 +419,13 @@ function FirstCatchWow.play(strayId: string?, rarity: string?): boolean
 			if not reduced and cat ~= nil and ground ~= nil then
 				local colour = Logic.glowColour(rarity or "Common")
 				local ring = Logic.catchPop(rarity or "Common")
-				Particles.ring(ground :: Vector3, colour, ring * p.ringScale, p.ringSeconds)
+				local part =
+					Particles.ring(ground :: Vector3, colour, ring * p.ringScale, p.ringSeconds)
+				if part ~= nil then
+					-- named and sized for Sync's Studio check (ClientEffects.FirstCatchRing, its Diameter attribute)
+					part.Name = "FirstCatchRing"
+					part:SetAttribute("Diameter", ring * p.ringScale)
+				end
 				Particles.confetti(
 					cat :: Vector3,
 					FirstCatchWow.confetti(
@@ -379,7 +439,7 @@ function FirstCatchWow.play(strayId: string?, rarity: string?): boolean
 				local from = if visible
 					then ScreenFx.toGui(gui, Vector2.new(screen.X, screen.Y))
 					else Vector2.new(gui.AbsoluteSize.X / 2, gui.AbsoluteSize.Y / 2)
-				flyCoins(gui, from, p)
+				FirstCatchWow.flyCoins(gui, from, p)
 			end
 		end
 		if t >= length then

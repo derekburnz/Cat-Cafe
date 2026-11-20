@@ -5178,7 +5178,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no card under it (#1161)")
 		local lines = 0
 		for _, child in odds:GetChildren() do
-			if child:IsA("TextLabel") then
+			-- #5606: the 4th perk line (bowlPassOptions) is built hidden and shows only with its switches on
+			if child:IsA("TextLabel") and child.Visible then
 				lines += 1
 				assert(string.sub(child.Name, 1, 5) ~= "Odds_", "uigate: bowl 2 lists a food's odds again (#1767)")
 			end
@@ -6692,26 +6693,20 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "IndexExclusive", function()
 		UI.openIndex("exclusive")
 	end },
-	-- #3470: no Secret page for a player who has found none; with one found the page comes last with only that cat,
-	-- "1 found" and no total, no Rewards button, and the two not found have no tile
+	-- #3470's Secret page in the Cats tab never shows since secretAreas was retired (#4656): Secrets have their own tab
+	-- (IndexSecretTab), even once one is found
 	{ "IndexSecret", function()
 		UI.open("Collection")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Collection", true)
 		local page = window and window:FindFirstChild("secret", true)
 		assert(page, "uigate: the Secret page was never built (#3470)")
-		assert(not page.Visible, "uigate: the Secret page shows before any Secret cat is found (#3470) " .. page:GetFullName())
 		local collection = table.clone(samplePlayer(os.time()).collection)
 		collection.nebula = 1
 		UI.update({ collection = collection })
-		UI.openIndex("secret")
-		assert(page.Visible, "uigate: no Secret page once a Secret cat is found (#3470)")
-		local header = page:FindFirstChild("Header")
-		assert(header.Count.Text == "1 found", "uigate: the Secret page reads " .. tostring(header.Count.Text) .. " (#3470)")
-		assert(not header.Rewards.Visible, "uigate: the Secret page has a Rewards button (#3470)")
-		local cats = page:FindFirstChild("Cats")
-		assert(cats.nebula.Visible, "uigate: the found Secret cat has no tile (#3470)")
-		assert(not cats.glitch.Visible and not cats.cafe_ghost.Visible, "uigate: a Secret cat not found has a tile (#3470)")
+		assert(not page.Visible, "uigate: the old Secret page shows in the Cats tab (#4656) " .. page:GetFullName())
+		local tab = window:FindFirstChild("SecretTab", true)
+		assert(tab and tab.Visible, "uigate: no Secret tab once secretAreas is retired (#4656)")
 	end },
 	-- an exclusive cat in the cat room reads "Can't sell"
 	{ "CatsBellhop", function()
@@ -10646,6 +10641,20 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		Scenes._goalFolded = true -- Scenes.close opens it again
 		watch:Disconnect()
 	end },
+	-- #5557 (Derek 2026-11-20: "since your goal is only money now remove the shrinking down arrow"): with coinsOnly on
+	-- the goal card has no fold button on any screen
+	{ "GoalNoFoldCoins", function()
+		local flags = game:GetService("ReplicatedStorage")
+		flags:SetAttribute("LiveFlag_coinsOnly", true)
+		UI.update({} :: any) -- a render with the state as it is (the next scene reads its ready card)
+		UIShim.advance(0.2)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		local fold = goal:FindFirstChild("Fold") :: GuiObject
+		local shown = fold.Visible
+		flags:SetAttribute("LiveFlag_coinsOnly", nil)
+		UI.update({} :: any) -- a render with the state as it is (the next scene reads its ready card)
+		assert(not shown, "uigate: the goal card still has its fold arrow with coinsOnly on (#5557)")
+	end },
 	{ "GoalCardSeen", function()
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 		UI.open("RankUp")
@@ -12082,6 +12091,19 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	{ "HarvestStallDecor", function()
 		UI.harvest.open("decor")
+	end },
+	-- the Christmas Event's Gift Stall (snowglobe-village-spec 5): 260 Snowflakes, the Santa Hat owned, the rest priced
+	{ "GiftStall", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_christmasEvent", true)
+		local Logic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GiftStallLogic") :: any
+		local view = Logic.defaultView({ snowflakes = 260 })
+		view.items[1].owned = true
+		UI.giftStall.setView(view)
+		UI.giftStall.open("outfit")
+	end },
+	{ "GiftStallDecor", function()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_christmasEvent", true)
+		UI.giftStall.open("decor")
 	end },
 	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a Steady Potion sold out
 	{ "CornerShop", function()

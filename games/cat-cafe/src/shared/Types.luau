@@ -22,7 +22,7 @@ export type Area =
 -- #4251: "harvest" for a Harvest Hollow cat (the limited area, not one of the ten): kept, it earns like `earnsLike`.
 export type CatArea = Area | "spare" | "exclusive" | "secret" | "harvest"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
-export type CatSource = "free" | "shop" | "pass" | "booth" -- booth #4061: the Ticket Booth's prize cat
+export type CatSource = "free" | "shop" | "pass" | "booth" | "advent" -- advent #5502: a calendar door (shared/Advent); -- booth #4061: the Ticket Booth's prize cat
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -287,6 +287,7 @@ export type IndexPrize = {
 	tag: string?,
 	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
 	traitTokens: number?, -- Daily Treat v2 (bigTreats): Trait Tokens into the Mystic Pool's bank (Traits.give)
+	snowflakes: number?, -- #5502: the Christmas event's Snowflakes (profile.snowflakes; the advent calendar)
 }
 
 -- #2798: the Cozy Cafe bags given on `day` (a UTC day number)
@@ -610,6 +611,9 @@ export type CatInstance = {
 	xp: number, -- toward the next level, may hold a fraction; one XP a second working, a quarter resting
 	charm: number, -- 0 to 100, rolled once when caught; 50 is a 1.0x rate
 	rescued: boolean?, -- true when freed from a rescue spot (for the book and analytics); absent otherwise
+	-- #5300 (shared/PerfectCatch): true when caught by net with every ring Perfect (or migrated from charm 80+); x1.5
+	-- pay while the perfectCatch switch is on; nil otherwise. It travels with the cat in a trade.
+	perfect: boolean?,
 	name: string?, -- the player's name for it as typed, filtered again for display; nil shows the catalog name
 	method: CatchMethod?, -- how it was found
 	-- F62 (section 4): true when the player locked it, so it cannot be sold or traded; nil is unlocked. Gold,
@@ -764,6 +768,7 @@ export type CatView = {
 	caughtAt: number,
 	spotId: string?,
 	rescued: boolean?,
+	perfect: boolean?, -- #5300
 	name: string?,
 	method: CatchMethod?,
 	locked: boolean, -- F62: the lock icon on its card
@@ -1144,6 +1149,7 @@ export type CampExtraView = {
 	pick: { { crateId: string, chance: number, golden: boolean, tier: number } }?,
 	-- #3715: the Picnic Basket's treat ids while the `picnicTreats` switch is on (shared/CampExtras.TREATS)
 	treats: { string }?,
+	party: boolean?, -- #5572: the Picnic Basket is a Picnic Party (switch picnicParty, shared/PicnicParty)
 	decor: { YardDecorRow }?, -- #1537: the Yard Sale's lawn rows today (shared/YardSale)
 	decorAt: number?, -- #1537: when the Yard Sale's next lawn stock arrives (server time), the next sunrise
 }
@@ -1379,10 +1385,21 @@ export type TelemetryState = {
 	cleanV8Step: number?,
 	-- Derek 2026-11-17 15:18 UTC: onboarding_v9 (Onboarding.CLEAN_STEPS) the same way; v8 is no longer logged
 	cleanV9Step: number?,
+	cleanV10Step: number?, -- #5533: onboarding_v10, a play first start save's furthest step (nil before it)
+	firstFiveStep: number?, -- #5551: first_five_v1 (shared/StartFunnel), a play first start save's furthest step
+	startSide: number?, -- #5551: the start_side kinds logged, StartFunnel.sideBit bits
+	-- #5291 (shared/MilestoneFunnel): the milestones_v1 steps logged, as a bit mask (step n is bit n - 1); -1 for a
+	-- save that is out of it, nil before Telemetry first sees the save with the switch on. Optional, so no save version
+	milestoneMask: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)
 	introGroup: string?,
+	orderGroup: string?, -- #5498: the walk-through order test arm (shared/TutorialOrder)
+	holdout: string?, -- #5499: the holdout group, "holdout" or "live" (shared/Holdout)
+	tier3Trip: number?, -- #5517: the Tier 3 to Neighbourhood stops logged, a bit mask (shared/Tier3Trip)
+	freeStart: boolean?, -- #5533: the save is on the play first start (shared/FreeStart)
+	startPaid: number?, -- #5533: the start's two goals paid, a bit mask (FreeStart.PAID_CAUGHT, PAID_HOME)
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount
@@ -1419,7 +1436,9 @@ export type Settings = {
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
 	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
+	catNames: boolean, -- #5586: the names over the nearest wild cats show, on by default
 	vipTag: boolean, -- #4991: a VIP owner's gold tag over their head shows, off by default
+	afkMode: boolean, -- #5322: AFK mode stays on through a leave and a restart (server only, afkStay switch)
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1441,6 +1460,9 @@ export type ReturnHookView = { kind: string, day: number? }
 -- amount and hours for "away" (about this many coins while away, counted up to this many hours)
 -- #3022 (shared/SecondCat): the cafe's coins a second now and with one more plain Common working an open slot (equal
 -- when no slot is free, as in a new Tier 1 cafe), the cats checked in so far, and the coins a new kind of Common pays.
+-- #5533 goalChip: the play first start's two first goals ("Catch a cat +100", "Take it to camp +100")
+export type StartGoalsView = { caught: boolean, home: boolean }
+
 export type SecondCatView = { now: number, with: number, cats: number, bonus: number }
 
 export type ReturnGoalView = {
@@ -1537,6 +1559,11 @@ export type PlayerProfile = {
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
+	-- #5502 (shared/Advent): the advent calendar's doors opened and catch-ups used, and the Christmas event's
+	-- Snowflakes. No VERSION bump: an older server drops them, so adventCalendar goes on only after the Christmas
+	-- restart.
+	advent: { year: number, opened: number, day: number, caught: number }?,
+	snowflakes: number?,
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
 	-- #3996 (shared/DailyDeal): the UTC day the player last bought Today's Deal, nil for never. No VERSION bump: an
 	-- older server dropping it only lets the same day's deal be bought once more, which pays as normal.
@@ -1610,6 +1637,13 @@ export type PlayerProfile = {
 	-- #2791 (shared/PlaytimeGifts): the gift ladder's small steps paid ("m2", "m4", "m6", "m15", "m20" -> true). No
 	-- VERSION bump: an older server dropping it can only pay a few small steps again.
 	giftSteps: { [string]: boolean },
+	-- #5506 (shared/DailyGifts): today's playtime gifts, the UTC day, seconds played that day and the steps paid. No
+	-- VERSION bump (an automatic publish restarts every server on one): an older server dropping it can only start
+	-- that day's ladder again, so the dailyGifts switch goes on only after a restart Derek calls.
+	dailyGifts: { day: number, seconds: number, claimed: number }?,
+	-- #5505 (shared/DaysPlayed): the UTC days played, the last one counted and the highest milestone paid. No VERSION
+	-- bump (an automatic publish restarts every server on one); the awayPromise switch goes on after Derek's restart.
+	daysPlayed: { count: number, last: number, paid: number }?,
 	-- #2486 (save version 43, live-events.md section 2e): each Cafe Event reward piece given, cosmeticId -> os.time()
 	-- it was first given, and the last event (its reward key, CafeEvents.rewardKey) this account was rewarded in, ""
 	-- for none; the "Cafe Party Guest" badge reads it
@@ -1658,8 +1692,7 @@ export type PlayerState = {
 	mysterySeen: boolean,
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' colour picks, nil for the built ones
-	-- #3996: Today's Deal (DailyDeal.view): today's deal number, bought today, tomorrow's; false below Tier 2 or while
-	-- the dailyDeal switch is off
+	-- #3996: Today's Deal (DailyDeal.view): today's deal number, bought today, tomorrow's; false below Tier 2
 	dailyDeal: DailyDealView | false,
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	-- #4055: the Store's golden fish prices (FishStore.view), nil while the fishStore switch is off
@@ -1684,6 +1717,9 @@ export type PlayerState = {
 	-- #2791 (retention-ideas.md 5a): the gift ladder's next two steps (PlaytimeGifts.upcoming), for the HUD's gift icon
 	-- and its countdown; empty once the ladder is done, nil from an older server
 	giftNext: { GiftStepView }?,
+	-- #5502: the advent calendar board (shared/Advent.view), nil while either switch is off
+	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
+	snowflakes: number?, -- #5502: the Christmas event's Snowflakes (the Gift Stall reads it)
 	-- #2797 (retention-ideas.md 5d): the invite card and the Friends button (shared/Invites.view); nil from an older server
 	invite: InviteView?,
 	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server
@@ -1701,6 +1737,9 @@ export type PlayerState = {
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
+	-- #5533 goalChip (shared/FreeStart.goals): a play first start save's two first goals below Tier 3, done or not; nil
+	-- otherwise, with the switch off and from an older server
+	startGoals: StartGoalsView?,
 	-- #5031: Tier 2's cats still to get after the first check-in (shared/RankUpRightAway.catsShort), 0 once met; nil
 	-- with the rankUpRightAway switch off and from an older server
 	rankUpShort: number?,

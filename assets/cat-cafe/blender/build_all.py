@@ -125,6 +125,8 @@ import harvestoutfits  # noqa: E402
 import harvestdecor  # noqa: E402
 import harvestset  # noqa: E402
 import d1props  # noqa: E402
+import advent  # noqa: E402
+import picnicprops  # noqa: E402
 import snowglobeset  # noqa: E402
 import cherryset  # noqa: E402
 import cherryitems  # noqa: E402
@@ -152,7 +154,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
            arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, snowglobeset, christmasitems, cherryset, cherryitems, dragon,
            updateposter, decorstand, mysterysign,
-           waterparkshelf, wallperch, plotsizes, d1props]
+           waterparkshelf, wallperch, plotsizes, d1props, advent, picnicprops]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -771,6 +773,10 @@ for _st in doorsets.SETS:                       # F80 door sets: CafeService.ref
                         "open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain "
                         "when none is picked). "
                         "Nothing collides.")
+PIVOT_NOTES[doorsets.FRONT_DOOR] = "the foot of the front doorway at its inside face, plot (0, 0, -17); the street is -Z"
+STUDIO_NOTES[doorsets.FRONT_DOOR] = ("#5385: the cafe's own front doors, as DoorFront where no F80 door set is in use "
+                                     "(CafeService.refreshDoors). The leaves (_OpenL, _OpenR) stand open into the "
+                                     "cafe and never move; the threshold fills the wall's depth. Nothing collides.")
 for _fl in doorsets.FLAPS:                      # F80 cat flaps: on a back leaf's CatFlap attachment
     _n = f"CatCafe_CatFlap_{_fl}"
     PIVOT_NOTES[_n] = "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z"
@@ -1036,6 +1042,8 @@ def main():
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
+        if name == advent.NAME:                   # #5502: Prize01 to Prize24 in the nooks, the PromptAnchor
+            extra = {"attachments": advent.rbx_attachments(name)}
         if name in wallperch.ASSETS:              # the cat's Seat on the shelf
             extra = {"attachments": wallperch.rbx_attachments(name)}
         if name in dragon.ASSETS:                 # #4062: the joint chain, each joint's scales inside it

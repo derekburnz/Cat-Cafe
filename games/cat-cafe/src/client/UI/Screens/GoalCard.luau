@@ -27,14 +27,18 @@
 -- bounce() pops the card once (not with Reduce Motion): the HUD calls it as the goal changes and once more later.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CheapTiers = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CheapTiers"))
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
+local GoalNeed = require(script.Parent.Parent.Components.GoalNeed)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local RankOneTap = require(script.Parent.Parent.Components.RankOneTap)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -60,6 +64,9 @@ export type GoalCard = {
 	-- #5031: the title a ready rank up shows in place of the next tier's name (nil for the name), from the next render
 	setReadyTitle: (self: GoalCard, title: string?) -> (),
 	alerting: (self: GoalCard) -> boolean, -- #2331: the ready pulse and arrow are on
+	-- #5533 (rankOneTap): what a tap on the card does while it is the gold RANK UP button
+	setRankUp: (self: GoalCard, onRankUp: (() -> ())?) -> (),
+	oneTap: (self: GoalCard) -> boolean, -- #5533: the card is the RANK UP button now
 	destroy: (self: GoalCard) -> (),
 }
 
@@ -112,6 +119,37 @@ local FOLD_H = 34
 local FOLD_GAP = 6
 
 type Row = { frame: Frame, fill: Frame, label: TextLabel, status: TextLabel }
+
+-- #5331: the goalNeedLine switch (Components/GoalNeed), off by default
+local function needLineOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. GoalNeed.FLAG) == true
+end
+
+-- #5533: the rankOneTap switch (Components/RankOneTap), off by default
+local function oneTapOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.FLAG) == true
+end
+
+-- #5592 (Derek 2026-11-20: "make the big rankup button ready ui a bit better instead of just a big yellow box"): the
+-- rankTapLook switch, off by default. The button in the house's clean button look: a green face from a light top to
+-- a deeper bottom over a darker lip, a light bar along its top, a thick dark outline and a slow breath.
+local function tapLookOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.LOOK_FLAG) == true
+end
+
+local TAP_FACE = Theme.button.primary
+local TAP_FACE_SEQUENCE = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, TAP_FACE.top:Lerp(Color3.new(1, 1, 1), 0.45)),
+	ColorSequenceKeypoint.new(0.08, TAP_FACE.top:Lerp(Color3.new(1, 1, 1), 0.45)),
+	ColorSequenceKeypoint.new(0.081, TAP_FACE.top),
+	ColorSequenceKeypoint.new(0.86, TAP_FACE.bottom),
+	ColorSequenceKeypoint.new(0.861, TAP_FACE.depth),
+	ColorSequenceKeypoint.new(1, TAP_FACE.depth),
+})
+local TAP_EDGE = 3
+local TAP_BREATH = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local TAP_BREATH_SCALE = 1.04
+local TAP_BREATH_AGAIN = 0.3 -- seconds after a pop before the breath starts again
 
 local GoalCard = {}
 GoalCard.__index = GoalCard
@@ -250,6 +288,32 @@ function GoalCard.new(
 		Parent = frame,
 	})
 	self._nudging = false
+	-- #5533 (rankOneTap): the line under RANK UP! while the card is the button (the tier and its cost)
+	self._tapLine = text({
+		Name = "RankUpCost",
+		Position = UDim2.fromOffset(0, TITLE_H + 2),
+		Size = UDim2.new(1, 0, 0, CAPTION_H),
+		TextSize = CAPTION_TEXT,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Visible = false,
+		Parent = frame,
+	})
+	FitText.shrink(self._tapLine)
+	self._tap = false
+	self._tapLook = false
+	-- #5592: the clean button face and the breath, both idle until the button is up with rankTapLook on
+	self._tapGradient = Create("UIGradient", {
+		Name = "RankUpFace",
+		Color = TAP_FACE_SEQUENCE,
+		Rotation = 90,
+		Enabled = false,
+		Parent = frame,
+	})
+	self._tapScale = Create("UIScale", { Name = "RankUpBreath", Scale = 1, Parent = frame })
+	self._tapBreath = nil :: Tween?
+	self._tapSince = nil :: number?
+	self._tapFired = nil :: number?
+	self._onRankUp = nil :: (() -> ())?
 	-- #3022: a goal's preview lines, under its title; a long one shrinks to fit the card
 	local goalLines: { TextLabel } = {}
 	for index = 1, GOAL_LINES do
@@ -345,7 +409,51 @@ function GoalCard.new(
 	self._foldButton = fold
 	self._fold = fold.instance
 
+	-- #5331: the switch flips the chip and the takeover's need line straight away
+	self._flagConnection = ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. GoalNeed.FLAG)
+		:Connect(function()
+			local last = self._last
+			if last then
+				self:render(last.progress, last.tierText, last.nudge, last.goal)
+			end
+		end)
+
+	-- #5533: the switch flips the card to or from the button straight away
+	self._tapConnection = ReplicatedStorage
+		:GetAttributeChangedSignal("LiveFlag_" .. RankOneTap.FLAG)
+		:Connect(function()
+			local last = self._last
+			if last then
+				self:render(last.progress, last.tierText, last.nudge, last.goal)
+			end
+		end)
+
+	self._lookConnection = ReplicatedStorage
+		:GetAttributeChangedSignal("LiveFlag_" .. RankOneTap.LOOK_FLAG)
+		:Connect(function()
+			local last = self._last
+			if last then
+				self:render(last.progress, last.tierText, last.nudge, last.goal)
+			end
+		end)
+
 	self._connection = frame.Activated:Connect(function()
+		-- #5533 (rankOneTap): the gold button ranks up in one tap, folded or not; no window opens
+		if self._tap then
+			local now = os.clock()
+			local rankUp = self._onRankUp
+			if rankUp ~= nil and RankOneTap.accepts(now, self._tapSince, self._tapFired) then
+				self._tapFired = now
+				rankUp()
+			end
+			return
+		end
+		-- #5533 (Sync on #5534): the second tap of a double tap lands after the rank up, on the dark card again; it
+		-- must not open the Rank Up window, so the card rests REST seconds after a counted tap
+		local fired: number? = self._tapFired
+		if fired ~= nil and os.clock() - fired < RankOneTap.REST then
+			return
+		end
 		if self._folded then
 			self:_toggleFold(false) -- the chip opens again; the next tap opens the rank up
 			return
@@ -353,6 +461,104 @@ function GoalCard.new(
 		onOpen()
 	end)
 	return self :: GoalCard
+end
+
+-- #5533 (rankOneTap): the card as the gold RANK UP button (`on`), or back to the dark card. Called first in every
+-- render, so a state that is not the button always starts from the card's own look.
+function GoalCard._paintTap(self: any, on: boolean)
+	if on and not self._tap then
+		self._tapSince = os.clock()
+	elseif not on then
+		self._tapSince = nil
+	end
+	self._tap = on
+	local look = on and tapLookOn()
+	self.frame.BackgroundColor3 = if look
+		then Color3.new(1, 1, 1)
+		elseif on then Theme.colors.gold
+		else Theme.colors.outline
+	self.frame.BackgroundTransparency = if on then 0 else CARD_TRANSPARENCY
+	self._tapGradient.Enabled = look
+	if look ~= self._tapLook then
+		self._tapLook = look
+		-- the edge's colour and width follow the look, so the ready pulse starts again from the new ones
+		local key = self._alertKey
+		if self._alerting then
+			self:_alert(nil)
+			self:_alert(key)
+		else
+			self._edge.Thickness = if look then TAP_EDGE else EDGE
+			self._edge.Color = if look then Theme.colors.outline else Theme.colors.gold
+		end
+		local breath: Tween? = self._tapBreath
+		if breath ~= nil then
+			breath:Cancel()
+			self._tapBreath = nil
+		end
+		self._tapScale.Scale = 1
+		if look and not GuiService.ReducedMotionEnabled then
+			self:_breathe()
+		end
+	end
+	self._title.TextXAlignment = if on then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left
+	self._tapLine.Visible = false
+end
+
+-- #5592: the green button's slow breath. A pop of the card (bounce, the rank up pop, the HUD's mark) tweens the same
+-- UIScale and so cancels the breath; it starts again a moment after, while the look is still up.
+function GoalCard._breathe(self: any)
+	local tween = TweenService:Create(self._tapScale, TAP_BREATH, { Scale = TAP_BREATH_SCALE })
+	self._tapBreath = tween
+	tween.Completed:Once(function(state: Enum.PlaybackState)
+		if state ~= Enum.PlaybackState.Cancelled then
+			return
+		end
+		task.delay(TAP_BREATH_AGAIN, function()
+			if self._tapBreath == tween and self._tapLook then
+				self._tapScale.Scale = 1
+				self:_breathe()
+			end
+		end)
+	end)
+	tween:Play()
+end
+
+-- #5533: the button's own layout, over whatever the ready card drew: RANK UP! and, opened, the tier and its cost.
+function GoalCard._layoutTap(self: any, progress: RankUp.Progress?, folded: boolean)
+	self._tier.Visible = false
+	self._goalLine.Visible = false
+	self._icon.Visible = false
+	self._caption.Visible = false
+	self._badge.Visible = false
+	for _, line in self._goalLines do
+		line.Visible = false
+	end
+	for _, row in self._rows do
+		row.frame.Visible = false
+	end
+	self._title.Visible = true
+	self._title.Text = if folded or self._tapLook then RankOneTap.CHIP else RankOneTap.TITLE
+	self._title.TextColor3 = Theme.colors.white
+	if folded then
+		return -- the chip keeps its own height and title place
+	end
+	local nextTier = if progress then progress.nextTier else nil
+	local coins = if progress then progress.requirements[1] else nil
+	self._title.Position = UDim2.fromOffset(0, 0)
+	self._title.Size = UDim2.new(1, 0, 0, TITLE_H)
+	self._tapLine.Text =
+		RankOneTap.line(if nextTier then nextTier.name else nil, if coins then coins.label else nil)
+	self._tapLine.TextColor3 = Theme.colors.white
+	self._tapLine.Visible = true
+	self.frame.Size = UDim2.fromOffset(WIDTH, Scale.tapHeight(TITLE_H + 2 + CAPTION_H + PAD * 2))
+end
+
+function GoalCard.setRankUp(self: any, onRankUp: (() -> ())?)
+	self._onRankUp = onRankUp
+end
+
+function GoalCard.oneTap(self: any): boolean
+	return self._tap == true
 end
 
 -- #2714: a press on the tab or the chip: fold or open, re-render, and save the choice
@@ -364,8 +570,14 @@ function GoalCard._toggleFold(self: any, folded: boolean)
 	end
 end
 
+-- #5557 (Derek 2026-11-20 13:39 UTC: "since your goal is only money now remove the shrinking down arrow from side of
+-- it"): with coinsOnly on the card has one line to show, so there is no fold arrow and a folded card opens again.
+local function foldable(): boolean
+	return TOUCH and not CheapTiers.coinsOnly()
+end
+
 function GoalCard.setFolded(self: any, folded: boolean)
-	folded = folded and TOUCH
+	folded = folded and foldable()
 	if folded == self._folded then
 		return
 	end
@@ -398,8 +610,20 @@ end
 
 -- #2714: the chip, one finger-tall line; the ready pulse and arrow carry on round it
 function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: string?, goal: Goal?)
+	local tap = RankOneTap.active(oneTapOn(), progress ~= nil and progress.ready)
+	self:_paintTap(tap)
 	-- #3022: a goal's chip line stands where the nudge's would (a ready rank up still comes first)
 	local words, gold = GoalFold.chip(progress :: any, if goal then goal.chip else nudge)
+	-- #5331 goalNeedLine: the biggest missing need in place of the count ("Famous Cafe: Coins $194K / $250K"), and
+	-- "Ready to Rank Up!" in gold once every need is met; a goal's chip or the nudge still stands where it did
+	local need = if needLineOn()
+			and goal == nil
+			and (nudge == nil or gold)
+		then GoalNeed.chip(progress :: any)
+		else nil
+	if need ~= nil then
+		words = need
+	end
 	self._tier.Visible = false
 	for _, line in self._goalLines do
 		line.Visible = false
@@ -419,6 +643,9 @@ function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: st
 	self._title.Position = UDim2.fromOffset(0, (height - PAD * 2 - TITLE_H) / 2)
 	self._title.Size = UDim2.new(1, 0, 0, TITLE_H)
 	self.frame.Size = UDim2.fromOffset(WIDTH, height)
+	if tap then
+		self:_layoutTap(progress, true)
+	end
 	local ready = progress ~= nil and progress.ready
 	self._ready = ready
 	local nextTier = if progress then progress.nextTier else nil
@@ -441,20 +668,38 @@ function GoalCard.render(
 	-- and back off in one frame
 	self.frame.Visible = self._held ~= true
 	self._last = { progress = progress, tierText = tierText, nudge = nudge, goal = goal }
+	if self._folded and not foldable() then
+		self._folded = false -- #5557: folded before coinsOnly, open now (the saved setting stays for if it goes off)
+	end
 	if self._folded then
 		self:_renderFolded(progress, nudge, goal)
 		return
 	end
-	self._fold.Visible = TOUCH
+	local tap = RankOneTap.active(oneTapOn(), progress ~= nil and progress.ready)
+	self:_paintTap(tap)
+	self._fold.Visible = foldable()
 	self._tier.Text = tierText
 	local ready = progress ~= nil and progress.ready
 	-- #3022: a goal takes the card over (a ready rank up still comes first): the gold line, its title, its lines
 	local shown = 0
+	-- #5331 goalNeedLine: a takeover goal keeps the biggest rank up need as one small line under its own lines (in
+	-- the last slot when they fill the card)
+	local lines: { string } = if goal ~= nil then goal.lines else {}
+	local needAt = 0
+	if goal ~= nil and not ready and needLineOn() then
+		local need = GoalNeed.line(progress :: any)
+		if need ~= nil then
+			lines = table.move(goal.lines, 1, math.min(#goal.lines, GOAL_LINES - 1), 1, {})
+			table.insert(lines, need)
+			needAt = #lines
+		end
+	end
 	for index, line: TextLabel in self._goalLines do
-		local words = if goal ~= nil and not ready then goal.lines[index] else nil
+		local words = if goal ~= nil and not ready then lines[index] else nil
 		line.Visible = words ~= nil
 		if words ~= nil then
 			line.Text = words
+			line.TextColor3 = if index == needAt then Theme.hud.subtext else Theme.colors.gold
 			shown = index
 		end
 	end
@@ -542,9 +787,12 @@ function GoalCard.render(
 
 	self._badge.Visible = ready
 	if ready and not self._ready then
-		Tween.popIn(self._badge, 0.7)
+		Tween.popIn(if tap then self.frame else self._badge, 0.7)
 	end
 	self._ready = ready
+	if tap then
+		self:_layoutTap(progress, false)
+	end
 	-- #2331: the pulse and the arrow, once for each tier's ready state
 	local key = if ready and nextTier then tostring(nextTier.name) else nil
 	if key == nil then
@@ -567,11 +815,14 @@ function GoalCard._alert(self: any, key: string?)
 		self._pulse = nil
 	end
 	local edge: UIStroke = self._edge
-	edge.Thickness = EDGE
-	edge.Color = Theme.colors.gold
+	edge.Thickness = if self._tapLook then TAP_EDGE else EDGE
+	edge.Color = if self._tapLook then Theme.colors.outline else Theme.colors.gold
 	if on then
 		if GuiService.ReducedMotionEnabled then
 			edge.Thickness = EDGE_READY
+		elseif self._tapLook then
+			-- #5592: the green button breathes instead; a white flash on its dark outline read as a blink (Sync)
+			edge.Thickness = TAP_EDGE
 		else
 			local tween = TweenService:Create(
 				edge,
@@ -609,6 +860,13 @@ end
 function GoalCard.destroy(self: any)
 	self:_alert(nil)
 	self._connection:Disconnect()
+	self._flagConnection:Disconnect()
+	self._tapConnection:Disconnect()
+	self._lookConnection:Disconnect()
+	if self._tapBreath ~= nil then
+		self._tapBreath:Cancel()
+		self._tapBreath = nil
+	end
 	self._foldButton:destroy()
 	self.frame:Destroy()
 end

@@ -116,7 +116,10 @@ export type Callbacks = {
 	setSetting: ((key: string, value: boolean) -> ())?,
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
+	rankTap: ((from: string) -> ())?, -- #5516 (rankTapLog): a tap on the goal card or the strip's rank up button
+	rankNow: (() -> ())?, -- #5533 (rankOneTap): the goal card as the RANK UP button was tapped: rank up, no window
 	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
+	openAway: (() -> ())?, -- #5505: the Rewards list's away row opens what comes tomorrow
 }
 
 export type HUD = {
@@ -175,6 +178,8 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
 	setCozy: (self: HUD, line: string?, ready: boolean) -> (), -- #2798
+	setAdvent: (self: HUD, line: string?, ready: boolean) -> (), -- #5502
+	setAway: (self: HUD, line: string?, gold: boolean) -> (), -- #5505: the Rewards list's away row
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -1065,8 +1070,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._rewardsText = "Rewards"
 	self._gift = nil :: { ready: number, nextIn: number?, left: number }?
 	self._ladder = nil :: { GiftLadderLogic.Row }? -- #2791: the gift ladder's next steps (setGiftLadder)
+	self._away = nil :: string? -- #5505: the away row's words (setAway), and whether it is gold
+	self._awayGold = false
 	self._cozy = nil :: string? -- #2798: the Cozy Cafe line (setCozy), and whether its bag waits
 	self._cozyReady = false
+	self._advent = nil :: string? -- #5502: the advent calendar's row (setAdvent), and whether a door is ready
+	self._adventReady = false
 	self._dailyDue = false
 	-- red count of what is ready to claim, on the tile's top right corner
 	local rewardsDot: Frame = Create("Frame", {
@@ -1624,6 +1633,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
 	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
+		local tapped = callbacks.rankTap
+		if tapped then
+			tapped("goal") -- #5516: the log looks at what opened a moment later
+		end
 		local openAt = callbacks.openIndexAt
 		if openAt and self._goal:nudging() then
 			openAt(self._goalArea) -- #1919
@@ -1638,6 +1651,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			save(GoalFold.SETTING, folded)
 		end
 		self:_layoutRight()
+	end)
+	-- #5533 (rankOneTap): as the gold RANK UP button the card ranks up in one tap (the log still gets the tap)
+	self._goal:setRankUp(function()
+		local tapped = callbacks.rankTap
+		if tapped then
+			tapped("goal")
+		end
+		local now = callbacks.rankNow
+		if now then
+			now()
+		end
 	end)
 	self._goalArea = nil :: string?
 	self._goalFolded = nil :: boolean?
@@ -2417,6 +2441,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		onClick = function()
 			-- #3951 read (Nov 15 data: 431 ready, 283 pressed): beside a rank up line it opens the rank up window
 			if self._stripRank then
+				local tapped = callbacks.rankTap
+				if tapped then
+					tapped("strip") -- #5516
+				end
+				-- #5533 (rankOneTap): while the goal card is the RANK UP button the strip's button ranks up too
+				local now = callbacks.rankNow
+				if now and self._goal:oneTap() then
+					now()
+					return
+				end
 				callbacks.openScreen("RankUp")
 				return
 			end
@@ -3222,14 +3256,22 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
-	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
+	-- #5485 (Derek 2026-11-19: "random arrows show up pointing at cat menu ... shouldn't ever happen"): none on Cats
+	-- with catsArrowOff on; the strip's words still say what to do
+	local catsArrowOff = ReplicatedStorage:GetAttribute(
+		LiveFlags.ATTRIBUTE_PREFIX .. "catsArrowOff"
+	) == true
+	StepTarget.ui(
+		self._stepTiles.Cats and self._stepTiles.Cats.face,
+		not held and asks == "job" and not catsArrowOff
+	)
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
 	-- Review-QA 2026-11-14: a step that points at a menu tile (Upgrades, Cats, Bowl) with the menu folded off the edge
 	-- had no tile on screen and no arrow, only the strip's words. The folded menu slides back out once as such a step
 	-- starts; a player who folds it again keeps it folded until the next step.
 	local menuAsk: string? = nil
 	if not held then
-		if asks == "job" or asks == "food" then
+		if (asks == "job" and not catsArrowOff) or asks == "food" then
 			menuAsk = asks
 		elseif
 			not holdsTable
@@ -3386,6 +3428,20 @@ end
 
 -- F87 (easy-start.md section 2f): whether a piece of the small HUD shows yet; everything before the first state.
 function HUD._open(self: any, key: HudUnlocks.Key): boolean
+	-- #5533 goalChip (Sync's look, Nov 20): a play first start save has no tutorial steps to unlock the goal card, so
+	-- its two first goals, the coin bar and the gold RANK UP were never on screen before the first check-in and tame
+	if key == "goal" then
+		-- the save's own FreeStart mark too: startGoals ends at Tier 3 and is nil with goalChip off
+		local FreeStart = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart")
+		) :: any
+		if
+			FreeStart.of(nil)
+			or (self._state ~= nil and type((self._state :: any).startGoals) == "table")
+		then
+			return true
+		end
+	end
 	local unlocks: { [HudUnlocks.Key]: boolean }? = self._unlocks
 	return unlocks == nil or unlocks[key] == true
 end
@@ -3644,7 +3700,13 @@ function HUD._renderStripBuy(self: any)
 	-- only pointer; on the safe side the walk-through's dim lights the same card (required here: 200 local limit)
 	local rankFirst = require(Shared:WaitForChild("RankFirst")) :: any
 	local rank = self._tutorial.Visible and rankFirst.isLine(self._tutorial.Text)
-	TutorialGlow.set(self._goal.frame, rank and self._openScreen == nil, true, true)
+	-- #5622 (spotHeld; Sync's run): on the new start the strip has no rank line, so this pass turned off the Tier 2
+	-- spotlight's glow (and its dim and arrow) a frame after RankSpot lit the card; a held card is left alone
+	local spotHeld = self._goal.frame:GetAttribute("SpotlightHeld") == true
+		and ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "spotHeld") == true
+	if not spotHeld then
+		TutorialGlow.set(self._goal.frame, rank and self._openScreen == nil, true, true)
+	end
 	if shown and offer ~= nil then
 		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
 		if not button.instance.Visible then
@@ -4214,6 +4276,15 @@ function HUD.pointCannon(self: any, on: boolean)
 end
 
 -- #5284: the Cats button, while it is on screen (the Cat Companion's soft arrow)
+-- #5330: the HUD's Upgrades button, for the night line's arrow; nil while it is not on screen
+function HUD.upgradesButton(self: any): GuiObject?
+	local pill = self._pills["Upgrades"]
+	if pill == nil or not pill.instance.Visible or not self.screenGui.Enabled then
+		return nil
+	end
+	return pill.instance
+end
+
 function HUD.catsButton(self: any): GuiObject?
 	local pill = self._pills["Cats"]
 	if pill == nil or not pill.instance.Visible or not self.screenGui.Enabled then
@@ -4818,6 +4889,11 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 			then indexReady > 0
 			elseif screen == "Upgrades" then #keys > 0
 			else Notices.hasNew(keys, self._seen[screen] or {})
+		-- #5574 (Derek 2026-11-20: "no need since it already auto equips best"): with decorNoBang on, new decor lights
+		-- no "!" on the Decor tile
+		if screen == "Decor" and ReplicatedStorage:GetAttribute("LiveFlag_decorNoBang") == true then
+			show = false
+		end
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 			lit = true
@@ -4895,13 +4971,45 @@ function HUD.setCozy(self: any, line: string?, ready: boolean)
 	self:_renderRewards()
 end
 
+-- #5502: the advent calendar's row of the Rewards list ("Advent door 7" with the red "!" while a door is ready, else
+-- "Advent calendar 6/24"); nil while the calendar is not live. A press opens its card.
+function HUD.setAdvent(self: any, line: string?, ready: boolean)
+	if line == self._advent and ready == self._adventReady then
+		return
+	end
+	local rows = (self._advent == nil) ~= (line == nil)
+	self._advent = line
+	self._adventReady = line ~= nil and ready
+	if rows and self._popFor == "rewards" then
+		self:_closePop()
+	end
+	self:_renderRewards()
+end
+
+-- #5505 (Components/AwayLineLogic): the away row on the Rewards list, "Away: about $X by tomorrow", gold when it pays
+-- for the next tier; nil takes it away. It lives on the list, not the HUD, so the phone layout keeps its room.
+function HUD.setAway(self: any, line: string?, gold: boolean)
+	if line == self._away and gold == self._awayGold then
+		return
+	end
+	local rows = (self._away == nil) ~= (line == nil)
+	self._away = line
+	self._awayGold = line ~= nil and gold
+	if rows and self._popFor == "rewards" then
+		self:_closePop() -- the list's rows change; the next press builds it again
+	end
+	self:_renderRewards()
+end
+
 -- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87), the gift
--- ladder from the first second (#2791), and the Cozy Cafe line (#2798).
+-- ladder from the first second (#2791), and the Cozy Cafe line (#2798), which the away row (#5505) counts with.
 function HUD._rewardParts(self: any): (boolean, boolean, boolean, boolean)
 	return self._giftsWanted == true and self:_open("gifts"),
 		self._dailyWanted == true and self:_open("daily"),
 		self._ladder ~= nil,
 		self._cozy ~= nil
+			or self._away ~= nil
+			or self._advent ~= nil -- #5502: the advent row is a list row too
 end
 
 -- The Rewards tile: shown while it holds anything; "Rewards" and a red "!" of what waits (gifts ready, plus one for
@@ -4915,7 +5023,8 @@ function HUD._renderRewards(self: any)
 		else nil
 	local ready = (if summary then summary.ready else 0)
 		+ (if daily and self._dailyDue then 1 else 0)
-		+ (if cozy and self._cozyReady then 1 else 0)
+		+ (if self._cozyReady then 1 else 0)
+		+ (if self._adventReady then 1 else 0)
 	local nextIn: number? = if summary then summary.nextIn else nil
 	if ladder then
 		-- #2791: the sooner of the Tip Jar's next gift and the ladder's next step
@@ -5065,10 +5174,36 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 	local rows: { PopRow } = {}
 	local callbacks: Callbacks = self._callbacks
 	if kind == "rewards" then
-		local gifts, daily, _, cozy = self:_rewardParts()
+		local gifts, daily, _, _ = self:_rewardParts()
+		-- #5505: the away row first, gold when the away money pays for the next tier; a press opens tomorrow's card
+		if self._away ~= nil then
+			table.insert(rows, {
+				id = "Away",
+				icon = Theme.icons.home,
+				style = (if self._awayGold then "gold" else "ghost") :: Button.Style,
+				press = function()
+					if callbacks.openAway then
+						callbacks.openAway()
+					else
+						callbacks.openScreen("DailyTreat") -- tomorrow's Daily Treat
+					end
+				end,
+			})
+		end
 		-- #2798: the Cozy Cafe line first. #2854 (Derek2: "make it auto claim if clicked"): with a bag waiting a press
 		-- takes it from anywhere; the countdown's press only closes the list
-		if cozy then
+		-- #5502: the advent calendar on top while it is live
+		if self._advent ~= nil then
+			table.insert(rows, {
+				id = "Advent",
+				icon = Theme.icons.gifts,
+				style = "berry" :: Button.Style,
+				press = function()
+					callbacks.openScreen("AdventCalendar")
+				end,
+			})
+		end
+		if self._cozy ~= nil then
 			table.insert(rows, {
 				id = "Cozy",
 				icon = Theme.icons.home,
@@ -5177,6 +5312,10 @@ function HUD._popText(self: any, id: string): string
 		return "Daily treat"
 	elseif id == "Cozy" then
 		return self._cozy or "Cozy gift"
+	elseif id == "Advent" then
+		return self._advent or "Advent calendar"
+	elseif id == "Away" then
+		return self._away or "Away"
 	elseif string.sub(id, 1, 6) == "Ladder" then
 		local row: GiftLadderLogic.Row? = (self._ladder or {})[tonumber(string.sub(id, 7)) or 0]
 		return if row then GiftLadderLogic.line(row) else "Gift"
@@ -5196,6 +5335,8 @@ function HUD._popReady(self: any, id: string): boolean
 		return self._dailyDue == true
 	elseif id == "Cozy" then
 		return self._cozyReady == true
+	elseif id == "Advent" then
+		return self._adventReady == true
 	end
 	return false
 end
@@ -6049,6 +6190,15 @@ end
 -- #3022: the goal card's goal while the cafe waits for its second cat, with the preview lines until they have had
 -- their PREVIEW_SECONDS; nil otherwise.
 function HUD._secondGoal(self: any): GoalCard.Goal?
+	-- #5533 goalChip (shared/FreeStart): a play first start save's two first goals come first, each with its pay
+	local start: any = if self._state ~= nil then (self._state :: any).startGoals else nil
+	if type(start) == "table" and not (start.caught and start.home) then
+		local FreeStart = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart")
+		) :: any
+		local title: string = if not start.caught then FreeStart.CATCH_LINE else FreeStart.HOME_LINE
+		return { title = title, lines = {}, chip = title }
+	end
 	local second: SecondCatGoal.View? = self._second
 	if second == nil then
 		-- #2912 (shared/StuckGoal): "Free a stuck cat" while the pointer to the first rescue is up

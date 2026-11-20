@@ -4043,6 +4043,32 @@ Presets.adminDrops = {
 -- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
 -- Snowglobe Village's world effects (Effects/SnowglobeFx, Christmas Event Dec 1). Tag names are placeholders until
 -- Model-Agent's village and Gameplay-Engineer's event row land; change them here only.
+-- Christmas Event (Effects/SnowglobeFlakes): the Snowflake patch. Ready flakes bob `height` studs over `period`
+-- seconds (each `phaseStep` seconds behind the one before) and turn once every `spin` seconds within `bobWithin`
+-- studs; a pick within `within` studs bursts `pickCount` icy sparkles `lift` studs up and a `pickRing` stud ring, a
+-- regrow `regrowCount`; a rise in your Snowflakes pops "+N Snowflakes" over your head for `popSeconds`.
+Presets.snowglobeFlakes = {
+	flag = "christmasEvent",
+	tag = "SnowglobeFlake",
+	touchName = "Touch",
+	readyAttribute = "Ready",
+	bobWithin = 90,
+	height = 0.35,
+	period = 2.4,
+	phaseStep = 0.37,
+	spin = 6,
+	within = 120,
+	lift = 1.2,
+	sparkle = "catchSparkle",
+	pickCount = 10,
+	pickRing = 5,
+	colour = Color3.fromRGB(143, 211, 255), -- icy blue, the Gift Stall's
+	regrowCount = 5,
+	regrowColour = Color3.fromRGB(255, 255, 255),
+	popColour = Color3.fromRGB(143, 211, 255),
+	popSeconds = 1.4,
+}
+
 Presets.snowglobeFx = {
 	centreTag = "SnowglobeCentre",
 	portalTag = "SnowglobePortal",
@@ -4740,6 +4766,23 @@ Presets.netTrail = {
 	colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
 }
 
+-- The Christmas cats' beats (snowglobe-village-spec section 4, Effects/ChristmasCats): which cats, the glow parts'
+-- name endings, and whether it wears a bell. Jingle's bell swings `degrees` either way, `swings` times over `seconds`,
+-- every `every` seconds (the first `firstMin` or more after it appears). A glow part shows `dayDim` of the way to
+-- clear by day; at night it twinkles between 0 and `nightDim` once every `twinkleSeconds`. Reduce Motion: no bell,
+-- steady glow.
+Presets.christmasCats = {
+	cats = {
+		jingle = { bell = true, glows = {} },
+		star_topper = { bell = false, glows = { "_Star_Glow", "_Bulbs_Glow" } },
+		sugar_plum = { bell = false, glows = { "_Gem_Glow", "_Wings_Glow" } },
+	} :: { [string]: { bell: boolean, glows: { string } } },
+	jingle = { seconds = 0.9, degrees = 22, swings = 3, every = { 7, 12 }, firstMin = 2 },
+	dayDim = 0.45,
+	nightDim = 0.25,
+	twinkleSeconds = 1.6,
+}
+
 -- The catch's result word (F93 section 3): as UI-Engineer's word slams in, sparkles burst off it in its colour and
 -- rings grow round it, the biggest for PURRFECT!; "So close!" gets none. The word is the first of `targets` found in
 -- CatCafeCatchCircles that shows within `wait` seconds of CatchResult. Sparkles are `size` pixels and fly up to
@@ -4764,6 +4807,16 @@ Presets.catchWord = {
 		great = { sparkles = 7, rings = 1, colour = Presets.palette.mint },
 		nice = { sparkles = 5, rings = 1, colour = Presets.palette.cream }, -- v3 (#1884 7d)
 	} :: { [string]: { sparkles: number, rings: number, colour: Color3 } },
+	-- #5300 Perfect catch (switch perfectCatch): when PURRFECT! turns to `text`, a sky blue burst (the "+50%" colour,
+	-- shared/PerfectCatch.COLOR #8FD3FF) with one more ring than PURRFECT!'s. Watched for `watch` seconds.
+	perfectPlus = {
+		flag = "perfectCatch",
+		text = "+50%",
+		watch = 2.5,
+		sparkles = 16,
+		rings = 3,
+		colour = Color3.fromRGB(143, 211, 255),
+	},
 }
 
 -- Catch v3 (#1884, catch-rework.md 7b to 7d; Effects/Catch). Each ring the server judges (CatchJudged) pops at the
@@ -5448,7 +5501,7 @@ Presets.rarityMark = {
 	shrink = {
 		flag = "gemsShrink",
 		near = 20,
-		far = 110,
+		far = 80, -- Sync 2026-11-18: 110 left gems at 60 to 100 studs covering 38 to 51% of the cat
 		least = 4,
 		finderLeast = 14,
 	},
@@ -5526,6 +5579,8 @@ Presets.potions = {
 	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 	-- #4195: the Admin Wheel's hour of 3x money glows as Mega Money until Motion-FX gives it its own
 	admin_money_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
+	-- #5572: Picnic Time glows as Mega Money until Motion-FX gives it its own
+	picnic_time = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 -- The Speed Shoes' trail (Effects/SpeedShoes): shown on wearers within `radius` studs, checked every `pickEvery`
 -- seconds; `moving` is how much of full walking input counts as on the move; the puffs start `lift` studs over the
@@ -5726,6 +5781,18 @@ Presets.clouds = {
 		tintFrom = 2.6,
 		tintTo = 3.0,
 	},
+	-- #5370 (Derek 2026-11-18: "no need to see floating islands in the distance when shooting in cannon anymore as it
+	-- only shows them half rendered"): with cannonCloudsEarly on, the clouds cover just after the ball leaves the barrel
+	-- (the boom is at 0.5), so the chase up the sky never shows the far areas, and the destination loads behind them
+	cannonEarly = {
+		coverFrom = 0.75,
+		coverTo = 1.0,
+		partFrom = 3.0,
+		partTo = 3.4,
+		tintFrom = 2.6,
+		tintTo = 3.0,
+	},
+	earlyFlag = "cannonCloudsEarly",
 	hop = {
 		coverFrom = 0,
 		coverTo = 0.5,
@@ -6051,7 +6118,28 @@ Presets.firstBaitCut = {
 	displayOrder = 10,
 	cap = 5.5, -- #5074: waitCat + walkMax + eat + swingOut (5.0) and a little room
 	maxDistance = 120,
+	-- #5548 follow-up (Design 2026-11-20): a freeStart save's first food goes in at the Alleyway check-in, away from the
+	-- bowl, so with baitCutQuick the scene is owed and plays once the save first comes within `lateNear` studs of its
+	-- own bowl with the cat there (outside the walk-up ring's 8, so it comes before the cat's card)
+	lateNear = 25,
+	lateCheck = 0.25, -- seconds between looks while it is owed
+	lateMargin = 5, -- studs past lateNear the bait cards already wait, so none slips in between two looks
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
+	-- #5548 (Derek 2026-11-20: "do the make bait scene quicker and no skip allowed"), switch baitCutQuick: about
+	-- 1.5 s with the cat on time (swing in 0.3, walk 0.5 = 3.5 studs at SlotWalk's 7, one bite and the heart puff in
+	-- 0.4, swing out 0.3), no skip, so the cap is the only way out: waitCat 1.2 and cap 3.0. Under the same switch
+	-- the server puts the first bait cat out at placedAt, as the food lands (#5549), not placedAt + 1 as above
+	quick = {
+		swingIn = 0.3,
+		swingOut = 0.3,
+		walk = 0.5,
+		walkMax = 0.6,
+		walkDistance = 3.5,
+		eat = 0.4,
+		bites = 1,
+		waitCat = 1.2,
+		cap = 3.0,
+	},
 }
 
 -- The front lawn pieces' effects (Effects/Lawn, #1283, front-lawn.md section 5), by LawnId. Each spot is `offset`
@@ -6644,6 +6732,21 @@ Presets.stationCut = {
 	labelIn = 0.25,
 	endAt = 4.0,
 	skipAfter = 0.3,
+	skip = true, -- a tap, click, key or gamepad button can skip it
+	cap = 1, -- seconds past the cut's length it always ends by, whatever happens
+	-- #5550 cutsQuick (Design, from the 60 to 67% who skip it): about 2 s with no skip, over by 0.5 s after its end.
+	-- Only the tiers in `plays` get a scene; the rest get the "Unlocked" toast and no camera move (Derek 2026-11-20
+	-- 13:19 UTC: no Cat Arcade scene, the Mystic Pool is the one that matters)
+	quick = {
+		plays = { [4] = true, [8] = true, [9] = true, [10] = true } :: { [number]: boolean },
+		appearAt = 0.3,
+		grow = 0.45,
+		labelAt = 0.65,
+		labelIn = 0.2,
+		endAt = 2.0,
+		skip = false,
+		cap = 0.5,
+	},
 	far = 1.9,
 	near = 1.45,
 	nearest = 18,
@@ -6693,6 +6796,23 @@ Presets.companionCut = {
 	labelIn = 0.3,
 	endAt = 7.4,
 	skipAfter = 0.4,
+	skip = true, -- a tap, click, key or gamepad button can skip it
+	cap = 1, -- seconds past the scene's length it always ends by, whatever happens
+	-- #5550 cutsQuick (Design, from the 79% who skip it): about 3 s with no skip and a shorter line, the cat trotting
+	-- in from nearer; over by 0.5 s after its end
+	quick = {
+		fade = 0.2,
+		walkAt = 0.3,
+		walkSeconds = 1.3,
+		walkFrom = 6,
+		labelAt = 1.5,
+		labelIn = 0.2,
+		endAt = 3.0,
+		skip = false,
+		cap = 0.5,
+		line = "%s follows you now!",
+		lineNoName = "Your cat follows you now!",
+	},
 	far = 12,
 	near = 9,
 	rise = 0.22,
@@ -6938,6 +7058,109 @@ Presets.boothFx = {
 	sparkles = 8,
 	ring = 7,
 	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
+}
+
+-- The advent calendar board (#5502, Effects/AdventFx): opened doors swing `openAngle` out to the front over
+-- `swingSeconds` with `overshoot`; the ready door breathes gold every `breathe` seconds (fill from `fillLow` to
+-- `fillHigh`, `fillCat` on a cat door); an open bursts `sparkles` (`catSparkles`), `snow` flakes and `confetti` of the
+-- budget; a cat door adds a ring, a column of light and a nook light for `catSeconds`. `catDoors` match shared/Advent.
+Presets.adventFx = {
+	flag = "adventCalendar",
+	board = "CatCafe_Square_AdventBoard",
+	doors = 24,
+	catDoors = { 6, 12, 18, 24 },
+	openAngle = math.rad(105),
+	swingSeconds = 0.55,
+	overshoot = 0.17,
+	breathe = 1.6,
+	fillLow = 0.15,
+	fillHigh = 0.4,
+	fillCat = 0.6,
+	sparkles = 10,
+	catSparkles = 24,
+	snow = 8,
+	confetti = 0.4,
+	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
+	gold = Presets.palette.golden,
+	ring = 4,
+	ringDrop = 1.5,
+	beamWidth = 1.2,
+	beamHeight = 10,
+	catSeconds = 3,
+	lightBrightness = 3,
+	lightRange = 8,
+	lookSeconds = 2,
+}
+
+-- The new start's camp pay moment (#5533 v2, Effects/CampCoinFly): at the first `checkIns` camp check-ins of a session,
+-- `coins` coins arc from the camp to the money counter (FirstCatchWow's flight numbers), the counter bounces to
+-- `bounce` times over `bounceSeconds`, and a "+12/s" line pops in at `pop` times under it, settles by `settle` and
+-- fades over its last `fade` of `rateSeconds`. `waitSync` lets the check-in's own sync bring the new rate first.
+Presets.campCoinFly = {
+	checkIns = 3,
+	waitSync = 0.25,
+	coins = 14,
+	coinSeconds = 0.7,
+	coinStagger = 0.02,
+	coinSpread = 70,
+	coinLift = 40,
+	coinMin = 22,
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(92, 64, 51),
+	bounce = 1.18,
+	bounceSeconds = 0.3,
+	pop = 1.6,
+	settle = 0.25,
+	fade = 0.5,
+	rateSeconds = 2,
+	lineGap = 4,
+	lineWidth = 120,
+	lineHeight = 28,
+	gui = "EffectsCampCoinFly",
+	displayOrder = 26,
+}
+
+-- The new start's world glows (#5533 v2, Effects/WorldGlow), Cozy Cream gold: a stall glow lasts `stallSeconds`,
+-- breathing every `breathe` seconds down to `low`; the steady glows (the cannon, the door while carrying) dip by
+-- `steadyDip` every `steadyPeriod` seconds. A Highlight fills to `fill` and outlines to `outline`; the door's panel
+-- shows at `panel` with a light. The cannon's sign is `signWidth` by `signHeight` studs, `signLift` over the cannon.
+Presets.worldGlow = {
+	stallFlag = "stallGlow",
+	cannonFlag = "cannonGlow",
+	carryFlag = "freeStart",
+	cannonAttribute = "CannonGlowArea",
+	firstCamp = "alley",
+	campReach = 200, -- studs: the camp cannon lights with the Town Square's while the player is this near it -- the camp the new start lands at, when the character is not there yet
+	ringBright = 2, -- added to a walk-up ring's SurfaceGui Brightness at full glow
+	ringFill = 0.45, -- a walk-up ring's disc at full glow (its own is 0.82)
+	stallSeconds = 6,
+	breathe = 1.5,
+	low = 0.35,
+	steadyDip = 0.25,
+	steadyPeriod = 2.4,
+	fill = 0.45,
+	outline = 0.9,
+	panel = 0.45,
+	panelDepth = 0.15,
+	lightRange = 10,
+	lightBrightness = 1.5,
+	gold = Presets.palette.golden,
+	cream = Presets.palette.cream,
+	ink = Color3.fromRGB(92, 64, 51),
+	signWidth = 7,
+	signHeight = 2,
+	signLift = 2.5,
+	signDistance = 140,
+	lookSeconds = 0.25,
+	areaNames = {
+		alley = "Alleyway",
+		park = "Park",
+		neighbourhood = "Neighbourhood",
+		woods = "Woods",
+		sewer = "Sewer",
+		desert = "Desert",
+		ruins = "Ruins",
+	} :: { [string]: string },
 }
 
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters
@@ -7204,6 +7427,25 @@ Presets.palDay = {
 		up = 2.2,
 		glyph = "\u{2665}",
 	},
+}
+
+-- #5465 the guide arrow (Effects/GuideArrow, switch guideArrow): a ">" of two `length` x `width` neon arms, each
+-- `spread` radians off the line, its tip `ahead` studs before the player's feet toward the target and `lift` over the
+-- ground, sliding up to `reach` studs further and back every `period` seconds. `target` and `colour` are the
+-- attributes UI's GuideTrail writes on its folder.
+Presets.guideArrow = {
+	name = "CatCafeGuideArrow",
+	target = "GuideTarget",
+	colour = "GuideColour",
+	ahead = 4.5,
+	lift = 0.15,
+	length = 1.6,
+	width = 0.4,
+	thick = 0.12,
+	spread = math.rad(38),
+	transparency = 0.1,
+	reach = 0.8,
+	period = 1.2,
 }
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
@@ -7943,6 +8185,15 @@ Presets.dragonRise = {
 		wallsHalf = 7.5,
 		wallsTop = 7.5,
 		wallsMost = 16,
+		-- #5423 (Derek 2026-11-19: "still a little bit too much with the wall in camera make it more from above"): the
+		-- yard shots swing up to `above` over him, `aboveRange` of the low shot's distance away (Effects/KeepShot.above)
+		above = math.rad(64),
+		aboveRange = 0.9,
+		-- #5480: the flights to and from the Keep rise over the straight line by `hopLift` of their length (at most
+		-- `hopMost` studs) and keep `groundGap` studs over the hills under them, so they never skim the ground
+		hopLift = 0.35,
+		hopMost = 60,
+		groundGap = 6,
 	},
 	-- the ember ball
 	ball = {
@@ -8069,6 +8320,21 @@ Presets.tradeUnlock = {
 	fade = 0.3,
 	stillOpen = 0.8,
 	stillEnd = 3.6,
+	-- #5550 cutsQuick (Derek 2026-11-20 13:21 UTC: "make the trade unlocked faster"): about 2.0 s, same look,
+	-- sparkles and sounds; one wiggle (2.5 a second, under the 3 a second limit). Off keeps the timing above.
+	quick = {
+		popIn = 0.2,
+		wiggleAt = 0.25,
+		wiggleSeconds = 0.4,
+		wiggles = 1,
+		openAt = 0.7,
+		fallAt = 0.9,
+		fallSeconds = 0.5,
+		flyAt = 1.5,
+		fly = 0.4,
+		stillOpen = 0.4,
+		stillEnd = 1.6,
+	},
 	sparkles = 14,
 	landSparkles = 10,
 	sparkle = { size = 12, seconds = 0.55, reach = 90, stagger = 0.1 },
@@ -8081,6 +8347,93 @@ Presets.tradeUnlock = {
 	tradeImage = "rbxassetid://83738164568639", -- Icon_Clean_Trade (the UI's ShopIcons)
 	lockImage = "rbxassetid://126676730576646", -- Icon_Clean_Lock
 	openImage = "rbxassetid://129908896970192", -- Icon_Clean_Unlock
+}
+
+-- #5572 the Picnic Party (Effects/PicnicParty, switch picnicParty; Derek 2026-11-20 15:09 UTC: "rework the picnic
+-- basket into being something cool and clean ... it has to be something that hooks"). Ready: the basket wobbles
+-- `wobble.degrees` for `wobble.seconds` every `wobble.every` seconds, a soft gold Highlight and PointLight, and a sign
+-- `sign.width` x `sign.height` pixels (fixed on screen, so it reads from the Park landing on an 844 x 390 phone, Design
+-- 15:15 UTC) `sign.lift` studs over the station's top, seen to `sign.maxDistance` studs. Not ready: the sign's
+-- `waiting` look with "Next picnic 12 m". The pop (on the ring claim, about `pop.seconds`): the `_Lid` swings open
+-- `lidOpen` degrees, the blanket rolls out `blanket.gap` studs beside the basket over `rollSeconds`, `treats` bounce
+-- from the basket onto it, `confetti` pieces. Where the blanket and the picnic cats' seats lie is shared/PicnicSeats.
+-- Pack away over `pack.seconds`. Reduce Motion: no wobble or bounce, the basket opens and the blanket lies out still.
+-- Words are Design's (`words`).
+Presets.picnicParty = {
+	flag = "picnicParty",
+	extraId = "picnic",
+	wobble = { every = 2.5, seconds = 0.7, degrees = 8, wiggles = 2, lidShare = 2.5 }, -- the lid lifts up to 20 degrees
+	lidSuffix = "_Lid", -- Model-Agent's #5580: the lid is the station's child model <station name>_Lid
+	glow = {
+		fill = Presets.palette.golden,
+		fillTransparency = 0.8,
+		outlineTransparency = 0.35,
+		light = 1.4, -- PointLight brightness
+		range = 12,
+		pulse = 2.4, -- seconds a slow breath of the light takes
+	},
+	sign = {
+		width = 210,
+		height = 58,
+		waitWidth = 170,
+		waitHeight = 40,
+		lift = 4.5, -- over the player's head from the Park landing
+		maxDistance = 220, -- drawn on top of walls, so only from the Park itself
+		swell = 0.15, -- the ready sign grows this share at the top of each wobble
+		bob = 0.25, -- studs up and down
+		bobSeconds = 2.2,
+		gold = Presets.palette.golden,
+		cream = Presets.palette.cream,
+		ink = Color3.fromRGB(60, 36, 20),
+		faded = 0.25, -- the waiting sign's see-through share
+	},
+	pop = {
+		seconds = 1.5,
+		lidOpen = 105, -- degrees about its back edge
+		lidSeconds = 0.25,
+		rollAt = 0.15,
+		rollSeconds = 0.5,
+		treatAt = 0.55,
+		treatGap = 0.15,
+		treatSeconds = 0.45,
+		treatHeight = 2.5, -- studs over the straight line the arc rises
+		confettiAt = 0.3,
+		confetti = 40,
+		sparkles = 12,
+	},
+	pack = { seconds = 0.9, lidSeconds = 0.25 },
+	blanket = {
+		size = Vector3.new(6, 0.08, 6),
+		gap = 1, -- studs between the basket's side and the blanket's near edge
+		squares = 6, -- checks along each side of the stand-in blanket
+		red = Color3.fromRGB(214, 96, 92),
+		white = Presets.palette.cream,
+		model = "CatCafe_Prop_PicnicBlanket", -- Model-Agent's #5580, under ReplicatedStorage.Assets
+		rolled = "CatCafe_Prop_PicnicBlanket_Rolled",
+		rollRadius = 0.32,
+	},
+	treats = {
+		{
+			model = "CatCafe_Prop_PicnicSandwich",
+			colour = Color3.fromRGB(236, 196, 120),
+			at = Vector2.new(-0.2, -0.3),
+		},
+		{
+			model = "CatCafe_Prop_PicnicCupcake",
+			colour = Color3.fromRGB(244, 160, 186),
+			at = Vector2.new(0.05, -0.32),
+		},
+		{
+			model = "CatCafe_Prop_PicnicLemonade",
+			colour = Color3.fromRGB(250, 226, 110),
+			at = Vector2.new(0.3, -0.28),
+		},
+	},
+	treatSize = Vector3.new(0.6, 0.35, 0.6), -- the stand-ins
+	words = {
+		ready = "PICNIC READY",
+		waiting = "Next picnic %s",
+	},
 }
 
 return Presets

@@ -19,6 +19,8 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Create)
+local FreeStart =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart"))
 local Outline = require(script.Parent.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -466,6 +468,10 @@ local function watch()
 end
 
 function TutorialArrow.add(target: GuiObject, low: boolean?, plain: boolean?)
+	-- #5533 (shared/FreeStart): nothing points for a save on the play first start until Tier 3 (#5599: but LOUD_ATTR)
+	if FreeStart.quietFor(target) then
+		return
+	end
 	for _, entry in entries do
 		if entry.target == target then
 			entry.plain = plain == true

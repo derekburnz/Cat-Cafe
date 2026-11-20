@@ -1,6 +1,6 @@
 --!strict
 -- #4221 (Derek 2026-11-14: "a separate secret tab of the index and make one secret per area"): the Index's Secret
--- tab, while the `secretAreas` switch is on. One card per area in tier order:
+-- tab (its `secretAreas` switch is retired, #4656). One card per area in tier order:
 -- - "found": the area's Secret is in this player's collection; its look and name, and whether they have it gold or
 --   rainbow too;
 -- - "hidden": the area is open (or its Secret was found some other way) and its Secret is not found yet: a black shape,
@@ -32,7 +32,6 @@ export type Card = {
 
 local SecretTabLogic = {}
 
-SecretTabLogic.FLAG = "secretAreas" -- Catching.SECRET_AREAS_FLAG
 SecretTabLogic.TAB = "Secret"
 SecretTabLogic.LINE = "One Secret cat hides in every area."
 SecretTabLogic.NOTE = "Not counted in the Index."

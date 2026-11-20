@@ -52,6 +52,7 @@ local PAL = MenuFamily.pal
 local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 export type Callbacks = {
 	buyDecor: (decorId: string) -> (),
@@ -109,6 +110,25 @@ local CHIP_ICONS: { [string]: string } = {
 	Floor = "⬜",
 	Walls = "🧱",
 }
+-- #5366 (Derek 2026-11-18: "redo the decor images to be more obvious/less plain looking"): with the decorChipIcons
+-- switch on, each chip draws Model-Agent's picture (decor_tabs.py, group owned) in front of its word at CHIP_PICTURE
+-- times the text size, the emoji showing until it loads. Read when the chips are built.
+local CHIP_FLAG = "decorChipIcons"
+local CHIP_PICTURE = 1.5 -- 1.7 until #5366's 360 px check (Sync 2026-11-19: "Plants" 33 px text in a 34 px box)
+local CHIP_GAP_PICTURES = 6 -- #5366: with the pictures the chips sit closer, each about 3 px wider on a phone
+-- #5366 (Sync 2026-11-19, 360 px: the words ran past the white chip faces): beside a picture a word that does not fit
+-- its chip shrinks down to CHIP_WORD_MIN, and below that the chip shows its picture alone
+local CHIP_WORD_MIN = Theme.sizes.textTiny
+local PICKED_WORD_FLAG = "chipPickedWord" -- #5406: the picked chip keeps its word on a phone
+local CHIP_WORD_EDGE = 8 -- screen px kept clear inside the picture row, for the rounded corners
+local CHIP_IMAGES: { [string]: string } = {
+	All = "rbxassetid://101387394392524",
+	Style = "rbxassetid://100879474778439",
+	FrontLawn = "rbxassetid://85620990317201",
+	Plants = "rbxassetid://103065405928649",
+	Floor = "rbxassetid://132312977200233",
+	Walls = "rbxassetid://99441851311557",
+}
 -- Placeholder art colour per category until the asset thread delivers images.
 local CATEGORY_COLORS: { [string]: Color3 } = {
 	Plants = Color3.fromHex("5FB85A"),
@@ -161,6 +181,12 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._chipHeight = Scale.tapHeight(CHIP_HEIGHT, Theme.sizes.buttonDepth)
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	local chipHeight = self._chipHeight
+	local chipPictures = ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CHIP_FLAG)
+	self._chipGap = if LiveFlags.shown(CHIP_FLAG, chipPictures) then CHIP_GAP_PICTURES else CHIP_GAP
+	local pickedWord =
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. PICKED_WORD_FLAG)
+	self._pickedWord = LiveFlags.shown(CHIP_FLAG, chipPictures)
+		and LiveFlags.shown(PICKED_WORD_FLAG, pickedWord)
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -188,10 +214,16 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, CHIP_GAP),
+			Padding = UDim.new(0, self._chipGap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	if self._pickedWord then
+		-- #5406: the picked chip's share is worked out in screen px, so a new width lays the chips out again
+		self._chipRow:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_layoutChips()
+		end)
+	end
 
 	self._bestPressed = nil :: number? -- os.clock() of an Equip Best press not answered yet
 	if equipBest then
@@ -334,9 +366,97 @@ function DecorShop._layoutChips(self: any)
 		end
 	end
 	local count = math.max(#shown, 1)
+	local shares: { [any]: number } = {}
+	local picked = self:_pickedChipShare(shown)
 	for _, chip in shown do
+		local share = 1 / count
+		if picked then
+			share = if chip == picked.chip then picked.share else (1 - picked.share) / (count - 1)
+		end
+		shares[chip] = share
+	end
+	for _, chip in shown do
+		local share = shares[chip]
 		chip.button.instance.Size =
-			UDim2.new(1 / count, -CHIP_GAP * (count - 1) / count, 0, self._chipHeight)
+			UDim2.new(share, -self._chipGap * (count - 1) * share, 0, self._chipHeight)
+	end
+end
+
+-- #5406: with chipPickedWord on, the picked chip grows so its word fits beside its picture at CHIP_WORD_MIN or more,
+-- while every other chip still fits its picture. Nil keeps the equal shares.
+function DecorShop._pickedChipShare(self: any, shown: { any }): { chip: any, share: number }?
+	if not self._pickedWord or #shown < 2 then
+		return nil
+	end
+	local picked: any = nil
+	for _, chip in shown do
+		if chip.category == self._filter then
+			picked = chip
+		end
+	end
+	local row: Frame = self._chipRow
+	local width: number? = if picked then picked.wordWidth else nil
+	local icon: GuiObject? = if picked then picked.button.icon else nil
+	local face: GuiObject? = if picked then picked.button.face else nil
+	if picked == nil or width == nil or icon == nil or face == nil or row.AbsoluteSize.X <= 0 then
+		return nil
+	end
+	-- screen px per offset px (a UIScale above the row), read from the chip's height
+	local scale = picked.button.instance.AbsoluteSize.Y / self._chipHeight
+	if scale <= 0 then
+		return nil
+	end
+	local count = #shown
+	local total = row.AbsoluteSize.X - self._chipGap * (count - 1) * scale
+	local iconWidth = icon.AbsoluteSize.X
+	-- the picture row's 8 px insets (offset, so scaled) and then what _fitChipWord keeps clear in screen px: the corner
+	-- edge, the picture, its 4 px gap and the word at CHIP_WORD_MIN (1 px spare for its rounding down)
+	local inset = 16 * scale + CHIP_WORD_EDGE
+	local need = inset + iconWidth + 4 + math.ceil(width * CHIP_WORD_MIN / Theme.sizes.textBody) + 1
+	if need <= total / count then
+		return nil -- the equal share already fits the word
+	end
+	local rest = (total - need) / (count - 1)
+	if rest < inset + iconWidth then
+		return nil -- the others would lose their pictures
+	end
+	return { chip = picked, share = need / total }
+end
+
+-- #5366: fits one chip's word beside its picture. The word's full width is measured while it shows at full size, so a
+-- chip that grows again gets its word back.
+function DecorShop._fitChipWord(self: any, chip: any)
+	local label: TextLabel? = chip.button.label
+	local icon: GuiObject? = chip.button.icon
+	if label == nil or icon == nil then
+		return
+	end
+	local parent = label.Parent
+	if parent == nil or parent.Name ~= "Row" or not parent:IsA("GuiObject") then
+		return
+	end
+	local row = parent :: GuiObject
+	local full = Theme.sizes.textBody
+	if label.Visible and label.TextSize == full and label.AbsoluteSize.X > 0 then
+		local first = chip.wordWidth == nil
+		chip.wordWidth = label.AbsoluteSize.X
+		if first and self._pickedWord and chip.category == self._filter then
+			self:_layoutChips() -- #5406: the picked chip's width needs its word's
+		end
+	end
+	local width: number? = chip.wordWidth
+	local rowWidth = row.AbsoluteSize.X
+	if width == nil or rowWidth <= 0 then
+		return
+	end
+	local room = rowWidth - CHIP_WORD_EDGE - icon.AbsoluteSize.X - 4
+	local size = math.min(full, math.floor(full * room / width))
+	if size >= CHIP_WORD_MIN then
+		label.TextSize = size
+		label.Visible = true
+	else
+		label.TextSize = full
+		label.Visible = false
 	end
 end
 
@@ -352,6 +472,9 @@ function DecorShop._setFilter(self: any, category: string)
 	self._filter = category
 	for _, chip in self._chips do
 		chip.button:setStyle(if chip.category == category then "gold" else "ghost")
+	end
+	if self._pickedWord then
+		self:_layoutChips() -- #5406: the picked chip is the wide one
 	end
 	-- F91: the Lawn cards take the strip's and grid's place (Equip Best stays, #1283); the Style tab too (#1624), where
 	-- Equip Best stays as well since #2403 (Derek2: "equip best disappears while in style menu so fix that")
@@ -511,12 +634,19 @@ function DecorShop._build(self: any)
 			table.insert(categories, chip)
 		end
 	end
+	local pictures = LiveFlags.shown(
+		CHIP_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CHIP_FLAG)
+	)
 	for index, category in categories do
 		local lawn = category == LAWN_CHIP
+		local key = if lawn then "FrontLawn" else category
 		local button = Button.new({
-			name = if lawn then "FrontLawn" else category,
+			name = key,
 			text = if lawn then LAWN_TEXT else category,
-			icon = CHIP_ICONS[if lawn then "FrontLawn" else category],
+			icon = CHIP_ICONS[key],
+			image = if pictures then CHIP_IMAGES[key] else nil,
+			pictureScale = if pictures then CHIP_PICTURE else nil,
 			style = "ghost",
 			-- a share of the row (widths from _layoutChips), so Button measures its corners from the height
 			size = UDim2.new(1, 0, 0, self._chipHeight),
@@ -532,7 +662,17 @@ function DecorShop._build(self: any)
 			then self._lawnLive
 			elseif category == STYLE_CHIP then self._styleLive
 			else true
-		table.insert(self._chips, { category = category, button = button })
+		local chip = { category = category, button = button, wordWidth = nil :: number? }
+		table.insert(self._chips, chip)
+		if pictures then
+			-- #5366: the face resizes with the row and the word's own width arrives once it is drawn
+			local function fit()
+				self:_fitChipWord(chip)
+			end
+			button.face:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+			button.label:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+			task.defer(fit)
+		end
 	end
 	self:_layoutChips()
 

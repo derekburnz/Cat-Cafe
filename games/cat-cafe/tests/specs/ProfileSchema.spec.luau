@@ -193,7 +193,9 @@ return function()
 				autoBowlRefill = true,
 				bowlNewCatCard = true,
 				stationCircles = false, -- #4668
+				catNames = true, -- #5586
 				vipTag = false, -- #4991
+				afkMode = false, -- #5322
 			})
 		end)
 
@@ -326,6 +328,25 @@ return function()
 			expect(profile.equippedLure).never.to.be.ok()
 			expect(profile.lures.kibble).to.equal(2)
 		end)
+	end)
+
+	describe("switch-gated upgrade levels (#5491)", function()
+		it(
+			"keeps Net 5 and Tables 8 when a save loads with netTiers and tablesEight off",
+			function()
+				Catalog.setNetTiers(false)
+				local raw: any = ProfileSchema.template(1_800_000_000)
+				raw.upgradeLevels.net = 5
+				raw.upgradeLevels.tables = Catalog.TABLES_MAX_EIGHT
+				local profile = ProfileSchema.migrate(raw, 1_800_000_000)
+				expect(profile.upgradeLevels.net).to.equal(5)
+				expect(profile.upgradeLevels.tables).to.equal(Catalog.TABLES_MAX_EIGHT)
+				raw.upgradeLevels.net = 99
+				expect(ProfileSchema.migrate(raw, 1_800_000_000).upgradeLevels.net).to.equal(
+					Catalog.NET_MAX_TIERS
+				)
+			end
+		)
 	end)
 
 	describe("retired potions (#2891, the Cat Whistle)", function()
@@ -674,7 +695,9 @@ return function()
 					autoBowlRefill = true,
 					bowlNewCatCard = true,
 					stationCircles = false, -- #4668
+					catNames = true, -- #5586
 					vipTag = false, -- #4991
+					afkMode = false, -- #5322
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
@@ -952,7 +975,7 @@ return function()
 				{ tables = 40, espresso = -2, net = "x", lure_bowl = 9, cafe_level = 4 }
 			local profile: any = ProfileSchema.migrate(raw, 500)
 			expect(profile.upgradeLevels).to.deepEqual({
-				tables = 6,
+				tables = 8, -- #5441: Tables 7 and 8 (tablesEight) are kept whether the switch is on yet or not
 				espresso = 1,
 				net = 0,
 				lure_bowl = 5,

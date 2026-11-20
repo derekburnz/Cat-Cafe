@@ -15,7 +15,6 @@ local Types = require(script.Parent.Types)
 
 local DragonKeep = {}
 
-DragonKeep.FLAG = "dragonKeep" -- the live switch: the Keep's remotes are refused and nothing shows while off
 DragonKeep.TIER = 10 -- the Castle (Snowy 8, the Water Park 9)
 DragonKeep.STAGES = {
 	{ name = "Hatchling", warmth = 50 },
@@ -26,6 +25,21 @@ DragonKeep.STAGES = {
 }
 DragonKeep.MAX_STAGE = #DragonKeep.STAGES
 DragonKeep.REKINDLE = 1500
+-- #5311 (Derek 2026-11-18: "rebalance the tier 10 dragon warmth numbers to make it easier but also a proper increase
+-- like 50,100,250,500,1000"): the stage goals and Rekindle with the easyKeep switch on (shared/EasyKeep) and off
+DragonKeep.PLAIN_WARMTH = table.freeze({ 50, 300, 1000, 1400, 2400 })
+DragonKeep.PLAIN_REKINDLE = 1500
+DragonKeep.EASY_WARMTH = table.freeze({ 50, 100, 250, 500, 1000 })
+DragonKeep.EASY_REKINDLE = 500
+
+-- Writes the stage goals and Rekindle in place, so every reader agrees. Stages already reached stay reached.
+function DragonKeep.setEasy(on: boolean)
+	local goals = if on then DragonKeep.EASY_WARMTH else DragonKeep.PLAIN_WARMTH
+	for index, stage in DragonKeep.STAGES do
+		stage.warmth = goals[index]
+	end
+	DragonKeep.REKINDLE = if on then DragonKeep.EASY_REKINDLE else DragonKeep.PLAIN_REKINDLE
+end
 DragonKeep.HAND_CAP = 3 -- Rekindle hands waiting at most
 DragonKeep.HAND_SIZE = 3
 DragonKeep.KEEP_FISH = 25 -- "Keep my cards" on a Rekindle hand
@@ -637,7 +651,23 @@ DragonKeep.Messages = {
 	lastCat = "Keep at least one cat",
 	confirm = "Confirm the special cats first",
 	pending = "Choose that cat's new trait first",
+	eventCat = "Event cats can't move into the Keep",
 }
+
+-- #5428 (Derek 2026-11-19: "don't let people or even show the event cats inside the dragon sacrafice menu"): with
+-- keepNoEvent on, an event cat (a Harvest Hollow cat, area "harvest", as Quests counts them) is left out of the move
+-- in list and refused by giveBlocker.
+DragonKeep.NO_EVENT_FLAG = "keepNoEvent"
+function DragonKeep.eventCat(catId: string): boolean
+	local def = Catalog.getCat(catId)
+	return def ~= nil and (def.area == "harvest" or def.source == "advent")
+end
+
+-- #5502: an advent calendar cat never moves in, whatever keepNoEvent says (advent-calendar-spec section 4)
+local function adventCat(catId: string): boolean
+	local def = Catalog.getCat(catId)
+	return def ~= nil and def.source == "advent"
+end
 
 -- Why the cats `uids` cannot all move in, or nil. `trading` an open trade or offer. `confirmed` the player's yes to a
 -- gold, rainbow or Legendary and better cat in the set. Duplicate uids count once.
@@ -646,7 +676,8 @@ function DragonKeep.giveBlocker(
 	tier: number,
 	uids: { string },
 	trading: boolean,
-	confirmed: boolean
+	confirmed: boolean,
+	noEvent: boolean? -- #5428: keepNoEvent is on
 ): string?
 	if not DragonKeep.open(tier) then
 		return DragonKeep.Messages.shut
@@ -666,6 +697,12 @@ function DragonKeep.giveBlocker(
 			end
 			if instance.locked == true then
 				return DragonKeep.Messages.locked
+			end
+			if
+				(noEvent == true and DragonKeep.eventCat(instance.catId))
+				or adventCat(instance.catId)
+			then
+				return DragonKeep.Messages.eventCat
 			end
 			if CatStats.atSpa(profile, uid) then
 				return DragonKeep.Messages.atSpa
@@ -693,7 +730,11 @@ end
 -- The quick buttons' picks: "commons" (every Common) or "repeats" (every copy past the first of its cat), both
 -- skipping locked, working, at the spa, gold, rainbow and Legendary or better cats, and the last copy of any cat.
 -- Weakest first. Never the player's last cat.
-function DragonKeep.quickPlan(profile: Types.PlayerProfile, kind: string): { string }
+function DragonKeep.quickPlan(
+	profile: Types.PlayerProfile,
+	kind: string,
+	noEvent: boolean?
+): { string }
 	local byCat: { [string]: { Types.CatInstance } } = {}
 	local total = 0
 	for _, instance in profile.cats do
@@ -708,7 +749,12 @@ function DragonKeep.quickPlan(profile: Types.PlayerProfile, kind: string): { str
 	local picks: { Types.CatInstance } = {}
 	for catId, list in byCat do
 		local def = Catalog.getCat(catId)
-		if def == nil or (kind == "commons" and def.rarity ~= "Common") then
+		if
+			def == nil
+			or (kind == "commons" and def.rarity ~= "Common")
+			or (noEvent == true and def.area == "harvest") -- #5428
+			or def.source == "advent" -- #5502
+		then
 			continue
 		end
 		local free: { Types.CatInstance } = {}
@@ -780,6 +826,14 @@ local function addNapper(save: Types.DragonSave, instance: Types.CatInstance)
 	while #save.napping > DragonKeep.NAPPING do
 		table.remove(save.napping)
 	end
+end
+
+-- #5311: queues what the Warmth reaches now (the easyKeep switch lowered the goals mid-session); true when it queued
+-- a hand.
+function DragonKeep.regrow(save: Types.DragonSave): boolean
+	local before = #save.queue
+	grow(save)
+	return #save.queue > before
 end
 
 -- Queues the stage hands and Rekindle hands the Warmth has reached (Rekindle up to HAND_CAP waiting; past the cap
@@ -1350,10 +1404,7 @@ local NONE: Effects = table.freeze({
 	spinLuck = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
-	local on = if onOverride ~= nil
-		then onOverride
-		else game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. DragonKeep.FLAG)
-			== true
+	local on = if onOverride ~= nil then onOverride else true -- the dragonKeep switch is retired (#4656)
 	local save = (profile :: any).dragon
 	if not on or type(save) ~= "table" then
 		return NONE

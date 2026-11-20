@@ -96,6 +96,7 @@ export type CustomEvent =
 	-- #4314: the seconds the loading screen was up for a test save (0 "off" or never shown); fields: arm, device
 	| "ab_loading_seen"
 	| "session_end"
+	| "rank_ready_left" -- Growth Nov 20 (rankLeftLog): a new start save left at Tier 1 after rank_ready (value: seconds in the session; fields: "funded" or "short", device)
 	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
 	| "hood_trail" -- #5517 (hoodTrail): the walk to the Neighbourhood at Tier 3 shown or entered (value 1; fields kind, device)
 	| "rank_tap" -- #5516 (rankTapLog): a Tier 1 tap on the goal card or strip's rank up button (value the tap's number this session; fields from, window open after, ready)
@@ -3949,6 +3950,19 @@ local function onRelease(player: Player, profile: Profile)
 			Tier3Trip.furthest(profile.telemetry.tier3Trip),
 			session.device or "unknown",
 			if ClockService.areasOpen() then "day" else "night",
+		})
+	end
+	-- Growth Nov 20 (switch rankLeftLog): a new start save that reached onboarding_v10's rank_ready and left still at
+	-- Tier 1, with whether it still held the Rank Up's coins, so short of coins splits from not pressing
+	if
+		LiveFlagService.on("rankLeftLog")
+		and Economy.tier(profile) == 1
+		and (profile.telemetry.cleanV10Step or 0)
+			>= table.find(Onboarding.V10_STEPS, "rank_ready") :: number
+	then
+		Telemetry.custom(player, "rank_ready_left", math.max(0, now - session.joinedAt), {
+			if Economy.rankUpBlocker(profile) == nil then "funded" else "short",
+			session.device or "unknown",
 		})
 	end
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {

@@ -221,6 +221,7 @@ LiveFlags.KEYS = {
 	"bangFixedText", -- #5390: the "!" bubbles' words sized by hand, not TextScaled (UI/Components/MarketBang); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
+	"feedInstant", -- #5578: the cat menu's food count drops at once on each feed (Screens/CatRoom); off by default
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
@@ -380,6 +381,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	topTraitCompanion = true, -- #5445
 	topTraitsMore = true, -- #5445: on only once every server runs the new ids (a restart)
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
+	feedInstant = true, -- #5578
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	catsArrowOff = true, -- #5485: on as soon as it merges

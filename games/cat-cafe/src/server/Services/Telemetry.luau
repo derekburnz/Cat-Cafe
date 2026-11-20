@@ -121,6 +121,8 @@ export type CustomEvent =
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "free_start" -- #5533 (shared/FreeStart): a new save joined the play first start (value 1)
+	| "start_goal" -- #5533 goalChip: one of its two first goals paid (value: FreeStart.PAID_CAUGHT or PAID_HOME)
 	| "holdout_group" -- #5499 (shared/Holdout): a new save joined the holdout (value 1; field: "holdout" or "live")
 	| "order_group" -- #5498 (shared/TutorialOrder): a new save joined the walk-through order test (value 1; field: its arm)
 	| "cat_pet" -- #3651 (shared/Pet): a cat was petted (value 1; field: first, same or moved)

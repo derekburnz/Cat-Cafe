@@ -29,6 +29,8 @@ FreeStart.EASY_CATCHES = 3
 FreeStart.GOAL_PAY = 100
 FreeStart.PAID_CAUGHT = 1 -- telemetry.startPaid bits
 FreeStart.PAID_HOME = 2
+FreeStart.CATCH_LINE = "Catch a cat +100" -- goalChip: the goal card's two first goals (GOAL_PAY)
+FreeStart.HOME_LINE = "Take it to camp +100"
 
 local localPlayer: Player? = nil
 pcall(function()

@@ -374,6 +374,20 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 	local now = os.time()
 	local totals = IndexRewards.totals(profile)
 	local luck, luckSources = luckView(profile, now)
+	-- #5533 goalChip (shared/FreeStart): a play first start save's two first goals, from its paid bits
+	local startGoals: Types.StartGoalsView? = nil
+	do
+		local FreeStart = require(ReplicatedStorage.Shared.FreeStart) :: any
+		local paid = profile.telemetry.startPaid
+		if LiveFlagService.on(FreeStart.GOAL_FLAG) then
+			startGoals = FreeStart.goals(
+				profile.telemetry.freeStart,
+				Economy.tier(profile),
+				if FreeStart.unpaid(paid, FreeStart.PAID_CAUGHT) then 0 else 1,
+				if FreeStart.unpaid(paid, FreeStart.PAID_HOME) then 0 else 1
+			)
+		end
+	end
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
@@ -467,7 +481,11 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			then ReturnHook.early(profile, now, true) -- #4654: returnGift shipped
 			else nil,
 		returnGoals = joinGoals[player], -- #2916
-		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
+		-- #3022, #4624; #5533: a play first start save's two first goals take the card's place instead (goalChip)
+		secondCat = if startGoals ~= nil
+			then nil
+			else SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)),
+		startGoals = startGoals,
 		-- #5031: Tier 2's cats still short after the first check-in, behind rankUpRightAway (the goal card's line)
 		rankUpShort = if LiveFlagService.on(RankUpRightAway.FLAG)
 			then RankUpRightAway.catsShort(profile)

@@ -6147,6 +6147,15 @@ end
 -- #3022: the goal card's goal while the cafe waits for its second cat, with the preview lines until they have had
 -- their PREVIEW_SECONDS; nil otherwise.
 function HUD._secondGoal(self: any): GoalCard.Goal?
+	-- #5533 goalChip (shared/FreeStart): a play first start save's two first goals come first, each with its pay
+	local start: any = if self._state ~= nil then (self._state :: any).startGoals else nil
+	if type(start) == "table" and not (start.caught and start.home) then
+		local FreeStart = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart")
+		) :: any
+		local title: string = if not start.caught then FreeStart.CATCH_LINE else FreeStart.HOME_LINE
+		return { title = title, lines = {}, chip = title }
+	end
 	local second: SecondCatGoal.View? = self._second
 	if second == nil then
 		-- #2912 (shared/StuckGoal): "Free a stuck cat" while the pointer to the first rescue is up

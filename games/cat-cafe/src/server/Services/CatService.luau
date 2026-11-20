@@ -47,6 +47,7 @@ local M = {
 	-- and the hooks told of every stray caught by net, with the area it was caught in (CatService.onCaught)
 	areaGates = {} :: { [string]: (Types.PlayerProfile) -> boolean },
 	caughtHooks = {} :: { (Player, Types.CatDef, string) -> () },
+	campHooks = {} :: { (Player, string) -> () }, -- #5533: told of every camp check-in (CatService.onCampCheckIn)
 	-- #4251: checks in a cat caught or picked up in an added area with no camp (set below finishCheckIn)
 	homeFromCampless = nil :: ((Player, string) -> ())?,
 	AssetRegistry = require(script.Parent.Parent.World.AssetRegistry),
@@ -3726,6 +3727,9 @@ local function campCheckIn(player: Player, campId: string)
 		{ campId, carry.def.rarity, tostring(carry.knocks) }
 	)
 	finishCheckIn(player, true)
+	for _, hook in M.campHooks do
+		task.spawn(hook, player, campId)
+	end
 end
 
 -- How near the straight path from `from` to `to` passes `point`.
@@ -4872,6 +4876,11 @@ end
 -- count each cat once (Sync's Harvest run, 2026-11-17: a drop then a late re-catch paid +1 twice).
 function CatService.onCaught(hook: (Player, Types.CatDef, string) -> ())
 	table.insert(M.caughtHooks, hook)
+end
+
+-- #5533: `hook` hears of every cat checked in at a camp, with the camp's id
+function CatService.onCampCheckIn(hook: (Player, string) -> ())
+	table.insert(M.campHooks, hook)
 end
 
 -- #1572 (luck-and-rare-moments.md 1h): spawns slot `slot`'s pity cat `catId` (`kind`) at a free hiding spot of the

@@ -122,7 +122,6 @@ local CLEAN_BAR_H = 6
 local CLEAN_BAR_GAP = 8
 local CLEAN_LINE_UP = 2 -- the line's text, sizes over LINE_TEXT
 local CLEAN_BAND = ColorSequence.new(Theme.button.gold.top, Theme.button.gold.bottom)
-local CLEAN_PLAIN = "secondary" :: Button.Style -- what a plain button beside a coloured one becomes
 
 local function cleanOn(): boolean
 	return ReplicatedStorage:GetAttribute("LiveFlag_" .. CLEAN_FLAG) == true
@@ -521,12 +520,10 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 		local id = choice.id
 		local upper = index <= top
 		local count = math.max(1, if upper then top else #choices - top)
-		local look: Button.Style = "ghost"
-		if choice.style ~= nil then
-			look = choice.style
-		end
-		if mixed and look == "ghost" then
-			look = CLEAN_PLAIN
+		local plain = choice.style == nil or choice.style == "ghost"
+		local look: Button.Style? = choice.style
+		if mixed and plain then
+			look = "secondary" :: Button.Style -- the house blue
 		end
 		table.insert(
 			self._buttons,
@@ -538,7 +535,7 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 				image = if choice.icon
 					then ShopIcons.clean(Theme.cleanGlyphs[choice.icon] or "")
 					else nil,
-				style = look,
+				style = look or "ghost" :: Button.Style,
 				textSize = if lone then CHOICE_TEXT + 4 else CHOICE_TEXT,
 				size = if lone
 					then UDim2.fromScale(loneWidth, 1)

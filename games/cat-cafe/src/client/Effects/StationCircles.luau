@@ -46,11 +46,21 @@ local function paint(ring: Instance)
 	-- Derek 2026-11-18 (#5224, the townRings switch, shared/WalkUp.ringLook): a Town Square ring always shows, smaller,
 	-- and an area's never does; the rest follow the setting
 	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.TOWN_FLAG) == true
+	local town = ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE)
+	-- #5605 (Derek 2026-11-20: "the codes stand circle is missing", switch codesRingTown): the Codes Cat's circle
+	-- stands on the Town Square but carries no Town mark, so with townRings on it followed the Station circles setting
+	-- (off by default) and hid while every other Town ring showed. It counts as a Town ring now, at its full size.
+	local codes = town == nil
+		and ring.Name ~= WalkUp.CIRCLE
+		and ReplicatedStorage:GetAttribute("LiveFlag_codesRingTown") == true
+	if codes then
+		town = true
+	end
 	local shown, scale = WalkUp.ringLook(
 		on,
-		ring:GetAttribute(WalkUp.TOWN_ATTRIBUTE),
+		town,
 		shownSetting,
-		ring:GetAttribute(WalkUp.FULL_ATTRIBUTE),
+		if codes then true else ring:GetAttribute(WalkUp.FULL_ATTRIBUTE),
 		ReplicatedStorage:GetAttribute("LiveFlag_" .. WalkUp.AREA_CANNON_FLAG) == true -- #5416
 	)
 	shown = StationCircles.shownHere(shown, ring:GetAttribute(StationCircles.LOCKED_ATTRIBUTE)) -- #5463

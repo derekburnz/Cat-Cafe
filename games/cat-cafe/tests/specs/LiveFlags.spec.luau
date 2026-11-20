@@ -301,6 +301,7 @@ return function()
 							or key == "cutsQuick" -- #5550
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465
+							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "nightLineNoArrow" -- #5459
 							or key == "secretCompanionBig" -- #5431

@@ -612,10 +612,9 @@ function CampExtraService.start()
 	task.spawn(function() -- #5572: the Picnic Party's ring
 		while true do
 			task.wait(RING_SECONDS)
-			local ok, problem = pcall(watchParties)
-			if not ok then
+			xpcall(watchParties, function(problem: unknown)
 				warn("[CampExtraService] picnic party: " .. tostring(problem))
-			end
+			end)
 		end
 	end)
 	task.spawn(function()

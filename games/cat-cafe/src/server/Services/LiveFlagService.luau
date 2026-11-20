@@ -28,7 +28,13 @@ local readOnce = false -- a read of the store has come back in this server
 -- Whether feature `key` (one of LiveFlags.KEYS) is on in this server. #5499: with `player`, a switch the holdout holds
 -- back (shared/Holdout) reads off for a player held this session (the Holdout attribute Telemetry sets at load).
 function LiveFlagService.on(key: string, player: Player?): boolean
-	if player ~= nil and Holdout.gated(key) and player:GetAttribute(Holdout.ATTR) == true then
+	-- (Derek 2026-11-20 13:04 UTC, "finish up with all A/B tests": only while the holdout switch itself is on)
+	if
+		player ~= nil
+		and Holdout.gated(key)
+		and player:GetAttribute(Holdout.ATTR) == true
+		and LiveFlagService.on(Holdout.FLAG)
+	then
 		return false
 	end
 	local override = overrides[key]

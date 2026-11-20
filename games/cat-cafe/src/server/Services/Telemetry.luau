@@ -1085,7 +1085,11 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 		state.holdout = Holdout.group(player.UserId)
 		Telemetry.custom(player, "holdout_group", 1, { state.holdout :: string }) -- Holdout.EVENT
 	end
-	player:SetAttribute(Holdout.ATTR, Holdout.held(state.holdout, state.firstDay, os.time()))
+	-- (Derek 2026-11-20 13:04 UTC: the A/B tests end, so a save is held only while the holdout switch is on)
+	player:SetAttribute(
+		Holdout.ATTR,
+		LiveFlagService.on(Holdout.FLAG) and Holdout.held(state.holdout, state.firstDay, os.time())
+	)
 	-- #5533 (shared/FreeStart): a new save on the play first start takes the catch first order, so orderSplit below
 	-- never puts it in the bowl first arm; a save already in an arm keeps it, and a held save (the holdout's control
 	-- group) keeps today's start

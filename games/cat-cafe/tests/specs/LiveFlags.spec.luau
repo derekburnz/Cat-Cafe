@@ -235,6 +235,7 @@ return function()
 							or key == "catchLostLog" -- #5500
 							or key == "tier3TripLog" -- #5517
 							or key == "rankCueLog" -- #5516
+							or key == "hoodTrail" -- #5517
 							or key == "rankTapLog" -- #5516
 							or key == "mutationBoost" -- #5493
 							or key == "bowlOptionsButton" -- #5488

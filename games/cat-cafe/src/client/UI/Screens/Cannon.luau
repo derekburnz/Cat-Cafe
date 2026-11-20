@@ -90,6 +90,7 @@ export type Cannon = {
 	-- F92: the area a joiner's pal is in and the pal's name, or nil to take the tag away
 	setPal: (self: Cannon, areaId: string?, name: string?) -> (),
 	setRing: (self: Cannon, areaId: string?) -> (), -- #2915
+	setFirst: (self: Cannon, areaId: string?) -> (), -- #5517
 	-- F100: the last CampExtrasState, or nil before the first
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
 	setTraits: (self: Cannon, traits: any) -> (), -- #3196: PlayerState.traits, for the Mystic Pool's strip
@@ -193,6 +194,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._ring = nil :: string? -- #2915: the area whose Launch wears the ring
+	self._first = nil :: string? -- #5517: the area card listed first (hoodTrail's walk to the Neighbourhood)
 	self._spot = nil :: { id: string, close: () -> () }? -- #5245 / #5248: the dim and arrow on the ringed Launch
 
 	local panel = Panel.new({
@@ -645,6 +647,15 @@ function Cannon.setRing(self: any, areaId: string?)
 	self:_rerender()
 end
 
+-- #5517: the area card listed first, or none (the usual order)
+function Cannon.setFirst(self: any, areaId: string?)
+	if self._first == areaId then
+		return
+	end
+	self._first = areaId
+	self:_rerender()
+end
+
 -- F92: the gold "Sam is here" tag on the pal's area card, or none.
 function Cannon.setPal(self: any, areaId: string?, name: string?)
 	self._pal = if areaId ~= nil then { areaId = areaId, name = name or "Your pal" } else nil
@@ -790,7 +801,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			StepTarget.ui(card.launch.instance, false)
 			continue
 		end
-		card.frame.LayoutOrder = order
+		card.frame.LayoutOrder = if id == self._first then 0 else order
 		local locked = lockedIds[id]
 		local buttonState: CannonLogic.ButtonState =
 			CannonLogic.button(id, closed, dusk, carrying, locked)

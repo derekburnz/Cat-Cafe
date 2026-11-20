@@ -35,6 +35,31 @@ ParkTrailLogic.SHOWN = "shown"
 ParkTrailLogic.ENTERED = "entered"
 ParkTrailLogic.CAUGHT = "caught"
 
+-- #5517 (Design's fix spec, switch `hoodTrail`, off by default): the same walk again at Tier 3 for the Neighbourhood.
+-- Only at Tier 3 exactly, until the first Neighbourhood landing (the server's HoodLanded attribute, or this join) or
+-- a Neighbourhood cat. The trail leads to the nearest cannon, the picker lists the Neighbourhood first with its ring,
+-- and at night the goal line says when it opens. Same rest rules, with parkTrailBack's return always on.
+--   hoodDue(on, tier, owns, landed) -> boolean   hoodGoal(shut, narrow) -> string
+ParkTrailLogic.HOOD_FLAG = "hoodTrail"
+ParkTrailLogic.HOOD_AREA = "neighbourhood"
+ParkTrailLogic.HOOD_TIER = 3
+ParkTrailLogic.HOOD_VISIT = "Visit the Neighbourhood 🐾"
+ParkTrailLogic.HOOD_VISIT_NARROW = "Visit Neighbourhood 🐾"
+ParkTrailLogic.HOOD_NIGHT = "Neighbourhood opens at sunrise"
+ParkTrailLogic.HOOD_LANDED_ATTR = "HoodLanded" -- the Player's attribute (server, from shared/Tier3Trip's mask)
+ParkTrailLogic.HOOD_TELEMETRY = "hood_trail" -- TelemetryReport values: SHOWN, ENTERED, each once a session
+
+function ParkTrailLogic.hoodDue(on: boolean, tier: number?, owns: boolean, landed: boolean): boolean
+	return on and not owns and not landed and tier == ParkTrailLogic.HOOD_TIER
+end
+
+function ParkTrailLogic.hoodGoal(shut: boolean, narrow: boolean): string
+	if shut then
+		return ParkTrailLogic.HOOD_NIGHT
+	end
+	return if narrow then ParkTrailLogic.HOOD_VISIT_NARROW else ParkTrailLogic.HOOD_VISIT
+end
+
 export type Phase = "visit" | "catch"
 export type Rest = { active: number, idle: number, resting: boolean, off: number }
 

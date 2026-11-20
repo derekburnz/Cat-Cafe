@@ -96,6 +96,7 @@ export type CustomEvent =
 	| "ab_loading_seen"
 	| "session_end"
 	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
+	| "hood_trail" -- #5517 (hoodTrail): the walk to the Neighbourhood at Tier 3 shown or entered (value 1; fields kind, device)
 	| "rank_tap" -- #5516 (rankTapLog): a Tier 1 tap on the goal card or strip's rank up button (value the tap's number this session; fields from, window open after, ready)
 	| "tier3_left" -- #5517: a session ended at Tier 3 before that landing (value seconds; fields furthest stop, device, day or night)
 	| "rank_cue_next" -- #5516 (switch rankCueLog): the first window opened after the Tier 1 rank cue (value seconds since the cue; fields screen or "left", device)
@@ -573,6 +574,7 @@ local REPORTS = {
 	"screen",
 	"tutorial_closed",
 	"rank_cue_next", -- #5516: the first window opened after the Tier 1 rank cue, its ScreenName (the server checks the tier)
+	"hood_trail", -- #5517: the walk to the Neighbourhood shown or entered (UI/Components/ParkTrailLogic, hoodTrail)
 	"rank_tap", -- #5516: "<goal|strip>:<ScreenName or none>:<ready|not_ready>", a Tier 1 rank up tap and what it opened
 	"tier3_cannon", -- #5517: the Cannon menu opened at Tier 3 (shared/Tier3Trip; the server checks the tier)
 	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
@@ -720,6 +722,7 @@ type Session = {
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
 	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
+	hoodTrail: { [string]: boolean }, -- #5517: hood_trail logged this session, by kind
 	parkSeconds: number, -- #5034: seconds stood in the Park this session with no Park cat yet (park_left)
 	parkClosest: number?, -- #5034: the closest a free Park stray came meanwhile, in studs
 	parkOwned: boolean?, -- #5034: the save has a Park cat (worked out once, then latched by first_park_catch)
@@ -1095,6 +1098,8 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 		Telemetry.custom(player, "order_group", 1, { state.orderGroup :: string }) -- TutorialOrder.EVENT
 	end
 	player:SetAttribute(TutorialOrder.GROUP_ATTR, state.orderGroup)
+	-- #5517 (hoodTrail, UI/Components/ParkTrailLogic.HOOD_LANDED_ATTR): the account's first Neighbourhood landing
+	player:SetAttribute("HoodLanded", Tier3Trip.landed(state.tier3Trip))
 end
 
 function Telemetry.introJoin(player: Player, profile: Profile)
@@ -1302,6 +1307,7 @@ function Telemetry.tier3Stop(player: Player, profile: Profile, stop: string, det
 		return
 	end
 	state.tier3Trip = Tier3Trip.mark(state.tier3Trip, stop)
+	player:SetAttribute("HoodLanded", Tier3Trip.landed(state.tier3Trip)) -- #5517: ends the hoodTrail walk
 	local session = sessions[player]
 	Telemetry.custom(player, "tier3_trip", 1, {
 		stop,
@@ -3050,6 +3056,18 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.parkTrail[kind] = true
 			Telemetry.custom(player, (event :: any) :: CustomEvent, 1, { tierText(profile) })
 		end
+	elseif name == "hood_trail" then
+		-- #5517: once a session each, only at Tier 3 and with the switch on
+		local kind = Guard.oneOf(rawValue, { "shown", "entered" })
+		if
+			kind ~= nil
+			and not session.hoodTrail[kind]
+			and Economy.tier(profile) == Tier3Trip.TIER
+			and LiveFlagService.on("hoodTrail")
+		then
+			session.hoodTrail[kind] = true
+			Telemetry.custom(player, "hood_trail", 1, { kind, session.device or "unknown" })
+		end
 	elseif name == "rank_spot" then
 		local kind = Guard.oneOf(rawValue, { "shown", "closed" })
 		local event = if kind ~= nil then RANK_SPOT[kind] else nil
@@ -3322,6 +3340,7 @@ local function onLoaded(player: Player, profile: Profile)
 		tutorialClosed = false,
 		parkHints = {},
 		parkTrail = {},
+		hoodTrail = {},
 		parkSeconds = 0,
 		parkClosest = nil,
 		parkOwned = nil,

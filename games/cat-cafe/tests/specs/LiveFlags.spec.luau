@@ -227,6 +227,7 @@ return function()
 							or key == "bowlLockBig" -- #5455
 							or key == "shieldNoBump" -- #5476
 							or key == "parkFirstCalm" -- #5496
+							or key == "missKeepsCommon" -- #5500
 							or key == "orderSplit" -- #5498
 							or key == "dailyGifts" -- #5506
 							or key == "awayPromise" -- #5505

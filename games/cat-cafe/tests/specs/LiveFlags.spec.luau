@@ -307,6 +307,7 @@ return function()
 							or key == "guideArrow" -- #5465
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
+							or key == "bowlAutoFree" -- Derek 2026-11-20
 							or key == "bowlPassOptions" -- #5606
 							or key == "nightLineNoArrow" -- #5459
 							or key == "spawnAlley" -- #5616

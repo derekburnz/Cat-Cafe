@@ -801,7 +801,10 @@ end
 function BaitBowl._tapAuto(self: any, key: string)
 	-- #5263: a locked tick opens the Second Bait Bowl pass's purchase in place of a change
 	if key ~= "popups" and ticksOn() and not self:_autoOwns(true) then
-		self._callbacks.buySecond()
+		-- bowlAutoFree (Derek 2026-11-20): the ticks are free from Tier 2, so a lock before then sells nothing
+		if ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true then
+			self._callbacks.buySecond()
+		end
 		return
 	end
 	local settingKey = AUTO_KEYS[key]
@@ -1457,7 +1460,8 @@ function BaitBowl._renderPerks(self: any, luck: number)
 	local options = ReplicatedStorage:GetAttribute("LiveFlag_bowlPassOptions") == true
 		and ReplicatedStorage:GetAttribute("LiveFlag_bowlTicks") == true
 	perks[4].Text = PERK_MARK .. "Bowl options: auto refill and auto claim"
-	perks[4].Visible = options
+	-- Derek 2026-11-20 (bowlAutoFree): the bowl options are free from Tier 2, so the pass no longer lists them
+	perks[4].Visible = options and ReplicatedStorage:GetAttribute("LiveFlag_bowlAutoFree") ~= true
 end
 
 -- #1161: each tab's state, "Bowl 1 · 4m 10s", "Bowl 2 · Empty" or "Bowl 2 · Cat!", the chosen one in gold.

@@ -33,6 +33,7 @@ local BoothFx = require(script.BoothFx)
 local BowlFrenzyFx = require(script.BowlFrenzyFx)
 local BulbChase = require(script.BulbChase)
 local CafeWalk = require(script.CafeWalk)
+local CampCoinFly = require(script.CampCoinFly)
 local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
 local CampGlow = require(script.CampGlow)
@@ -218,6 +219,7 @@ function Effects.start()
 		AreaFx.start,
 		LateStationFx.start,
 		BoothFx.start, -- #4061: the Ticket Booth's buy moment
+		CampCoinFly.start, -- #5533 v2: coins to the counter at the new start's first camp check-ins
 		WorldGlow.start, -- #5533 v2: the new start's world glows (stall, cannon, door)
 		AdventFx.start, -- #5502: the advent calendar board's doors, glow and bursts
 		DragonStageCut.start, -- #4062: the Dragon Keep stage-up cutscene on each DragonStage

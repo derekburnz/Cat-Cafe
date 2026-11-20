@@ -7037,6 +7037,34 @@ Presets.adventFx = {
 	lookSeconds = 2,
 }
 
+-- The new start's camp pay moment (#5533 v2, Effects/CampCoinFly): at the first `checkIns` camp check-ins of a session,
+-- `coins` coins arc from the camp to the money counter (FirstCatchWow's flight numbers), the counter bounces to
+-- `bounce` times over `bounceSeconds`, and a "+12/s" line pops in at `pop` times under it, settles by `settle` and
+-- fades over its last `fade` of `rateSeconds`. `waitSync` lets the check-in's own sync bring the new rate first.
+Presets.campCoinFly = {
+	checkIns = 3,
+	waitSync = 0.25,
+	coins = 14,
+	coinSeconds = 0.7,
+	coinStagger = 0.02,
+	coinSpread = 70,
+	coinLift = 40,
+	coinMin = 22,
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(92, 64, 51),
+	bounce = 1.18,
+	bounceSeconds = 0.3,
+	pop = 1.6,
+	settle = 0.25,
+	fade = 0.5,
+	rateSeconds = 2,
+	lineGap = 4,
+	lineWidth = 120,
+	lineHeight = 28,
+	gui = "EffectsCampCoinFly",
+	displayOrder = 26,
+}
+
 -- The new start's world glows (#5533 v2, Effects/WorldGlow), Cozy Cream gold: a stall glow lasts `stallSeconds`,
 -- breathing every `breathe` seconds down to `low`; the steady glows (the cannon, the door while carrying) dip by
 -- `steadyDip` every `steadyPeriod` seconds. A Highlight fills to `fill` and outlines to `outline`; the door's panel

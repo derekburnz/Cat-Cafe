@@ -214,8 +214,20 @@ local function coinImage(coin: GuiObject): string?
 	return nil
 end
 
+-- What a coin fly needs (Presets.firstCatchWow, Presets.campCoinFly).
+export type CoinFly = {
+	coins: number,
+	coinSeconds: number,
+	coinStagger: number,
+	coinSpread: number,
+	coinLift: number,
+	coinMin: number,
+	gold: Color3,
+}
+
 -- About `coins` coins from `from` (pixels in `gui`) in arcs to the money coin, landing over `coinSeconds`. One loop.
-local function flyCoins(gui: ScreenGui, from: Vector2, p: typeof(Presets.firstCatchWow))
+-- Also Effects/CampCoinFly's (#5533).
+function FirstCatchWow.flyCoins(gui: ScreenGui, from: Vector2, p: CoinFly)
 	local target = moneyCoin()
 	if target == nil then
 		return
@@ -427,7 +439,7 @@ function FirstCatchWow.play(strayId: string?, rarity: string?): boolean
 				local from = if visible
 					then ScreenFx.toGui(gui, Vector2.new(screen.X, screen.Y))
 					else Vector2.new(gui.AbsoluteSize.X / 2, gui.AbsoluteSize.Y / 2)
-				flyCoins(gui, from, p)
+				FirstCatchWow.flyCoins(gui, from, p)
 			end
 		end
 		if t >= length then

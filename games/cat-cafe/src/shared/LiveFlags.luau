@@ -149,6 +149,8 @@ LiveFlags.KEYS = {
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
 	"parkFirstCalm", -- #5496: on a phone, tablet or console a missed catch in the Park leaves the cat put until the first Park catch (shared/ParkFirstEasy.calm); off by default
+	"secondCatQuiet", -- #5620: the old "Catch a 2nd cat" goal never comes back on a save that joined the new start (CafeService); off by default
+	"catNamesLow", -- #5620: cat name tags sit on the cat's back, clear of the rarity gem and NEW pill (Effects/CatNames); off by default
 	"orderSplit", -- #5498: new saves split half catch first, half bowl first, kept for good (shared/TutorialOrder); off by default
 	"dailyGifts", -- #5506: ten gifts for minutes played today on the Rewards tile, the small account steps stop (shared/DailyGifts); off by default
 	"awayPromise", -- #5505: days played milestones (shared/DaysPlayed), later the away line and return moment; off by default
@@ -336,6 +338,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	bowlLockBig = true, -- #5455: on as soon as it publishes (Derek 2026-11-19)
 	parkFirstCalm = true, -- #5496: on as soon as it publishes (Derek 2026-11-19)
 	orderSplit = true, -- #5498: on once both arms are walked end to end (Derek 2026-11-19: go with the recommendation)
+	secondCatQuiet = true, -- #5620: on as soon as it publishes (Sync's run)
+	catNamesLow = true, -- #5620: on as soon as it publishes (Sync's run)
 	dailyGifts = true, -- #5506: on after the next restart Derek calls (new save field)
 	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)

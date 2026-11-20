@@ -40,7 +40,7 @@ function TutorialGlow.set(
 		return
 	end
 	-- #5533 (shared/FreeStart): no ring, dim or arrow for a save on the play first start until Tier 3
-	if on and FreeStart.quiet() then
+	if on and FreeStart.quietFor(target) then -- #5599: but a target marked LOUD_ATTR
 		on = false
 	end
 	local existing = target:FindFirstChild(TutorialGlow.NAME)

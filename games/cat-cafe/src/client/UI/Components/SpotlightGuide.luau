@@ -50,7 +50,7 @@ function SpotlightGuide.show(
 	noDim: boolean? -- Derek 2026-11-16: ring and arrow only, nothing dimmed (the rank up window's button)
 ): () -> ()
 	-- #5533 (shared/FreeStart): no spotlight for a save on the play first start until Tier 3
-	if FreeStart.quiet() then
+	if FreeStart.quietFor(target) then -- #5599: but a target marked LOUD_ATTR
 		return function() end
 	end
 	local previous = closeCurrent

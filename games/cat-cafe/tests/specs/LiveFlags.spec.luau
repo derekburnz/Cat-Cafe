@@ -296,6 +296,7 @@ return function()
 							or key == "firstCatchCoins" -- #5596
 							or key == "stallGlow" -- #5533
 							or key == "cannonGlow" -- #5533
+							or key == "rankPicker" -- #5599
 							or key == "cutsQuick" -- #5550
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465

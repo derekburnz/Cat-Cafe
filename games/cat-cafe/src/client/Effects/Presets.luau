@@ -8360,7 +8360,8 @@ Presets.tradeUnlock = {
 Presets.picnicParty = {
 	flag = "picnicParty",
 	extraId = "picnic",
-	wobble = { every = 3.5, seconds = 0.6, degrees = 6, wiggles = 2 },
+	wobble = { every = 3.5, seconds = 0.6, degrees = 6, wiggles = 2, lidShare = 2.5 }, -- the lid lifts up to 15 degrees
+	lidSuffix = "_Lid", -- Model-Agent's #5580: the lid is the station's child model <station name>_Lid
 	glow = {
 		fill = Presets.palette.golden,
 		fillTransparency = 0.8,
@@ -8404,7 +8405,9 @@ Presets.picnicParty = {
 		squares = 6, -- checks along each side of the stand-in blanket
 		red = Color3.fromRGB(214, 96, 92),
 		white = Presets.palette.cream,
-		model = "CatCafe_Prop_PicnicBlanket", -- Model-Agent's, under ReplicatedStorage.Assets, when it lands
+		model = "CatCafe_Prop_PicnicBlanket", -- Model-Agent's #5580, under ReplicatedStorage.Assets
+		rolled = "CatCafe_Prop_PicnicBlanket_Rolled",
+		rollRadius = 0.32,
 	},
 	treats = {
 		{

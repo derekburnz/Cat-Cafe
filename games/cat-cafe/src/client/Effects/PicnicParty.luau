@@ -369,6 +369,7 @@ local function makeTreats(at: Scene)
 		local source = asset(treat.model)
 		if source ~= nil then
 			local copy = inert(source)
+			fade(copy, 1) -- hidden until its flight starts, not shown where the asset was saved
 			copy.Parent = Context.folder()
 			at.treats[i] = copy
 		else
@@ -396,6 +397,9 @@ local function drawTreats(at: Scene, flights: { number? })
 		local k = flights[i]
 		if item:IsA("BasePart") then
 			(item :: BasePart).Transparency = if k == nil then 1 else 0
+		elseif (k ~= nil) ~= (item:GetAttribute("Shown") == true) then
+			fade(item, if k == nil then 1 else 0)
+			item:SetAttribute("Shown", k ~= nil)
 		end
 		if k ~= nil then
 			local land = onBlanket(at, p.treats[i].at, p.treatSize.Y / 2)

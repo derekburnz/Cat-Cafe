@@ -171,6 +171,7 @@ LiveFlags.KEYS = {
 	"secretTraitTile", -- #5445: Secret trait cards in the Mystic Pool on the Secret night tile (Screens/MysticPool); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"tiersEasy", -- Derek 2026-11-19: Tiers 4 to 7 ask far less (60k, 400k, 3M, 30M and fewer kinds), on top of the other tier rows (shared/CheapTiers); off by default
+	"tier3Up", -- #5617: Tier 3 asks 25,000 coins (10,000 before), laid last over the other tier rows (shared/CheapTiers); off by default
 	"tier3Easy", -- #5467: Tier 3 asks 10,000 and 4 kinds, on top of either Tier 3 row (shared/CheapTiers); off by default
 	"freeStart", -- #5533: new saves play first: Alleyway start, no tutorial pointers or moves until Tier 3 (shared/FreeStart); off by default
 	"streetCats", -- #5533: a freeStart save's first 3 minutes keep 3 Commons by it; its first 3 catches and Park catches can't be lost; off by default
@@ -338,6 +339,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)
+	tier3Up = true, -- #5617: on as soon as it publishes (Derek 2026-11-20)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
 	rankDimTwo = true, -- #5609: on as soon as it publishes (Derek 2026-11-20)
 	rankSpotStay = true, -- #5516: first-session flow, on once Review-QA passes

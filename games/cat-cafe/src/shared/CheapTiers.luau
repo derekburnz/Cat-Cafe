@@ -33,6 +33,9 @@
 -- switch `coinsOnly`, laid last over whatever the other switches give, every tier from 2 up asks coins only (no kinds,
 -- no rarity) and Tiers 2 to 7 ask COINS: 1,500, 10,000, 60,000, 400,000, 3,000,000, 30,000,000. Tier 8 and up keep
 -- their coin cost. Cats still matter as the way to earn the coins.
+-- #5617 (Derek 2026-11-20 17:08 UTC: "tier 2 to tier 3 is too cheap and you get it like instantly right after unlocking
+-- park"): behind its own switch `tier3Up`, laid after everything above, Tier 3 asks TIER3_UP coins (10,000 before), so
+-- it takes a few minutes of Park catches and a picnic.
 --   on() -> boolean           cheapTiers
 --   easyFour() -> boolean     tier4Easy
 --   easyThree() -> boolean    tier3Easy
@@ -82,6 +85,9 @@ CheapTiers.COINS = {
 	[7] = 30000000,
 } :: { [number]: number }
 
+CheapTiers.TIER3_UP_FLAG = "tier3Up"
+CheapTiers.TIER3_UP = 25000
+
 local following = false
 
 function CheapTiers.on(): boolean
@@ -112,6 +118,13 @@ function CheapTiers.easyAll(): boolean
 	)
 end
 
+function CheapTiers.tier3Up(): boolean
+	return LiveFlags.shown(
+		CheapTiers.TIER3_UP_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER3_UP_FLAG)
+	)
+end
+
 function CheapTiers.coinsOnly(): boolean
 	return LiveFlags.shown(
 		CheapTiers.COINS_FLAG,
@@ -127,9 +140,10 @@ function CheapTiers.needsFor(
 	easy: boolean,
 	easyThree: boolean?,
 	easyAll: boolean?,
-	coins: boolean?
+	coins: boolean?,
+	up: boolean? -- #5617 tier3Up
 ): { [number]: Catalog.TierNeeds }?
-	if not easy and not easyThree and not easyAll and not coins then
+	if not easy and not easyThree and not easyAll and not coins and not up then
 		return if cheap then CheapTiers.NEEDS else nil
 	end
 	local out: { [number]: Catalog.TierNeeds } = {}
@@ -162,6 +176,9 @@ function CheapTiers.needsFor(
 			lay(tier, { cost = CheapTiers.COINS[tier], distinctCats = 0, noRarity = true })
 		end
 	end
+	if up then
+		lay(3, { cost = CheapTiers.TIER3_UP }) -- #5617: last of all, the cost only
+	end
 	return out
 end
 
@@ -171,7 +188,8 @@ function CheapTiers.needs(): { [number]: Catalog.TierNeeds }?
 		CheapTiers.easyFour(),
 		CheapTiers.easyThree(),
 		CheapTiers.easyAll(),
-		CheapTiers.coinsOnly()
+		CheapTiers.coinsOnly(),
+		CheapTiers.tier3Up()
 	)
 end
 
@@ -194,6 +212,9 @@ function CheapTiers.follow()
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.EASY_FLAG)
 		:Connect(apply)
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.COINS_FLAG)
+		:Connect(apply)
+	ReplicatedStorage
+		:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER3_UP_FLAG)
 		:Connect(apply)
 end
 

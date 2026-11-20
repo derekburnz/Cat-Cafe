@@ -98,7 +98,7 @@ export type CustomEvent =
 	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
 	| "hood_trail" -- #5517 (hoodTrail): the walk to the Neighbourhood at Tier 3 shown or entered (value 1; fields kind, device)
 	| "rank_tap" -- #5516 (rankTapLog): a Tier 1 tap on the goal card or strip's rank up button (value the tap's number this session; fields from, window open after, ready)
-	| "return_card" -- #5505 (returnMoment): the welcome back card on a join 4 h+ after the last leave (value hours away, max 72; fields rank up in reach, device, line kind)
+	| "return_card" -- #5505 (returnMoment): the welcome back card on a join 4 h+ after the last leave (value hours away, max 72; fields rank up in reach, device, line kind or "held")
 	| "tier3_left" -- #5517: a session ended at Tier 3 before that landing (value seconds; fields furthest stop, device, day or night)
 	| "rank_cue_next" -- #5516 (switch rankCueLog): the first window opened after the Tier 1 rank cue (value seconds since the cue; fields screen or "left", device)
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
@@ -3034,7 +3034,13 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		end
 		local away = session.awaySeconds
 		if
-			(kind == "milestone" or kind == "next" or kind == "hook" or kind == "none")
+			(
+				kind == "milestone"
+				or kind == "next"
+				or kind == "hook"
+				or kind == "none"
+				or kind == "held"
+			)
 			and (ready == "yes" or ready == "no")
 			and away ~= nil
 			and away >= 4 * 3600
@@ -3042,10 +3048,13 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and LiveFlagService.on("returnMoment")
 		then
 			session.returnCard = true
+			-- a held save (shared/Holdout) is always "held", whatever the client said, and a live one never is
+			local held = player:GetAttribute(Holdout.ATTR) == true
+			local line = if held then "held" elseif kind == "held" then "none" else kind :: string
 			Telemetry.custom(player, "return_card", math.min(72, math.floor(away / 3600)), {
 				ready :: string,
 				session.device or "unknown",
-				kind :: string,
+				line,
 			})
 		end
 	elseif name == "tier3_cannon" then

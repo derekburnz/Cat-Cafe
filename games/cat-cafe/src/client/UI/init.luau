@@ -3201,8 +3201,10 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 			)
 		end
 		local ready = UI.returnMoment.ready()
-		if moment then
-			UI.events.returnCard:Fire(kind .. ":" .. (if ready then "yes" else "no"))
+		-- Growth: a held save logs it too, as "held", so held and live compare
+		if ReplicatedStorage:GetAttribute("LiveFlag_returnMoment") == true then
+			local logged = if moment then kind else "held"
+			UI.events.returnCard:Fire(logged .. ":" .. (if ready then "yes" else "no"))
 		end
 		popups:showOffline(amount, seconds, function()
 			Sound.play("offlineClaim")

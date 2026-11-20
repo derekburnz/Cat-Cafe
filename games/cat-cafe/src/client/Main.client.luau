@@ -44,6 +44,7 @@ local RankSpotController = require(script.Parent.Controllers.RankSpotController)
 local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local SpaPoolController = require(script.Parent.Controllers.SpaPoolController)
+local StartStallController = require(script.Parent.Controllers.StartStallController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
 local StationCutController = require(script.Parent.Controllers.StationCutController)
 local StationLockController = require(script.Parent.Controllers.StationLockController)
@@ -147,6 +148,7 @@ FollowerController.start() -- #5172: the cat that follows each player (switch ca
 AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
 StationLockController.start() -- #4539: Mystery Market, Cat Arcade and Mystic Pool hidden below their tiers
 StationCutController.start() -- #5112: a rank up's cut to the station it unlocks, behind stationCut
+StartStallController.start() -- #5562: the play first start's stall glow (Effects/WorldGlow.stall)
 CompanionSceneController.start() -- #5284: the Cat Companion unlock scene after the Tier 2 rank up, behind companionScene
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat

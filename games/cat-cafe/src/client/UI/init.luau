@@ -3511,6 +3511,12 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	-- calm like arrived. The bowlCardHold switch, on unless set false, turns this off.
 	local held = (UI.cutscene.held() or (introScreen ~= nil and introScreen:playing()))
 		and ReplicatedStorage:GetAttribute("LiveFlag_bowlCardHold") ~= false
+	-- #5562 (Motion-FX's #5564): a play first start save below Tier 3 waits for calm too (UI.bait.busy, which holds
+	-- while the quick first bait scene runs or is owed near the bowl), so its walk to the bowl plays the scene and then
+	-- the card
+	local FreeStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any
+	held = held or (FreeStart.quiet(state.tier) and UI.bait.busy())
 	if held or (modal ~= nil and modal:current() == "Store") then
 		renderBait()
 		UI.bait.whenCalm(function()
@@ -3631,6 +3637,18 @@ function UI.bait.arrived(cat: Types.BaitCat, bowl: number?, recorded: boolean?)
 		task.delay(UI.RECORD_BOWL_DELAY, function()
 			UI.bait.arrived(cat, bowl, true)
 		end)
+		return
+	end
+	-- #5562 (Sync's new start look 2026-11-20: the card popped right after the first check-in): a play first start save
+	-- below FreeStart.UNTIL_TIER gets no card by itself; the cat waits at the bowl (its chip shows it) and the card
+	-- comes when the player walks up to the bowl or taps the chip (showReady)
+	if
+		(require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any).quiet(
+			state.tier
+		)
+	then
+		bowls.cats[index] = cat
+		renderBait()
 		return
 	end
 	-- #5374 (Derek 2026-11-19: "all bowl options on yet I am still getting pop-ups"): with bowlTicks on and the Bowl

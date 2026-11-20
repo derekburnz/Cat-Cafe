@@ -1318,10 +1318,9 @@ do
 		then
 			return false
 		end
-		local done = if stray.area == M.Tier3Path.AREA
-			then parkCaught[player] or 0
-			else SecondCat.caught(profile.stats)
-		return M.FreeStart.easyDue(joined, done, stray.def.rarity, stray.variant)
+		local park = stray.area == M.Tier3Path.AREA
+		local done = if park then parkCaught[player] or 0 else SecondCat.caught(profile.stats)
+		return M.FreeStart.easyDue(joined, done, stray.def.rarity, stray.variant, park)
 	end
 
 	function Street.caught(player: Player, area: string)

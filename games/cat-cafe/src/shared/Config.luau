@@ -564,9 +564,6 @@ local Config = {
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
 	TownWalkSpeedBonus = 4, -- #2706 (Derek2 2026-11-09: "increase walking/running speed in spawn by a bit"): no cat, on the Town Square
-	-- #5584 (Derek 2026-11-20: "increase speed while in town square by a decent amount so people don't get bored of
-	-- running"): with switch townFast on, the Town Square bonus is this instead (20 + 10, half as fast again)
-	TownWalkSpeedFast = 10,
 	-- How far the camera zooms out (Derek 2026-11-02, the zoom card: "Cap it closer (60 studs)"; Roblox's default is
 	-- 128): it stays near the player, and the edges of the long areas and the backdrops stay out of view.
 	CameraMaxZoomStuds = 60,

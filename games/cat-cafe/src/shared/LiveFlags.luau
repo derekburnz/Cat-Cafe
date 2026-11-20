@@ -207,7 +207,7 @@ LiveFlags.KEYS = {
 	"parkLead", -- #5248: after the Tier 2 rank up no Alleyway new kind line, the picker's Park Launch dimmed and pointed at until pressed, no marker in a flight (Screens/Cannon); off by default
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
 	"upgradesInstant", -- #5253: an Upgrades buy shows in the window at once and the server syncs before the plot rebuild (Screens/UpgradeShop, CafeService); off by default
-	"townFast", -- #5584: half as fast again on the Town Square with no cat, 30 for 24 (Config.TownWalkSpeedFast, Services/CatService.refreshSpeed); off by default
+	"townFast", -- #5584: half as fast again on the Town Square with no cat, 30 for 24 (Services/CatService.refreshSpeed); off by default
 	"nightBright", -- #5240: a slightly lighter night sky and shade (shared/DayLight.BRIGHT_NIGHT); off by default
 	"frontDoors", -- #5385: the cafe's own front doors stand open in the front doorway where no door set is in use (CafeService.refreshDoors); off by default
 	"ringSolid", -- #5256: a double's second half and a paw catch ring drop the dark rim that read as a gap (UI CatchCircles); off by default

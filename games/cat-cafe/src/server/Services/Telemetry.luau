@@ -97,6 +97,7 @@ export type CustomEvent =
 	| "session_end"
 	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
 	| "hood_trail" -- #5517 (hoodTrail): the walk to the Neighbourhood at Tier 3 shown or entered (value 1; fields kind, device)
+	| "rank_tap" -- #5516 (rankTapLog): a Tier 1 tap on the goal card or strip's rank up button (value the tap's number this session; fields from, window open after, ready)
 	| "tier3_left" -- #5517: a session ended at Tier 3 before that landing (value seconds; fields furthest stop, device, day or night)
 	| "rank_cue_next" -- #5516 (switch rankCueLog): the first window opened after the Tier 1 rank cue (value seconds since the cue; fields screen or "left", device)
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
@@ -574,6 +575,7 @@ local REPORTS = {
 	"tutorial_closed",
 	"rank_cue_next", -- #5516: the first window opened after the Tier 1 rank cue, its ScreenName (the server checks the tier)
 	"hood_trail", -- #5517: the walk to the Neighbourhood shown or entered (UI/Components/ParkTrailLogic, hoodTrail)
+	"rank_tap", -- #5516: "<goal|strip>:<ScreenName or none>:<ready|not_ready>", a Tier 1 rank up tap and what it opened
 	"tier3_cannon", -- #5517: the Cannon menu opened at Tier 3 (shared/Tier3Trip; the server checks the tier)
 	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
 	"rank_up_end", -- #5031: how that window ended, "pressed" or "closed" (rank_up_window)
@@ -730,6 +732,7 @@ type Session = {
 	rankWindows: number, -- #5031: rank_up_window events logged this session
 	rankCueAt: number?, -- #5516: when the Tier 1 rank cue showed this session (bowl_step rankCue)
 	rankCueNext: boolean, -- #5516: rank_cue_next logged this session
+	rankTaps: number, -- #5516: rank_tap events logged this session (6 at most)
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -2992,6 +2995,32 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				session.device or "unknown",
 			})
 		end
+	elseif name == "rank_tap" then
+		-- #5516: "<from>:<screen>:<ready>", a few a session, only at Tier 1 and with the switch on
+		local raw = if type(rawValue) == "string" and #rawValue <= 64 then rawValue else nil
+		local from, screen, ready
+		if raw ~= nil then
+			from, screen, ready = string.match(raw, "^(%a+):(%w+):([%a_]+)$")
+		end
+		if
+			(from == "goal" or from == "strip")
+			and screen ~= nil
+			and (ready == "ready" or ready == "not_ready")
+			and session.rankTaps < 6
+			and Economy.tier(profile) == 1
+			and LiveFlagService.on("rankTapLog")
+		then
+			session.rankTaps += 1
+			local opened = if screen == "none"
+				then "none"
+				else SCREENS[screen :: string] or MORE_SCREENS[screen :: string] or "other"
+			Telemetry.custom(
+				player,
+				"rank_tap",
+				session.rankTaps,
+				{ from :: string, opened, ready :: string }
+			)
+		end
 	elseif name == "tier3_cannon" then
 		Telemetry.tier3Stop(player, profile, "cannon_open") -- #5517: Tier3Trip.due checks the tier and the stop
 	elseif name == "rank_up_open" then
@@ -3321,6 +3350,7 @@ local function onLoaded(player: Player, profile: Profile)
 		rankWindows = 0,
 		rankCueAt = nil,
 		rankCueNext = false,
+		rankTaps = 0,
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",

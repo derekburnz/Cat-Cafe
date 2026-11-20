@@ -151,6 +151,7 @@ LiveFlags.KEYS = {
 	"parkFirstCalm", -- #5496: on a phone, tablet or console a missed catch in the Park leaves the cat put until the first Park catch (shared/ParkFirstEasy.calm); off by default
 	"orderSplit", -- #5498: new saves split half catch first, half bowl first, kept for good (shared/TutorialOrder); off by default
 	"dailyGifts", -- #5506: ten gifts for minutes played today on the Rewards tile, the small account steps stop (shared/DailyGifts); off by default
+	"spotHeld", -- #5622: the HUD's ring pass leaves a card the Rank Up spotlight holds alone, so the Tier 2 dim stays on the new start (SpotlightGuide.HELD); off by default
 	"awayPromise", -- #5505: days played milestones (shared/DaysPlayed), later the away line and return moment; off by default
 	"holdout", -- #5499: one new account in ten keeps dailyGifts, awayPromise and orderSplit off for its first 7 days (shared/Holdout); off by default
 	"rankDimTwo", -- #5609: the Tier 2 Rank Up dim and arrow show anywhere, on the new start too, and only rest on a press until the rank up (RankSpotService, UI.rankSpot.set); off by default
@@ -337,6 +338,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkFirstCalm = true, -- #5496: on as soon as it publishes (Derek 2026-11-19)
 	orderSplit = true, -- #5498: on once both arms are walked end to end (Derek 2026-11-19: go with the recommendation)
 	dailyGifts = true, -- #5506: on after the next restart Derek calls (new save field)
+	spotHeld = true, -- #5622: on as soon as it publishes (Sync's run)
 	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)

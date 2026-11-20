@@ -3700,7 +3700,13 @@ function HUD._renderStripBuy(self: any)
 	-- only pointer; on the safe side the walk-through's dim lights the same card (required here: 200 local limit)
 	local rankFirst = require(Shared:WaitForChild("RankFirst")) :: any
 	local rank = self._tutorial.Visible and rankFirst.isLine(self._tutorial.Text)
-	TutorialGlow.set(self._goal.frame, rank and self._openScreen == nil, true, true)
+	-- #5622 (spotHeld; Sync's run): on the new start the strip has no rank line, so this pass turned off the Tier 2
+	-- spotlight's glow (and its dim and arrow) a frame after RankSpot lit the card; a held card is left alone
+	local spotHeld = self._goal.frame:GetAttribute("SpotlightHeld") == true
+		and ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "spotHeld") == true
+	if not spotHeld then
+		TutorialGlow.set(self._goal.frame, rank and self._openScreen == nil, true, true)
+	end
 	if shown and offer ~= nil then
 		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
 		if not button.instance.Visible then

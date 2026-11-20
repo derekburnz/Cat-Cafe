@@ -30,6 +30,8 @@ local SpotlightGuide = {}
 
 SpotlightGuide.CAPTION = "SpotlightCaption"
 SpotlightGuide.TAG = "ReadyTag"
+-- #5622 (spotHeld): on the target while its spotlight is up, so the HUD's own ring pass leaves its glow alone
+SpotlightGuide.HELD = "SpotlightHeld"
 local Z = 61 -- over the tutorial's arrow (60) and its dim (59)
 local CAPTION_HEIGHT = 40
 local CAPTION_WIDTH = 280
@@ -62,6 +64,7 @@ function SpotlightGuide.show(
 	-- first, so this dim never showed. Its own glow replaces any; the HUD puts its ring back on its next render.
 	TutorialGlow.set(target, false)
 	TutorialGlow.set(target, true, ringOutside, noDim) -- outside: for a card whose words reach its edge
+	target:SetAttribute(SpotlightGuide.HELD, true)
 	local caption: TextLabel? = nil
 	if gui ~= nil and words ~= "" then
 		local made: TextLabel = Create("TextLabel", {
@@ -145,6 +148,7 @@ function SpotlightGuide.show(
 		if caption ~= nil then
 			caption:Destroy()
 		end
+		target:SetAttribute(SpotlightGuide.HELD, nil)
 		TutorialGlow.set(target, false)
 		if closeCurrent == close then
 			closeCurrent = nil

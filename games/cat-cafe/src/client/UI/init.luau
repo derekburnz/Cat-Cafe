@@ -4508,6 +4508,7 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
+	hood = false, -- #5517 (hoodTrail): the walk to the Neighbourhood is due (ParkTrailController)
 	led = false, -- #4836: the tutorial marker stands on the walk's own target (the nearest cannon)
 	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
 	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
@@ -4861,9 +4862,13 @@ function UI.cannon.open(cannonId: string?)
 			local due = type(state.tier) == "number"
 				and state.tier >= 2
 				and not UI.parkTrail.reached
-			screen:setRing(if due then parkFirst.AREA else nil)
+			-- #5517 (hoodTrail): at Tier 3 until the first Neighbourhood landing, its card's Launch wears the ring
+			screen:setRing(
+				if due then parkFirst.AREA elseif UI.parkTrail.hood then "neighbourhood" else nil
+			)
 		end
 	end
+	screen:setFirst(if UI.parkTrail.hood then "neighbourhood" else nil) -- #5517: and its card is listed first
 	windows:open("Cannon")
 end
 

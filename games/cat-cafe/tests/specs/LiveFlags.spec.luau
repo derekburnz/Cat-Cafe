@@ -171,6 +171,7 @@ return function()
 							or key == "firstFlightQuick" -- #4920
 							or key == "backdropsNear" -- #4857
 							or key == "fxOneAdded" -- #5000
+							or key == "picnicParty" -- #5572
 							or key == "rankUpRightAway" -- #5031
 							or key == "parkRingEarly" -- #5034
 							or key == "tier3Path" -- #5038

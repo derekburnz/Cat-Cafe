@@ -213,6 +213,7 @@ LiveFlags.KEYS = {
 	"quickFirstRings", -- #5232: a player's held first-catch rings shrink in 0.7 s, not 1.6 (shared/Circles.tutorialSchedule); off by default
 	"firstCatchWow", -- #5285 E2: the account's first net catch gets slow motion, a push in, a big pop, coins and a FIRST CATCH! banner (Effects/FirstCatchWow); off by default
 	"gemsShrink", -- Derek 2026-11-18: a stray's rarity gem gets smaller with distance so it stops covering far cats (Effects/Rarity, Logic.gemPixels); off by default
+	"picnicParty", -- #5572: the Picnic Basket is a Picnic Party: step in, 2x money for 3 minutes, ready again in 20 minutes and each new day (shared/PicnicParty, Services/CampExtraService); off by default
 	"christmasEvent", -- Snowglobe Village, Dec 1 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
 	"adventCalendar", -- #5502: the advent calendar (shared/Advent); also needs christmasEvent, and its dates hold every door shut until Dec 1 20:00 UTC; off by default
 	"keepNoEvent", -- #5428: the Dragon Keep move in list leaves out event cats and the server refuses them (DragonKeep.eventCat); off by default
@@ -373,6 +374,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	phoneSmooth = true, -- #5285 A1: on after Review-QA and a phone look at the first minute
 	firstCatchWow = true, -- #5285 E2: first-session change; on after Review-QA and Sync's look at a first catch
 	gemsShrink = true, -- Derek 2026-11-18: on after Review-QA and Sync's phone and PC look at far gems
+	picnicParty = true, -- #5572: on as soon as it publishes (Derek 2026-11-20: no restart, new servers only)
 	christmasEvent = true, -- snowglobe-village-spec: on Nov 29 after Sync's look; the event dates still hold the portal shut until Dec 1
 	adventCalendar = true, -- #5502: on Nov 29 with christmasEvent, after the Christmas restart (new save fields); the dates hold it shut
 	keepNoEvent = true, -- #5428

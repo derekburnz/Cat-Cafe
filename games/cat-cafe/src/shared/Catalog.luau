@@ -2822,6 +2822,16 @@ Catalog.potions = {
 		tipsOver = 2,
 		shopOnly = true,
 	},
+	-- #5572 (switch picnicParty, shared/PicnicParty): Picnic Time, the Picnic Party's +100% money for 3 minutes, started
+	-- at the basket (PotionService.give). Never sold, never in a gift; `tipsOver` puts it on top of the money cap.
+	{
+		id = "picnic_time",
+		name = "Picnic Time",
+		minutes = 3,
+		effect = "2x money",
+		tipsOver = 1,
+		shopOnly = true,
+	},
 } :: { Types.PotionDef }
 Catalog.potionsById = {} :: { [string]: Types.PotionDef }
 for _, def in Catalog.potions do

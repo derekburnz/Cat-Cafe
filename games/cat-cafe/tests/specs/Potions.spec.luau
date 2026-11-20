@@ -48,6 +48,7 @@ return function()
 					"big_gold_rush_potion",
 					"mega_tip_potion",
 					"admin_money_potion", -- #4195: the Admin Wheel's 3x money
+					"picnic_time", -- #5572: the Picnic Party's 2x money
 				})
 				expect(minutes).to.deepEqual({
 					tip_potion = 10,
@@ -67,6 +68,7 @@ return function()
 					big_gold_rush_potion = 30,
 					mega_tip_potion = 30,
 					admin_money_potion = 60,
+					picnic_time = 3,
 				})
 				expect(Catalog.getPotion("nope")).never.to.be.ok()
 			end
@@ -358,7 +360,7 @@ return function()
 			expect(def.tips).never.to.be.ok()
 			expect(def.shopOnly).to.equal(true) -- never a Mystery gift
 			for _, other in Catalog.potions do
-				if other.id ~= def.id then
+				if other.id ~= def.id and other.id ~= "picnic_time" then -- #5572: Picnic Time is 2x on top too
 					expect((other :: any).tipsOver).never.to.be.ok()
 				end
 			end

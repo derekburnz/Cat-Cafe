@@ -17,6 +17,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local PicnicParty = require(script.Parent.PicnicParty)
 local Types = require(script.Parent.Types)
 
 local CampExtras = {}
@@ -72,8 +73,12 @@ function CampExtras.getTreat(treatId: string): Treat?
 	return nil
 end
 
--- The basket's fill time and hold: the treats' while their switch is on (`treats`), else the potion basket's.
-local function picnicRule(treats: boolean?): (number, number)
+-- The basket's fill time and hold: the Picnic Party's while its switch is on (`party`, #5572), the treats' while
+-- theirs is (`treats`), else the potion basket's.
+local function picnicRule(treats: boolean?, party: boolean?): (number, number)
+	if party then
+		return PicnicParty.EVERY, PicnicParty.HOLD
+	end
 	if treats then
 		return Config.PicnicTreatSeconds, Config.PicnicTreatHold
 	end
@@ -197,13 +202,23 @@ end
 -- Brings a save up to `now` for a player of `tier`, in place: each open extra fills by the time passed up to its hold
 -- (a full one's clock waits, so the next fill counts from when it is emptied), and a shut extra goes back to its fresh
 -- state. The Yard Sale needs nothing here: its crate is ready once YardSaleClaimHours have passed since the last take.
--- `treats`: the Picnic Treats switch is on, so the basket fills by the treats' rule.
-function CampExtras.settle(save: Types.CampExtrasSave, tier: number, now: number, treats: boolean?)
+-- `treats`: the Picnic Treats switch is on, so the basket fills by the treats' rule. `party` (#5572): the Picnic
+-- Party's switch is on, so it fills by the party's rule, and an empty basket from an earlier UTC day is ready.
+function CampExtras.settle(
+	save: Types.CampExtrasSave,
+	tier: number,
+	now: number,
+	treats: boolean?,
+	party: boolean?
+)
 	local fresh = CampExtras.fresh(now)
 	if not CampExtras.isOpen("picnic", tier) then
 		save.picnic = fresh.picnic
 	else
-		local every, hold = picnicRule(treats)
+		local every, hold = picnicRule(treats, party)
+		if party then
+			PicnicParty.dayFill(save.picnic, now)
+		end
 		-- a basket filled under the other rule never holds more than this one's hold, and its clock never waits
 		-- longer than one fill of this rule
 		save.picnic.held = math.min(save.picnic.held, hold)
@@ -264,18 +279,21 @@ function CampExtras.view(
 	now: number,
 	pondTimes: number?,
 	yardHours: number?,
-	treats: boolean?
+	treats: boolean?,
+	party: boolean? -- #5572: the Picnic Party's switch; the view says `party` and carries no treats
 ): Types.CampExtrasState
 	local today = CampExtras.day(now)
 	local picnic = shut()
 	if CampExtras.isOpen("picnic", tier) then
-		local every, hold = picnicRule(treats)
+		local every, hold = picnicRule(treats, party)
 		picnic.open = true
 		picnic.held = math.min(save.picnic.held, hold)
 		if picnic.held < hold then
 			picnic.nextAt = save.picnic.at + every
 		end
-		if treats then
+		if party then
+			picnic.party = true
+		elseif treats then
 			picnic.treats = CampExtras.treatIds()
 		end
 	end

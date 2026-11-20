@@ -6,10 +6,15 @@ return function()
 
 	describe("CannonGlow.opened", function()
 		it("names the area a rank up to that tier opens, nil when none", function()
-			local areas = { { id = "alley", tier = 1 }, { id = "park", tier = 2 }, { id = "woods", tier = 3 } }
+			local areas = {
+				{ id = "alley", tier = 1 },
+				{ id = "park", tier = 2 },
+				{ id = "woods", tier = 3 },
+			}
 			expect(CannonGlow.opened(2, areas)).to.equal("park")
 			expect(CannonGlow.opened(3, areas)).to.equal("woods")
 			expect(CannonGlow.opened(9, areas)).to.equal(nil)
+			expect(CannonGlow.opened(2, areas, { park = true })).to.equal(nil) -- already has a Park cat
 		end)
 	end)
 
@@ -20,10 +25,13 @@ return function()
 			expect(CannonGlow.clears(nil, "park")).to.equal(false)
 		end)
 		it("flies straight to the glowing area only with the switch on", function()
-			expect(CannonGlow.direct(true, "park")).to.equal("park")
-			expect(CannonGlow.direct(false, "park")).to.equal(nil)
-			expect(CannonGlow.direct(true, nil)).to.equal(nil)
-			expect(CannonGlow.direct(true, "")).to.equal(nil)
+			expect(CannonGlow.direct(true, "park", "town")).to.equal("park")
+			expect(CannonGlow.direct(false, "park", "town")).to.equal(nil)
+			expect(CannonGlow.direct(true, nil, "town")).to.equal(nil)
+			expect(CannonGlow.direct(true, "", "town")).to.equal(nil)
+		end)
+		it("never flies straight from an unlit camp cannon", function()
+			expect(CannonGlow.direct(true, "park", "alley")).to.equal(nil)
 		end)
 		it("reads off when the switch's attribute is missing", function()
 			expect(CannonGlow.on()).to.equal(false)

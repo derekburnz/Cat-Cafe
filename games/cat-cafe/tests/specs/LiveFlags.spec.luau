@@ -290,6 +290,8 @@ return function()
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "catsArrowOff" -- #5485
+							or key == "stallGlow" -- #5533
+							or key == "cannonGlow" -- #5533
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465
 							or key == "lockedRingsHidden" -- #5463

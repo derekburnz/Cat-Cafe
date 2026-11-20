@@ -7037,6 +7037,48 @@ Presets.adventFx = {
 	lookSeconds = 2,
 }
 
+-- The new start's world glows (#5533 v2, Effects/WorldGlow), Cozy Cream gold: a stall glow lasts `stallSeconds`,
+-- breathing every `breathe` seconds down to `low`; the steady glows (the cannon, the door while carrying) dip by
+-- `steadyDip` every `steadyPeriod` seconds. A Highlight fills to `fill` and outlines to `outline`; the door's panel
+-- shows at `panel` with a light. The cannon's sign is `signWidth` by `signHeight` studs, `signLift` over the cannon.
+Presets.worldGlow = {
+	stallFlag = "stallGlow",
+	cannonFlag = "cannonGlow",
+	carryFlag = "freeStart",
+	cannonAttribute = "CannonGlowArea",
+	firstCamp = "alley", -- the camp the new start lands at, when the character is not there yet
+	ringBright = 2, -- added to a walk-up ring's SurfaceGui Brightness at full glow
+	ringFill = 0.45, -- a walk-up ring's disc at full glow (its own is 0.82)
+	stallSeconds = 6,
+	breathe = 1.5,
+	low = 0.35,
+	steadyDip = 0.25,
+	steadyPeriod = 2.4,
+	fill = 0.45,
+	outline = 0.9,
+	panel = 0.45,
+	panelDepth = 0.15,
+	lightRange = 10,
+	lightBrightness = 1.5,
+	gold = Presets.palette.golden,
+	cream = Presets.palette.cream,
+	ink = Color3.fromRGB(92, 64, 51),
+	signWidth = 7,
+	signHeight = 2,
+	signLift = 2.5,
+	signDistance = 140,
+	lookSeconds = 0.25,
+	areaNames = {
+		alley = "Alleyway",
+		park = "Park",
+		neighbourhood = "Neighbourhood",
+		woods = "Woods",
+		sewer = "Sewer",
+		desert = "Desert",
+		ruins = "Ruins",
+	} :: { [string]: string },
+}
+
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters
 -- turn Neon `gold` (the room-complete burst's gold) and breathe to `bright` and back every `every` seconds, well
 -- under 3 Hz. `suffix` plus the area id ends the name of each plaque's Model in the museum; `rate` is the seconds

@@ -35,10 +35,13 @@ type Glow = {
 	highlight: Highlight?,
 	panel: BasePart?,
 	light: PointLight?,
-	ring: SurfaceGui?, -- the target's walk-up floor ring (WalkUpCircles), made brighter; its own values kept to put back
-	ringBright: number,
-	ringFills: { [Frame]: number },
+	ring: SurfaceGui?, -- the target's walk-up floor ring (WalkUpCircles), made brighter (its own values in `rings`)
 }
+
+-- Each glowing ring's own values, taken once while no glow has touched it, and how many glows use it: two glows on
+-- one camp (a stall and the carry) both start from these, and the last one to go puts them back (Review-QA, #5535).
+type RingOwn = { bright: number, fills: { [Frame]: number }, users: number }
+local rings: { [SurfaceGui]: RingOwn } = {}
 
 local started = false
 local catsCaught = 0
@@ -155,7 +158,7 @@ end
 
 local function makeGlow(target: Instance, name: string): Glow
 	local p = Presets.worldGlow
-	local glow: Glow = { target = target, ringBright = 0, ringFills = {} }
+	local glow: Glow = { target = target }
 	-- a station's walk-up floor ring glows with it (the camp ring is the cloud hop home)
 	local link = target:FindFirstChild(WALK_UP_CIRCLE)
 	local ringPart = if link ~= nil and link:IsA("ObjectValue")
@@ -165,12 +168,19 @@ local function makeGlow(target: Instance, name: string): Glow
 	if found ~= nil and found:IsA("SurfaceGui") then
 		local ring = found :: SurfaceGui
 		glow.ring = ring
-		glow.ringBright = ring.Brightness
-		for _, item in ring:GetChildren() do
-			if item:IsA("Frame") then
-				glow.ringFills[item :: Frame] = (item :: Frame).BackgroundTransparency
+		local own = rings[ring]
+		if own == nil then
+			local fills: { [Frame]: number } = {}
+			for _, item in ring:GetChildren() do
+				if item:IsA("Frame") then
+					fills[item :: Frame] = (item :: Frame).BackgroundTransparency
+				end
 			end
+			own = { bright = ring.Brightness, fills = fills, users = 0 }
+			rings[ring] = own
 		end
+		local using: RingOwn = own
+		using.users += 1
 	end
 	if hidden(target) then
 		-- the cafe door's zone: a thin panel in the doorway, with a soft light
@@ -221,10 +231,13 @@ local function setStrength(glow: Glow, k: number)
 	if glow.light ~= nil then
 		glow.light.Brightness = p.lightBrightness * k
 	end
-	if glow.ring ~= nil then
-		glow.ring.Brightness = glow.ringBright + p.ringBright * k
-		for frame, was in glow.ringFills do
-			frame.BackgroundTransparency = was - (was - p.ringFill) * k * (if was < 1 then 1 else 0)
+	local own = if glow.ring ~= nil then rings[glow.ring] else nil
+	if glow.ring ~= nil and own ~= nil then
+		glow.ring.Brightness = own.bright + p.ringBright * k
+		for frame, was in own.fills do
+			-- a see-through disc fills toward ringFill; one already fuller, or the clear halo band, stays as it is
+			local want = if was < 1 and was > p.ringFill then was - (was - p.ringFill) * k else was
+			frame.BackgroundTransparency = math.min(was, want)
 		end
 	end
 end
@@ -239,10 +252,16 @@ local function drop(glow: Glow?)
 	if glow.panel ~= nil then
 		glow.panel:Destroy()
 	end
-	if glow.ring ~= nil then
-		glow.ring.Brightness = glow.ringBright
-		for frame, was in glow.ringFills do
-			frame.BackgroundTransparency = was
+	local ring = glow.ring
+	local own = if ring ~= nil then rings[ring] else nil
+	if ring ~= nil and own ~= nil then
+		own.users -= 1
+		if own.users <= 0 then
+			rings[ring] = nil
+			ring.Brightness = own.bright
+			for frame, was in own.fills do
+				frame.BackgroundTransparency = was
+			end
 		end
 	end
 end

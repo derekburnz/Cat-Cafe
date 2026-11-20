@@ -405,16 +405,15 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bagColours = profile.bagColours, -- #3699
 		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
-		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
+		fishStore = FishStore.view(profile), -- #4055
 		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG)
 				and TicketBooth.open(Economy.tier(profile))
 			then TicketBooth.view(profile.tickets, now)
 			else nil, -- #4061
-		dragon = if LiveFlagService.on(DragonKeep.FLAG)
-				and DragonKeep.open(Economy.tier(profile))
+		dragon = if DragonKeep.open(Economy.tier(profile))
 			then DragonKeep.view(profile.dragon)
 			else nil, -- #4062
-		fusion = if LiveFlagService.on(Fusion.FLAG) and Fusion.open(Economy.tier(profile))
+		fusion = if Fusion.open(Economy.tier(profile))
 			then Fusion.view(profile.fusion, now, Fusion.hasElderLore(profile))
 			else nil, -- #4104
 		goldLuck = totals.goldLuck,

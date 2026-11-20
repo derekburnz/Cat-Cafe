@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, luckyCharm, introSplit, parkGateTrail, rareCustomers, updateFeature, starterSuggest, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, autoBowl, mailbox, fusion, giftCard, storeGuard, noIntro, fxOneAdded, rankUpRightAway, parkRingEarly, tier3Path, parkTrailBack, areaOnly, cafeGrows, palDay, fxAfterLoad, tomorrowCard, cannonCue, harvestPieLow, tablesSpread, strayWalkSlow, stationCut, firstRankLock, likeAskEarly and nightSlice alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, luckyCharm, introSplit, parkGateTrail, rareCustomers, updateFeature, starterSuggest, ticketBooth, deviceFixes, afkButton, autoBowl, mailbox, giftCard, storeGuard, noIntro, fxOneAdded, rankUpRightAway, parkRingEarly, tier3Path, parkTrailBack, areaOnly, cafeGrows, palDay, fxAfterLoad, tomorrowCard, cannonCue, harvestPieLow, tablesSpread, strayWalkSlow, stationCut, firstRankLock, likeAskEarly and nightSlice alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -149,9 +149,7 @@ return function()
 							or key == "luckyCharm"
 							or key == "introSplit"
 							or key == "parkGateTrail"
-							or key == "fishStore"
 							or key == "ticketBooth"
-							or key == "dragonKeep"
 							or key == "rareCustomers"
 							or key == "starterSuggest"
 							or key == "updateFeature"
@@ -164,7 +162,6 @@ return function()
 							or key == "deviceFixes"
 							or key == "areasKeptRecent" -- Derek 2026-11-19
 							or key == "mailbox" -- #4249
-							or key == "fusion" -- #4104
 							or key == "earlyKindBonus" -- #4624
 							or key == "returnHookEarly" -- #4626
 							or key == "journeys" -- #4544

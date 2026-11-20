@@ -11,7 +11,6 @@ local Types = require(script.Parent.Types)
 
 local FishStore = {}
 
-FishStore.FLAG = "fishStore" -- the live switch: BuyWithFish is refused and the Store shows no fish prices while off
 FishStore.PER_ROBUX = 25 -- Derek 2026-11-17: "half all the fish prices for store" (was 50)
 
 export type Item = {

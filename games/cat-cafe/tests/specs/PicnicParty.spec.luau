@@ -4,6 +4,11 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local CampExtras = require(Shared.CampExtras)
 	local PicnicParty = require(Shared.PicnicParty)
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local CampExtrasLogic = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("CampExtrasLogic")
+	) :: any
 
 	local DAY = 86400
 	local NOON = 20000 * DAY + 43200
@@ -67,5 +72,41 @@ return function()
 			table.sort(keys)
 			expect(table.concat(keys, ",")).to.equal("at,held")
 		end)
+	end)
+
+	describe("the party's lines", function()
+		it(
+			"reads Picnic ready on the cannon row and leaves the station line to its sign",
+			function()
+				local save = CampExtras.fresh(NOON)
+				CampExtras.settle(save, 2, NOON, false, true)
+				local view = CampExtras.view(save, 2, NOON, nil, nil, false, true)
+				local line, bang = CampExtras.pickerLine(view, "park", NOON)
+				expect(line).to.equal("Picnic ready !")
+				expect(bang).to.equal(true)
+				local _, action = CampExtras.promptText("picnic", view.picnic, NOON)
+				expect(action).to.equal("")
+			end
+		)
+		it("reads the wait on the cannon row while the basket is empty", function()
+			local save = CampExtras.fresh(NOON)
+			CampExtras.settle(save, 2, NOON, false, true)
+			PicnicParty.start(save.picnic, NOON)
+			local view = CampExtras.view(save, 2, NOON + 60, nil, nil, false, true)
+			local line, bang = CampExtras.pickerLine(view, "park", NOON + 60)
+			expect(line).to.equal("Next picnic in " .. CampExtras.waitText(PicnicParty.EVERY - 60))
+			expect(bang).to.equal(false)
+		end)
+		it(
+			"shows no station bubble over a party basket, so its sign is the only countdown",
+			function()
+				local save = CampExtras.fresh(NOON)
+				CampExtras.settle(save, 2, NOON, false, true)
+				local view = CampExtras.view(save, 2, NOON, nil, nil, false, true)
+				expect(CampExtrasLogic.bubble(view, "picnic", NOON)).to.equal(nil)
+				local plain = CampExtras.view(save, 2, NOON, nil, nil, false, false)
+				expect(CampExtrasLogic.bubble(plain, "picnic", NOON)).never.to.equal(nil)
+			end
+		)
 	end)
 end

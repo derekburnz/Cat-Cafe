@@ -41,5 +41,10 @@ return function()
 			expect(WorldGlow.carryDoor(false, 1, true)).to.equal(false)
 			expect(WorldGlow.carryDoor(true, 1, false)).to.equal(false)
 		end)
+
+		it("lights the camp cannon only when the player is near it", function()
+			expect(WorldGlow.campNear(50, p.campReach)).to.equal(true)
+			expect(WorldGlow.campNear(p.campReach + 1, p.campReach)).to.equal(false)
+		end)
 	end)
 end

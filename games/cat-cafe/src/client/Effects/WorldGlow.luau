@@ -7,7 +7,8 @@
 --      Instance (the nearest stray), "camp" (the nearest camp cannon and its ring: the cloud hop home), "door" (this
 --      player's own cafe door) or "cannon" (the Town Square cannon).
 --   2. `cannonGlow`: while the LocalPlayer attribute `CannonGlowArea` (an area id, set by the server after a Rank Up
---      that opens an area, cleared on the first flight there) is set, the Town Square cannon glows steadily with a
+--      that opens an area, cleared on the first flight there) is set, the Town Square cannon, and the camp cannon within
+--      `campReach` of the player (Design 2026-11-20: the new start ranks up beside the Alleyway's), glow steadily with a
 --      small sign over it naming the area (PARK).
 --   3. under `freeStart`: while this player carries their first cat (the character's CarryingCatId, ProfileSync's
 --      stats.catsCaught at most 1), the nearest camp cannon and its walk-up ring glow steadily (the new start lands in
@@ -47,9 +48,11 @@ local started = false
 local catsCaught = 0
 local stallGlow: Glow? = nil
 local stallAt = 0
-local cannonGlow: Glow? = nil
-local cannonSign: BillboardGui? = nil
-local cannonArea: string? = nil
+-- A lit cannon: its glow, its area sign, and the area it names. Two at most: the Town Square's and the camp cannon
+-- near the player (Design 2026-11-20: the new start ranks up at the Alleyway landing, beside the camp cannon).
+type Lit = { glow: Glow?, sign: BillboardGui?, area: string? }
+local townLit: Lit = {}
+local campLit: Lit = {}
 local doorGlow: Glow? = nil
 
 -- Pure: the stall glow's strength (0 to 1) `t` seconds in: it fades in, breathes every `period` seconds between
@@ -288,6 +291,65 @@ local function steadyStrength(): number
 	return 1 - p.steadyDip * (0.5 - 0.5 * math.cos(2 * math.pi * os.clock() / p.steadyPeriod))
 end
 
+local function makeSign(cannon: Model, area: string): BillboardGui
+	local p = Presets.worldGlow
+	local _, size = cannon:GetBoundingBox()
+	local sign = Instance.new("BillboardGui")
+	sign.Name = "EffectsCannonSign"
+	sign.Adornee = cannon -- a model: the sign sits over its box's middle
+	sign.Size = UDim2.fromScale(p.signWidth, p.signHeight)
+	sign.StudsOffsetWorldSpace = Vector3.new(0, size.Y / 2 + p.signLift, 0)
+	sign.MaxDistance = p.signDistance
+	sign.LightInfluence = 0
+	local label = Instance.new("TextLabel")
+	label.BackgroundColor3 = p.cream
+	label.BackgroundTransparency = 0.1
+	label.Size = UDim2.fromScale(1, 1)
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.TextColor3 = p.ink
+	label.Text = WorldGlow.signText(area)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.3, 0)
+	corner.Parent = label
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = p.gold
+	stroke.Thickness = 3
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = label
+	label.Parent = sign
+	sign.Parent = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	return sign
+end
+
+-- `lit` shows `cannon` naming `area`, or nothing when either is nil.
+local function light(lit: Lit, cannon: Model?, area: string?)
+	local want = if cannon ~= nil then area else nil
+	local same = lit.area == want
+		and (want == nil or (lit.glow ~= nil and lit.glow.target == cannon))
+	if not same then
+		drop(lit.glow)
+		lit.glow = nil
+		if lit.sign ~= nil then
+			lit.sign:Destroy()
+			lit.sign = nil
+		end
+		lit.area = want
+		if want ~= nil and cannon ~= nil then
+			lit.glow = makeGlow(cannon, "EffectsCannonGlow")
+			lit.sign = makeSign(cannon, want)
+		end
+	end
+	if lit.glow ~= nil then
+		setStrength(lit.glow, steadyStrength())
+	end
+end
+
+-- Pure: whether a camp cannon `distance` studs away is near enough to light (`reach`).
+function WorldGlow.campNear(distance: number, reach: number): boolean
+	return distance <= reach
+end
+
 local function updateCannon()
 	local p = Presets.worldGlow
 	local area = Players.LocalPlayer:GetAttribute(p.cannonAttribute)
@@ -296,53 +358,21 @@ local function updateCannon()
 			and area ~= ""
 		then area :: string
 		else nil
-	local cannon = if want ~= nil then townCannon() else nil
-	if cannon == nil then
-		want = nil
-	end
-	local same = cannonGlow ~= nil and cannonGlow.target == cannon and cannonArea == want
-	if not same then
-		drop(cannonGlow)
-		cannonGlow = nil
-		if cannonSign ~= nil then
-			cannonSign:Destroy()
-			cannonSign = nil
-		end
-		cannonArea = want
-		if want ~= nil and cannon ~= nil then
-			cannonGlow = makeGlow(cannon, "EffectsCannonGlow")
-			local _, size = cannon:GetBoundingBox()
-			local sign = Instance.new("BillboardGui")
-			sign.Name = "EffectsCannonSign"
-			sign.Adornee = cannon -- a model: the sign sits over its box's middle
-			sign.Size = UDim2.fromScale(p.signWidth, p.signHeight)
-			sign.StudsOffsetWorldSpace = Vector3.new(0, size.Y / 2 + p.signLift, 0)
-			sign.MaxDistance = p.signDistance
-			sign.LightInfluence = 0
-			local label = Instance.new("TextLabel")
-			label.BackgroundColor3 = p.cream
-			label.BackgroundTransparency = 0.1
-			label.Size = UDim2.fromScale(1, 1)
-			label.Font = Enum.Font.FredokaOne
-			label.TextScaled = true
-			label.TextColor3 = p.ink
-			label.Text = WorldGlow.signText(want)
-			local corner = Instance.new("UICorner")
-			corner.CornerRadius = UDim.new(0.3, 0)
-			corner.Parent = label
-			local stroke = Instance.new("UIStroke")
-			stroke.Color = p.gold
-			stroke.Thickness = 3
-			stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			stroke.Parent = label
-			label.Parent = sign
-			sign.Parent = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
-			cannonSign = sign
+	light(townLit, if want ~= nil then townCannon() else nil, want)
+	-- the camp cannon of the area the player is in (the Alleyway's on the new start)
+	local camp: Model? = nil
+	if want ~= nil then
+		local near = nearestCamp()
+		local character = Players.LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if near ~= nil and root ~= nil and root:IsA("BasePart") then
+			local distance = (near:GetPivot().Position - (root :: BasePart).Position).Magnitude
+			if WorldGlow.campNear(distance, p.campReach) then
+				camp = near
+			end
 		end
 	end
-	if cannonGlow ~= nil then
-		setStrength(cannonGlow, steadyStrength())
-	end
+	light(campLit, camp, want)
 end
 
 local function updateDoor()
@@ -401,15 +431,17 @@ function WorldGlow.start()
 	RunService.Heartbeat:Connect(function()
 		updateStall()
 		local now = os.clock()
-		local lively = cannonGlow ~= nil or doorGlow ~= nil
+		local lively = townLit.glow ~= nil or campLit.glow ~= nil or doorGlow ~= nil
 		-- the steady glows breathe every frame while they show; what shows is looked at a few times a second
 		if now - lookedAt >= Presets.worldGlow.lookSeconds then
 			lookedAt = now
 			updateCannon()
 			updateDoor()
 		elseif lively then
-			if cannonGlow ~= nil then
-				setStrength(cannonGlow, steadyStrength())
+			for _, lit in { townLit, campLit } do
+				if lit.glow ~= nil then
+					setStrength(lit.glow, steadyStrength())
+				end
 			end
 			if doorGlow ~= nil then
 				setStrength(doorGlow, steadyStrength())

@@ -313,6 +313,7 @@ return function()
 							or key == "spotHeld" -- #5622
 							or key == "secondCatQuiet" -- #5620
 							or key == "catNamesLow" -- #5620
+							or key == "rankLeftLog" -- Growth
 							or key == "rankDimTwo" -- #5609
 							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)

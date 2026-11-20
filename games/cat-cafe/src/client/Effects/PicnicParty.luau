@@ -143,7 +143,7 @@ local function makeSign(spot: Attachment): (BillboardGui, TextLabel)
 	gui.Size = UDim2.fromOffset(s.width, s.height)
 	gui.LightInfluence = 0
 	gui.MaxDistance = s.maxDistance
-	gui.AlwaysOnTop = false
+	gui.AlwaysOnTop = true -- Sync Nov 20: the Park arch lamp post covered "PICNIC READY" from the landing
 	gui.ResetOnSpawn = false
 	local pill = Instance.new("Frame")
 	pill.Name = "Pill"
@@ -369,6 +369,7 @@ local function makeTreats(at: Scene)
 		local source = asset(treat.model)
 		if source ~= nil then
 			local copy = inert(source)
+			fade(copy, 1) -- hidden until its flight starts, not shown where the asset was saved
 			copy.Parent = Context.folder()
 			at.treats[i] = copy
 		else
@@ -396,6 +397,9 @@ local function drawTreats(at: Scene, flights: { number? })
 		local k = flights[i]
 		if item:IsA("BasePart") then
 			(item :: BasePart).Transparency = if k == nil then 1 else 0
+		elseif (k ~= nil) ~= (item:GetAttribute("Shown") == true) then
+			fade(item, if k == nil then 1 else 0)
+			item:SetAttribute("Shown", k ~= nil)
 		end
 		if k ~= nil then
 			local land = onBlanket(at, p.treats[i].at, p.treatSize.Y / 2)
@@ -529,6 +533,11 @@ local function step()
 	if phase ~= was or clock - current.signAt >= 1 then
 		current.signAt = clock
 		drawSign(current, phase, now)
+	end
+	if phase == "ready" then
+		-- the sign swells with each wobble so the rattle reads even with the basket behind the player's head
+		local swell = 1 + p.sign.swell * math.min(1, math.abs(tilt) / p.wobble.degrees)
+		current.sign.Size = UDim2.fromOffset(p.sign.width * swell, p.sign.height * swell)
 	end
 
 	-- the party: pop, pack away

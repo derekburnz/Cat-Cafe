@@ -172,6 +172,7 @@ LiveFlags.KEYS = {
 	"secretTraitTile", -- #5445: Secret trait cards in the Mystic Pool on the Secret night tile (Screens/MysticPool); off by default
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"tiersEasy", -- Derek 2026-11-19: Tiers 4 to 7 ask far less (60k, 400k, 3M, 30M and fewer kinds), on top of the other tier rows (shared/CheapTiers); off by default
+	"tier3Up", -- #5617: Tier 3 asks 25,000 coins (10,000 before), laid last over the other tier rows (shared/CheapTiers); off by default
 	"tier3Easy", -- #5467: Tier 3 asks 10,000 and 4 kinds, on top of either Tier 3 row (shared/CheapTiers); off by default
 	"freeStart", -- #5533: new saves play first: Alleyway start, no tutorial pointers or moves until Tier 3 (shared/FreeStart); off by default
 	"streetCats", -- #5533: a freeStart save's first 3 minutes keep 3 Commons by it; its first 3 catches and Park catches can't be lost; off by default
@@ -236,6 +237,7 @@ LiveFlags.KEYS = {
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
 	"baitCutQuick", -- #5548: the first bait scene is about 1.5 s with no skip (Effects/FirstBaitCut) and the first bait cat comes out as the food lands (shared/Bait); off by default
+	"firstCatArrow", -- #5594: a gold arrow points down over the nearest catchable cat until the first catch (Controllers/FirstCatArrowController); off by default
 	"codesRingTown", -- #5605: the Codes Cat's circle counts as a Town Square ring, so it shows with townRings as the other Town rings do (Effects/StationCircles); off by default
 	"firstCatchCoins", -- #5596: a Tier 1 save's first net catch tops its coins up to the Tier 2 Rank Up cost (StartGoalService); off by default
 	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
@@ -340,6 +342,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
 	spawnAlley = true, -- #5616: on as soon as it publishes (Derek 2026-11-20, priority)
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)
+	tier3Up = true, -- #5617: on as soon as it publishes (Derek 2026-11-20)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
 	rankDimTwo = true, -- #5609: on as soon as it publishes (Derek 2026-11-20)
 	rankSpotStay = true, -- #5516: first-session flow, on once Review-QA passes
@@ -411,6 +414,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	catsArrowOff = true, -- #5485: on as soon as it merges
 	baitCutQuick = true, -- #5548: on with the new start, after Review-QA and Sync's phone look
+	firstCatArrow = true, -- #5594: on as soon as it publishes (Derek 2026-11-20)
 	codesRingTown = true, -- #5605: on as soon as it publishes (Derek 2026-11-20)
 	firstCatchCoins = true, -- #5596: on as soon as it publishes (Derek 2026-11-20)
 	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look

@@ -302,11 +302,13 @@ return function()
 							or key == "cutsQuick" -- #5550
 							or key == "steadySoft" -- #5601
 							or key == "pawsInFloor" -- #5471
+							or key == "firstCatArrow" -- #5594
 							or key == "guideArrow" -- #5465
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "nightLineNoArrow" -- #5459
 							or key == "spawnAlley" -- #5616
+							or key == "tier3Up" -- #5617
 							or key == "rankDimTwo" -- #5609
 							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)

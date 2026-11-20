@@ -216,4 +216,21 @@ return function()
 			Catalog.setTierNeeds(nil)
 		end)
 	end)
+
+	describe("tier3Up (#5617)", function()
+		it(
+			"lays Tier 3 at TIER3_UP coins over coinsOnly and the rest, and touches nothing else",
+			function()
+				local plain = CheapTiers.needsFor(false, false, true, true, true) :: any
+				local up = CheapTiers.needsFor(false, false, true, true, true, true) :: any
+				expect(up[3].cost).to.equal(CheapTiers.TIER3_UP)
+				expect(up[3].distinctCats).to.equal(0)
+				expect(up[2].cost).to.equal(plain[2].cost)
+				expect(up[4].cost).to.equal(plain[4].cost)
+				local alone = CheapTiers.needsFor(false, false, false, false, false, true) :: any
+				expect(alone[3].cost).to.equal(CheapTiers.TIER3_UP)
+				expect(alone[4]).to.equal(nil)
+			end
+		)
+	end)
 end

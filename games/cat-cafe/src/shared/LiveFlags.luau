@@ -203,6 +203,7 @@ LiveFlags.KEYS = {
 	"milestoneFunnel", -- #5291: the milestones_v1 progression funnel for new accounts (shared/MilestoneFunnel); off by default
 	"topTraitCompanion", -- #5445: Legendary and Mythic traits add to their cat's Cat Companion boosts (shared/Traits); off by default
 	"topTraitsMore", -- #5445: three more Mythic and two more Secret traits in the Mystic Pool (shared/Traits); on only after a restart; off by default
+	"steadySoft", -- #5601: the Steady Paw Potion widens the catch bands two thirds of the way to the next net, not all of it (CatService, shared/Potions); off by default
 	"tameCannonPoint", -- #5245: after the first bowl cat's card the Cannon button is dimmed and pointed at until pressed, and the picker's ringed Launch too (UI applyTutorial, Screens/Cannon); off by default
 	"parkLead", -- #5248: after the Tier 2 rank up no Alleyway new kind line, the picker's Park Launch dimmed and pointed at until pressed, no marker in a flight (Screens/Cannon); off by default
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
@@ -245,6 +246,7 @@ LiveFlags.KEYS = {
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
+	steadySoft = true, -- #5601: on as soon as it publishes (Derek 2026-11-20)
 	tameCannonPoint = true, -- #5245
 	bangFixedText = true, -- #5390
 	parkLead = true, -- #5248

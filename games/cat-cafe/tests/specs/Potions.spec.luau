@@ -763,4 +763,22 @@ return function()
 			expect(Config.LuckyPotionGoldScale).to.equal(2)
 		end)
 	end)
+	describe("Potions.steadySoften (#5601 steadySoft)", function()
+		it("moves each band two thirds of the way from the own net to the next", function()
+			local out = Potions.steadySoften(
+				{ perfect = 0.13, good = 0.31 }, -- the next level's bands times 2 for the other scales
+				{ perfect = 0.065, good = 0.155 },
+				{ perfect = 0.055, good = 0.13 }
+			)
+			expect(math.abs(out.perfect - 2 * (0.055 + 0.01 * 2 / 3)) < 1e-9).to.equal(true)
+			expect(math.abs(out.good - 2 * (0.13 + 0.025 * 2 / 3)) < 1e-9).to.equal(true)
+		end)
+		it("leaves the bands alone at the top net, where both levels match", function()
+			local same = { perfect = 0.08, good = 0.18 }
+			local out = Potions.steadySoften({ perfect = 0.16, good = 0.36 }, same, same)
+			expect(math.abs(out.perfect - 0.16) < 1e-9 and math.abs(out.good - 0.36) < 1e-9).to.equal(
+				true
+			)
+		end)
+	end)
 end

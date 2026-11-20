@@ -19,9 +19,10 @@
 --
 -- A freeStart save (shared/FreeStart) puts its first food in at the Alleyway check-in, far from its bowl, so with
 -- baitCutQuick on the scene is owed instead of reported "none": it plays once the player first comes within
--- `lateNear` studs of the bowl with the cat there (Logic.firstBaitLate), and is dropped ("none") if the cat goes first
--- or play refuses. While it is owed or running UI.bait.cutting is true, so the cat's card (Gameplay-Engineer's hold
--- for those saves, at the 8 stud walk-up ring) waits for it.
+-- `lateNear` studs of the bowl with the cat there and is not mid catch, carry or flight (Logic.firstBaitLate), and is
+-- dropped ("none") if the cat goes first or play refuses. While it runs, or is owed with the player near the bowl,
+-- UI.bait.cutting is true, so the cat's card (Gameplay-Engineer's hold for those saves, at the 8 stud walk-up ring)
+-- waits for it.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -457,6 +458,23 @@ function FirstBaitCut.holding(): boolean
 		and distance <= Presets.firstBaitCut.lateNear + Presets.firstBaitCut.lateMargin
 end
 
+-- Whether the player is mid catch, carrying a cat or flying: an owed scene waits for that to end.
+local function midPlay(): boolean
+	local character = Players.LocalPlayer.Character
+	if
+		character ~= nil
+		and (
+			character:GetAttribute("CarryingCatId") ~= nil
+			or character:GetAttribute("Launching") == true
+		)
+	then
+		return true
+	end
+	local catch = if type(ui) == "table" then ui.catch else nil
+	local circles = if type(catch) == "table" then catch.circlesActive else nil
+	return type(circles) == "function" and (circles :: () -> unknown)() == true
+end
+
 -- Owes the scene to a freeStart save until it comes to its bowl: plays it then, or drops it (see the top).
 local function owe()
 	if owed then
@@ -478,7 +496,7 @@ local function owe()
 			if step == "drop" then
 				owed = false
 				report("none")
-			elseif step == "play" then
+			elseif step == "play" and not midPlay() then
 				owed = false
 				if not FirstBaitCut.play() then
 					report("none")

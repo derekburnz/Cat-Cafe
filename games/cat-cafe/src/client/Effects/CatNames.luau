@@ -150,13 +150,16 @@ local function look()
 	local keep: { [Model]: boolean } = {}
 	for _, model in CatNames.pick(seen, NEAR, FAR, MOST) do
 		keep[model] = true
-		local tag = tags[model]
+		local tag: Tag? = tags[model]
 		if tag ~= nil and tag.model:GetAttribute("CatId") == nil then
 			drop(model)
 			tag = nil
 		end
 		if tag == nil then
-			tags[model] = build(model)
+			local built = build(model)
+			if built ~= nil then
+				tags[model] = built
+			end
 		end
 	end
 	for model in tags do
@@ -181,10 +184,9 @@ function CatNames.start()
 	started = true
 	task.spawn(function()
 		while true do
-			local ok, problem = pcall(look)
-			if not ok then
+			xpcall(look, function(problem: unknown)
 				warn("[CatNames] " .. tostring(problem))
-			end
+			end)
 			task.wait(EVERY)
 		end
 	end)

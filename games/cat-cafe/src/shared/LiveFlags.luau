@@ -255,7 +255,7 @@ LiveFlags.KEYS = {
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
 	"bowlHintRetry", -- #5438: the tutorial strip is worked out again when a new server's switches arrive, so bowl first shows its food ask (Controllers/UIController); off by default
 	"rankTapLook", -- #5592: the one tap RANK UP button in the clean green button look with a slow breath (UI/Screens/GoalCard); off by default
-	"askClean", -- #5597: the slide-in ask cards (What next?, the faces, the invite) drawn clean: gold button band, tucked X, matching buttons, inset timer bar (UI/Screens/AskCard); off by default
+	"askClean", -- #5597: the slide-in ask cards (What next?, the faces, the invite) drawn clean: gold button band, tucked X, matching buttons, inset timer bar (UI/Screens/AskCard), and #5625 the context tips (UI/Screens/TipCard); off by default
 	"rankOneTap", -- #5533: a ready goal card is a gold RANK UP button, one tap ranks up, no window (UI/Components/RankOneTap); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default

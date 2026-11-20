@@ -10,6 +10,7 @@
 --   isShowing() -> boolean
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Parent.Components.Create)
@@ -71,6 +72,21 @@ local PHONE: Layout = {
 	text = Theme.sizes.textBody,
 }
 local CLEAR = 8 -- the gap kept under anything in `avoid` (#2393)
+-- #5625 (Derek 2026-11-20: the tips pop ups are "broken and ugly", and "the bad tip hud is still in game"): with the
+-- ask cards' askClean switch on, the tip takes the same clean look: the glyph's disc and the X as little house buttons
+-- (gold and red, light top to deeper bottom), the X a rounded square like the ask card's, and the timer bar inset and
+-- rounded over the foot in place of a flat strip on the card's edge. Read as each tip shows.
+local CLEAN_FLAG = "askClean"
+local CLEAN_BAR_H = 4
+local CLEAN_BAR_FOOT = 5 -- the bar's gap over the card's foot
+local CLEAN_UP = 4 -- the disc, line and X sit this far over the middle, clear of the bar
+local CLEAN_X_RADIUS = 8
+local CLEAN_GOLD = ColorSequence.new(Theme.button.gold.top, Theme.button.gold.bottom)
+local CLEAN_RED = ColorSequence.new(Theme.button.close.top, Theme.button.close.bottom)
+
+local function cleanOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. CLEAN_FLAG) == true
+end
 
 local TipCard = {}
 TipCard.__index = TipCard
@@ -136,6 +152,13 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 	})
 	Outline.border(disc, 2.5)
 	self._disc = disc
+	self._discFace = Create("UIGradient", {
+		Name = "Face",
+		Color = CLEAN_GOLD,
+		Rotation = 90,
+		Enabled = false,
+		Parent = disc,
+	})
 	self._icon = Create("TextLabel", {
 		Name = "Glyph",
 		BackgroundTransparency = 1,
@@ -173,10 +196,17 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		TextColor3 = Theme.colors.white,
 		Text = "X",
 		Parent = card,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+	self._xCorner = Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = x })
+	self._xFace = Create("UIGradient", {
+		Name = "Face",
+		Color = CLEAN_RED,
+		Rotation = 90,
+		Enabled = false,
+		Parent = x,
 	})
 	Outline.border(x, 2)
+	self._x = x
 	local track: Frame = Create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = Theme.colors.line,
@@ -186,6 +216,8 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		Size = UDim2.new(1, 0, 0, BAR_H),
 		Parent = card,
 	})
+	self._track = track
+	self._trackCorner = Create("UICorner", { CornerRadius = UDim.new(0, 0), Parent = track })
 	self._bar = Create("Frame", {
 		Name = "Bar",
 		BackgroundColor3 = Theme.colors.gold,
@@ -193,6 +225,7 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		Size = UDim2.fromScale(1, 1),
 		Parent = track,
 	})
+	self._barCorner = Create("UICorner", { CornerRadius = UDim.new(0, 0), Parent = self._bar })
 
 	self._tap = card.Activated:Connect(function()
 		if self._onDone ~= nil then
@@ -243,6 +276,37 @@ function TipCard._clearTop(self: any): number
 	return top
 end
 
+-- #5625: the clean look on or off, as the tip shows
+function TipCard._paint(self: any, clean: boolean, luck: boolean)
+	local L: Layout = self._layout
+	local up = if clean then -CLEAN_UP else -1
+	local disc: Frame = self._disc
+	disc.Position = UDim2.new(0, L.pad, 0.5, up)
+	disc.BackgroundColor3 = if luck
+		then Theme.luck.circle
+		elseif clean then Color3.new(1, 1, 1)
+		else Theme.colors.gold
+	self._discFace.Enabled = clean and not luck
+	local line: TextLabel = self._line
+	line.Position = UDim2.new(0, L.pad + L.icon + L.pad, 0.5, up)
+	local x: TextLabel = self._x
+	x.Position = UDim2.new(1, -10, 0.5, up)
+	x.BackgroundColor3 = if clean then Color3.new(1, 1, 1) else Theme.colors.red
+	self._xFace.Enabled = clean
+	self._xCorner.CornerRadius = if clean then UDim.new(0, CLEAN_X_RADIUS) else UDim.new(1, 0)
+	local track: Frame = self._track
+	local round = if clean then UDim.new(1, 0) else UDim.new(0, 0)
+	self._trackCorner.CornerRadius = round
+	self._barCorner.CornerRadius = round
+	if clean then
+		track.Position = UDim2.new(0, L.pad, 1, -CLEAN_BAR_FOOT)
+		track.Size = UDim2.new(1, -2 * L.pad, 0, CLEAN_BAR_H)
+	else
+		track.Position = UDim2.fromScale(0, 1)
+		track.Size = UDim2.new(1, 0, 0, BAR_H)
+	end
+end
+
 function TipCard.show(
 	self: any,
 	text: string,
@@ -261,7 +325,7 @@ function TipCard.show(
 	-- #1258: the luck tip shows the luck chip's look, the clean clover (black outline drawn in) on the dark green circle
 	-- with no gold round it; the other tips keep their glyph on the gold disc
 	local luck = icon == Theme.icons.luck
-	self._disc.BackgroundColor3 = if luck then Theme.luck.circle else Theme.colors.gold
+	self:_paint(cleanOn(), luck)
 	IconArt.set(self._icon, if luck then icon else nil, 0.82)
 	local card: TextButton = self._card
 	card.Visible = true

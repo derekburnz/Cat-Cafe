@@ -148,6 +148,7 @@ return function()
 							or key == "feedInstant" -- #5578
 							or key == "walkUpCarry" -- #5415
 							or key == "goldenDrops"
+							or key == "richInside" -- #5582
 							or key == "areaCannonRings" -- #5416
 							or key == "luckyCharm"
 							or key == "introSplit"

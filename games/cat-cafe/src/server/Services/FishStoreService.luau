@@ -108,7 +108,8 @@ local function onBuy(player: Player, rawKey: unknown, rawShown: unknown)
 		return
 	end
 	-- bowlAutoFree (Derek 2026-11-20): Auto refill and Auto claim are free, so the Auto Bowl pass is never sold
-	if item.key == "autoBowl" and LiveFlagService.on("bowlAutoFree") then
+	local itemKey: string = item.key -- a plain string, so the check does not narrow item.key below
+	if itemKey == "autoBowl" and LiveFlagService.on("bowlAutoFree") then
 		return
 	end
 	local price = FishStore.price(item)

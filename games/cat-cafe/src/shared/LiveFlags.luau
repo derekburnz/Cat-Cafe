@@ -208,6 +208,7 @@ LiveFlags.KEYS = {
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
 	"upgradesInstant", -- #5253: an Upgrades buy shows in the window at once and the server syncs before the plot rebuild (Screens/UpgradeShop, CafeService); off by default
 	"nightBright", -- #5240: a slightly lighter night sky and shade (shared/DayLight.BRIGHT_NIGHT); off by default
+	"decorNoBang", -- #5574: new decor lights no "!" on the HUD's Decor tile (Screens/HUD); off by default
 	"frontDoors", -- #5385: the cafe's own front doors stand open in the front doorway where no door set is in use (CafeService.refreshDoors); off by default
 	"ringSolid", -- #5256: a double's second half and a paw catch ring drop the dark rim that read as a gap (UI CatchCircles); off by default
 	"quickFirstRings", -- #5232: a player's held first-catch rings shrink in 0.7 s, not 1.6 (shared/Circles.tutorialSchedule); off by default
@@ -367,6 +368,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	crateUnstick = true, -- #5394
 	cannonAnywhere = true, -- #5382
 	nightBright = true, -- #5240: on after Review-QA and a phone look at night
+	decorNoBang = true, -- #5574
 	frontDoors = true, -- #5385: on in the hour its PR publishes
 	ringSolid = true, -- #5256: on after Review-QA and a Studio look at a double and a paw ring
 	quickFirstRings = true, -- #5232: first-session change; on at a clear minute after Review-QA

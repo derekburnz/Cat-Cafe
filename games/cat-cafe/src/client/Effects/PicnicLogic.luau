@@ -44,6 +44,9 @@ function PicnicLogic.sign(phase: Phase, nextAt: number?, now: number): string?
 		if nextAt == nil then
 			return (string.gsub(string.format(w.waiting, ""), "%s+$", ""))
 		end
+		if nextAt - now <= 0 then
+			return nil -- Sync Nov 20: due but not yet ready read "Next picnic 0 s"; hide until the server says ready
+		end
 		return string.format(w.waiting, PicnicLogic.wait(nextAt - now))
 	end
 	return nil

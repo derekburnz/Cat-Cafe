@@ -122,6 +122,7 @@ export type CustomEvent =
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "first_catch_coins" -- #5596 (StartGoalService.topUp): coins a Tier 1 save's first net catch topped up to the Tier 2 cost (value the coins)
 	| "free_start" -- #5533 (shared/FreeStart): a new save joined the play first start (value 1; field "joined"), or
 	-- its first net catch (value: play seconds; field "first_catch", onboarding_v10)
 	| "start_goal" -- #5533 goalChip: one of its two first goals paid (value: FreeStart.PAID_CAUGHT or PAID_HOME)

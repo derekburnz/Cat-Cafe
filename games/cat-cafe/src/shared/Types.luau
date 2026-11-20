@@ -1435,6 +1435,7 @@ export type Settings = {
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
 	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
+	catNames: boolean, -- #5586: the names over the nearest wild cats show, on by default
 	vipTag: boolean, -- #4991: a VIP owner's gold tag over their head shows, off by default
 	afkMode: boolean, -- #5322: AFK mode stays on through a leave and a restart (server only, afkStay switch)
 }

@@ -8354,13 +8354,14 @@ Presets.tradeUnlock = {
 -- 15:15 UTC) `sign.lift` studs over the station's top, seen to `sign.maxDistance` studs. Not ready: the sign's
 -- `waiting` look with "Next picnic 12 m". The pop (on the ring claim, about `pop.seconds`): the `_Lid` swings open
 -- `lidOpen` degrees, the blanket rolls out `blanket.gap` studs beside the basket over `rollSeconds`, `treats` bounce
--- from the basket onto it, `confetti` pieces. The picnic cats sit at `seats` (fractions of the blanket, -0.5 to 0.5).
+-- from the basket onto it, `confetti` pieces. Where the blanket and the picnic cats' seats lie is shared/PicnicSeats.
 -- Pack away over `pack.seconds`. Reduce Motion: no wobble or bounce, the basket opens and the blanket lies out still.
 -- Words are Design's (`words`).
 Presets.picnicParty = {
 	flag = "picnicParty",
 	extraId = "picnic",
-	wobble = { every = 3.5, seconds = 0.6, degrees = 6, wiggles = 2 },
+	wobble = { every = 3.5, seconds = 0.6, degrees = 6, wiggles = 2, lidShare = 2.5 }, -- the lid lifts up to 15 degrees
+	lidSuffix = "_Lid", -- Model-Agent's #5580: the lid is the station's child model <station name>_Lid
 	glow = {
 		fill = Presets.palette.golden,
 		fillTransparency = 0.8,
@@ -8404,7 +8405,9 @@ Presets.picnicParty = {
 		squares = 6, -- checks along each side of the stand-in blanket
 		red = Color3.fromRGB(214, 96, 92),
 		white = Presets.palette.cream,
-		model = "CatCafe_Prop_PicnicBlanket", -- Model-Agent's, under ReplicatedStorage.Assets, when it lands
+		model = "CatCafe_Prop_PicnicBlanket", -- Model-Agent's #5580, under ReplicatedStorage.Assets
+		rolled = "CatCafe_Prop_PicnicBlanket_Rolled",
+		rollRadius = 0.32,
 	},
 	treats = {
 		{
@@ -8424,8 +8427,6 @@ Presets.picnicParty = {
 		},
 	},
 	treatSize = Vector3.new(0.6, 0.35, 0.6), -- the stand-ins
-	seats = { Vector2.new(-0.25, 0.15), Vector2.new(0.05, 0.25), Vector2.new(0.3, 0.1) },
-	seatFace = 200, -- degrees the cats turn from the blanket's front, toward the basket and the camera's usual side
 	words = {
 		ready = "PICNIC READY",
 		waiting = "Next picnic %s",

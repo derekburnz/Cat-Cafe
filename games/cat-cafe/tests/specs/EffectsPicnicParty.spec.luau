@@ -88,12 +88,5 @@ return function()
 			expect(L.arc(1, 2)).to.be.near(0, 1e-6)
 			expect(L.arc(0.9, 2) > 0).to.equal(true)
 		end)
-
-		it("has three seats on the blanket", function()
-			expect(#p.seats).to.equal(3)
-			for _, seat in p.seats do
-				expect(math.abs(seat.X) <= 0.5 and math.abs(seat.Y) <= 0.5).to.equal(true)
-			end
-		end)
 	end)
 end

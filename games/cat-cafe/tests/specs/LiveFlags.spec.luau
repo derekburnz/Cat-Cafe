@@ -238,6 +238,7 @@ return function()
 							or key == "companionBetter" -- #5457
 							or key == "tier3Easy" -- #5467
 							or key == "tiersEasy" -- Derek 2026-11-19
+							or key == "coinsOnly" -- #5533
 							or key == "secretTraitTile" -- #5445
 							or key == "oneLadderRow" -- #5254
 							or key == "noRankOpens" -- #5258
@@ -264,6 +265,7 @@ return function()
 							or key == "tipPileOldest" -- #5422
 							or key == "decorChipIcons" -- #5366
 							or key == "bowlHintRetry" -- #5438
+							or key == "rankOneTap" -- #5533
 							or key == "chipPickedWord" -- #5406
 							or key == "bowlWalkQuiet" -- #5436
 							or key == "tameCannonPoint" -- #5245
@@ -282,6 +284,8 @@ return function()
 							or key == "keepNoEvent" -- #5428
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "catsArrowOff" -- #5485
+							or key == "stallGlow" -- #5533
+							or key == "cannonGlow" -- #5533
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465
 							or key == "lockedRingsHidden" -- #5463

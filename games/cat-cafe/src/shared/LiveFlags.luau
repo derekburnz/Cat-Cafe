@@ -221,6 +221,7 @@ LiveFlags.KEYS = {
 	"phoneSmooth", -- #5285 A1: a new account on a touch screen starts in Smooth mode, no ask (shared/PerfSuggest.autoStart); off by default
 	"bangFixedText", -- #5390: the "!" bubbles' words sized by hand, not TextScaled (UI/Components/MarketBang); off by default
 	"leaveCleanup", -- server memory: old characters and Players who left are destroyed (shared/LeaveCleanup); on by default
+	"giftBangMine", -- #5576: the red "!" over a waiting Mystery gift only on the player's own cafe (Effects/Mystery); off by default
 	"townGround", -- #5357: the Town Square paving and paw paths are Persistent, never streamed out (shared/TownGround); off by default
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
@@ -382,6 +383,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	milestoneFunnel = true, -- #5291: analytics only; on after Review-QA, then Growth reads it from new accounts
 	topTraitCompanion = true, -- #5445
 	topTraitsMore = true, -- #5445: on only once every server runs the new ids (a restart)
+	giftBangMine = true, -- #5576
 	townGround = true, -- #5357: on after Review-QA, then Sync checks the Town instance count
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)

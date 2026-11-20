@@ -93,7 +93,8 @@ local function build(model: Model): Tag?
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
 	label.FontFace = Font.fromEnum(Enum.Font.FredokaOne)
-	label.Text = def.name
+	-- the Index keeps a Secret's name a surprise until found (IndexBook.SECRET_NAME), so a wild one reads "Secret"
+	label.Text = if rarity == "Secret" then "Secret" else def.name
 	label.TextScaled = true
 	label.TextColor3 = colour
 	local outline = Instance.new("UIStroke")

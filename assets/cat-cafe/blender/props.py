@@ -3740,6 +3740,150 @@ def tree_lights(ctx):
         G.ico(tuple(p + Vector((0, 0, 0.09))), 0.06, cols[k % len(cols)], scale=(1, 1, 1.3))
 
 
+
+# ------------------------------------------------------- Cherry Blossom Grove, the spring event (Mar 27 2027) --
+
+
+def _blossom5(P, c, r, sw, rot=None, mid="pastel_butter"):
+    """A five petal cherry blossom lying in the frame's XY plane (turn it with rot), a butter middle."""
+    R = rot if rot is not None else Matrix.Identity(3)
+    c = Vector(c)
+    for k in range(5):
+        a = math.radians(90 + 72 * k)
+        P.ico(tuple(c + R @ Vector((0.55 * r * math.cos(a), 0.55 * r * math.sin(a), 0))), r * 0.48, sw,
+              scale=(1.0, 1.0, 0.45), rot=R)
+    P.ico(tuple(c + R @ Vector((0, 0, r * 0.12))), r * 0.28, mid)
+
+
+def sakura_clip(ctx):
+    """Sakura (Common): a cherry blossom hair clip by its right ear, a bud and a leaf beside it."""
+    P = ctx.pen("head")
+    c = Vector((0.22, -0.05, 0.06))
+    _blossom5(P, c, 0.2, "blush", rot=_ry(-22))
+    P.ico(tuple(c + Vector((-0.17, 0.08, -0.01))), 0.06, "fur_rose", scale=(1, 1, 1.3))
+    P.box(tuple(c + Vector((0.06, 0.14, -0.02))), (0.07, 0.15, 0.02), "leaf_green", rot=_rz(30))
+
+
+
+def koi_streamer(ctx):
+    """Koi (Common): a little koi windsock on a pole off its back, white with orange and black patches."""
+    P = ctx.pen("back")
+    L = ctx.back_len
+    base = Vector((0.12, -L * 0.15, 0.02))
+    P.cyl(tuple(base + Vector((0, 0, 0.27))), 0.022, 0.54, "dark_wood", segments=6)
+    P.ico(tuple(base + Vector((0, 0, 0.56))), 0.04, "rarity_legend")
+    c = base + Vector((0.2, 0, 0.42))
+    P.sphere(tuple(c), 0.08, "milk", scale=(2.3, 0.8, 1.0), segments=10, rings=6)
+    for dx, dz, sw in ((0.06, 0.04, "fur_orange"), (-0.07, 0.05, "fur_orange"), (-0.01, -0.05, "fur_black")):
+        P.ico(tuple(c + Vector((dx, -0.05, dz))), 0.04, sw, scale=(1.3, 0.5, 1.0))
+    for sz in (-1, 1):
+        P.box(tuple(c + Vector((0.21, 0, sz * 0.05))), (0.1, 0.02, 0.06), "fur_orange", rot=_ry(sz * 30))
+    P.ico(tuple(c + Vector((-0.12, -0.06, 0.02))), 0.02, "fur_black")
+
+
+def lantern_knot(ctx):
+    """Lantern Cat (PaperLantern, Common): a red and gold ribbon knot by its right ear, and a tiny paper lantern
+    hanging off the tail tip, lit (the child Model _Tail_Glow, Neon, riding the Tail)."""
+    P = ctx.pen("head")
+    c = Vector((0.24, -0.04, 0.05))
+    for sx in (-1, 1):
+        P.box(tuple(c + Vector((sx * 0.07, 0, 0.01))), (0.12, 0.03, 0.07), "bowl_red", rot=_ry(sx * 25))
+    P.box(tuple(c), (0.05, 0.035, 0.05), "rarity_legend")
+    P.box(tuple(c + Vector((0, -0.01, -0.08))), (0.025, 0.02, 0.1), "rarity_legend")
+    tip, d, th, a, _b = _tail_axes(ctx)
+    at = tip + d * 0.02
+    G = ctx.piece("Tail_Glow", "tail", tuple(at))
+    lc = at + d * 0.12                                   # at the tip, not hanging, so it clears the floor sitting
+    G.box(tuple(at + d * 0.01), (0.03, 0.03, 0.03), "rarity_legend")
+    G.sphere(tuple(lc), 0.1, "bowl_red", scale=(1.0, 1.0, 1.15), segments=8, rings=5)
+    for dz in (0.12, -0.12):
+        G.cyl(tuple(lc + Vector((0, 0, dz))), 0.06, 0.03, "rarity_legend", segments=8)
+
+
+def matcha_cup(ctx):
+    """Matcha (Rare): a tiny tea bowl of frothy green matcha on a saucer, riding on its back."""
+    P = ctx.pen("back")
+    P.cyl((0, 0.02, 0.014), 0.17, 0.028, "fur_vanilla", segments=12)
+    P.cyl((0, 0.02, 0.085), 0.09, 0.12, "milk", r2=0.125, segments=12)
+    P.cyl((0, 0.02, 0.14), 0.115, 0.015, "leaf_green", segments=12)
+    P.ring((0, 0.02, 0.1), 0.122, 0.01, 0.03, "leaf_dark", segments=12)
+    P.box((0.15, 0.02, 0.12), (0.12, 0.02, 0.02), "caramel_wood", rot=_ry(-35))         # the bamboo whisk
+    P.cyl((0.2, 0.02, 0.17), 0.03, 0.05, "fur_custard", segments=6)
+
+
+def paper_crane(ctx):
+    """Origami (Rare): a folded pink paper crane riding on its back, wings up."""
+    P = ctx.pen("back")
+    L = ctx.back_len
+    c = Vector((0, -L * 0.05, 0.1))
+    P.pyramid(tuple(c), 0.16, 0.12, "fur_rose", rot=_rz(45))
+    for sx in (-1, 1):
+        P.box(tuple(c + Vector((sx * 0.15, 0, 0.1))), (0.28, 0.14, 0.012), ("fur_rose", "blush")[sx > 0],
+              rot=_ry(-sx * 38))
+    P.box(tuple(c + Vector((0, -0.16, 0.1))), (0.03, 0.18, 0.03), "fur_rose", rot=_rx(-50))      # neck
+    P.box(tuple(c + Vector((0, -0.23, 0.18))), (0.03, 0.06, 0.03), "fur_rose", rot=_rx(30))      # head
+    P.box(tuple(c + Vector((0, 0.15, 0.1))), (0.03, 0.18, 0.03), "fur_rose", rot=_rx(50))        # tail
+
+
+def bonsai_pot(ctx):
+    """Bonsai (Epic): a little bonsai tree in a shallow blue pot growing from its back, three green pads."""
+    P = ctx.pen("back")
+    L = ctx.back_len
+    c = Vector((0, -L * 0.02, 0.0))
+    P.box(tuple(c + Vector((0, 0, 0.05))), (0.34, 0.24, 0.1), "fish_blue")
+    P.box(tuple(c + Vector((0, 0, 0.105))), (0.3, 0.2, 0.01), "choco")
+    pts = [c + Vector((0, 0, 0.1)), c + Vector((0.05, 0, 0.2)), c + Vector((-0.04, 0, 0.3)), c + Vector((0.03, 0, 0.4))]
+    for a, b in zip(pts, pts[1:]):
+        P.bar(tuple(a), tuple(b), 0.06, 0.06, "fur_bramble", up=(0, 1, 0))
+    P.bar(tuple(pts[2]), tuple(pts[2] + Vector((-0.14, 0, 0.04))), 0.04, 0.04, "fur_bramble", up=(0, 1, 0))
+    for (dx, dz, r, sw) in ((0.03, 0.47, 0.13, "leaf_green"), (-0.17, 0.36, 0.1, "fur_moss"), (0.12, 0.3, 0.09, "leaf_dark")):
+        P.ico(tuple(c + Vector((dx, 0, dz))), r, sw, scale=(1.3, 1.1, 0.7))
+    P.ico(tuple(c + Vector((0.1, -0.06, 0.13))), 0.04, "fur_pewter")
+
+
+
+def blossom_branch(ctx):
+    """Blossom Fox Cat's second prop: a cherry branch over its back, the blossoms lit (the child _Blossom_Glow)."""
+    P = ctx.pen("back")
+    L = ctx.back_len
+    a, b = Vector((-0.18, L * 0.35, 0.06)), Vector((0.2, -L * 0.3, 0.12))
+    P.bar(tuple(a), tuple(b), 0.04, 0.04, "fur_bramble")
+    G = ctx.piece("Blossom_Glow", "back", tuple((a + b) / 2))
+    for k in range(3):
+        p = a + (b - a) * (0.2 + 0.3 * k) + Vector((0.04 * (-1) ** k, 0, 0.05))
+        _blossom5(G, tuple(p), 0.11, ("blush", "fur_rose", "offwhite")[k % 3], mid="sparkle")
+
+
+def petal_horns(ctx):
+    """Petal Dragon Cat (Mythical): two curved pearl dragon horns with a blossom at each base, and a lit pink gem
+    between them (the child _Glow)."""
+    P = ctx.pen("head")
+    for sx in (-1, 1):
+        at, a = Vector((sx * 0.13, -0.1, -0.02)), -25
+        for k, (r1, r2, hgt, turn) in enumerate(((0.09, 0.06, 0.2, 0), (0.06, 0.0, 0.24, -32))):
+            a += turn
+            R = _ry(sx * 18) @ _rx(a)
+            d = R @ Vector((0, 0, 1))
+            P.cyl(tuple(at + d * hgt / 2), r1, hgt, "pearl", r2=r2, rot=R, segments=8)
+            at = at + d * (hgt - 0.02)
+        _blossom5(P, (sx * 0.2, -0.16, 0.03), 0.12, "apron_pink", rot=_rx(60))
+    G = ctx.piece("Glow", "head", (0, -0.3, 0.04))
+    G.ico((0, -0.3, 0.04), 0.055, "neon_pink", scale=(1.0, 0.6, 1.3))
+
+
+def petal_spines(ctx):
+    """Petal Dragon Cat's second prop: a ridge of glowing petal spines down its back (the child _Spines_Glow)."""
+    P = ctx.pen("back")
+    L = ctx.back_len
+    P.box((0, 0, 0.012), (0.05, L * 0.85, 0.025), "milk")
+    G = ctx.piece("Spines_Glow", "back", (0, 0, 0.05))
+    for k in range(6):
+        y = -L * 0.4 + k * L * 0.8 / 5
+        h = 0.16 - 0.015 * abs(k - 2)
+        G.ico((0, y, 0.03 + h / 2), 0.06, ("apron_pink", "blush")[k % 2], scale=(0.5, 1.0, h / 0.12))
+
+
+
 # The Christmas Advent Calendar cats (#5502, Dec 2026): shown as Secret, so each has two props and lit parts.
 def peppermint_collar(ctx):
     """Peppermint Swirl (Secret, door 6): a mint collar with a big round peppermint at the front, red swirl wedges
@@ -3890,6 +4034,10 @@ def night_stars(ctx):
 
 
 PROPS = {
+    # Cherry Blossom Grove, the spring event (Mar 27 2027)
+    "Sakura": ("Head", sakura_clip), "Koi": ("Back", koi_streamer), "PaperLantern": ("Head", lantern_knot),
+    "Matcha": ("Back", matcha_cup), "Origami": ("Back", paper_crane), "Bonsai": ("Back", bonsai_pot),
+    "BlossomFox": ("Head", flower_crown), "PetalDragon": ("Head", petal_horns),
     # Snowglobe Village, the Christmas Event (Dec 1 2026)
     "Gingerbread": ("Face", icing_smile), "Snowball": ("Head", snow_pile), "CandyCane": ("Back", candy_cane),
     "Tinsel": ("Neck", tinsel_boa), "Jingle": ("Face", jingle_collar), "Mistletoe": ("Head", mistletoe_sprig),
@@ -3962,6 +4110,7 @@ PROPS = {
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
 PROPS2 = {
+    "BlossomFox": ("Back", blossom_branch), "PetalDragon": ("Back", petal_spines),   # Cherry Blossom Grove
     "SugarPlum": ("Back", sugar_wings), "StarTopper": ("Back", tree_lights),   # Christmas (Dec 1 2026)
     "PeppermintSwirl": ("Back", peppermint_swirl), "Nutcracker": ("Back", nutcracker_uniform),   # #5502 advent
     "NorthernLights": ("Back", aurora_curtain), "SilentNight": ("Back", night_stars),
@@ -4006,7 +4155,10 @@ PROPS2 = {
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
-PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
+PIECES = {"BellhopCat": {"Bell": "Prop2"},
+          # Cherry Blossom Grove (Mar 27 2027): the lantern on the tail and the lit water, blossoms, gems and petals
+          "PaperLantern": {"Tail_Glow": "Tail"}, "BlossomFox": {"Blossom_Glow": "Prop2"},
+          "PetalDragon": {"Glow": "Prop", "Spines_Glow": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
           "BoothPlush": {"Tag_Glow": "Prop"},              # #4061 the lit ticket tag
           # Snowglobe Village (Christmas, Dec 1 2026): the Jingle's bell and the lit gem, wings, star and bulbs
           "Jingle": {"Bell": "Prop"}, "SugarPlum": {"Gem_Glow": "Prop", "Wings_Glow": "Prop2"},

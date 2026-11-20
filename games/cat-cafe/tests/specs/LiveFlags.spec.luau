@@ -177,6 +177,7 @@ return function()
 							or key == "catNames" -- #5586
 							or key == "fxOneAdded" -- #5000
 							or key == "picnicParty" -- #5572
+							or key == "cherryGrove" -- #5339
 							or key == "rankUpRightAway" -- #5031
 							or key == "parkRingEarly" -- #5034
 							or key == "tier3Path" -- #5038

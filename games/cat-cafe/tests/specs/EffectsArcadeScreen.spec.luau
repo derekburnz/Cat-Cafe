@@ -32,7 +32,16 @@ return function()
 		it("draws only pictures on Mouse Dash's sheet", function()
 			local p = Presets.arcadeScreen
 			for _, name in
-				{ "Mouse", "MouseHit", "GoldMouse", "GoldMouseHit", "Hole", "Dust", "Paw", "PawBop" }
+				{
+					"Mouse",
+					"MouseHit",
+					"GoldMouse",
+					"GoldMouseHit",
+					"Hole",
+					"Dust",
+					"Paw",
+					"PawBop",
+				}
 			do
 				expect(p.cells[name] ~= nil).to.equal(true)
 			end

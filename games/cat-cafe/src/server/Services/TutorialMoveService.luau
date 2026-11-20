@@ -81,6 +81,10 @@ local function freeRoot(player: Player): BasePart?
 end
 
 local function move(player: Player, target: TutorialMoves.Target)
+	-- #5533 (shared/FreeStart): the play first start never moves a player without their own action
+	if player:GetAttribute("FreeStart") == true then
+		return
+	end
 	local character = player.Character
 	if character == nil or freeRoot(player) == nil then
 		return

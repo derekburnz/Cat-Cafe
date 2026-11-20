@@ -660,6 +660,14 @@ function applyTutorial()
 	if catchBeat ~= nil and catchBeat.retry ~= nil and os.clock() < catchBeat.retry.stripUntil then
 		text = nil
 	end
+	-- #5533 (shared/FreeStart): no strip, marker or trail for a save on the play first start until Tier 3
+	if
+		(require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any).quiet(
+			state.tier
+		)
+	then
+		text, target = nil, nil
+	end
 	if hud then
 		hud:holdTutorial(introPending)
 		hud:setTutorial(text)

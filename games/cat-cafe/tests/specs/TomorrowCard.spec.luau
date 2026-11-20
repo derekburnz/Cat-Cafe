@@ -83,8 +83,12 @@ return function()
 	describe("TomorrowCard words", function()
 		it("names the reason in the title, as a phone hides the line", function()
 			expect(string.find(TomorrowCard.TITLE, "tomorrow", 1, true) ~= nil).to.equal(true)
-			expect(string.find(string.lower(TomorrowCard.TITLE), "golden crate", 1, true) ~= nil).to.equal(true)
-			expect(string.find(TomorrowCard.LINE, "Come back tomorrow", 1, true) ~= nil).to.equal(true)
+			expect(string.find(string.lower(TomorrowCard.TITLE), "golden crate", 1, true) ~= nil).to.equal(
+				true
+			)
+			expect(string.find(TomorrowCard.LINE, "Come back tomorrow", 1, true) ~= nil).to.equal(
+				true
+			)
 			expect(
 				string.find(string.lower(TomorrowCard.TITLE .. TomorrowCard.LINE), "free", 1, true)
 			).to.equal(nil)

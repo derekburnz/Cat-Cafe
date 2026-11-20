@@ -9,6 +9,9 @@
 local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
 
+local FreeStart =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart"))
+
 local CatchDim = {}
 
 CatchDim.BRIGHTNESS = -0.22
@@ -45,6 +48,10 @@ local function made(): ColorCorrectionEffect
 end
 
 function CatchDim.set(on: boolean)
+	-- #5533 (shared/FreeStart): no catch dim for a save on the play first start until Tier 3
+	if on and FreeStart.quiet() then
+		on = false
+	end
 	local running = easing
 	if running ~= nil then
 		running:Cancel()

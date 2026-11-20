@@ -3551,9 +3551,34 @@ end
 
 -- #2946: the first bait cat eating at the bowl, `t` seconds in (Cats.luau, while its local FirstBaitEatingLocal is
 -- set): the head dips `bites` times over `eat` seconds (Presets.firstBaitCut), the body sinks a touch with it.
-function Logic.eatPose(o: Offsets, t: number)
+-- #5548 (Effects/FirstBaitCut, baitCutQuick)
+-- Pure: the scene's numbers: Presets.firstBaitCut, with its `quick` fields over them when `quick`.
+function Logic.firstBaitPreset(quick: boolean): { [string]: any }
+	local base = Presets.firstBaitCut :: { [string]: any }
+	if not quick then
+		return base
+	end
+	local out = table.clone(base)
+	for key, value in base.quick do
+		out[key] = value
+	end
+	return out
+end
+
+-- Pure: the outcome a scene that ends now reports: "skipped" only where a skip is allowed.
+function Logic.firstBaitOutcome(skipped: boolean, shown: boolean, quick: boolean): string
+	if skipped and not quick then
+		return "skipped"
+	end
+	return if shown then "shown" else "none"
+end
+
+-- `quick` (#5548, baitCutQuick): the quick scene's eat and bites (Presets.firstBaitCut.quick).
+function Logic.eatPose(o: Offsets, t: number, quick: boolean?)
 	local c = Presets.firstBaitCut
-	local dip, pitch = Logic.baitEat(t, c.eat, c.bites, c.dip, c.pitch)
+	local eat = if quick then c.quick.eat else c.eat
+	local bites = if quick then c.quick.bites else c.bites
+	local dip, pitch = Logic.baitEat(t, eat, bites, c.dip, c.pitch)
 	o.headPitch -= math.rad(pitch)
 	o.bodyY -= dip
 end

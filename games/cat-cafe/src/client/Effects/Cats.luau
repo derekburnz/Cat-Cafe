@@ -932,7 +932,11 @@ local function step(dt: number)
 		-- #2946: the first bait's cat eating in its cutscene (Effects/FirstBaitCut sets this on this client only)
 		local eatingAt = model:GetAttribute("FirstBaitEatingLocal")
 		if type(eatingAt) == "number" then
-			Logic.eatPose(o, os.clock() - eatingAt)
+			Logic.eatPose(
+				o,
+				os.clock() - eatingAt,
+				model:GetAttribute("FirstBaitEatQuickLocal") == true
+			)
 		end
 		Pose.draw(rig, o, alpha)
 		-- a hiss hop too: a missed catch hisses and flees at once, and the flee's first writes landed on the skipped

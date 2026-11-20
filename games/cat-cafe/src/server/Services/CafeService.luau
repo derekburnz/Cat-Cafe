@@ -2399,6 +2399,11 @@ local function onRankUp(player: Player)
 		CafeService.sync(player)
 		return
 	end
+	-- #5551 first_five_v1: a ready RANK UP pressed, for Tier 2 and for Tier 3
+	local from = Economy.tier(profile)
+	if from == 1 or from == 2 then
+		Telemetry.firstFive(player, profile, if from == 1 then "rank_tapped" else "rank_tapped_3")
+	end
 	local def = Catalog.getTier(Economy.tier(profile) + 1) :: Types.TierDef
 	if not Economy.trySpend(profile, def.cost) then
 		Net.toast(player, "Not enough coins", "warn")
@@ -2421,6 +2426,7 @@ local function onRankUp(player: Player)
 			else nil
 		if opened ~= nil then
 			player:SetAttribute(CannonGlow.ATTR, opened)
+			Telemetry.firstFive(player, profile, "cannon_glow_shown") -- #5551
 		end
 	end
 	do -- #4815: the tutorial's bigger net ends at Tier 2, so the client's reach glow (NetExtraStuds) shrinks with it

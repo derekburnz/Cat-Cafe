@@ -1295,6 +1295,15 @@ local function ownBowlPart(index: number): BasePart?
 	return if bowl ~= nil and bowl:IsA("BasePart") then bowl :: BasePart else nil
 end
 
+-- #5551: a start_side kind only the screen sees, sent once a session (the server allowlists and keeps it once a save)
+local startSideSent: { [string]: boolean } = {}
+local function reportStartSide(kind: string)
+	if not startSideSent[kind] then
+		startSideSent[kind] = true
+		Net.fire("TelemetryReport", "start_side", kind)
+	end
+end
+
 -- A bowl's window, as its prompt or its walk-up ring (#2476) opens it: the cat waiting there, else the food picker.
 function UIController.openBowl(index: number, walked: boolean?)
 	local waiting = if state ~= nil then baitCat(bowlBait(state, index)) else nil
@@ -1311,6 +1320,9 @@ function UIController.openBowl(index: number, walked: boolean?)
 		and ReplicatedStorage:GetAttribute("LiveFlag_bowlWalkQuiet") == true
 	then
 		return
+	end
+	if walked == true then
+		reportStartSide("bowl_walked") -- #5551: once a session; the server keeps the play first start's first one
 	end
 	if waiting ~= nil then
 		baitUI.showReady(waiting, index)

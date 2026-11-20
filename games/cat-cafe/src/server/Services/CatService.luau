@@ -2862,6 +2862,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		{ rarity, tostring(M.Economy.level(profile, "net")), result }
 	)
 	if not succeeded then
+		Telemetry.startMiss(player, profile, stray.area) -- #5551
 		stray.attempt = attempt -- #5500: so the log counts the rings
 		lostCatch(
 			player,
@@ -3209,6 +3210,14 @@ function startCatch(
 	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
 	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
+	-- #5551 first_five_v1: the first swing, then the first Park swing once at Tier 2
+	Telemetry.firstFive(
+		player,
+		profile,
+		if stray.area == M.Tier3Path.AREA and M.Economy.tier(profile) >= 2
+			then "park_catch_started"
+			else "catch_started"
+	)
 	Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.catchStart) -- #4504: catch_2_started
 
 	-- A circle nobody presses is a Miss at its deadline (#1884: trust lost, and the catch ends only if the cat bolts);
@@ -3276,6 +3285,12 @@ local function onCatchPress(
 	-- #4597: the tap's own time when the client sent one (held to a short bound), else arrival less half the ping
 	local pressTime = Circles.pressTime(arrival, player:GetNetworkPing(), rawStamp)
 	local before = attempt.nextIndex
+	if before == 1 then
+		local pressed = M.DataService.get(player)
+		if pressed ~= nil then
+			Telemetry.firstFive(player, pressed, "ring_try") -- #5551: the first ring press
+		end
+	end
 	Circles.press(attempt, index, pressTime, arrival)
 	-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
 	sendJudged(player, strayId, attempt, before)
@@ -3725,6 +3740,14 @@ local function campCheckIn(player: Player, campId: string)
 		math.floor(serverNow() - carry.startedAt),
 		{ campId, carry.def.rarity, tostring(carry.knocks) }
 	)
+	local profile = M.DataService.get(player)
+	if profile ~= nil then
+		-- #5551: onto the camp ring with the cat (the server checks in as the carrier enters the camp), and the Park's
+		Telemetry.firstFive(player, profile, "camp_ring")
+		if campId == M.Tier3Path.AREA and M.Economy.tier(profile) >= 2 then
+			Telemetry.firstFive(player, profile, "park_home")
+		end
+	end
 	finishCheckIn(player, true)
 	for _, hook in M.campHooks do
 		task.spawn(hook, player, campId)

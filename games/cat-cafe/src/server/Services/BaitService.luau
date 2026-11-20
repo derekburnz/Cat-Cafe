@@ -247,6 +247,7 @@ local function useLure(
 	Bait.setState(profile, bowl, bait)
 	profile.stats.luresUsed += 1
 	Telemetry.onboarding(player, profile, "first_bait")
+	Telemetry.startSide(player, profile, "bowl_food") -- #5551
 	Telemetry.custom(player, "bait_rolled", 1, { lureId, rarity, lucky or "none" })
 	-- #3158 (Derek2 2026-11-10: "the bait bowl animation doesn't even come because its interupted by foodbowl finished
 	-- instantly into a cannon teleport"): the account's first bait holds the tutorial's last step until its cat is
@@ -329,6 +330,9 @@ local function resolveBait(
 	local def = Catalog.getCat(bait.catId)
 	local rarityText = if def ~= nil then def.rarity :: string else "unknown"
 	Telemetry.custom(player, "bait_resolved", 1, { bait.lureId, rarityText, choice })
+	if choice == "tame" then
+		Telemetry.startSide(player, profile, "bowl_cat_tamed") -- #5551
+	end
 	-- #2774: how long the account's first bait really took, food in to resolve
 	if profile.stats.luresUsed == 1 then
 		Telemetry.custom(

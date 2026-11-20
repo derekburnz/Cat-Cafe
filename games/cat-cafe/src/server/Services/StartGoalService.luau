@@ -34,6 +34,12 @@ function StartGoalService.pay(player: Player, bit: number): boolean
 	state.startPaid = (state.startPaid or 0) + bit
 	Payout.pay(player, profile, { coins = FreeStart.GOAL_PAY }, "start_goal_" .. bit)
 	Telemetry.custom(player, "start_goal", bit, {})
+	-- #5551 first_five_v1: chip 1 paid; after chip 2 the card shows the coin goal
+	Telemetry.firstFive(
+		player,
+		profile,
+		if bit == FreeStart.PAID_CAUGHT then "chip_catch_paid" else "coin_chip_shown"
+	)
 	CafeService.sync(player)
 	return true
 end

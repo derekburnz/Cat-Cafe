@@ -2161,19 +2161,21 @@ function UI.init(config: Types.InitConfig)
 			connections,
 			UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
 				-- #2872: the gamepad's menu keys come before gameProcessed, which is true while a button is selected
-				if visible and input.KeyCode == Enum.KeyCode.ButtonSelect then
-					UI.gamepadSelect()
-					return
-				elseif
-					-- #5624 (padHud; Derek: Share is hard to reach on a PS4): Triangle (ButtonY) does what Select does,
-					-- unless the Tackle bar is up outside a window (Triangle is its key there)
+				if
 					visible
-					and input.KeyCode == Enum.KeyCode.ButtonY
-					and ReplicatedStorage:GetAttribute("LiveFlag_padHud") == true
 					and (
-						modalInstance:current() ~= nil
-						or tackleBar == nil
-						or not (tackleBar :: any).screenGui.Enabled
+						input.KeyCode == Enum.KeyCode.ButtonSelect
+						-- #5624 (padHud; Derek: Share is hard to reach on a PS4): Triangle (ButtonY) does what
+						-- Select does, unless the Tackle bar is up outside a window (Triangle is its key there)
+						or (
+							input.KeyCode == Enum.KeyCode.ButtonY
+							and ReplicatedStorage:GetAttribute("LiveFlag_padHud") == true
+							and (
+								modalInstance:current() ~= nil
+								or tackleBar == nil
+								or not (tackleBar :: any).screenGui.Enabled
+							)
+						)
 					)
 				then
 					UI.gamepadSelect()

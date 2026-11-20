@@ -145,6 +145,7 @@ return function()
 							or key == "perfectFlagged" -- #5379
 							or key == "decorNoBang" -- #5574
 							or key == "loadingScreen"
+							or key == "feedInstant" -- #5578
 							or key == "walkUpCarry" -- #5415
 							or key == "goldenDrops"
 							or key == "areaCannonRings" -- #5416

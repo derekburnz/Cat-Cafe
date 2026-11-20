@@ -5178,7 +5178,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no card under it (#1161)")
 		local lines = 0
 		for _, child in odds:GetChildren() do
-			if child:IsA("TextLabel") then
+			-- #5606: the 4th perk line (bowlPassOptions) is built hidden and shows only with its switches on
+			if child:IsA("TextLabel") and child.Visible then
 				lines += 1
 				assert(string.sub(child.Name, 1, 5) ~= "Odds_", "uigate: bowl 2 lists a food's odds again (#1767)")
 			end

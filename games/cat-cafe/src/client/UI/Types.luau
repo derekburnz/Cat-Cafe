@@ -427,6 +427,7 @@ export type PartialState = {
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 	-- #3022: the goal card's "Catch a 2nd cat", false once it ends (UI.update skips a nil, so the card would stay)
 	secondCat: (SharedTypes.SecondCatView | false)?,
+	startGoals: (SharedTypes.StartGoalsView | false)?, -- #5567: the play first start's two goals (HUD._secondGoal)
 	-- #2912: the goal card's "Free a stuck cat" while the pointer is up (UIController; false once it ends)
 	stuckGoal: boolean?,
 	-- #3529: the kinds owned for the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal

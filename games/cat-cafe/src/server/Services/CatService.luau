@@ -3138,6 +3138,19 @@ function startCatch(
 					M.LiveFlagService.on(M.ParkFirstEasy.FLAG)
 				)
 		)
+	-- #5601 (steadySoft, Derek 2026-11-20: "the potion that makes circle radius bigger is a little too strong"): a
+	-- Steady Paw Potion's bands go Potions.STEADY_SOFT of the way from the save's own net to the next, not all of it
+	if not tutorial and M.LiveFlagService.on(M.Potions.STEADY_SOFT_FLAG) then
+		local own = M.Economy.level(profile, "net")
+		if netLevel > own then
+			local function base(level: number): Types.NetWindows
+				return if curve
+					then Circles.curveWindows(level, stray.def.rarity, stray.area, stray.variant)
+					else Circles.windowsFor(level, stray.def.rarity, stray.area, stray.variant)
+			end
+			windows = M.Potions.steadySoften(windows, base(netLevel), base(own))
+		end
+	end
 	if curve then
 		windows = Circles.capped(windows)
 	end

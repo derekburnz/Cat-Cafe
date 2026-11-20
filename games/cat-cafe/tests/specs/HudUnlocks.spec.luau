@@ -87,6 +87,19 @@ return function()
 			expect(HudUnlocks.view({ tutorialStep = 3 } :: any).second).to.equal(false)
 		end)
 
+		it("opens the goal card at once on the play first start (#5559)", function()
+			local fresh = view(0, 0) :: any
+			expect(HudUnlocks.shown(fresh).goal).to.equal(false)
+			fresh.free = true
+			local shown = HudUnlocks.shown(fresh)
+			expect(shown.goal).to.equal(true)
+			expect(shown.quests).to.equal(false)
+			expect(
+				HudUnlocks.view({ tutorialStep = 0, startGoals = { caught = false, home = false } } :: any).free
+			).to.equal(true)
+			expect(HudUnlocks.view({ tutorialStep = 0 } :: any).free).to.equal(false)
+		end)
+
 		it("opens the Index at the third cat, Tier 2 pieces at Tier 2 or the first item", function()
 			expect(HudUnlocks.shown(view(5, 2)).index).to.equal(false)
 			expect(HudUnlocks.shown(view(3, 3)).index).to.equal(true)

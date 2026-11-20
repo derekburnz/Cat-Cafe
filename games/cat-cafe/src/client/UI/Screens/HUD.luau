@@ -3447,7 +3447,13 @@ function HUD._renderUnlocks(self: any, state: Types.PlayerState)
 	-- #3183: the step this update comes from; a piece a tutorial step opens shows with no "New!"
 	local stepBefore: number = self._unlockStep or state.tutorialStep
 	self._unlockStep = state.tutorialStep
-	local now, opened = HudUnlocks.update(before, HudUnlocks.view(state :: any))
+	local view = HudUnlocks.view(state :: any)
+	-- #5559: a play first start save keeps its goal card once the two start goals are paid, on a rejoin too
+	local FreeStart = require(
+		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart")
+	) :: any
+	view.free = view.free or FreeStart.of(nil)
+	local now, opened = HudUnlocks.update(before, view)
 	if before ~= nil and #opened == 0 then
 		return -- update keeps what showed, so no new key means no change
 	end

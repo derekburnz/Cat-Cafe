@@ -10,6 +10,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -33,6 +34,11 @@ local lastPhase: ParkTrailLogic.Phase? = nil
 local wasDue = false
 local visited = false -- #3893: the player has been in the Park this join
 local sent: { [string]: boolean } = {}
+-- #5517 (hoodTrail): the walk to the Neighbourhood at Tier 3, its own rest clock and reports
+local hoodRest = ParkTrailLogic.rest()
+local hoodWasDue = false
+local hoodVisited = false -- the player has been in the Neighbourhood this join
+local hoodSent: { [string]: boolean } = {}
 
 local function report(value: string)
 	if not sent[value] then
@@ -115,6 +121,72 @@ local function areasShut(): boolean
 	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
 end
 
+local function hoodReport(value: string)
+	if not hoodSent[value] then
+		hoodSent[value] = true
+		Net.fire("TelemetryReport", ParkTrailLogic.HOOD_TELEMETRY, value)
+	end
+end
+
+local function ownsHoodCat(collection: { [string]: number }?): boolean
+	if collection == nil then
+		return false
+	end
+	for catId in collection do
+		if areaOf(catId) == ParkTrailLogic.HOOD_AREA then
+			return true
+		end
+	end
+	return false
+end
+
+-- #5517: the Park walk's rules again, for the Neighbourhood at Tier 3 (ParkTrailLogic.hoodDue). Runs only while the
+-- Park walk is not due, so the two never share the trail.
+local function hoodTick(dt: number, state: any)
+	if not hoodVisited and UI.cannon.area == ParkTrailLogic.HOOD_AREA then
+		hoodVisited = true
+		if hoodWasDue then
+			hoodReport(ParkTrailLogic.ENTERED)
+		end
+	end
+	local on = LiveFlags.shown(
+		ParkTrailLogic.HOOD_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. ParkTrailLogic.HOOD_FLAG)
+	)
+	local landed = hoodVisited or player:GetAttribute(ParkTrailLogic.HOOD_LANDED_ATTR) == true
+	if not ParkTrailLogic.hoodDue(on, state.tier, ownsHoodCat(state.collection), landed) then
+		if hoodWasDue then
+			hoodWasDue = false
+			UI.parkTrail.hood = false
+			UI.parkTrail.set(nil, nil)
+		end
+		return
+	end
+	if not hoodWasDue then
+		hoodWasDue = true
+		UI.parkTrail.hood = true
+		ParkTrailLogic.restart(hoodRest)
+	end
+	local shut = areasShut()
+	-- a phone's narrow goal card takes the shorter line
+	local goal = ParkTrailLogic.hoodGoal(shut, UserInputService.TouchEnabled)
+	local from = root()
+	if from == nil or UI.isOpen() ~= nil or state.carrying ~= nil or shut then
+		UI.parkTrail.set(nil, goal)
+		return
+	end
+	-- the rest ends after BACK_AFTER seconds, walking or not (parkTrailBack's rule, always on here)
+	if not ParkTrailLogic.step(hoodRest, dt, moving(), true) then
+		UI.parkTrail.set(nil, goal)
+		return
+	end
+	local target = nearestCannon(from.Position)
+	UI.parkTrail.set(target, goal)
+	if target ~= nil then
+		hoodReport(ParkTrailLogic.SHOWN)
+	end
+end
+
 local function tick(dt: number)
 	local state = UIController.state
 	-- #4518: bowl first ends the walk-through at the Park, so its walk shows whatever parkGateTrail says
@@ -143,9 +215,14 @@ local function tick(dt: number)
 				report(ParkTrailLogic.CAUGHT)
 			end
 		end
+		hoodTick(dt, state)
 		return
 	end
 	wasDue = true
+	if hoodWasDue then
+		hoodWasDue = false -- #5517: the Park walk leads; the Neighbourhood's waits for it
+		UI.parkTrail.hood = false
+	end
 	-- typed any: the CI type check widens a Phase to string after the comparisons below
 	local phase: any = ParkTrailLogic.phase(UI.cannon.area)
 	if phase ~= lastPhase then

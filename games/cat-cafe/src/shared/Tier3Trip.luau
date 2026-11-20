@@ -72,6 +72,11 @@ function Tier3Trip.furthest(mask: number?): string
 	return best
 end
 
+-- #5517 (hoodTrail): whether the account has landed in the Neighbourhood (the HoodLanded attribute)
+function Tier3Trip.landed(mask: number?): boolean
+	return has(mask or 0, BIT.landed)
+end
+
 -- Whether a session ending now logs tier3_left: at Tier 3 and the landing not logged
 function Tier3Trip.leftDue(mask: number?, tier: number): boolean
 	return tier == Tier3Trip.TIER and not has(mask or 0, BIT.landed)

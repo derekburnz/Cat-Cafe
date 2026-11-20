@@ -170,6 +170,7 @@ LiveFlags.KEYS = {
 	"awayPromise", -- #5505: days played milestones (shared/DaysPlayed), later the away line and return moment; off by default
 	"holdout", -- #5499: one new account in ten keeps dailyGifts, awayPromise and orderSplit off for its first 7 days (shared/Holdout); off by default
 	"rankCueLog", -- #5516: log rank_cue_next, the first window opened after the Tier 1 rank cue (or left/ranked at session end); off by default
+	"hoodTrail", -- #5517: at Tier 3 until the first Neighbourhood landing, the goal line and paw prints to a cannon, the Neighbourhood card first with its ring (UI/Components/ParkTrailLogic.hoodDue); off by default
 	"tier3TripLog", -- #5517: log tier3_trip (Cannon menu, refused pick, pick, landing) and tier3_left between Tier 3 and the first Neighbourhood landing (shared/Tier3Trip); off by default
 	"missKeepsCommon", -- #5500 (plan A fix 2): a missed catch on a Common leaves the cat put with no bolt, slow or wait (CatService); off by default
 	"catchLostLog", -- #5500: log catch_lost with why a started net catch ended with no cat, by device and area (shared/CatchLost); off by default
@@ -335,6 +336,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
 	rankCueLog = true, -- #5516: on as soon as it publishes (log only, no save field)
+	hoodTrail = true, -- #5517: on after Review-QA and a phone look
 	tier3TripLog = true, -- #5517: on after the next restart (new save field), then Growth reads it
 	mutationBoost = true, -- #5493: on as soon as it publishes (Derek 2026-11-19)
 	bowlOptionsButton = true, -- #5488: on as soon as it publishes (Derek 2026-11-19)

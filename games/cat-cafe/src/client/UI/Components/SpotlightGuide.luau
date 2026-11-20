@@ -37,6 +37,8 @@ local TAG_SIZE = Vector2.new(58, 22)
 local READY_GREEN = Color3.fromHex("4CB86B")
 local BREATHE = TweenInfo.new(0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 
+local FreeStart =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart"))
 local closeCurrent: (() -> ())? = nil
 
 -- Lights `target` with `words` beside it; see the top of this file. Returns the function that closes it.
@@ -47,6 +49,10 @@ function SpotlightGuide.show(
 	ringOutside: boolean?,
 	noDim: boolean? -- Derek 2026-11-16: ring and arrow only, nothing dimmed (the rank up window's button)
 ): () -> ()
+	-- #5533 (shared/FreeStart): no spotlight for a save on the play first start until Tier 3
+	if FreeStart.quiet() then
+		return function() end
+	end
 	local previous = closeCurrent
 	if previous ~= nil then
 		previous()

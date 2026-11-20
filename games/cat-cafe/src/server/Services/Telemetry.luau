@@ -1071,6 +1071,7 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 	end
 	orderChecked[player] = true
 	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
+	local FreeStart = require(ReplicatedStorage.Shared.FreeStart) :: any -- #5533
 	local state = profile.telemetry
 	-- #5499 (shared/Holdout): the holdout first, so a held save reads orderSplit off below and keeps the bowl first arm
 	if
@@ -1085,6 +1086,24 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 		Telemetry.custom(player, "holdout_group", 1, { state.holdout :: string }) -- Holdout.EVENT
 	end
 	player:SetAttribute(Holdout.ATTR, Holdout.held(state.holdout, state.firstDay, os.time()))
+	-- #5533 (shared/FreeStart): a new save on the play first start takes the catch first order, so orderSplit below
+	-- never puts it in the bowl first arm; a save already in an arm keeps it, and a held save (the holdout's control
+	-- group) keeps today's start
+	if
+		player:GetAttribute(Holdout.ATTR) ~= true
+		and FreeStart.joins(
+			LiveFlagService.on(FreeStart.FLAG, player),
+			profile.stats.sessions,
+			profile.tutorialStep or 0,
+			state.freeStart,
+			state.orderGroup
+		)
+	then
+		state.freeStart = true
+		state.orderGroup = TutorialOrder.CATCH
+		Telemetry.custom(player, FreeStart.EVENT, 1, {}) -- FreeStart.EVENT
+	end
+	player:SetAttribute(FreeStart.ATTR, if state.freeStart == true then true else nil)
 	if
 		TutorialOrder.joins(
 			LiveFlagService.on(TutorialOrder.SPLIT_FLAG, player),

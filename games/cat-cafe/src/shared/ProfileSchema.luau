@@ -19,6 +19,7 @@ local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
 local FishStore = require(script.Parent.FishStore)
 local Follower = require(script.Parent.Follower)
+local FreeStart = require(script.Parent.FreeStart)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Fusion = require(script.Parent.Fusion)
 local GrandOpening = require(script.Parent.GrandOpening)
@@ -958,6 +959,8 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	telemetry.orderGroup = TutorialOrder.valid(value.orderGroup) -- #5498
 	telemetry.holdout = Holdout.valid(value.holdout) -- #5499
 	telemetry.tier3Trip = Tier3Trip.sanitize(value.tier3Trip) -- #5517
+	telemetry.freeStart = if value.freeStart == true then true else nil -- #5533 (shared/FreeStart)
+	telemetry.startPaid = FreeStart.validPaid(value.startPaid) -- #5533
 	-- #5291: milestones_v1's mask (MilestoneFunnel.sanitize, kept here as a number check so this module needs no
 	-- Economy): a whole number from -1 (out) to 4095 (all 12 steps), nil for none
 	local milestoneMask = value.milestoneMask

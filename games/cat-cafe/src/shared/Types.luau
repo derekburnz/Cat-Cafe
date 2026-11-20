@@ -1394,6 +1394,8 @@ export type TelemetryState = {
 	orderGroup: string?, -- #5498: the walk-through order test arm (shared/TutorialOrder)
 	holdout: string?, -- #5499: the holdout group, "holdout" or "live" (shared/Holdout)
 	tier3Trip: number?, -- #5517: the Tier 3 to Neighbourhood stops logged, a bit mask (shared/Tier3Trip)
+	freeStart: boolean?, -- #5533: the save is on the play first start (shared/FreeStart)
+	startPaid: number?, -- #5533: the start's two goals paid, a bit mask (FreeStart.PAID_CAUGHT, PAID_HOME)
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

@@ -343,6 +343,7 @@ end
 -- a moment after the character (PlotService assigns the plot once the profile has loaded), so this waits for both,
 -- up to Cannon.HOME_WAIT_SECONDS, and then moves only a character that still stands at the spawn. The landing's
 -- position goes in the player's Cannon.HOME_ATTRIBUTE so their client can put the camera behind them.
+local FREE_STRAY_WAIT = 3 -- #5533: seconds a freeStart join waits for its waiting stray before it lands anyway
 local function homeArrival(player: Player, character: Model)
 	local started = os.clock()
 	local profile = DataService.get(player)
@@ -361,6 +362,38 @@ local function homeArrival(player: Player, character: Model)
 	end
 	if profile == nil then
 		return
+	end
+	-- #5533 (shared/FreeStart): a new save on the play first start begins at the Alleyway landing by day, facing its
+	-- waiting stray, as a flight would land it but with no flight; at night (areas shut) it starts as before
+	Telemetry.orderJoin(player, profile)
+	if
+		player:GetAttribute("FreeStart") == true
+		and (profile.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
+		and ClockService.areasOpen()
+	then
+		local waited = 0
+		while CatService.firstLandingStray(player, "alley") == nil and waited < FREE_STRAY_WAIT do
+			task.wait(0.25) -- the stray tick puts the save's waiting stray on its near point within a second
+			waited += 0.25
+		end
+		local root = rootOf(character)
+		local landing = landingFor(player, "alley")
+		if
+			landing ~= nil
+			and root ~= nil
+			and player.Character == character
+			and character.Parent ~= nil
+			and character:GetAttribute("Launching") ~= true
+			and not CatService.isLoaded(player)
+		then
+			StreamAround.wait(player, (landing :: CFrame).Position)
+			if player.Character == character and character.Parent ~= nil then
+				character:PivotTo(landing :: CFrame)
+				Cannon.noteMove(player, landing :: CFrame) -- the camera goes behind the character there
+				Telemetry.cleanEvent(player, profile, Telemetry.arrivedEvent("alley"))
+				return
+			end
+		end
 	end
 	if
 		not Cannon.joinsAtHome(

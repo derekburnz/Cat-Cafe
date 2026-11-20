@@ -314,6 +314,7 @@ return function()
 							or key == "spotHeld" -- #5622
 							or key == "secondCatQuiet" -- #5620
 							or key == "catNamesLow" -- #5620
+							or key == "catNamesTop" -- #5633
 							or key == "rankLeftLog" -- Growth
 							or key == "padSkip" -- #5624
 							or key == "padHud" -- #5624

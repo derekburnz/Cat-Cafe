@@ -282,11 +282,22 @@ function PassService.ownsAutoBowl(player: Player): boolean
 	local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags) :: any
 	local LiveFlagService = require(script.Parent.LiveFlagService) :: any
 	local known = table.find(LiveFlags.KEYS, AutoBowl.TICKS_FLAG) ~= nil
+	-- bowlAutoFree (Derek 2026-11-20): the ticks for everyone from Tier 2
+	local free = table.find(LiveFlags.KEYS, AutoBowl.FREE_FLAG) ~= nil
+		and LiveFlagService.on(AutoBowl.FREE_FLAG)
+	local tier: number? = nil
+	if free then
+		local DataService = require(script.Parent.DataService) :: any
+		local profile = DataService.get(player)
+		tier = if profile ~= nil then Economy.tier(profile) else nil
+	end
 	return AutoBowl.owner(
 		PassService.owns(player, AutoBowl.passId()),
 		PassService.owns(player, Config.SecondBowlPassId),
 		known,
-		known and LiveFlagService.on(AutoBowl.TICKS_FLAG)
+		known and LiveFlagService.on(AutoBowl.TICKS_FLAG),
+		free,
+		tier
 	)
 end
 

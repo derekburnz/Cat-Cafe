@@ -58,5 +58,13 @@ return function()
 				expect(AutoBowl.owner(false, false, true, true)).to.equal(false)
 			end
 		)
+		it("bowlAutoFree: both ticks for everyone from Tier 2 (Derek 2026-11-20)", function()
+			expect(AutoBowl.owner(false, false, true, true, true, 2)).to.equal(true)
+			expect(AutoBowl.owner(false, false, true, true, true, 5)).to.equal(true)
+			expect(AutoBowl.owner(false, false, true, true, true, 1)).to.equal(false)
+			expect(AutoBowl.owner(false, false, true, true, true, nil)).to.equal(false)
+			expect(AutoBowl.owner(false, false, true, true, false, 3)).to.equal(false)
+			expect(AutoBowl.owner(false, false, true, false, true, 3)).to.equal(false)
+		end)
 	end)
 end

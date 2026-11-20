@@ -34,8 +34,17 @@ local BELOW = 0.35 -- studs over the cat's top (the gem sits higher)
 -- sits on the cat's back instead: LOW_BELOW studs over its top and its own height down from there
 local LOW_FLAG = "LiveFlag_catNamesLow"
 local LOW_BELOW = -0.1
+-- #5633 (Derek 2026-11-20: "put cat names on top of the diamond/new so people can read it"): the name sits over the
+-- gem and its NEW pill instead, clear of the pill both near (gem in studs) and far (gem held at its pixel size). Wins
+-- over catNamesLow.
+local TOP_FLAG = "LiveFlag_catNamesTop"
+local TOP_HEIGHT = 24 -- pixels
+local TOP_GAP = 0.05 -- studs between the pill's top and the name
+local TOP_PIXELS = 4 -- pixels between them
 
-type Tag = { gui: BillboardGui, label: TextLabel, model: Model }
+type Mode = "under" | "low" | "top"
+
+type Tag = { gui: BillboardGui, label: TextLabel, model: Model, mode: Mode }
 type Seen = { model: Model, distance: number }
 
 local tags: { [Model]: Tag } = {}
@@ -65,6 +74,38 @@ function CatNames.pick(seen: { Seen }, near: number, far: number, most: number):
 	return out
 end
 
+-- Pure: how far over the gem's middle the NEW pill's top reaches, as a share of the gem billboard's side (about 0.535).
+function CatNames.topShare(): number
+	local r = Presets.rarityMark
+	return r.gem * math.sqrt(0.5) - r.newTag.overlap + r.newTag.height
+end
+
+-- Pure: the top mode's place: `studs` over the cat's top and `pixels` the tag's bottom edge sits over that point.
+function CatNames.topPlace(): (number, number)
+	local r = Presets.rarityMark
+	local share = CatNames.topShare()
+	local studs = r.above + r.bob + share * r.size + TOP_GAP
+	local pixels = math.ceil(share * math.max(r.pixels, r.finder.pixels)) + TOP_PIXELS
+	return studs, pixels
+end
+
+-- Pure: the mode for the two switch values (top wins over low).
+function CatNames.mode(top: unknown, low: unknown): Mode
+	if top == true then
+		return "top"
+	elseif low == true then
+		return "low"
+	end
+	return "under"
+end
+
+local function modeNow(): Mode
+	return CatNames.mode(
+		ReplicatedStorage:GetAttribute(TOP_FLAG),
+		ReplicatedStorage:GetAttribute(LOW_FLAG)
+	)
+end
+
 local function bodyOf(model: Model): BasePart?
 	if model.PrimaryPart ~= nil then
 		return model.PrimaryPart
@@ -88,11 +129,19 @@ local function build(model: Model): Tag?
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "EffectsCatName"
 	gui.Adornee = body
-	gui.Size = UDim2.fromOffset(WIDTH, HEIGHT)
-	local low = ReplicatedStorage:GetAttribute(LOW_FLAG) == true
-	gui.StudsOffsetWorldSpace =
-		Vector3.new(0, top - body.Position.Y + (if low then LOW_BELOW else BELOW), 0)
-	gui.SizeOffset = if low then Vector2.new(0, -0.5) else Vector2.zero
+	local mode: Mode = modeNow()
+	if mode == "top" then
+		local studs, pixels = CatNames.topPlace()
+		gui.Size = UDim2.fromOffset(WIDTH, TOP_HEIGHT)
+		gui.StudsOffsetWorldSpace = Vector3.new(0, top - body.Position.Y + studs, 0)
+		gui.SizeOffset = Vector2.new(0, 0.5 + pixels / TOP_HEIGHT)
+	else
+		local low = mode == "low"
+		gui.Size = UDim2.fromOffset(WIDTH, HEIGHT)
+		gui.StudsOffsetWorldSpace =
+			Vector3.new(0, top - body.Position.Y + (if low then LOW_BELOW else BELOW), 0)
+		gui.SizeOffset = if low then Vector2.new(0, -0.5) else Vector2.zero
+	end
 	gui.LightInfluence = 0
 	gui.MaxDistance = FAR * 1.2
 	local label = Instance.new("TextLabel")
@@ -109,7 +158,7 @@ local function build(model: Model): Tag?
 	outline.Parent = label
 	label.Parent = gui
 	gui.Parent = Context.folder()
-	return { gui = gui, label = label, model = model }
+	return { gui = gui, label = label, model = model, mode = mode }
 end
 
 local function drop(model: Model)
@@ -155,10 +204,11 @@ local function look()
 		)
 	end
 	local keep: { [Model]: boolean } = {}
+	local mode: Mode = modeNow()
 	for _, model in CatNames.pick(seen, NEAR, FAR, MOST) do
 		keep[model] = true
 		local tag: Tag? = tags[model]
-		if tag ~= nil and tag.model:GetAttribute("CatId") == nil then
+		if tag ~= nil and (tag.model:GetAttribute("CatId") == nil or tag.mode ~= mode) then
 			drop(model)
 			tag = nil
 		end

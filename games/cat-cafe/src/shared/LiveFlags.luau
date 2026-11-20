@@ -228,6 +228,7 @@ LiveFlags.KEYS = {
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
 	"baitCutQuick", -- #5548: the first bait scene is about 1.5 s with no skip (Effects/FirstBaitCut) and the first bait cat comes out as the food lands (shared/Bait); off by default
+	"codesRingTown", -- #5605: the Codes Cat's circle counts as a Town Square ring, so it shows with townRings as the other Town rings do (Effects/StationCircles); off by default
 	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
 	"cannonGlow", -- #5533 v2: after a Rank Up that opens an area the Town Square cannon glows with the area's sign until the first flight there (Effects/WorldGlow); off by default
 	"cutsQuick", -- #5550: no Cat Arcade or Cat Companion scene, the other station scenes about 2 s with no skip (Effects/StationUnlockCut, Controllers/CompanionSceneController); off by default
@@ -391,6 +392,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	catsArrowOff = true, -- #5485: on as soon as it merges
 	baitCutQuick = true, -- #5548: on with the new start, after Review-QA and Sync's phone look
+	codesRingTown = true, -- #5605: on as soon as it publishes (Derek 2026-11-20)
 	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
 	cannonGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
 	cutsQuick = true, -- #5550: on once this and GE's companion card are both published (Design 2026-11-20)

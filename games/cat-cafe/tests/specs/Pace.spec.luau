@@ -1887,4 +1887,23 @@ return function()
 			end
 		end)
 	end)
+
+	describe("coinsOnly pace (#5533)", function()
+		it(
+			"readies Tier 2 at 45 to 75 s and reaches Tier 3 inside 6 min for the model player",
+			function()
+				local CheapTiers = require(Shared.CheapTiers) :: any
+				Catalog.setTierNeeds(CheapTiers.needsFor(true, true, true, true, true))
+				local list = runs({ catches = 4, target = 3 }, RUNS)
+				local tier2 = quantile(list, tierAt(2), 0.5, LIMIT)
+				local tier3 = quantile(list, tierAt(3), 0.5, LIMIT)
+				Catalog.setTierNeeds(nil)
+				-- 1,000 (Design's first number) is Config.StartCoins, so Tier 2 would be ready at 0 s; 1,500 gives 55 s
+				expect(CheapTiers.COINS[2] > Config.StartCoins).to.equal(true)
+				if tier2 < 45 or tier2 > 75 or tier3 > 360 then
+					error(string.format("Tier 2 at %.0f s, Tier 3 at %.0f s", tier2, tier3))
+				end
+			end
+		)
+	end)
 end

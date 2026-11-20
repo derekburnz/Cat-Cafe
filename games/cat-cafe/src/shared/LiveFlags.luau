@@ -190,13 +190,13 @@ LiveFlags.KEYS = {
 	"freeStart", -- #5533: new saves play first: Alleyway start, no tutorial pointers or moves until Tier 3 (shared/FreeStart); off by default
 	"streetCats", -- #5533: a freeStart save's first 3 minutes keep 3 Commons by it; its first 3 catches and Park catches can't be lost; off by default
 	"goalChip", -- #5533: a freeStart save's two first goals pay 100 coins each (PlayerState.startGoals); off by default
+	"coinsOnly", -- #5533: every tier asks coins only, Tier 2 1,500 and Tiers 3 to 7 as tiersEasy (shared/CheapTiers); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"nightLine", -- #5330: at night up to Tier 4 the strip says when the areas open, with an arrow to Upgrades (Components/NightLine); off by default
 	"perfectCatch", -- #5300: every ring Perfect marks the cat Perfect, x1.5 pay with its coat, charm counts 1x (shared/PerfectCatch); off by default
 	"easyKeep", -- #5311: the Dragon Keep's Warmth goals 50, 100, 250, 500, 1,000 and Rekindle 500 (shared/EasyKeep); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"tablesEight", -- #5441: Tables 7 and 8 at Tiers 9 and 10, in the back of the 60 x 46 room (shared/TablesEight); off by default
-	"plainFallback", -- #4656: a model missing from Assets clones as a plain grey block, not a built placeholder (World/AssetRegistry); off by default
 	"companionMenu", -- #5296: Cats window role symbols, the Companion button and picker, both boosts (shared/Follower); off by default
 	"companionTraits", -- #5303: Mystic Pool traits that raise the Cat Companion boosts (shared/Traits, CompanionTraits); off by default
 	"strayMeets", -- onboarding_v9: the Alleyway's waiting stray stands by the landing for a first catch by hand (shared/StrayMeets); off by default
@@ -240,6 +240,8 @@ LiveFlags.KEYS = {
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
+	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
+	"cannonGlow", -- #5533 v2: after a Rank Up that opens an area the Town Square cannon glows with the area's sign until the first flight there (Effects/WorldGlow); off by default
 	"pawsInFloor", -- #5471: the Town Square's paw prints are drawn on the floor they lie on, so they stream with it (World/PawFloor); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
 	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
@@ -247,6 +249,7 @@ LiveFlags.KEYS = {
 	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
 	"bowlHintRetry", -- #5438: the tutorial strip is worked out again when a new server's switches arrive, so bowl first shows its food ask (Controllers/UIController); off by default
+	"rankOneTap", -- #5533: a ready goal card is a gold RANK UP button, one tap ranks up, no window (UI/Components/RankOneTap); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
 }
@@ -360,13 +363,13 @@ LiveFlags.OFF_BY_DEFAULT = {
 	freeStart = true, -- #5533
 	streetCats = true, -- #5533
 	goalChip = true, -- #5533
+	coinsOnly = true, -- #5533: on after Review-QA and a Pace check
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	nightLine = true, -- #5330: on after Review-QA and Sync's phone look, 2 h from other switches
 	perfectCatch = true, -- #5300: on after Review-QA, Sync's phone look at the pills and a restart
 	easyKeep = true, -- #5311: on after Review-QA, with a restart
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	tablesEight = true, -- #5441 (Derek 2026-11-19): on as soon as it publishes
-	plainFallback = true, -- #4656: the placeholder builders go once this has run clean (0 fallback warnings)
 	companionMenu = true, -- #5296: on after Review-QA, Sync's pictures and Derek's look
 	companionTraits = true, -- #5303: a paid random item change, on after a restart publish and Review-QA's odds check
 	afkStay = true, -- #5322: on after Review-QA and a real restart with an AFK player watched
@@ -403,6 +406,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	catsArrowOff = true, -- #5485: on as soon as it merges
+	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
+	cannonGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
 	pawsInFloor = true, -- #5471: on as soon as it merges
 	guideArrow = true, -- #5465: on as soon as it merges
 	lockedRingsHidden = true, -- #5463: on as soon as it merges
@@ -410,6 +415,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	secretCompanionBig = true, -- #5431
 	decorChipIcons = true, -- #5366: on after Review-QA, once the six pictures pass moderation
 	bowlHintRetry = true, -- #5438
+	rankOneTap = true, -- #5533: on once Review-QA and a phone look pass (Derek 2026-11-20)
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 	bowlWalkQuiet = true, -- #5436
 } :: { [string]: boolean }

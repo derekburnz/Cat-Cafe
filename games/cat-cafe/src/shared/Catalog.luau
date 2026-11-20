@@ -2079,15 +2079,17 @@ Catalog.maxTier = #Catalog.tiers
 
 -- #5249: what Tiers 3 to 8 ask for plainly (coins, kinds of cats, their rare cats), and what they ask while
 -- `cheapTiers` is on (shared/CheapTiers): `needs` nil puts the plain ones back, and a field a tier's entry leaves out
--- stays plain. Returns whether any changed.
+-- stays plain. Returns whether any changed. #5533 (coinsOnly): every tier from 2 up has a plain row, and `noRarity`
+-- true takes the rarity need away (needsRarity and needsRarityCount nil) whatever the plain row asks.
 export type TierNeeds = {
 	cost: number?,
 	distinctCats: number?,
 	needsRarity: string?,
 	needsRarityCount: number?,
+	noRarity: boolean?,
 }
 Catalog.PLAIN_TIER_NEEDS = {} :: { [number]: TierNeeds }
-for tier = 3, 8 do
+for tier = 2, Catalog.maxTier do
 	local def = Catalog.tiers[tier] :: Types.TierDef
 	Catalog.PLAIN_TIER_NEEDS[tier] = {
 		cost = def.cost,
@@ -2103,7 +2105,11 @@ function Catalog.setTierNeeds(needs: { [number]: TierNeeds }?): boolean
 		local want: TierNeeds = if needs ~= nil and needs[tier] ~= nil then needs[tier] else {}
 		for _, field in { "cost", "distinctCats", "needsRarity", "needsRarityCount" } do
 			local value = (want :: any)[field]
-			if value == nil then
+			if
+				want.noRarity == true and (field == "needsRarity" or field == "needsRarityCount")
+			then
+				value = nil
+			elseif value == nil then
 				value = (plain :: any)[field]
 			end
 			if def[field] ~= value then

@@ -144,6 +144,7 @@ return function()
 							or key == "perfectFlagged" -- #5379
 							or key == "loadingScreen"
 							or key == "walkUpCarry" -- #5415
+							or key == "giftBangMine" -- #5576
 							or key == "goldenDrops"
 							or key == "areaCannonRings" -- #5416
 							or key == "luckyCharm"
@@ -268,7 +269,6 @@ return function()
 							or key == "rankOneTap" -- #5533
 							or key == "chipPickedWord" -- #5406
 							or key == "bowlWalkQuiet" -- #5436
-							or key == "giftBangMine" -- #5576
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
 							or key == "promptsAfter5" -- #5251

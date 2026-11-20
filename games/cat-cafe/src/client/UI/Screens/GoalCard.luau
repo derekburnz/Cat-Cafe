@@ -406,6 +406,12 @@ function GoalCard.new(
 			end
 			return
 		end
+		-- #5533 (Sync on #5534): the second tap of a double tap lands after the rank up, on the dark card again; it
+		-- must not open the Rank Up window, so the card rests REST seconds after a counted tap
+		local fired: number? = self._tapFired
+		if fired ~= nil and os.clock() - fired < RankOneTap.REST then
+			return
+		end
 		if self._folded then
 			self:_toggleFold(false) -- the chip opens again; the next tap opens the rank up
 			return

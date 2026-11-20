@@ -12897,6 +12897,15 @@ function UI.autoRank.check()
 	if player ~= nil and player:GetAttribute(AutoRankUp.ATTRIBUTE) ~= readyTier then
 		player:SetAttribute(AutoRankUp.ATTRIBUTE, readyTier)
 	end
+	-- #5533 (rankOneTap; Sync on #5534): the goal card is the Rank Up button, so the window never opens itself
+	if
+		LiveFlags.shown(
+			"rankOneTap",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankOneTap")
+		)
+	then
+		return
+	end
 	if not on() or not ready or auto.opened[tier] then
 		return
 	end

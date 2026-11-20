@@ -194,7 +194,6 @@ LiveFlags.KEYS = {
 	"easyKeep", -- #5311: the Dragon Keep's Warmth goals 50, 100, 250, 500, 1,000 and Rekindle 500 (shared/EasyKeep); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"tablesEight", -- #5441: Tables 7 and 8 at Tiers 9 and 10, in the back of the 60 x 46 room (shared/TablesEight); off by default
-	"plainFallback", -- #4656: a model missing from Assets clones as a plain grey block, not a built placeholder (World/AssetRegistry); off by default
 	"companionMenu", -- #5296: Cats window role symbols, the Companion button and picker, both boosts (shared/Follower); off by default
 	"companionTraits", -- #5303: Mystic Pool traits that raise the Cat Companion boosts (shared/Traits, CompanionTraits); off by default
 	"strayMeets", -- onboarding_v9: the Alleyway's waiting stray stands by the landing for a first catch by hand (shared/StrayMeets); off by default
@@ -238,6 +237,8 @@ LiveFlags.KEYS = {
 	"tipPileOldest", -- #5422: a table's tip pile goes oldest first, as the server takes them, so none is left behind (Controllers/CustomerController); off by default
 	"cannonCloudsEarly", -- #5370: a cannon flight's clouds cover the screen just after the boom, so the far, half streamed areas never show (Effects/Cannon); off by default
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
+	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
+	"cannonGlow", -- #5533 v2: after a Rank Up that opens an area the Town Square cannon glows with the area's sign until the first flight there (Effects/WorldGlow); off by default
 	"pawsInFloor", -- #5471: the Town Square's paw prints are drawn on the floor they lie on, so they stream with it (World/PawFloor); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
 	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
@@ -363,7 +364,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	easyKeep = true, -- #5311: on after Review-QA, with a restart
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	tablesEight = true, -- #5441 (Derek 2026-11-19): on as soon as it publishes
-	plainFallback = true, -- #4656: the placeholder builders go once this has run clean (0 fallback warnings)
 	companionMenu = true, -- #5296: on after Review-QA, Sync's pictures and Derek's look
 	companionTraits = true, -- #5303: a paid random item change, on after a restart publish and Review-QA's odds check
 	afkStay = true, -- #5322: on after Review-QA and a real restart with an AFK player watched
@@ -400,6 +400,8 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tipPileOldest = true, -- #5422
 	cannonCloudsEarly = true, -- #5370: on as soon as it merges (Derek 2026-11-18: switches on right away)
 	catsArrowOff = true, -- #5485: on as soon as it merges
+	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
+	cannonGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
 	pawsInFloor = true, -- #5471: on as soon as it merges
 	guideArrow = true, -- #5465: on as soon as it merges
 	lockedRingsHidden = true, -- #5463: on as soon as it merges

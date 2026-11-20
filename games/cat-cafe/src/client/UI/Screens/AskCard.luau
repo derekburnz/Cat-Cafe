@@ -521,6 +521,10 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 		local id = choice.id
 		local upper = index <= top
 		local count = math.max(1, if upper then top else #choices - top)
+		local look: Button.Style = choice.style or "ghost"
+		if mixed and look == "ghost" then
+			look = CLEAN_PLAIN
+		end
 		table.insert(
 			self._buttons,
 			Button.new({
@@ -531,9 +535,7 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 				image = if choice.icon
 					then ShopIcons.clean(Theme.cleanGlyphs[choice.icon] or "")
 					else nil,
-				style = if mixed and (choice.style == nil or choice.style == "ghost")
-					then CLEAN_PLAIN
-					else choice.style or "ghost",
+				style = look,
 				textSize = if lone then CHOICE_TEXT + 4 else CHOICE_TEXT,
 				size = if lone
 					then UDim2.fromScale(loneWidth, 1)

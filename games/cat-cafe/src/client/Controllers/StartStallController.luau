@@ -56,14 +56,14 @@ end
 local function busy(goal: string): boolean
 	local u: any = UI
 	local circles: any = if u.catch ~= nil then u.catch.circlesActive else nil
-	if type(circles) == "function" and circles() == true then
+	if type(circles) == "function" and (circles :: () -> boolean)() == true then
 		return true
 	end
 	if u.isOpen() ~= nil then
 		return true
 	end
 	local held: any = if u.cutscene ~= nil then u.cutscene.held else nil
-	if type(held) == "function" and held() == true then
+	if type(held) == "function" and (held :: () -> boolean)() == true then
 		return true
 	end
 	local character = Players.LocalPlayer.Character
@@ -95,9 +95,10 @@ local function nearestStray(): Model?
 		then
 			continue
 		end
-		local distance = (instance:GetPivot().Position - (root :: BasePart).Position).Magnitude
+		local model = instance :: Model
+		local distance = (model:GetPivot().Position - (root :: BasePart).Position).Magnitude
 		if distance < bestDistance then
-			best, bestDistance = instance, distance
+			best, bestDistance = model, distance
 		end
 	end
 	return best
@@ -143,13 +144,14 @@ function StartStallController.start()
 				else nil
 			if goal ~= current then
 				current, still = goal, 0
-			elseif goal ~= nil and not glowed[goal] then
-				if busy(goal) then
+			elseif goal ~= nil and not glowed[goal :: string] then
+				local now = goal :: string
+				if busy(now) then
 					still = 0
 				else
 					still += dt
-					if still >= STALL and glow(goal) then
-						glowed[goal] = true
+					if still >= STALL and glow(now) then
+						glowed[now] = true
 					end
 				end
 			end

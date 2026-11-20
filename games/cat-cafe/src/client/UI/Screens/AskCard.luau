@@ -521,7 +521,10 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 		local id = choice.id
 		local upper = index <= top
 		local count = math.max(1, if upper then top else #choices - top)
-		local look: Button.Style = choice.style or "ghost"
+		local look: Button.Style = "ghost"
+		if choice.style ~= nil then
+			look = choice.style
+		end
 		if mixed and look == "ghost" then
 			look = CLEAN_PLAIN
 		end

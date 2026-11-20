@@ -293,6 +293,7 @@ return function()
 							or key == "cannonGlow" -- #5533
 							or key == "cutsQuick" -- #5550
 							or key == "pawsInFloor" -- #5471
+							or key == "firstCatArrow" -- #5594
 							or key == "guideArrow" -- #5465
 							or key == "lockedRingsHidden" -- #5463
 							or key == "nightLineNoArrow" -- #5459

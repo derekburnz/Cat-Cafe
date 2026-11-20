@@ -57,8 +57,11 @@ local function watch(player: Player, on: boolean)
 	end
 	local seen = profile.tipsSeen[RankSpot.SEEN] == true
 	local due = false
-	local stay = LiveFlagService.on(RankFirst.STAY_FLAG) -- #5516
-	if RankSpot.due(on, tier, seen, blocker, nil, stay) then
+	local dimTwo = LiveFlagService.on(RankFirst.DIM_TWO_FLAG) -- #5609: everywhere, never put away
+	local stay = dimTwo or LiveFlagService.on(RankFirst.STAY_FLAG) -- #5516
+	if RankSpot.due(on, tier, seen, blocker, nil, stay) and dimTwo then
+		due = true
+	elseif RankSpot.due(on, tier, seen, blocker, nil, stay) then
 		-- the area last, and only when everything else holds
 		local at = (root :: BasePart).Position
 		local area = WorldBuilder.areaAt(PlotService.world(), at)

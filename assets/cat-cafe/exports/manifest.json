@@ -200040,9 +200040,10 @@
       "category": "Camp",
       "module": "campstations",
       "objects": [
-        "CatCafe_Camp_Park_PicnicStation"
+        "CatCafe_Camp_Park_PicnicStation",
+        "CatCafe_Camp_Park_PicnicStation_Lid"
       ],
-      "triangles": 2342,
+      "triangles": 2448,
       "budget": 4000,
       "size_studs": {
         "x": 8.66,
@@ -200066,9 +200067,23 @@
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot (Layout.campExtras.park, Park set space)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Park_PicnicStation_Lid": [
+          1.3,
+          0.74,
+          3.36
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Park_PicnicStation_Lid": [
+          -1.3,
+          3.36,
+          0.74
+        ]
+      },
       "studio": "#1133 (camp-stations.md section 2): the Picnic station, replacing CatCafe_Camp_Park_PicnicBasket at Layout.campExtras.park. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the A-frame sign, for ReadyBang), GlowAnchor (under the parasol, the ready glow's PointLight, #1328) and Steam (the thermos). Everything collides and can be climbed.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_PicnicStation.model.json",
-      "rbx_parts": 222,
+      "rbx_parts": 233,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicStation.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicStation.glb"
@@ -200080,10 +200095,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2342/4000 tris",
+          "budget": "2448/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1141 faces on swatch centers",
+          "uv": "1198 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.62 y=0.00"
@@ -308236,6 +308251,278 @@
           "centered": "footprint center x=0.03 y=0.00"
         }
       }
+    },
+    {
+      "name": "CatCafe_Prop_PicnicBlanket",
+      "category": "Prop",
+      "module": "picnicprops",
+      "objects": [
+        "CatCafe_Prop_PicnicBlanket"
+      ],
+      "triangles": 192,
+      "budget": 600,
+      "size_studs": {
+        "x": 6.0,
+        "y": 6.0,
+        "z": 0.09
+      },
+      "size_roblox": [
+        6.0,
+        0.09,
+        6.0
+      ],
+      "bounds_min": [
+        -3.0,
+        -3.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.0,
+        3.0,
+        0.09
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_PicnicBlanket.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicBlanket.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicBlanket.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_PicnicBlanket.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_PicnicBlanket.png"
+    },
+    {
+      "name": "CatCafe_Prop_PicnicBlanket_Rolled",
+      "category": "Prop",
+      "module": "picnicprops",
+      "objects": [
+        "CatCafe_Prop_PicnicBlanket_Rolled"
+      ],
+      "triangles": 396,
+      "budget": 600,
+      "size_studs": {
+        "x": 6.03,
+        "y": 0.7,
+        "z": 0.67
+      },
+      "size_roblox": [
+        6.03,
+        0.67,
+        0.7
+      ],
+      "bounds_min": [
+        -3.02,
+        -0.35,
+        -0.01
+      ],
+      "bounds_max": [
+        3.02,
+        0.35,
+        0.65
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_PicnicBlanket_Rolled.model.json",
+      "rbx_parts": 11,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicBlanket_Rolled.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicBlanket_Rolled.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "396/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "132 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_PicnicBlanket_Rolled.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_PicnicBlanket_Rolled.png"
+    },
+    {
+      "name": "CatCafe_Prop_PicnicSandwich",
+      "category": "Prop",
+      "module": "picnicprops",
+      "objects": [
+        "CatCafe_Prop_PicnicSandwich"
+      ],
+      "triangles": 156,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.78,
+        "y": 0.63,
+        "z": 0.83
+      },
+      "size_roblox": [
+        0.78,
+        0.83,
+        0.63
+      ],
+      "bounds_min": [
+        -0.39,
+        -0.31,
+        0.0
+      ],
+      "bounds_max": [
+        0.39,
+        0.31,
+        0.83
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_PicnicSandwich.model.json",
+      "rbx_parts": 9,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicSandwich.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicSandwich.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "156/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "78 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_PicnicSandwich.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_PicnicSandwich.png"
+    },
+    {
+      "name": "CatCafe_Prop_PicnicCupcake",
+      "category": "Prop",
+      "module": "picnicprops",
+      "objects": [
+        "CatCafe_Prop_PicnicCupcake"
+      ],
+      "triangles": 296,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.55,
+        "y": 0.58,
+        "z": 0.77
+      },
+      "size_roblox": [
+        0.55,
+        0.77,
+        0.58
+      ],
+      "bounds_min": [
+        -0.28,
+        -0.29,
+        0.0
+      ],
+      "bounds_max": [
+        0.28,
+        0.29,
+        0.77
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_PicnicCupcake.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicCupcake.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicCupcake.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "296/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "128 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_PicnicCupcake.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_PicnicCupcake.png"
+    },
+    {
+      "name": "CatCafe_Prop_PicnicLemonade",
+      "category": "Prop",
+      "module": "picnicprops",
+      "objects": [
+        "CatCafe_Prop_PicnicLemonade"
+      ],
+      "triangles": 288,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.58,
+        "y": 0.5,
+        "z": 0.97
+      },
+      "size_roblox": [
+        0.58,
+        0.97,
+        0.5
+      ],
+      "bounds_min": [
+        -0.24,
+        -0.25,
+        0.0
+      ],
+      "bounds_max": [
+        0.34,
+        0.25,
+        0.97
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_PicnicLemonade.model.json",
+      "rbx_parts": 11,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicLemonade.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_PicnicLemonade.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "288/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "102 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.05 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_PicnicLemonade.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_PicnicLemonade.png"
     }
   ]
 }

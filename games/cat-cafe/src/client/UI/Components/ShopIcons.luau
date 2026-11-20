@@ -579,7 +579,9 @@ function ShopIcons.potionAll(potionId: string?): { string }
 	end
 	local name = potionId:match("^(.+)_potion$")
 	if name == nil then
-		return list
+		-- #5572: an id not named like a potion (picnic_time) wears its stand-in's bottles
+		local standIn = POTION_STAND_INS[potionId]
+		return if standIn ~= nil then ShopIcons.potionAll(standIn) else list
 	end
 	local key = pascal(name)
 	for _, prefix in { "Icon_Flask_", "Icon_Clean_Potion", "Potion_" } do

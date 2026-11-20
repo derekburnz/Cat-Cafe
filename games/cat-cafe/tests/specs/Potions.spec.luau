@@ -360,7 +360,7 @@ return function()
 			expect(def.tips).never.to.be.ok()
 			expect(def.shopOnly).to.equal(true) -- never a Mystery gift
 			for _, other in Catalog.potions do
-				if other.id ~= def.id and other.id ~= "picnic_time" then -- #5572: Picnic Time is 2x on top too
+				if other.id ~= def.id then
 					expect((other :: any).tipsOver).never.to.be.ok()
 				end
 			end

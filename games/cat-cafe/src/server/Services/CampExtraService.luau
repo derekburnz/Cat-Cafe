@@ -267,9 +267,14 @@ local function startParty(player: Player, profile: Types.PlayerProfile): boolean
 	end
 	local running = PotionService.give(player, profile, PicnicParty.POTION)
 	local endsAt = now + PicnicParty.SECONDS
-	parties[player] = { endsAt = endsAt, startedPlay = playSeconds(profile) }
 	seenReady[player] = nil
-	player:SetAttribute(PicnicParty.ENDS_AT, endsAt)
+	if running then
+		parties[player] = { endsAt = endsAt, startedPlay = playSeconds(profile) }
+		player:SetAttribute(PicnicParty.ENDS_AT, endsAt)
+	else
+		-- the potion timer is full (PotionMaxMinutes): Picnic Time waits in the bag, so no party look plays
+		Net.toast(player, "Your money boost timer is full, so Picnic Time went in your bag", "warn")
+	end
 	Telemetry.custom(
 		player,
 		"picnic_started",

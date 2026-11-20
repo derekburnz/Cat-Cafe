@@ -2823,13 +2823,14 @@ Catalog.potions = {
 		shopOnly = true,
 	},
 	-- #5572 (switch picnicParty, shared/PicnicParty): Picnic Time, the Picnic Party's +100% money for 3 minutes, started
-	-- at the basket (PotionService.give). Never sold, never in a gift; `tipsOver` puts it on top of the money cap.
+	-- at the basket (PotionService.give). Never sold, never in a gift. Its +100% sits inside TimedTipsMax with the other
+	-- money potions (Design 2026-11-20: never past the most potions can add).
 	{
 		id = "picnic_time",
 		name = "Picnic Time",
 		minutes = 3,
 		effect = "2x money",
-		tipsOver = 1,
+		tips = 1,
 		shopOnly = true,
 	},
 } :: { Types.PotionDef }

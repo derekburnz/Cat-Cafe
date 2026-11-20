@@ -97,6 +97,15 @@ return function()
 			)
 		end)
 
+		it("joins with a comma on a short screen", function()
+			expect(AdventLogic.prizeText({ snowflakes = 100, spins = 3 }, nil, true)).to.equal(
+				"3 spins, 100 Snowflakes"
+			)
+			expect(AdventLogic.prizeText({ fish = 1000 }, "Silent Night", true)).to.equal(
+				"Silent Night, 1000 golden fish"
+			)
+		end)
+
 		it("never shows an empty door", function()
 			expect(AdventLogic.prizeText(nil)).to.equal("A gift")
 			expect(AdventLogic.prizeText({})).to.equal("A gift")

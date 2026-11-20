@@ -1026,9 +1026,10 @@ end
 -- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
 local function grouped(profile: Profile, fields: { string }): { string }
 	-- #5498: a save in the walk-through order test carries its arm there instead (the intro test takes nobody new)
-	-- #5499: and a save in neither carries its holdout group ("holdout" or "live"); a held save is never in the order test
+	-- #5499: and a save in neither carries its holdout group ("holdout" or "live"); a held save is never in the order test.
+	-- Both come ahead of introGroup: every new save still takes intro_short (#4252), which hid them (Sync 2026-11-20)
 	local state = profile.telemetry
-	return IntroSplit.fields(state.introGroup or state.orderGroup or state.holdout, fields)
+	return IntroSplit.fields(state.orderGroup or state.holdout or state.introGroup, fields)
 end
 
 -- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
@@ -1078,7 +1079,12 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 			state.orderGroup
 		)
 	then
-		state.orderGroup = TutorialOrder.group(player.UserId)
+		-- Studio only (Sync 2026-11-20): ReplicatedStorage's StudioOrderArm attribute, set in edit mode before Play,
+		-- picks the arm for a fresh test save so the bowl arm's telemetry can be walked too
+		local forced = if studio
+			then TutorialOrder.valid(ReplicatedStorage:GetAttribute("StudioOrderArm"))
+			else nil
+		state.orderGroup = forced or TutorialOrder.group(player.UserId)
 		Telemetry.custom(player, "order_group", 1, { state.orderGroup :: string }) -- TutorialOrder.EVENT
 	end
 	player:SetAttribute(TutorialOrder.GROUP_ATTR, state.orderGroup)

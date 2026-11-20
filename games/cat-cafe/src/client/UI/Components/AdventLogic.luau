@@ -6,7 +6,7 @@
 --   cells(view) -> { Cell }           the 24 doors in order
 --   headline(view) -> string          the one line over the doors
 --   rowLine(view) -> string           the Rewards list's row
---   prizeText(prize, catName?) -> string   a door's prize in a few words
+--   prizeText(prize, catName?, compact?) -> string   a door's prize in a few words
 --   dateText(n) -> string             "Dec 9", the UTC day door n opens
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -40,7 +40,8 @@ local function count(amount: number, one: string, many: string): string
 	return ("%d %s"):format(amount, if amount == 1 then one else many)
 end
 
-function AdventLogic.prizeText(prize: any, catName: string?): string
+-- `compact` (a short screen's small tile): parts joined with a comma, which wraps better than " + ".
+function AdventLogic.prizeText(prize: any, catName: string?, compact: boolean?): string
 	local parts: { string } = {}
 	if catName ~= nil then
 		table.insert(parts, catName)
@@ -89,7 +90,9 @@ function AdventLogic.prizeText(prize: any, catName: string?): string
 			end
 		end
 	end
-	return if #parts > 0 then table.concat(parts, " + ") else "A gift"
+	return if #parts > 0
+		then table.concat(parts, if compact == true then ", " else " + ")
+		else "A gift"
 end
 
 function AdventLogic.cells(view: View?): { Cell }

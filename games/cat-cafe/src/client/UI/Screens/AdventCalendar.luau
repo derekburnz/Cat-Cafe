@@ -47,8 +47,12 @@ type Tile = {
 
 local COLUMNS = 6
 local GAP = 8
-local TILE_H, SHORT_TILE_H = 82, 64
-local STRIP_H, SHORT_STRIP_H = 44, 36
+-- Sync's 667x375 look (#5515): at the phone's 0.75 scale a 64 high tile left the prize one 16 px line, so two-part
+-- prizes were cut ("3 spins + 100"), the grid scrolled 7 px and OPEN was 21 px tall. On a short screen the tile's
+-- status moves up beside the number, the prize takes two lines, the strip keeps its full height for OPEN and the
+-- grid's padding shrinks so four lines fit without scrolling.
+local TILE_H, SHORT_TILE_H = 82, 58
+local STRIP_H = 44
 local OPEN_W = 150
 local PENDING_SECONDS = 2
 local GOLD_FILL = CREAM.goldCard
@@ -80,8 +84,9 @@ function AdventCalendar.new(callbacks: Callbacks): AdventCalendar
 	self._tiles = {} :: { [number]: Tile }
 	self._pendingAt = nil :: number? -- os.clock() of the last OPEN press
 	local short = Scale.isShort()
+	self._short = short
 	local tileH = if short then SHORT_TILE_H else TILE_H
-	local stripH = if short then SHORT_STRIP_H else STRIP_H
+	local stripH = STRIP_H
 
 	local panel = Panel.new({
 		name = "AdventCalendar",
@@ -120,7 +125,7 @@ function AdventCalendar.new(callbacks: Callbacks): AdventCalendar
 		name = "Open",
 		text = "OPEN",
 		style = "primary",
-		size = UDim2.fromOffset(OPEN_W, stripH - 8),
+		size = UDim2.fromOffset(OPEN_W, stripH - (if short then 4 else 8)),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, -4, 0.5, 0),
 		textSize = Theme.sizes.textBody + 1,
@@ -153,8 +158,8 @@ function AdventCalendar.new(callbacks: Callbacks): AdventCalendar
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 4),
-			PaddingBottom = UDim.new(0, 8),
+			PaddingTop = UDim.new(0, if short then 2 else 4),
+			PaddingBottom = UDim.new(0, if short then 2 else 8),
 			PaddingLeft = UDim.new(0, 3),
 			PaddingRight = UDim.new(0, 9),
 		}),
@@ -180,7 +185,7 @@ function AdventCalendar.new(callbacks: Callbacks): AdventCalendar
 		text({
 			Name = "Number",
 			Position = UDim2.fromOffset(7, 2),
-			Size = UDim2.new(1, -34, 0, 20),
+			Size = if short then UDim2.new(0.4, 0, 0, 20) else UDim2.new(1, -34, 0, 20),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody + 2,
 			TextColor3 = if cat then CREAM.gold else CREAM.text,
@@ -206,7 +211,7 @@ function AdventCalendar.new(callbacks: Callbacks): AdventCalendar
 		local prize = text({
 			Name = "Prize",
 			Position = UDim2.fromOffset(5, 22),
-			Size = UDim2.new(1, -10, 1, -42),
+			Size = if short then UDim2.new(1, -10, 1, -25) else UDim2.new(1, -10, 1, -42),
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextScaled = true,
@@ -219,9 +224,13 @@ function AdventCalendar.new(callbacks: Callbacks): AdventCalendar
 		})
 		local status = text({
 			Name = "Status",
-			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 1, -3),
-			Size = UDim2.new(1, -8, 0, 16),
+			-- short screens: on the top line, right of the number (the tick takes its place once opened)
+			AnchorPoint = if short then Vector2.new(1, 0) else Vector2.new(0.5, 1),
+			Position = if short then UDim2.new(1, -5, 0, 3) else UDim2.new(0.5, 0, 1, -3),
+			Size = if short then UDim2.new(0.6, -10, 0, 18) else UDim2.new(1, -8, 0, 16),
+			TextXAlignment = if short
+				then Enum.TextXAlignment.Right
+				else Enum.TextXAlignment.Center,
 			FontFace = Theme.fonts.display,
 			TextColor3 = CREAM.subtext,
 			Parent = frame,
@@ -319,11 +328,13 @@ function AdventCalendar._refresh(self: any)
 		local ready = cell.state == "ready"
 		tile.prize.Text = AdventLogic.prizeText(
 			cell.prize,
-			if cell.cat then self._names[cell.cat] or "A cat" else nil
+			if cell.cat then self._names[cell.cat] or "A cat" else nil,
+			self._short
 		)
+		local short: boolean = self._short
 		tile.status.Text = if opened
-			then "Opened"
-			elseif ready then (if pending then "..." else "Tap to open")
+			then (if short then "" else "Opened") -- short: the tick sits where the status is
+			elseif ready then (if pending then "..." elseif short then "Open" else "Tap to open")
 			elseif cell.state == "waiting" then "Soon"
 			else cell.date
 		tile.status.TextColor3 = if opened or ready then CREAM.good else CREAM.subtext

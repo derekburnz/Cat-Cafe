@@ -31,6 +31,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CheapTiers = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CheapTiers"))
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
@@ -483,8 +484,14 @@ function GoalCard._toggleFold(self: any, folded: boolean)
 	end
 end
 
+-- #5557 (Derek 2026-11-20 13:39 UTC: "since your goal is only money now remove the shrinking down arrow from side of
+-- it"): with coinsOnly on the card has one line to show, so there is no fold arrow and a folded card opens again.
+local function foldable(): boolean
+	return TOUCH and not CheapTiers.coinsOnly()
+end
+
 function GoalCard.setFolded(self: any, folded: boolean)
-	folded = folded and TOUCH
+	folded = folded and foldable()
 	if folded == self._folded then
 		return
 	end
@@ -575,13 +582,16 @@ function GoalCard.render(
 	-- and back off in one frame
 	self.frame.Visible = self._held ~= true
 	self._last = { progress = progress, tierText = tierText, nudge = nudge, goal = goal }
+	if self._folded and not foldable() then
+		self._folded = false -- #5557: folded before coinsOnly, open now (the saved setting stays for if it goes off)
+	end
 	if self._folded then
 		self:_renderFolded(progress, nudge, goal)
 		return
 	end
 	local tap = RankOneTap.active(oneTapOn(), progress ~= nil and progress.ready)
 	self:_paintTap(tap)
-	self._fold.Visible = TOUCH
+	self._fold.Visible = foldable()
 	self._tier.Text = tierText
 	local ready = progress ~= nil and progress.ready
 	-- #3022: a goal takes the card over (a ready rank up still comes first): the gold line, its title, its lines

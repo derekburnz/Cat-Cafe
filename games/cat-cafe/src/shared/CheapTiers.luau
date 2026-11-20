@@ -29,10 +29,15 @@
 --   Tier 6   3,000,000, 13 kinds, 2 Legendaries (50,000,000, 17 kinds, 2 Mythicals)
 --   Tier 7   30,000,000, 17 kinds, 1 Mythical  (1,000,000,000, 22 kinds, 2 Mythicals)
 -- Each step is 6 to 10 times the one before, and no tier before 7 waits on a Mythical. Tier 8 is untouched.
+-- #5533 (Derek 2026-11-20 11:40 UTC: "lets not gatekeep behind cats lets make it just coin amount"): behind its own
+-- switch `coinsOnly`, laid last over whatever the other switches give, every tier from 2 up asks coins only (no kinds,
+-- no rarity) and Tiers 2 to 7 ask COINS: 1,500, 10,000, 60,000, 400,000, 3,000,000, 30,000,000. Tier 8 and up keep
+-- their coin cost. Cats still matter as the way to earn the coins.
 --   on() -> boolean           cheapTiers
 --   easyFour() -> boolean     tier4Easy
 --   easyThree() -> boolean    tier3Easy
 --   easyAll() -> boolean      tiersEasy
+--   coinsOnly() -> boolean    coinsOnly
 --   needs() -> needs?         what setTierNeeds gets for the two switches now
 --   follow()                  sets the needs now and each time either switch flips
 
@@ -67,6 +72,16 @@ CheapTiers.EASY = {
 	[7] = { cost = 30000000, distinctCats = 17, needsRarity = "Mythical", needsRarityCount = 1 },
 } :: { [number]: Catalog.TierNeeds }
 
+CheapTiers.COINS_FLAG = "coinsOnly"
+CheapTiers.COINS = {
+	[2] = 1500, -- Design's 1,000 is Config.StartCoins, so it would be ready at 0 s; Pace: 1,500 at 55 s
+	[3] = 10000,
+	[4] = 60000,
+	[5] = 400000,
+	[6] = 3000000,
+	[7] = 30000000,
+} :: { [number]: number }
+
 local following = false
 
 function CheapTiers.on(): boolean
@@ -97,6 +112,13 @@ function CheapTiers.easyAll(): boolean
 	)
 end
 
+function CheapTiers.coinsOnly(): boolean
+	return LiveFlags.shown(
+		CheapTiers.COINS_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.COINS_FLAG)
+	)
+end
+
 -- The rows for the switches: NEEDS with cheapTiers, Tier 4's row replaced by TIER4 with tier4Easy and Tier 3's by
 -- TIER3 with tier3Easy (#5467), each keeping the other fields of the row it replaces. Pure on its answers, so the
 -- spec can check every case.
@@ -104,9 +126,10 @@ function CheapTiers.needsFor(
 	cheap: boolean,
 	easy: boolean,
 	easyThree: boolean?,
-	easyAll: boolean?
+	easyAll: boolean?,
+	coins: boolean?
 ): { [number]: Catalog.TierNeeds }?
-	if not easy and not easyThree and not easyAll then
+	if not easy and not easyThree and not easyAll and not coins then
 		return if cheap then CheapTiers.NEEDS else nil
 	end
 	local out: { [number]: Catalog.TierNeeds } = {}
@@ -133,6 +156,12 @@ function CheapTiers.needsFor(
 			lay(tier, row)
 		end
 	end
+	if coins then
+		-- #5533: last, so it wins over every row above; Tier 8 and up keep the cost those rows give
+		for tier in Catalog.PLAIN_TIER_NEEDS do
+			lay(tier, { cost = CheapTiers.COINS[tier], distinctCats = 0, noRarity = true })
+		end
+	end
 	return out
 end
 
@@ -141,7 +170,8 @@ function CheapTiers.needs(): { [number]: Catalog.TierNeeds }?
 		CheapTiers.on(),
 		CheapTiers.easyFour(),
 		CheapTiers.easyThree(),
-		CheapTiers.easyAll()
+		CheapTiers.easyAll(),
+		CheapTiers.coinsOnly()
 	)
 end
 
@@ -162,6 +192,8 @@ function CheapTiers.follow()
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.TIER3_FLAG)
 		:Connect(apply)
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.EASY_FLAG)
+		:Connect(apply)
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. CheapTiers.COINS_FLAG)
 		:Connect(apply)
 end
 

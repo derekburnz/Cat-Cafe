@@ -1127,7 +1127,8 @@ function Onboarding.fromSave(facts: SaveFacts): { StepName }
 		add("first_goal_done")
 	end
 	-- #4098: Tier 2's need (4 from 2026-11-14, 5 before); the id stays five_cats so the funnel keeps its step
-	if facts.distinctCats >= Catalog.tiers[2].distinctCats then
+	-- #5533: the plain need, so coinsOnly's 0 never marks it done at the start
+	if facts.distinctCats >= (Catalog.PLAIN_TIER_NEEDS[2].distinctCats :: number) then
 		add("five_cats")
 	end
 	if facts.tier >= 2 then

@@ -3503,6 +3503,12 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	-- calm like arrived. The bowlCardHold switch, on unless set false, turns this off.
 	local held = (UI.cutscene.held() or (introScreen ~= nil and introScreen:playing()))
 		and ReplicatedStorage:GetAttribute("LiveFlag_bowlCardHold") ~= false
+	-- #5562 (Motion-FX's #5564): a play first start save below Tier 3 waits for calm too (UI.bait.busy, which holds
+	-- while the quick first bait scene runs or is owed near the bowl), so its walk to the bowl plays the scene and then
+	-- the card
+	local FreeStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any
+	held = held or (FreeStart.quiet(state.tier) and UI.bait.busy())
 	if held or (modal ~= nil and modal:current() == "Store") then
 		renderBait()
 		UI.bait.whenCalm(function()

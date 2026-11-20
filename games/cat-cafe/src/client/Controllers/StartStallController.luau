@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CannonGlow = require(Shared:WaitForChild("CannonGlow"))
 local FreeStart = require(Shared:WaitForChild("FreeStart"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 local WorldGlow = require(script.Parent.Parent.Effects.WorldGlow)
@@ -24,6 +25,7 @@ local StartStallController = {}
 local STALL = 11 -- seconds the goal stays where it is before its glow
 local POLL = 0.5
 local REACH = 120 -- studs: a stray farther than this is not "the nearest cat"
+local STALL_FLAG = "stallGlow" -- Effects/WorldGlow's switch (Presets.worldGlow.stallFlag)
 
 local started = false
 local glowed: { [string]: boolean } = {} -- the goals that have had their glow (once each)
@@ -102,6 +104,10 @@ local function nearestStray(): Model?
 end
 
 local function glow(goal: string): boolean
+	-- Review-QA on #5563: while stallGlow is off WorldGlow.stall does nothing, so the goal is not marked done
+	if ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. STALL_FLAG) ~= true then
+		return false
+	end
 	if goal == "catch" then
 		local stray = nearestStray()
 		if stray == nil then

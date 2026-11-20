@@ -136,6 +136,11 @@ export type CustomEvent =
 	| "order_group" -- #5498 (shared/TutorialOrder): a new save joined the walk-through order test (value 1; field: its arm)
 	| "cat_pet" -- #3651 (shared/Pet): a cat was petted (value 1; field: first, same or moved)
 	| "yard_pick" -- #3614: a Yard Sale lucky pick landed (value 1; fields: crate id, tier)
+	-- #5572 (shared/PicnicParty, switch picnicParty), each value 1:
+	| "picnic_ready_seen" -- a ready basket within 60 studs, once a ready basket (fields: tier, seconds of play)
+	| "picnic_started" -- a party started (fields: tier, seconds of play, "running" or "bagged")
+	| "picnic_ended" -- Picnic Time ran out (fields: tier, seconds of play since its start)
+	| "picnic_ring_empty" -- the basket's ring with nothing ready, at most once a minute (field: tier)
 	| "afk_start"
 	| "afk_end"
 	| "afk_pay"

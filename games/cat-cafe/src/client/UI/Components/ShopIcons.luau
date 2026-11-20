@@ -560,6 +560,7 @@ local POTION_STAND_INS: { [string]: string } = {
 	big_gold_rush_potion = "gold_rush_potion",
 	mega_tip_potion = "big_tip_potion",
 	admin_money_potion = "big_tip_potion", -- #4195: the Admin Wheel's 3x money
+	picnic_time = "big_tip_potion", -- #5572: Picnic Time, the Big Money picture until it has its own
 }
 
 function ShopIcons.potionAll(potionId: string?): { string }
@@ -578,7 +579,9 @@ function ShopIcons.potionAll(potionId: string?): { string }
 	end
 	local name = potionId:match("^(.+)_potion$")
 	if name == nil then
-		return list
+		-- #5572: an id not named like a potion (picnic_time) wears its stand-in's bottles
+		local standIn = POTION_STAND_INS[potionId]
+		return if standIn ~= nil then ShopIcons.potionAll(standIn) else list
 	end
 	local key = pascal(name)
 	for _, prefix in { "Icon_Flask_", "Icon_Clean_Potion", "Potion_" } do

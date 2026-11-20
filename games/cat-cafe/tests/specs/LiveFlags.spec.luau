@@ -176,6 +176,7 @@ return function()
 							or key == "backdropsNear" -- #4857
 							or key == "catNames" -- #5586
 							or key == "fxOneAdded" -- #5000
+							or key == "picnicParty" -- #5572
 							or key == "rankUpRightAway" -- #5031
 							or key == "parkRingEarly" -- #5034
 							or key == "tier3Path" -- #5038
@@ -273,6 +274,7 @@ return function()
 							or key == "giftBangMine" -- #5576
 							or key == "rankOneTap" -- #5533
 							or key == "rankTapLook" -- #5592
+							or key == "askClean" -- #5597
 							or key == "chipPickedWord" -- #5406
 							or key == "bowlWalkQuiet" -- #5436
 							or key == "bowlNoPops" -- #5571
@@ -296,12 +298,16 @@ return function()
 							or key == "firstCatchCoins" -- #5596
 							or key == "stallGlow" -- #5533
 							or key == "cannonGlow" -- #5533
+							or key == "rankPicker" -- #5599
 							or key == "cutsQuick" -- #5550
+							or key == "steadySoft" -- #5601
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465
+							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "bowlPassOptions" -- #5606
 							or key == "nightLineNoArrow" -- #5459
+							or key == "rankDimTwo" -- #5609
 							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)

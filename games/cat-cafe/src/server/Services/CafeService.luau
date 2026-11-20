@@ -2424,7 +2424,10 @@ local function onRankUp(player: Player)
 		local opened = if CannonGlow.on()
 			then CannonGlow.opened(def.tier, Catalog.areas, been)
 			else nil
-		if opened ~= nil then
+		-- #5595 (Review-QA on #5600): a later Rank Up never replaces an area still waiting for its first flight, so a
+		-- quick Tier 3 before the first Park trip keeps the Park lit
+		local waiting = player:GetAttribute(CannonGlow.ATTR)
+		if opened ~= nil and not (type(waiting) == "string" and waiting ~= "") then
 			player:SetAttribute(CannonGlow.ATTR, opened)
 			Telemetry.firstFive(player, profile, "cannon_glow_shown") -- #5551
 		end

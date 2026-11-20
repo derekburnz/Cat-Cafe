@@ -468,8 +468,8 @@ local function watch()
 end
 
 function TutorialArrow.add(target: GuiObject, low: boolean?, plain: boolean?)
-	-- #5533 (shared/FreeStart): nothing points for a save on the play first start until Tier 3
-	if FreeStart.quiet() then
+	-- #5533 (shared/FreeStart): nothing points for a save on the play first start until Tier 3 (#5599: but LOUD_ATTR)
+	if FreeStart.quietFor(target) then
 		return
 	end
 	for _, entry in entries do

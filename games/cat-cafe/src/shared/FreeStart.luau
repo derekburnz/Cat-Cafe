@@ -70,6 +70,19 @@ function FreeStart.quiet(tier: number?): boolean
 	return (if type(raw) == "number" then raw else 1) < FreeStart.UNTIL_TIER
 end
 
+-- #5599 (rankPicker): a GuiObject with this attribute set true still gets its ring, arrow and spotlight while
+-- quiet() holds (the cannon menu's Park Launch after the Tier 2 Rank Up: Derek 2026-11-20 "point at the park after
+-- unlock so they know").
+FreeStart.LOUD_ATTR = "PointEvenQuiet"
+
+-- quiet(), except for a `target` marked LOUD_ATTR.
+function FreeStart.quietFor(target: Instance?): boolean
+	if target ~= nil and target:GetAttribute(FreeStart.LOUD_ATTR) == true then
+		return false
+	end
+	return FreeStart.quiet(nil)
+end
+
 -- streetCats: whether the street's extra Commons still come for a joined save with `played` seconds of play.
 function FreeStart.streetDue(joined: boolean?, played: number): boolean
 	return joined == true and played < FreeStart.STREET_SECONDS

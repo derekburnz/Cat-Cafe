@@ -21,6 +21,7 @@
 -- clear of the bottom row.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -106,8 +107,29 @@ local THANKS_SECONDS = 1.5
 local SLIDE = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SLIDE_OUT = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 
+-- #5597 (Derek 2026-11-20, on the "What next?" card: "the ui for these type of tips pop ups is broken and ugly"): the
+-- askClean switch (LiveFlags, off by default), read as each ask shows. The band becomes the gold button face over a
+-- darker lip with the title centred in it, the X is tucked into the corner (CLEAN_X_OUT px of overhang), the line is
+-- a size bigger and centred, a plain white button beside a coloured one turns into the house blue so the pair
+-- matches, the buttons keep CLEAN_PAD from the card's edge, and the timer is a slim rounded bar inset under them.
+local CLEAN_FLAG = "askClean"
+local CLEAN_PAD = 12
+local CLEAN_BAND_FOOT = 8
+local CLEAN_LIP = 3
+local CLEAN_BELOW = 10 -- the body starts this far under the lip
+local CLEAN_X_OUT = 6
+local CLEAN_BAR_H = 6
+local CLEAN_BAR_GAP = 8
+local CLEAN_LINE_UP = 2 -- the line's text, sizes over LINE_TEXT
+local CLEAN_BAND = ColorSequence.new(Theme.button.gold.top, Theme.button.gold.bottom)
+
+local function cleanOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. CLEAN_FLAG) == true
+end
+
 local AskCard = {}
 AskCard.__index = AskCard
+AskCard.CLEAN_FLAG = CLEAN_FLAG
 
 function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	local self = setmetatable({}, AskCard) :: any
@@ -192,6 +214,23 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Size = UDim2.new(1, 0, 0, PAD + TITLE_H + BAND_FOOT),
 		Parent = card,
 	})
+	-- #5597: the clean band's face and the lip under it, both idle until an ask shows with askClean on
+	self._bandFace = Create("UIGradient", {
+		Name = "Face",
+		Color = CLEAN_BAND,
+		Rotation = 90,
+		Enabled = false,
+		Parent = self._band,
+	})
+	self._bandLip = Create("Frame", {
+		Name = "BandLip",
+		BackgroundColor3 = Theme.button.gold.depth,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, CLEAN_LIP),
+		Visible = false,
+		Parent = card,
+	})
+	self._clean = false
 	self._title = Create("TextLabel", {
 		Name = "Title",
 		BackgroundTransparency = 1,
@@ -266,6 +305,8 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 			self:hide("closed")
 		end,
 	})
+	self._closeWide = wide
+	self._closeTall = tall
 	-- how far the X (centred 6 in from the right edge, with its outline) reaches over the title's line, past PAD
 	self._titleInset = math.max(0, math.ceil(6 + wide / 2 + Button.OUTLINE + 2 - PAD))
 	self._row = Create("Frame", {
@@ -315,6 +356,9 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Size = UDim2.fromScale(1, 1),
 		Parent = track,
 	})
+	-- #5597: square until the clean look rounds them
+	self._trackCorner = Create("UICorner", { CornerRadius = UDim.new(0, 0), Parent = track })
+	self._barCorner = Create("UICorner", { CornerRadius = UDim.new(0, 0), Parent = self._bar })
 	self._resize = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_fit()
 	end)
@@ -348,8 +392,19 @@ function AskCard._setLines(
 	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
 	self._title.TextWrapped = lines >= 2
 	local inset: number = self._titleInset or 0
-	self._band.Size = UDim2.new(1, 0, 0, PAD + titleH + BAND_FOOT)
-	local top = PAD + titleH + BELOW
+	local clean: boolean = self._clean
+	local pad = if clean then math.max(PAD, CLEAN_PAD) else PAD
+	local bandH = if clean then PAD + titleH + CLEAN_BAND_FOOT else PAD + titleH + BAND_FOOT
+	self._band.Size = UDim2.new(1, 0, 0, bandH)
+	self._band.BackgroundColor3 = if clean then Color3.new(1, 1, 1) else Theme.colors.gold
+	self._bandFace.Enabled = clean
+	self._bandLip.Visible = clean
+	self._bandLip.Position = UDim2.fromOffset(0, bandH)
+	local wide: number, tall: number = self._closeWide, self._closeTall
+	self._close.instance.Position = if clean
+		then UDim2.new(1, CLEAN_X_OUT - wide / 2, 0, tall / 2 - CLEAN_X_OUT)
+		else UDim2.new(1, -6, 0, 4)
+	local top = if clean then bandH + CLEAN_LIP + CLEAN_BELOW else PAD + titleH + BELOW
 	-- #5152: a drawing under the band, the line and buttons below it
 	local drawH = if drawingH ~= nil
 			and drawingH > 0
@@ -358,8 +413,8 @@ function AskCard._setLines(
 		else 0
 	self._drawing.Visible = drawH > 0
 	if drawH > 0 then
-		self._drawing.Position = UDim2.fromOffset(PAD, top)
-		self._drawing.Size = UDim2.new(1, -PAD * 2, 0, drawH)
+		self._drawing.Position = UDim2.fromOffset(pad, top)
+		self._drawing.Size = UDim2.new(1, -pad * 2, 0, drawH)
 		top += drawH + GAP
 	end
 	local buttonsH = if two then self._choiceH * 2 + GAP else self._choiceH
@@ -367,42 +422,70 @@ function AskCard._setLines(
 	local compact = hasPicture and COMPACT
 	-- compact: the picture spans the title and the buttons, the title starts right of it
 	local side = if compact then titleH + BELOW + buttonsH else PICTURE
-	local left = if hasPicture then PAD + side + GAP else PAD
+	local left = if hasPicture then pad + side + GAP else pad
 	local titleLeft = if compact then left else PAD
-	self._title.Position = UDim2.fromOffset(titleLeft, PAD)
-	self._title.Size = UDim2.new(1, -titleLeft - PAD - inset - TITLE_RIGHT, 0, titleH)
+	if clean and not compact then
+		-- centred in the band, clear of the tucked X by the same room on both sides
+		local reach = math.max(PAD, wide - CLEAN_X_OUT + 4)
+		self._title.Position = UDim2.fromOffset(reach, (bandH - titleH) / 2)
+		self._title.Size = UDim2.new(1, -2 * reach, 0, titleH)
+	else
+		self._title.Position = UDim2.fromOffset(titleLeft, PAD)
+		self._title.Size = UDim2.new(1, -titleLeft - PAD - inset - TITLE_RIGHT, 0, titleH)
+	end
 	self._extraW = if hasPicture and WIDEN then PICTURE + GAP else 0
 	self._picture.Visible = hasPicture
 	self._picture.Size = UDim2.fromOffset(side, side)
-	self._picture.Position = UDim2.fromOffset(PAD, if compact then PAD else top)
+	self._picture.Position = UDim2.fromOffset(pad, if compact then PAD else top)
 	local art = self._picture:FindFirstChild("Art") :: ImageLabel
 	art.Image = if hasPicture then picture :: string else ""
 	local hasLine = line ~= nil and line ~= "" and not compact
-	local lineH = if hasLine then LINE_H + 4 else 0
+	local lineBox = if clean then LINE_H + 4 else LINE_H -- the bigger words keep their two rows
+	local lineH = if hasLine then lineBox + 4 else 0
 	self._line.Visible = hasLine
 	self._line.Text = line or ""
 	self._line.Position = UDim2.fromOffset(left, top)
-	self._line.Size = UDim2.new(1, -left - PAD, 0, LINE_H)
+	self._line.Size = UDim2.new(1, -left - pad, 0, lineBox)
+	self._line.TextSize = if clean then LINE_TEXT + CLEAN_LINE_UP else LINE_TEXT
+	self._line.TextXAlignment = if clean and not hasPicture
+		then Enum.TextXAlignment.Center
+		else Enum.TextXAlignment.Left
 	self._row.Position = UDim2.fromOffset(left, top + lineH)
-	self._row.Size = UDim2.new(1, -left - PAD, 0, self._choiceH)
+	self._row.Size = UDim2.new(1, -left - pad, 0, self._choiceH)
 	self._row2.Position = UDim2.fromOffset(left, top + lineH + self._choiceH + GAP)
-	self._row2.Size = UDim2.new(1, -left - PAD, 0, self._choiceH)
+	self._row2.Size = UDim2.new(1, -left - pad, 0, self._choiceH)
 	self._row2.Visible = two
 	local bodyH = math.max(lineH + buttonsH, if hasPicture and not compact then PICTURE else 0)
 	local bar = if timed == false then 0 else BAR_H
 	self._track.Visible = bar > 0
-	self._cardH = top + bodyH + PAD + bar
+	local track: Frame = self._track
+	if clean then
+		-- a slim rounded bar inset under the buttons
+		track.Position = UDim2.new(0, pad, 1, -CLEAN_BAR_GAP)
+		track.Size = UDim2.new(1, -2 * pad, 0, CLEAN_BAR_H)
+		self._trackCorner.CornerRadius = UDim.new(1, 0)
+		self._barCorner.CornerRadius = UDim.new(1, 0)
+		self._cardH = top + bodyH + (if bar > 0 then CLEAN_BAR_GAP * 2 + CLEAN_BAR_H else pad)
+	else
+		track.Position = UDim2.fromScale(0, 1)
+		track.Size = UDim2.new(1, 0, 0, BAR_H)
+		self._trackCorner.CornerRadius = UDim.new(0, 0)
+		self._barCorner.CornerRadius = UDim.new(0, 0)
+		self._cardH = top + bodyH + PAD + bar
+	end
 	self:_fit()
 end
 
 -- Whether `title` runs past the title's box on one line. Display letters average a little over half their size wide.
 local WIDTH_PER_SIZE = 0.56
 function AskCard._long(self: any, title: string): boolean
-	local box = self._holder.Size.X.Offset
-		- self._title.Position.X.Offset
-		- PAD
-		- (self._titleInset or 0)
-		- TITLE_RIGHT
+	local box = if self._clean
+		then self._holder.Size.X.Offset + self._title.Size.X.Offset -- the clean title's own width
+		else self._holder.Size.X.Offset
+			- self._title.Position.X.Offset
+			- PAD
+			- (self._titleInset or 0)
+			- TITLE_RIGHT
 	local letters = utf8.len(title) or #title
 	return letters * TITLE_TEXT * WIDTH_PER_SIZE > box
 end
@@ -424,10 +507,24 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 	-- LONE_WIDTH of the row in the middle with its words a size bigger, not a full width slab with small words
 	local lone = #choices == 1
 	local loneWidth = if self._picture.Visible then 1 else LONE_WIDTH -- beside a picture the row is narrow already
+	-- #5597: a plain button beside a coloured one takes the house blue, so the pair matches
+	local mixed = false
+	if self._clean then
+		for _, choice in choices do
+			if choice.style ~= nil and choice.style ~= "ghost" then
+				mixed = true
+			end
+		end
+	end
 	for index, choice in choices do
 		local id = choice.id
 		local upper = index <= top
 		local count = math.max(1, if upper then top else #choices - top)
+		local plain = choice.style == nil or choice.style == "ghost"
+		local look: Button.Style? = choice.style
+		if mixed and plain then
+			look = "secondary" :: Button.Style -- the house blue
+		end
 		table.insert(
 			self._buttons,
 			Button.new({
@@ -438,7 +535,7 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 				image = if choice.icon
 					then ShopIcons.clean(Theme.cleanGlyphs[choice.icon] or "")
 					else nil,
-				style = choice.style or "ghost",
+				style = look or "ghost" :: Button.Style,
 				textSize = if lone then CHOICE_TEXT + 4 else CHOICE_TEXT,
 				size = if lone
 					then UDim2.fromScale(loneWidth, 1)
@@ -496,6 +593,7 @@ function AskCard.show(self: any, ask: Ask)
 	self._token += 1
 	local token = self._token
 	self._title.Text = ask.title
+	self._clean = cleanOn() -- #5597
 	local seconds = ask.seconds
 	local timed = seconds ~= nil and seconds > 0
 	self:_setLines(ask.lines or 1, ask.rows, ask.picture, ask.line, timed, ask.drawingH)

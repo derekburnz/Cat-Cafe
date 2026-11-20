@@ -4752,6 +4752,11 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 		"rankSpotPlain",
 		ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "rankSpotPlain")
 	) == true
+	-- #5609 (rankDimTwo): the new start sees this dim and arrow too (shared/FreeStart.LOUD_ATTR)
+	target:SetAttribute(
+		"PointEvenQuiet",
+		if ReplicatedStorage:GetAttribute("LiveFlag_rankDimTwo") == true then true else nil
+	)
 	UI.rankSpot.close = SpotlightGuide.show(
 		target,
 		if onStrip or plain then "" else words or "",
@@ -4956,7 +4961,10 @@ function UI.cannon.open(cannonId: string?)
 		)
 	)
 	-- #5533 cannonGlow (shared/CannonGlow): after a rank up that opens an area, the first walk in flies straight there
-	if direct == nil then
+	-- #5599 (rankPicker, Derek 2026-11-20: "stop making cannon instantly teleport to new areas on rankup just stay
+	-- with the opens cannon menu and shows the unlock animation for the new area and let them decide where to go"):
+	-- with the switch on the walk in opens the picker, where the new card's lock breaks and the Park's Launch is ringed
+	if direct == nil and ReplicatedStorage:GetAttribute("LiveFlag_rankPicker") ~= true then
 		local CannonGlow =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CannonGlow")) :: any
 		direct = CannonGlow.direct(

@@ -153,6 +153,7 @@ LiveFlags.KEYS = {
 	"dailyGifts", -- #5506: ten gifts for minutes played today on the Rewards tile, the small account steps stop (shared/DailyGifts); off by default
 	"awayPromise", -- #5505: days played milestones (shared/DaysPlayed), later the away line and return moment; off by default
 	"holdout", -- #5499: one new account in ten keeps dailyGifts, awayPromise and orderSplit off for its first 7 days (shared/Holdout); off by default
+	"rankDimTwo", -- #5609: the Tier 2 Rank Up dim and arrow show anywhere, on the new start too, and only rest on a press until the rank up (RankSpotService, UI.rankSpot.set); off by default
 	"rankSpotStay", -- #5516: the first Rank Up dim and arrow never go away for good while it is ready, a press only rests them (shared/RankFirst.STAY_FLAG); off by default
 	"rankCueLog", -- #5516: log rank_cue_next, the first window opened after the Tier 1 rank cue (or left/ranked at session end); off by default
 	"hoodTrail", -- #5517: at Tier 3 until the first Neighbourhood landing, the goal line and paw prints to a cannon, the Neighbourhood card first with its ring (UI/Components/ParkTrailLogic.hoodDue); off by default
@@ -203,6 +204,8 @@ LiveFlags.KEYS = {
 	"milestoneFunnel", -- #5291: the milestones_v1 progression funnel for new accounts (shared/MilestoneFunnel); off by default
 	"topTraitCompanion", -- #5445: Legendary and Mythic traits add to their cat's Cat Companion boosts (shared/Traits); off by default
 	"topTraitsMore", -- #5445: three more Mythic and two more Secret traits in the Mystic Pool (shared/Traits); on only after a restart; off by default
+	"steadySoft", -- #5601: the Steady Paw Potion widens the catch bands two thirds of the way to the next net, not all of it (CatService, shared/Potions); off by default
+	"rankPicker", -- #5599: after a Rank Up the walk into a cannon opens the picker (no cannonGlow straight flight) and the Park Launch is pointed at on the new start too; off by default
 	"tameCannonPoint", -- #5245: after the first bowl cat's card the Cannon button is dimmed and pointed at until pressed, and the picker's ringed Launch too (UI applyTutorial, Screens/Cannon); off by default
 	"parkLead", -- #5248: after the Tier 2 rank up no Alleyway new kind line, the picker's Park Launch dimmed and pointed at until pressed, no marker in a flight (Screens/Cannon); off by default
 	"promptsAfter5", -- #5251: no notify, favourite or event prompt before 6 minutes of account play and session (shared/Tips.promptOk, EventRsvp.window); off by default
@@ -215,6 +218,7 @@ LiveFlags.KEYS = {
 	"quickFirstRings", -- #5232: a player's held first-catch rings shrink in 0.7 s, not 1.6 (shared/Circles.tutorialSchedule); off by default
 	"firstCatchWow", -- #5285 E2: the account's first net catch gets slow motion, a push in, a big pop, coins and a FIRST CATCH! banner (Effects/FirstCatchWow); off by default
 	"gemsShrink", -- Derek 2026-11-18: a stray's rarity gem gets smaller with distance so it stops covering far cats (Effects/Rarity, Logic.gemPixels); off by default
+	"picnicParty", -- #5572: the Picnic Basket is a Picnic Party: step in, 2x money for 3 minutes, ready again in 20 minutes and each new day (shared/PicnicParty, Services/CampExtraService); off by default
 	"christmasEvent", -- Snowglobe Village, Dec 1 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
 	"adventCalendar", -- #5502: the advent calendar (shared/Advent); also needs christmasEvent, and its dates hold every door shut until Dec 1 20:00 UTC; off by default
 	"catNames", -- #5586: a name tag in the rarity colour over the nearest wild cats (Effects/CatNames, Settings "Cat names"); off by default
@@ -232,6 +236,7 @@ LiveFlags.KEYS = {
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
 	"baitCutQuick", -- #5548: the first bait scene is about 1.5 s with no skip (Effects/FirstBaitCut) and the first bait cat comes out as the food lands (shared/Bait); off by default
 	"bowlPassOptions", -- #5606: the locked second bowl's What you get card also lists the bowl options (auto refill and auto claim) it brings with bowlTicks (Screens/BaitBowl); off by default
+	"codesRingTown", -- #5605: the Codes Cat's circle counts as a Town Square ring, so it shows with townRings as the other Town rings do (Effects/StationCircles); off by default
 	"firstCatchCoins", -- #5596: a Tier 1 save's first net catch tops its coins up to the Tier 2 Rank Up cost (StartGoalService); off by default
 	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
 	"cannonGlow", -- #5533 v2: after a Rank Up that opens an area the Town Square cannon glows with the area's sign until the first flight there (Effects/WorldGlow); off by default
@@ -244,6 +249,7 @@ LiveFlags.KEYS = {
 	"decorChipIcons", -- #5366: the Decor menu chips draw art pictures in place of the tiny emoji (Screens/DecorShop); off by default
 	"bowlHintRetry", -- #5438: the tutorial strip is worked out again when a new server's switches arrive, so bowl first shows its food ask (Controllers/UIController); off by default
 	"rankTapLook", -- #5592: the one tap RANK UP button in the clean green button look with a slow breath (UI/Screens/GoalCard); off by default
+	"askClean", -- #5597: the slide-in ask cards (What next?, the faces, the invite) drawn clean: gold button band, tucked X, matching buttons, inset timer bar (UI/Screens/AskCard); off by default
 	"rankOneTap", -- #5533: a ready goal card is a gold RANK UP button, one tap ranks up, no window (UI/Components/RankOneTap); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
@@ -251,6 +257,8 @@ LiveFlags.KEYS = {
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
+	steadySoft = true, -- #5601: on as soon as it publishes (Derek 2026-11-20)
+	rankPicker = true, -- #5599: on as soon as it publishes (Derek 2026-11-20)
 	tameCannonPoint = true, -- #5245
 	bangFixedText = true, -- #5390
 	parkLead = true, -- #5248
@@ -332,6 +340,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
+	rankDimTwo = true, -- #5609: on as soon as it publishes (Derek 2026-11-20)
 	rankSpotStay = true, -- #5516: first-session flow, on once Review-QA passes
 	rankCueLog = true, -- #5516: on as soon as it publishes (log only, no save field)
 	hoodTrail = true, -- #5517: on after Review-QA and a phone look
@@ -385,6 +394,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	phoneSmooth = true, -- #5285 A1: on after Review-QA and a phone look at the first minute
 	firstCatchWow = true, -- #5285 E2: first-session change; on after Review-QA and Sync's look at a first catch
 	gemsShrink = true, -- Derek 2026-11-18: on after Review-QA and Sync's phone and PC look at far gems
+	picnicParty = true, -- #5572: on as soon as it publishes (Derek 2026-11-20: no restart, new servers only)
 	christmasEvent = true, -- snowglobe-village-spec: on Nov 29 after Sync's look; the event dates still hold the portal shut until Dec 1
 	adventCalendar = true, -- #5502: on Nov 29 with christmasEvent, after the Christmas restart (new save fields); the dates hold it shut
 	catNames = true, -- #5586
@@ -401,6 +411,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	catsArrowOff = true, -- #5485: on as soon as it merges
 	baitCutQuick = true, -- #5548: on with the new start, after Review-QA and Sync's phone look
 	bowlPassOptions = true, -- #5606: on as soon as it publishes (Derek 2026-11-20)
+	codesRingTown = true, -- #5605: on as soon as it publishes (Derek 2026-11-20)
 	firstCatchCoins = true, -- #5596: on as soon as it publishes (Derek 2026-11-20)
 	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
 	cannonGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
@@ -413,6 +424,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	decorChipIcons = true, -- #5366: on after Review-QA, once the six pictures pass moderation
 	bowlHintRetry = true, -- #5438
 	rankTapLook = true, -- #5592: on once Review-QA and a phone look pass
+	askClean = true, -- #5597: on once Review-QA passes
 	rankOneTap = true, -- #5533: on once Review-QA and a phone look pass (Derek 2026-11-20)
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 	bowlWalkQuiet = true, -- #5436

@@ -10,7 +10,8 @@
 
 local HeldAssets = {}
 
-local GROVE_CATS = { "Sakura", "Koi", "Matcha", "Origami", "PaperLantern", "Bonsai", "BlossomFox", "PetalDragon" }
+local GROVE_CATS =
+	{ "Sakura", "Koi", "Matcha", "Origami", "PaperLantern", "Bonsai", "BlossomFox", "PetalDragon" }
 
 local HELD: { [string]: { string } } = {
 	cherryGrove = {

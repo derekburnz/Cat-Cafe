@@ -1679,6 +1679,9 @@ local function applyState(s: Types.PlayerState)
 		-- #3022: the goal card's "Catch a 2nd cat" (PlayerState.secondCat). Sent but never copied, so the card never
 		-- showed; false once it ends, as UI.update skips a nil and the card would stay
 		secondCat = if s.secondCat ~= nil then s.secondCat else false,
+		-- #5567 (Sync's recheck 2026-11-20: the card showed the coin goal, never "Catch a cat +100"): the play first
+		-- start's two goals (PlayerState.startGoals) were sent but never copied; false once they end, as above
+		startGoals = if s.startGoals ~= nil then s.startGoals else false,
 		-- #3188: the "Catch a 2nd cat" goal is finished, so the Daily Treat may open by itself
 		secondCatDone = SecondCat.done(s.stats),
 		-- #5031 (switch rankUpRightAway, shared/RankUpRightAway): the goal card's short and ready lines

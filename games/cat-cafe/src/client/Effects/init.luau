@@ -89,6 +89,7 @@ local PalWave = require(script.PalWave)
 local PassThanks = require(script.PassThanks)
 local PawTrail = require(script.PawTrail)
 local PetCat = require(script.PetCat)
+local PicnicParty = require(script.PicnicParty)
 local Pity = require(script.Pity)
 local Plots = require(script.Plots)
 local PoolBeacon = require(script.PoolBeacon)
@@ -220,6 +221,7 @@ function Effects.start()
 		LateStationFx.start,
 		BoothFx.start, -- #4061: the Ticket Booth's buy moment
 		CampCoinFly.start, -- #5533 v2: coins to the counter at the new start's first camp check-ins
+		PicnicParty.start, -- #5572: the Picnic Party's ready look, pop, blanket and pack away (picnicParty)
 		WorldGlow.start, -- #5533 v2: the new start's world glows (stall, cannon, door)
 		AdventFx.start, -- #5502: the advent calendar board's doors, glow and bursts
 		DragonStageCut.start, -- #4062: the Dragon Keep stage-up cutscene on each DragonStage

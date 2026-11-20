@@ -677,6 +677,11 @@ function CampExtras.promptText(
 	if not view.open then
 		return name, string.format("Opens at Tier %d", CampExtras.tierOf(extraId) or 0)
 	end
+	if view.party == true then
+		-- #5572: the Picnic Party's own sign (Motion-FX's PICNIC READY, Effects/PicnicParty) says ready or the wait, so
+		-- the station's line stays empty and the two never stack
+		return name, ""
+	end
 	if view.treats ~= nil then
 		return CampExtras.TREATS_NAME,
 			if view.held > 0
@@ -729,6 +734,13 @@ function CampExtras.pickerLine(
 				return nil, false
 			end
 			local wait = if view.nextAt ~= nil then CampExtras.waitText(view.nextAt - now) else nil
+			if view.party == true then
+				-- #5572 (spec item 5): the party only happens at the basket, so the row says fly there
+				if view.held > 0 then
+					return "Picnic ready !", true
+				end
+				return if wait ~= nil then "Next picnic in " .. wait else def.name, false
+			end
 			if view.treats ~= nil then
 				if view.held > 0 then
 					return CampExtras.TREATS_NAME .. ": pick one !", true

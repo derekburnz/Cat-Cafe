@@ -16,6 +16,16 @@ return function()
 			expect(FreeStart.joins(true, 1, 0, true, nil)).to.equal(false) -- joined already
 			expect(FreeStart.joins(true, 1, 0, nil, "bowl")).to.equal(false) -- in an orderSplit arm
 		end)
+		it(
+			"takes a save that left before its first step on a later session with spawnAlley (#5616)",
+			function()
+				expect(FreeStart.joins(true, 2, 0, nil, nil, true)).to.equal(true)
+				expect(FreeStart.joins(true, 5, 0, nil, nil, true)).to.equal(true)
+				expect(FreeStart.joins(true, 2, 1, nil, nil, true)).to.equal(false) -- a step done
+				expect(FreeStart.joins(true, 2, 0, nil, "bowl", true)).to.equal(false) -- in an orderSplit arm
+				expect(FreeStart.joins(false, 2, 0, nil, nil, true)).to.equal(false) -- freeStart off
+			end
+		)
 	end)
 
 	describe("FreeStart.active", function()
@@ -40,7 +50,9 @@ return function()
 			expect(FreeStart.easyDue(true, 0, "Rare", nil)).to.equal(false)
 			expect(FreeStart.easyDue(true, 0, "Rare", nil, true)).to.equal(true) -- #5562: any rarity in the Park
 			expect(FreeStart.easyDue(true, 2, "Legendary", "base", true)).to.equal(true)
-			expect(FreeStart.easyDue(true, FreeStart.EASY_CATCHES, "Rare", nil, true)).to.equal(false)
+			expect(FreeStart.easyDue(true, FreeStart.EASY_CATCHES, "Rare", nil, true)).to.equal(
+				false
+			)
 			expect(FreeStart.easyDue(true, 0, "Common", "gold")).to.equal(false)
 			expect(FreeStart.easyDue(nil, 0, "Common", nil)).to.equal(false)
 		end)

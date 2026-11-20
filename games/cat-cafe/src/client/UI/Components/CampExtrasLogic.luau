@@ -273,6 +273,9 @@ function CampExtrasLogic.bubble(state: unknown, extraId: string, now: number): L
 	if type(view) ~= "table" or view.open ~= true or type(view.held) ~= "number" then
 		return nil
 	end
+	if view.party == true then
+		return nil -- #5572: the Picnic Party's own sign (Effects/PicnicParty) is the basket's only countdown
+	end
 	return CampExtrasLogic.pickerLine(state :: any, def.area, now)
 end
 

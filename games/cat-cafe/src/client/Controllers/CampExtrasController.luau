@@ -153,7 +153,9 @@ local function onTriggered(extraId: string)
 		Net.fire("BuyYardSale", crate.crateId)
 	else
 		local _, action = CampExtras.promptText(extraId, view, Workspace:GetServerTimeNow())
-		UI.toast(action, "info")
+		if action ~= "" then -- #5572: the Picnic Party's line is its own sign
+			UI.toast(action, "info")
+		end
 	end
 end
 

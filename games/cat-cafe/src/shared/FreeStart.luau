@@ -21,6 +21,9 @@ FreeStart.FLAG = "freeStart"
 FreeStart.STREET_FLAG = "streetCats"
 FreeStart.GOAL_FLAG = "goalChip"
 FreeStart.ATTR = "FreeStart"
+-- #5616 (Derek 2026-11-20: "sometimes when first joining it doesn't spawn you in alleyway"): a save that joined once
+-- and left before its first step joins the start too, and a first session's night pass lands it in the Alleyway
+FreeStart.SPAWN_FLAG = "spawnAlley"
 FreeStart.EVENT = "free_start" -- Telemetry.custom, once as a save joins
 FreeStart.UNTIL_TIER = 3 -- the start's rules hold below this tier
 FreeStart.STREET_SECONDS = 180 -- streetCats: the first three minutes of play
@@ -43,9 +46,14 @@ function FreeStart.joins(
 	sessions: number,
 	tutorialStep: number,
 	joined: boolean?,
-	orderGroup: string?
+	orderGroup: string?,
+	again: boolean? -- SPAWN_FLAG: any session, while no step is done
 ): boolean
-	return on and joined ~= true and orderGroup == nil and sessions <= 1 and tutorialStep == 0
+	return on
+		and joined ~= true
+		and orderGroup == nil
+		and (sessions <= 1 or again == true)
+		and tutorialStep == 0
 end
 
 -- Whether the start's rules hold for a joined save at `tier`.

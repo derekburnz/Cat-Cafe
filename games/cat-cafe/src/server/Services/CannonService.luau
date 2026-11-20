@@ -32,6 +32,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FreeStart = require(ReplicatedStorage.Shared.FreeStart)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -388,7 +389,14 @@ local function homeArrival(player: Player, character: Model)
 	if
 		player:GetAttribute("FreeStart") == true
 		and (profile.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
-		and ClockService.areasOpen()
+		and (
+			ClockService.areasOpen()
+			-- #5616 spawnAlley: a first session's night pass keeps the Alleyway open for it, so it lands there too
+			or (
+				LiveFlagService.on(FreeStart.SPAWN_FLAG)
+				and NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
+			)
+		)
 	then
 		local waited = 0
 		while CatService.firstLandingStray(player, "alley") == nil and waited < FREE_STRAY_WAIT do

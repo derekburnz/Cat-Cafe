@@ -30,6 +30,10 @@ local MOST = 10
 local EVERY = 0.25 -- seconds between looks
 local WIDTH, HEIGHT = 160, 22 -- pixels
 local BELOW = 0.35 -- studs over the cat's top (the gem sits higher)
+-- Sync's run (#5620, switch catNamesLow): the rarity gem and its NEW pill still came down over the name, so the name
+-- sits on the cat's back instead: LOW_BELOW studs over its top and its own height down from there
+local LOW_FLAG = "LiveFlag_catNamesLow"
+local LOW_BELOW = -0.1
 
 type Tag = { gui: BillboardGui, label: TextLabel, model: Model }
 type Seen = { model: Model, distance: number }
@@ -85,7 +89,10 @@ local function build(model: Model): Tag?
 	gui.Name = "EffectsCatName"
 	gui.Adornee = body
 	gui.Size = UDim2.fromOffset(WIDTH, HEIGHT)
-	gui.StudsOffsetWorldSpace = Vector3.new(0, top - body.Position.Y + BELOW, 0)
+	local low = ReplicatedStorage:GetAttribute(LOW_FLAG) == true
+	gui.StudsOffsetWorldSpace =
+		Vector3.new(0, top - body.Position.Y + (if low then LOW_BELOW else BELOW), 0)
+	gui.SizeOffset = if low then Vector2.new(0, -0.5) else Vector2.zero
 	gui.LightInfluence = 0
 	gui.MaxDistance = FAR * 1.2
 	local label = Instance.new("TextLabel")

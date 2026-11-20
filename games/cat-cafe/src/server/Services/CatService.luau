@@ -81,6 +81,8 @@ local M = {
 	PlotService = require(script.Parent.PlotService),
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	PicnicSeats = require(ReplicatedStorage.Shared.PicnicSeats), -- #5572
+	PicnicParty = require(ReplicatedStorage.Shared.PicnicParty),
 	MutationBoost = require(ReplicatedStorage.Shared.MutationBoost), -- #5493
 	CatchLost = require(ReplicatedStorage.Shared.CatchLost), -- #5500
 	StrayMeets = require(ReplicatedStorage.Shared.StrayMeets), -- onboarding_v9 near_stray
@@ -152,6 +154,9 @@ type Stray = {
 	-- #5533 (streetCats, shared/FreeStart): a Common put on an Alleyway `near` point for a play first start save's
 	-- first minutes. Anyone may catch it; it leaves once no such save is in its first minutes.
 	street: boolean?,
+	-- #5572 (picnicParty): the user id of the player whose Picnic Party seated it on the blanket (the model's PicnicFor
+	-- attribute). Theirs alone, an easy catch that cannot be lost, and it never wanders off the blanket.
+	picnic: number?,
 	-- #1884 (catch-rework.md 7a): its mood, rolled at spawn (the Mood attribute); a Curious one's walk toward a
 	-- player (server time, nil until it notices one) and a Skittish one's last hop (server time)
 	mood: Types.CatMood,
@@ -161,6 +166,9 @@ type Stray = {
 	walk: number, -- bumped by every walk that starts, so an older walk stops where it is
 	alive: boolean,
 }
+
+-- #5572: a player's picnic cats while their Picnic Party runs (Street.picnics)
+type Picnic = { pivot: CFrame, defs: { Types.CatDef }, n: number, stray: Stray? }
 
 -- variant is "gold" or "rainbow" (F99) for those coats (a rescue rolls it at night start, data-model section 4); nil
 -- is the base.
@@ -698,6 +706,7 @@ local function canWander(stray: Stray): boolean
 		and stray.lockedBy == 0
 		and not stray.jumping
 		and stray.drop == nil
+		and stray.picnic == nil -- #5572: a picnic cat stays on its seat
 		and anyoneNear(stray.home)
 end
 
@@ -1331,6 +1340,93 @@ do
 
 	function Street.forget(player: Player)
 		parkCaught[player] = nil
+	end
+
+	-- #5572 (picnicParty, Design's spec item 4): each player's picnic cats while their Picnic Party runs, by user id:
+	-- the basket station's pivot, the cats to seat in order, how many are seated so far and the one on the blanket.
+	-- One at a time: the next sits down a moment after the one before is caught. Not saved.
+	Street.picnics = {} :: { [number]: Picnic }
+
+	-- Seats picnic cat n + 1 for `userId`, when one is still to come.
+	function Street.picnicSeat(userId: number)
+		local picnic: Picnic? = Street.picnics[userId]
+		if picnic == nil or picnic.stray ~= nil then
+			return
+		end
+		local def: Types.CatDef? = picnic.defs[picnic.n + 1]
+		local seat: CFrame? = M.PicnicSeats.seat(picnic.pivot, picnic.n + 1)
+		if def == nil or seat == nil then
+			return
+		end
+		picnic.n += 1
+		local stray = spawnStray(def, M.Tier3Path.AREA, seat.Position, nil, nil, nil, nil, nil)
+		stray.picnic = userId
+		stray.mood = "Sleepy" -- curled up on the blanket
+		stray.model:SetAttribute("Mood", "Sleepy")
+		stray.model:SetAttribute("PicnicFor", userId)
+		stray.model:SetAttribute("PicnicSeat", picnic.n)
+		stray.model:PivotTo(seat)
+		picnic.stray = stray
+	end
+
+	-- Takes `stray` away once nobody holds a catch on it.
+	function Street.picnicGo(stray: Stray)
+		task.spawn(function()
+			while stray.alive and stray.lockedBy ~= 0 and not lockExpired(stray) do
+				task.wait(0.5)
+			end
+			if stray.alive then
+				despawn(stray)
+			end
+		end)
+	end
+
+	-- A picnic cat was caught (by its player; nobody else may start a catch on one).
+	function Street.picnicCaught(player: Player, stray: Stray)
+		if stray.picnic == nil then
+			return
+		end
+		local picnic: Picnic? = Street.picnics[stray.picnic :: number]
+		if picnic == nil or picnic.stray ~= stray then
+			return
+		end
+		picnic.stray = nil
+		player:SetAttribute("PicnicCat" .. picnic.n, true)
+		Telemetry.custom(
+			player,
+			"picnic_cat_caught",
+			picnic.n,
+			{ tostring(stray.def.rarity), stray.def.id }
+		)
+		local userId = player.UserId
+		task.delay(M.PicnicParty.CAT_NEXT_SECONDS, function()
+			if Street.picnics[userId] == picnic then
+				Street.picnicSeat(userId)
+			end
+		end)
+	end
+
+	-- The cats for a party: the first picnic (the save has not caught the named Park Rare yet) two Commons (the spec's
+	-- Uncommon; the game has no such rarity) and that Rare; later ones two from the Park's normal table.
+	function Street.picnicDefs(profile: Types.PlayerProfile): { Types.CatDef }
+		local park = M.Tier3Path.AREA
+		local named: Types.CatDef? = Catching.candidates("Rare", park)[1]
+		if named ~= nil and profile.collection[named.id] == nil then
+			return {
+				Catching.pickCat("Common", park, rng:NextNumber()),
+				Catching.pickCat("Common", park, rng:NextNumber()),
+				named :: Types.CatDef,
+			}
+		end
+		local areaDef = M.Catalog.getArea(park)
+		local out: { Types.CatDef } = {}
+		for _ = 1, 2 do
+			local rarity: Types.Rarity = if areaDef ~= nil
+				then Catching.pickRarity(areaDef.odds, rng:NextNumber())
+				else "Common"
+			table.insert(out, Catching.pickCat(rarity, park, rng:NextNumber()))
+		end
+		return out
 	end
 end
 
@@ -2713,6 +2809,9 @@ local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
 end
 
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
+	if stray.picnic == player.UserId then
+		return true -- #5572: a picnic cat cannot be lost
+	end
 	if stray.waitsFor == player.UserId and Second.waitsForCat(profile) then
 		return true
 	end
@@ -2950,6 +3049,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
 		Street.caught(player, area) -- #5533 streetCats
+		Street.picnicCaught(player, stray) -- #5572
 		if M.Catalog.getArea(area) ~= nil then
 			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
 		end
@@ -3084,6 +3184,9 @@ function startCatch(
 		return if stray.lockedBy == player.UserId
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
+	end
+	if stray.picnic ~= nil and stray.picnic ~= player.UserId then
+		return "That cat is at someone's picnic" -- #5572
 	end
 	if not withinRange(player, stray.body.Position, catchRange()) then
 		return "Too far away"
@@ -4913,6 +5016,28 @@ end
 -- #4251: `hook(player, def, areaId)` runs (in its own thread) after every successful net catch, as the cat goes
 -- into the catcher's arms; not for a cat let go that walked home first (`recaught`), so Harvest pumpkins and the pie
 -- count each cat once (Sync's Harvest run, 2026-11-17: a drop then a late re-catch paid +1 twice).
+-- #5572: a Picnic Party started for `player` at the basket station whose pivot is `pivot`: its cats come to the
+-- blanket one after another (shared/PicnicSeats), the first now. A party already running keeps its cats.
+function CatService.picnicCats(player: Player, profile: Types.PlayerProfile, pivot: CFrame)
+	if Street.picnics[player.UserId] ~= nil then
+		return
+	end
+	for n = 1, #M.PicnicSeats.SPOTS do
+		player:SetAttribute("PicnicCat" .. n, nil)
+	end
+	Street.picnics[player.UserId] = { pivot = pivot, defs = Street.picnicDefs(profile), n = 0 }
+	Street.picnicSeat(player.UserId)
+end
+
+-- #5572: the party is over (or the player left): the cat still on the blanket goes once nobody is catching it.
+function CatService.picnicClear(player: Player)
+	local picnic: Picnic? = Street.picnics[player.UserId]
+	Street.picnics[player.UserId] = nil
+	if picnic ~= nil and picnic.stray ~= nil then
+		Street.picnicGo(picnic.stray :: Stray)
+	end
+end
+
 function CatService.onCaught(hook: (Player, Types.CatDef, string) -> ())
 	table.insert(M.caughtHooks, hook)
 end

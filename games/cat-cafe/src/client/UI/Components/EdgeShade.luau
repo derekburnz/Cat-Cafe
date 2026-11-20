@@ -13,6 +13,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Create = require(script.Parent.Create)
 local EdgeShadeLogic = require(script.Parent.EdgeShadeLogic)
+local SkipFocus = require(script.Parent.SkipFocus)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
 
@@ -140,6 +141,8 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 			up(input)
 		end
 	end)
+	-- #5624 (padSkip): nothing selected under the shade, so A (Cross) reaches the skip, not the HUD's Cafe
+	local release: (() -> ())? = if onTap ~= nil and SkipFocus.on() then SkipFocus.hold() else nil
 	ContextActionService:BindAction(
 		ACTION,
 		function(_name: string, state: Enum.UserInputState): Enum.ContextActionResult
@@ -157,6 +160,9 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 			return
 		end
 		lifted = true
+		if release ~= nil then
+			release()
+		end
 		ContextActionService:UnbindAction(ACTION)
 		ContextActionService:UnbindAction(CLICK_ACTION)
 		began:Disconnect()

@@ -29,6 +29,7 @@ local KEYCODES: { [GamepadHintsLogic.Key]: Enum.KeyCode } = {
 	L1 = Enum.KeyCode.ButtonL1,
 	R1 = Enum.KeyCode.ButtonR1,
 	Select = Enum.KeyCode.ButtonSelect,
+	Y = Enum.KeyCode.ButtonY, -- #5624 padHud
 }
 
 -- the platform's picture for `key`, or nil (none given, or the call is missing)
@@ -156,6 +157,7 @@ function GamepadHints.refresh(self: any)
 			tabs = tabs,
 			selecting = GuiService.SelectedObject ~= nil,
 			card = GamepadNav.hasBack(),
+			menuKey = ReplicatedStorage:GetAttribute("LiveFlag_padHud") == true, -- #5624
 		})
 	local words = {}
 	for _, hint in list do

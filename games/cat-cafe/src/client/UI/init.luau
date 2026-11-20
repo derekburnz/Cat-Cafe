@@ -3229,7 +3229,9 @@ UI.returnMoment = {
 }
 
 function UI.returnMoment.on(): boolean
+	-- a held save (shared/Holdout, the Holdout attribute) does not get it
 	return ReplicatedStorage:GetAttribute("LiveFlag_returnMoment") == true
+		and game:GetService("Players").LocalPlayer:GetAttribute("Holdout") ~= true
 end
 
 -- The next tier's rank up in reach now (the goal card's own check)

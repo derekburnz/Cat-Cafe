@@ -8244,6 +8244,18 @@ do
 		if not BigPullLogic.mine(userId, Players.LocalPlayer.UserId) then
 			return
 		end
+		-- #5571: a cat just tamed at a bowl with the No cat pop-ups tick set gets no big card (its toast said it)
+		local tamed: any = (UI :: any).bowlTamed
+		local settings: { [string]: boolean | number | string } = state.settings or {}
+		if
+			ReplicatedStorage:GetAttribute("LiveFlag_bowlNoPops") == true
+			and settings.bowlNewCatCard == false
+			and type(tamed) == "table"
+			and tamed.catId == catId
+			and os.clock() - tamed.at < 5
+		then
+			return
+		end
 		local card: BigPullLogic.Card? = BigPullLogic.forCat(rarity, gold, variant)
 		local def = lookupCat(catId)
 		if card == nil or def == nil then

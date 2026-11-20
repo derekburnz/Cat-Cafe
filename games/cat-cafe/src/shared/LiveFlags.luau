@@ -238,6 +238,7 @@ LiveFlags.KEYS = {
 	"rankOneTap", -- #5533: a ready goal card is a gold RANK UP button, one tap ranks up, no window (UI/Components/RankOneTap); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
+	"bowlNoPops", -- #5571: with No cat pop-ups ticked, a bowl tame shows no big rare card and the walk-up ring no waiting cat card (UI.securedRare, Controllers/UIController); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -397,6 +398,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankOneTap = true, -- #5533: on once Review-QA and a phone look pass (Derek 2026-11-20)
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 	bowlWalkQuiet = true, -- #5436
+	bowlNoPops = true, -- #5571
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

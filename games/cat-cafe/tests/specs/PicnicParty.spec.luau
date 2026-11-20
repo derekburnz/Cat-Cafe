@@ -4,6 +4,11 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local CampExtras = require(Shared.CampExtras)
 	local PicnicParty = require(Shared.PicnicParty)
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local CampExtrasLogic = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("CampExtrasLogic")
+	) :: any
 
 	local DAY = 86400
 	local NOON = 20000 * DAY + 43200
@@ -92,5 +97,16 @@ return function()
 			expect(line).to.equal("Next picnic in " .. CampExtras.waitText(PicnicParty.EVERY - 60))
 			expect(bang).to.equal(false)
 		end)
+		it(
+			"shows no station bubble over a party basket, so its sign is the only countdown",
+			function()
+				local save = CampExtras.fresh(NOON)
+				CampExtras.settle(save, 2, NOON, false, true)
+				local view = CampExtras.view(save, 2, NOON, nil, nil, false, true)
+				expect(CampExtrasLogic.bubble(view, "picnic", NOON)).to.equal(nil)
+				local plain = CampExtras.view(save, 2, NOON, nil, nil, false, false)
+				expect(CampExtrasLogic.bubble(plain, "picnic", NOON)).never.to.equal(nil)
+			end
+		)
 	end)
 end

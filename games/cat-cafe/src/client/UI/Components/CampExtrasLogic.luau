@@ -305,6 +305,10 @@ local function potionName(potionId: string): string
 	return if potion ~= nil then potion.name else "potion"
 end
 
+-- picnicCardFix: the Picnic Party's line on the station card (PicnicParty: +100% money for 3 minutes, every 20)
+CampExtrasLogic.PARTY_GIVES =
+	"Picnic Time: 2x money for 3 min and picnic cats. Every 20 min, and each new day."
+
 function CampExtrasLogic.gives(extraId: string): string
 	if extraId == "picnic" then
 		return string.format(
@@ -334,6 +338,26 @@ end
 
 function CampExtrasLogic.info(extraId: string, view: SharedTypes.CampExtraView, now: number): Info
 	local title, status = CampExtras.promptText(extraId, view, now)
+	-- Derek 2026-11-20 (picnicCardFix): the Picnic Party's card says what the party gives and when the next is ready,
+	-- not the old potion basket's line and an empty timer
+	if
+		extraId == "picnic"
+		and (view :: any).party == true
+		and game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_picnicCardFix") == true
+	then
+		return {
+			title = title,
+			icon = CampExtrasLogic.icon(extraId),
+			picture = PICTURES[extraId] or "Picnic",
+			gives = CampExtrasLogic.PARTY_GIVES,
+			status = if view.held > 0
+				then "Picnic ready! Step in"
+				elseif view.nextAt ~= nil then "Next picnic in " .. (CampExtras.waitText(
+					view.nextAt - now
+				) :: string)
+				else "",
+		}
+	end
 	return {
 		title = title,
 		icon = CampExtrasLogic.icon(extraId),

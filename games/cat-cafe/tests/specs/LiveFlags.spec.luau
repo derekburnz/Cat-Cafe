@@ -308,6 +308,7 @@ return function()
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "parkCatchNormal" -- Derek 2026-11-20
+							or key == "picnicCardFix" -- Derek 2026-11-20
 							or key == "bowlAutoFree" -- Derek 2026-11-20
 							or key == "bowlPassOptions" -- #5606
 							or key == "nightLineNoArrow" -- #5459

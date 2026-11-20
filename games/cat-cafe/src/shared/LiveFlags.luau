@@ -246,6 +246,7 @@ LiveFlags.KEYS = {
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
 	"baitCutQuick", -- #5548: the first bait scene is about 1.5 s with no skip (Effects/FirstBaitCut) and the first bait cat comes out as the food lands (shared/Bait); off by default
 	"parkCatchNormal", -- Derek 2026-11-20 21:16 UTC: no slow first catch circle on any Park cat (picnic cats and the new start's first Park catches); off by default
+	"picnicCardFix", -- Derek 2026-11-20 21:16 UTC: the Picnic Basket card's OK fits, it says the party and its timer, and the basket is full when it opens (Screens/StationInfo, CampExtras.settle); off by default
 	"bowlAutoFree", -- Derek 2026-11-20 21:00 UTC: Auto refill and Auto claim free for everyone from Tier 2, and gone from the Second Bait Bowl pass text (shared/AutoBowl); off by default
 	"bowlPassOptions", -- #5606: the locked second bowl's What you get card also lists the bowl options (auto refill and auto claim) it brings with bowlTicks (Screens/BaitBowl); off by default
 	"firstCatArrow", -- #5594: a gold arrow points down over the nearest catchable cat until the first catch (Controllers/FirstCatArrowController); off by default
@@ -434,6 +435,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	catsArrowOff = true, -- #5485: on as soon as it merges
 	baitCutQuick = true, -- #5548: on with the new start, after Review-QA and Sync's phone look
 	parkCatchNormal = true, -- Derek 2026-11-20 21:16 UTC: on as soon as it publishes
+	picnicCardFix = true, -- Derek 2026-11-20 21:16 UTC: on as soon as it publishes
 	bowlAutoFree = true, -- Derek 2026-11-20 21:00 UTC: on as soon as it publishes
 	bowlPassOptions = true, -- #5606: on as soon as it publishes (Derek 2026-11-20)
 	firstCatArrow = true, -- #5594: on as soon as it publishes (Derek 2026-11-20)

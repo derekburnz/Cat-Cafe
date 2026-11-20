@@ -61,7 +61,16 @@ function StationInfo.new(extraId: string, close: () -> ()): StationInfo
 	local buttonH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 	local statusH = 30
 	local givesH = 44
-	local height = statusH + givesH + buttonH + GAP * 3 + (if short then 44 else 56)
+	-- Derek 2026-11-20 (picnicCardFix): the content's top and bottom padding and the button's lip are counted too,
+	-- so OK is not cut off at the bottom
+	local fixed = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_picnicCardFix")
+		== true
+	local height = statusH
+		+ givesH
+		+ buttonH
+		+ GAP * 3
+		+ (if short then 44 else 56)
+		+ (if fixed then Theme.sizes.padding * 2 + Theme.sizes.buttonDepth else 0)
 
 	local first = CampExtrasLogic.info(extraId, { open = true, held = 0 } :: any, 0)
 	local panel = Panel.new({

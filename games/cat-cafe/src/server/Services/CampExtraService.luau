@@ -133,6 +133,11 @@ local function partyOn(): boolean
 	return LiveFlagService.on(PicnicParty.FLAG) -- #5572
 end
 
+-- Derek 2026-11-20 21:16 UTC ("the 2 potions should b there at unlock"): the basket is full the moment it opens
+local function fullOn(): boolean
+	return LiveFlagService.on("picnicCardFix")
+end
+
 local function treatsOn(): boolean
 	return not partyOn() -- #5572: the Picnic Party takes the basket's place while its switch is on
 end
@@ -148,7 +153,7 @@ end
 local function refresh(player: Player, profile: Types.PlayerProfile, force: boolean)
 	local now = os.time()
 	local tier = Economy.tier(profile)
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn(), fullOn())
 	local state = CampExtras.view(
 		profile.campExtras,
 		tier,
@@ -406,7 +411,7 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		refresh(player, profile, true)
 		return
 	end
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn(), fullOn())
 	local blocker = CampExtras.collectBlocker(profile.campExtras, extraId, tier, now)
 	if blocker ~= nil then
 		refuse(player, extraId, blocker)
@@ -523,7 +528,7 @@ local function onYardSalePick(player: Player)
 	local def = Catalog.getCampExtra(CampExtras.YARD_SALE) :: Types.CampExtraDef
 	local tier = Economy.tier(profile)
 	local now = os.time()
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn(), fullOn())
 	if
 		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
 		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
@@ -573,7 +578,7 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 	local def = Catalog.getCampExtra(CampExtras.YARD_SALE) :: Types.CampExtraDef
 	local tier = Economy.tier(profile)
 	local now = os.time()
-	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn(), partyOn(), fullOn())
 	if
 		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
 		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)

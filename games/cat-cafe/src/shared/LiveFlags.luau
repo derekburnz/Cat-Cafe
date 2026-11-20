@@ -187,6 +187,7 @@ LiveFlags.KEYS = {
 	"tier4Easy", -- #5285 E: Tier 4 asks 250,000 and an Epic or better, on top of either Tier 4 row (shared/CheapTiers); off by default
 	"tiersEasy", -- Derek 2026-11-19: Tiers 4 to 7 ask far less (60k, 400k, 3M, 30M and fewer kinds), on top of the other tier rows (shared/CheapTiers); off by default
 	"tier3Easy", -- #5467: Tier 3 asks 10,000 and 4 kinds, on top of either Tier 3 row (shared/CheapTiers); off by default
+	"coinsOnly", -- #5533: every tier asks coins only, Tier 2 1,500 and Tiers 3 to 7 as tiersEasy (shared/CheapTiers); off by default
 	"cheapTiers", -- #5249: Tiers 3 to 8 ask far less (coins; kinds and Mythicals at 6 to 8) (shared/CheapTiers); off by default
 	"nightLine", -- #5330: at night up to Tier 4 the strip says when the areas open, with an arrow to Upgrades (Components/NightLine); off by default
 	"perfectCatch", -- #5300: every ring Perfect marks the cat Perfect, x1.5 pay with its coat, charm counts 1x (shared/PerfectCatch); off by default
@@ -354,6 +355,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tier3Easy = true, -- #5467: on as soon as it publishes (Derek 2026-11-19)
 	secretTraitTile = true, -- #5445: on together with topTraitsMore
 	tier4Easy = true, -- #5285 E: on at a clear minute, 2 h from other switches, for Growth's tier_3 to tier_4 read
+	coinsOnly = true, -- #5533: on after Review-QA and a Pace check
 	cheapTiers = true, -- #5249: on after Review-QA, at a clear minute for Growth's park_catch to tier_3 read
 	nightLine = true, -- #5330: on after Review-QA and Sync's phone look, 2 h from other switches
 	perfectCatch = true, -- #5300: on after Review-QA, Sync's phone look at the pills and a restart

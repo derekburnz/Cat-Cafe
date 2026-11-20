@@ -12,7 +12,7 @@ local Catalog = require(script.Parent.Catalog)
 local NewKind = {}
 
 NewKind.TEXT = "NEW 🐾"
-NewKind.KINDS = Catalog.tiers[2].distinctCats -- Tier 2's need and the Grand Opening's "Three different cats" (#4188: 4 before)
+NewKind.KINDS = Catalog.PLAIN_TIER_NEEDS[2].distinctCats :: number -- Tier 2's need and the Grand Opening's "Three different cats" (#4188: 4 before)
 NewKind.MILESTONE = "five_cats" -- the Grand Opening milestone the pointer serves
 NewKind.RANGE = 60 -- studs: the tag shows within this (the name tag's own range)
 NewKind.NEAR = 6 -- studs: inside this the name tag is enough

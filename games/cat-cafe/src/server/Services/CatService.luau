@@ -62,12 +62,14 @@ local M = {
 	DataService = require(script.Parent.DataService),
 	DragonKeep = require(ReplicatedStorage.Shared.DragonKeep),
 	Economy = require(ReplicatedStorage.Shared.Economy),
+	FreeStart = require(ReplicatedStorage.Shared.FreeStart), -- #5533 streetCats
 	EventRewardService = require(script.Parent.EventRewardService),
 	GoldenFish = require(ReplicatedStorage.Shared.GoldenFish),
 	Guard = require(script.Parent.Parent.Util.Guard),
 	IndexRewards = require(ReplicatedStorage.Shared.IndexRewards),
 	Layout = require(script.Parent.Parent.World.Layout),
 	LiveFlagService = require(script.Parent.LiveFlagService),
+	PlayTime = require(script.Parent.Parent.Util.PlayTime), -- #5533 streetCats
 	NightSpread = require(ReplicatedStorage.Shared.NightSpread), -- #5164
 	Moods = require(ReplicatedStorage.Shared.Moods),
 	Onboarding = require(ReplicatedStorage.Shared.Onboarding),
@@ -146,6 +148,9 @@ type Stray = {
 	-- plot's `near` point. Not reserved: anyone out at night may catch it. It leaves by night once that player's pass
 	-- ends, and is an ordinary stray from the sunrise.
 	nightFor: number?,
+	-- #5533 (streetCats, shared/FreeStart): a Common put on an Alleyway `near` point for a play first start save's
+	-- first minutes. Anyone may catch it; it leaves once no such save is in its first minutes.
+	street: boolean?,
 	-- #1884 (catch-rework.md 7a): its mood, rolled at spawn (the Mood attribute); a Curious one's walk toward a
 	-- player (server time, nil until it notices one) and a Skittish one's last hop (server time)
 	mood: Types.CatMood,
@@ -1216,6 +1221,116 @@ local function tutorialTick()
 		if stray.drop == nil and (stray.lockedBy == 0 or lockExpired(stray)) then
 			despawn(stray)
 		end
+	end
+end
+
+-- #5533 (streetCats, shared/FreeStart): while a play first start save is in its first STREET_SECONDS of play, by day,
+-- the Alleyway keeps STREET_COUNT Commons on its `near` points (the save's own point first, then the nearest free
+-- ones, never another loaded player's own point), refilled each tick (5 s). Each is a kind the save lacks when it
+-- can be. Its first EASY_CATCHES catches by hand, and its first EASY_CATCHES in the Park this session, are the easy
+-- kind (Street.easy, in easyCatch). One table, as the module is short of locals.
+local Street = {}
+do
+	local parkCaught: { [Player]: number } = {}
+
+	function Street.tick()
+		local on = M.LiveFlagService.on(M.FreeStart.STREET_FLAG)
+		local day = M.ClockService.areasOpen()
+		local near = tutorialPoints()
+		local area = world.areas[TUTORIAL_AREA]
+		local occupied = occupiedPoints[TUTORIAL_AREA] or {}
+		local owned: { [number]: boolean } = {} -- near points of loaded players not on their street minutes
+		local due: { { profile: Types.PlayerProfile, own: number? } } = {}
+		for _, player in M.DataService.loadedPlayers() do
+			local profile = M.DataService.get(player)
+			local plot = M.PlotService.get(player)
+			if profile == nil or plot == nil then
+				continue
+			end
+			local own = near[plot.index]
+			if
+				on
+				and day
+				and M.FreeStart.active(profile.telemetry.freeStart, M.Economy.tier(profile))
+				and M.FreeStart.streetDue(
+					profile.telemetry.freeStart,
+					M.PlayTime.seconds(player, profile)
+				)
+			then
+				table.insert(due, { profile = profile, own = own })
+			elseif own ~= nil then
+				owned[own] = true
+			end
+		end
+		if #due == 0 then
+			-- nobody in their first minutes: the street's extra Commons go, unless held, dropped or reserved
+			for _, stray in strays do
+				if
+					stray.street
+					and stray.alive
+					and stray.beginner == nil
+					and stray.drop == nil
+					and (stray.lockedBy == 0 or lockExpired(stray))
+				then
+					despawn(stray)
+				end
+			end
+			return
+		end
+		local live = 0
+		for _, index in near do
+			local strayId = occupied[index]
+			local stray = if strayId ~= nil then strays[strayId] else nil
+			if stray ~= nil and stray.alive then
+				live += 1
+			end
+		end
+		local first = due[1]
+		local from = if first.own ~= nil then area.spawnPoints[first.own].Position else nil
+		local free: { number } = {}
+		for _, index in near do
+			if occupied[index] == nil and not owned[index] then
+				table.insert(free, index)
+			end
+		end
+		if from ~= nil then
+			table.sort(free, function(a: number, b: number): boolean
+				return (area.spawnPoints[a].Position - from).Magnitude
+					< (area.spawnPoints[b].Position - from).Magnitude
+			end)
+		end
+		local i = 1
+		while live < M.FreeStart.STREET_COUNT and free[i] ~= nil do
+			spawnAt(TUTORIAL_AREA, free[i], "Common", nil, first.profile.collection).street = true
+			live += 1
+			i += 1
+		end
+	end
+
+	-- Whether `stray` is one of the save's easy first catches (shared/FreeStart.easyDue).
+	function Street.easy(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
+		local joined = profile.telemetry.freeStart
+		if
+			joined ~= true
+			or not M.LiveFlagService.on(M.FreeStart.STREET_FLAG)
+			or not M.FreeStart.active(joined, M.Economy.tier(profile))
+		then
+			return false
+		end
+		local done = if stray.area == M.Tier3Path.AREA
+			then parkCaught[player] or 0
+			else SecondCat.caught(profile.stats)
+		return M.FreeStart.easyDue(joined, done, stray.def.rarity, stray.variant)
+	end
+
+	function Street.caught(player: Player, area: string)
+		if area == M.Tier3Path.AREA then
+			parkCaught[player] = (parkCaught[player] or 0) + 1
+		end
+	end
+
+	function Street.forget(player: Player)
+		parkCaught[player] = nil
 	end
 end
 
@@ -2605,6 +2720,9 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	if Second.parkWaits(player, profile, stray) then
 		return true -- #5038
 	end
+	if Street.easy(player, profile, stray) then
+		return true -- #5533 streetCats
+	end
 	-- #3662 (Derek 2026-11-12: "the first cat catch where it used to stop the circle and wait for you to click/guide
 	-- you should now be for the second catch not first because first is the free one from food bowl"): the
 	-- walk-through's first cat is the bait bowl's, so the first check-in comes before the player has ever swung the
@@ -2831,6 +2949,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		if area == "park" then
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
+		Street.caught(player, area) -- #5533 streetCats
 		if M.Catalog.getArea(area) ~= nil then
 			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
 		end
@@ -4251,6 +4370,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		purrfectStreak[player] = nil
+		Street.forget(player) -- #5533
 		-- endCarry (via the finalizer above) clears the carry record; this only mops up when the profile is
 		-- already gone, so the handler order between services does not matter.
 		if carrying[player] ~= nil and M.DataService.get(player) == nil then
@@ -4283,6 +4403,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			-- the tutorial rule for the server's life
 			xpcall(Second.tick, function(err: unknown)
 				warn("[CatService] second cat tick: " .. tostring(err))
+			end)
+			xpcall(Street.tick, function(err: unknown) -- #5533 streetCats
+				warn("[CatService] street tick: " .. tostring(err))
 			end)
 		end
 	end)

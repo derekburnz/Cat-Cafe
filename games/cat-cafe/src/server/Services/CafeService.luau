@@ -2416,7 +2416,16 @@ local function onRankUp(player: Player)
 	Telemetry.rankedUp(player, profile)
 	do -- #5533 cannonGlow (shared/CannonGlow): the Town Square cannon glows for the area this rank up opens
 		local CannonGlow = require(ReplicatedStorage.Shared.CannonGlow) :: any
-		local opened = if CannonGlow.on() then CannonGlow.opened(def.tier, Catalog.areas) else nil
+		local been: { [string]: boolean } = {}
+		for catId in profile.collection do
+			local cat = Catalog.getCat(catId)
+			if cat ~= nil then
+				been[cat.area] = true
+			end
+		end
+		local opened = if CannonGlow.on()
+			then CannonGlow.opened(def.tier, Catalog.areas, been)
+			else nil
 		if opened ~= nil then
 			player:SetAttribute(CannonGlow.ATTR, opened)
 		end

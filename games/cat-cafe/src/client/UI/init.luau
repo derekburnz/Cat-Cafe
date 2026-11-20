@@ -4935,7 +4935,8 @@ function UI.cannon.open(cannonId: string?)
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CannonGlow")) :: any
 		direct = CannonGlow.direct(
 			CannonGlow.on(),
-			game:GetService("Players").LocalPlayer:GetAttribute(CannonGlow.ATTR)
+			game:GetService("Players").LocalPlayer:GetAttribute(CannonGlow.ATTR),
+			cannonId or CannonLogic.TOWN
 		)
 	end
 	if direct ~= nil and not UI.cannon.direct.off then

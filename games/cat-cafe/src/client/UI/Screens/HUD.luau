@@ -117,6 +117,7 @@ export type Callbacks = {
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
 	rankTap: ((from: string) -> ())?, -- #5516 (rankTapLog): a tap on the goal card or the strip's rank up button
+	rankNow: (() -> ())?, -- #5533 (rankOneTap): the goal card as the RANK UP button was tapped: rank up, no window
 	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
 	openAway: (() -> ())?, -- #5505: the Rewards list's away row opens what comes tomorrow
 }
@@ -1651,6 +1652,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		self:_layoutRight()
 	end)
+	-- #5533 (rankOneTap): as the gold RANK UP button the card ranks up in one tap (the log still gets the tap)
+	self._goal:setRankUp(function()
+		local tapped = callbacks.rankTap
+		if tapped then
+			tapped("goal")
+		end
+		local now = callbacks.rankNow
+		if now then
+			now()
+		end
+	end)
 	self._goalArea = nil :: string?
 	self._goalFolded = nil :: boolean?
 	-- #3022: the second cat goal now (nil for none), whether its preview lines have had their time, and a counter so
@@ -2432,6 +2444,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				local tapped = callbacks.rankTap
 				if tapped then
 					tapped("strip") -- #5516
+				end
+				-- #5533 (rankOneTap): while the goal card is the RANK UP button the strip's button ranks up too
+				local now = callbacks.rankNow
+				if now and self._goal:oneTap() then
+					now()
+					return
 				end
 				callbacks.openScreen("RankUp")
 				return

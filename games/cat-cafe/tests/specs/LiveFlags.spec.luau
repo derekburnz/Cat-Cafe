@@ -271,6 +271,7 @@ return function()
 							or key == "tipPileOldest" -- #5422
 							or key == "decorChipIcons" -- #5366
 							or key == "bowlHintRetry" -- #5438
+							or key == "rankOneTap" -- #5533
 							or key == "chipPickedWord" -- #5406
 							or key == "bowlWalkQuiet" -- #5436
 							or key == "tameCannonPoint" -- #5245

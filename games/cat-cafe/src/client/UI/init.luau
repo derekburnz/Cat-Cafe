@@ -1098,6 +1098,10 @@ function UI.init(config: Types.InitConfig)
 			local PassShop = require(script.Components.PassShop)
 			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
 		end,
+		-- #5533 (rankOneTap): the goal card's RANK UP button; the server checks every need again
+		rankNow = function()
+			UI.events.rankUp:Fire()
+		end,
 		-- #5516 (rankTapLog): UIController's tap log, set once it starts
 		rankTap = function(from: string)
 			local note: ((string) -> ())? = (UI :: any).rankTapNote

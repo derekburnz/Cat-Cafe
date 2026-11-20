@@ -1088,8 +1088,8 @@ function UI.init(config: Types.InitConfig)
 		end,
 		-- #5516 (rankTapLog): UIController's tap log, set once it starts
 		rankTap = function(from: string)
-			local note = (UI :: any).rankTapNote
-			if note then
+			local note: ((string) -> ())? = (UI :: any).rankTapNote
+			if note ~= nil then
 				note(from)
 			end
 		end,

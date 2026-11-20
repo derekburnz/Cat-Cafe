@@ -3428,6 +3428,20 @@ end
 
 -- F87 (easy-start.md section 2f): whether a piece of the small HUD shows yet; everything before the first state.
 function HUD._open(self: any, key: HudUnlocks.Key): boolean
+	-- #5533 goalChip (Sync's look, Nov 20): a play first start save has no tutorial steps to unlock the goal card, so
+	-- its two first goals, the coin bar and the gold RANK UP were never on screen before the first check-in and tame
+	if key == "goal" then
+		-- the save's own FreeStart mark too: startGoals ends at Tier 3 and is nil with goalChip off
+		local FreeStart = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FreeStart")
+		) :: any
+		if
+			FreeStart.of(nil)
+			or (self._state ~= nil and type((self._state :: any).startGoals) == "table")
+		then
+			return true
+		end
+	end
 	local unlocks: { [HudUnlocks.Key]: boolean }? = self._unlocks
 	return unlocks == nil or unlocks[key] == true
 end

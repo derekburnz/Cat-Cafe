@@ -4,12 +4,15 @@
 -- screen, each behind its own switch read straight (`== true`):
 --   1. `stallGlow`: WorldGlow.stall(target) glows a target for `stallSeconds` with a soft breathing pulse. Gameplay-
 --      Engineer's goal chip timer calls it once per goal when the goal has not moved for 11 s. `target` is an
---      Instance (the nearest stray), "door" (this player's own cafe door) or "cannon" (the Town Square cannon).
+--      Instance (the nearest stray), "camp" (the nearest camp cannon and its ring: the cloud hop home), "door" (this
+--      player's own cafe door) or "cannon" (the Town Square cannon).
 --   2. `cannonGlow`: while the LocalPlayer attribute `CannonGlowArea` (an area id, set by the server after a Rank Up
 --      that opens an area, cleared on the first flight there) is set, the Town Square cannon glows steadily with a
 --      small sign over it naming the area (PARK).
 --   3. under `freeStart`: while this player carries their first cat (the character's CarryingCatId, ProfileSync's
---      stats.catsCaught at most 1), their own cafe door glows steadily.
+--      stats.catsCaught at most 1), the nearest camp cannon and its walk-up ring glow steadily (the new start lands in
+--      the Alleyway, so taking it home is the cloud hop from the camp ring; Design 2026-11-20).
+-- A station's walk-up floor ring (WalkUpCircles' SurfaceGui) glows with it: brighter, its disc fuller, put back after.
 -- A model or a visible part gets a Highlight; the cafe door is an invisible zone part, so it gets a thin glowing
 -- panel in its doorway instead. Reduce Motion: no breathing, a still glow. Listening only: no remotes, no game state.
 -- Numbers in Presets.worldGlow.
@@ -25,13 +28,16 @@ local Presets = require(script.Parent.Presets)
 
 local WorldGlow = {}
 
-export type Target = Instance | "door" | "cannon"
+export type Target = Instance | "camp" | "door" | "cannon"
 
 type Glow = {
 	target: Instance,
 	highlight: Highlight?,
 	panel: BasePart?,
 	light: PointLight?,
+	ring: SurfaceGui?, -- the target's walk-up floor ring (WalkUpCircles), made brighter; its own values kept to put back
+	ringBright: number,
+	ringFills: { [Frame]: number },
 }
 
 local started = false
@@ -78,6 +84,8 @@ local function flag(key: string): boolean
 	return ReplicatedStorage:GetAttribute("LiveFlag_" .. key) == true
 end
 
+local WALK_UP_CIRCLE = "WalkUpCircle" -- shared/WalkUp.CIRCLE: a station's ObjectValue to its floor ring
+
 local function ownDoor(): BasePart?
 	local me = Players.LocalPlayer
 	for _, door in CollectionService:GetTagged("CafeDoor") do
@@ -107,8 +115,31 @@ local function townCannon(): Model?
 	return nil
 end
 
+-- The camp cannon nearest the player (the Alleyway's, where the new start lands): its ring is the cloud hop home.
+local function nearestCamp(): Model?
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	local from = if root ~= nil and root:IsA("BasePart") then (root :: BasePart).Position else nil
+	local best: Model? = nil
+	local bestDistance = math.huge
+	for _, model in CollectionService:GetTagged("CatCannon") do
+		local id = model:GetAttribute("CannonId")
+		if model:IsA("Model") and type(id) == "string" and id ~= "town" then
+			local distance = if from ~= nil
+				then ((model :: Model):GetPivot().Position - from :: Vector3).Magnitude
+				else (if id == Presets.worldGlow.firstCamp then 0 else 1)
+			if distance < bestDistance then
+				best, bestDistance = model :: Model, distance
+			end
+		end
+	end
+	return best
+end
+
 local function resolve(target: Target): Instance?
-	if target == "door" then
+	if target == "camp" then
+		return nearestCamp()
+	elseif target == "door" then
 		return ownDoor()
 	elseif target == "cannon" then
 		return townCannon()
@@ -124,7 +155,23 @@ end
 
 local function makeGlow(target: Instance, name: string): Glow
 	local p = Presets.worldGlow
-	local glow: Glow = { target = target }
+	local glow: Glow = { target = target, ringBright = 0, ringFills = {} }
+	-- a station's walk-up floor ring glows with it (the camp ring is the cloud hop home)
+	local link = target:FindFirstChild(WALK_UP_CIRCLE)
+	local ringPart = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	local found = if ringPart ~= nil then ringPart:FindFirstChildWhichIsA("SurfaceGui") else nil
+	if found ~= nil and found:IsA("SurfaceGui") then
+		local ring = found :: SurfaceGui
+		glow.ring = ring
+		glow.ringBright = ring.Brightness
+		for _, item in ring:GetChildren() do
+			if item:IsA("Frame") then
+				glow.ringFills[item :: Frame] = (item :: Frame).BackgroundTransparency
+			end
+		end
+	end
 	if hidden(target) then
 		-- the cafe door's zone: a thin panel in the doorway, with a soft light
 		local zone = target :: BasePart
@@ -174,6 +221,12 @@ local function setStrength(glow: Glow, k: number)
 	if glow.light ~= nil then
 		glow.light.Brightness = p.lightBrightness * k
 	end
+	if glow.ring ~= nil then
+		glow.ring.Brightness = glow.ringBright + p.ringBright * k
+		for frame, was in glow.ringFills do
+			frame.BackgroundTransparency = was - (was - p.ringFill) * k * (if was < 1 then 1 else 0)
+		end
+	end
 end
 
 local function drop(glow: Glow?)
@@ -185,6 +238,12 @@ local function drop(glow: Glow?)
 	end
 	if glow.panel ~= nil then
 		glow.panel:Destroy()
+	end
+	if glow.ring ~= nil then
+		glow.ring.Brightness = glow.ringBright
+		for frame, was in glow.ringFills do
+			frame.BackgroundTransparency = was
+		end
 	end
 end
 
@@ -271,7 +330,8 @@ local function updateDoor()
 	local character = Players.LocalPlayer.Character
 	local carrying = character ~= nil and character:GetAttribute("CarryingCatId") ~= nil
 	local want = WorldGlow.carryDoor(carrying, catsCaught, flag(Presets.worldGlow.carryFlag))
-	local door = if want then ownDoor() else nil
+	-- #5533 v2 (Design 2026-11-20): the new start lands in the Alleyway, so "take it home" is the camp ring
+	local door: Instance? = if want then nearestCamp() else nil
 	if door == nil then
 		if doorGlow ~= nil then
 			drop(doorGlow)
@@ -281,7 +341,7 @@ local function updateDoor()
 	end
 	if doorGlow == nil or doorGlow.target ~= door then
 		drop(doorGlow)
-		doorGlow = makeGlow(door, "EffectsCarryDoorGlow")
+		doorGlow = makeGlow(door :: Instance, "EffectsCarryHomeGlow")
 	end
 	setStrength(doorGlow :: Glow, steadyStrength())
 end

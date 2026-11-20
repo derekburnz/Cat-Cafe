@@ -217,6 +217,7 @@ LiveFlags.KEYS = {
 	"gemsShrink", -- Derek 2026-11-18: a stray's rarity gem gets smaller with distance so it stops covering far cats (Effects/Rarity, Logic.gemPixels); off by default
 	"christmasEvent", -- Snowglobe Village, Dec 1 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
 	"adventCalendar", -- #5502: the advent calendar (shared/Advent); also needs christmasEvent, and its dates hold every door shut until Dec 1 20:00 UTC; off by default
+	"catNames", -- #5586: a name tag in the rarity colour over the nearest wild cats (Effects/CatNames, Settings "Cat names"); off by default
 	"keepNoEvent", -- #5428: the Dragon Keep move in list leaves out event cats and the server refuses them (DragonKeep.eventCat); off by default
 	"bangRelayout", -- #5261: a "!" bubble showing with words but laid out blank lays its text out again (UI/Components/MarketBang); on by default
 	"richInside", -- #5582: a rich bag never waits on a table off the cafe floor, and the marker's spot counts for Collect (Services/RichTipService); off by default
@@ -383,6 +384,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	gemsShrink = true, -- Derek 2026-11-18: on after Review-QA and Sync's phone and PC look at far gems
 	christmasEvent = true, -- snowglobe-village-spec: on Nov 29 after Sync's look; the event dates still hold the portal shut until Dec 1
 	adventCalendar = true, -- #5502: on Nov 29 with christmasEvent, after the Christmas restart (new save fields); the dates hold it shut
+	catNames = true, -- #5586
 	keepNoEvent = true, -- #5428
 	nextGoalBeat = true, -- #5202: on after Review-QA and Sync's pass, at a minute with no other switch within 2 hours
 	milestoneFunnel = true, -- #5291: analytics only; on after Review-QA, then Growth reads it from new accounts

@@ -174,6 +174,7 @@ return function()
 							or key == "noIntro" -- #4929
 							or key == "firstFlightQuick" -- #4920
 							or key == "backdropsNear" -- #4857
+							or key == "catNames" -- #5586
 							or key == "fxOneAdded" -- #5000
 							or key == "rankUpRightAway" -- #5031
 							or key == "parkRingEarly" -- #5034

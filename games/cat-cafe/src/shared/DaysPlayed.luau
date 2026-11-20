@@ -13,6 +13,10 @@
 --   due(state) -> Milestone?                    the next milestone reached and not yet paid
 --   next(state) -> Milestone?                   the next milestone still ahead, for the board's row
 --   pickCat(rarity, tier, collection) -> string?  the cat id a cat milestone gives
+--   moment(state?, day) -> Moment?             #5505 return moment (switch returnMoment): the welcome back card's
+--                                              line at a join, read before this join counts the day: "Day 2 gift:
+--                                              ..." on the first join of a milestone's day, else "Day 4 of 5: ... is
+--                                              next", else nil
 
 local Catalog = require(script.Parent.Catalog)
 local Types = require(script.Parent.Types)
@@ -24,15 +28,38 @@ DaysPlayed.DAY_SECONDS = 86400
 DaysPlayed.EVENT = "days_played" -- value the day number; fields the milestone's kind, device
 
 export type State = { count: number, last: number, paid: number }
-export type Milestone = { days: number, prize: Types.IndexPrize?, cat: string? }
+-- words: the gift in full for the card's gift line; short: the same for the "is next" line
+export type Milestone = {
+	days: number,
+	prize: Types.IndexPrize?,
+	cat: string?,
+	words: string,
+	short: string,
+}
+export type Moment = { kind: string, text: string } -- kind "milestone" or "next"
 
 local MILESTONES: { Milestone } = {
-	{ days = 2, prize = { fish = 100, spins = 3 } },
-	{ days = 3, cat = "Rare" },
-	{ days = 5, prize = { crates = { classic_golden_crate = 1 }, potions = { lucky_potion = 1 } } },
-	{ days = 7, cat = "Epic" },
-	{ days = 14, prize = { fish = 500, crates = { classic_golden_crate = 2 } } },
-	{ days = 30, cat = "Legendary" },
+	{
+		days = 2,
+		prize = { fish = 100, spins = 3 },
+		words = "100 golden fish + 3 spins",
+		short = "100 golden fish",
+	},
+	{ days = 3, cat = "Rare", words = "a Rare cat", short = "a Rare cat" },
+	{
+		days = 5,
+		prize = { crates = { classic_golden_crate = 1 }, potions = { lucky_potion = 1 } },
+		words = "a golden crate + a Lucky Potion",
+		short = "a golden crate",
+	},
+	{ days = 7, cat = "Epic", words = "an Epic cat", short = "an Epic cat" },
+	{
+		days = 14,
+		prize = { fish = 500, crates = { classic_golden_crate = 2 } },
+		words = "500 golden fish + 2 golden crates",
+		short = "2 golden crates",
+	},
+	{ days = 30, cat = "Legendary", words = "a Legendary cat", short = "a Legendary cat" },
 }
 table.freeze(MILESTONES)
 DaysPlayed.MILESTONES = MILESTONES
@@ -90,6 +117,29 @@ function DaysPlayed.next(state: State): Milestone?
 		if milestone.days > state.paid and milestone.days > state.count then
 			return milestone
 		end
+	end
+	return nil
+end
+
+function DaysPlayed.moment(raw: State?, day: number): Moment?
+	local copy: State? = if raw ~= nil then table.clone(raw) else nil
+	local state, counted = DaysPlayed.note(copy, day)
+	if counted then
+		for _, milestone in MILESTONES do
+			if milestone.days == state.count and milestone.days > state.paid then
+				return {
+					kind = "milestone",
+					text = ("Day %d gift: %s"):format(milestone.days, milestone.words),
+				}
+			end
+		end
+	end
+	local ahead = DaysPlayed.next(state)
+	if ahead ~= nil then
+		return {
+			kind = "next",
+			text = ("Day %d of %d: %s is next"):format(state.count, ahead.days, ahead.short),
+		}
 	end
 	return nil
 end

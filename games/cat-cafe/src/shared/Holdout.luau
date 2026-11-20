@@ -31,6 +31,7 @@ local KEYS: { [string]: boolean } = {
 	dailyGifts = true, -- #5506
 	awayPromise = true, -- #5505: days played milestones and the away row
 	orderSplit = true, -- #5498: a held save stays out of the order test
+	returnMoment = true, -- #5505: plan A fix 3, the welcome back card's days line and the Rank Up strip line
 }
 table.freeze(KEYS)
 Holdout.KEYS = KEYS

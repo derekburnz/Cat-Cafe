@@ -27,6 +27,7 @@ local DailyDeal = require(ReplicatedStorage.Shared.DailyDeal)
 local DailyGifts = require(ReplicatedStorage.Shared.DailyGifts) -- #5506
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
+local DaysPlayed = require(ReplicatedStorage.Shared.DaysPlayed)
 local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -2818,6 +2819,15 @@ local function onLoaded(player: Player, profile: Profile)
 	-- #2123: before anything this join changes the save (lastSeen is still the last session's), and only for a
 	-- returning player: a first join has nothing waiting from before
 	if profile.stats.sessions > 1 then
+		-- #5505 return moment (switch returnMoment, read by the client): the welcome back card's days played line,
+		-- worked out before PlaytimeGiftService counts today. Attributes, so the client reads them with the card.
+		if LiveFlagService.on(DaysPlayed.FLAG, player) then
+			local moment = DaysPlayed.moment(profile.daysPlayed, DaysPlayed.day(os.time()))
+			if moment ~= nil then
+				player:SetAttribute("DaysMomentKind", moment.kind)
+				player:SetAttribute("DaysMomentText", moment.text)
+			end
+		end
 		local hook = ReturnHook.pick(profile, os.time(), "join")
 		if hook ~= nil then
 			joinHooks[player] = hook

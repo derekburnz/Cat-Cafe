@@ -234,6 +234,7 @@ return function()
 							or key == "holdout" -- #5499
 							or key == "catchLostLog" -- #5500
 							or key == "tier3TripLog" -- #5517
+							or key == "returnMoment" -- #5505
 							or key == "rankCueLog" -- #5516
 							or key == "hoodTrail" -- #5517
 							or key == "rankTapLog" -- #5516

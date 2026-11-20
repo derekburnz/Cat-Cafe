@@ -2423,6 +2423,12 @@ local function wireIntents()
 			end
 		end)
 	end
+	-- #5505: the welcome back card showed (once a session; the server checks the switch and the time away)
+	if events.returnCard ~= nil then
+		events.returnCard:Connect(function(value: string)
+			Net.fire("TelemetryReport", "return_card", value)
+		end)
+	end
 	-- #4626: the minute 6 "come back tomorrow" line showed (once a session; the server checks the kind and the switch)
 	if events.returnHookEarly ~= nil then
 		events.returnHookEarly:Connect(function(kind: string)

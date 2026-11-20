@@ -304,6 +304,7 @@ UI.events = {
 	-- #1920 (first-hour.md section 6), analytics only: the session recap card showed, then went after this many seconds
 	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
+	returnCard = Signal.new(), -- (value)   #5505: the welcome back card showed: forward as TelemetryReport("return_card", "<kind>:<yes|no>")
 	returnHookEarly = Signal.new(), -- (kind)   #4626: the minute 6 "come back tomorrow" line showed: forward as TelemetryReport("return_hook_early", kind)
 	tomorrowCard = Signal.new(), -- (outcome)   #3951: the come back tomorrow card: forward as TelemetryReport("tomorrow_card", outcome)
 	nextGoal = Signal.new(), -- (value)   #5202: shared/NextGoal.encode's "shown:A" and the like: forward as TelemetryReport("next_goal", value)
@@ -642,6 +643,17 @@ function applyTutorial()
 				end
 			end)
 		end
+	end
+	-- #5505 (returnMoment): after the welcome back card, "You can Rank Up!" while it is in reach, on an empty strip
+	local returning: any = UI.returnMoment
+	if
+		text == nil
+		and returning ~= nil
+		and returning.line ~= nil
+		and os.clock() < returning.untilAt
+		and returning.ready()
+	then
+		text = returning.line
 	end
 	-- #4973: the beat after a walk-through catch's result (UI.catch.retry.stripUntil, finishCatch)
 	local catchBeat: any = UI.catch
@@ -3168,6 +3180,19 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 		local note = WelcomeBack.note(state.longNap)
 		-- #2123: the reason to play today, from Gameplay's ReturnHook pick (nil: no line)
 		local hook = WelcomeBack.hookLine((state :: any).returnHook)
+		-- #5505 (returnMoment): the days played line comes first (CafeService's DaysMoment attributes)
+		local moment = UI.returnMoment.on()
+		local kind = if hook ~= nil then "hook" else "none"
+		local me = game:GetService("Players").LocalPlayer
+		local daysText = me:GetAttribute("DaysMomentText")
+		local daysKind = me:GetAttribute("DaysMomentKind")
+		if
+			moment
+			and type(daysText) == "string"
+			and (daysKind == "milestone" or daysKind == "next")
+		then
+			hook, kind = daysText, daysKind :: string
+		end
 		-- #2916: with no pick, Gameplay's nearest goal (the one the last session's recap led with)
 		if hook == nil then
 			hook = require(script.Components.ReturnGoalWords).welcomeLine(
@@ -3175,11 +3200,52 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 				Format.money
 			)
 		end
+		local ready = UI.returnMoment.ready()
+		-- Growth: a held save logs it too, as "held", so held and live compare
+		if ReplicatedStorage:GetAttribute("LiveFlag_returnMoment") == true then
+			local logged = if moment then kind else "held"
+			UI.events.returnCard:Fire(logged .. ":" .. (if ready then "yes" else "no"))
+		end
 		popups:showOffline(amount, seconds, function()
 			Sound.play("offlineClaim")
 			UI.events.claimOffline:Fire()
+			-- #5505: after the card, "You can Rank Up!" on the strip at Tier 2 and up while it is in reach
+			if moment and (state.tier or 1) >= 2 and UI.returnMoment.ready() then
+				UI.returnMoment.line = UI.returnMoment.LINE
+				UI.returnMoment.untilAt = os.clock() + UI.returnMoment.SECONDS
+				applyTutorial()
+				task.delay(UI.returnMoment.SECONDS + 0.1, applyTutorial)
+			end
 		end, UI.tips.offlineLine(seconds), note, hook)
 	end
+end
+
+-- #5505 (shared/DaysPlayed.moment, switch returnMoment): the return moment's pieces (init.luau is at Luau's 200
+-- locals, so they live here). The strip line shows for SECONDS after the welcome back card, while the rank up is in
+-- reach; nothing opens by itself.
+UI.returnMoment = {
+	LINE = "You can Rank Up!",
+	SECONDS = 45,
+	line = nil :: string?,
+	untilAt = 0,
+}
+
+function UI.returnMoment.on(): boolean
+	-- a held save (shared/Holdout, the Holdout attribute) does not get it
+	return ReplicatedStorage:GetAttribute("LiveFlag_returnMoment") == true
+		and game:GetService("Players").LocalPlayer:GetAttribute("Holdout") ~= true
+end
+
+-- The next tier's rank up in reach now (the goal card's own check)
+function UI.returnMoment.ready(): boolean
+	local s: any = state
+	if s == nil or currentCatalog == nil then
+		return false
+	end
+	local GoalLines = require(script.Components.GoalLines) :: any
+	local RankUpNeeds = require(script.Components.RankUpNeeds) :: any
+	local nextTier = GoalLines.nextTier((currentCatalog :: any).tiers, s.tier)
+	return nextTier ~= nil and RankUpNeeds.of(nextTier, s).ready == true
 end
 
 -- Rising text at a world point ("+$8"). Cheap enough for customers' coin pops. #1562 (Derek2: "the money pop-up ticks

@@ -6999,6 +6999,13 @@ do
 	-- for something: it skips the pace and does not hold the next ask back.
 	-- #4946: `back` is a news card that already showed and stepped aside for a window (#3620); it comes back without
 	-- waiting for UI.popPace, as it is still the same pop-up
+	-- #5572 (Sync's phone pass): no slide-in card over a Picnic Party while its Picnic Time runs (PicnicEndsAt, set by
+	-- the server's CampExtraService); the asks come again once it is over.
+	function UI.asks.picnicHeld(): boolean
+		local ends = Players.LocalPlayer:GetAttribute("PicnicEndsAt")
+		return type(ends) == "number" and ends > Workspace:GetServerTimeNow()
+	end
+
 	function UI.asks.card(ask: any, news: boolean?, back: boolean?): boolean
 		local card = askCard
 		local pace: any = UI.asks -- #2880: paced and shown are set further down the file
@@ -7011,7 +7018,7 @@ do
 		end
 		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
 		-- no ask card while a roll or its reveal plays (UI.rollBusy)
-		if UI.rollBusy.held() then
+		if UI.rollBusy.held() or UI.asks.picnicHeld() then
 			return false
 		end
 		card:show(ask)
@@ -7750,7 +7757,7 @@ do
 	-- The "Need a hand?" card for this step, saved as shown at once.
 	local function askHelp(step: number)
 		local card = askCard
-		if card == nil then
+		if card == nil or UI.asks.picnicHeld() then -- #5572: not over a Picnic Party; asked again on a later stall
 			return
 		end
 		stall.asked = true
@@ -9346,7 +9353,12 @@ do
 	-- #3715: whether the server runs Picnic Treats (the basket's view carries its treats).
 	function UI.campExtras.treats(): boolean
 		local current = camp.state
-		return current ~= nil and current.picnic ~= nil and current.picnic.treats ~= nil
+		return current ~= nil
+			and current.picnic ~= nil
+			and current.picnic.treats ~= nil
+			-- #5572 (Sync's phone pass): never the treats card while the Picnic Party's switch is on, even on a view
+			-- sent before the switch went on
+			and ReplicatedStorage:GetAttribute("LiveFlag_picnicParty") ~= true
 	end
 
 	-- #3715: the Picnic Basket's ring, prompt or Cat Cannon strip: its pick card.

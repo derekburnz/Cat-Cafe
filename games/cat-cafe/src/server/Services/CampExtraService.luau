@@ -84,6 +84,25 @@ local function anchorOf(def: Types.CampExtraDef): Vector3?
 	return nil
 end
 
+-- #5572: the extra's station pivot (the client's Effects/PicnicParty lays the blanket from the same one), or its
+-- Layout spot when the model is missing.
+local function pivotOf(def: Types.CampExtraDef): CFrame?
+	for _, instance in CollectionService:GetTagged(CampExtras.TAG) do
+		if
+			instance:IsA("Model")
+			and instance:IsDescendantOf(Workspace)
+			and instance:GetAttribute("ExtraId") == def.id
+		then
+			return (instance :: Model):GetPivot()
+		end
+	end
+	local x, y, z, turn = Layout.campExtraAt(def.area)
+	if x ~= nil and y ~= nil and z ~= nil then
+		return CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn or 0), 0)
+	end
+	return nil
+end
+
 -- True when the player stands within reach of the extra's prompt.
 local function inReach(player: Player, def: Types.CampExtraDef): boolean
 	local position, anchor = rootPosition(player), anchorOf(def)
@@ -271,6 +290,11 @@ local function startParty(player: Player, profile: Types.PlayerProfile): boolean
 	if running then
 		parties[player] = { endsAt = endsAt, startedPlay = playSeconds(profile) }
 		player:SetAttribute(PicnicParty.ENDS_AT, endsAt)
+		local def = Catalog.getCampExtra("picnic")
+		local pivot = if def ~= nil then pivotOf(def) else nil
+		if pivot ~= nil then
+			CatService.picnicCats(player, profile, pivot) -- the cats come to the blanket
+		end
 	else
 		-- the potion timer is full (PotionMaxMinutes): Picnic Time waits in the bag, so no party look plays
 		Net.toast(player, "Your money boost timer is full, so Picnic Time went in your bag", "warn")
@@ -306,6 +330,7 @@ local function watchParties()
 		if now >= party.endsAt then
 			parties[player] = nil
 			player:SetAttribute(PicnicParty.ENDS_AT, nil)
+			CatService.picnicClear(player)
 			local profile = DataService.get(player)
 			if profile ~= nil then
 				Telemetry.custom(player, "picnic_ended", 1, {
@@ -606,6 +631,7 @@ function CampExtraService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		sent[player] = nil
 		parties[player] = nil -- #5572
+		CatService.picnicClear(player)
 		seenReady[player] = nil
 		emptyAt[player] = nil
 	end)

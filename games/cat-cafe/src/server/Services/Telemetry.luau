@@ -139,6 +139,7 @@ export type CustomEvent =
 	-- #5572 (shared/PicnicParty, switch picnicParty), each value 1:
 	| "picnic_ready_seen" -- a ready basket within 60 studs, once a ready basket (fields: tier, seconds of play)
 	| "picnic_started" -- a party started (fields: tier, seconds of play, "running" or "bagged")
+	| "picnic_cat_caught" -- #5572: a picnic cat caught (value 1 to 3, its seat; fields: rarity, cat id)
 	| "picnic_ended" -- Picnic Time ran out (fields: tier, seconds of play since its start)
 	| "picnic_ring_empty" -- the basket's ring with nothing ready, at most once a minute (field: tier)
 	| "afk_start"

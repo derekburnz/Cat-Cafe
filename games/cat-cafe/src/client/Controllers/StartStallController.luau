@@ -2,8 +2,9 @@
 -- #5562 (Design-Agent's new-start-v2-spec.md, Sync's new start look 2026-11-20: nothing called WorldGlow.stall): the
 -- goal chip's stall timer for a save on the play first start (shared/FreeStart). When the goal it shows has not moved
 -- for STALL seconds, its thing in the world glows for Presets.worldGlow.stallSeconds (Effects/WorldGlow.stall, switch
--- stallGlow), once per goal: the nearest free stray for "Catch a cat", the camp for "Take it to camp", and after the
--- Tier 2 Rank Up the cannon while CannonGlowArea is set (until the first flight there). Time spent in a catch, a
+-- stallGlow), once per goal: the nearest free stray for "Catch a cat", the nearest camp cannon for "Take it to camp",
+-- and after the Tier 2 Rank Up the nearest cannon while CannonGlowArea is set (until the first flight there), each
+-- only within REACH studs (#5569: never the Town Square cannon from the Alleyway). Time spent in a catch, a
 -- cutscene or a window does not count, so the glow never comes in the middle of something.
 -- Client only: it sends nothing.
 
@@ -24,7 +25,9 @@ local StartStallController = {}
 
 local STALL = 11 -- seconds the goal stays where it is before its glow
 local POLL = 0.5
-local REACH = 120 -- studs: a stray farther than this is not "the nearest cat"
+-- studs: the stall glow's target is the nearest valid thing this near (Design 2026-11-20: within about 150 studs, in
+-- the player's own area; nothing that near, no glow until there is)
+local REACH = 150
 local STALL_FLAG = "stallGlow" -- Effects/WorldGlow's switch (Presets.worldGlow.stallFlag)
 
 local started = false
@@ -104,22 +107,43 @@ local function nearestStray(): Model?
 	return best
 end
 
+-- The nearest Cat Cannon within REACH: a camp cannon for the camp goal, any (the camp's or the Town Square's) for the
+-- cannon goal, so the lit camp cannon beside the player wins over the Town Square's far away (Sync 2026-11-20).
+local function nearestCannon(campOnly: boolean): Model?
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return nil
+	end
+	local best: Model?, bestDistance = nil, REACH
+	for _, instance in CollectionService:GetTagged("CatCannon") do
+		local id = instance:GetAttribute("CannonId")
+		if
+			not instance:IsA("Model")
+			or type(id) ~= "string"
+			or (campOnly and id == CannonGlow.TOWN)
+		then
+			continue
+		end
+		local model = instance :: Model
+		local distance = (model:GetPivot().Position - (root :: BasePart).Position).Magnitude
+		if distance < bestDistance then
+			best, bestDistance = model, distance
+		end
+	end
+	return best
+end
+
 local function glow(goal: string): boolean
 	-- Review-QA on #5563: while stallGlow is off WorldGlow.stall does nothing, so the goal is not marked done
 	if ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. STALL_FLAG) ~= true then
 		return false
 	end
-	if goal == "catch" then
-		local stray = nearestStray()
-		if stray == nil then
-			return false
-		end
-		WorldGlow.stall(stray)
-	elseif goal == "camp" then
-		WorldGlow.stall("camp")
-	else
-		WorldGlow.stall("cannon")
+	local target: Model? = if goal == "catch" then nearestStray() else nearestCannon(goal == "camp")
+	if target == nil then
+		return false
 	end
+	WorldGlow.stall(target :: Model)
 	return true
 end
 

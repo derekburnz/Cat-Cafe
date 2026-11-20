@@ -89,6 +89,17 @@ local function positionOf(plot: WorldBuilder.Plot, bag: RichBags.Bag): Vector3
 	return (base * CFrame.new(offset.x, 0, offset.z)).Position
 end
 
+-- #5582 (Derek 2026-11-20: "random floating rich tips outside my cafe and cant even collect"): whether `position` is
+-- over the cafe's floor (its footprint, with a stud of slack), so a bag never waits outside the walls.
+local function onFloor(plot: WorldBuilder.Plot, position: Vector3): boolean
+	local floor: BasePart? = (plot :: any).floor
+	if floor == nil or floor.Parent == nil then
+		return true -- nothing to measure by: keep the table's place
+	end
+	local here = floor.CFrame:PointToObjectSpace(position)
+	return math.abs(here.X) <= floor.Size.X / 2 + 1 and math.abs(here.Z) <= floor.Size.Z / 2 + 1
+end
+
 local function folderOf(plot: WorldBuilder.Plot): Folder
 	local found = plot.model:FindFirstChild(RichBags.FOLDER)
 	if found ~= nil and found:IsA("Folder") then
@@ -269,7 +280,17 @@ local function onClaimRichTip(player: Player, rawBagId: unknown)
 		return
 	end
 	-- the device checks RichTipRangeStuds from the HumanoidRootPart; 2 studs of slack for movement in flight
-	if not withinRange(player, positionOf(plot, bag), Config.RichTipRangeStuds + 2) then
+	-- #5582: with richInside on, the spot the marker shows (the record's Position, set at the drop) counts too, so a
+	-- bag whose table moved or went since can still be collected where it is drawn
+	local record = folderOf(plot):FindFirstChild(bag.id)
+	local shown = if record ~= nil then record:GetAttribute("Position") else nil
+	local nearShown = ReplicatedStorage:GetAttribute("LiveFlag_richInside") == true
+		and typeof(shown) == "Vector3"
+		and withinRange(player, shown :: Vector3, Config.RichTipRangeStuds + 2)
+	if
+		not nearShown
+		and not withinRange(player, positionOf(plot, bag), Config.RichTipRangeStuds + 2)
+	then
 		Net.toast(player, "Walk closer to collect the money bag", "info")
 		return
 	end
@@ -319,6 +340,21 @@ local function drop(
 	local slot = RichBags.freeSlot(entry.bags)
 	if slot == nil then
 		return nil
+	end
+	-- #5582: with richInside on, a table whose spot is off the floor sends the bag (and the customer) to table 1
+	if
+		tableIndex ~= nil
+		and tableIndex ~= 1
+		and ReplicatedStorage:GetAttribute("LiveFlag_richInside") == true
+		and not onFloor(plot, positionOf(plot, { slot = slot, tableIndex = tableIndex } :: any))
+	then
+		warn(
+			("[RichTip] table %d of plot %d is off the floor; the bag goes to table 1"):format(
+				tableIndex,
+				plot.index
+			)
+		)
+		tableIndex = 1
 	end
 	serial += 1
 	local bag: RichBags.Bag = {

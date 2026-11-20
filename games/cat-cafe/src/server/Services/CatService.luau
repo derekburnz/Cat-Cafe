@@ -4732,6 +4732,10 @@ function CatService.packedOf(player: Player): string?
 	return if carry ~= nil then carry.def.id else nil
 end
 
+-- #5584 (Derek 2026-11-20: "increase speed while in town square by a decent amount so people don't get bored of
+-- running"): with switch townFast on, the Town Square bonus is this instead of TownWalkSpeedBonus (20 + 10)
+local TOWN_FAST = 10
+
 -- A Swift Potion started or ran out (PotionService, F64), or a Startled slow (F57): the character's speed follows at
 -- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither). #2706: with no cat, on the Town
 -- Square (the character's OnSquare, kept by markCamps), TownWalkSpeedBonus more.
@@ -4746,9 +4750,10 @@ function CatService.refreshSpeed(player: Player)
 	local carry = carrying[player]
 	local startled = startledUntil[player]
 	-- #2706: a little faster on the Town Square
-	local square = if (character :: Model):GetAttribute("OnSquare") == true
-		then M.Config.TownWalkSpeedBonus
-		else 0
+	local square = if (character :: Model):GetAttribute("OnSquare") ~= true
+		then 0
+		elseif ReplicatedStorage:GetAttribute("LiveFlag_townFast") == true then TOWN_FAST -- #5584
+		else M.Config.TownWalkSpeedBonus
 	local base = if carry == nil
 		then M.Config.NormalWalkSpeed + pawsBonus(player) + square
 		elseif

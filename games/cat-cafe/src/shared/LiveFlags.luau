@@ -169,6 +169,7 @@ LiveFlags.KEYS = {
 	"dailyGifts", -- #5506: ten gifts for minutes played today on the Rewards tile, the small account steps stop (shared/DailyGifts); off by default
 	"awayPromise", -- #5505: days played milestones (shared/DaysPlayed), later the away line and return moment; off by default
 	"holdout", -- #5499: one new account in ten keeps dailyGifts, awayPromise and orderSplit off for its first 7 days (shared/Holdout); off by default
+	"autoRankFirst", -- #5516: the first Rank Up (Tier 1) opens by itself when ready, with autoRankUp off (UI/Components/AutoRankUp.on); off by default
 	"tier3TripLog", -- #5517: log tier3_trip (Cannon menu, refused pick, pick, landing) and tier3_left between Tier 3 and the first Neighbourhood landing (shared/Tier3Trip); off by default
 	"catchLostLog", -- #5500: log catch_lost with why a started net catch ended with no cat, by device and area (shared/CatchLost); off by default
 	"mutationBoost", -- #5493: a wild stray's gold and rainbow coat chances are doubled (shared/MutationBoost); off by default
@@ -331,6 +332,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
+	autoRankFirst = true, -- #5516: on only if Derek picks it (it opens a window by itself, which he switched off Nov 18)
 	tier3TripLog = true, -- #5517: on after the next restart (new save field), then Growth reads it
 	mutationBoost = true, -- #5493: on as soon as it publishes (Derek 2026-11-19)
 	bowlOptionsButton = true, -- #5488: on as soon as it publishes (Derek 2026-11-19)

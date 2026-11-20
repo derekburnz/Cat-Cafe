@@ -17,6 +17,20 @@ return function()
 		return AutoRankUp.due(o)
 	end
 
+	describe("AutoRankUp.on", function()
+		it("opens at every tier with autoRankUp, and only the first with autoRankFirst", function()
+			expect(AutoRankUp.on(true, false, 1)).to.equal(true)
+			expect(AutoRankUp.on(true, false, 5)).to.equal(true)
+			expect(AutoRankUp.on(false, true, 1)).to.equal(true)
+			expect(AutoRankUp.on(false, true, 2)).to.equal(false)
+			expect(AutoRankUp.on(false, false, 1)).to.equal(false)
+		end)
+
+		it("keeps autoRankFirst off unless switched on", function()
+			expect(LiveFlags.shown(AutoRankUp.FIRST_FLAG, nil)).to.equal(false)
+		end)
+	end)
+
 	describe("AutoRankUp.due", function()
 		it("opens a ready rank up on a calm screen", function()
 			expect(due({})).to.equal(true)

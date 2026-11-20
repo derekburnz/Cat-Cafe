@@ -12802,10 +12802,18 @@ function UI.autoRank.check()
 	local AutoRankUp = require(script.Components.AutoRankUp) :: any
 	local LiveFlags =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	local function on(): boolean
-		return LiveFlags.shown(
-			AutoRankUp.FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AutoRankUp.FLAG)
+	-- #5516: autoRankUp for every tier, or autoRankFirst for the first rank up only
+	local function on(atTier: number): boolean
+		return AutoRankUp.on(
+			LiveFlags.shown(
+				AutoRankUp.FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AutoRankUp.FLAG)
+			),
+			LiveFlags.shown(
+				AutoRankUp.FIRST_FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AutoRankUp.FIRST_FLAG)
+			),
+			atTier
 		)
 	end
 	local ready, tier = auto.ready()
@@ -12815,7 +12823,7 @@ function UI.autoRank.check()
 	if player ~= nil and player:GetAttribute(AutoRankUp.ATTRIBUTE) ~= readyTier then
 		player:SetAttribute(AutoRankUp.ATTRIBUTE, readyTier)
 	end
-	if not on() or not ready or auto.opened[tier] then
+	if not on(tier) or not ready or auto.opened[tier] then
 		return
 	end
 	auto.watching = true
@@ -12823,7 +12831,7 @@ function UI.autoRank.check()
 	task.spawn(function()
 		while true do
 			local nowReady, nowTier = auto.ready()
-			if modal == nil or not on() or not nowReady or auto.opened[nowTier] then
+			if modal == nil or not on(nowTier) or not nowReady or auto.opened[nowTier] then
 				break
 			end
 			local now = os.clock()

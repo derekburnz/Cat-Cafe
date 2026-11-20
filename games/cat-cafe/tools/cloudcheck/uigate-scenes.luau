@@ -6692,26 +6692,20 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "IndexExclusive", function()
 		UI.openIndex("exclusive")
 	end },
-	-- #3470: no Secret page for a player who has found none; with one found the page comes last with only that cat,
-	-- "1 found" and no total, no Rewards button, and the two not found have no tile
+	-- #3470's Secret page in the Cats tab never shows since secretAreas was retired (#4656): Secrets have their own tab
+	-- (IndexSecretTab), even once one is found
 	{ "IndexSecret", function()
 		UI.open("Collection")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Collection", true)
 		local page = window and window:FindFirstChild("secret", true)
 		assert(page, "uigate: the Secret page was never built (#3470)")
-		assert(not page.Visible, "uigate: the Secret page shows before any Secret cat is found (#3470) " .. page:GetFullName())
 		local collection = table.clone(samplePlayer(os.time()).collection)
 		collection.nebula = 1
 		UI.update({ collection = collection })
-		UI.openIndex("secret")
-		assert(page.Visible, "uigate: no Secret page once a Secret cat is found (#3470)")
-		local header = page:FindFirstChild("Header")
-		assert(header.Count.Text == "1 found", "uigate: the Secret page reads " .. tostring(header.Count.Text) .. " (#3470)")
-		assert(not header.Rewards.Visible, "uigate: the Secret page has a Rewards button (#3470)")
-		local cats = page:FindFirstChild("Cats")
-		assert(cats.nebula.Visible, "uigate: the found Secret cat has no tile (#3470)")
-		assert(not cats.glitch.Visible and not cats.cafe_ghost.Visible, "uigate: a Secret cat not found has a tile (#3470)")
+		assert(not page.Visible, "uigate: the old Secret page shows in the Cats tab (#4656) " .. page:GetFullName())
+		local tab = window:FindFirstChild("SecretTab", true)
+		assert(tab and tab.Visible, "uigate: no Secret tab once secretAreas is retired (#4656)")
 	end },
 	-- an exclusive cat in the cat room reads "Can't sell"
 	{ "CatsBellhop", function()

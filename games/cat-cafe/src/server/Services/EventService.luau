@@ -19,8 +19,8 @@
 -- the server as it started), and event_money, the coins its multiplier added for each player (Economy.noteEventExtra),
 -- at its end or their leave.
 --
--- #4195, admin events (shared/CafeEvents, the `admin = true` records): a second lane beside the normal event, behind
--- the LiveFlags switch `adminEvents` (off: none shows or runs). ReplicatedStorage carries the one running, or from
+-- #4195, admin events (shared/CafeEvents, the `admin = true` records): a second lane beside the normal event, (its
+-- LiveFlags switch `adminEvents` is retired, #4656). ReplicatedStorage carries the one running, or from
 -- CafeEvents.ADMIN.warnSeconds before its start the one coming, as AdminEventId, AdminEventTitle, AdminEventStartsAt,
 -- AdminEventEndsAt, AdminEventEffects and AdminEventRunning (CafeEvents.ADMIN_ATTRIBUTES; the client's warning
 -- banner, start banner and timer). `EventService.admin()` is the running one, `adminChanged` fires when it changes,
@@ -44,7 +44,6 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Telemetry = require(script.Parent.Telemetry)
 
@@ -246,12 +245,9 @@ local function publish(at: number)
 	ReplicatedStorage:SetAttribute(names.running, event ~= nil)
 end
 
--- #4195: the admin events this server may show at `at`: its own test first, then the schedule's; none with the
--- switch off.
+-- #4195: the admin events this server may show at `at`: its own test first, then the schedule's (the adminEvents
+-- switch is retired, #4656).
 local function adminList(at: number): { CafeEvents.AdminEvent }
-	if not LiveFlagService.on(CafeEvents.ADMIN.flag) then
-		return {}
-	end
 	local own = adminTest
 	if own ~= nil then
 		if at < own.endsAt then
@@ -588,12 +584,6 @@ local function adminKinds(): string
 	return table.concat(kinds, ", ")
 end
 
-local function adminOff(): string?
-	return if LiveFlagService.on(CafeEvents.ADMIN.flag)
-		then nil
-		else "admin events are switched off (the adminEvents switch)"
-end
-
 -- #4195: `/admin <kind> [minutes] [now]` in Studio or a private server: the admin event in this server only, after
 -- a short warning (none with `skipWarning`); "stop" ends it. Writes nothing to the store. Returns its line.
 function EventService.startAdminTest(
@@ -606,10 +596,6 @@ function EventService.startAdminTest(
 		adminTest = nil
 		applyAdmin(now())
 		return "test admin event ended"
-	end
-	local off = adminOff()
-	if off ~= nil then
-		return off
 	end
 	local event = CafeEvents.adminTest(kind, now(), minutes, skipWarning, spins)
 	if event == nil then
@@ -635,10 +621,6 @@ function EventService.ownerAdmin(
 	skipWarning: boolean?,
 	spins: number? -- #4876: the wheel's spins an account
 ): (string, boolean)
-	local off = adminOff()
-	if off ~= nil then
-		return off, false
-	end
 	local record = CafeEvents.adminRecord(kind, now(), minutes, skipWarning, spins)
 	if record == nil then
 		return "no such admin event: " .. adminKinds() .. ", or stop", false

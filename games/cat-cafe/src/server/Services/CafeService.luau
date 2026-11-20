@@ -310,11 +310,8 @@ function CafeService.dealCratesOk(player: Player): boolean
 	return policy ~= nil and policy.ArePaidRandomItemsRestricted == false
 end
 
--- #3996: PlayerState.dailyDeal, false while the dailyDeal switch is off
+-- #3996: PlayerState.dailyDeal (false below DailyDeal.MIN_TIER; the dailyDeal switch is retired, #4656)
 local function dealView(player: Player, profile: Profile, now: number): Types.DailyDealView | false
-	if not LiveFlagService.on(DailyDeal.FLAG) then
-		return false
-	end
 	return DailyDeal.view(
 		profile,
 		now,
@@ -454,11 +451,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		snowflakes = profile.snowflakes or 0, -- #5502: the Gift Stall's count
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
 		-- #4195: the Admin Wheel that is up and whether this account has spun it
-		adminWheel = AdminWheel.view(
-			profile.codesRedeemed,
-			EventService.admin(),
-			LiveFlagService.on("adminEvents")
-		),
+		adminWheel = AdminWheel.view(profile.codesRedeemed, EventService.admin(), true), -- adminEvents retired, #4656
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		-- #4626: the minute 6 line for a player before Tier 3, behind returnHookEarly (the client times it)

@@ -3,7 +3,7 @@
 -- the server's admin event attributes (shared/CafeEvents.ADMIN_ATTRIBUTES on ReplicatedStorage: the event running,
 -- or the one starting within its 2 minute warning) and PlayerState.adminWheel, and hands them to UI.admin.set (only
 -- the Admin Wheel's window now: Derek 22:54 UTC cut the banner and the HUD timer, Motion-FX's strip owns the readout).
--- Spin on the window fires AdminWheelSpin; AdminWheelResult turns the wheel. With the switch `adminEvents` off the server names no event, so nothing shows.
+-- Spin on the window fires AdminWheelSpin; AdminWheelResult turns the wheel. With no admin event the server names none, so nothing shows.
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

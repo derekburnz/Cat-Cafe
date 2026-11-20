@@ -10405,8 +10405,8 @@ end
 -- 22:54 UTC ("the ui is still on the screen too much in the events"): no bar or timer of its own; the event's splash
 -- and its one strip are Motion-FX's (Effects/AdminFlash). The window opens by itself once an event, AUTO_OPEN seconds
 -- after the wheel comes up for this account (after the splash), when no window is open and no catch runs; after that
--- UI.admin.open() opens it (the strip's tap, the chat line). UI.admin.result takes AdminWheelResult. All of it waits
--- on the server's switch `adminEvents`: off, no attribute names an event. Its own block, as the module is short of
+-- UI.admin.open() opens it (the strip's tap, the chat line). UI.admin.result takes AdminWheelResult. With no admin
+-- event no attribute names one. Its own block, as the module is short of
 -- locals.
 UI.admin = {
 	spin = Signal.new(), -- ()   Spin on the Admin Wheel window: forward as AdminWheelSpin

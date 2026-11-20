@@ -168,9 +168,7 @@ local function useLure(
 			rng:NextNumber(),
 			rng:NextNumber(),
 			true,
-			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
-				then Catching.baitAreas(Economy.tier(profile))
-				else nil,
+			Catching.baitAreas(Economy.tier(profile)), -- #4221 (secretAreas retired, #4656)
 			-- #4900: the Eclipse Treat's 1 in 10; #5418: twice that with secretDouble
 			Catching.secretShare(lure.secretShare, LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG))
 		)

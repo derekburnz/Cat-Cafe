@@ -27,10 +27,6 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
--- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
---   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
---   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
---   tab reads the same switch. Its own update day (Saturday 2026-11-21 20:00 UTC).
 -- - `luckyCharm` (#3298): the Golden Fish Market's Lucky Charm perk (shared/LuckyCharm). It starts OFF
 --   (OFF_BY_DEFAULT): off hides the row, refuses a buy and adds no Luck. Switch it on only once no server older than
 --   the publish that added the row is running, since an older server's save check drops a perk id it does not know.
@@ -43,9 +39,6 @@
 -- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
 --   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
 --   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
--- - `adminEvents` (#4195): admin events from the events schedule's `admin = true` records (shared/CafeEvents; Bowl
---   Frenzy's faster bait bowls, EventService.bowlSpeed). It starts OFF (OFF_BY_DEFAULT); off, EventService shows and
---   runs none, and one running ends at the next second.
 -- - `mailbox` (#4249): the HUD's Mailbox tile in the Feedback tile's place, with letters from Derek to claim
 --   (client/UI Screens/Mailbox; Feedback moves into the Menu list). It starts OFF (OFF_BY_DEFAULT); off, the
 --   Feedback tile stays. The client reads it once at the HUD's build.
@@ -86,17 +79,11 @@ LiveFlags.KEYS = {
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
-	"tier8", -- #3997: Tier 8 and the Snowy Mountain (shared/LateTiers); on once the area is built, after a restart
 	"bowlCardHold", -- Derek 2026-11-18: a bowl cat's card never shows over the intro or another cutscene, it waits for calm (UI.bait.showReady); on by default
-	"tier9", -- #4070: Tier 9 and the Water Park (shared/LateTiers); on once the area is built, after a restart, never before tier8
-	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
 	"upgradesWarm", -- Sync 2026-11-18: the Upgrades window lays out once off screen after its rows are built, so the first open has no long frame (Screens/UpgradeShop._warm); on by default
-	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"starterSuggest", -- #4174: the Starter Bundle's one slide-in card a session after 10 to 15 minutes (shared/StarterSuggest)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
-	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
-	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
 	"mailbox", -- #4249: the Mailbox tile and window (letters from Derek with a gift to claim), Feedback into the Menu list
 	"autoBowl", -- #4266: the Auto Bowl pass's offer card, switches and Store card (Screens/BaitBowl)
 	"uiStats", -- #5245 (Sync on v947): the play counters (baitsTamed, luresUsed) reach the UI state the tutorial reads (UIController); on by default
@@ -271,20 +258,14 @@ LiveFlags.OFF_BY_DEFAULT = {
 	fishStore = true,
 	ticketBooth = true,
 	dragonKeep = true,
-	tier8 = true,
 	harvestPieLow = true,
-	tier9 = true,
-	tier10 = true,
 	rareCustomers = true,
-	dailyDeal = true,
 	perfectFlagged = true, -- #5379
 	starterSuggest = true,
 	cannonReturnNow = true, -- #5417
 	areasKeptBig = true, -- Sync 2026-11-19
 	updateFeature = true,
 	areasKeptRecent = true, -- Derek 2026-11-19
-	adminEvents = true,
-	secretAreas = true,
 	mailbox = true,
 	autoBowl = true,
 	padControls = true,

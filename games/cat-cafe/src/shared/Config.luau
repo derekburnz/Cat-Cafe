@@ -872,17 +872,8 @@ local Config = {
 			-- Derek 2026-11-18 (#5284: the follower is the Cat Companion now): the CAT COMPANION! picture, group owned
 			poster = "rbxassetid://74687423272088", -- was 140613402107560, the CAT FOLLOWER! one (#5213)
 		},
-		-- Derek 2026-11-20 11:43 UTC ("post an event/update card with "device improvements" ... for saturday at a good
-		-- peak time and switch the sign in game and notifys to be that event for now"): Growth's Roblox Event, Sat Nov 21
-		-- 20:00 to 22:00 UTC. It starts before Christmas, so the poster and the Notify Me ask take it first and roll on
-		-- to Christmas by themselves once it starts. Poster: Model-Agent's art, group owned.
-		{
-			id = "8108785197822116451",
-			startsAt = 1795291200, -- "Device Improvements", Saturday 2026-11-21 20:00 UTC (3 PM ET)
-			title = "🔔 Next update Saturday: DEVICE IMPROVEMENTS and a quick Rank Up! Want a reminder?",
-			name = "DEVICE IMPROVEMENTS",
-			poster = "rbxassetid://120464533836665",
-		},
+		-- Device Improvements (Sat Nov 21) removed: Derek 2026-11-20 19:47 UTC, "remove the event for device improvements
+		-- tmmr ... change the board and notify pop ups to just be the christmas event".
 		{
 			id = "3056428113926947439",
 			-- Derek 2026-11-18 16:49 UTC: the Christmas Event starts Tue Dec 1 20:00 UTC (to Jan 3); the Roblox Event moved

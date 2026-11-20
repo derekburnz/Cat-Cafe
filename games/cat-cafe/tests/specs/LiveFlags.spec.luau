@@ -307,6 +307,7 @@ return function()
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "nightLineNoArrow" -- #5459
+							or key == "spawnAlley" -- #5616
 							or key == "tier3Up" -- #5617
 							or key == "rankDimTwo" -- #5609
 							or key == "secretCompanionBig" -- #5431

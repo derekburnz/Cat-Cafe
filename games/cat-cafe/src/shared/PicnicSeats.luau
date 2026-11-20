@@ -2,13 +2,15 @@
 -- #5572 the Picnic Party's blanket and its three seats, worked out from the Picnic Basket station's pivot alone, so the
 -- server (Gameplay's picnic strays stand still on the seats) and the client (Effects/PicnicParty lays the blanket
 -- there) agree to the stud. The station's pivot is on the ground at its middle (Model-Agent's
--- CatCafe_Camp_Park_PicnicStation, 7 x 5.6 studs); the blanket lies on the ground on the station's +X side, GAP studs
--- past its half width, SIZE studs square. Pure.
+-- CatCafe_Camp_Park_PicnicStation); the blanket lies on the ground on the station's +X side, GAP studs past HALF,
+-- SIZE studs square. Pure.
 
 local PicnicSeats = {}
 
 PicnicSeats.SIZE = 6 -- studs along each side of the blanket (Model-Agent's CatCafe_Prop_PicnicBlanket)
-PicnicSeats.HALF = 3.5 -- studs from the station's pivot to its +X side
+-- studs from the station's pivot to its +X side: Model-Agent's #5580 station reaches 4.95 there (its parts' boxes;
+-- Review-QA: the manifest's 8.66 x 7.48 footprint sits off the pivot), so 5 keeps the blanket clear of the A-frame
+PicnicSeats.HALF = 5
 PicnicSeats.GAP = 1 -- studs between the station's side and the blanket's near edge
 PicnicSeats.THICK = 0.06 -- the blanket's height, so a seat stands on it
 -- Where each seat is on the blanket, in fractions of its sides from its middle (-0.5 to 0.5): X across, Y outward.

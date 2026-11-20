@@ -564,18 +564,15 @@ return function()
 			expect(Tips.likeEarly(day1(1, ten), DAY_NO, nil, parkCommon)).to.equal(nil)
 		end)
 
-		it(
-			"only on the first UTC day, after 10 minutes of play, while the like ask has not shown",
-			function()
-				local ten = Tips.LIKE_EARLY_SECONDS
-				expect(Tips.likeEarly(day1(2, ten - 1), DAY_NO, nil, alleyRare)).to.equal(nil)
-				expect(Tips.likeEarly(day1(2, 0), DAY_NO, ten, alleyRare)).to.equal("rare_catch") -- this session's play
-				expect(Tips.likeEarly(day1(2, ten), DAY_NO + 1, nil, alleyRare)).to.equal(nil)
-				local seen = day1(2, ten)
-				seen.tipsSeen[Tips.LIKE_ASK] = true
-				expect(Tips.likeEarly(seen, DAY_NO, nil, parkCommon)).to.equal(nil)
-			end
-		)
+		it("only on the first UTC day, after 10 minutes of play, while the like ask has not shown", function()
+			local ten = Tips.LIKE_EARLY_SECONDS
+			expect(Tips.likeEarly(day1(2, ten - 1), DAY_NO, nil, alleyRare)).to.equal(nil)
+			expect(Tips.likeEarly(day1(2, 0), DAY_NO, ten, alleyRare)).to.equal("rare_catch") -- this session's play
+			expect(Tips.likeEarly(day1(2, ten), DAY_NO + 1, nil, alleyRare)).to.equal(nil)
+			local seen = day1(2, ten)
+			seen.tipsSeen[Tips.LIKE_ASK] = true
+			expect(Tips.likeEarly(seen, DAY_NO, nil, parkCommon)).to.equal(nil)
+		end)
 
 		it("keeps the recap line's mark like an ask", function()
 			expect(Tips.seenId(Tips.LIKE_RECAP)).to.equal(true)

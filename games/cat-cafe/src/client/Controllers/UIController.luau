@@ -1549,6 +1549,7 @@ local function applySettings()
 		screenShake = setting("screenShake"),
 		lowPerformance = setting("lowPerformance"),
 		stationCircles = setting("stationCircles"), -- #4668: the walk-up rings, off by default
+		catNames = setting("catNames"), -- #5586: the names over strays, on by default
 	})
 end
 

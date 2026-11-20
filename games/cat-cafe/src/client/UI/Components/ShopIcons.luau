@@ -800,6 +800,7 @@ local SETTING_ART: { [string]: string } = {
 	showOtherCats = "Icon_Hud_SetOtherCats",
 	markers = "Icon_Hud_SetMapIcons",
 	stationCircles = "Icon_Hud_SetMapIcons", -- #4668: the station circles, map pins as the nearest picture
+	catNames = "Icon_Hud_SetOtherCats", -- #5586: the cat names, the other cats picture
 	vipTag = "Icon_Store_Vip", -- #4991: the VIP tag over your head, the VIP Store card's picture
 	shopAlerts = "Icon_Hud_SetAlerts",
 	sessionRecap = "Icon_Hud_SetRecap",

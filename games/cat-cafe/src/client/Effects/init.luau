@@ -43,6 +43,7 @@ local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
 local CannonCue = require(script.CannonCue)
 local CannonGlide = require(script.CannonGlide)
+local CatNames = require(script.CatNames) -- #5586
 local Catch = require(script.Catch)
 local CatchReact = require(script.CatchReact)
 local Cats = require(script.Cats)
@@ -185,6 +186,7 @@ function Effects.start()
 		Mystery.start,
 		Levels.start,
 		Rarity.start,
+		CatNames.start, -- #5586: names over the nearest strays
 		SecretStray.start,
 		SecretGlow.start,
 		BigTraitCut.watchPool, -- #3942: other players' big trait rolls, seen from nearby
@@ -332,6 +334,7 @@ function Effects.applySettings(settings: { [string]: unknown }?)
 	Context.applySettings(settings)
 	Sky.refresh()
 	StationCircles.set(if settings ~= nil then settings.stationCircles else nil) -- #4668
+	CatNames.set(if settings ~= nil then settings.catNames else nil) -- #5586
 end
 
 return Effects

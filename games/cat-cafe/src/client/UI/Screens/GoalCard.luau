@@ -130,6 +130,26 @@ local function oneTapOn(): boolean
 	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.FLAG) == true
 end
 
+-- #5592 (Derek 2026-11-20: "make the big rankup button ready ui a bit better instead of just a big yellow box"): the
+-- rankTapLook switch, off by default. The button in the house's clean button look: a green face from a light top to
+-- a deeper bottom over a darker lip, a light bar along its top, a thick dark outline and a slow breath.
+local function tapLookOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.LOOK_FLAG) == true
+end
+
+local TAP_FACE = Theme.button.primary
+local TAP_FACE_SEQUENCE = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, TAP_FACE.top:Lerp(Color3.new(1, 1, 1), 0.45)),
+	ColorSequenceKeypoint.new(0.08, TAP_FACE.top:Lerp(Color3.new(1, 1, 1), 0.45)),
+	ColorSequenceKeypoint.new(0.081, TAP_FACE.top),
+	ColorSequenceKeypoint.new(0.86, TAP_FACE.bottom),
+	ColorSequenceKeypoint.new(0.861, TAP_FACE.depth),
+	ColorSequenceKeypoint.new(1, TAP_FACE.depth),
+})
+local TAP_EDGE = 3
+local TAP_BREATH = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local TAP_BREATH_SCALE = 1.04
+
 local GoalCard = {}
 GoalCard.__index = GoalCard
 
@@ -279,6 +299,17 @@ function GoalCard.new(
 	})
 	FitText.shrink(self._tapLine)
 	self._tap = false
+	self._tapLook = false
+	-- #5592: the clean button face and the breath, both idle until the button is up with rankTapLook on
+	self._tapGradient = Create("UIGradient", {
+		Name = "RankUpFace",
+		Color = TAP_FACE_SEQUENCE,
+		Rotation = 90,
+		Enabled = false,
+		Parent = frame,
+	})
+	self._tapScale = Create("UIScale", { Name = "RankUpBreath", Scale = 1, Parent = frame })
+	self._tapBreath = nil :: Tween?
 	self._tapSince = nil :: number?
 	self._tapFired = nil :: number?
 	self._onRankUp = nil :: (() -> ())?
@@ -396,6 +427,15 @@ function GoalCard.new(
 			end
 		end)
 
+	self._lookConnection = ReplicatedStorage
+		:GetAttributeChangedSignal("LiveFlag_" .. RankOneTap.LOOK_FLAG)
+		:Connect(function()
+			local last = self._last
+			if last then
+				self:render(last.progress, last.tierText, last.nudge, last.goal)
+			end
+		end)
+
 	self._connection = frame.Activated:Connect(function()
 		-- #5533 (rankOneTap): the gold button ranks up in one tap, folded or not; no window opens
 		if self._tap then
@@ -431,8 +471,37 @@ function GoalCard._paintTap(self: any, on: boolean)
 		self._tapSince = nil
 	end
 	self._tap = on
-	self.frame.BackgroundColor3 = if on then Theme.colors.gold else Theme.colors.outline
+	local look = on and tapLookOn()
+	self.frame.BackgroundColor3 = if look
+		then Color3.new(1, 1, 1)
+		elseif on then Theme.colors.gold
+		else Theme.colors.outline
 	self.frame.BackgroundTransparency = if on then 0 else CARD_TRANSPARENCY
+	self._tapGradient.Enabled = look
+	if look ~= self._tapLook then
+		self._tapLook = look
+		-- the edge's colour and width follow the look, so the ready pulse starts again from the new ones
+		local key = self._alertKey
+		if self._alerting then
+			self:_alert(nil)
+			self:_alert(key)
+		else
+			self._edge.Thickness = if look then TAP_EDGE else EDGE
+			self._edge.Color = if look then Theme.colors.outline else Theme.colors.gold
+		end
+		local breath: Tween? = self._tapBreath
+		if breath ~= nil then
+			breath:Cancel()
+			self._tapBreath = nil
+		end
+		self._tapScale.Scale = 1
+		if look and not GuiService.ReducedMotionEnabled then
+			local tween =
+				TweenService:Create(self._tapScale, TAP_BREATH, { Scale = TAP_BREATH_SCALE })
+			tween:Play()
+			self._tapBreath = tween
+		end
+	end
 	self._title.TextXAlignment = if on then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left
 	self._tapLine.Visible = false
 end
@@ -451,7 +520,7 @@ function GoalCard._layoutTap(self: any, progress: RankUp.Progress?, folded: bool
 		row.frame.Visible = false
 	end
 	self._title.Visible = true
-	self._title.Text = if folded then RankOneTap.CHIP else RankOneTap.TITLE
+	self._title.Text = if folded or self._tapLook then RankOneTap.CHIP else RankOneTap.TITLE
 	self._title.TextColor3 = Theme.colors.white
 	if folded then
 		return -- the chip keeps its own height and title place
@@ -729,8 +798,8 @@ function GoalCard._alert(self: any, key: string?)
 		self._pulse = nil
 	end
 	local edge: UIStroke = self._edge
-	edge.Thickness = EDGE
-	edge.Color = Theme.colors.gold
+	edge.Thickness = if self._tapLook then TAP_EDGE else EDGE
+	edge.Color = if self._tapLook then Theme.colors.outline else Theme.colors.gold
 	if on then
 		if GuiService.ReducedMotionEnabled then
 			edge.Thickness = EDGE_READY
@@ -773,6 +842,10 @@ function GoalCard.destroy(self: any)
 	self._connection:Disconnect()
 	self._flagConnection:Disconnect()
 	self._tapConnection:Disconnect()
+	self._lookConnection:Disconnect()
+	if self._tapBreath ~= nil then
+		self._tapBreath:Cancel()
+	end
 	self._foldButton:destroy()
 	self.frame:Destroy()
 end

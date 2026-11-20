@@ -3006,7 +3006,11 @@ end
 -- front -Z, no turn of its own) stands in its area's set space, the space the camp set is placed in (origin the area's
 -- centre on its floor, turned by the camp's turn): in the camp beside the way out, across from the Index Board.
 Layout.campExtras = {
-	park = { x = 19, y = 0, z = -160.5 }, -- F85: in the long camp, left of the flower bed (Model-Agent 11-02)
+	-- F85: in the long camp (Model-Agent 11-02). #5572 (Picnic Party, Design 2026-11-20): moved from (19, -160.5) to
+	-- the gate's left, as near the landing facing as the camp extras' rules allow (outside the opening by 2, 2 to 12 in
+	-- from the gate line): world (-14.5, -1842.5), 18 studs from the pad and 54 degrees left of the landing facing (68
+	-- before), near the left edge of a landscape phone's first view (Sync checks it)
+	park = { x = 14.5, y = 0, z = -157.5 },
 	neighbourhood = { x = 22, y = 0, z = -220.5 }, -- F85: in the long camp, clear of its mailbox (Model-Agent)
 	woods = { x = 21.5, y = 0, z = -250 }, -- F85: the Fish Pond beside the long camp's way out (Model-Agent)
 	sewer = { x = 20, y = 0, z = -289.5 }, -- F85: the Lost and Found 3.5 inside the long camp's gate line (Model-Agent)

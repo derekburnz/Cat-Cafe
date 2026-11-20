@@ -95,7 +95,7 @@ local function onBuy(player: Player, rawKey: unknown, rawShown: unknown)
 	local key = Guard.id(rawKey)
 	local shown = Guard.int(rawShown, 0, MAX_PRICE)
 	local profile = DataService.get(player)
-	if key == nil or shown == nil or profile == nil or not LiveFlagService.on(FishStore.FLAG) then
+	if key == nil or shown == nil or profile == nil then
 		return
 	end
 	local product = FishStore.product(key)

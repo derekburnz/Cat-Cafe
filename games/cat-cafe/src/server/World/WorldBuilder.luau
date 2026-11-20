@@ -18,7 +18,6 @@ local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
-local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
@@ -2378,7 +2377,7 @@ local function buildCampStation(
 	turn: number?,
 	name: string,
 	title: string,
-	flag: string,
+	flag: string?, -- its live switch; nil: always open (a retired switch, #4656)
 	inFront: number,
 	ringRadius: number -- #4628: Layout's ring for this station, so it clears the camp's landing pad
 )
@@ -2416,6 +2415,11 @@ local function buildCampStation(
 	local ringHome = if ringPart ~= nil then ringPart.Parent else nil
 	if ringPart ~= nil and ringPart:IsA("BasePart") then
 		table.insert(campStationRings, ringPart :: BasePart) -- #4619: the SAFE ZONE words keep off it, shown or not
+	end
+	if flag == nil then
+		prompt.Enabled = true
+		prompt.Parent = anchor
+		return
 	end
 	local attribute = LiveFlags.ATTRIBUTE_PREFIX .. flag
 	local function follow()
@@ -2459,7 +2463,7 @@ local function buildCampStations(parent: Instance)
 		turn,
 		"DragonKeep",
 		"Dragon Keep",
-		DragonKeep.FLAG,
+		nil, -- the dragonKeep switch is retired (#4656)
 		8.5,
 		Layout.dragonKeep.ring
 	)
@@ -2475,7 +2479,7 @@ local function buildCampStations(parent: Instance)
 		turn,
 		"FusionObservatory",
 		"Fusion Observatory",
-		"fusion", -- shared/Fusion.FLAG
+		nil, -- the fusion switch is retired (#4656)
 		7.3,
 		Layout.fusionObservatory.ring
 	)

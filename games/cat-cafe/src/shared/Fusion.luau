@@ -18,7 +18,6 @@ local Types = require(script.Parent.Types)
 
 local Fusion = {}
 
-Fusion.FLAG = "fusion" -- the live switch; it goes on with the Snowy Mountain update's restart (save version 50)
 Fusion.TIER = Config.FusionTier
 Fusion.COPIES = Config.FusionCopies
 Fusion.ELDER_LORE = "elderLore" -- the Dragon Keep card that takes ELDER_LORE_CUT off every fusion

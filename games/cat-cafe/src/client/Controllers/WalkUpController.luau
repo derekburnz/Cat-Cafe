@@ -279,9 +279,6 @@ local KINDS: { Kind } = {
 		tag = "DragonKeep",
 		prompt = "DragonKeepPrompt",
 		window = "DragonKeep",
-		only = function()
-			return ReplicatedStorage:GetAttribute("LiveFlag_dragonKeep") == true
-		end,
 		open = function()
 			UI.lateStations.openKeep()
 		end,
@@ -291,9 +288,6 @@ local KINDS: { Kind } = {
 		tag = "FusionObservatory",
 		prompt = "FusionObservatoryPrompt",
 		window = "FusionObservatory",
-		only = function()
-			return ReplicatedStorage:GetAttribute("LiveFlag_fusion") == true
-		end,
 		open = function()
 			-- the window comes with #4107; until then the ring opens nothing
 			local stations: any = (UI :: any).lateStations

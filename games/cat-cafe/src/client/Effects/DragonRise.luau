@@ -21,8 +21,8 @@
 -- (the plan's total plus Presets.dragonRise.cap) always gives the camera, controls, prompts and windows back.
 -- Nothing random, and nothing flashes but the one crack. Model-Agent's dragons (ReplicatedStorage.Assets.Dragon,
 -- CatCafe_Dragon_<Stage>, #4081: joints are child Models pivoted at their hinge, named ending _Neck, _Head, _Jaw,
--- _Tail1 to 3, _WingL, _WingR and four legs; `_Scale` parts take the scale colour) are used when they are there, else a stand-in with the same joints is drawn here. Switch
--- `dragonKeep` (shared/LiveFlags, Gameplay-Engineer's); in Studio the Workspace attribute DragonRiseTest (1 to 5)
+-- _Tail1 to 3, _WingL, _WingR and four legs; `_Scale` parts take the scale colour) are used when they are there, else a stand-in with the same joints is drawn here. Its switch
+-- `dragonKeep` is retired (#4656); in Studio the Workspace attribute DragonRiseTest (1 to 5)
 -- plays it in front of you with the switch off. Client only; it sends nothing.
 
 local CollectionService = game:GetService("CollectionService")
@@ -32,8 +32,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
-
-local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 local Context = require(script.Parent.Context)
 local CutsceneShell = require(script.Parent.CutsceneShell)
@@ -70,7 +68,6 @@ export type Info = {
 local listeners: { (beat: Beat, stage: number) -> () } = {}
 local holds: { (on: boolean) -> () } = {}
 
-local SWITCH = "dragonKeep"
 local TEST_ATTRIBUTE = "DragonRiseTest"
 local STEP = "EffectsDragonRise"
 local KIT = "Dragon"
@@ -130,16 +127,9 @@ function DragonRise.testStage(): number?
 	return if stage ~= nil and Logic.dragonPlan(stage, false) ~= nil then stage else nil
 end
 
--- Whether a stage up gets its cutscene now: the Keep's switch on (or the Studio test) and none already running.
+-- Whether a stage up gets its cutscene now: none already running.
 function DragonRise.wanted(): boolean
-	if running then
-		return false
-	end
-	if DragonRise.testStage() ~= nil then
-		return true
-	end
-	-- on only when the switch says so: before the key exists in LiveFlags an unset switch must not count as on
-	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SWITCH) == true
+	return not running -- the dragonKeep switch is retired (#4656)
 end
 
 function DragonRise.playing(): boolean

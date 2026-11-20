@@ -15,7 +15,6 @@ local Types = require(script.Parent.Types)
 
 local DragonKeep = {}
 
-DragonKeep.FLAG = "dragonKeep" -- the live switch: the Keep's remotes are refused and nothing shows while off
 DragonKeep.TIER = 10 -- the Castle (Snowy 8, the Water Park 9)
 DragonKeep.STAGES = {
 	{ name = "Hatchling", warmth = 50 },
@@ -1405,10 +1404,7 @@ local NONE: Effects = table.freeze({
 	spinLuck = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
-	local on = if onOverride ~= nil
-		then onOverride
-		else game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. DragonKeep.FLAG)
-			== true
+	local on = if onOverride ~= nil then onOverride else true -- the dragonKeep switch is retired (#4656)
 	local save = (profile :: any).dragon
 	if not on or type(save) ~= "table" then
 		return NONE

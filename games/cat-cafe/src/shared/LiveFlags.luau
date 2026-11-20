@@ -76,8 +76,6 @@ LiveFlags.KEYS = {
 	"luckyCharm",
 	"introSplit",
 	"parkGateTrail",
-	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
-	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
 	"bowlCardHold", -- Derek 2026-11-18: a bowl cat's card never shows over the intro or another cutscene, it waits for calm (UI.bait.showReady); on by default
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
@@ -107,7 +105,6 @@ LiveFlags.KEYS = {
 	"tier2TopUp", -- #4453: the first tamed bait cat's welcome tops coins up to Tier 2's cost once (shared/SecondCatHelp)
 	"stuckAfterSecond", -- #4473: the stuck cat goal, pointer and call wait until the second cat is caught (shared/StuckGoal)
 	"settleCutFree", -- Review-QA 2026-11-18: a station's one-time cut no longer starts the walk-up settle, so its card shows on the first walk-up (WalkUpController); on by default
-	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
 	-- #4527 (Derek 2026-11-15: "too much popups on screen maybe remove popups from claiming stuff"): the Mystery gift's
 	-- centre card; off (the default) the gift opens with its sound alone
 	"giftCard",
@@ -251,9 +248,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	backdropsNear = true, -- #4857
 	firstFlightQuick = true, -- #4920: on once the effects scale by CannonFlightScale
 	parkGateTrail = true,
-	fishStore = true,
 	ticketBooth = true,
-	dragonKeep = true,
 	harvestPieLow = true,
 	rareCustomers = true,
 	perfectFlagged = true, -- #5379
@@ -267,7 +262,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	padControls = true,
 	deviceFixes = true,
 	afkButton = true,
-	fusion = true,
 	earlyKindBonus = true,
 	returnHookEarly = true,
 	journeys = true,

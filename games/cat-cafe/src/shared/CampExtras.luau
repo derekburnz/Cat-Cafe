@@ -209,11 +209,16 @@ function CampExtras.settle(
 	tier: number,
 	now: number,
 	treats: boolean?,
-	party: boolean?
+	party: boolean?,
+	full: boolean? -- Derek 2026-11-20 (picnicCardFix): a shut basket waits full, so it holds its whole hold at unlock
 )
 	local fresh = CampExtras.fresh(now)
 	if not CampExtras.isOpen("picnic", tier) then
 		save.picnic = fresh.picnic
+		if full then
+			local every, hold = picnicRule(treats, party)
+			save.picnic.at = now - every * hold
+		end
 	else
 		local every, hold = picnicRule(treats, party)
 		if party then

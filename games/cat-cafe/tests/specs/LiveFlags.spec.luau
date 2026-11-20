@@ -227,12 +227,14 @@ return function()
 							or key == "bowlLockBig" -- #5455
 							or key == "shieldNoBump" -- #5476
 							or key == "parkFirstCalm" -- #5496
+							or key == "missKeepsCommon" -- #5500
 							or key == "orderSplit" -- #5498
 							or key == "dailyGifts" -- #5506
 							or key == "awayPromise" -- #5505
 							or key == "holdout" -- #5499
 							or key == "catchLostLog" -- #5500
 							or key == "tier3TripLog" -- #5517
+							or key == "rankCueLog" -- #5516
 							or key == "rankTapLog" -- #5516
 							or key == "mutationBoost" -- #5493
 							or key == "bowlOptionsButton" -- #5488

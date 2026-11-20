@@ -1385,6 +1385,8 @@ export type TelemetryState = {
 	-- Derek 2026-11-17 15:18 UTC: onboarding_v9 (Onboarding.CLEAN_STEPS) the same way; v8 is no longer logged
 	cleanV9Step: number?,
 	cleanV10Step: number?, -- #5533: onboarding_v10, a play first start save's furthest step (nil before it)
+	firstFiveStep: number?, -- #5551: first_five_v1 (shared/StartFunnel), a play first start save's furthest step
+	startSide: number?, -- #5551: the start_side kinds logged, StartFunnel.sideBit bits
 	-- #5291 (shared/MilestoneFunnel): the milestones_v1 steps logged, as a bit mask (step n is bit n - 1); -1 for a
 	-- save that is out of it, nil before Telemetry first sees the save with the switch on. Optional, so no save version
 	milestoneMask: number?,

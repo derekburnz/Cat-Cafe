@@ -244,6 +244,15 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonLaunchAt", now)
 	flyer:SetAttribute("CannonFrom", cannonId)
 	flyer:SetAttribute("CannonTo", destination)
+	-- #5551: the flight to the Park, from the lit cannon (CannonGlowArea names it) or a pick
+	if destination == Tier3Trip.AREA then
+		Telemetry.startFlight(
+			player,
+			profile,
+			cannonId == Cannon.TOWN,
+			player:GetAttribute("CannonGlowArea") == destination
+		)
+	end
 	clearGlow(player, destination) -- #5533 cannonGlow: the first flight there ends the glow
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)

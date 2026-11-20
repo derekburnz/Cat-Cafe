@@ -40,6 +40,7 @@ local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
 local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
+local StartFunnel = require(script.Parent.StartFunnel)
 local StarterCat = require(script.Parent.StarterCat)
 local StoreTabs = require(script.Parent.StoreTabs)
 local TicketBooth = require(script.Parent.TicketBooth)
@@ -954,6 +955,9 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	telemetry.cleanV10Step = if type(cleanV10Step) == "number"
 		then math.clamp(asInt(cleanV10Step, 0), 0, Onboarding.V10_COUNT)
 		else nil
+	-- #5551: first_five_v1 and its start_side bits (shared/StartFunnel); nil reads as 0
+	telemetry.firstFiveStep = StartFunnel.validStep(value.firstFiveStep)
+	telemetry.startSide = StartFunnel.validSide(value.startSide)
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"
 		then math.clamp(asInt(playtimeStep, 0), 0, Onboarding.PLAYTIME_COUNT)

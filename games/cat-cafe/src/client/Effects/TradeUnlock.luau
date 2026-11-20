@@ -16,7 +16,9 @@
 -- fades. Low performance: half the sparkles. Nothing random and nothing for sale is shown.
 -- Sound: TradeUnlock.onBeat's "open" (the lock springs open) and "land" (the icon reaches the tile).
 -- Client only; it sends nothing. Timeline in Logic.tradeUnlock, numbers in Presets.tradeUnlock.
+-- #5550 (switch `cutsQuick`, read as it starts): the quick timing of Presets.tradeUnlock.quick, about 2.0 s.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local BigTraitCut = require(script.Parent.BigTraitCut)
@@ -25,7 +27,6 @@ local ContextCut = require(script.Parent.ContextCut)
 local FirstBaitCut = require(script.Parent.FirstBaitCut)
 local Logic = require(script.Parent.Logic)
 local MysticIntroCut = require(script.Parent.MysticIntroCut)
-local Presets = require(script.Parent.Presets)
 local RiftRun = require(script.Parent.RiftRun)
 local ScreenFx = require(script.Parent.ScreenFx)
 
@@ -34,6 +35,7 @@ local TradeUnlock = {}
 export type Beat = "open" | "land"
 
 local GUI_NAME = "EffectsTradeUnlock"
+local QUICK_FLAG = "LiveFlag_cutsQuick"
 local FONT = Font.new(
 	"rbxasset://fonts/families/FredokaOne.json",
 	Enum.FontWeight.Regular,
@@ -125,7 +127,7 @@ function TradeUnlock.play(tile: GuiObject?, onDone: (() -> ())?): boolean
 	if running or TradeUnlock.blocked() then
 		return false
 	end
-	local p = Presets.tradeUnlock
+	local p = Logic.tradeUnlockPreset(ReplicatedStorage:GetAttribute(QUICK_FLAG) == true)
 	local gui = ScreenFx.gui(GUI_NAME, p.displayOrder)
 	if gui == nil then
 		return false

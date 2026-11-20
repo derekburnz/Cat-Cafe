@@ -23,7 +23,9 @@
 -- touches another ScreenGui (Review-QA, #5127).
 --
 -- #5550 (switch `cutsQuick`, read as the cut starts): the quick cut of Presets.stationCut.quick, about 2 s with no skip
--- and over by `cap` seconds past its end whatever happens. Off keeps the cut above exactly.
+-- and over by `cap` seconds past its end whatever happens, and only for the tiers in its `plays` (no Tier 3 Cat Arcade:
+-- StationUnlockCut.plays false, so the caller gives the toast and the Arcade shows as StationTiers opens it). Off keeps
+-- the cut above exactly.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -114,6 +116,23 @@ function StationUnlockCut.preset(quick: boolean): typeof(Presets.stationCut)
 		out[key] = value
 	end
 	return out :: any
+end
+
+-- Whether a rank up to `tier` gets a cut: a station for it, and with `quick`, one in the quick cut's `plays`. Pure.
+function StationUnlockCut.plays(tier: unknown, quick: boolean): boolean
+	if StationUnlockCut.stationFor(tier) == nil then
+		return false
+	end
+	if not quick then
+		return true
+	end
+	local plays: { [number]: boolean } = Presets.stationCut.quick.plays
+	return plays[tier :: number] == true
+end
+
+-- Whether the quick cuts are on (switch `cutsQuick`).
+function StationUnlockCut.quick(): boolean
+	return ReplicatedStorage:GetAttribute(QUICK_FLAG) == true
 end
 
 -- The whole cut's length.
@@ -373,8 +392,10 @@ end
 function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boolean
 	local station = StationUnlockCut.stationFor(tier)
 	local camera = Workspace.CurrentCamera
+	local quick = StationUnlockCut.quick()
 	if
 		station == nil
+		or not StationUnlockCut.plays(tier, quick)
 		or running
 		or camera == nil
 		or camera.CameraType ~= Enum.CameraType.Custom
@@ -385,7 +406,7 @@ function StationUnlockCut.play(tier: number, done: (outcome: string) -> ()): boo
 	if model == nil then
 		return false
 	end
-	local p = StationUnlockCut.preset(ReplicatedStorage:GetAttribute(QUICK_FLAG) == true)
+	local p = StationUnlockCut.preset(quick)
 	local reduced = Context.reducedMotion()
 	local pivot = model:GetPivot()
 	local frame, size = model:GetBoundingBox()

@@ -10,6 +10,7 @@
 -- already up to be dealt with first, and asks for the station's spot again if it streamed out meanwhile. The
 -- key goes into tipsSeen (TipSeen, logged once as tip_shown: skipped "yes" for a skip or a fallback). A station that
 -- never arrives, or a camera another script holds, gets an "Unlocked" toast instead. Nothing while `stationCut` is off.
+-- With `cutsQuick` on, a tier its quick cut leaves out (Tier 3's Cat Arcade, #5550) gets that toast straight away.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -141,6 +142,11 @@ local function ranked(tier: number)
 		return
 	end
 	asked[tier] = true
+	if not StationUnlockCut.plays(tier, StationUnlockCut.quick()) then
+		-- #5550 cutsQuick: a tier with no quick cut (the Tier 3 Cat Arcade) gets the toast, no camera move
+		task.delay(LATE, fallback, tier)
+		return
+	end
 	local seenAt: Vector3? = nil -- where the station stood when it last streamed in
 	local function arrived(): boolean
 		local model = stationOf(tag :: string)

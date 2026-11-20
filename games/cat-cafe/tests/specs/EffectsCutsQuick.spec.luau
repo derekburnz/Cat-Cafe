@@ -9,6 +9,7 @@ return function()
 	local Station = require(Effects:WaitForChild("StationUnlockCut")) :: any
 	local Companion = require(Effects:WaitForChild("CompanionUnlockCut")) :: any
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
+	local Logic = require(Effects:WaitForChild("Logic")) :: any
 
 	describe("Effects quick cuts (#5550)", function()
 		it("keeps today's scenes with the switch off", function()
@@ -39,6 +40,36 @@ return function()
 			expect(there).to.equal(true)
 			expect(grow).to.equal(1)
 			expect(label).to.equal(1)
+		end)
+
+		it("skips the Tier 3 Cat Arcade scene only with the switch on", function()
+			expect(Station.plays(3, false)).to.equal(true)
+			expect(Station.plays(3, true)).to.equal(false)
+			for _, tier in { 4, 8, 9, 10 } do
+				expect(Station.plays(tier, false)).to.equal(true)
+				expect(Station.plays(tier, true)).to.equal(true)
+			end
+			expect(Station.plays(2, false)).to.equal(false)
+			expect(Station.plays(7, true)).to.equal(false)
+			expect(Station.plays("4", true)).to.equal(false)
+		end)
+
+		it("plays Trading unlocked in about 2 s with the switch on, today's timing off", function()
+			expect(Logic.tradeUnlockPreset(false)).to.equal(Presets.tradeUnlock)
+			local p = Logic.tradeUnlockPreset(true)
+			expect(p.popIn <= p.wiggleAt).to.equal(true)
+			expect(p.wiggleAt + p.wiggleSeconds <= p.openAt).to.equal(true)
+			expect(p.openAt < p.fallAt).to.equal(true)
+			expect(p.fallAt + p.fallSeconds < p.flyAt).to.equal(true)
+			expect(p.wiggles / p.wiggleSeconds < 3).to.equal(true)
+			expect(p.title).to.equal(Presets.tradeUnlock.title)
+			expect(Logic.tradeUnlock(p.flyAt + p.fly - 0.01, p, false).done).to.equal(false)
+			expect(Logic.tradeUnlock(p.flyAt + p.fly, p, false).done).to.equal(true)
+			expect(p.flyAt + p.fly).to.be.near(1.9, 0.11)
+			local still = Logic.tradeUnlock(p.stillOpen + p.fade, p, true)
+			expect(still.open).to.equal(true)
+			expect(Logic.tradeUnlock(p.stillEnd + p.fade, p, true).done).to.equal(true)
+			expect(Presets.tradeUnlock.flyAt).to.equal(4.1)
 		end)
 
 		it("plays the companion scene in about 3 s with no skip and a shorter line", function()

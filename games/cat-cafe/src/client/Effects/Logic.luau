@@ -4599,6 +4599,20 @@ export type TradeUnlockFrame = {
 	done: boolean,
 }
 
+-- The numbers the moment plays with: Presets.tradeUnlock, with its `quick` fields over them when `quick` (#5550,
+-- switch cutsQuick). Pure.
+function Logic.tradeUnlockPreset(quick: boolean): typeof(Presets.tradeUnlock)
+	local base = Presets.tradeUnlock
+	if not quick then
+		return base
+	end
+	local out = table.clone(base) :: { [string]: any }
+	for key, value in base.quick :: { [string]: any } do
+		out[key] = value
+	end
+	return out :: any
+end
+
 function Logic.tradeUnlock(t: number, p: TradeUnlockSpec, still: boolean): TradeUnlockFrame
 	local frame: TradeUnlockFrame = {
 		scale = 1,

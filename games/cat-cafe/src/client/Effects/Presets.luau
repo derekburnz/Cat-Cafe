@@ -6711,8 +6711,11 @@ Presets.stationCut = {
 	skipAfter = 0.3,
 	skip = true, -- a tap, click, key or gamepad button can skip it
 	cap = 1, -- seconds past the cut's length it always ends by, whatever happens
-	-- #5550 cutsQuick (Design, from the 60 to 67% who skip it): about 2 s with no skip, over by 0.5 s after its end
+	-- #5550 cutsQuick (Design, from the 60 to 67% who skip it): about 2 s with no skip, over by 0.5 s after its end.
+	-- Only the tiers in `plays` get a scene; the rest get the "Unlocked" toast and no camera move (Derek 2026-11-20
+	-- 13:19 UTC: no Cat Arcade scene, the Mystic Pool is the one that matters)
 	quick = {
+		plays = { [4] = true, [8] = true, [9] = true, [10] = true } :: { [number]: boolean },
 		appearAt = 0.3,
 		grow = 0.45,
 		labelAt = 0.65,
@@ -8293,6 +8296,21 @@ Presets.tradeUnlock = {
 	fade = 0.3,
 	stillOpen = 0.8,
 	stillEnd = 3.6,
+	-- #5550 cutsQuick (Derek 2026-11-20 13:21 UTC: "make the trade unlocked faster"): about 2.0 s, same look,
+	-- sparkles and sounds; one wiggle (2.5 a second, under the 3 a second limit). Off keeps the timing above.
+	quick = {
+		popIn = 0.2,
+		wiggleAt = 0.25,
+		wiggleSeconds = 0.4,
+		wiggles = 1,
+		openAt = 0.7,
+		fallAt = 0.9,
+		fallSeconds = 0.5,
+		flyAt = 1.5,
+		fly = 0.4,
+		stillOpen = 0.4,
+		stillEnd = 1.6,
+	},
 	sparkles = 14,
 	landSparkles = 10,
 	sparkle = { size = 12, seconds = 0.55, reach = 90, stagger = 0.1 },

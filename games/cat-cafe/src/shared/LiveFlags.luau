@@ -226,7 +226,7 @@ LiveFlags.KEYS = {
 	"catsArrowOff", -- #5485: nothing points the tutorial arrow at the HUD's Cats tile (the Cat Companion card's arrow, the job step's ring); off by default
 	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
 	"cannonGlow", -- #5533 v2: after a Rank Up that opens an area the Town Square cannon glows with the area's sign until the first flight there (Effects/WorldGlow); off by default
-	"cutsQuick", -- #5550: the station unlock scene is about 2 s and the Cat Companion scene about 3 s, with no skip (Effects/StationUnlockCut, Effects/CompanionUnlockCut); off by default
+	"cutsQuick", -- #5550: no Cat Arcade or Cat Companion scene, the other station scenes about 2 s with no skip (Effects/StationUnlockCut, Controllers/CompanionSceneController); off by default
 	"pawsInFloor", -- #5471: the Town Square's paw prints are drawn on the floor they lie on, so they stream with it (World/PawFloor); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
 	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
@@ -384,7 +384,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	catsArrowOff = true, -- #5485: on as soon as it merges
 	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
 	cannonGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look
-	cutsQuick = true, -- #5550: on after Review-QA and Sync's phone look, before the Sat Nov 21 event
+	cutsQuick = true, -- #5550: on once this and GE's companion card are both published (Design 2026-11-20)
 	pawsInFloor = true, -- #5471: on as soon as it merges
 	guideArrow = true, -- #5465: on as soon as it merges
 	lockedRingsHidden = true, -- #5463: on as soon as it merges

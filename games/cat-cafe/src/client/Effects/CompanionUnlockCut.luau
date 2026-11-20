@@ -17,6 +17,8 @@
 --
 -- #5550 (switch `cutsQuick`, read as the scene starts): the quick scene of Presets.companionCut.quick, about 3 s with no
 -- skip and a shorter line, over by `cap` seconds past its end whatever happens. Off keeps the scene above exactly.
+-- Derek 2026-11-20 13:20 UTC then cut the scene: with `cutsQuick` on, CompanionSceneController shows its quick card
+-- instead and play returns false (the caller's card), so the quick numbers stay only for a later call.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -264,6 +266,9 @@ function CompanionUnlockCut.play(
 ): boolean
 	if type(catId) ~= "string" or running then
 		return false
+	end
+	if ReplicatedStorage:GetAttribute(QUICK_FLAG) == true then
+		return false -- #5550: no companion scene with cutsQuick on
 	end
 	local camera = Workspace.CurrentCamera
 	local character = Players.LocalPlayer.Character

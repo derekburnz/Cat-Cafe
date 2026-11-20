@@ -3573,6 +3573,15 @@ function Logic.firstBaitOutcome(skipped: boolean, shown: boolean, quick: boolean
 	return if shown then "shown" else "none"
 end
 
+-- Pure (#5548 follow-up): what an owed first bait scene does now: "play" once the player is `near` the bowl with the
+-- cat there, "drop" when the cat has been there and is gone (claimed or left), else "wait".
+function Logic.firstBaitLate(near: boolean, catThere: boolean, catSeen: boolean): string
+	if catThere then
+		return if near then "play" else "wait"
+	end
+	return if catSeen then "drop" else "wait"
+end
+
 -- `quick` (#5548, baitCutQuick): the quick scene's eat and bites (Presets.firstBaitCut.quick).
 function Logic.eatPose(o: Offsets, t: number, quick: boolean?)
 	local c = Presets.firstBaitCut

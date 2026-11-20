@@ -6116,6 +6116,12 @@ Presets.firstBaitCut = {
 	displayOrder = 10,
 	cap = 5.5, -- #5074: waitCat + walkMax + eat + swingOut (5.0) and a little room
 	maxDistance = 120,
+	-- #5548 follow-up (Design 2026-11-20): a freeStart save's first food goes in at the Alleyway check-in, away from the
+	-- bowl, so with baitCutQuick the scene is owed and plays once the save first comes within `lateNear` studs of its
+	-- own bowl with the cat there (outside the walk-up ring's 8, so it comes before the cat's card)
+	lateNear = 25,
+	lateCheck = 0.25, -- seconds between looks while it is owed
+	lateMargin = 5, -- studs past lateNear the bait cards already wait, so none slips in between two looks
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 	-- #5548 (Derek 2026-11-20: "do the make bait scene quicker and no skip allowed"), switch baitCutQuick: about
 	-- 1.5 s with the cat on time (swing in 0.3, walk 0.5 = 3.5 studs at SlotWalk's 7, one bite and the heart puff in

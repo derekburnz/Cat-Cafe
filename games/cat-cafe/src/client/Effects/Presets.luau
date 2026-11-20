@@ -8347,4 +8347,89 @@ Presets.tradeUnlock = {
 	openImage = "rbxassetid://129908896970192", -- Icon_Clean_Unlock
 }
 
+-- #5572 the Picnic Party (Effects/PicnicParty, switch picnicParty; Derek 2026-11-20 15:09 UTC: "rework the picnic
+-- basket into being something cool and clean ... it has to be something that hooks"). Ready: the basket wobbles
+-- `wobble.degrees` for `wobble.seconds` every `wobble.every` seconds, a soft gold Highlight and PointLight, and a sign
+-- `sign.width` x `sign.height` pixels (fixed on screen, so it reads from the Park landing on an 844 x 390 phone, Design
+-- 15:15 UTC) `sign.lift` studs over the station's top, seen to `sign.maxDistance` studs. Not ready: the sign's
+-- `waiting` look with "Next picnic 12 m". The pop (on the ring claim, about `pop.seconds`): the `_Lid` swings open
+-- `lidOpen` degrees, the blanket rolls out `blanket.gap` studs beside the basket over `rollSeconds`, `treats` bounce
+-- from the basket onto it, `confetti` pieces. The picnic cats sit at `seats` (fractions of the blanket, -0.5 to 0.5).
+-- Pack away over `pack.seconds`. Reduce Motion: no wobble or bounce, the basket opens and the blanket lies out still.
+-- Words are Design's (`words`).
+Presets.picnicParty = {
+	flag = "picnicParty",
+	extraId = "picnic",
+	wobble = { every = 3.5, seconds = 0.6, degrees = 6, wiggles = 2 },
+	glow = {
+		fill = Presets.palette.golden,
+		fillTransparency = 0.8,
+		outlineTransparency = 0.35,
+		light = 1.4, -- PointLight brightness
+		range = 12,
+		pulse = 2.4, -- seconds a slow breath of the light takes
+	},
+	sign = {
+		width = 210,
+		height = 58,
+		waitWidth = 170,
+		waitHeight = 40,
+		lift = 3,
+		maxDistance = 450,
+		bob = 0.25, -- studs up and down
+		bobSeconds = 2.2,
+		gold = Presets.palette.golden,
+		cream = Presets.palette.cream,
+		ink = Color3.fromRGB(60, 36, 20),
+		faded = 0.25, -- the waiting sign's see-through share
+	},
+	pop = {
+		seconds = 1.5,
+		lidOpen = 105, -- degrees about its back edge
+		lidSeconds = 0.25,
+		rollAt = 0.15,
+		rollSeconds = 0.5,
+		treatAt = 0.55,
+		treatGap = 0.15,
+		treatSeconds = 0.45,
+		treatHeight = 2.5, -- studs over the straight line the arc rises
+		confettiAt = 0.3,
+		confetti = 40,
+		sparkles = 12,
+	},
+	pack = { seconds = 0.9, lidSeconds = 0.25 },
+	blanket = {
+		size = Vector3.new(6, 0.08, 6),
+		gap = 1, -- studs between the basket's side and the blanket's near edge
+		squares = 6, -- checks along each side of the stand-in blanket
+		red = Color3.fromRGB(214, 96, 92),
+		white = Presets.palette.cream,
+		model = "CatCafe_Prop_PicnicBlanket", -- Model-Agent's, under ReplicatedStorage.Assets, when it lands
+	},
+	treats = {
+		{
+			model = "CatCafe_Prop_PicnicSandwich",
+			colour = Color3.fromRGB(236, 196, 120),
+			at = Vector2.new(-0.2, -0.3),
+		},
+		{
+			model = "CatCafe_Prop_PicnicCupcake",
+			colour = Color3.fromRGB(244, 160, 186),
+			at = Vector2.new(0.05, -0.32),
+		},
+		{
+			model = "CatCafe_Prop_PicnicLemonade",
+			colour = Color3.fromRGB(250, 226, 110),
+			at = Vector2.new(0.3, -0.28),
+		},
+	},
+	treatSize = Vector3.new(0.6, 0.35, 0.6), -- the stand-ins
+	seats = { Vector2.new(-0.25, 0.15), Vector2.new(0.05, 0.25), Vector2.new(0.3, 0.1) },
+	seatFace = 200, -- degrees the cats turn from the blanket's front, toward the basket and the camera's usual side
+	words = {
+		ready = "PICNIC READY",
+		waiting = "Next picnic %s",
+	},
+}
+
 return Presets

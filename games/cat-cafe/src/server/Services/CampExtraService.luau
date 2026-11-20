@@ -282,7 +282,14 @@ local function startParty(player: Player, profile: Types.PlayerProfile): boolean
 		{ tostring(tier), tostring(playSeconds(profile)), if running then "running" else "bagged" }
 	)
 	Telemetry.custom(player, "camp_extra", 1, { "picnic", "party", tostring(tier) })
-	Net.fire(player, "CampExtraResult", "picnic", true, { "Picnic Time!" }, {})
+	Net.fire(
+		player,
+		"CampExtraResult",
+		"picnic",
+		true,
+		{ if running then "Picnic Time!" else "Picnic Time went in your bag" },
+		{}
+	)
 	CafeService.sync(player)
 	refresh(player, profile, true)
 	return true

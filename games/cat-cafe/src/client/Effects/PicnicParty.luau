@@ -143,7 +143,7 @@ local function makeSign(spot: Attachment): (BillboardGui, TextLabel)
 	gui.Size = UDim2.fromOffset(s.width, s.height)
 	gui.LightInfluence = 0
 	gui.MaxDistance = s.maxDistance
-	gui.AlwaysOnTop = false
+	gui.AlwaysOnTop = true -- Sync Nov 20: the Park arch lamp post covered "PICNIC READY" from the landing
 	gui.ResetOnSpawn = false
 	local pill = Instance.new("Frame")
 	pill.Name = "Pill"
@@ -529,6 +529,11 @@ local function step()
 	if phase ~= was or clock - current.signAt >= 1 then
 		current.signAt = clock
 		drawSign(current, phase, now)
+	end
+	if phase == "ready" then
+		-- the sign swells with each wobble so the rattle reads even with the basket behind the player's head
+		local swell = 1 + p.sign.swell * math.min(1, math.abs(tilt) / p.wobble.degrees)
+		current.sign.Size = UDim2.fromOffset(p.sign.width * swell, p.sign.height * swell)
 	end
 
 	-- the party: pop, pack away

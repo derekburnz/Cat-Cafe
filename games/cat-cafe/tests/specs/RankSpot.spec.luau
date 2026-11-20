@@ -23,6 +23,11 @@ return function()
 				expect(RankSpot.due(true, 1, true, nil, nil)).to.equal(false) -- put away
 				expect(RankSpot.due(true, 1, false, "Not enough coins", nil)).to.equal(false)
 				expect(RankSpot.due(true, 1, false, nil, "alley")).to.equal(false) -- a catching area
+				-- #5516 rankSpotStay: put away before shows again, the other rules hold
+				expect(RankSpot.due(true, 1, true, nil, nil, true)).to.equal(true)
+				expect(RankSpot.due(true, 2, true, nil, nil, true)).to.equal(false)
+				expect(RankSpot.due(true, 1, true, nil, "alley", true)).to.equal(false)
+				expect(RankSpot.due(true, 1, true, "Not enough coins", nil, true)).to.equal(false)
 			end
 		)
 

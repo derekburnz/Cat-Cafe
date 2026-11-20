@@ -15,6 +15,13 @@ local RankFirst = {}
 
 RankFirst.REST_SECONDS = 20 -- a press outside the spotlight hides it this long
 RankFirst.PRESSES = 3 -- the press that puts it away for good
+-- #5516 (Growth's Nov 19 read: 12.1% of players who see the rank up cue never open the card, 3.3% before the window
+-- stopped opening by itself on Nov 18; Derek's rule: the player taps it, nothing opens by itself). Behind the switch
+-- `rankSpotStay` (LiveFlags.OFF_BY_DEFAULT) the dim and arrow are never put away for good while the first rank up is
+-- ready: a press outside only rests them STAY_REST seconds, however many presses, and a walk-through put away in an
+-- earlier session shows again (RankSpot.due's `stay`).
+RankFirst.STAY_FLAG = "rankSpotStay"
+RankFirst.STAY_REST = 8
 -- #4836 (Sync's pointer audit: the strip said "Tap YOUR GOAL" while the arrow pointed at the green RANK UP button):
 -- the line names the button the arrow and the strip's own button show
 -- #4926 (Derek 2026-11-16: what to do and why): and what the rank up opens
@@ -58,8 +65,14 @@ function RankFirst.isLine(text: string?): boolean
 end
 
 -- Whether a press outside the spotlight puts it away for good: only the PRESSES-th of this session.
-function RankFirst.forGood(presses: number): boolean
-	return presses >= RankFirst.PRESSES
+-- With `stay` (the rankSpotStay switch) never.
+function RankFirst.forGood(presses: number, stay: boolean?): boolean
+	return stay ~= true and presses >= RankFirst.PRESSES
+end
+
+-- How long a press outside the spotlight rests it.
+function RankFirst.rest(stay: boolean?): number
+	return if stay == true then RankFirst.STAY_REST else RankFirst.REST_SECONDS
 end
 
 return RankFirst

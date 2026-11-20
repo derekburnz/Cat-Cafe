@@ -58,5 +58,14 @@ return function()
 				expect(RankFirst.REST_SECONDS > 0).to.equal(true)
 			end
 		)
+
+		it("never puts it away with rankSpotStay, and rests it for less", function()
+			expect(RankFirst.forGood(3, true)).to.equal(false)
+			expect(RankFirst.forGood(50, true)).to.equal(false)
+			expect(RankFirst.forGood(3, false)).to.equal(true)
+			expect(RankFirst.rest(true)).to.equal(RankFirst.STAY_REST)
+			expect(RankFirst.rest(false)).to.equal(RankFirst.REST_SECONDS)
+			expect(RankFirst.STAY_REST < RankFirst.REST_SECONDS).to.equal(true)
+		end)
 	end)
 end

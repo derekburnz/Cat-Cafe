@@ -885,6 +885,12 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.launch:setEnabled(enabled)
 		end
 		local ringed = enabled and id == self._ring
+		-- #5599 (rankPicker, Derek 2026-11-20: "point at the park after unlock so they know"): the ringed Park Launch
+		-- is pointed at on the new start too (shared/FreeStart.LOUD_ATTR)
+		local loud = ringed
+			and id == "park"
+			and ReplicatedStorage:GetAttribute("LiveFlag_rankPicker") == true
+		card.launch.instance:SetAttribute("PointEvenQuiet", if loud then true else nil)
 		local dimmed = ringed
 			and self._open == true
 			and os.clock() >= self._pendingUntil -- not again in the beat after a press

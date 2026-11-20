@@ -71,7 +71,9 @@ local function show(next: any)
 			local stay = LiveFlags.shown(
 				RankFirst.STAY_FLAG,
 				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.STAY_FLAG)
-			)
+			) or ReplicatedStorage:GetAttribute(
+				LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.DIM_TWO_FLAG
+			) == true -- #5609
 			presses += 1
 			if RankFirst.forGood(presses, stay) then
 				putAway = true

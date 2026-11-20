@@ -149,6 +149,7 @@ local TAP_FACE_SEQUENCE = ColorSequence.new({
 local TAP_EDGE = 3
 local TAP_BREATH = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 local TAP_BREATH_SCALE = 1.04
+local TAP_BREATH_AGAIN = 0.3 -- seconds after a pop before the breath starts again
 
 local GoalCard = {}
 GoalCard.__index = GoalCard
@@ -496,14 +497,30 @@ function GoalCard._paintTap(self: any, on: boolean)
 		end
 		self._tapScale.Scale = 1
 		if look and not GuiService.ReducedMotionEnabled then
-			local tween =
-				TweenService:Create(self._tapScale, TAP_BREATH, { Scale = TAP_BREATH_SCALE })
-			tween:Play()
-			self._tapBreath = tween
+			self:_breathe()
 		end
 	end
 	self._title.TextXAlignment = if on then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left
 	self._tapLine.Visible = false
+end
+
+-- #5592: the green button's slow breath. A pop of the card (bounce, the rank up pop, the HUD's mark) tweens the same
+-- UIScale and so cancels the breath; it starts again a moment after, while the look is still up.
+function GoalCard._breathe(self: any)
+	local tween = TweenService:Create(self._tapScale, TAP_BREATH, { Scale = TAP_BREATH_SCALE })
+	self._tapBreath = tween
+	tween.Completed:Once(function(state: Enum.PlaybackState)
+		if state ~= Enum.PlaybackState.Cancelled then
+			return
+		end
+		task.delay(TAP_BREATH_AGAIN, function()
+			if self._tapBreath == tween and self._tapLook then
+				self._tapScale.Scale = 1
+				self:_breathe()
+			end
+		end)
+	end)
+	tween:Play()
 end
 
 -- #5533: the button's own layout, over whatever the ready card drew: RANK UP! and, opened, the tier and its cost.
@@ -803,6 +820,9 @@ function GoalCard._alert(self: any, key: string?)
 	if on then
 		if GuiService.ReducedMotionEnabled then
 			edge.Thickness = EDGE_READY
+		elseif self._tapLook then
+			-- #5592: the green button breathes instead; a white flash on its dark outline read as a blink (Sync)
+			edge.Thickness = TAP_EDGE
 		else
 			local tween = TweenService:Create(
 				edge,
@@ -845,6 +865,7 @@ function GoalCard.destroy(self: any)
 	self._lookConnection:Disconnect()
 	if self._tapBreath ~= nil then
 		self._tapBreath:Cancel()
+		self._tapBreath = nil
 	end
 	self._foldButton:destroy()
 	self.frame:Destroy()

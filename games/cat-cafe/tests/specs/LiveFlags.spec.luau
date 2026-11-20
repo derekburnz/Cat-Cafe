@@ -308,6 +308,7 @@ return function()
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "parkCatchNormal" -- Derek 2026-11-20
+							or key == "bowlAutoFree" -- Derek 2026-11-20
 							or key == "bowlPassOptions" -- #5606
 							or key == "nightLineNoArrow" -- #5459
 							or key == "spawnAlley" -- #5616
@@ -315,6 +316,7 @@ return function()
 							or key == "spotHeld" -- #5622
 							or key == "secondCatQuiet" -- #5620
 							or key == "catNamesLow" -- #5620
+							or key == "catNamesTop" -- #5633
 							or key == "rankLeftLog" -- Growth
 							or key == "padSkip" -- #5624
 							or key == "padHud" -- #5624

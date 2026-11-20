@@ -171,6 +171,7 @@ LiveFlags.KEYS = {
 	"holdout", -- #5499: one new account in ten keeps dailyGifts, awayPromise and orderSplit off for its first 7 days (shared/Holdout); off by default
 	"rankSpotStay", -- #5516: the first Rank Up dim and arrow never go away for good while it is ready, a press only rests them (shared/RankFirst.STAY_FLAG); off by default
 	"tier3TripLog", -- #5517: log tier3_trip (Cannon menu, refused pick, pick, landing) and tier3_left between Tier 3 and the first Neighbourhood landing (shared/Tier3Trip); off by default
+	"missKeepsCommon", -- #5500 (plan A fix 2): a missed catch on a Common leaves the cat put with no bolt, slow or wait (CatService); off by default
 	"catchLostLog", -- #5500: log catch_lost with why a started net catch ended with no cat, by device and area (shared/CatchLost); off by default
 	"mutationBoost", -- #5493: a wild stray's gold and rainbow coat chances are doubled (shared/MutationBoost); off by default
 	"bowlOptionsButton", -- #5488: a column too short for the Bowl Options card shows an Options button over Refill that opens it (Screens/BaitBowl); off by default
@@ -331,6 +332,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	dailyGifts = true, -- #5506: on after the next restart Derek calls (new save field)
 	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
+	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
 	rankSpotStay = true, -- #5516: first-session flow, on once Review-QA passes
 	tier3TripLog = true, -- #5517: on after the next restart (new save field), then Growth reads it

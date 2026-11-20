@@ -474,7 +474,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			else nil,
 		returnGoals = joinGoals[player], -- #2916
 		-- #3022, #4624; #5533: a play first start save's two first goals take the card's place instead (goalChip)
+		-- Sync's run (#5620, switch secondCatQuiet): nor ever after, once the start's goals have gone at Tier 3
 		secondCat = if startGoals ~= nil
+				or (LiveFlagService.on("secondCatQuiet") and profile.telemetry.freeStart == true)
 			then nil
 			else SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)),
 		startGoals = startGoals,

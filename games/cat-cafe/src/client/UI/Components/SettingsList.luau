@@ -115,6 +115,14 @@ SettingsList.SECTIONS = {
 				name = "Station circles",
 				detail = "The glowing rings in front of stations",
 			},
+			{
+				-- #5586 (a player's feedback, Derek 2026-11-20): on by default
+				key = "catNames",
+				kind = "switch",
+				icon = "🏷️",
+				name = "Cat names",
+				detail = "The names over wild cats near you",
+			},
 		},
 	},
 } :: { Section }

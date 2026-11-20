@@ -6,15 +6,17 @@
 -- - ready: the basket wobbles now and then, a soft gold glow, and a "PICNIC READY" sign over it sized in screen pixels
 --   so it reads from the Park landing on a phone (Growth: only 23% of Park arrivals touch it); waiting: the sign reads
 --   "Next picnic 12 m";
--- - the pop, as Picnic Time starts (the ring claim, the player's own step): the `_Lid` swings open, a checked blanket
+-- - the pop, as Picnic Time starts (the ring claim, the player's own step): the lid swings open, a checked blanket
 --   rolls out beside the basket, three treats bounce onto it, confetti. About 1.5 s; the camera and controls are never
 --   touched. Joining or streaming in while Picnic Time runs lays it all out at once;
--- - each picnic cat sits still on its seat on the blanket (a local copy, anchored, touching nothing);
--- - the pack away as Picnic Time ends: treats and cats fade, the blanket rolls up, the lid shuts.
+-- - the blanket lies where shared/PicnicSeats puts it, so Gameplay's picnic strays (real server cats, still on its three
+--   seats until caught) stand on it; nothing here seats a cat;
+-- - the pack away as Picnic Time ends: the treats fade, the blanket rolls up, the lid shuts.
 -- Reduce Motion: no wobble and no bounce, the basket stands open with the blanket out. Low performance: no Highlight.
 --
 -- State (Gameplay-Engineer's, server decides, attributes on the LocalPlayer): PicnicReady (bool), PicnicNextAt and
--- PicnicEndsAt (server unix seconds, read against Workspace:GetServerTimeNow), PicnicCat1..3 (catId). Listening only:
+-- PicnicEndsAt (server unix seconds, read against Workspace:GetServerTimeNow; not set when Picnic Time goes to the bag,
+-- so no pop then). Listening only:
 -- no remotes. Model-Agent's blanket and treat models under ReplicatedStorage.Assets are used when they are there, with
 -- simple stand-ins until then. Timelines and words in Effects/PicnicLogic, numbers in Presets.picnicParty.
 
@@ -25,25 +27,20 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local Catalog = require(Shared:WaitForChild("Catalog"))
+local PicnicSeats = require(Shared:WaitForChild("PicnicSeats"))
 
 local Context = require(script.Parent.Context)
-local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local PicnicLogic = require(script.Parent.PicnicLogic)
 local Presets = require(script.Parent.Presets)
 
-type PoseModule = typeof(require(script.Parent.Pose))
-local Pose: PoseModule = nil :: any -- loads at the first seated cat
-
 local PicnicParty = {}
 
 local TAG = "CampExtra"
-local SEATS = 3
 
 local started = false
 
-type Lid = { part: BasePart, shut: CFrame, hinge: CFrame }
+type Lid = { model: Model, hinge: CFrame } -- the lid model, and its pivot shut (on its back edge, Model-Agent's #5580)
 
 type Scene = {
 	model: Model,
@@ -56,9 +53,8 @@ type Scene = {
 	light: PointLight,
 	sign: BillboardGui,
 	words: TextLabel,
-	blanket: { root: BasePart, model: Model?, near: CFrame, width: number }?,
+	blanket: { root: BasePart, model: Model?, rolled: Model?, near: CFrame, width: number }?,
 	treats: { BasePart | Model },
-	cats: { [number]: Model },
 	popAt: number?, -- os.clock the pop began
 	packAt: number?, -- os.clock the pack away began
 	signAt: number, -- os.clock the words were last set
@@ -116,26 +112,27 @@ local function inert(source: Model): Model
 	return copy
 end
 
--- The lid and its hinge: the `_Lid` part, swinging about its `Hinge` attachment, else its back (+Z) edge.
+-- The lid: Model-Agent's child model `<station>_Lid` (#5580), its pivot on its back edge, opening with a positive
+-- turn about the pivot's X axis. Nil on a station without one (the stand-in has no lid to open).
 local function findLid(model: Model): Lid?
-	local found = model:FindFirstChild("_Lid", true)
-	if found == nil or not found:IsA("BasePart") then
+	local found = model:FindFirstChild(model.Name .. Presets.picnicParty.lidSuffix)
+	if found == nil or not found:IsA("Model") then
 		return nil
 	end
-	local part = found :: BasePart
-	local hingeAt = part:FindFirstChild("Hinge")
-	local hinge = if hingeAt ~= nil and hingeAt:IsA("Attachment")
-		then (hingeAt :: Attachment).WorldCFrame
-		else part.CFrame * CFrame.new(0, 0, part.Size.Z / 2)
-	return { part = part, shut = part.CFrame, hinge = hinge }
+	local lid = found :: Model
+	return { model = lid, hinge = lid:GetPivot() }
+end
+
+-- Turns the lid `degrees` open about its hinge.
+local function lidDegrees(lid: Lid?, degrees: number)
+	if lid == nil or lid.model.Parent == nil then
+		return
+	end
+	lid.model:PivotTo(lid.hinge * CFrame.Angles(math.rad(degrees), 0, 0))
 end
 
 local function setLid(lid: Lid?, open: number)
-	if lid == nil or lid.part.Parent == nil then
-		return
-	end
-	local turn = CFrame.Angles(-math.rad(Presets.picnicParty.pop.lidOpen * open), 0, 0)
-	lid.part.CFrame = lid.hinge * turn * lid.hinge:ToObjectSpace(lid.shut)
+	lidDegrees(lid, Presets.picnicParty.pop.lidOpen * open)
 end
 
 local function makeSign(spot: Attachment): (BillboardGui, TextLabel)
@@ -234,7 +231,6 @@ local function build(model: Model): Scene
 		words = words,
 		blanket = nil,
 		treats = {},
-		cats = {},
 		popAt = nil,
 		packAt = nil,
 		signAt = -math.huge,
@@ -263,14 +259,7 @@ end
 
 -- The blanket's near edge on the ground beside the basket, facing out along the station's right.
 local function blanketNear(at: Scene): CFrame
-	local p = Presets.picnicParty
-	local right = at.base.RightVector
-	local flat = Vector3.new(right.X, 0, right.Z)
-	flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(1, 0, 0)
-	local ground = at.frame.Position.Y - at.size.Y / 2
-	local side = math.max(at.size.X, at.size.Z) / 2 + p.blanket.gap
-	local from = Vector3.new(at.frame.Position.X, ground, at.frame.Position.Z) + flat * side
-	return CFrame.lookAt(from, from + flat)
+	return PicnicSeats.near(at.base)
 end
 
 -- The blanket: Model-Agent's model if it is in, else a flat part with checks on top.
@@ -284,7 +273,18 @@ local function makeBlanket(at: Scene)
 		copy.Parent = Context.folder()
 		local root = copy.PrimaryPart or copy:FindFirstChildWhichIsA("BasePart", true)
 		if root ~= nil and root:IsA("BasePart") then
-			at.blanket = { root = root :: BasePart, model = copy, near = near, width = size.Z }
+			local rolledSource = asset(b.rolled)
+			local rolled = if rolledSource ~= nil then inert(rolledSource) else nil
+			if rolled ~= nil then
+				rolled.Parent = Context.folder()
+			end
+			at.blanket = {
+				root = root :: BasePart,
+				model = copy,
+				rolled = rolled,
+				near = near,
+				width = size.Z,
+			}
 			return
 		end
 		copy:Destroy()
@@ -307,10 +307,26 @@ local function makeBlanket(at: Scene)
 		cell.Parent = gui
 	end
 	part.Parent = Context.folder()
-	at.blanket = { root = part :: BasePart, model = nil, near = near, width = b.size.Z }
+	at.blanket =
+		{ root = part :: BasePart, model = nil, rolled = nil, near = near, width = b.size.Z }
 end
 
--- Lays the blanket out `k` of the way (0 rolled, 1 flat): the stand-in stretches from its near edge; a model grows.
+local function fade(item: Instance, share: number)
+	if item:IsA("BasePart") then
+		(item :: BasePart).LocalTransparencyModifier = share
+	end
+	for _, d in item:GetDescendants() do
+		if d:IsA("BasePart") then
+			(d :: BasePart).LocalTransparencyModifier = share
+		elseif d:IsA("SurfaceGui") then
+			(d :: SurfaceGui).Enabled = share < 0.5
+		end
+	end
+end
+
+-- Lays the blanket out `k` of the way (0 rolled, 1 flat). Model-Agent's pair: the rolled blanket rolls from the near
+-- edge to the far one, turning as it goes, while the flat one comes in behind it (a model cannot be squashed on one
+-- axis). The stand-in stretches from its near edge.
 local function setBlanket(at: Scene, k: number)
 	local blanket = at.blanket
 	if blanket == nil then
@@ -323,9 +339,14 @@ local function setBlanket(at: Scene, k: number)
 	local model = blanket.model
 	if model ~= nil then
 		model:PivotTo(blanket.near * CFrame.new(0, 0, -w / 2))
-		pcall(function()
-			model:ScaleTo(out)
-		end)
+		fade(model, 1 - k)
+		local rolled = blanket.rolled
+		if rolled ~= nil then
+			local turn = -(w * k) / b.rollRadius -- radians a roll of that radius turns over that ground
+			local axis = blanket.near * CFrame.new(0, b.rollRadius, -w * k)
+			rolled:PivotTo(axis * CFrame.Angles(turn, 0, 0) * CFrame.new(0, -b.rollRadius, 0))
+			fade(rolled, if k >= 1 then 1 else 0)
+		end
 	else
 		blanket.root.Size = Vector3.new(b.size.X, b.size.Y, w * out)
 		blanket.root.CFrame = centre
@@ -368,19 +389,6 @@ local function place(item: BasePart | Model, frame: CFrame)
 	end
 end
 
-local function fade(item: Instance, share: number)
-	if item:IsA("BasePart") then
-		(item :: BasePart).LocalTransparencyModifier = share
-	end
-	for _, d in item:GetDescendants() do
-		if d:IsA("BasePart") then
-			(d :: BasePart).LocalTransparencyModifier = share
-		elseif d:IsA("SurfaceGui") then
-			(d :: SurfaceGui).Enabled = share < 0.5
-		end
-	end
-end
-
 local function drawTreats(at: Scene, flights: { number? })
 	local p = Presets.picnicParty
 	local from = at.frame.Position + Vector3.new(0, at.size.Y / 2, 0)
@@ -398,54 +406,18 @@ local function drawTreats(at: Scene, flights: { number? })
 	end
 end
 
--- A picnic cat sits still at seat `n`.
-local function seat(at: Scene, n: number, catId: string)
-	local p = Presets.picnicParty
-	local ok, name = pcall(Catalog.catModelName, catId)
-	local source = if ok and type(name) == "string" then asset(name) else nil
-	if source == nil or at.blanket == nil then
-		return
-	end
-	local copy = inert(source :: Model)
-	copy.Name = "PicnicCat" .. n
-	if Pose == nil then
-		Pose = require(script.Parent.Pose) :: any
-	end
-	local rig = Pose.bind(copy)
-	local box, size = copy:GetBoundingBox()
-	local half = copy:GetPivot().Position.Y - (box.Position.Y - size.Y / 2)
-	local spot = onBlanket(at, p.seats[n], half)
-	local facing = spot * CFrame.Angles(0, math.rad(p.seatFace), 0)
-	copy:PivotTo(facing)
-	copy.Parent = Context.folder()
-	if rig ~= nil then
-		local rest = Pose.rest(rig)
-		local toFloor = copy:GetPivot():ToObjectSpace(Pose.floor(rig))
-		Pose.holdRest(rig, rest, copy:GetPivot() * toFloor)
-		Pose.draw(rig, Logic.idle("loaf", 0, rig.kind), -1)
-	end
-	at.cats[n] = copy
-	Particles.burst(
-		"dingSparkle",
-		spot.Position + Vector3.new(0, size.Y, 0),
-		p.pop.sparkles // 2,
-		p.glow.fill
-	)
-end
-
 local function clearParty(at: Scene)
 	for _, item in at.treats do
 		item:Destroy()
 	end
 	at.treats = {}
-	for _, cat in at.cats do
-		cat:Destroy()
-	end
-	at.cats = {}
 	local blanket = at.blanket
 	if blanket ~= nil then
 		if blanket.model ~= nil then
 			(blanket.model :: Model):Destroy()
+			if blanket.rolled ~= nil then
+				(blanket.rolled :: Model):Destroy()
+			end
 		else
 			blanket.root:Destroy()
 		end
@@ -538,9 +510,14 @@ local function step()
 			p.wobble.wiggles
 		)
 		else 0
-	if tilt ~= tiltWas then
+	if tilt ~= tiltWas and current.blanket == nil then
 		tiltWas = tilt
-		current.model:PivotTo(current.base * CFrame.Angles(0, 0, math.rad(tilt)))
+		if current.lid ~= nil then
+			-- Review-QA: the lid rattles open a little (its 11 parts), not the whole 233 part station
+			lidDegrees(current.lid, math.abs(tilt) * p.wobble.lidShare)
+		else
+			current.model:PivotTo(current.base * CFrame.Angles(0, 0, math.rad(tilt)))
+		end
 	end
 	local breath = 0.75 + 0.25 * math.sin(clock * 2 * math.pi / p.glow.pulse)
 	current.light.Brightness = if phase == "ready"
@@ -554,7 +531,7 @@ local function step()
 		drawSign(current, phase, now)
 	end
 
-	-- the party: pop, seated cats, pack away
+	-- the party: pop, pack away
 	if phase == "party" and current.blanket == nil then
 		openParty(current, was == "ready" or was == "waiting")
 	elseif phase ~= "party" and current.blanket ~= nil and current.packAt == nil then
@@ -576,22 +553,12 @@ local function step()
 		for _, item in current.treats do
 			fade(item, gone)
 		end
-		for _, cat in current.cats do
-			fade(cat, gone)
-		end
 		return
 	end
 	local lid, roll, flights = PicnicLogic.pop(clock - (current.popAt or -math.huge), false)
 	setLid(current.lid, lid)
 	setBlanket(current, PicnicLogic.easeOut(roll))
 	drawTreats(current, flights)
-	for n = 1, SEATS do
-		local catId = Players.LocalPlayer:GetAttribute("PicnicCat" .. n)
-		local sitting: Model? = current.cats[n]
-		if type(catId) == "string" and sitting == nil and roll >= 1 then
-			seat(current, n, catId)
-		end
-	end
 end
 
 function PicnicParty.start()

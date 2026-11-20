@@ -145,8 +145,10 @@ return function()
 							or key == "perfectFlagged" -- #5379
 							or key == "decorNoBang" -- #5574
 							or key == "loadingScreen"
+							or key == "feedInstant" -- #5578
 							or key == "walkUpCarry" -- #5415
 							or key == "goldenDrops"
+							or key == "richInside" -- #5582
 							or key == "areaCannonRings" -- #5416
 							or key == "luckyCharm"
 							or key == "introSplit"
@@ -172,6 +174,7 @@ return function()
 							or key == "noIntro" -- #4929
 							or key == "firstFlightQuick" -- #4920
 							or key == "backdropsNear" -- #4857
+							or key == "catNames" -- #5586
 							or key == "fxOneAdded" -- #5000
 							or key == "rankUpRightAway" -- #5031
 							or key == "parkRingEarly" -- #5034
@@ -269,6 +272,7 @@ return function()
 							or key == "bowlHintRetry" -- #5438
 							or key == "giftBangMine" -- #5576
 							or key == "rankOneTap" -- #5533
+							or key == "rankTapLook" -- #5592
 							or key == "chipPickedWord" -- #5406
 							or key == "bowlWalkQuiet" -- #5436
 							or key == "bowlNoPops" -- #5571
@@ -289,6 +293,7 @@ return function()
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "catsArrowOff" -- #5485
 							or key == "baitCutQuick" -- #5548
+							or key == "firstCatchCoins" -- #5596
 							or key == "stallGlow" -- #5533
 							or key == "cannonGlow" -- #5533
 							or key == "cutsQuick" -- #5550

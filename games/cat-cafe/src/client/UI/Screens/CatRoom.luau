@@ -2205,6 +2205,32 @@ function CatRoom._renderFeed(self: any): boolean
 		if catalog then catalog.catFood else nil,
 		if state then state.catFood else nil
 	)
+	-- #5578 (Derek 2026-11-20: the food left "is delayed"): with feedInstant on, the feeds sent since the server's
+	-- count last moved come off the shown count at once, and a food at 0 loses its tile
+	local sent: { [string]: { base: number, n: number } } = self._feedSent or {}
+	self._feedSent = sent
+	if ReplicatedStorage:GetAttribute("LiveFlag_feedInstant") == true then
+		local shown = {}
+		for _, food in foods do
+			local mark: { base: number, n: number }? = CatRoom.feedSettle(sent, food.id, food.count)
+			local left = food.count - (if mark ~= nil then mark.n else 0)
+			if left > 0 then
+				local copy = table.clone(food)
+				copy.count = left
+				table.insert(shown, copy)
+			end
+		end
+		for id in sent do
+			local still = false
+			for _, food in foods do
+				still = still or food.id == id
+			end
+			if not still then
+				sent[id] = nil
+			end
+		end
+		foods = shown
+	end
 	local level = if instance and type(instance.level) == "number" then instance.level else 1
 	local feeds = self._callbacks.feedCat ~= nil and instance ~= nil
 	local can = feeds and #foods > 0 and BagLogic.canFeed(level) and self._feedOpen == true
@@ -2305,6 +2331,29 @@ function CatRoom._placeFeed(self: any)
 	self._detailDesc.Visible = not squeezed
 end
 
+-- #5578: the feeds of `foodId` still in flight once the server's count is `count`: the ones it has taken since
+-- (its count went down by them) come off, a count that went up (food bought) leaves them, and none left drops it.
+function CatRoom.feedSettle(
+	sent: { [string]: { base: number, n: number } },
+	foodId: string,
+	count: number
+): { base: number, n: number }?
+	local mark = sent[foodId]
+	if mark == nil or mark.base == count then
+		return mark
+	end
+	local taken = mark.base - count
+	mark.base = count
+	if taken > 0 then
+		mark.n -= taken
+	end
+	if mark.n <= 0 then
+		sent[foodId] = nil
+		return nil
+	end
+	return mark
+end
+
 -- One food's tile: a tap feeds one; held, it feeds again every FEED_REPEAT seconds while the food and the cat's
 -- levels last (the server's FeedCat allows 4 a second).
 function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
@@ -2315,6 +2364,21 @@ function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
 		local have = if state and state.catFood then state.catFood[foodId] else nil
 		if feed == nil or picked == nil or type(have) ~= "number" or have < 1 then
 			return false
+		end
+		if ReplicatedStorage:GetAttribute("LiveFlag_feedInstant") == true then
+			-- #5578: count this feed off the shown number now; nothing left to show, nothing more to send
+			local sent: { [string]: { base: number, n: number } } = self._feedSent or {}
+			self._feedSent = sent
+			local entry: { base: number, n: number } = CatRoom.feedSettle(sent, foodId, have)
+				or { base = have, n = 0 }
+			sent[foodId] = entry
+			if entry.n >= have then
+				return false
+			end
+			entry.n += 1
+			feed(foodId, picked)
+			self:_refresh()
+			return true
 		end
 		feed(foodId, picked)
 		return true

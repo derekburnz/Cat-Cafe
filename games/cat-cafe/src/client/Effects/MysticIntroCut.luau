@@ -36,6 +36,7 @@ local Logic = require(script.Parent.Logic)
 local MysticPool = require(script.Parent.MysticPool)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local SkipFocus = require(script.Parent.Parent.UI.Components.SkipFocus)
 local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits"))
 
 local MysticIntroCut = {}
@@ -69,7 +70,7 @@ end
 local function skipWords(): string
 	local last = UserInputService:GetLastInputType().Name
 	if last:sub(1, 7) == "Gamepad" then
-		return "Press A to skip"
+		return SkipFocus.hint(last) -- #5624 padSkip: "Press X to skip" on a PlayStation pad
 	elseif
 		last == "Touch" or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
 	then
@@ -252,6 +253,15 @@ local function colourAt(i: number): Color3
 end
 
 -- Reduce Motion: nothing moves; the card line shows for `still` seconds (a press ends it sooner).
+-- #5624 padSkip (Sync's pad check): the HUD button a controller had selected stayed selected under this scene, so
+-- the skip press (Cross) pressed it too (the Cafe teleport). Nothing is selected while it plays.
+local function focusHold(): () -> ()
+	if SkipFocus.on() then
+		return SkipFocus.hold()
+	end
+	return function() end
+end
+
 local function playStill(onDone: (outcome: Outcome, seconds: number) -> ())
 	local p = Presets.mysticIntro
 	local gui = overlay(false)
@@ -259,11 +269,13 @@ local function playStill(onDone: (outcome: Outcome, seconds: number) -> ())
 	local began = os.clock()
 	local finished = false
 	local input: RBXScriptConnection? = nil
+	local release = focusHold()
 	local function finish(outcome: Outcome)
 		if finished then
 			return
 		end
 		finished = true
+		release()
 		if input ~= nil then
 			input:Disconnect()
 		end
@@ -326,6 +338,7 @@ function MysticIntroCut.play(
 	local start = camera.CFrame
 
 	running = true
+	local release = focusHold()
 	local subject = camera.CameraSubject
 	local module = controls()
 	local promptsWere = ProximityPromptService.Enabled
@@ -354,6 +367,7 @@ function MysticIntroCut.play(
 			return
 		end
 		finished = true
+		release()
 		RunService:UnbindFromRenderStep(STEP)
 		if input ~= nil then
 			input:Disconnect()

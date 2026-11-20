@@ -1126,7 +1126,8 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 			profile.stats.sessions,
 			profile.tutorialStep or 0,
 			state.freeStart,
-			state.orderGroup
+			state.orderGroup,
+			LiveFlagService.on(FreeStart.SPAWN_FLAG)
 		)
 	then
 		state.freeStart = true

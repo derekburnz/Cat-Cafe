@@ -148,6 +148,7 @@ LiveFlags.KEYS = {
 	"companionNudge", -- #5364: a red "!" on the Cats menu Companion button while none follows (Screens/CatRoom); off by default
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
+	"spawnAlley", -- #5616: a save that left before its first step still joins the new start, and a first session's night pass lands it in the Alleyway (shared/FreeStart.SPAWN_FLAG); off by default
 	"parkFirstCalm", -- #5496: on a phone, tablet or console a missed catch in the Park leaves the cat put until the first Park catch (shared/ParkFirstEasy.calm); off by default
 	"orderSplit", -- #5498: new saves split half catch first, half bowl first, kept for good (shared/TutorialOrder); off by default
 	"dailyGifts", -- #5506: ten gifts for minutes played today on the Rewards tile, the small account steps stop (shared/DailyGifts); off by default
@@ -337,6 +338,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	dailyGifts = true, -- #5506: on after the next restart Derek calls (new save field)
 	awayPromise = true, -- #5505: on after the next restart Derek calls (new save field)
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
+	spawnAlley = true, -- #5616: on as soon as it publishes (Derek 2026-11-20, priority)
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)
 	rankDimTwo = true, -- #5609: on as soon as it publishes (Derek 2026-11-20)

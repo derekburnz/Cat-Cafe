@@ -76,15 +76,18 @@ function FreeStart.streetDue(joined: boolean?, played: number): boolean
 end
 
 -- streetCats: whether a catch is one of the save's first EASY_CATCHES (`done` catches so far, by hand or in the Park).
+-- #5562 (Sync's new start look 2026-11-20: a Park Rare still bolted): with `park` any rarity of the first three Park
+-- catches is easy; on the street only Common and Uncommon are.
 function FreeStart.easyDue(
 	joined: boolean?,
 	done: number,
 	rarity: string,
-	variant: string?
+	variant: string?,
+	park: boolean?
 ): boolean
 	return joined == true
 		and done < FreeStart.EASY_CATCHES
-		and (rarity == "Common" or rarity == "Uncommon")
+		and (park == true or rarity == "Common" or rarity == "Uncommon")
 		and (variant == nil or variant == "base")
 end
 

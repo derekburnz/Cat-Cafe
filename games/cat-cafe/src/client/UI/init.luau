@@ -3625,6 +3625,18 @@ function UI.bait.arrived(cat: Types.BaitCat, bowl: number?, recorded: boolean?)
 		end)
 		return
 	end
+	-- #5562 (Sync's new start look 2026-11-20: the card popped right after the first check-in): a play first start save
+	-- below FreeStart.UNTIL_TIER gets no card by itself; the cat waits at the bowl (its chip shows it) and the card
+	-- comes when the player walks up to the bowl or taps the chip (showReady)
+	if
+		(require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FreeStart")) :: any).quiet(
+			state.tier
+		)
+	then
+		bowls.cats[index] = cat
+		renderBait()
+		return
+	end
 	-- #5374 (Derek 2026-11-19: "all bowl options on yet I am still getting pop-ups"): with bowlTicks on and the Bowl
 	-- window's pop-ups tick set (settings.bowlNewCatCard false), a bowl cat after the first is a toast, not the card.
 	-- The bowl chip still shows it, and auto claim (when owned) tames it within a second.

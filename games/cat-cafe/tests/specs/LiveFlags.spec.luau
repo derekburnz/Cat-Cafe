@@ -289,6 +289,7 @@ return function()
 							or key == "cannonCloudsEarly" -- #5370
 							or key == "catsArrowOff" -- #5485
 							or key == "baitCutQuick" -- #5548
+							or key == "firstCatchCoins" -- #5596
 							or key == "stallGlow" -- #5533
 							or key == "cannonGlow" -- #5533
 							or key == "cutsQuick" -- #5550

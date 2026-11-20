@@ -10645,13 +10645,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "GoalNoFoldCoins", function()
 		local flags = game:GetService("ReplicatedStorage")
 		flags:SetAttribute("LiveFlag_coinsOnly", true)
-		UI.update({ money = 0 } :: any)
+		UI.update({} :: any) -- a render with the state as it is (the next scene reads its ready card)
 		UIShim.advance(0.2)
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 		local fold = goal:FindFirstChild("Fold") :: GuiObject
 		local shown = fold.Visible
 		flags:SetAttribute("LiveFlag_coinsOnly", nil)
-		UI.update({ money = 0 } :: any)
+		UI.update({} :: any) -- a render with the state as it is (the next scene reads its ready card)
 		assert(not shown, "uigate: the goal card still has its fold arrow with coinsOnly on (#5557)")
 	end },
 	{ "GoalCardSeen", function()

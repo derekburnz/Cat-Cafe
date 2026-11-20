@@ -97,6 +97,7 @@ export type CustomEvent =
 	| "session_end"
 	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
 	| "tier3_left" -- #5517: a session ended at Tier 3 before that landing (value seconds; fields furthest stop, device, day or night)
+	| "rank_cue_next" -- #5516 (switch rankCueLog): the first window opened after the Tier 1 rank cue (value seconds since the cue; fields screen or "left", device)
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
 	-- (else since the join); fields: "1", "2", "3", "4" or "5+" (the account's nth buy), the upgrade id, the new level
 	| "upgrade_bought"
@@ -570,6 +571,7 @@ local REPORTS = {
 	"step",
 	"screen",
 	"tutorial_closed",
+	"rank_cue_next", -- #5516: the first window opened after the Tier 1 rank cue, its ScreenName (the server checks the tier)
 	"tier3_cannon", -- #5517: the Cannon menu opened at Tier 3 (shared/Tier3Trip; the server checks the tier)
 	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
 	"rank_up_end", -- #5031: how that window ended, "pressed" or "closed" (rank_up_window)
@@ -723,6 +725,8 @@ type Session = {
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
 	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
 	rankWindows: number, -- #5031: rank_up_window events logged this session
+	rankCueAt: number?, -- #5516: when the Tier 1 rank cue showed this session (bowl_step rankCue)
+	rankCueNext: boolean, -- #5516: rank_cue_next logged this session
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -1026,9 +1030,10 @@ end
 -- #3666: a step's fields with the intro test's group as custom field 3, for a save that is in the test.
 local function grouped(profile: Profile, fields: { string }): { string }
 	-- #5498: a save in the walk-through order test carries its arm there instead (the intro test takes nobody new)
-	-- #5499: and a save in neither carries its holdout group ("holdout" or "live"); a held save is never in the order test
+	-- #5499: and a save in neither carries its holdout group ("holdout" or "live"); a held save is never in the order test.
+	-- Both come ahead of introGroup: every new save still takes intro_short (#4252), which hid them (Sync 2026-11-20)
 	local state = profile.telemetry
-	return IntroSplit.fields(state.introGroup or state.orderGroup or state.holdout, fields)
+	return IntroSplit.fields(state.orderGroup or state.holdout or state.introGroup, fields)
 end
 
 -- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
@@ -1078,7 +1083,12 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 			state.orderGroup
 		)
 	then
-		state.orderGroup = TutorialOrder.group(player.UserId)
+		-- Studio only (Sync 2026-11-20): ReplicatedStorage's StudioOrderArm attribute, set in edit mode before Play,
+		-- picks the arm for a fresh test save so the bowl arm's telemetry can be walked too
+		local forced = if studio
+			then TutorialOrder.valid(ReplicatedStorage:GetAttribute("StudioOrderArm"))
+			else nil
+		state.orderGroup = forced or TutorialOrder.group(player.UserId)
 		Telemetry.custom(player, "order_group", 1, { state.orderGroup :: string }) -- TutorialOrder.EVENT
 	end
 	player:SetAttribute(TutorialOrder.GROUP_ATTR, state.orderGroup)
@@ -2626,6 +2636,9 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		-- #4674: once a session each, as step_time, and only in the bowl first order
 		local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder) :: any
 		local step = if type(rawValue) == "string" then TutorialOrder.BOWL_STEPS[rawValue] else nil
+		if rawValue == "rankCue" and session.rankCueAt == nil then
+			session.rankCueAt = os.time() -- #5516: rank_cue_next times the next window from here
+		end
 		if
 			step ~= nil
 			and TutorialOrder.bowlFirst(player)
@@ -2954,6 +2967,25 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
 			end
 		end
+	elseif name == "rank_cue_next" then
+		-- #5516: once a session, only after the cue and only at Tier 1; a screen not in the lists reads "other"
+		local raw = if type(rawValue) == "string" and #rawValue <= SCREEN_NAME_MAX
+			then rawValue
+			else nil
+		local cueAt = session.rankCueAt
+		if
+			raw ~= nil
+			and cueAt ~= nil
+			and not session.rankCueNext
+			and Economy.tier(profile) == 1
+			and LiveFlagService.on("rankCueLog")
+		then
+			session.rankCueNext = true
+			Telemetry.custom(player, "rank_cue_next", math.max(0, os.time() - cueAt), {
+				SCREENS[raw] or MORE_SCREENS[raw] or "other",
+				session.device or "unknown",
+			})
+		end
 	elseif name == "tier3_cannon" then
 		Telemetry.tier3Stop(player, profile, "cannon_open") -- #5517: Tier3Trip.due checks the tier and the stop
 	elseif name == "rank_up_open" then
@@ -3268,6 +3300,8 @@ local function onLoaded(player: Player, profile: Profile)
 		rankSpot = {},
 		rankWindow = nil,
 		rankWindows = 0,
+		rankCueAt = nil,
+		rankCueNext = false,
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",
@@ -3593,6 +3627,15 @@ local function onRelease(player: Player, profile: Profile)
 	})
 	if session.rankWindow ~= nil then
 		rankWindowEnd(player, session, "left") -- #5031: left with the Rank Up window open
+	end
+	-- #5516: the rank cue showed and no window opened after it before the session ended
+	local cueAt = session.rankCueAt
+	if cueAt ~= nil and not session.rankCueNext and LiveFlagService.on("rankCueLog") then
+		session.rankCueNext = true
+		Telemetry.custom(player, "rank_cue_next", math.max(0, now - cueAt), {
+			if Economy.tier(profile) == 1 then "left" else "ranked",
+			session.device or "unknown",
+		})
 	end
 	-- #5517: a session that ends at Tier 3 before the first Neighbourhood landing, with how far the trip got
 	if

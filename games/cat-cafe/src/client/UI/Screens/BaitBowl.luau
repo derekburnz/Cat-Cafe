@@ -137,7 +137,7 @@ local TICK_ORDER = { "refill", "claim", "popups" }
 local TICK_WORDS: { [string]: string } = {
 	refill = "Auto refill with best",
 	claim = "Auto claim bowl cats",
-	popups = "No new cat pop-ups",
+	popups = "No cat pop-ups", -- #5571 (Derek 2026-11-20: "not cat pop ups from no new cat pop ups")
 }
 local AUTO_HOLD = 5 -- SettingsList.HOLD_SECONDS: a tap holds until the server agrees
 local AUTO_ROW = 36 -- a switch row, the tap height a mouse needs; touch Hit pads reach 44

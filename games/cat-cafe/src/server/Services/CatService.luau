@@ -2856,7 +2856,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		Telemetry.device(player),
 		M.LiveFlagService.on(M.ParkFirstEasy.CALM_FLAG)
 	)
-	if easy or parkCalm or NetSwing.calm(M.Economy.tier(profile)) then
+	-- #5500 (missKeepsCommon, plan A fix 2): a missed Common, in any area on any device, stays put with no bolt, slow
+	-- or wait; the Perfect bonus is lost with the catch. Rares and up keep the chase
+	local commonCalm = rarity == "Common" and M.LiveFlagService.on("missKeepsCommon")
+	if easy or parkCalm or commonCalm or NetSwing.calm(M.Economy.tier(profile)) then
 		if not easy then
 			-- a Tier 1 miss that would have bolted before, so the bolt read can tell the two apart
 			Telemetry.custom(

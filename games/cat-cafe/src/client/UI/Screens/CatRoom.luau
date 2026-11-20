@@ -2212,8 +2212,7 @@ function CatRoom._renderFeed(self: any): boolean
 	if ReplicatedStorage:GetAttribute("LiveFlag_feedInstant") == true then
 		local shown = {}
 		for _, food in foods do
-			local mark = sent[food.id]
-			mark = CatRoom.feedSettle(sent, food.id, food.count)
+			local mark: { base: number, n: number }? = CatRoom.feedSettle(sent, food.id, food.count)
 			local left = food.count - (if mark ~= nil then mark.n else 0)
 			if left > 0 then
 				local copy = table.clone(food)
@@ -2370,12 +2369,9 @@ function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
 			-- #5578: count this feed off the shown number now; nothing left to show, nothing more to send
 			local sent: { [string]: { base: number, n: number } } = self._feedSent or {}
 			self._feedSent = sent
-			local mark = CatRoom.feedSettle(sent, foodId, have)
-			if mark == nil then
-				mark = { base = have, n = 0 }
-				sent[foodId] = mark
-			end
-			local entry = mark :: { base: number, n: number }
+			local entry: { base: number, n: number } = CatRoom.feedSettle(sent, foodId, have)
+				or { base = have, n = 0 }
+			sent[foodId] = entry
 			if entry.n >= have then
 				return false
 			end

@@ -43,9 +43,10 @@ end
 -- The straight flight for a walk into cannon `cannonId`: the glowing area while the switch is on, else nil. Only from a
 -- cannon Effects/WorldGlow lights with the sign, so a straight trip never starts from an unlit one (Design 2026-11-20):
 -- the Town Square cannon, and since #5547 the camp cannon nearest the player (within 200 studs), which is the one a
--- player walks into. So any cannon walked into flies straight; `cannonId` is kept for the callers.
-function CannonGlow.direct(on: boolean, glowing: unknown, _cannonId: string?): string?
-	if on and type(glowing) == "string" and glowing ~= "" then
+-- player walks into. So any cannon walked into flies straight, except the glowing area's own camp cannon (a player
+-- already there on foot: Review-QA on #5555), which keeps its picker.
+function CannonGlow.direct(on: boolean, glowing: unknown, cannonId: string?): string?
+	if on and type(glowing) == "string" and glowing ~= "" and glowing ~= cannonId then
 		return glowing
 	end
 	return nil

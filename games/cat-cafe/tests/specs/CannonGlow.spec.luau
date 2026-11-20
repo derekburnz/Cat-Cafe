@@ -32,6 +32,7 @@ return function()
 		end)
 		it("flies straight from the lit camp cannon too (#5547)", function()
 			expect(CannonGlow.direct(true, "park", "alley")).to.equal("park")
+			expect(CannonGlow.direct(true, "park", "park")).to.equal(nil) -- already in the Park
 		end)
 		it("reads off when the switch's attribute is missing", function()
 			expect(CannonGlow.on()).to.equal(false)

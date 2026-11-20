@@ -31,6 +31,20 @@ return function()
 		return CampExtras.view(save, tier, now)
 	end
 
+	describe("picnicCardFix (Derek 2026-11-20: the potions are there at unlock)", function()
+		it("a basket that opens with the switch holds its whole hold", function()
+			local open = CampExtras.tierOf("picnic") :: number
+			local save = CampExtras.fresh(T)
+			CampExtras.settle(save, open - 1, T, nil, nil, true)
+			CampExtras.settle(save, open, T + 60, nil, nil, true)
+			expect(save.picnic.held).to.equal(Config.PicnicHold)
+			local old = CampExtras.fresh(T)
+			CampExtras.settle(old, open - 1, T)
+			CampExtras.settle(old, open, T + 60)
+			expect(old.picnic.held < Config.PicnicHold).to.equal(true)
+		end)
+	end)
+
 	describe("Picnic Treats (#3715, the picnicTreats switch)", function()
 		local function treatsAt(save: any, tier: number, now: number): any
 			CampExtras.settle(save, tier, now, true)

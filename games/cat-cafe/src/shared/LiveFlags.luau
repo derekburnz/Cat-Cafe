@@ -193,6 +193,7 @@ LiveFlags.KEYS = {
 	"easyKeep", -- #5311: the Dragon Keep's Warmth goals 50, 100, 250, 500, 1,000 and Rekindle 500 (shared/EasyKeep); off by default
 	"netTiers", -- #5170: stronger nets cut hits, Net 4 at Tier 7 and Net 5 at Tier 9 (shared/NetTiers); off by default
 	"tablesEight", -- #5441: Tables 7 and 8 at Tiers 9 and 10, in the back of the 60 x 46 room (shared/TablesEight); off by default
+	"plainFallback", -- #4656: a model missing from Assets clones as a plain grey block, not a built placeholder (World/AssetRegistry); off by default
 	"companionMenu", -- #5296: Cats window role symbols, the Companion button and picker, both boosts (shared/Follower); off by default
 	"companionTraits", -- #5303: Mystic Pool traits that raise the Cat Companion boosts (shared/Traits, CompanionTraits); off by default
 	"strayMeets", -- onboarding_v9: the Alleyway's waiting stray stands by the landing for a first catch by hand (shared/StrayMeets); off by default
@@ -359,6 +360,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	easyKeep = true, -- #5311: on after Review-QA, with a restart
 	netTiers = true, -- #5170: on after Review-QA and the Pace test with it on
 	tablesEight = true, -- #5441 (Derek 2026-11-19): on as soon as it publishes
+	plainFallback = true, -- #4656: the placeholder builders go once this has run clean (0 fallback warnings)
 	companionMenu = true, -- #5296: on after Review-QA, Sync's pictures and Derek's look
 	companionTraits = true, -- #5303: a paid random item change, on after a restart publish and Review-QA's odds check
 	afkStay = true, -- #5322: on after Review-QA and a real restart with an AFK player watched

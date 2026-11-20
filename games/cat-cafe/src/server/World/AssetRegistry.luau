@@ -1,6 +1,7 @@
 --!strict
 -- The one place models are fetched from. ReplicatedStorage.Assets is Rojo-synced from assets/cat-cafe/rbx/;
--- anything missing there gets a Part placeholder at startup. The templates no client needs are moved to
+-- anything missing there gets a Part placeholder at startup (with the plainFallback switch on, a plain grey block
+-- when something asks for it). The templates no client needs are moved to
 -- ServerStorage.Assets at start-up (stowServerOnly). Swapping a real model in = dropping a file in that folder.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -8,6 +9,7 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local GoldTone = require(ReplicatedStorage.Shared.GoldTone)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Placeholders = require(script.Parent.Placeholders)
 local ServerOnlyAssets = require(script.Parent.ServerOnlyAssets)
 
@@ -90,15 +92,59 @@ function AssetRegistry.has(name: string): boolean
 	return find(name) ~= nil
 end
 
--- True when the named model is in the folder or can be built as a placeholder, so `clone` will not error.
-function AssetRegistry.known(name: string): boolean
-	return AssetRegistry.has(name) or table.find(Placeholders.names(), name) ~= nil
+-- #4656 (switch plainFallback, LiveFlags, off by default): every asset name has a real model now (0 placeholder
+-- models at start-up since #4662), so the Placeholders builders are only a fallback for a missing file. With the
+-- switch on they are skipped: `known` asks the folders alone and a missing model clones as a plain grey block with
+-- one warning per name, so it still never throws. Once that has run clean, Placeholders.luau can go.
+AssetRegistry.PLAIN_FLAG = "plainFallback"
+
+function AssetRegistry.plainFallback(): boolean
+	return LiveFlags.shown(
+		AssetRegistry.PLAIN_FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AssetRegistry.PLAIN_FLAG)
+	)
 end
 
--- Clones the named model. Builds a placeholder on the spot if the name is unknown to the folder but known to us.
+local warned: { [string]: boolean } = {}
+
+-- A 2 x 2 x 2 grey block named `name`, its PrimaryPart at the pivot, for a model the folders do not have.
+function AssetRegistry.plainBlock(name: string): Model
+	local model = Instance.new("Model")
+	model.Name = name
+	local part = Instance.new("Part")
+	part.Name = "Block"
+	part.Size = Vector3.new(2, 2, 2)
+	part.Anchored = true
+	part.Color = Color3.fromRGB(160, 160, 160)
+	part.Material = Enum.Material.SmoothPlastic
+	part.Parent = model
+	model.PrimaryPart = part
+	return model
+end
+
+-- True when the named model is in the folder or can be built as a placeholder, so `clone` will not error.
+function AssetRegistry.known(name: string): boolean
+	if AssetRegistry.has(name) then
+		return true
+	end
+	if AssetRegistry.plainFallback() then
+		return false
+	end
+	return table.find(Placeholders.names(), name) ~= nil
+end
+
+-- Clones the named model. Builds a placeholder on the spot if the name is unknown to the folder but known to us
+-- (with plainFallback on: a plain grey block, and a warning the first time).
 function AssetRegistry.clone(name: string): Model
 	local assets = AssetRegistry.folder()
 	local source = find(name)
+	if source == nil and AssetRegistry.plainFallback() then
+		if not warned[name] then
+			warned[name] = true
+			warn(string.format("[AssetRegistry] no model named %s, using a plain block", name))
+		end
+		return AssetRegistry.plainBlock(name)
+	end
 	if source == nil then
 		local built = Placeholders.build(name)
 		if built == nil then

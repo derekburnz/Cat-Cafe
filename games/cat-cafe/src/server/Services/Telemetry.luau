@@ -1087,9 +1087,11 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 	end
 	player:SetAttribute(Holdout.ATTR, Holdout.held(state.holdout, state.firstDay, os.time()))
 	-- #5533 (shared/FreeStart): a new save on the play first start takes the catch first order, so orderSplit below
-	-- never puts it in the bowl first arm; a save already in an arm keeps it
+	-- never puts it in the bowl first arm; a save already in an arm keeps it, and a held save (the holdout's control
+	-- group) keeps today's start
 	if
-		FreeStart.joins(
+		player:GetAttribute(Holdout.ATTR) ~= true
+		and FreeStart.joins(
 			LiveFlagService.on(FreeStart.FLAG, player),
 			profile.stats.sessions,
 			profile.tutorialStep or 0,

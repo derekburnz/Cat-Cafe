@@ -6117,6 +6117,21 @@ Presets.firstBaitCut = {
 	cap = 5.5, -- #5074: waitCat + walkMax + eat + swingOut (5.0) and a little room
 	maxDistance = 120,
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
+	-- #5548 (Derek 2026-11-20: "do the make bait scene quicker and no skip allowed"), switch baitCutQuick: about
+	-- 1.5 s with the cat on time (swing in 0.3, walk 0.5 = 3.5 studs at SlotWalk's 7, one bite and the heart puff in
+	-- 0.4, swing out 0.3), no skip, so the cap is the only way out: waitCat 1.2 and cap 3.0. Under the same switch
+	-- the server puts the first bait cat out at placedAt, as the food lands (#5549), not placedAt + 1 as above
+	quick = {
+		swingIn = 0.3,
+		swingOut = 0.3,
+		walk = 0.5,
+		walkMax = 0.6,
+		walkDistance = 3.5,
+		eat = 0.4,
+		bites = 1,
+		waitCat = 1.2,
+		cap = 3.0,
+	},
 }
 
 -- The front lawn pieces' effects (Effects/Lawn, #1283, front-lawn.md section 5), by LawnId. Each spot is `offset`

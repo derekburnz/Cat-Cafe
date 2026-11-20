@@ -4746,9 +4746,12 @@ function CatService.refreshSpeed(player: Player)
 	local carry = carrying[player]
 	local startled = startledUntil[player]
 	-- #2706: a little faster on the Town Square
-	local square = if (character :: Model):GetAttribute("OnSquare") == true
-		then M.Config.TownWalkSpeedBonus
-		else 0
+	local square = if (character :: Model):GetAttribute("OnSquare") ~= true
+		then 0
+		elseif
+			ReplicatedStorage:GetAttribute("LiveFlag_townFast") == true
+		then M.Config.TownWalkSpeedFast -- #5584
+		else M.Config.TownWalkSpeedBonus
 	local base = if carry == nil
 		then M.Config.NormalWalkSpeed + pawsBonus(player) + square
 		elseif

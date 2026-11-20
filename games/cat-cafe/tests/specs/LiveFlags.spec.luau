@@ -141,6 +141,7 @@ return function()
 					expect(
 						key == "tradeFish"
 							or key == "nightCatch"
+							or key == "townFast" -- #5584
 							or key == "perfectFlagged" -- #5379
 							or key == "loadingScreen"
 							or key == "walkUpCarry" -- #5415

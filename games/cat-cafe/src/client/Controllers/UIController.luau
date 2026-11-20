@@ -2597,6 +2597,17 @@ local function wireIntents()
 			stepsReported["tier3:cannon"] = true
 			Net.fire("TelemetryReport", "tier3_cannon", true)
 		end
+		if
+			name ~= nil
+			and stepsReported["bowl:rankCue"]
+			and not stepsReported["rank:cueNext"]
+			and state ~= nil
+			and (state :: any).tier == 1
+		then
+			-- #5516: the first window opened after the Tier 1 rank cue, once a session (rank_cue_next)
+			stepsReported["rank:cueNext"] = true
+			Net.fire("TelemetryReport", "rank_cue_next", name)
+		end
 		if name == "Store" then
 			-- #1888: every Store visit starts a Store funnel, with where the UI said it was opened from
 			Net.fire("TelemetryReport", "store_opened", StoreFunnel.takeSource())

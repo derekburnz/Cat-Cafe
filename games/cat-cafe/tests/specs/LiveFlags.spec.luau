@@ -234,6 +234,7 @@ return function()
 							or key == "holdout" -- #5499
 							or key == "catchLostLog" -- #5500
 							or key == "tier3TripLog" -- #5517
+							or key == "rankCueLog" -- #5516
 							or key == "mutationBoost" -- #5493
 							or key == "bowlOptionsButton" -- #5488
 							or key == "bowlOptionsList" -- #5472

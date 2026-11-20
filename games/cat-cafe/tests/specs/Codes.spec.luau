@@ -393,7 +393,10 @@ return function()
 		it("answers an unknown code, an inactive one and one past its endsAt", function()
 			local profile = fresh()
 			expect(Codes.refusal(profile, "nope", NOW)).to.equal(Codes.UNKNOWN)
-			expect(Codes.refusal(profile, "launch", NOW)).to.equal(Codes.EXPIRED)
+			expect(Codes.refusal(profile, "playtest2", NOW)).to.equal(Codes.EXPIRED)
+			-- #4656: the old `launch` row is gone (it was never on), so the word is just a wrong code now
+			expect(Catalog.codes.launch).never.to.be.ok()
+			expect(Codes.refusal(profile, "launch", NOW)).to.equal(Codes.UNKNOWN)
 			local ended: Types.CodeDef = { id = "x", active = true, endsAt = NOW, prize = {} }
 			expect(Codes.expired(ended, NOW - 1)).to.equal(false)
 			expect(Codes.expired(ended, NOW)).to.equal(true)
@@ -657,13 +660,7 @@ return function()
 			end
 		)
 
-		it("launch waits to be switched on, and group is on but needs the group", function()
-			expect(Catalog.codes.launch.active).to.equal(false)
-			expect(Catalog.codes.launch.prize :: any).to.deepEqual({
-				coins = 1000,
-				coinSeconds = 300,
-				fish = 10, -- #2497: was 25
-			}) -- F94: no spins or Tuna
+		it("group is on but needs the group", function()
 			expect(Catalog.codes.group.active).to.equal(true) -- #1118
 			expect(Catalog.codes.group.requiresGroup).to.equal(true)
 			expect(Catalog.codes.group.prize.coinSeconds).to.equal(900) -- F95: half
@@ -698,7 +695,6 @@ return function()
 				expect(row.coinSeconds <= 600).to.equal(true) -- 10 minutes of income at most
 				expect(def.endsAt).to.equal(row.live + 60 * DAY)
 			end
-			expect(Catalog.codes.launch.active).to.equal(false) -- left as it is, unused
 		end)
 
 		it("every prize names real crates and foods", function()
@@ -975,11 +971,11 @@ return function()
 
 		it("refuses in the order the box words it: unknown, used, expired, group", function()
 			local profile = fresh()
-			profile.codesRedeemed.launch = NOW - 10
+			profile.codesRedeemed.playtest2 = NOW - 10
 			expect(Codes.refusal(profile, "nope", NOW, true)).to.equal(Codes.UNKNOWN)
 			-- used wins over expired: an old code that has since been switched off still says it was used
-			expect(Codes.refusal(profile, "launch", NOW, true)).to.equal(Codes.USED)
-			expect(Codes.refusal(fresh(), "launch", NOW, true)).to.equal(Codes.EXPIRED)
+			expect(Codes.refusal(profile, "playtest2", NOW, true)).to.equal(Codes.USED)
+			expect(Codes.refusal(fresh(), "playtest2", NOW, true)).to.equal(Codes.EXPIRED)
 			expect(Codes.refusal(fresh(), "group", NOW, false)).to.equal(Codes.GROUP)
 			expect(Codes.refusal(fresh(), "release", NOW, false)).never.to.be.ok()
 			for id, def in pairs(Catalog.codes) do

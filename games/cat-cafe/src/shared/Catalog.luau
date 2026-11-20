@@ -4543,8 +4543,7 @@ table.freeze(Catalog.indexPrizes)
 -- Codes (F65, data-model section 11d), keyed by the lowercased code a player types at the Codes Cat. The prize uses
 -- the Index prize shape and pays once per player. #1118 (the friend, 11-04, for the store page's codes line):
 -- `release` is the release code, `playtest` and `playtest2` stay active for everyone, and `group` is open to members
--- of the community group only (requiresGroup, Config.GroupId; a non-member keeps it unused). `launch` switches on that
--- day. F64 adds the potions to playtest and group, and `playtest2` with two of each so
+-- of the community group only (requiresGroup, Config.GroupId; a non-member keeps it unused). F64 adds the potions to playtest and group, and `playtest2` with two of each so
 -- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
 -- new code.
 Catalog.codes = {
@@ -4576,14 +4575,9 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 60, potions = { tip_potion = 2 } },
 	},
-	launch = {
-		id = "launch",
-		active = false,
-		prize = { coins = 1000, coinSeconds = 300, fish = 10 }, -- F94 (was also 2 spins and 3 Tuna); #2497: fish was 25
-	},
 	-- #1937 (release.md section 4): the first four weeks' codes, coins only (about 10 minutes of income at most, no
 	-- fish, spins, potions or crates). Each ships off; that week's small PR turns it on, on its day. Each ends 60 days
-	-- after that day (launch-ops.md section 1), at 00:00 UTC. The old `launch` row above stays off and unused.
+	-- after that day (launch-ops.md section 1), at 00:00 UTC. The old `launch` row was never switched on, so no save holds it; #4656 removed it.
 	opening = {
 		id = "opening",
 		active = false, -- go wide, Thursday 2026-11-12

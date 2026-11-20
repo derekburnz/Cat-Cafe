@@ -98,6 +98,7 @@ export type CustomEvent =
 	| "tier3_trip" -- #5517 (shared/Tier3Trip): a stop between Tier 3 and the first Neighbourhood landing (fields stop, device, day or night, detail)
 	| "hood_trail" -- #5517 (hoodTrail): the walk to the Neighbourhood at Tier 3 shown or entered (value 1; fields kind, device)
 	| "rank_tap" -- #5516 (rankTapLog): a Tier 1 tap on the goal card or strip's rank up button (value the tap's number this session; fields from, window open after, ready)
+	| "return_card" -- #5505 (returnMoment): the welcome back card on a join 4 h+ after the last leave (value hours away, max 72; fields rank up in reach, device, line kind)
 	| "tier3_left" -- #5517: a session ended at Tier 3 before that landing (value seconds; fields furthest stop, device, day or night)
 	| "rank_cue_next" -- #5516 (switch rankCueLog): the first window opened after the Tier 1 rank cue (value seconds since the cue; fields screen or "left", device)
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
@@ -576,6 +577,7 @@ local REPORTS = {
 	"rank_cue_next", -- #5516: the first window opened after the Tier 1 rank cue, its ScreenName (the server checks the tier)
 	"hood_trail", -- #5517: the walk to the Neighbourhood shown or entered (UI/Components/ParkTrailLogic, hoodTrail)
 	"rank_tap", -- #5516: "<goal|strip>:<ScreenName or none>:<ready|not_ready>", a Tier 1 rank up tap and what it opened
+	"return_card", -- #5505: the welcome back card showed, "<milestone|next|hook|none>:<yes|no>" (line kind, rank up in reach)
 	"tier3_cannon", -- #5517: the Cannon menu opened at Tier 3 (shared/Tier3Trip; the server checks the tier)
 	"rank_up_open", -- #5031: a Tier 1 Rank Up window opened, RankUpRightAway.HOWS (logs step 15 at once)
 	"rank_up_end", -- #5031: how that window ended, "pressed" or "closed" (rank_up_window)
@@ -730,6 +732,8 @@ type Session = {
 	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
 	rankWindow: string?, -- #5031: how the Tier 1 Rank Up window open now opened, nil while none is
 	rankWindows: number, -- #5031: rank_up_window events logged this session
+	awaySeconds: number?, -- #5505: seconds since the last leave, at this join (nil on a first session)
+	returnCard: boolean, -- #5505: return_card logged this session
 	rankCueAt: number?, -- #5516: when the Tier 1 rank cue showed this session (bowl_step rankCue)
 	rankCueNext: boolean, -- #5516: rank_cue_next logged this session
 	rankTaps: number, -- #5516: rank_tap events logged this session (6 at most)
@@ -3021,6 +3025,29 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				{ from :: string, opened, ready :: string }
 			)
 		end
+	elseif name == "return_card" then
+		-- #5505: once a session, only 4 hours or more after the last leave, with the switch on
+		local raw = if type(rawValue) == "string" and #rawValue <= 24 then rawValue else nil
+		local kind, ready
+		if raw ~= nil then
+			kind, ready = string.match(raw, "^(%a+):(%a+)$")
+		end
+		local away = session.awaySeconds
+		if
+			(kind == "milestone" or kind == "next" or kind == "hook" or kind == "none")
+			and (ready == "yes" or ready == "no")
+			and away ~= nil
+			and away >= 4 * 3600
+			and not session.returnCard
+			and LiveFlagService.on("returnMoment")
+		then
+			session.returnCard = true
+			Telemetry.custom(player, "return_card", math.min(72, math.floor(away / 3600)), {
+				ready :: string,
+				session.device or "unknown",
+				kind :: string,
+			})
+		end
 	elseif name == "tier3_cannon" then
 		Telemetry.tier3Stop(player, profile, "cannon_open") -- #5517: Tier3Trip.due checks the tier and the stop
 	elseif name == "rank_up_open" then
@@ -3348,6 +3375,10 @@ local function onLoaded(player: Player, profile: Profile)
 		rankSpot = {},
 		rankWindow = nil,
 		rankWindows = 0,
+		awaySeconds = if not firstSession and profile.lastSeen > 0
+			then math.max(0, now - profile.lastSeen)
+			else nil,
+		returnCard = false,
 		rankCueAt = nil,
 		rankCueNext = false,
 		rankTaps = 0,

@@ -2414,6 +2414,13 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
+	do -- #5533 cannonGlow (shared/CannonGlow): the Town Square cannon glows for the area this rank up opens
+		local CannonGlow = require(ReplicatedStorage.Shared.CannonGlow) :: any
+		local opened = if CannonGlow.on() then CannonGlow.opened(def.tier, Catalog.areas) else nil
+		if opened ~= nil then
+			player:SetAttribute(CannonGlow.ATTR, opened)
+		end
+	end
 	do -- #4815: the tutorial's bigger net ends at Tier 2, so the client's reach glow (NetExtraStuds) shrinks with it
 		local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 		local extra = NetSwing.extraForProfile(profile)

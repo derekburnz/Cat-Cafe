@@ -236,6 +236,12 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonLaunchAt", now)
 	flyer:SetAttribute("CannonFrom", cannonId)
 	flyer:SetAttribute("CannonTo", destination)
+	do -- #5533 cannonGlow (shared/CannonGlow): the first flight to the glowing area ends the glow
+		local CannonGlow = require(ReplicatedStorage.Shared.CannonGlow) :: any
+		if CannonGlow.clears(player:GetAttribute(CannonGlow.ATTR), destination) then
+			player:SetAttribute(CannonGlow.ATTR, nil)
+		end
+	end
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	-- Derek 2026-11-18 (areaWhole): the destination area starts streaming in whole now, during the flight

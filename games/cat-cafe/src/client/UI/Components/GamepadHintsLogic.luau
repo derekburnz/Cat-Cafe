@@ -11,7 +11,7 @@
 --   selecting  a button outside a window is selected (the HUD's menu grid)
 --   card       a card or drop-down list B closes shows (GamepadNav.hasBack)
 
-export type Key = "A" | "B" | "L1" | "R1" | "Select"
+export type Key = "A" | "B" | "L1" | "R1" | "Select" | "Y"
 export type Hint = { keys: { Key }, label: string }
 export type View = {
 	gamepad: boolean,
@@ -20,6 +20,7 @@ export type View = {
 	tabs: boolean,
 	selecting: boolean,
 	card: boolean?,
+	menuKey: boolean?, -- #5624 padHud: Triangle (Y) opens the menu, shown in place of Select
 }
 
 local GamepadHintsLogic = {}
@@ -38,6 +39,7 @@ GamepadHintsLogic.CAP = table.freeze({
 	L1 = "LB",
 	R1 = "RB",
 	Select = "View",
+	Y = "Y",
 }) :: { [Key]: string }
 
 function GamepadHintsLogic.keys(view: View): { Hint }
@@ -64,7 +66,7 @@ function GamepadHintsLogic.keys(view: View): { Hint }
 			},
 		}
 	end
-	return { { keys = { "Select" }, label = GamepadHintsLogic.MENU } }
+	return { { keys = { if view.menuKey then "Y" else "Select" }, label = GamepadHintsLogic.MENU } }
 end
 
 return GamepadHintsLogic

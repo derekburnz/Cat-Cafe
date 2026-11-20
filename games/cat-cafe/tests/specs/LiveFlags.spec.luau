@@ -142,6 +142,7 @@ return function()
 						key == "tradeFish"
 							or key == "nightCatch"
 							or key == "perfectFlagged" -- #5379
+							or key == "decorNoBang" -- #5574
 							or key == "loadingScreen"
 							or key == "walkUpCarry" -- #5415
 							or key == "goldenDrops"
@@ -268,7 +269,6 @@ return function()
 							or key == "rankOneTap" -- #5533
 							or key == "chipPickedWord" -- #5406
 							or key == "bowlWalkQuiet" -- #5436
-							or key == "decorNoBang" -- #5574
 							or key == "tameCannonPoint" -- #5245
 							or key == "parkLead" -- #5248
 							or key == "promptsAfter5" -- #5251

@@ -2758,6 +2758,14 @@ end
 -- Messages
 ----------------------------------------------------------------------------------------------------
 
+-- #5550: a short banner with a cat's face in the toast stack (Toasts.cat): no dim and nothing held; card.tapCloses
+-- puts it away on a tap. The quick Cat Companion unlocked line.
+function UI.catBanner(card: any)
+	if toasts then
+		toasts:cat(card)
+	end
+end
+
 -- `seconds` (optional) keeps the toast up that long in place of the usual 2.4 s.
 function UI.toast(text: string, kind: Types.ToastKind?, seconds: number?)
 	-- a bug report waiting on the server: its "Thanks!" closes the window, its refusals keep the words, and any

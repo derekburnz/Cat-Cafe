@@ -4261,6 +4261,9 @@ end
 -- (UI.calmForMoment) for CALM seconds, and tries again while play refuses (another of the effects' cutscenes). Tiers
 -- only go up, so a rank up through it comes once per account; a rejoin above it plays nothing.
 local TRADE_UNLOCK = { FIRST_WAIT = 4, CALM = 1.5, STEP = 0.25, GIVE_UP = 600 }
+-- #5550 (Derek 2026-11-20 13:21 UTC: "make the trade unlocked faster"): with Motion-FX's cutsQuick switch on (#5554,
+-- its replicated attribute) the moment starts sooner after the rank up; it still waits for a calm screen
+local TRADE_QUICK = { FIRST_WAIT = 1.5, CALM = 0.8 }
 local tradeUnlockQueued = false
 
 function UIController.tradeUnlock(from: number, to: number)
@@ -4277,7 +4280,9 @@ function UIController.tradeUnlock(from: number, to: number)
 	task.spawn(function()
 		local TradeUnlock = require(script.Parent.Parent.Effects.TradeUnlock) :: any
 		local ui: any = UI
-		task.wait(TRADE_UNLOCK.FIRST_WAIT)
+		local fast = ReplicatedStorage:GetAttribute("LiveFlag_cutsQuick") == true
+		local calm = if fast then TRADE_QUICK.CALM else TRADE_UNLOCK.CALM
+		task.wait(if fast then TRADE_QUICK.FIRST_WAIT else TRADE_UNLOCK.FIRST_WAIT)
 		local calmSince: number? = nil
 		local started = os.clock()
 		while os.clock() - started < TRADE_UNLOCK.GIVE_UP do
@@ -4285,7 +4290,7 @@ function UIController.tradeUnlock(from: number, to: number)
 				calmSince = nil
 			elseif calmSince == nil then
 				calmSince = os.clock()
-			elseif os.clock() - (calmSince :: number) >= TRADE_UNLOCK.CALM then
+			elseif os.clock() - (calmSince :: number) >= calm then
 				-- Derek 2026-11-18 13:05 UTC ("remove the pointing and dimming for trade unlocked asap"): no spotlight on
 				-- the tile after the moment (#5158's tradeSpot is gone)
 				if TradeUnlock.play(ui.tradeTile(), nil) then

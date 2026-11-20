@@ -31,6 +31,7 @@ return function()
 
 		it("says how to reach the menu with nothing open", function()
 			expect(words(Logic.keys(view({})))).to.equal("Select Menu")
+			expect(words(Logic.keys(view({ menuKey = true })))).to.equal("Y Menu") -- #5624 padHud
 		end)
 
 		it("says select and walk on the HUD's menu grid", function()

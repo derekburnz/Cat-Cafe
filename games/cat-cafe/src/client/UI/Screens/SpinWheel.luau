@@ -43,6 +43,7 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local SkipFocus = require(script.Parent.Parent.Components.SkipFocus) -- #5624
 local SkipKeys = require(script.Parent.Parent.Components.SkipKeys)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
@@ -1572,7 +1573,7 @@ function SpinWheel._refresh(self: any)
 	self._skipTap.Visible = turn ~= nil
 	self._skipHint.Visible = turn ~= nil and turn.skippable
 	if self._skipHint.Visible then
-		self._skipHint.Text = SpinLogic.skipHint(UserInputService:GetLastInputType().Name) -- #2871
+		self._skipHint.Text = SkipFocus.hint(UserInputService:GetLastInputType().Name) -- #2871
 	end
 	local button = SpinLogic.button({
 		turning = turn ~= nil or chain ~= nil, -- #3157: between two rolls of the chain too

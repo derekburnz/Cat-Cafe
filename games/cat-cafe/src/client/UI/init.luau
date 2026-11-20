@@ -2164,6 +2164,20 @@ function UI.init(config: Types.InitConfig)
 				if visible and input.KeyCode == Enum.KeyCode.ButtonSelect then
 					UI.gamepadSelect()
 					return
+				elseif
+					-- #5624 (padHud; Derek: Share is hard to reach on a PS4): Triangle (ButtonY) does what Select does,
+					-- unless the Tackle bar is up outside a window (Triangle is its key there)
+					visible
+					and input.KeyCode == Enum.KeyCode.ButtonY
+					and ReplicatedStorage:GetAttribute("LiveFlag_padHud") == true
+					and (
+						modalInstance:current() ~= nil
+						or tackleBar == nil
+						or not (tackleBar :: any).screenGui.Enabled
+					)
+				then
+					UI.gamepadSelect()
+					return
 				elseif visible and input.KeyCode == Enum.KeyCode.ButtonB then
 					-- #4224: B goes back one step: the top card or sub page first, then the window, and with
 					-- nothing open it lets go of the selection so the sticks walk again

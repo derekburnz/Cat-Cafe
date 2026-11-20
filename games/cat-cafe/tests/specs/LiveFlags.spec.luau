@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, luckyCharm, introSplit, parkGateTrail, rareCustomers, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion, giftCard, storeGuard, noIntro, fxOneAdded, rankUpRightAway, parkRingEarly, tier3Path, parkTrailBack, areaOnly, cafeGrows, palDay, fxAfterLoad, tomorrowCard, cannonCue, harvestPieLow, tablesSpread, strayWalkSlow, stationCut, firstRankLock, likeAskEarly and nightSlice alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, luckyCharm, introSplit, parkGateTrail, rareCustomers, updateFeature, starterSuggest, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, autoBowl, mailbox, fusion, giftCard, storeGuard, noIntro, fxOneAdded, rankUpRightAway, parkRingEarly, tier3Path, parkTrailBack, areaOnly, cafeGrows, palDay, fxAfterLoad, tomorrowCard, cannonCue, harvestPieLow, tablesSpread, strayWalkSlow, stationCut, firstRankLock, likeAskEarly and nightSlice alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -153,19 +153,13 @@ return function()
 							or key == "ticketBooth"
 							or key == "dragonKeep"
 							or key == "rareCustomers"
-							or key == "dailyDeal"
 							or key == "starterSuggest"
 							or key == "updateFeature"
-							or key == "adminEvents"
-							or key == "secretAreas"
 							or key == "autoBowl"
 							or key == "padControls"
 							or key == "afkButton" -- #4346
-							or key == "tier8" -- #3997
-							or key == "tier9" -- #4070
 							or key == "cannonReturnNow" -- #5417
 							or key == "areasKept" -- #5381
-							or key == "tier10" -- #4184
 							or key == "areasKeptBig" -- Sync 2026-11-19
 							or key == "deviceFixes"
 							or key == "areasKeptRecent" -- Derek 2026-11-19

@@ -1047,7 +1047,7 @@ local function spawnAt(
 			rng:NextNumber(),
 			rng:NextNumber(),
 			true,
-			if M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil,
+			{ areaId }, -- #4221 (secretAreas retired, #4656)
 			Catching.secretShare(nil, M.LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)) -- #5418
 		)
 		else nil
@@ -1936,9 +1936,8 @@ local function huntTick()
 	then
 		return
 	end
-	-- #4221: with secretAreas on each area hides only its own Secret, so the hunt picks among the open areas that
-	-- have one and spawns that area's Secret there
-	local perArea = M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
+	-- #4221: each area hides only its own Secret, so the hunt picks among the open areas that have one and spawns
+	-- that area's Secret there (the secretAreas switch is retired, #4656)
 	local own: { [string]: { Types.CatDef } } = {}
 	for _, secretDef in M.Catalog.secretCats do
 		local home = secretDef.secretArea
@@ -1959,7 +1958,7 @@ local function huntTick()
 					tier >= areaDef.tier
 					and not seen[areaDef.id]
 					and world.areas[areaDef.id] ~= nil
-					and (not perArea or own[areaDef.id] ~= nil)
+					and own[areaDef.id] ~= nil
 				then
 					seen[areaDef.id] = true
 					table.insert(open, areaDef.id)
@@ -1975,7 +1974,7 @@ local function huntTick()
 	if point == nil then
 		return -- that area is full; another next second
 	end
-	local choices: { Types.CatDef } = if perArea then own[areaId] else M.Catalog.secretCats
+	local choices: { Types.CatDef } = own[areaId]
 	local def = choices[rng:NextInteger(1, #choices)]
 	local stray = spawnStray(def, areaId, world.areas[areaId].spawnPoints[point].Position, point)
 	stray.model:SetAttribute(HUNT_ATTRIBUTE, true)

@@ -293,7 +293,7 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 			rng:NextNumber(),
 			rng:NextNumber(),
 			true,
-			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaDef.id } else nil,
+			{ areaDef.id }, -- #4221 (secretAreas retired, #4656)
 			Catching.secretShare(nil, LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)) -- #5418
 		)
 		else nil

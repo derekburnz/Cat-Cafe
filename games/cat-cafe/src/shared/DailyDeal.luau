@@ -1,7 +1,7 @@
 --!strict
 -- #3996 (Design-Agent's todays-deal-3996.md, from Growth-Agent's proposal): Today's Deal, one small fixed R$25 pack
--- on the Store's Featured tab that changes each UTC day, once per player a day, from Tier 2, behind the dailyDeal
--- switch. #4238 (Derek 2026-11-14: "make sure they don't do any potion packs ... make sure they are actually good
+-- on the Store's Featured tab that changes each UTC day, once per player a day, from Tier 2 (its dailyDeal
+-- switch is retired, #4656). #4238 (Derek 2026-11-14: "make sure they don't do any potion packs ... make sure they are actually good
 -- stuff like 10 of the gold crates from your best area, trait tokens and 250 gold fish"): no potions in any deal.
 -- Deal 1's golden fish are not random. Deal 2's Trait Tokens (rolls) and the golden crates of deals 3 and 4 (a decor
 -- piece by odds) are paid random items: the token deal shows only where the token bundles may be (traitBundles on,
@@ -16,7 +16,6 @@ local Types = require(script.Parent.Types)
 
 local DailyDeal = {}
 
-DailyDeal.FLAG = "dailyDeal"
 DailyDeal.MIN_TIER = 2
 DailyDeal.TOKEN_DEAL = 2
 DailyDeal.FALLBACK = 1
@@ -71,8 +70,7 @@ function DailyDeal.boughtOn(profile: Types.PlayerProfile, day: number): boolean
 	return profile.dealDay == day
 end
 
--- PlayerState.dailyDeal: today's deal, whether it was bought today and tomorrow's, or false below MIN_TIER (the switch
--- is the caller's).
+-- PlayerState.dailyDeal: today's deal, whether it was bought today and tomorrow's, or false below MIN_TIER.
 function DailyDeal.view(
 	profile: Types.PlayerProfile,
 	now: number,

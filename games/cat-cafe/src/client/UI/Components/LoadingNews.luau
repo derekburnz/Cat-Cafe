@@ -29,9 +29,7 @@ LoadingNews.ENTRIES = {
 	{
 		key = "worlds",
 		title = "3 New Worlds",
-		line = "Snowy, Water Park and Castle",
-		at = 1794772800, -- Sunday 2026-11-15 20:00 UTC
-		flags = { "tier8", "tier9", "tier10" }, -- LateTiers.TOGETHER: all three open at once
+		line = "Snowy, Water Park and Castle", -- out since 2026-11-15 20:00 UTC (#4656: no switch)
 		back = "BFE6FF",
 		image = "rbxassetid://131886724226249", -- #5114 (assets/cat-cafe/ui/loading-news)
 		tiles = {
@@ -63,9 +61,7 @@ LoadingNews.ENTRIES = {
 	{
 		key = "secret",
 		title = "10 Secret Cats",
-		line = "Hidden in every area. Can you find them?",
-		at = 1794799800, -- Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET)
-		flags = { "secretAreas" },
+		line = "Hidden in every area. Can you find them?", -- out since 2026-11-16 03:30 UTC (#4656: no switch)
 		back = "3A2F4A",
 		image = "rbxassetid://75023525829478", -- #5114 (assets/cat-cafe/ui/loading-news)
 		secret = true,

@@ -65,8 +65,7 @@
 --   gives the toucher and every player within ADMIN.crateShareStuds a golden crate of their best area, at most
 --   ADMIN.crateCap a player an event (AdminDropService). Both are switches like traitParty.
 -- An admin record runs ADMIN.minSeconds to ADMIN.maxSeconds and never overlaps another admin record (the later one
--- is dropped, with a note); it needs at least one admin effect. Everything waits behind the LiveFlags switch
--- ADMIN.flag (EventService), off by default.
+-- is dropped, with a note); it needs at least one admin effect. Its LiveFlags switch `adminEvents` is retired (#4656).
 --   adminCurrent(list, now) -> AdminEvent?        the admin event running at `now`
 --   adminShown(list, now) -> AdminEvent?          that one, else one starting within ADMIN.warnSeconds (the warning)
 --   adminEffectsData(event) / adminEffectsJson(event)   its effects, and as JSON the AdminEventEffects attribute
@@ -110,7 +109,6 @@ CafeEvents.ADMIN_ATTRIBUTES = {
 	running = "AdminEventRunning",
 }
 CafeEvents.ADMIN = {
-	flag = "adminEvents", -- the LiveFlags switch
 	minSeconds = 60,
 	maxSeconds = 3600,
 	warnSeconds = 120, -- the warning banner goes up this long before the start

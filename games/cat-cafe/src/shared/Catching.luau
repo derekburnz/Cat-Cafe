@@ -265,9 +265,8 @@ end
 -- Luck did to the odds, and every other rarity keeps its chance.
 -- #4221: `areas` lists the areas the Mythical was rolled for (a wild stray's or a trap's one area, a bait bowl's
 -- open areas), and only those areas' own Secrets (`secretArea`) can turn up. No Secret lives there: nil, and the
--- Mythical stays. Left out, every Secret but the seven `secretNew` ones can (the old rule). The services pass it only
--- while `secretAreas` is on.
-Catching.SECRET_AREAS_FLAG = "secretAreas"
+-- Mythical stays. Left out, every Secret but the seven `secretNew` ones can (the old rule). The services always pass
+-- it since the `secretAreas` switch was retired (#4656).
 -- #5418 (Derek 2026-11-19: "increase secret rates by 2x"): with secretDouble on, every share of rolled Mythicals that
 -- turns Secret is twice as big (1 in 100 becomes 1 in 50, the Eclipse Treat's 1 in 10 becomes 1 in 5). The servers
 -- roll with secretShare and every odds card shows it (Components/FoodOdds), so the shown odds stay the real ones.

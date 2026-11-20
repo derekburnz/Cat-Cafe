@@ -151,8 +151,8 @@ function AdminWheel.spun(redeemed: { [string]: number }, event: CafeEvents.Admin
 	return AdminWheel.used(redeemed, event) >= AdminWheel.spins(event)
 end
 
--- PlayerState.adminWheel: the wheel that is up now and whether this account has spun it; nil with the adminEvents
--- switch off (`on`), no admin event, or one without the wheel.
+-- PlayerState.adminWheel: the wheel that is up now and whether this account has spun it; nil with `on` false
+-- (the services pass true since the adminEvents switch was retired), no admin event, or one without the wheel.
 function AdminWheel.view(
 	redeemed: { [string]: number },
 	event: CafeEvents.AdminEvent?,

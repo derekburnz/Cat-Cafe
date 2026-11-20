@@ -1682,8 +1682,7 @@ export type PlayerState = {
 	mysterySeen: boolean,
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' colour picks, nil for the built ones
-	-- #3996: Today's Deal (DailyDeal.view): today's deal number, bought today, tomorrow's; false below Tier 2 or while
-	-- the dailyDeal switch is off
+	-- #3996: Today's Deal (DailyDeal.view): today's deal number, bought today, tomorrow's; false below Tier 2
 	dailyDeal: DailyDealView | false,
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	-- #4055: the Store's golden fish prices (FishStore.view), nil while the fishStore switch is off

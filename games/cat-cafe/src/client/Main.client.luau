@@ -133,7 +133,7 @@ ParkFirstController.start() -- #2915: the first Park landing toast and the stray
 CafeGrewController.start() -- #4543: "Your cafe grew!" on the Rank Up card, after the UI
 ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
 RankSpotController.start() -- #3555: the first rank up's walk-through, behind rankUpSpotlight
-AdminEventController.start() -- #4195: the admin event's banner, timer and the Admin Wheel, behind adminEvents
+AdminEventController.start() -- #4195: the admin event's banner, timer and the Admin Wheel
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
 BinController.start() -- #3050: the Rummage Bin's prompt and look, after the UI
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client

@@ -2,8 +2,8 @@
 -- #5171 (Derek 2026-11-17 23:55 UTC: "add a good cat (maybe a secret) low rates to the spin wheel"): behind the
 -- `spinCat` switch (LiveFlags, off by default) the Spin Wheel gets a ninth slice that gives a Secret cat, weight 0.5
 -- of 200 (0.25%), taken from slice 1's small coins so every other prize keeps its chance. Spin luck does not lift it.
--- The cat is Lucky Clover, or Cafe Ghost while the `secretAreas` switch is off, so the wheel never gives a cat that
--- cannot be found yet. Both sides follow the two switches' ReplicatedStorage attributes and set the slice on Spin
+-- The cat is Lucky Clover (Cafe Ghost was its stand-in before the one-per-area Secrets; their `secretAreas` switch is
+-- retired, #4656). Both sides follow the switch's ReplicatedStorage attribute and set the slice on Spin
 -- (Spin.setCat), so the server's pick and the window's wheel and Odds list agree.
 --
 -- Money rules (monetization-policy): spins are free only. If spins are ever sold for Robux this slice must come off
@@ -18,11 +18,10 @@ local Types = require(script.Parent.Types)
 local SpinCat = {}
 
 SpinCat.FLAG = "spinCat"
-SpinCat.SECRETS_FLAG = "secretAreas"
 SpinCat.SLICE = 9
 SpinCat.WEIGHT = 0.5 -- of 200: 0.25%
 SpinCat.CAT = "lucky_clover"
-SpinCat.FALLBACK = "cafe_ghost" -- while secretAreas is off
+SpinCat.FALLBACK = "cafe_ghost" -- catFor(false), kept for the specs
 
 -- The cat the slice gives: Lucky Clover with the one-per-area Secrets on, else Cafe Ghost.
 function SpinCat.catFor(secretsOn: boolean): string
@@ -64,7 +63,7 @@ local following = false
 local lastKey: string? = nil
 
 local function apply()
-	local row = SpinCat.rowFor(SpinCat.on(), shown(SpinCat.SECRETS_FLAG))
+	local row = SpinCat.rowFor(SpinCat.on(), true)
 	local key = if row ~= nil then row.catId or "" else nil
 	if key == lastKey and following then
 		return
@@ -73,17 +72,15 @@ local function apply()
 	Spin.setCat(row)
 end
 
--- Sets the slice now and each time either switch flips. Safe to call more than once.
+-- Sets the slice now and each time the switch flips. Safe to call more than once.
 function SpinCat.follow()
 	apply()
 	if following then
 		return
 	end
 	following = true
-	for _, key in { SpinCat.FLAG, SpinCat.SECRETS_FLAG } do
-		ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. key)
-			:Connect(apply)
-	end
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. SpinCat.FLAG)
+		:Connect(apply)
 end
 
 return SpinCat

@@ -155,6 +155,7 @@ QuestService.start() -- F73: after the services whose counters its quests read
 PotionService.start()
 ShoveService.start()
 QuietStartService.start() -- #4005: a new player's quiet start, before DataService (onLoaded)
+require(script.Parent.Services.StartGoalService).start() -- #5533 goalChip: the play first start's two first goals
 NameService.start()
 TipJarService.start()
 DailyTreatService.start()

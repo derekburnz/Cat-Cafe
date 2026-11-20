@@ -158,6 +158,14 @@ local function refuse(player: Player, destination: string, reason: string)
 	Net.fire(player, "CannonLaunch", destination, nil)
 end
 
+-- #5533 cannonGlow (shared/CannonGlow): a launch to, or a landing in, the glowing area ends the glow
+local function clearGlow(player: Player, destination: string)
+	local CannonGlow = require(ReplicatedStorage.Shared.CannonGlow) :: any
+	if CannonGlow.clears(player:GetAttribute(CannonGlow.ATTR), destination) then
+		player:SetAttribute(CannonGlow.ATTR, nil)
+	end
+end
+
 local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestination: unknown)
 	local cannonId, destination = Guard.id(rawCannonId), Guard.id(rawDestination)
 	local profile = DataService.get(player)
@@ -236,6 +244,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonLaunchAt", now)
 	flyer:SetAttribute("CannonFrom", cannonId)
 	flyer:SetAttribute("CannonTo", destination)
+	clearGlow(player, destination) -- #5533 cannonGlow: the first flight there ends the glow
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	-- Derek 2026-11-18 (areaWhole): the destination area starts streaming in whole now, during the flight
@@ -315,6 +324,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		landedAt[player] = serverNow()
 		NightService.landed(player) -- a flight into an area that lands after night start is swept at once
 		local lander = if area ~= nil then DataService.get(player) else nil
+		clearGlow(player, destination) -- #5533 cannonGlow: arrived
 		if lander ~= nil then
 			Telemetry.cleanEvent(player, lander, Telemetry.arrivedEvent(destination)) -- #4504: arrived
 			Telemetry.tripArrived(player, destination) -- #4544
@@ -535,6 +545,7 @@ function CannonService.landOnPad(player: Player, destination: string): boolean
 		return false
 	end
 	character:PivotTo(landing)
+	clearGlow(player, destination) -- #5533 cannonGlow: arrived
 	return true
 end
 

@@ -924,6 +924,78 @@ function Onboarding.cleanFurthest(state: Types.TelemetryState, v8: boolean?): st
 	return Onboarding.CLEAN_STEPS[step] or "none"
 end
 
+-- #5533 v2 (Design-Agent's new-start-v2-spec.md): `onboarding_v10`, the play first start's milestones, not steps. Logged
+-- in place of v7 and v9 for a save on that start (telemetry.freeStart), its place in telemetry.cleanV10Step. As in the
+-- clean funnel, a done step proves the ones before it; first_catch and park_arrived are moments (`event`), counted only
+-- where the save stands. The time alive (60 s, 3 and 5 minutes) is first_hour_v3's, whose field 3 reads "free" for these
+-- saves (Telemetry's grouped), and the seconds to the first catch go out as free_start with field "first_catch".
+Onboarding.V10_FUNNEL = "onboarding_v10"
+Onboarding.V10_STEPS = {
+	"joined",
+	"loaded",
+	"first_catch", -- a cat in hand by net (event netCatch)
+	"first_home", -- a cat caught by hand checked in (camp or door)
+	"catches_3", -- three caught by hand and checked in
+	"rank_ready", -- Tier 2's Rank Up ready, or done
+	"tier_2",
+	"park_arrived", -- landed in the Park (event)
+	"park_catch", -- a Park cat caught, at Tier 2 or over
+	"tier_3",
+} :: { string }
+Onboarding.V10_COUNT = #Onboarding.V10_STEPS
+
+-- What v10 reads besides the ledger: the cafe's tier, the cats caught by hand and checked in, whether a Park cat was
+-- caught, and whether the next tier's Rank Up is ready now.
+export type V10Facts = { tier: number, handCats: number, parkCatch: boolean, nextReady: boolean }
+
+local V10_EVENTS: { [number]: string } = { [3] = "net_catch", [8] = "arrived_park" }
+
+-- Whether v10 step `step` (not an event step) is done.
+local function v10Done(state: Types.TelemetryState, step: number, facts: V10Facts): boolean
+	if step == 1 then
+		return Onboarding.reached(state, "joined")
+	elseif step == 2 then
+		return Onboarding.reached(state, "loaded")
+	elseif step == 4 then
+		return facts.handCats >= 1
+	elseif step == 5 then
+		return facts.handCats >= 3
+	elseif step == 6 then
+		return facts.tier >= 2 or (facts.tier == 1 and facts.nextReady)
+	elseif step == 7 then
+		return facts.tier >= 2
+	elseif step == 9 then
+		return facts.parkCatch and facts.tier >= 2
+	elseif step == 10 then
+		return facts.tier >= 3
+	end
+	return false
+end
+
+-- The v10 step numbers to log now, in order, for a save at `logged` with `event` the moment now (nil for none). Pure.
+function Onboarding.v10Due(
+	state: Types.TelemetryState,
+	logged: number,
+	facts: V10Facts,
+	event: string?
+): { number }
+	local base = math.max(0, logged)
+	for step = Onboarding.V10_COUNT, base + 1, -1 do
+		if V10_EVENTS[step] == nil and v10Done(state, step, facts) then
+			base = step
+			break
+		end
+	end
+	if event ~= nil and V10_EVENTS[base + 1] == event then
+		base += 1
+	end
+	local out: { number } = {}
+	for step = math.max(0, logged) + 1, base do
+		table.insert(out, step)
+	end
+	return out
+end
+
 -- Where a save that never had the clean funnel starts it: out of it (CLEAN_COUNT) once the ledger shows a first
 -- catch, since the funnel counts only players who start on it; else 0, from joined.
 function Onboarding.cleanStart(state: Types.TelemetryState): number

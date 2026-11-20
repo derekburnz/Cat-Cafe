@@ -121,6 +121,9 @@ export type CustomEvent =
 	| "bin_roll" -- #3608: the Rummage Bin chose a prize before the bar (value 1; fields: row id, "roll" or "fixed")
 	| "net_ping" -- #3661 (shared/NetPing): a session's ping in ms, once (fields: device, band)
 	| "intro_group" -- #3666 (shared/IntroSplit): a new save joined the intro test (value 1; field: its group)
+	| "free_start" -- #5533 (shared/FreeStart): a new save joined the play first start (value 1; field "joined"), or
+	-- its first net catch (value: play seconds; field "first_catch", onboarding_v10)
+	| "start_goal" -- #5533 goalChip: one of its two first goals paid (value: FreeStart.PAID_CAUGHT or PAID_HOME)
 	| "holdout_group" -- #5499 (shared/Holdout): a new save joined the holdout (value 1; field: "holdout" or "live")
 	| "order_group" -- #5498 (shared/TutorialOrder): a new save joined the walk-through order test (value 1; field: its arm)
 	| "cat_pet" -- #3651 (shared/Pet): a cat was petted (value 1; field: first, same or moved)
@@ -1043,7 +1046,13 @@ local function grouped(profile: Profile, fields: { string }): { string }
 	-- #5499: and a save in neither carries its holdout group ("holdout" or "live"); a held save is never in the order test.
 	-- Both come ahead of introGroup: every new save still takes intro_short (#4252), which hid them (Sync 2026-11-20)
 	local state = profile.telemetry
-	return IntroSplit.fields(state.orderGroup or state.holdout or state.introGroup, fields)
+	-- #5533: a save on the play first start reads "free" there, ahead of its catch first arm
+	return IntroSplit.fields(
+		if state.freeStart == true
+			then "free"
+			else state.orderGroup or state.holdout or state.introGroup,
+		fields
+	)
 end
 
 -- #3666 (shared/IntroSplit): a new save joins the intro test once, before its first sync and its first funnel step,
@@ -1101,7 +1110,7 @@ function Telemetry.orderJoin(player: Player, profile: Profile)
 	then
 		state.freeStart = true
 		state.orderGroup = TutorialOrder.CATCH
-		Telemetry.custom(player, FreeStart.EVENT, 1, {}) -- FreeStart.EVENT
+		Telemetry.custom(player, FreeStart.EVENT, 1, { "joined" }) -- FreeStart.EVENT
 	end
 	player:SetAttribute(FreeStart.ATTR, if state.freeStart == true then true else nil)
 	if
@@ -1241,12 +1250,54 @@ local function logCleanV7(player: Player, profile: Profile, areas: { [string]: b
 	end
 end
 
+-- #5533: onboarding_v10, for a save on the play first start (Onboarding.v10Due). The step that logs first_catch also
+-- sends free_start with that save's play seconds and field "first_catch".
+local function logCleanV10(
+	player: Player,
+	profile: Profile,
+	areas: { [string]: boolean },
+	event: string?
+)
+	local state = profile.telemetry
+	local logged = state.cleanV10Step or 0
+	if logged >= Onboarding.V10_COUNT then
+		return
+	end
+	saveAreas(profile, areas) -- a Park cat from bait never passes caughtIn
+	local caught: unknown, tamed: unknown = profile.stats.catsCaught, profile.stats.baitsTamed
+	local tier = Economy.tier(profile)
+	local facts: Onboarding.V10Facts = {
+		tier = tier,
+		handCats = if type(caught) == "number"
+			then caught - (if type(tamed) == "number" then tamed else 0)
+			else 0,
+		parkCatch = areas.park == true,
+		nextReady = tier == 1 and Economy.rankUpBlocker(profile) == nil,
+	}
+	for _, step in Onboarding.v10Due(state, logged, facts, event) do
+		state.cleanV10Step = step
+		sendClean(player, profile, Onboarding.V10_FUNNEL, step, Onboarding.V10_STEPS[step])
+		if step == 3 then
+			Telemetry.custom(
+				player,
+				"free_start",
+				math.floor(PlayTime.seconds(player, profile)),
+				{ "first_catch" }
+			)
+		end
+	end
+end
+
 local function logClean(player: Player, profile: Profile, event: string?)
 	local session = sessions[player]
 	if session == nil or session.areasCaught == nil then
 		return -- joined is not logged yet (logJoined calls this once the session is set up)
 	end
 	local areas: { [string]: boolean } = session.areasCaught
+	if profile.telemetry.freeStart == true then
+		logCleanV10(player, profile, areas, event) -- #5533
+		return
+	end
 	if not Onboarding.v8On(player) then
 		logCleanV7(player, profile, areas)
 		return

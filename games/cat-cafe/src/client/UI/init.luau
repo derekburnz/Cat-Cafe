@@ -4929,6 +4929,16 @@ function UI.cannon.open(cannonId: string?)
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
 		)
 	)
+	-- #5533 cannonGlow (shared/CannonGlow): after a rank up that opens an area, the first walk in flies straight there
+	if direct == nil then
+		local CannonGlow =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CannonGlow")) :: any
+		direct = CannonGlow.direct(
+			CannonGlow.on(),
+			game:GetService("Players").LocalPlayer:GetAttribute(CannonGlow.ATTR),
+			cannonId or CannonLogic.TOWN
+		)
+	end
 	if direct ~= nil and not UI.cannon.direct.off then
 		UI.cannon.direct.pending = true
 		UI.events.launchCannon:Fire(cannonId or CannonLogic.TOWN, direct)

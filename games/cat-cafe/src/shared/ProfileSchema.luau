@@ -949,6 +949,11 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	telemetry.cleanV9Step = if type(cleanV9Step) == "number"
 		then math.clamp(asInt(cleanV9Step, 0), 0, Onboarding.CLEAN_COUNT)
 		else Onboarding.cleanStart(telemetry)
+	-- #5533: onboarding_v10 (cleanV10Step), only for a save on the play first start; nil reads as 0
+	local cleanV10Step = value.cleanV10Step
+	telemetry.cleanV10Step = if type(cleanV10Step) == "number"
+		then math.clamp(asInt(cleanV10Step, 0), 0, Onboarding.V10_COUNT)
+		else nil
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"
 		then math.clamp(asInt(playtimeStep, 0), 0, Onboarding.PLAYTIME_COUNT)

@@ -1384,6 +1384,7 @@ export type TelemetryState = {
 	cleanV8Step: number?,
 	-- Derek 2026-11-17 15:18 UTC: onboarding_v9 (Onboarding.CLEAN_STEPS) the same way; v8 is no longer logged
 	cleanV9Step: number?,
+	cleanV10Step: number?, -- #5533: onboarding_v10, a play first start save's furthest step (nil before it)
 	-- #5291 (shared/MilestoneFunnel): the milestones_v1 steps logged, as a bit mask (step n is bit n - 1); -1 for a
 	-- save that is out of it, nil before Telemetry first sees the save with the switch on. Optional, so no save version
 	milestoneMask: number?,
@@ -1455,6 +1456,9 @@ export type ReturnHookView = { kind: string, day: number? }
 -- amount and hours for "away" (about this many coins while away, counted up to this many hours)
 -- #3022 (shared/SecondCat): the cafe's coins a second now and with one more plain Common working an open slot (equal
 -- when no slot is free, as in a new Tier 1 cafe), the cats checked in so far, and the coins a new kind of Common pays.
+-- #5533 goalChip: the play first start's two first goals ("Catch a cat +100", "Take it to camp +100")
+export type StartGoalsView = { caught: boolean, home: boolean }
+
 export type SecondCatView = { now: number, with: number, cats: number, bonus: number }
 
 export type ReturnGoalView = {
@@ -1729,6 +1733,9 @@ export type PlayerState = {
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
 	secondCat: SecondCatView?,
+	-- #5533 goalChip (shared/FreeStart.goals): a play first start save's two first goals below Tier 3, done or not; nil
+	-- otherwise, with the switch off and from an older server
+	startGoals: StartGoalsView?,
 	-- #5031: Tier 2's cats still to get after the first check-in (shared/RankUpRightAway.catsShort), 0 once met; nil
 	-- with the rankUpRightAway switch off and from an older server
 	rankUpShort: number?,

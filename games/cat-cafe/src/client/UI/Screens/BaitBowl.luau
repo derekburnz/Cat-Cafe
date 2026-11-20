@@ -464,7 +464,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 		Parent = oddsCard,
 	})
 	local perks: { TextLabel } = {}
-	for index = 1, 3 do
+	for index = 1, 4 do -- #5606: the fourth only with bowlPassOptions
 		perks[index] = text({
 			Name = "Perk" .. tostring(index),
 			AutomaticSize = Enum.AutomaticSize.Y,
@@ -1452,6 +1452,12 @@ function BaitBowl._renderPerks(self: any, luck: number)
 				)
 				else "Same foods and odds as bowl 1"
 		)
+	-- #5606 (Derek 2026-11-20: "add to the second bait bowl notes in the what you get menu to have the options for auto
+	-- refill/claim unlock also be there", switch bowlPassOptions): with bowlTicks (#5263) the pass brings them
+	local options = ReplicatedStorage:GetAttribute("LiveFlag_bowlPassOptions") == true
+		and ReplicatedStorage:GetAttribute("LiveFlag_bowlTicks") == true
+	perks[4].Text = PERK_MARK .. "Bowl options: auto refill and auto claim"
+	perks[4].Visible = options
 end
 
 -- #1161: each tab's state, "Bowl 1 · 4m 10s", "Bowl 2 · Empty" or "Bowl 2 · Cat!", the chosen one in gold.

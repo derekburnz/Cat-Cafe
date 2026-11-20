@@ -295,6 +295,7 @@ return function()
 							or key == "pawsInFloor" -- #5471
 							or key == "guideArrow" -- #5465
 							or key == "lockedRingsHidden" -- #5463
+							or key == "bowlPassOptions" -- #5606
 							or key == "nightLineNoArrow" -- #5459
 							or key == "secretCompanionBig" -- #5431
 					).to.equal(true)

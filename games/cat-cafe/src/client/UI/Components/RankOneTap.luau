@@ -11,6 +11,7 @@
 local RankOneTap = {}
 
 RankOneTap.FLAG = "rankOneTap"
+RankOneTap.LOOK_FLAG = "rankTapLook" -- #5592: the button in the clean green button look (Screens/GoalCard)
 RankOneTap.GUARD = 0.4
 RankOneTap.REST = 1.5
 RankOneTap.TITLE = "RANK UP!"

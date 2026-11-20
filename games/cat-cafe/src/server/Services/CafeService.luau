@@ -440,7 +440,15 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		-- #5502: the advent calendar board, only while both switches are on (the dates still hold it shut till Dec 1)
 		advent = if LiveFlagService.on(Advent.FLAG) and LiveFlagService.on(Advent.EVENT_FLAG)
-			then Advent.view(Advent.fresh(profile.advent), os.time(), true, true)
+			then Advent.view(
+				Advent.fresh(profile.advent),
+				-- Sync's Studio look: AdventService's clock, which Studio may move (it requires this module)
+				if (CafeService :: any).adventNow ~= nil
+					then (CafeService :: any).adventNow()
+					else os.time(),
+				true,
+				true
+			)
 			else nil,
 		snowflakes = profile.snowflakes or 0, -- #5502: the Gift Stall's count
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut

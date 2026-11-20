@@ -31,6 +31,12 @@ function AdventService.now(): number
 	return os.time() + (if RunService:IsStudio() then studioOffset else 0)
 end
 
+-- CafeService's board view reads the same clock (it cannot require this module: this one requires it)
+do
+	local cafe: any = CafeService
+	cafe.adventNow = AdventService.now
+end
+
 function AdventService.setStudioOffset(seconds: number)
 	if RunService:IsStudio() then
 		studioOffset = seconds

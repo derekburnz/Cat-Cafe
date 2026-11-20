@@ -9,12 +9,14 @@
 -- - the pop, as Picnic Time starts (the ring claim, the player's own step): the lid swings open, a checked blanket
 --   rolls out beside the basket, three treats bounce onto it, confetti. About 1.5 s; the camera and controls are never
 --   touched. Joining or streaming in while Picnic Time runs lays it all out at once;
--- - each picnic cat sits still on its seat on the blanket (a local copy, anchored, touching nothing);
--- - the pack away as Picnic Time ends: treats and cats fade, the blanket rolls up, the lid shuts.
+-- - the blanket lies where shared/PicnicSeats puts it, so Gameplay's picnic strays (real server cats, still on its three
+--   seats until caught) stand on it; nothing here seats a cat;
+-- - the pack away as Picnic Time ends: the treats fade, the blanket rolls up, the lid shuts.
 -- Reduce Motion: no wobble and no bounce, the basket stands open with the blanket out. Low performance: no Highlight.
 --
 -- State (Gameplay-Engineer's, server decides, attributes on the LocalPlayer): PicnicReady (bool), PicnicNextAt and
--- PicnicEndsAt (server unix seconds, read against Workspace:GetServerTimeNow), PicnicCat1..3 (catId). Listening only:
+-- PicnicEndsAt (server unix seconds, read against Workspace:GetServerTimeNow; not set when Picnic Time goes to the bag,
+-- so no pop then). Listening only:
 -- no remotes. Model-Agent's blanket and treat models under ReplicatedStorage.Assets are used when they are there, with
 -- simple stand-ins until then. Timelines and words in Effects/PicnicLogic, numbers in Presets.picnicParty.
 
@@ -25,21 +27,16 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local Catalog = require(Shared:WaitForChild("Catalog"))
+local PicnicSeats = require(Shared:WaitForChild("PicnicSeats"))
 
 local Context = require(script.Parent.Context)
-local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local PicnicLogic = require(script.Parent.PicnicLogic)
 local Presets = require(script.Parent.Presets)
 
-type PoseModule = typeof(require(script.Parent.Pose))
-local Pose: PoseModule = nil :: any -- loads at the first seated cat
-
 local PicnicParty = {}
 
 local TAG = "CampExtra"
-local SEATS = 3
 
 local started = false
 
@@ -58,7 +55,6 @@ type Scene = {
 	words: TextLabel,
 	blanket: { root: BasePart, model: Model?, rolled: Model?, near: CFrame, width: number }?,
 	treats: { BasePart | Model },
-	cats: { [number]: Model },
 	popAt: number?, -- os.clock the pop began
 	packAt: number?, -- os.clock the pack away began
 	signAt: number, -- os.clock the words were last set
@@ -235,7 +231,6 @@ local function build(model: Model): Scene
 		words = words,
 		blanket = nil,
 		treats = {},
-		cats = {},
 		popAt = nil,
 		packAt = nil,
 		signAt = -math.huge,
@@ -264,14 +259,7 @@ end
 
 -- The blanket's near edge on the ground beside the basket, facing out along the station's right.
 local function blanketNear(at: Scene): CFrame
-	local p = Presets.picnicParty
-	local right = at.base.RightVector
-	local flat = Vector3.new(right.X, 0, right.Z)
-	flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(1, 0, 0)
-	local ground = at.frame.Position.Y - at.size.Y / 2
-	local side = math.max(at.size.X, at.size.Z) / 2 + p.blanket.gap
-	local from = Vector3.new(at.frame.Position.X, ground, at.frame.Position.Z) + flat * side
-	return CFrame.lookAt(from, from + flat)
+	return PicnicSeats.near(at.base)
 end
 
 -- The blanket: Model-Agent's model if it is in, else a flat part with checks on top.
@@ -418,50 +406,11 @@ local function drawTreats(at: Scene, flights: { number? })
 	end
 end
 
--- A picnic cat sits still at seat `n`.
-local function seat(at: Scene, n: number, catId: string)
-	local p = Presets.picnicParty
-	local ok, name = pcall(Catalog.catModelName, catId)
-	local source = if ok and type(name) == "string" then asset(name) else nil
-	if source == nil or at.blanket == nil then
-		return
-	end
-	local copy = inert(source :: Model)
-	copy.Name = "PicnicCat" .. n
-	if Pose == nil then
-		Pose = require(script.Parent.Pose) :: any
-	end
-	local rig = Pose.bind(copy)
-	local box, size = copy:GetBoundingBox()
-	local half = copy:GetPivot().Position.Y - (box.Position.Y - size.Y / 2)
-	local spot = onBlanket(at, p.seats[n], half)
-	local facing = spot * CFrame.Angles(0, math.rad(p.seatFace), 0)
-	copy:PivotTo(facing)
-	copy.Parent = Context.folder()
-	if rig ~= nil then
-		local rest = Pose.rest(rig)
-		local toFloor = copy:GetPivot():ToObjectSpace(Pose.floor(rig))
-		Pose.holdRest(rig, rest, copy:GetPivot() * toFloor)
-		Pose.draw(rig, Logic.idle("loaf", 0, rig.kind), -1)
-	end
-	at.cats[n] = copy
-	Particles.burst(
-		"dingSparkle",
-		spot.Position + Vector3.new(0, size.Y, 0),
-		p.pop.sparkles // 2,
-		p.glow.fill
-	)
-end
-
 local function clearParty(at: Scene)
 	for _, item in at.treats do
 		item:Destroy()
 	end
 	at.treats = {}
-	for _, cat in at.cats do
-		cat:Destroy()
-	end
-	at.cats = {}
 	local blanket = at.blanket
 	if blanket ~= nil then
 		if blanket.model ~= nil then
@@ -582,7 +531,7 @@ local function step()
 		drawSign(current, phase, now)
 	end
 
-	-- the party: pop, seated cats, pack away
+	-- the party: pop, pack away
 	if phase == "party" and current.blanket == nil then
 		openParty(current, was == "ready" or was == "waiting")
 	elseif phase ~= "party" and current.blanket ~= nil and current.packAt == nil then
@@ -604,22 +553,12 @@ local function step()
 		for _, item in current.treats do
 			fade(item, gone)
 		end
-		for _, cat in current.cats do
-			fade(cat, gone)
-		end
 		return
 	end
 	local lid, roll, flights = PicnicLogic.pop(clock - (current.popAt or -math.huge), false)
 	setLid(current.lid, lid)
 	setBlanket(current, PicnicLogic.easeOut(roll))
 	drawTreats(current, flights)
-	for n = 1, SEATS do
-		local catId = Players.LocalPlayer:GetAttribute("PicnicCat" .. n)
-		local sitting: Model? = current.cats[n]
-		if type(catId) == "string" and sitting == nil and roll >= 1 then
-			seat(current, n, catId)
-		end
-	end
 end
 
 function PicnicParty.start()

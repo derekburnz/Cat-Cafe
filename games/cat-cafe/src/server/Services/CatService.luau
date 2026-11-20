@@ -2809,7 +2809,11 @@ local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
 end
 
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
-	if stray.picnic == player.UserId then
+	-- Derek 2026-11-20 21:16 UTC ("the one cat in park area still has the slow catch that lets you one shot catch
+	-- them remove that", "happens multiple times inside park now"): with the switch parkCatchNormal on, no Park cat
+	-- gets the slow first catch circle, picnic cats included
+	local parkNormal = stray.area == M.Tier3Path.AREA and M.LiveFlagService.on("parkCatchNormal")
+	if stray.picnic == player.UserId and not parkNormal then
 		return true -- #5572: a picnic cat cannot be lost
 	end
 	if stray.waitsFor == player.UserId and Second.waitsForCat(profile) then
@@ -2818,7 +2822,7 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	if Second.parkWaits(player, profile, stray) then
 		return true -- #5038
 	end
-	if Street.easy(player, profile, stray) then
+	if not parkNormal and Street.easy(player, profile, stray) then
 		return true -- #5533 streetCats
 	end
 	-- #3662 (Derek 2026-11-12: "the first cat catch where it used to stop the circle and wait for you to click/guide

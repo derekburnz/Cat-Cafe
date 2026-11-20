@@ -8362,7 +8362,7 @@ Presets.tradeUnlock = {
 Presets.picnicParty = {
 	flag = "picnicParty",
 	extraId = "picnic",
-	wobble = { every = 3.5, seconds = 0.6, degrees = 6, wiggles = 2, lidShare = 2.5 }, -- the lid lifts up to 15 degrees
+	wobble = { every = 2.5, seconds = 0.7, degrees = 8, wiggles = 2, lidShare = 2.5 }, -- the lid lifts up to 20 degrees
 	lidSuffix = "_Lid", -- Model-Agent's #5580: the lid is the station's child model <station name>_Lid
 	glow = {
 		fill = Presets.palette.golden,
@@ -8377,8 +8377,9 @@ Presets.picnicParty = {
 		height = 58,
 		waitWidth = 170,
 		waitHeight = 40,
-		lift = 3,
-		maxDistance = 450,
+		lift = 4.5, -- over the player's head from the Park landing
+		maxDistance = 220, -- drawn on top of walls, so only from the Park itself
+		swell = 0.15, -- the ready sign grows this share at the top of each wobble
 		bob = 0.25, -- studs up and down
 		bobSeconds = 2.2,
 		gold = Presets.palette.golden,

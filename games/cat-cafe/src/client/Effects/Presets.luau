@@ -3135,6 +3135,7 @@ Presets.rankUp = {
 	fountainEvery = 0.3,
 	fountain = 12, -- gateSparkle particles in each
 	awayRoof = 10, -- #4922: away from the door the beam drops from this far over your feet
+	liteFlag = "rankFxLite", -- #5651: on, none of it plays
 }
 
 -- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
@@ -4066,6 +4067,23 @@ Presets.snowglobeFlakes = {
 	regrowCount = 5,
 	regrowColour = Color3.fromRGB(255, 255, 255),
 	popColour = Color3.fromRGB(143, 211, 255),
+	popSeconds = 1.4,
+}
+
+-- Christmas Event (Effects/GiftStallFx, #5641): a Gift Stall buy. When your Snowflakes go down within `within` studs of
+-- the stall (tag SnowglobeStall), `count` gold and `count` icy sparkles burst `lift` studs above it, a `ring` stud ring
+-- opens and `text` rises over your head for `popSeconds`.
+Presets.giftStallFx = {
+	flag = "christmasEvent",
+	tag = "SnowglobeStall",
+	within = 30,
+	lift = 4,
+	sparkle = "catchSparkle",
+	count = 12,
+	ring = 8,
+	gold = Color3.fromRGB(255, 214, 102),
+	icy = Color3.fromRGB(143, 211, 255), -- the Gift Stall's
+	text = "Gift wrapped!",
 	popSeconds = 1.4,
 }
 
@@ -5801,6 +5819,13 @@ Presets.clouds = {
 		tintFrom = 0.6,
 		tintTo = 1.0,
 	},
+	-- #5655 (Derek 2026-11-22: "make the cloud scenes ... a little longer it seems like they get a little laggy when
+	-- teleporting"), switch cloudsHold: the clouds stay fully over the screen `hold` seconds past the plan's part, then
+	-- on until the spot you landed on has streamed in (Player:RequestStreamAroundAsync), never more than `holdMost`
+	-- seconds in all. A move of `moved` studs is the landing (as for a hop).
+	holdFlag = "cloudsHold",
+	hold = 0.4,
+	holdMost = 1.5,
 	hopPuff = 12, -- smokePuff particles where onlookers see a player hop away and arrive
 	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
 }

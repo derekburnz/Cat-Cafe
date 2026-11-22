@@ -130,6 +130,11 @@ local function oneTapOn(): boolean
 	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.FLAG) == true
 end
 
+-- #5656: the rankChain switch (Components/RankOneTap), off by default
+local function chainOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.CHAIN_FLAG) == true
+end
+
 -- #5592 (Derek 2026-11-20: "make the big rankup button ready ui a bit better instead of just a big yellow box"): the
 -- rankTapLook switch, off by default. The button in the house's clean button look: a green face from a light top to
 -- a deeper bottom over a darker lip, a light bar along its top, a thick dark outline and a slow breath.
@@ -442,8 +447,13 @@ function GoalCard.new(
 		if self._tap then
 			local now = os.clock()
 			local rankUp = self._onRankUp
-			if rankUp ~= nil and RankOneTap.accepts(now, self._tapSince, self._tapFired) then
+			local counts = if chainOn()
+				then RankOneTap.acceptsChain(now, self._tapSince, self._tapFired, self._tapAnswered)
+				else RankOneTap.accepts(now, self._tapSince, self._tapFired)
+			if rankUp ~= nil and counts then
 				self._tapFired = now
+				self._tapFiredTier = self._shownTier -- #5656: the tier the card showed when this tap went
+				self._tapAnswered = nil
 				rankUp()
 			end
 			return
@@ -461,6 +471,17 @@ function GoalCard.new(
 		onOpen()
 	end)
 	return self :: GoalCard
+end
+
+-- #5656 (rankChain): the tier this render shows; once it is past the tier a counted tap was made at, that tap is
+-- answered (RankOneTap.acceptsChain lets the next one go a moment later).
+function GoalCard._noteTier(self: any, progress: RankUp.Progress?)
+	local tier = if progress ~= nil then progress.tier else nil
+	self._shownTier = tier
+	local firedAt: number? = self._tapFiredTier
+	if tier ~= nil and firedAt ~= nil and tier > firedAt and self._tapAnswered == nil then
+		self._tapAnswered = os.clock()
+	end
 end
 
 -- #5533 (rankOneTap): the card as the gold RANK UP button (`on`), or back to the dark card. Called first in every
@@ -610,6 +631,7 @@ end
 
 -- #2714: the chip, one finger-tall line; the ready pulse and arrow carry on round it
 function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: string?, goal: Goal?)
+	self:_noteTier(progress)
 	local tap = RankOneTap.active(oneTapOn(), progress ~= nil and progress.ready)
 	self:_paintTap(tap)
 	-- #3022: a goal's chip line stands where the nudge's would (a ready rank up still comes first)
@@ -675,6 +697,7 @@ function GoalCard.render(
 		self:_renderFolded(progress, nudge, goal)
 		return
 	end
+	self:_noteTier(progress)
 	local tap = RankOneTap.active(oneTapOn(), progress ~= nil and progress.ready)
 	self:_paintTap(tap)
 	self._fold.Visible = foldable()

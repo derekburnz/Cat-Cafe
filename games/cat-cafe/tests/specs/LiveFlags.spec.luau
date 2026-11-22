@@ -275,6 +275,7 @@ return function()
 							or key == "giftBangMine" -- #5576
 							or key == "rankOneTap" -- #5533
 							or key == "picnicFromCannon" -- #5657
+							or key == "rankChain" -- #5656
 							or key == "rankTapLook" -- #5592
 							or key == "askClean" -- #5597
 							or key == "chipPickedWord" -- #5406
@@ -306,6 +307,7 @@ return function()
 							or key == "pawsInFloor" -- #5471
 							or key == "firstCatArrow" -- #5594
 							or key == "guideArrow" -- #5465
+							or key == "cloudsHold" -- #5655
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "parkCatchNormal" -- Derek 2026-11-20
@@ -324,6 +326,7 @@ return function()
 							or key == "padHud" -- #5624
 							or key == "rankDimTwo" -- #5609
 							or key == "secretCompanionBig" -- #5431
+							or key == "rankFxLite" -- #5651
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

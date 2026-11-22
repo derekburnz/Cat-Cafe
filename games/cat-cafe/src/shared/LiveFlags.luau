@@ -258,6 +258,7 @@ LiveFlags.KEYS = {
 	"cutsQuick", -- #5550: no Cat Arcade or Cat Companion scene, the other station scenes about 2 s with no skip (Effects/StationUnlockCut, Controllers/CompanionSceneController); off by default
 	"pawsInFloor", -- #5471: the Town Square's paw prints are drawn on the floor they lie on, so they stream with it (World/PawFloor); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
+	"cloudsHold", -- #5655: the flight and hop clouds stay over the screen a little longer, until the landing has streamed in (Effects/Clouds); off by default
 	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
 	"nightLineNoArrow", -- #5459: the night line keeps its words but no ring or arrow on Upgrades (Components/NightLine); off by default
 	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
@@ -266,9 +267,11 @@ LiveFlags.KEYS = {
 	"rankTapLook", -- #5592: the one tap RANK UP button in the clean green button look with a slow breath (UI/Screens/GoalCard); off by default
 	"askClean", -- #5597: the slide-in ask cards (What next?, the faces, the invite) drawn clean: gold button band, tucked X, matching buttons, inset timer bar (UI/Screens/AskCard), and #5625 the context tips (UI/Screens/TipCard); off by default
 	"rankOneTap", -- #5533: a ready goal card is a gold RANK UP button, one tap ranks up, no window (UI/Components/RankOneTap); off by default
+	"rankChain", -- #5656: with rankOneTap, the next RANK UP tap counts a moment after the sync shows the new tier, not 1.5 s later (UI/Components/RankOneTap); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
 	"bowlNoPops", -- #5571: with No cat pop-ups ticked, a bowl tame shows no big rare card and the walk-up ring no waiting cat card (UI.securedRare, Controllers/UIController); off by default
+	"rankFxLite", -- #5651: a Rank Up plays no beam, confetti, sparkle fountains or smoke, yours or anyone's (Effects/Plots); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -448,6 +451,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cutsQuick = true, -- #5550: on once this and GE's companion card are both published (Design 2026-11-20)
 	pawsInFloor = true, -- #5471: on as soon as it merges
 	guideArrow = true, -- #5465: on as soon as it merges
+	cloudsHold = true, -- #5655: on as soon as it publishes (Derek 2026-11-22: the teleports look laggy)
 	lockedRingsHidden = true, -- #5463: on as soon as it merges
 	nightLineNoArrow = true, -- #5459: on as soon as it merges
 	secretCompanionBig = true, -- #5431
@@ -456,9 +460,11 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankTapLook = true, -- #5592: on once Review-QA and a phone look pass
 	askClean = true, -- #5597: on once Review-QA passes
 	rankOneTap = true, -- #5533: on once Review-QA and a phone look pass (Derek 2026-11-20)
+	rankChain = true, -- #5656: on the hour it publishes
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 	bowlWalkQuiet = true, -- #5436
 	bowlNoPops = true, -- #5571
+	rankFxLite = true, -- #5651: on as soon as it publishes (Derek 2026-11-22: the Rank Up effects lag)
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

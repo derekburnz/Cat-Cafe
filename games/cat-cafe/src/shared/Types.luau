@@ -850,6 +850,7 @@ export type Stats = {
 	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
 	tier2TopUp: number, -- #4453: coins the first tamed bait cat's welcome paid toward Tier 2 (0: none yet)
 	tier3TopUp: number, -- #5038: coins the Tier 3 welcome gift paid (shared/Tier3Path; 0: none yet)
+	hoodWelcome: number, -- #5652: 1 once the first Neighbourhood landing's stray came (shared/HoodWelcome)
 }
 
 export type WeekPlay = { week: number, seconds: number }

@@ -81,6 +81,7 @@ local M = {
 	PlotService = require(script.Parent.PlotService),
 	RankUpRightAway = require(ReplicatedStorage.Shared.RankUpRightAway), -- #5031
 	Tier3Path = require(ReplicatedStorage.Shared.Tier3Path), -- #5038
+	HoodWelcome = require(ReplicatedStorage.Shared.HoodWelcome), -- #5652
 	PicnicSeats = require(ReplicatedStorage.Shared.PicnicSeats), -- #5572
 	PicnicParty = require(ReplicatedStorage.Shared.PicnicParty),
 	MutationBoost = require(ReplicatedStorage.Shared.MutationBoost), -- #5493
@@ -147,6 +148,9 @@ type Stray = {
 	-- their first customer served until their second cat, mirrored in the model's WaitsFor attribute (0 when none).
 	-- Anyone may catch it; for that player its catch is the first catch's one slow circle.
 	waitsFor: number?,
+	-- #5652 (hoodWelcome): the user id of the player whose first Neighbourhood landing brought it (shared/HoodWelcome).
+	-- Not reserved and caught the normal way; only its caught log reads it.
+	hoodFor: number?,
 	-- #3035: the user id of the first-session Tier 1 player whose night pass brought it (shared/NightPass), at their
 	-- plot's `near` point. Not reserved: anyone out at night may catch it. It leaves by night once that player's pass
 	-- ends, and is an ordinary stray from the sunrise.
@@ -1834,6 +1838,69 @@ do
 			and M.Tier3Path.need(profile) ~= nil
 	end
 
+	-- #5652 (switch hoodWelcome, shared/HoodWelcome): on an account's first Neighbourhood landing from Tier 3 (their
+	-- root within HoodWelcome.LANDED_STUDS of the camp's landing, by day), one stray of a Neighbourhood kind they lack
+	-- comes to the free spawn point nearest the landing and keeps near it, as tier3Path's waiting stray did in the Park.
+	-- Rarity: the area's odds over the rarities that still have a kind they lack (none when they own every kind). Its
+	-- catch is the normal one for everyone. Marked had (stats.hoodWelcome) as it comes, so it comes once per account.
+	function Second.hood()
+		if not M.LiveFlagService.on(M.HoodWelcome.FLAG) or not M.ClockService.areasOpen() then
+			return
+		end
+		local areaId = M.HoodWelcome.AREA
+		local pad = secondPad(areaId)
+		local area = world.areas[areaId]
+		local areaDef = M.Catalog.getArea(areaId)
+		if pad == nil or area == nil or areaDef == nil then
+			return
+		end
+		for _, player in M.DataService.loadedPlayers() do
+			local profile = M.DataService.get(player)
+			local character = player.Character
+			local root = if character ~= nil
+				then character:FindFirstChild("HumanoidRootPart")
+				else nil
+			if
+				profile == nil
+				or root == nil
+				or not root:IsA("BasePart")
+				or not M.HoodWelcome.due(profile, true)
+			then
+				continue
+			end
+			local at = (root :: BasePart).Position
+			if (Vector3.new(at.X, pad.Y, at.Z) - pad).Magnitude > M.HoodWelcome.LANDED_STUDS then
+				continue
+			end
+			local stats = profile.stats :: any
+			stats[M.HoodWelcome.STAT] = 1 -- once per account, whatever happens next
+			local rarity =
+				M.HoodWelcome.rarity(profile.collection, areaDef.odds :: any, rng:NextNumber())
+			if rarity == nil then
+				continue -- every Neighbourhood kind owned: nothing to welcome them with
+			end
+			local occupied = occupiedPoints[areaId] or {}
+			local pick: number? = nil
+			local pickDistance = math.huge
+			for index, point in area.spawnPoints do
+				if occupied[index] == nil then
+					local distance = (point.Position - pad).Magnitude
+					if distance < pickDistance then
+						pick, pickDistance = index, distance
+					end
+				end
+			end
+			if pick == nil then
+				continue
+			end
+			local stray = spawnAt(areaId, pick, rarity :: Types.Rarity, nil, profile.collection)
+			stray.hoodFor = player.UserId
+			stray.home = SecondCat.leash(stray.home, pad, M.Config.StrayWanderRadius)
+			Net.toast(player, M.HoodWelcome.TOAST, "info")
+			Telemetry.custom(player, "hood_welcome", 1, { "shown", stray.def.rarity })
+		end
+	end
+
 	-- The first customer was just served: the stray waits from now, not the next tick.
 	function Second.served(player: Player)
 		local pad = secondPad()
@@ -3054,6 +3121,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		end
 		Street.caught(player, area) -- #5533 streetCats
 		Street.picnicCaught(player, stray) -- #5572
+		if stray.hoodFor ~= nil and stray.hoodFor == player.UserId then
+			stray.hoodFor = nil
+			Telemetry.custom(player, "hood_welcome", 1, { "caught", def.rarity }) -- #5652
+		end
 		if M.Catalog.getArea(area) ~= nil then
 			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
 		end
@@ -4551,6 +4622,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			end)
 			xpcall(Street.tick, function(err: unknown) -- #5533 streetCats
 				warn("[CatService] street tick: " .. tostring(err))
+			end)
+			xpcall(Second.hood, function(err: unknown) -- #5652 hoodWelcome
+				warn("[CatService] hood welcome: " .. tostring(err))
 			end)
 		end
 	end)

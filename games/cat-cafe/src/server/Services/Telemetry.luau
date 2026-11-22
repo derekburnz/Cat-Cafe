@@ -229,6 +229,7 @@ export type CustomEvent =
 	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
 	| "ticket_buy" -- #4061: value tickets before; prize id, tier
 	| "harvest_buy" -- #4251: value pumpkins before; Stall item id, tier
+	| "hood_welcome" -- #5652: value 1; "shown" or "caught", the stray's rarity
 	| "snowglobe_catch" -- #5665: value Snowflakes given for a Christmas cat caught; rarity
 	| "gift_buy" -- #5643: value Snowflakes before; Gift Stall item id, tier
 	| "harvest_pie_reward" -- #4251 part 6: value spins banked (0 at the bank cap); tier

@@ -280,6 +280,7 @@ LiveFlags.KEYS = {
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
 	"bowlNoPops", -- #5571: with No cat pop-ups ticked, a bowl tame shows no big rare card and the walk-up ring no waiting cat card (UI.securedRare, Controllers/UIController); off by default
 	"rankFxLite", -- #5651: a Rank Up plays no beam, confetti, sparkle fountains or smoke, yours or anyone's (Effects/Plots); off by default
+	"tabletRankBig", -- #5669: on a tablet the one tap RANK UP button and its words draw 1.3 times as big (UI/Components/RankOneTap); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -481,6 +482,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	bowlWalkQuiet = true, -- #5436
 	bowlNoPops = true, -- #5571
 	rankFxLite = true, -- #5651: on as soon as it publishes (Derek 2026-11-22: the Rank Up effects lag)
+	tabletRankBig = true, -- #5669: on the hour it publishes
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

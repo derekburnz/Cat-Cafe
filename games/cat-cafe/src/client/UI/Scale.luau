@@ -97,6 +97,11 @@ Scale.BUBBLE_NEAR = 14
 -- this does not effect mobile phone players tho"): a touch screen that is not short (a tablet; a phone held sideways is
 -- short) draws the HUD's money and golden fish counters TABLET_COUNTERS times; phones and PCs stay at 1.
 Scale.TABLET_COUNTERS = 1.2
+-- #5669: a touch screen that is not short, the same test as counterBoost
+function Scale.isTablet(): boolean
+	return Scale.isTouch() and not Scale.isShort()
+end
+
 function Scale.counterBoost(): number
 	return if Scale.isTouch() and not Scale.isShort() then Scale.TABLET_COUNTERS else 1
 end

@@ -60,5 +60,13 @@ return function()
 			expect(RankOneTap.line("Cozy Cafe", nil)).to.equal("Cozy Cafe")
 			expect(RankOneTap.line(nil, nil)).to.equal("")
 		end)
+
+		it("draws 1.3 times as big only on a tablet with tabletRankBig on (#5669)", function()
+			expect(RankOneTap.TABLET_FLAG).to.equal("tabletRankBig")
+			expect(LiveFlags.OFF_BY_DEFAULT[RankOneTap.TABLET_FLAG]).to.equal(true)
+			expect(RankOneTap.size(true, true)).to.equal(1.3)
+			expect(RankOneTap.size(true, false)).to.equal(1)
+			expect(RankOneTap.size(false, true)).to.equal(1)
+		end)
 	end)
 end

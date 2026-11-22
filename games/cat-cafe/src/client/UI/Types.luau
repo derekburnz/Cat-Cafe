@@ -337,6 +337,11 @@ export type PlayerState = {
 	dailyTreat: DailyTreatView?, -- F70: the Daily Treat window's card and the HUD's Daily tile
 	-- #5502: the advent calendar (shared/Advent.view), nil while either switch is off
 	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
+	-- #5643: the Gift Stall's view (shared/GiftStallSave.view), nil while christmasEvent is off
+	giftStall: {
+		snowflakes: number,
+		items: { { id: string, name: string, cost: number, owned: boolean } },
+	}?,
 	-- F87 (easy-start.md section 6): the context tips seen (tip id or "like_ask" to true); nil until ProfileSync
 	-- sends it, and the client-found tips, the help card and the feedback ask wait for it
 	tipsSeen: { [string]: boolean }?,

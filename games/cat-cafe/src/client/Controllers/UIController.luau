@@ -1963,6 +1963,11 @@ local function wireIntents()
 			Net.fire("BuyHarvest", id)
 		end)
 	end
+	-- #5643: Buy on the Christmas Gift Stall; the server checks the switch, the dates, the tier, the Snowflakes and the
+	-- distance, and answers with a toast and a ProfileSync
+	UI.giftStall.setBuy(function(id: string)
+		Net.fire("BuyGift", id)
+	end)
 	-- #4251: a note on the Thankful Board; the server checks the note, the area and one pin every 10 s
 	if looseEvents.pinHarvestNote ~= nil then
 		looseEvents.pinHarvestNote:Connect(function(note: number)

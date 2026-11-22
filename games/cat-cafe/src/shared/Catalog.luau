@@ -6346,6 +6346,69 @@ for _, row in HARVEST_DECOR do
 	table.insert(Catalog.harvestDecor, def)
 end
 
+-- #5643 the Christmas Event's Gift Stall decor (snowglobe-village-spec section 5, Model-Agent's CatCafe_Decor_<Name>
+-- models): the five Decor tab pieces, bought for Snowflakes (GiftStallService) and owned for good in
+-- profile.decorOwned, placed on the next free decor spots like the Harvest pieces, source "christmas", never sold for
+-- coins or Robux. Ids are "decor_" .. the stall item's id (GiftStallSave.decorId).
+local CHRISTMAS_DECOR: { { id: string, rarity: Types.Rarity, name: string, kind: Types.DecorKind, description: string } } =
+	{
+		{
+			id = "decor_present_pile",
+			rarity = "Common",
+			name = "Present Pile",
+			kind = "decoration",
+			description = "A heap of wrapped gifts with big bows.",
+		},
+		{
+			id = "decor_snowman",
+			rarity = "Common",
+			name = "Snowman",
+			kind = "decoration",
+			description = "A jolly snowman with a carrot nose.",
+		},
+		{
+			id = "decor_gingerbread_house",
+			rarity = "Rare",
+			name = "Gingerbread House",
+			kind = "decoration",
+			description = "A little house of gingerbread and icing.",
+		},
+		{
+			id = "decor_stocking_wall",
+			rarity = "Rare",
+			name = "Stocking Wall",
+			kind = "decoration",
+			description = "A row of cosy stockings, one for every cat.",
+		},
+		{
+			id = "decor_little_tree",
+			rarity = "Epic",
+			name = "Little Lit Tree",
+			kind = "decoration",
+			description = "A small tree twinkling with warm lights.",
+		},
+	}
+Catalog.christmasDecor = {} :: { Types.DecorDef }
+for _, row in CHRISTMAS_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
+		description = row.description,
+		bonus = bonus,
+		rarity = row.rarity,
+		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "christmas",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+	table.insert(Catalog.christmasDecor, def)
+end
+
 -- #4061 (Design-Agent's booth spec 1.3): the Ticket Booth's six weekly shelf pieces (TicketBooth.WEEKLY), bought with
 -- tickets and owned for good. Model-Agent's CatCafe_Decor_<Name> models (#4061 booth models). They join
 -- Catalog.passDecor with source "booth" and pay like a crate piece of their rarity while in use.

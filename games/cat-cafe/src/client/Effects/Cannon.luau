@@ -411,7 +411,12 @@ local function launched(character: Model)
 	fly(character, at, REAL, false, findCannon(character, spot), spot)
 	if character == Players.LocalPlayer.Character then
 		local plan = Cannon.cloudPlan()
-		Clouds.play(at, FlightClock.clouds(plan, scale), tintOf(character:GetAttribute("CannonTo")))
+		Clouds.play(
+			at,
+			FlightClock.clouds(plan, scale),
+			tintOf(character:GetAttribute("CannonTo")),
+			true
+		)
 		-- your own character glides through the clouds (Animation-Engineer), between the clouds behind and in front
 		local g, rider = glide, Clouds.rider()
 		local staged: MountStaged? = if g ~= nil then (g :: any).mountStaged else nil
@@ -450,7 +455,7 @@ local function hopped(character: Model)
 	hops[character] =
 		{ at = at, mine = mine, fired = {}, from = from, last = from, arrived = false }
 	if mine then
-		Clouds.play(at, Presets.clouds.hop, tintOf(character:GetAttribute("CloudHopTo")))
+		Clouds.play(at, Presets.clouds.hop, tintOf(character:GetAttribute("CloudHopTo")), true)
 	end
 	running()
 end

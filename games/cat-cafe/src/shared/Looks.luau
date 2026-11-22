@@ -253,6 +253,23 @@ local ACCESSORIES: { Accessory } = {
 		slot = "Head",
 		at = "Hat",
 	},
+	-- #5643 the Christmas Gift Stall's three hats (Outfit_Hat): no pass; owned once bought with Snowflakes, through the
+	-- items CafeService hands Looks (GiftStallSave.lookItems adds them by lookId)
+	{ id = "acc_santa_hat", name = "Santa Hat", piece = "SantaHat", slot = "Head", at = "Hat" },
+	{
+		id = "acc_reindeer_antlers",
+		name = "Reindeer Antlers",
+		piece = "ReindeerAntlers",
+		slot = "Head",
+		at = "Hat",
+	},
+	{
+		id = "acc_knit_beanie",
+		name = "Knit Beanie",
+		piece = "KnitBeanie",
+		slot = "Head",
+		at = "Hat",
+	},
 	-- #4061 the Ticket Booth's weekly wearables (Model-Agent's booth models): no pass; owned once bought with tickets,
 	-- through the items CafeService hands Looks (TicketBooth.lookItems). Each pays TicketBooth.WEAR_BONUS while worn.
 	{

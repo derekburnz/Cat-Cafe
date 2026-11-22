@@ -1733,6 +1733,8 @@ local function applyState(s: Types.PlayerState)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
 		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
 		advent = (s :: any).advent, -- #5502: the advent calendar board's view
+		snowflakes = (s :: any).snowflakes, -- #5502: the Christmas event's Snowflakes (the pop and the Gift Stall)
+		giftStall = (s :: any).giftStall, -- #5643: the Gift Stall's view (nil while christmasEvent is off)
 		-- F87 (#705): the tips seen, the one feedback ask and the help cards shown, so a tip the client finds itself
 		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
 		tipsSeen = s.tipsSeen,
@@ -1963,6 +1965,11 @@ local function wireIntents()
 			Net.fire("BuyHarvest", id)
 		end)
 	end
+	-- #5643: Buy on the Christmas Gift Stall; the server checks the switch, the dates, the tier, the Snowflakes and the
+	-- distance, and answers with a toast and a ProfileSync
+	UI.giftStall.setBuy(function(id: string)
+		Net.fire("BuyGift", id)
+	end)
 	-- #4251: a note on the Thankful Board; the server checks the note, the area and one pin every 10 s
 	if looseEvents.pinHarvestNote ~= nil then
 		looseEvents.pinHarvestNote:Connect(function(note: number)

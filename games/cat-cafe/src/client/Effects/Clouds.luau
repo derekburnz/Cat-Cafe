@@ -8,10 +8,15 @@
 -- Reduce Motion the clouds hold still, with no wind or banking, and only fade in and out.
 --
 -- Source: Cannon.luau calls Clouds.play with the plan and the server time it started at. Numbers in Presets.clouds.
+-- #5655 (switch cloudsHold): on a real flight or hop (Cannon passes `hold`), the clouds wait fully closed a little
+-- past the plan's part and then until the spot this player landed on has streamed in, capped at Presets.clouds.holdMost.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -188,9 +193,37 @@ function Clouds.stop()
 	end
 end
 
+-- #5655: how long the part has been held back after a frame of `dt` seconds, from `shift` before it. `t` is the
+-- seconds since the plan started; the plan runs at `t - shift`. Once that reaches `partFrom` the clouds wait closed
+-- for at least `hold` seconds and then until `landed`, never past `most`. Pure.
+function Clouds.holdStep(
+	shift: number,
+	t: number,
+	partFrom: number,
+	landed: boolean,
+	hold: number,
+	most: number,
+	dt: number
+): number
+	if t - shift < partFrom or shift >= most then
+		return shift
+	end
+	if shift < hold or not landed then
+		return math.min(most, shift + dt)
+	end
+	return shift
+end
+
+-- #5655: this player's root position, or nil without one.
+local function rootAt(): Vector3?
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	return if root ~= nil and root:IsA("BasePart") then (root :: BasePart).Position else nil
+end
+
 -- Plays one plan (Presets.clouds.cannon or .hop) that started at `startedAt` in server time, turning toward `tint`.
--- A new play replaces one still running.
-function Clouds.play(startedAt: number, plan: Logic.CloudPlan, tint: Color3)
+-- A new play replaces one still running. `hold` (a real flight or hop) lets cloudsHold keep them closed longer.
+function Clouds.play(startedAt: number, plan: Logic.CloudPlan, tint: Color3, hold: boolean?)
 	Clouds.stop()
 	local made = screen()
 	local cover, sky = veil, veilGradient
@@ -201,8 +234,33 @@ function Clouds.play(startedAt: number, plan: Logic.CloudPlan, tint: Color3)
 	made.Enabled = true
 	local c = Presets.clouds
 	local still = Context.reducedMotion()
+	local holding = hold == true
+		and ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. c.holdFlag) == true
+	local shift = 0
+	local from = rootAt()
+	local asked, landed = false, false
 	loop = RunService.RenderStepped:Connect(function(dt: number)
 		local t = Workspace:GetServerTimeNow() - startedAt
+		if holding then
+			local now = rootAt()
+			if not asked and from ~= nil and now ~= nil and (now - from).Magnitude > c.moved then
+				-- the move happened: ask for the world round the landing, and let the clouds part once it is in
+				asked = true
+				local spot = now
+				if Workspace.StreamingEnabled then
+					task.spawn(function()
+						pcall(function()
+							Players.LocalPlayer:RequestStreamAroundAsync(spot, 1.5)
+						end)
+						landed = true
+					end)
+				else
+					landed = true
+				end
+			end
+			shift = Clouds.holdStep(shift, t, plan.partFrom, landed, c.hold, c.holdMost, dt)
+			t -= shift
+		end
 		if t >= plan.partTo then
 			Clouds.stop()
 			return

@@ -22,6 +22,7 @@ local Follower = require(script.Parent.Follower)
 local FreeStart = require(script.Parent.FreeStart)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Fusion = require(script.Parent.Fusion)
+local GiftStallSave = require(script.Parent.GiftStallSave)
 local GrandOpening = require(script.Parent.GrandOpening)
 local HarvestSave = require(script.Parent.HarvestSave)
 local Holdout = require(script.Parent.Holdout)
@@ -1130,6 +1131,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		else nil
 	-- #5665 part 2 (no version: see Types.PlayerProfile.snowglobe): Snowglobe Village's first-visit day
 	profile.snowglobe = if raw.snowglobe ~= nil then SnowglobeSave.sanitize(raw.snowglobe) else nil
+	-- #5643 (no version: see Types.PlayerProfile.giftStall): the Gift Stall items bought
+	profile.giftStall = GiftStallSave.sanitize(raw.giftStall)
 	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)
 	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)

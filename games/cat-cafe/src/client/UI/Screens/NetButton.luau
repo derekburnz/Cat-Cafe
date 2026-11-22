@@ -12,6 +12,7 @@
 --   setInArea(on)    the player stands in a catching area (UI.setZone)
 --   setInReach(on)   a stray is in reach of a swing (UI.net.setInReach)
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -196,7 +197,10 @@ function NetButton._tick(self: any)
 	end
 	self.screenGui.Enabled = show
 	-- #4808: the ring and arrow while the button shows during a catch step; no dim, the player is mid-play
-	local glow = show and self._point
+	-- #5647 (switch netHint): Effects/NetHint asks for them too, by the player's NetHintButton attribute, while a cat is
+	-- in reach in the first catches; apart from _point, so the tutorial's off and on at each sync never clears it
+	local hinted = Players.LocalPlayer:GetAttribute("NetHintButton") == true
+	local glow = show and (self._point or hinted)
 	if glow ~= self._glowing then
 		self._glowing = glow
 		TutorialGlow.set(self._button, glow, nil, true)

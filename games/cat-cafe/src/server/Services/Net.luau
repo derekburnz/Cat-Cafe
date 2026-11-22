@@ -39,7 +39,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	UnequipAll = RateLimiter.new(1, 2), -- rebuilds the plot and sends a full sync, like EquipBest
 	EquipBestDecor = RateLimiter.new(1, 2), -- rebuilds the plot's decor and sends a full sync, like EquipBest
 	ResetSave = RateLimiter.new(1, 5), -- testers only; kicks on success
-	RankUp = RateLimiter.new(1, 2), -- data-model section 15: 1 per 2 s
+	-- data-model section 15: was 1 per 2 s; #5656: 2 a second, so a funded player's back to back rank ups are never
+	-- dropped (onRankUp checks every need and the cost again, so a faster limit gives nothing away)
+	RankUp = RateLimiter.new(2, 1),
 	TutorialAdvance = RateLimiter.new(1, 1),
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason
 	LaunchCannon = RateLimiter.new(1, 1), -- hometown-cannon.md section 7: 1 a second
@@ -88,6 +90,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	BuyWithFish = RateLimiter.new(1, 1), -- #4055: 1 a second
 	BuyTicketPrize = RateLimiter.new(1, 1), -- #4061: 1 a second
 	BuyHarvest = RateLimiter.new(1, 1), -- #4251: 1 a second
+	BuyGift = RateLimiter.new(1, 1), -- #5643: 1 a second
 	PinHarvestNote = RateLimiter.new(1, 1), -- #4251: 1 a second (HarvestService allows one pin every 10 s)
 	GiveToKeep = RateLimiter.new(1, 1), -- #4062
 	PickDragonCard = RateLimiter.new(2, 1),

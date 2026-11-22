@@ -174,7 +174,7 @@ export type UpgradeDef = {
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
 -- #2486: "event", a Cafe Event's free reward piece (Catalog.passDecor holds it too, live-events.md section 2e)
-export type DecorSource = "shop" | "crate" | "pass" | "event" | "booth" | "harvest" -- booth #4061: the Ticket Booth's weekly shelf; harvest #4251: Harvest Hollow's Stall and Feast Pie; -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
+export type DecorSource = "shop" | "crate" | "pass" | "event" | "booth" | "harvest" | "christmas" -- christmas #5643: the Gift Stall; booth #4061: the Ticket Booth's weekly shelf; harvest #4251: Harvest Hollow's Stall and Feast Pie; -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
@@ -1568,6 +1568,9 @@ export type PlayerProfile = {
 	-- #5665 part 2 (shared/SnowglobeSave): the UTC day of the last first-visit +40 in Snowglobe Village. No VERSION
 	-- bump: an older server drops it, so the worst is a second +40 that day.
 	snowglobe: { visitDay: number? }?,
+	-- #5643 (shared/GiftStallSave): the Gift Stall items bought with Snowflakes. No VERSION bump, the same way: an
+	-- older server drops it, so christmasEvent goes on only once every server runs this code.
+	giftStall: { bought: { [string]: boolean } }?,
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
 	-- #3996 (shared/DailyDeal): the UTC day the player last bought Today's Deal, nil for never. No VERSION bump: an
 	-- older server dropping it only lets the same day's deal be bought once more, which pays as normal.
@@ -1724,6 +1727,11 @@ export type PlayerState = {
 	-- #5502: the advent calendar board (shared/Advent.view), nil while either switch is off
 	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
 	snowflakes: number?, -- #5502: the Christmas event's Snowflakes (the Gift Stall reads it)
+	-- #5643: the Gift Stall's view (GiftStallSave.view), nil while christmasEvent is off
+	giftStall: {
+		snowflakes: number,
+		items: { { id: string, name: string, cost: number, owned: boolean } },
+	}?,
 	-- #2797 (retention-ideas.md 5d): the invite card and the Friends button (shared/Invites.view); nil from an older server
 	invite: InviteView?,
 	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server

@@ -886,6 +886,10 @@ local function rankWindowEnd(player: Player, session: Session, outcome: string, 
 	Telemetry.custom(player, "rank_up_window", 1, { how, ended, session.device or "unknown" })
 end
 
+-- Growth Nov 22: Roblox records 100 custom event names; with this switch on the two leave events past that limit
+-- ride on names it does record (tier3_left on tier3_trip, rank_ready_left on session_end's tier field).
+local LEAVE_FOLD_FLAG = "leaveLogFold"
+
 local function tierText(profile: Profile): string
 	return tostring(Economy.tier(profile))
 end
@@ -3944,16 +3948,27 @@ local function onRelease(player: Player, profile: Profile)
 			session.device or "unknown",
 		})
 	end
+	local rankLeft: string? = nil -- leaveLogFold: "funded" or "short" on session_end's tier field
 	-- #5517: a session that ends at Tier 3 before the first Neighbourhood landing, with how far the trip got
 	if
 		LiveFlagService.on(Tier3Trip.FLAG)
 		and Tier3Trip.leftDue(profile.telemetry.tier3Trip, Economy.tier(profile))
 	then
-		Telemetry.custom(player, "tier3_left", math.max(0, now - session.joinedAt), {
-			Tier3Trip.furthest(profile.telemetry.tier3Trip),
+		-- Growth Nov 22 (switch leaveLogFold): tier3_left logged no users on any day. Roblox keeps 100 custom event
+		-- names and this game sends far more, so a name first sent after the hundredth is never recorded. The leave
+		-- rides on tier3_trip, a name Roblox records: stop "left_<furthest stop>", the seconds this session as value.
+		local fold = LiveFlagService.on(LEAVE_FOLD_FLAG)
+		local fields = {
+			(if fold then "left_" else "") .. Tier3Trip.furthest(profile.telemetry.tier3Trip),
 			session.device or "unknown",
 			if ClockService.areasOpen() then "day" else "night",
-		})
+		}
+		local seconds = math.max(0, now - session.joinedAt)
+		if fold then
+			Telemetry.custom(player, "tier3_trip", seconds, fields)
+		else
+			Telemetry.custom(player, "tier3_left", seconds, fields)
+		end
 	end
 	-- Growth Nov 20 (switch rankLeftLog): a new start save that reached onboarding_v10's rank_ready and left still at
 	-- Tier 1, with whether it still held the Rank Up's coins, so short of coins splits from not pressing
@@ -3963,14 +3978,21 @@ local function onRelease(player: Player, profile: Profile)
 		and (profile.telemetry.cleanV10Step or 0)
 			>= table.find(Onboarding.V10_STEPS, "rank_ready") :: number
 	then
-		Telemetry.custom(player, "rank_ready_left", math.max(0, now - session.joinedAt), {
-			if Economy.rankUpBlocker(profile) == nil then "funded" else "short",
-			session.device or "unknown",
-		})
+		local held = if Economy.rankUpBlocker(profile) == nil then "funded" else "short"
+		if LiveFlagService.on(LEAVE_FOLD_FLAG) then
+			-- Growth Nov 22 (leaveLogFold): rank_ready_left is past Roblox's 100 names too, so session_end's tier
+			-- field carries it: "1_funded" or "1_short" for this save (session_end is logged just below)
+			rankLeft = held
+		else
+			Telemetry.custom(player, "rank_ready_left", math.max(0, now - session.joinedAt), {
+				held,
+				session.device or "unknown",
+			})
+		end
 	end
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),
-		tierText(profile),
+		tierText(profile) .. (if rankLeft ~= nil then "_" .. rankLeft else ""),
 		session.device or "unknown",
 	})
 	-- F87: a new player leaving, in Roblox's bounce windows (easy-start.md section 5); #1273: with the furthest step

@@ -842,7 +842,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.extraState.FontFace = if line.ready then Theme.fonts.bodyBold else Theme.fonts.body
 			-- #3082: Collect in place of the dot (it rests a moment after a press, until the server's answer
 			-- refreshes the strip), or Open for a station with its own card (green words say when something waits)
-			local action = CampExtrasLogic.remoteAction(line)
+			local action: CampExtrasLogic.RemoteAction? = CampExtrasLogic.remoteAction(line)
 			local rummageOn: (() -> boolean)? = self._callbacks.rummageOn
 			if
 				(action == "collect" and self._callbacks.collect == nil)
@@ -860,7 +860,11 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			local width = BUTTON_W[action or "collect"]
 			-- #5657 (picnicFromCannon): the Picnic Party's button starts Picnic Time, so it says so
 			local word = if action ~= nil
-				then CampExtrasLogic.remoteWord(action, line.extraId, partyFromCannon())
+				then CampExtrasLogic.remoteWord(
+					action :: CampExtrasLogic.RemoteAction,
+					line.extraId,
+					partyFromCannon()
+				)
 				else nil
 			if action ~= nil and card.collectWord ~= word then
 				card.collectWord = word

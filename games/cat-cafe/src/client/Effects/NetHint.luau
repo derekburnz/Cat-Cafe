@@ -18,6 +18,7 @@ local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Presets)
+local SyncSeed = require(script.Parent.SyncSeed)
 
 local NetHint = {}
 
@@ -173,6 +174,9 @@ end
 
 local function update()
 	local p = Presets.netHint
+	if caught == nil then
+		caught = SyncSeed.seedCaught() -- #5677: the join's sync came before this started
+	end
 	local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. p.flag) == true
 	local model = inReach
 	local reach = model ~= nil and model.Parent ~= nil

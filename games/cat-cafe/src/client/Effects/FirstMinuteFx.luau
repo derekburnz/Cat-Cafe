@@ -22,6 +22,7 @@ local Net = require(script.Parent.Parent.Net)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
 local ScreenFx = require(script.Parent.ScreenFx)
+local SyncSeed = require(script.Parent.SyncSeed)
 local WowBaitGlow = require(script.Parent.WowBaitGlow)
 
 local QuietStart = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart"))
@@ -126,6 +127,9 @@ local function watchCard(playerGui: Instance)
 end
 
 local function caught(strayId: string?, rarity: string?)
+	if catsCaught == nil then
+		catsCaught = SyncSeed.seedCaught() -- #5677: the join's sync came before this started
+	end
 	if not FirstMinuteFx.cheers(catsCaught, catchDone) then
 		return
 	end

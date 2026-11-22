@@ -142,6 +142,19 @@ local function tapLookOn(): boolean
 	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.LOOK_FLAG) == true
 end
 
+-- #5669: the tabletRankBig switch (Components/RankOneTap), off by default
+local function tabletBigOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. RankOneTap.TABLET_FLAG) == true
+end
+
+-- #5669: a FitText label's largest text size (its UITextSizeConstraint's cap)
+local function capText(label: TextLabel, size: number)
+	local cap = label:FindFirstChildOfClass("UITextSizeConstraint") :: UITextSizeConstraint?
+	if cap ~= nil then
+		cap.MaxTextSize = size
+	end
+end
+
 local TAP_FACE = Theme.button.primary
 local TAP_FACE_SEQUENCE = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, TAP_FACE.top:Lerp(Color3.new(1, 1, 1), 0.45)),
@@ -523,6 +536,7 @@ function GoalCard._paintTap(self: any, on: boolean)
 	end
 	self._title.TextXAlignment = if on then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left
 	self._tapLine.Visible = false
+	capText(self._title, TITLE_TEXT) -- #5669: back to the card's own size; _layoutTap grows it on a tablet
 end
 
 -- #5592: the green button's slow breath. A pop of the card (bounce, the rank up pop, the HUD's mark) tweens the same
@@ -565,13 +579,24 @@ function GoalCard._layoutTap(self: any, progress: RankUp.Progress?, folded: bool
 	end
 	local nextTier = if progress then progress.nextTier else nil
 	local coins = if progress then progress.requirements[1] else nil
+	-- #5669 tabletRankBig: on a tablet the button and its words draw `size` times as big (anchored top right)
+	local size = RankOneTap.size(tabletBigOn(), Scale.isTablet())
+	local titleH = math.floor(TITLE_H * size + 0.5)
+	local captionH = math.floor(CAPTION_H * size + 0.5)
 	self._title.Position = UDim2.fromOffset(0, 0)
-	self._title.Size = UDim2.new(1, 0, 0, TITLE_H)
+	self._title.Size = UDim2.new(1, 0, 0, titleH)
+	capText(self._title, math.floor(TITLE_TEXT * size + 0.5))
 	self._tapLine.Text =
 		RankOneTap.line(if nextTier then nextTier.name else nil, if coins then coins.label else nil)
 	self._tapLine.TextColor3 = Theme.colors.white
+	self._tapLine.Position = UDim2.fromOffset(0, titleH + 2)
+	self._tapLine.Size = UDim2.new(1, 0, 0, captionH)
+	capText(self._tapLine, math.floor(CAPTION_TEXT * size + 0.5))
 	self._tapLine.Visible = true
-	self.frame.Size = UDim2.fromOffset(WIDTH, Scale.tapHeight(TITLE_H + 2 + CAPTION_H + PAD * 2))
+	self.frame.Size = UDim2.fromOffset(
+		math.floor(WIDTH * size + 0.5),
+		Scale.tapHeight(titleH + 2 + captionH + PAD * 2)
+	)
 end
 
 function GoalCard.setRankUp(self: any, onRankUp: (() -> ())?)

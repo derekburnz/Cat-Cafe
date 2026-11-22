@@ -19,6 +19,12 @@ RankOneTap.REST = 1.5
 -- later instead of waiting out REST, so a funded player ranks up again and again at their own pace
 RankOneTap.CHAIN_FLAG = "rankChain"
 RankOneTap.CHAIN_GUARD = 0.25
+-- #5669 (Growth Nov 21: tablets press a ready Rank Up about 12 points less often than every other device): behind the
+-- switch `tabletRankBig`, on a tablet the button and its words are drawn TABLET_SIZE times as big. Every touch screen
+-- gets the phone-compact card, and a tablet draws it at 0.8 to 0.92 in a view twice a phone's height, so the button
+-- had about half the share of the screen it has on a phone.
+RankOneTap.TABLET_FLAG = "tabletRankBig"
+RankOneTap.TABLET_SIZE = 1.3
 RankOneTap.TITLE = "RANK UP!"
 RankOneTap.CHIP = "🏆 RANK UP!"
 
@@ -62,6 +68,11 @@ function RankOneTap.line(tierName: string?, cost: string?): string
 		return tierName .. " · " .. cost
 	end
 	return tierName or cost or ""
+end
+
+-- #5669: how many times as big the button draws: TABLET_SIZE with the switch on a tablet, else 1.
+function RankOneTap.size(on: boolean, tablet: boolean): number
+	return if on and tablet then RankOneTap.TABLET_SIZE else 1
 end
 
 return RankOneTap

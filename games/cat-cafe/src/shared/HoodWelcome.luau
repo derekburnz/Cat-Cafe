@@ -43,8 +43,8 @@ local function missing(collection: { [string]: any }, rarity: Types.Rarity): boo
 end
 
 function HoodWelcome.lacks(collection: { [string]: any }): boolean
-	for _, rarity in Catalog.rarityOrder do
-		if missing(collection, rarity) then
+	for _, name in Catalog.rarityOrder do
+		if missing(collection, (name :: any) :: Types.Rarity) then
 			return true
 		end
 	end
@@ -59,7 +59,8 @@ function HoodWelcome.rarity(
 ): Types.Rarity?
 	local open: { { rarity: Types.Rarity, weight: number } } = {}
 	local total = 0
-	for _, rarity in Catalog.rarityOrder do
+	for _, name in Catalog.rarityOrder do
+		local rarity: Types.Rarity = (name :: any) :: Types.Rarity
 		local weight = odds[rarity]
 		if type(weight) == "number" and weight > 0 and missing(collection, rarity) then
 			table.insert(open, { rarity = rarity, weight = weight })

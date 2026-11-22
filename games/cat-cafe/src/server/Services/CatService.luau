@@ -173,6 +173,8 @@ type Stray = {
 
 -- #5572: a player's picnic cats while their Picnic Party runs (Street.picnics)
 type Picnic = { pivot: CFrame, defs: { Types.CatDef }, n: number, stray: Stray? }
+-- #5676: each running party's blanket middle, by user id (CatService.picnicCats and picnicClear keep it)
+local picnicSpots: { [number]: Vector3 } = {}
 
 -- variant is "gold" or "rainbow" (F99) for those coats (a rescue rolls it at night start, data-model section 4); nil
 -- is the base.
@@ -289,6 +291,21 @@ local function campOf(player: Player): string?
 	return if root ~= nil then M.Layout.campAt(root.X, root.Z) else nil
 end
 
+-- #5676 (switch picnicNet): the camp's no-net rule gives way within PicnicParty.NET_STUDS of the player's own
+-- running party's blanket, so its cats can be caught where they sit.
+local function campBlocks(player: Player): boolean
+	if campOf(player) == nil then
+		return false
+	end
+	local spot: Vector3? = picnicSpots[player.UserId]
+	local root = rootPosition(player)
+	if spot == nil or root == nil or not M.LiveFlagService.on(M.PicnicParty.NET_FLAG) then
+		return true
+	end
+	local dx, dz = root.X - spot.X, root.Z - spot.Z
+	return math.sqrt(dx * dx + dz * dz) > M.PicnicParty.NET_STUDS
+end
+
 -- True while the player's character stands on the Town Square (Derek 2026-11-03: "character in town square should
 -- put net away"). No strays roam it, so the net is away there as it is while a cat is in the arms.
 local function inTownSquare(player: Player): boolean
@@ -305,7 +322,10 @@ local function netAway(player: Player): boolean
 	if root == nil then
 		return true
 	end
-	return WorldBuilder.areaAt(world, root) == nil or campOf(player) ~= nil
+	if campOf(player) ~= nil then
+		return campBlocks(player) -- #5676: out by the player's own picnic blanket
+	end
+	return WorldBuilder.areaAt(world, root) == nil
 end
 
 -- F84 (section 4): a drop spot in a camp or at its edge moves out into the wild part (Layout.outOfCamp), then onto
@@ -3244,7 +3264,7 @@ function startCatch(
 	if inFlight(player) then
 		return "Land first"
 	end
-	if campOf(player) ~= nil then
+	if campBlocks(player) then
 		return "Step out of the camp to catch it"
 	end
 	if not areaUnlocked(profile, stray.area) then
@@ -3628,7 +3648,7 @@ local function swingCheck(player: Player): NetSwing.SwingCheck
 		carrying = carrying[player] ~= nil,
 		busy = holdsCatch(player) or inRescue(player),
 		inFlight = inFlight(player),
-		inCamp = campOf(player) ~= nil,
+		inCamp = campBlocks(player), -- #5676: not by the player's own picnic blanket
 		inTown = inTownSquare(player),
 		sinceSwing = if last ~= nil then serverNow() - last else nil,
 	}
@@ -5104,6 +5124,7 @@ function CatService.picnicCats(player: Player, profile: Types.PlayerProfile, piv
 		player:SetAttribute("PicnicCat" .. n, nil)
 	end
 	Street.picnics[player.UserId] = { pivot = pivot, defs = Street.picnicDefs(profile), n = 0 }
+	picnicSpots[player.UserId] = M.PicnicSeats.centre(pivot).Position
 	Street.picnicSeat(player.UserId)
 end
 
@@ -5111,6 +5132,7 @@ end
 function CatService.picnicClear(player: Player)
 	local picnic: Picnic? = Street.picnics[player.UserId]
 	Street.picnics[player.UserId] = nil
+	picnicSpots[player.UserId] = nil
 	if picnic ~= nil and picnic.stray ~= nil then
 		Street.picnicGo(picnic.stray :: Stray)
 	end

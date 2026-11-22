@@ -70,7 +70,8 @@ local function rootPart(): BasePart?
 end
 
 -- True while a swing could go: alive, the net out (no cat in the arms), not in a minigame, the intro, a flight or a
--- camp. The server checks the same again.
+-- camp. The server checks the same again. #5676: the camp is read from NetHidden, which the server keeps on in a
+-- camp except by the player's own picnic blanket (picnicNet), so the Camp attribute alone no longer blocks.
 local function canSwing(): boolean
 	local character = player.Character
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
@@ -85,7 +86,6 @@ local function canSwing(): boolean
 		and character:GetAttribute("NetHidden") ~= true
 		and character:GetAttribute("Launching") ~= true
 		and character:GetAttribute("CloudHopAt") == nil
-		and character:GetAttribute("Camp") == nil
 end
 
 local function swing()

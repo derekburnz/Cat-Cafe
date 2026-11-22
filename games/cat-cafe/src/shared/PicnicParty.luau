@@ -23,6 +23,11 @@ PicnicParty.SECONDS = 3 * 60 -- Picnic Time
 PicnicParty.POTION = "picnic_time" -- Catalog.potions: +100% money (tipsOver 1) for 3 minutes
 PicnicParty.CAT_NEXT_SECONDS = 2 -- the next picnic cat sits down this long after the one before is caught
 PicnicParty.SEEN_STUDS = 60 -- picnic_ready_seen: a ready basket this near counts as seen
+-- #5676 (Sync's Studio run Nov 22: the blanket lies inside the Park camp, where the net is away, so only 1 of 3 cats
+-- was caught): with picnicNet on, a player with a party running has the net out and may swing and catch within
+-- NET_STUDS of their own blanket's middle, camp or not (CatService)
+PicnicParty.NET_FLAG = "picnicNet"
+PicnicParty.NET_STUDS = 12
 
 PicnicParty.READY = "PicnicReady"
 PicnicParty.NEXT_AT = "PicnicNextAt"

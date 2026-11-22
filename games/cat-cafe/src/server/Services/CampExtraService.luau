@@ -397,8 +397,10 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		return
 	end
 	if extraId == "picnic" and partyOn() then
-		-- #5572: the party happens at the basket, because the point is the place
-		if not inReach(player, def) then
+		-- #5572: the party happens at the basket, because the point is the place. #5657 (Derek 2026-11-22: "the new
+		-- station for park can't be done/opened through cannon menu"): with picnicFromCannon on, the cannon menu's
+		-- Start runs Picnic Time from anywhere, like every other station since #3082 (the blanket cats wait in the Park)
+		if not inReach(player, def) and not LiveFlagService.on("picnicFromCannon") then
 			refuse(player, extraId, "Walk up to the Picnic Basket for the party")
 		elseif not startParty(player, profile) then
 			refuse(player, extraId, "The next picnic is not ready yet")

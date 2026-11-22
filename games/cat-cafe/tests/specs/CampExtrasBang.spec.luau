@@ -84,6 +84,13 @@ return function()
 			expect(CampExtrasLogic.REMOTE_WORDS.rummage).to.equal("Rummage") -- #4961
 			expect(CampExtrasLogic.GOLD_POND_ATTRIBUTE).to.equal("GoldenPondPass")
 		end)
+
+		it("calls the Picnic Party's button Start once it runs from the cannon (#5657)", function()
+			expect(CampExtrasLogic.remoteWord("collect", "picnic", true)).to.equal("Start")
+			expect(CampExtrasLogic.remoteWord("collect", "picnic", false)).to.equal("Collect")
+			expect(CampExtrasLogic.remoteWord("collect", "pond", true)).to.equal("Collect")
+			expect(CampExtrasLogic.remoteWord("open", "yardSale", true)).to.equal("Open")
+		end)
 	end)
 
 	describe("CampExtrasLogic.bubble (#1614)", function()

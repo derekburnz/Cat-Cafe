@@ -328,7 +328,8 @@ local function keepOnTables()
 		for _, bag in entry.bags do
 			local index = bag.tableIndex
 			if index ~= nil and index ~= 1 then
-				if plot.tableAnchors[index] == nil or not onFloor(plot, positionOf(plot, bag)) then
+				local anchor: BasePart? = plot.tableAnchors[index]
+				if anchor == nil or not onFloor(plot, positionOf(plot, bag)) then
 					bag.tableIndex = 1
 				end
 			end

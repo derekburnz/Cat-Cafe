@@ -615,9 +615,10 @@ local function updateRich()
 				end
 				local pile = piles[id]
 				if not pile then
-					pile = buildBag(anchor, bag.at)
-					pile:SetAttribute("At", bag.at)
-					piles[id] = pile
+					local built = buildBag(anchor, bag.at)
+					built:SetAttribute("At", bag.at)
+					piles[id] = built
+					pile = built
 				else
 					-- #5654 (richOnTable): the server moved a waiting bag (its table moved as the cafe grew, or the
 					-- table went), so the bag follows it, at the same height over the table top

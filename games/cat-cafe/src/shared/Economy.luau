@@ -803,7 +803,7 @@ end
 -- #4251 (harvest-hollow-spec 3b): a Harvest Hollow cat counts toward no Index total, track or reward, so not toward
 -- rank up's different cats, its rarity need or the collection badges either: a limited event must not skip a tier.
 local function harvestCat(def: Types.CatDef?): boolean
-	return def ~= nil and def.area == "harvest"
+	return def ~= nil and Catalog.isEventArea(def.area) -- #5665: and the Christmas Event's cats
 end
 
 function Economy.distinctCats(profile: Types.PlayerProfile): number

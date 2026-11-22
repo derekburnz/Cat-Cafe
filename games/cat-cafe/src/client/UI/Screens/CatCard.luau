@@ -732,7 +732,11 @@ function CatCard._fill(self: any)
 	local title, under = CatCardLogic.names(custom, catalogName)
 	-- #5025 (harvest-hollow-spec 3b): an unnamed harvest cat's sub line says it is kept (the card is too narrow for
 	-- what it earns like; the found card and the Index page say that)
-	if under == nil and def ~= nil and (def :: any).area == "harvest" then
+	if
+		under == nil
+		and def ~= nil
+		and ((def :: any).area == "harvest" or (def :: any).area == "snowglobe")
+	then -- #5665
 		under = HarvestLogic.CARD_LINE
 	end
 	self._name.Text = title

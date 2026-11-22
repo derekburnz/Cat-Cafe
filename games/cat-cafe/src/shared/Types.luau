@@ -20,7 +20,8 @@ export type Area =
 -- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 -- #4251: "harvest" for a Harvest Hollow cat (the limited area, not one of the ten): kept, it earns like `earnsLike`.
-export type CatArea = Area | "spare" | "exclusive" | "secret" | "harvest"
+-- #5665: "snowglobe" for a Christmas Event cat (Snowglobe Village, the same way as "harvest").
+export type CatArea = Area | "spare" | "exclusive" | "secret" | "harvest" | "snowglobe"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
 export type CatSource = "free" | "shop" | "pass" | "booth" | "advent" -- advent #5502: a calendar door (shared/Advent); -- booth #4061: the Ticket Booth's prize cat
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"

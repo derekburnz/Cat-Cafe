@@ -58,7 +58,7 @@ local function anyCoat(collection: { [string]: number }): boolean
 	for catId in collection do
 		local def = Catalog.getCat(catId)
 		-- #4251: a harvest coat gives no coat badge (Design spec 3b: harvest cats count toward no reward)
-		if def == nil or (def.exclusive ~= true and def.area ~= "harvest") then
+		if def == nil or (def.exclusive ~= true and not Catalog.isEventArea(def.area)) then
 			return true
 		end
 	end
@@ -71,7 +71,7 @@ for _, def in Catalog.cats do
 	if
 		def.area ~= "spare"
 		and def.area ~= "secret"
-		and def.area ~= "harvest"
+		and not Catalog.isEventArea(def.area) -- #5665
 		and def.exclusive ~= true
 	then
 		pageSize[def.area] = (pageSize[def.area] or 0) + 1

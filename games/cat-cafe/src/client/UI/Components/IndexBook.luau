@@ -59,6 +59,10 @@ IndexBook.HARVEST_NAME = "Harvest Hollow"
 IndexBook.HARVEST_NOTE = "Yours to keep · not counted in the Index"
 -- #5025 (harvest-hollow-spec 3b): once the area has closed (HarvestHollow.CLOSES_AT, Sun Dec 6), the page says it returns
 IndexBook.HARVEST_CLOSED_NOTE = "Yours to keep · back next autumn"
+-- #5665: the Christmas Event's cats' own page, the same way, shown only once the player has found one (the teasers
+-- show dark shapes only, so the book never shows the set before the event)
+IndexBook.SNOWGLOBE = "snowglobe"
+IndexBook.SNOWGLOBE_NAME = "Snowglobe Village"
 IndexBook.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 local SPARE = IndexRewards.SPARE_AREA
@@ -150,6 +154,17 @@ function IndexBook.sections(
 		total = 0,
 		cats = {},
 	}
+	local snowglobe: Section = {
+		id = IndexBook.SNOWGLOBE,
+		name = IndexBook.SNOWGLOBE_NAME,
+		tier = 0,
+		locked = false,
+		exclusive = true,
+		note = IndexBook.HARVEST_NOTE,
+		have = 0,
+		total = 0,
+		cats = {},
+	}
 	for index, def in catalog.cats do
 		order[def.id] = index
 		local areaId: string = def.area or IndexBook.FALLBACK_AREA
@@ -158,6 +173,8 @@ function IndexBook.sections(
 			continue -- #3470: a Secret cat leaves no trace in the book
 		elseif areaId == IndexBook.HARVEST then
 			section = harvest
+		elseif areaId == IndexBook.SNOWGLOBE then
+			section = snowglobe
 		elseif def.exclusive == true or areaId == IndexBook.EXCLUSIVE then
 			if tab ~= "normal" then
 				continue -- never gold or rainbow
@@ -177,6 +194,9 @@ function IndexBook.sections(
 	end
 	if harvest.total > 0 then
 		table.insert(list, harvest) -- #5025: after every area, before the Exclusive page
+	end
+	if snowglobe.have > 0 then
+		table.insert(list, snowglobe) -- #5665: once one is found
 	end
 	if exclusive.total > 0 then
 		table.insert(list, exclusive) -- after every area

@@ -83,7 +83,14 @@ local function distinct(catalog: Types.Catalog, state: Types.PlayerState): numbe
 	for catId in collection do
 		local def = byId[catId]
 		-- #4251: a harvest cat counts toward no total, as the server's Economy.distinctCats
-		if def == nil or (def.exclusive ~= true and def.area ~= "harvest") then
+		if
+			def == nil
+			or (
+				def.exclusive ~= true
+				and def.area ~= "harvest"
+				and (def :: any).area ~= "snowglobe"
+			)
+		then
 			n += 1
 		end
 	end

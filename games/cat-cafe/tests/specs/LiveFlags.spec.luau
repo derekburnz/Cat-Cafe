@@ -323,6 +323,7 @@ return function()
 							or key == "padHud" -- #5624
 							or key == "rankDimTwo" -- #5609
 							or key == "secretCompanionBig" -- #5431
+							or key == "rankFxLite" -- #5651
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

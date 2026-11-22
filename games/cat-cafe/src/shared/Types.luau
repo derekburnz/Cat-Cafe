@@ -1565,6 +1565,9 @@ export type PlayerProfile = {
 	-- restart.
 	advent: { year: number, opened: number, day: number, caught: number }?,
 	snowflakes: number?,
+	-- #5665 part 2 (shared/SnowglobeSave): the UTC day of the last first-visit +40 in Snowglobe Village. No VERSION
+	-- bump: an older server drops it, so the worst is a second +40 that day.
+	snowglobe: { visitDay: number? }?,
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
 	-- #3996 (shared/DailyDeal): the UTC day the player last bought Today's Deal, nil for never. No VERSION bump: an
 	-- older server dropping it only lets the same day's deal be bought once more, which pays as normal.

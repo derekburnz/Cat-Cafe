@@ -329,6 +329,7 @@ return function()
 							or key == "catNamesLow" -- #5620
 							or key == "catNamesTop" -- #5633
 							or key == "rankLeftLog" -- Growth
+							or key == "leaveLogNow" -- Growth Nov 22
 							or key == "padSkip" -- #5624
 							or key == "padHud" -- #5624
 							or key == "rankDimTwo" -- #5609

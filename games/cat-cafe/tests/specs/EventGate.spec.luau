@@ -97,4 +97,28 @@ return function()
 			expect(gate.tokens).to.be.near(EventGate.rate(0) * EventGate.BURST_SECONDS, 1e-6)
 		end)
 	end)
+
+	describe("EventGate spend (Growth Nov 22, leaveLogNow)", function()
+		it("counts a leave's event sent at once, so the queue waits the overdraft out", function()
+			local gate = EventGate.new(0)
+			local burst = EventGate.rate(0) * EventGate.BURST_SECONDS
+			for _ = 1, math.ceil(burst) + 5 do
+				gate:spend(0, 0)
+			end
+			expect(gate.tokens < 0).to.equal(true)
+			expect(gate:offer("next", 0, 0)).to.equal(false) -- queued behind the overdraft, not sent
+			expect(#gate:due(0, 0)).to.equal(0)
+			local sent = drain(gate, 1, 60, 0)
+			expect(#sent).to.equal(1)
+			expect(sent[1]).to.equal("next")
+		end)
+
+		it("never overdraws more than BURST_SECONDS of budget", function()
+			local gate = EventGate.new(0)
+			for _ = 1, 10000 do
+				gate:spend(0, 0)
+			end
+			expect(gate.tokens).to.be.near(-EventGate.rate(0) * EventGate.BURST_SECONDS, 1e-6)
+		end)
+	end)
 end

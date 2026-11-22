@@ -338,11 +338,12 @@ export type PlayerState = {
 	-- #5502: the advent calendar (shared/Advent.view), nil while either switch is off
 	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
 	snowflakes: number?, -- #5502: the Christmas event's Snowflakes (the Gift Stall's count)
-	-- #5643: the Gift Stall's view (shared/GiftStallSave.view), nil while christmasEvent is off
+	-- #5643: the Gift Stall's view (shared/GiftStallSave.view), false (or nil from an older client build) while
+	-- christmasEvent is off
 	giftStall: {
 		snowflakes: number,
 		items: { { id: string, name: string, cost: number, owned: boolean } },
-	}?,
+	} | false | nil,
 	-- F87 (easy-start.md section 6): the context tips seen (tip id or "like_ask" to true); nil until ProfileSync
 	-- sends it, and the client-found tips, the help card and the feedback ask wait for it
 	tipsSeen: { [string]: boolean }?,

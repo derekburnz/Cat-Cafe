@@ -9,8 +9,9 @@
 -- cats, with no Exclusive page either (an exclusive cat is never caught, so never rainbow).
 --   found(state, tab)                    which cats count as found on the tab: met or owned, or found in gold or
 --                                        in rainbow
---   sections(catalog, state, tab, harvestClosed?)   the areas to scroll through, each with its cats and counts;
---                                        harvestClosed (#5025) gives the Harvest page its "back next autumn" note
+--   sections(catalog, state, tab, harvestClosed?, everyPage?)   the areas to scroll through, each with its cats and
+--                                        counts; harvestClosed (#5025) gives the Harvest page its "back next autumn"
+--                                        note, and everyPage lists the Snowglobe page before one is found (for building)
 --   count(section)                       the line beside an area's name: "7 / 10", "Complete!" or "Tier 3"
 --   reward(views, track)                 the area's reward button: "ready" with how many, "next", "done" or "none"
 --   secret(catalog, state, tab)          the Secret page (#3470): nil until a Secret cat is found, then only those
@@ -103,7 +104,8 @@ function IndexBook.sections(
 	catalog: Types.Catalog,
 	state: Types.PlayerState,
 	tab: Tab,
-	harvestClosed: boolean?
+	harvestClosed: boolean?,
+	everyPage: boolean?
 ): { Section }
 	local found = IndexBook.found(state, tab)
 	local list: { Section } = {}
@@ -195,8 +197,10 @@ function IndexBook.sections(
 	if harvest.total > 0 then
 		table.insert(list, harvest) -- #5025: after every area, before the Exclusive page
 	end
-	if snowglobe.have > 0 then
-		table.insert(list, snowglobe) -- #5665: once one is found
+	-- #5665: once one is found. Sync's Studio run: CatCollection builds its page frames from an empty save, so it asks
+	-- for every page (everyPage) and hides the ones a render leaves out; without it the page was never built.
+	if snowglobe.have > 0 or (everyPage == true and snowglobe.total > 0) then
+		table.insert(list, snowglobe)
 	end
 	if exclusive.total > 0 then
 		table.insert(list, exclusive) -- after every area

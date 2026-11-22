@@ -1565,6 +1565,9 @@ export type PlayerProfile = {
 	-- restart.
 	advent: { year: number, opened: number, day: number, caught: number }?,
 	snowflakes: number?,
+	-- #5665 part 2 (shared/SnowglobeSave): the UTC day of the last first-visit +40 in Snowglobe Village. No VERSION
+	-- bump: an older server drops it, so the worst is a second +40 that day.
+	snowglobe: { visitDay: number? }?,
 	-- #5643 (shared/GiftStallSave): the Gift Stall items bought with Snowflakes. No VERSION bump, the same way: an
 	-- older server drops it, so christmasEvent goes on only once every server runs this code.
 	giftStall: { bought: { [string]: boolean } }?,

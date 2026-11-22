@@ -36,6 +36,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EventFold = require(ReplicatedStorage.Shared.EventFold)
 local EventGate = require(script.Parent.Parent.Util.EventGate)
 local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
 local FieldText = require(script.Parent.Parent.Util.FieldText)
@@ -1761,6 +1762,15 @@ end
 
 function Telemetry.custom(player: Player, name: CustomEvent, value: number, values: { string }?)
 	local fields = values or {}
+	local moment = Onboarding.cleanFromCustom(name, fields) -- read under the event's own name, before a fold
+	-- Growth Nov 22 (switch eventFold): some names never show in Creator Hub, so these go out under a name that
+	-- records, the old name in field 1 (shared/EventFold)
+	local sent: CustomEvent = name
+	if EventFold.folds(name) and LiveFlagService.on(EventFold.FLAG) then
+		local host, folded = EventFold.fold(name, value, fields)
+		sent = host :: any
+		fields = folded
+	end
 	if studio and #fields > #FIELD_KEYS then
 		-- Roblox takes three custom fields; customFields drops the rest without a word (Review-QA on #3413)
 		warn(
@@ -1772,12 +1782,11 @@ function Telemetry.custom(player: Player, name: CustomEvent, value: number, valu
 			)
 		)
 	end
-	remember(player, "custom", name, value, fields)
-	send(player, "custom " .. name, function()
-		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))
+	remember(player, "custom", sent, value, fields)
+	send(player, "custom " .. sent, function()
+		AnalyticsService:LogCustomEvent(player, sent, value, customFields(fields))
 	end)
 	-- onboarding_v9: some of its moments are these events (Onboarding.cleanFromCustom)
-	local moment = Onboarding.cleanFromCustom(name, fields)
 	if moment ~= nil then
 		local profile = DataService.get(player)
 		if profile ~= nil then

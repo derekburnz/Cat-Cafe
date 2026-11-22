@@ -164,6 +164,7 @@ LiveFlags.KEYS = {
 	"rankDimTwo", -- #5609: the Tier 2 Rank Up dim and arrow show anywhere, on the new start too, and only rest on a press until the rank up (RankSpotService, UI.rankSpot.set); off by default
 	"rankSpotStay", -- #5516: the first Rank Up dim and arrow never go away for good while it is ready, a press only rests them (shared/RankFirst.STAY_FLAG); off by default
 	"leaveLogFold", -- Growth Nov 22: tier3_left logs as tier3_trip stop "left_<furthest>", and rank_ready_left as session_end's tier field "1_funded" or "1_short", since Roblox records only 100 custom event names (Services/Telemetry); off by default
+	"eventFold", -- Growth Nov 22: 9 important events that never show in Creator Hub go out under names that record, the old name in field 1 (shared/EventFold); off by default
 	"rankLeftLog", -- Growth Nov 20: log rank_ready_left (funded or short) when a new start save leaves at Tier 1 after rank_ready; off by default
 	"rankCueLog", -- #5516: log rank_cue_next, the first window opened after the Tier 1 rank cue (or left/ranked at session end); off by default
 	"hoodTrail", -- #5517: at Tier 3 until the first Neighbourhood landing, the goal line and paw prints to a cannon, the Neighbourhood card first with its ring (UI/Components/ParkTrailLogic.hoodDue); off by default
@@ -380,6 +381,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankSpotStay = true, -- #5516: first-session flow, on once Review-QA passes
 	rankLeftLog = true, -- Growth Nov 20: on as soon as it publishes (log only)
 	leaveLogFold = true, -- Growth Nov 22: on as soon as it publishes (log only)
+	eventFold = true, -- Growth Nov 22: on as soon as it publishes (log only)
 	rankCueLog = true, -- #5516: on as soon as it publishes (log only, no save field)
 	hoodTrail = true, -- #5517: on after Review-QA and a phone look
 	rankTapLog = true, -- #5516: on as soon as it publishes (log only, no save field)

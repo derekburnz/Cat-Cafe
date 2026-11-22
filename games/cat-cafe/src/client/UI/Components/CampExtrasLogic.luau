@@ -228,6 +228,21 @@ CampExtrasLogic.REMOTE_COLLECT =
 CampExtrasLogic.REMOTE_WORDS =
 	{ collect = "Collect", open = "Open", rummage = "Rummage" } :: { [string]: string }
 
+-- #5657 (Derek 2026-11-22: "the new station for park can't be done/opened through cannon menu"): with the Picnic
+-- Party able to start from the cannon (`partyRemote`: the picnicParty and picnicFromCannon switches both on), the
+-- Picnic Basket's Collect reads "Start"; every other button keeps its REMOTE_WORDS word.
+CampExtrasLogic.PARTY_START = "Start"
+function CampExtrasLogic.remoteWord(
+	action: RemoteAction,
+	extraId: string,
+	partyRemote: boolean
+): string
+	if action == "collect" and extraId == "picnic" and partyRemote then
+		return CampExtrasLogic.PARTY_START
+	end
+	return CampExtrasLogic.REMOTE_WORDS[action]
+end
+
 function CampExtrasLogic.remoteAction(line: Line?): RemoteAction?
 	if line == nil then
 		return nil

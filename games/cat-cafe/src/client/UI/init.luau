@@ -3161,7 +3161,10 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		end
 		-- #5025 (harvest-hollow-spec 3b, Derek): a harvest cat's card says it is kept and what it earns like, on the
 		-- cards that show anyway (a new kind, Legendary or better, a coat), so a repeat Common adds no card
-		if (def :: any).area == "harvest" and info.line == nil then
+		if
+			((def :: any).area == "harvest" or (def :: any).area == "snowglobe")
+			and info.line == nil
+		then -- #5665
 			local HarvestLogic = require(script.Components.HarvestLogic) :: any
 			local catalog: any = currentCatalog
 			info.line = HarvestLogic.keepLine(

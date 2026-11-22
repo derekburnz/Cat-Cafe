@@ -21,7 +21,11 @@ return function()
 	local function caughtIdsOf(rarity: string): { string }
 		local ids = {}
 		for _, def in Catalog.cats do
-			if def.rarity == rarity and def.exclusive ~= true and def.area ~= "harvest" then -- #4251
+			if
+				def.rarity == rarity
+				and def.exclusive ~= true
+				and not Catalog.isEventArea(def.area)
+			then -- #4251, #5665
 				table.insert(ids, def.id)
 			end
 		end

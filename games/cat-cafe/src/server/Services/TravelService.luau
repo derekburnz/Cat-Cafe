@@ -10,6 +10,8 @@
 -- #4251: "harvest" goes into Harvest Hollow (World/HarvestWorld.landing) while HarvestService.tripBlocker allows it:
 -- the HUD's Harvest button, or walking through the arch in the Town Square (its HarvestArchTouch part, with the
 -- player's root within ARCH_REACH studs, one try every ARCH_GAP seconds so standing in it does not repeat a toast).
+-- #5665: "snowglobe" goes into Snowglobe Village (World/SnowglobeWorld.landing) while SnowglobeService.tripBlocker
+-- allows it: walking into the giant snow globe in the Town Square (its SnowglobePortalTouch part), the same way.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -28,6 +30,8 @@ local HarvestWorld = require(script.Parent.Parent.World.HarvestWorld)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local SnowglobeService = require(script.Parent.SnowglobeService)
+local SnowglobeWorld = require(script.Parent.Parent.World.SnowglobeWorld)
 local StreamAround = require(script.Parent.Parent.Util.StreamAround)
 local Telemetry = require(script.Parent.Telemetry)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -42,7 +46,7 @@ local STREAM_SECONDS = 2 -- how long a trip into Harvest Hollow may wait for the
 local world: WorldBuilder.World? = nil
 local lastTravel: { [Player]: number } = {}
 local lastArch: { [Player]: number } = {}
-local archTold: { [Player]: boolean } = {} -- Review-QA on #4397: a refused arch walk toasts once a session
+local archTold: { [Player]: { [string]: boolean } } = {} -- Review-QA on #4397: a refused arch walk toasts once a session
 
 -- On the street outside the player's front door, facing it; nil without a cafe.
 local function homeLanding(player: Player): CFrame?
@@ -101,6 +105,10 @@ local function landingFor(player: Player, destination: string): (CFrame?, string
 	if destination == "harvest" then
 		local blocked = HarvestService.tripBlocker(player)
 		return if blocked == nil then HarvestWorld.landing() else nil, blocked
+	end
+	if destination == SnowglobeWorld.ID then
+		local blocked = SnowglobeService.tripBlocker(player)
+		return if blocked == nil then SnowglobeWorld.landing() else nil, blocked
 	end
 	if Catalog.getArea(destination) ~= nil or destination == "alley" then
 		return nil, "Hop in the Cat Cannon to fly there"
@@ -195,7 +203,7 @@ local function onTravel(player: Player, rawDestination: unknown): boolean
 	if destination == "home" and wildAreaOf(player) ~= nil then
 		cloudHop(player, landing :: CFrame)
 	else
-		if destination == "harvest" then
+		if destination == "harvest" or destination == SnowglobeWorld.ID then
 			-- 3,400 studs out: stream the area in first (up to STREAM_SECONDS), as the cannon does
 			pcall(function()
 				player:RequestStreamAroundAsync((landing :: CFrame).Position, STREAM_SECONDS)
@@ -208,6 +216,8 @@ local function onTravel(player: Player, rawDestination: unknown): boolean
 		Cannon.noteMove(player, landing :: CFrame)
 		if destination == "harvest" then
 			HarvestService.arrived(player) -- #4251: the day's +40; the PivotTo fires no touch on the arrival mat
+		elseif destination == SnowglobeWorld.ID then
+			SnowglobeService.arrived(player) -- #5665: the same, in Snowglobe Village
 		end
 	end
 	Net.fire(player, "TravelResult", destination, true, nil)
@@ -220,8 +230,9 @@ function TravelService.home(player: Player): boolean
 	return onTravel(player, "home")
 end
 
--- #4251: a walk through the Harvest Hollow arch is a Travel("harvest").
-local function onArchTouched(touch: BasePart, hit: BasePart)
+-- #4251: a walk through the Harvest Hollow arch is a Travel("harvest"); #5665: a walk into the snow globe is a
+-- Travel("snowglobe"), with the same reach, gap and once-a-session refusal toast.
+local function onArchTouched(touch: BasePart, hit: BasePart, destination: string)
 	local model = hit:FindFirstAncestorOfClass("Model")
 	local player = if model ~= nil then Players:GetPlayerFromCharacter(model :: Model) else nil
 	if player == nil then
@@ -239,21 +250,28 @@ local function onArchTouched(touch: BasePart, hit: BasePart)
 		return
 	end
 	lastArch[player] = os.clock()
-	if HarvestService.tripBlocker(player) ~= nil then
-		if archTold[player] then
+	local blocked = if destination == SnowglobeWorld.ID
+		then SnowglobeService.tripBlocker(player)
+		else HarvestService.tripBlocker(player)
+	if blocked ~= nil then
+		local told = archTold[player] or {}
+		archTold[player] = told
+		if told[destination] then
 			return
 		end
-		archTold[player] = true
+		told[destination] = true
 	end
-	onTravel(player, "harvest")
+	onTravel(player, destination)
 end
 
-local function watchArch(instance: Instance)
-	if instance:IsA("BasePart") then
-		local touch = instance :: BasePart
-		touch.Touched:Connect(function(hit: BasePart)
-			onArchTouched(touch, hit)
-		end)
+local function watchArch(destination: string): (Instance) -> ()
+	return function(instance: Instance)
+		if instance:IsA("BasePart") then
+			local touch = instance :: BasePart
+			touch.Touched:Connect(function(hit: BasePart)
+				onArchTouched(touch, hit, destination)
+			end)
+		end
 	end
 end
 
@@ -266,10 +284,18 @@ function TravelService.start(builtWorld: WorldBuilder.World)
 		end
 		onTravel(player, rawDestination)
 	end)
-	for _, touch in CollectionService:GetTagged(HarvestWorld.ARCH_TOUCH_TAG) do
-		watchArch(touch)
+	for tag, destination in
+		{
+			[HarvestWorld.ARCH_TOUCH_TAG] = "harvest",
+			[SnowglobeWorld.PORTAL_TOUCH_TAG] = SnowglobeWorld.ID,
+		}
+	do
+		local watch = watchArch(destination)
+		for _, touch in CollectionService:GetTagged(tag) do
+			watch(touch)
+		end
+		CollectionService:GetInstanceAddedSignal(tag):Connect(watch)
 	end
-	CollectionService:GetInstanceAddedSignal(HarvestWorld.ARCH_TOUCH_TAG):Connect(watchArch)
 	Players.PlayerRemoving:Connect(function(player)
 		lastTravel[player] = nil
 		lastArch[player] = nil

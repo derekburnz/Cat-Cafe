@@ -119,6 +119,7 @@ IndexRewards.SPARE_AREA = "spare" -- cats out of every area for now (F78); they 
 IndexRewards.EXCLUSIVE_AREA = "exclusive" -- given or sold cats (F95, F96): no page counts them
 IndexRewards.SECRET_AREA = "secret" -- #3470: Secret cats, on no page and in no count
 IndexRewards.HARVEST_AREA = "harvest" -- #4251: Harvest Hollow's cats, in no count (their own section)
+IndexRewards.SNOWGLOBE_AREA = "snowglobe" -- #5665: the Christmas Event's cats, the same way
 IndexRewards.RAINBOW_AREA = "rainbow" -- the Rainbow page: rainbow cats of every area (F99, shared IndexRewards.RAINBOW)
 local PERKS: { Perk } = { "bonus", "goldLuck", "rainbowLuck", "baitSpeed" } -- the order they show in
 IndexRewards.PERKS = PERKS
@@ -174,6 +175,7 @@ local function outOfBook(def: Types.CatDef, area: string): boolean
 		or area == IndexRewards.EXCLUSIVE_AREA
 		or area == IndexRewards.SECRET_AREA
 		or area == IndexRewards.HARVEST_AREA
+		or area == IndexRewards.SNOWGLOBE_AREA -- #5665
 		or (def :: any).exclusive == true
 end
 

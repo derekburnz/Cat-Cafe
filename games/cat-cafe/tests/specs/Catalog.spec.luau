@@ -419,9 +419,9 @@ return function()
 		}
 
 		it(
-			"has exactly 138 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin, the Booth Plush Cat, the 10 Secret cats, the 8 harvest cats and the 4 advent calendar cats",
+			"has exactly 138 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin, the Booth Plush Cat, the 10 Secret cats, the 8 harvest cats, the 4 advent calendar cats and the 8 Christmas cats (#5665)",
 			function()
-				expect(#Catalog.cats).to.equal(138)
+				expect(#Catalog.cats).to.equal(146)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -436,6 +436,7 @@ return function()
 							or def.id == "booth_plush" -- #4061: the Ticket Booth's prize cat
 							or def.rarity == "Secret" -- #3470 and #4221: the ten Secret cats; #5502 the four advent cats
 							or def.area == "harvest" -- #4251: Harvest Hollow's eight
+							or def.area == "snowglobe" -- #5665: the Christmas Event's eight
 					).to.equal(true)
 				end
 				for id in pairs(slice) do
@@ -528,7 +529,7 @@ return function()
 						def.area == "spare"
 						or def.area == "exclusive"
 						or def.area == "secret"
-						or def.area == "harvest" -- #4251: Harvest Hollow is not one of the ten
+						or Catalog.isEventArea(def.area) -- #4251, #5665: an event area is not one of the ten
 					then
 						continue
 					end
@@ -562,7 +563,7 @@ return function()
 					elseif def.rarity == "Secret" then
 						expect(def.area).to.equal("secret") -- #3470: turns up in any area
 					elseif def.earnsLike ~= nil then
-						expect(def.area).to.equal("harvest") -- #4251: the limited area (HarvestCats.spec)
+						expect(Catalog.isEventArea(def.area)).to.equal(true) -- #4251, #5665: a limited area (HarvestCats.spec)
 					else
 						expect(
 							areaSet[if def.area == "spare"

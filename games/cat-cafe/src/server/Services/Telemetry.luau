@@ -230,6 +230,7 @@ export type CustomEvent =
 	| "ticket_buy" -- #4061: value tickets before; prize id, tier
 	| "harvest_buy" -- #4251: value pumpkins before; Stall item id, tier
 	| "hood_welcome" -- #5652: value 1; "shown" or "caught", the stray's rarity
+	| "snowglobe_catch" -- #5665: value Snowflakes given for a Christmas cat caught; rarity
 	| "gift_buy" -- #5643: value Snowflakes before; Gift Stall item id, tier
 	| "harvest_pie_reward" -- #4251 part 6: value spins banked (0 at the bank cap); tier
 	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
@@ -2321,7 +2322,7 @@ end
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
 	logRarity(player, profile) -- #3876
-	if def.area == "spare" or def.area == "secret" or def.area == "harvest" then
+	if def.area == "spare" or def.area == "secret" or Catalog.isEventArea(def.area) then -- #5665
 		return -- #3470: a Secret cat is on no area's Index page (#4251: nor a harvest cat)
 	end
 	for _, other in Catalog.cats do

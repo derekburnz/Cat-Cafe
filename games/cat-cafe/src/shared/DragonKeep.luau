@@ -660,7 +660,7 @@ DragonKeep.Messages = {
 DragonKeep.NO_EVENT_FLAG = "keepNoEvent"
 function DragonKeep.eventCat(catId: string): boolean
 	local def = Catalog.getCat(catId)
-	return def ~= nil and (def.area == "harvest" or def.source == "advent")
+	return def ~= nil and (Catalog.isEventArea(def.area) or def.source == "advent") -- #5665: and the Christmas cats
 end
 
 -- #5502: an advent calendar cat never moves in, whatever keepNoEvent says (advent-calendar-spec section 4)
@@ -752,7 +752,7 @@ function DragonKeep.quickPlan(
 		if
 			def == nil
 			or (kind == "commons" and def.rarity ~= "Common")
-			or (noEvent == true and def.area == "harvest") -- #5428
+			or (noEvent == true and Catalog.isEventArea(def.area)) -- #5428, #5665
 			or def.source == "advent" -- #5502
 		then
 			continue

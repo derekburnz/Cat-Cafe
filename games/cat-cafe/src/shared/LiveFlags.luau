@@ -229,6 +229,7 @@ LiveFlags.KEYS = {
 	"firstCatchWow", -- #5285 E2: the account's first net catch gets slow motion, a push in, a big pop, coins and a FIRST CATCH! banner (Effects/FirstCatchWow); off by default
 	"gemsShrink", -- Derek 2026-11-18: a stray's rarity gem gets smaller with distance so it stops covering far cats (Effects/Rarity, Logic.gemPixels); off by default
 	"picnicParty", -- #5572: the Picnic Basket is a Picnic Party: step in, 2x money for 3 minutes, ready again in 20 minutes and each new day (shared/PicnicParty, Services/CampExtraService); off by default
+	"picnicFromCannon", -- #5657: with picnicParty, the cannon menu's Start runs Picnic Time from anywhere (Services/CampExtraService, Screens/Cannon); off by default
 	"cherryGrove", -- #5339: Cherry Blossom Grove (spring 2027); its models are held in ServerStorage.HeldAssets (World/HeldAssets) and no code places the Grove yet; off by default
 	"christmasEvent", -- Snowglobe Village, Dec 1 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
 	"adventCalendar", -- #5502: the advent calendar (shared/Advent); also needs christmasEvent, and its dates hold every door shut until Dec 1 20:00 UTC; off by default
@@ -430,6 +431,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	firstCatchWow = true, -- #5285 E2: first-session change; on after Review-QA and Sync's look at a first catch
 	gemsShrink = true, -- Derek 2026-11-18: on after Review-QA and Sync's phone and PC look at far gems
 	picnicParty = true, -- #5572: on as soon as it publishes (Derek 2026-11-20: no restart, new servers only)
+	picnicFromCannon = true, -- #5657: on the hour it publishes
 	cherryGrove = true, -- #5339: Derek 2026-11-20, merged early behind this switch; stays off until the spring event is built
 	christmasEvent = true, -- snowglobe-village-spec: on Nov 29 after Sync's look; the event dates still hold the portal shut until Dec 1
 	adventCalendar = true, -- #5502: on Nov 29 with christmasEvent, after the Christmas restart (new save fields); the dates hold it shut

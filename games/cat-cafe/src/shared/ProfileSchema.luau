@@ -40,6 +40,7 @@ local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
 local SignStyles = require(script.Parent.SignStyles)
+local SnowglobeSave = require(script.Parent.SnowglobeSave)
 local Spin = require(script.Parent.Spin)
 local StartFunnel = require(script.Parent.StartFunnel)
 local StarterCat = require(script.Parent.StarterCat)
@@ -1131,6 +1132,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 			and flakes > 0
 		then math.min(math.floor(flakes), 1000000000)
 		else nil
+	-- #5665 part 2 (no version: see Types.PlayerProfile.snowglobe): Snowglobe Village's first-visit day
+	profile.snowglobe = if raw.snowglobe ~= nil then SnowglobeSave.sanitize(raw.snowglobe) else nil
 	-- #5643 (no version: see Types.PlayerProfile.giftStall): the Gift Stall items bought
 	profile.giftStall = GiftStallSave.sanitize(raw.giftStall)
 	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)

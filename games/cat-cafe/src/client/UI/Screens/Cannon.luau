@@ -131,6 +131,12 @@ end
 local NightPass =
 	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("NightPass"))
 
+-- #5657: the Picnic Party starts from the cannon (both picnicParty and picnicFromCannon on)
+local function partyFromCannon(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_picnicParty") == true
+		and ReplicatedStorage:GetAttribute("LiveFlag_picnicFromCannon") == true
+end
+
 local function hasNightPass(): boolean
 	local player = Players.LocalPlayer
 	return player ~= nil and player:GetAttribute(NightPass.ATTRIBUTE) == true
@@ -836,7 +842,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.extraState.FontFace = if line.ready then Theme.fonts.bodyBold else Theme.fonts.body
 			-- #3082: Collect in place of the dot (it rests a moment after a press, until the server's answer
 			-- refreshes the strip), or Open for a station with its own card (green words say when something waits)
-			local action = CampExtrasLogic.remoteAction(line)
+			local action: CampExtrasLogic.RemoteAction? = CampExtrasLogic.remoteAction(line)
 			local rummageOn: (() -> boolean)? = self._callbacks.rummageOn
 			if
 				(action == "collect" and self._callbacks.collect == nil)
@@ -852,9 +858,17 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 				and os.clock() - card.collectedAt < COLLECT_REST
 			local button = action ~= nil
 			local width = BUTTON_W[action or "collect"]
-			if action ~= nil and card.collectWord ~= action then
-				card.collectWord = action
-				card.collect:setText(CampExtrasLogic.REMOTE_WORDS[action])
+			-- #5657 (picnicFromCannon): the Picnic Party's button starts Picnic Time, so it says so
+			local word = if action ~= nil
+				then CampExtrasLogic.remoteWord(
+					action :: CampExtrasLogic.RemoteAction,
+					line.extraId,
+					partyFromCannon()
+				)
+				else nil
+			if action ~= nil and card.collectWord ~= word then
+				card.collectWord = word
+				card.collect:setText(word :: string)
 				card.collect.instance.Size = UDim2.fromOffset(width, EXTRA_H - 4)
 			end
 			card.collect.instance.Visible = button and not resting

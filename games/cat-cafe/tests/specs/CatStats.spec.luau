@@ -365,7 +365,7 @@ return function()
 						Config.KeepUpRarities[def.rarity] ~= true
 						and def.exclusive ~= true
 						and def.rarity ~= "Secret"
-						and def.area ~= "harvest" -- #4251: so does a harvest cat (HarvestCats.spec)
+						and not Catalog.isEventArea(def.area) -- #4251, #5665: so does an event cat (HarvestCats.spec)
 					then
 						for tier = 1, 5 do
 							expect(CatStats.rating(cat(def.id), tier)).to.equal(def.incomePerSecond)

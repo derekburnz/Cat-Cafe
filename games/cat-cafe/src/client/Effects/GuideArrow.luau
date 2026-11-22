@@ -201,11 +201,14 @@ local function chevron(index: number): Chevron
 		return found
 	end
 	local p = Presets.guideArrow
-	local home = lineHome
-	if home == nil then
-		home = Instance.new("Folder")
-		home.Name = p.lineName
-		lineHome = home
+	local home: Folder
+	if lineHome ~= nil then
+		home = lineHome :: Folder
+	else
+		local made = Instance.new("Folder")
+		made.Name = p.lineName
+		lineHome = made
+		home = made
 	end
 	local made = Instance.new("Model")
 	made.Name = "Chevron" .. index
@@ -240,13 +243,14 @@ end
 -- the ground under `spot` (a ray down from `rise` over it), else `spot` itself
 local function ground(spot: Vector3, character: Model?): Vector3
 	local p = Presets.guideArrow
-	local params = rayParams
-	if params == nil then
-		params = RaycastParams.new()
-		params.FilterType = Enum.RaycastFilterType.Exclude
-		rayParams = params
+	local made: RaycastParams
+	if rayParams ~= nil then
+		made = rayParams :: RaycastParams
+	else
+		made = RaycastParams.new()
+		made.FilterType = Enum.RaycastFilterType.Exclude
+		rayParams = made
 	end
-	local made = params :: RaycastParams
 	made.FilterDescendantsInstances = if character ~= nil then { character } else {}
 	local hit = Workspace:Raycast(
 		spot + Vector3.new(0, p.rise, 0),

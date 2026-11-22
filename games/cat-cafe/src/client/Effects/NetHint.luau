@@ -47,11 +47,11 @@ end
 -- mouse. Pure.
 function NetHint.device(touch: boolean, keyboard: boolean, gamepad: boolean, mouse: boolean): Device
 	if touch and not keyboard then
-		return "touch"
+		return "touch" :: Device
 	elseif gamepad and not mouse then
-		return "gamepad"
+		return "gamepad" :: Device
 	end
-	return "mouse"
+	return "mouse" :: Device
 end
 
 -- How far the press is in at `t` seconds: 1 for the first `down` share of each `period`, else 0; held at 1 with
@@ -177,7 +177,7 @@ local function update()
 	local model = inReach
 	local reach = model ~= nil and model.Parent ~= nil
 	local show = NetHint.shows(on, reach, caught, p.untilCaught)
-	local device = NetHint.device(
+	local device: Device = NetHint.device(
 		UserInputService.TouchEnabled,
 		UserInputService.KeyboardEnabled,
 		UserInputService.GamepadEnabled,

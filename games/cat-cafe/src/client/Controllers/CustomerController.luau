@@ -616,7 +616,22 @@ local function updateRich()
 				local pile = piles[id]
 				if not pile then
 					pile = buildBag(anchor, bag.at)
+					pile:SetAttribute("At", bag.at)
 					piles[id] = pile
+				else
+					-- #5654 (richOnTable): the server moved a waiting bag (its table moved as the cafe grew, or the
+					-- table went), so the bag follows it, at the same height over the table top
+					local shown = pile:GetAttribute("At")
+					if
+						typeof(shown) == "Vector3"
+						and ((shown :: Vector3) - bag.at).Magnitude > 0.05
+					then
+						local pivot = pile:GetPivot()
+						pile:PivotTo(
+							CFrame.new(bag.at.X, pivot.Position.Y, bag.at.Z) * pivot.Rotation
+						)
+						pile:SetAttribute("At", bag.at)
+					end
 				end
 				fadeBag(pile, bag.expiresAt - now)
 			end

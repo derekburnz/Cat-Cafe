@@ -7153,6 +7153,14 @@ Presets.worldGlow = {
 	stallFlag = "stallGlow",
 	cannonFlag = "cannonGlow",
 	carryFlag = "freeStart",
+	-- #5648 (cannonGlowBig): the lit cannons flash from `flashLow` to full every `flashPeriod` seconds, show through
+	-- walls, and a `flashRingSize` stud gold ring opens at the nearest one every `flashRing` seconds
+	bigFlag = "cannonGlowBig",
+	flashLow = 0.15,
+	flashPeriod = 0.9,
+	flashRing = 1.8,
+	flashRingSize = 14,
+	flashRingSeconds = 0.9,
 	cannonAttribute = "CannonGlowArea",
 	firstCamp = "alley",
 	campReach = 200, -- studs: the camp cannon lights with the Town Square's while the player is this near it -- the camp the new start lands at, when the character is not there yet
@@ -7471,6 +7479,42 @@ Presets.guideArrow = {
 	transparency = 0.1,
 	reach = 0.8,
 	period = 1.2,
+	-- #5647 (arrowLine): the line of chevrons, `spacing` studs apart from `ahead` on, at most `count` (`lowCount` in Low
+	-- performance), stopping `short` before the target and gone inside `arrive`; each `lineLength` by `lineWidth`,
+	-- transparency `lineBase` at the wave's crest up to `lineBase + lineFade`, the crest running along every
+	-- `linePeriod` seconds. Each lies on the ground found by a ray from `rise` over it down to `drop` under it.
+	lineFlag = "arrowLine",
+	lineName = "CatCafeArrowLine",
+	spacing = 3,
+	count = 8,
+	lowCount = 4,
+	short = 3,
+	arrive = 7,
+	lineLength = 1.9,
+	lineWidth = 0.5,
+	lineBase = 0.3,
+	lineFade = 0.4,
+	linePeriod = 1.3,
+	lineColour = Presets.palette.golden,
+	rise = 5,
+	drop = 8,
+}
+
+-- #5647 (Effects/NetHint, switch netHint): how to swing, over a cat in net reach while the save has caught fewer than
+-- `untilCaught`: a `size` px mouse (or R2 key) `lift` studs over the cat, pressing in for the first `down` share of
+-- every `period` seconds (lit `gold`), seen up to `maxDistance` studs.
+Presets.netHint = {
+	flag = "netHint",
+	buttonAttribute = "NetHintButton", -- on the LocalPlayer: UI/Screens/NetButton rings itself while true
+	untilCaught = 3,
+	size = 54,
+	lift = 4.2,
+	maxDistance = 60,
+	period = 0.8,
+	down = 0.3,
+	white = Color3.fromRGB(255, 255, 255),
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(60, 35, 10),
 }
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each

@@ -855,6 +855,7 @@ function GoalCard._alert(self: any, key: string?)
 			tween:Play()
 			self._pulse = tween
 		end
+		self.frame:SetAttribute("RankArrow", true) -- #5650: white under rankWhite (TutorialArrow)
 		TutorialArrow.add(self.frame, true)
 	else
 		TutorialArrow.remove(self.frame)

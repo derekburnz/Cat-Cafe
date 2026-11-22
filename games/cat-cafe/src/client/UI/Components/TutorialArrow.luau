@@ -14,6 +14,7 @@
 --   leading()        true while the arrow points at a tutorial (not `low`) target
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -25,6 +26,12 @@ local Outline = require(script.Parent.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local TutorialArrowLogic = require(script.Parent.TutorialArrowLogic)
+
+-- #5650: whether `target` is a Rank Up target (RANK_ATTR) while rankWhite is on
+local function rankWhite(target: GuiObject): boolean
+	return target:GetAttribute(TutorialArrowLogic.RANK_ATTR) == true
+		and ReplicatedStorage:GetAttribute("LiveFlag_" .. TutorialArrowLogic.RANK_FLAG) == true
+end
 
 local TutorialArrow = {}
 
@@ -357,6 +364,7 @@ local function showSpot(into: ScreenGui, target: GuiObject, screen: Vector2, now
 	local shade = if GuiService.ReducedMotionEnabled
 		then TutorialArrowLogic.SPOT_SOFT
 		else TutorialArrowLogic.dim(now - spotSince)
+	shade = TutorialArrowLogic.rankShade(shade, rankWhite(target)) -- #5650
 	for index, rect in rects do
 		local box = holder:FindFirstChild("Dim" .. index)
 		if box and box:IsA("Frame") then
@@ -368,6 +376,19 @@ local function showSpot(into: ScreenGui, target: GuiObject, screen: Vector2, now
 	end
 	holder.Visible = true
 	showEdges(into, shade)
+end
+
+-- #5650: the arrow's shaft and head in white for a Rank Up target, else the usual gold
+local function paint(current: Frame, white: boolean)
+	local colour = if white then Theme.colors.white else Theme.colors.gold
+	local shaft = current:FindFirstChild("Shaft", true)
+	if shaft ~= nil and shaft:IsA("Frame") and (shaft :: Frame).BackgroundColor3 ~= colour then
+		(shaft :: Frame).BackgroundColor3 = colour
+	end
+	local head = current:FindFirstChild("Head", true)
+	if head ~= nil and head:IsA("TextLabel") and (head :: TextLabel).TextColor3 ~= colour then
+		(head :: TextLabel).TextColor3 = colour
+	end
 end
 
 local function update()
@@ -439,6 +460,7 @@ local function update()
 	if head and head:IsA("TextLabel") then
 		(head :: TextLabel).TextSize = px
 	end
+	paint(current, rankWhite(target))
 	if current.Parent ~= into then
 		current.Parent = into
 	end

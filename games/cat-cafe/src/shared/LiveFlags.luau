@@ -250,6 +250,11 @@ LiveFlags.KEYS = {
 	"bowlAutoFree", -- Derek 2026-11-20 21:00 UTC: Auto refill and Auto claim free for everyone from Tier 2, and gone from the Second Bait Bowl pass text (shared/AutoBowl); off by default
 	"bowlPassOptions", -- #5606: the locked second bowl's What you get card also lists the bowl options (auto refill and auto claim) it brings with bowlTicks (Screens/BaitBowl); off by default
 	"firstCatArrow", -- #5594: a gold arrow points down over the nearest catchable cat until the first catch (Controllers/FirstCatArrowController); off by default
+	"arrowLine", -- #5647, #5660: the tutorial arrow is a gentle line of see-through chevrons to the target, and to the lit cannon after any area unlock (Effects/GuideArrow); off by default
+	"netHint", -- #5647: a clicking mouse (R2, or the Net button's ring on touch) while a cat is in reach in the first 3 catches (Effects/NetHint); off by default
+	"cannonGlowBig", -- #5648: the lit cannon after an area unlock flashes harder, shows through walls and sends out rings (Effects/WorldGlow); off by default
+	"parkCatArrow", -- #5649: the first cat arrow over the nearest Park stray while in the Park with no Park cat yet (Controllers/FirstCatArrowController); off by default
+	"rankWhite", -- #5650: the Rank Up pointing arrow is white and its dim darker (UI/Components/TutorialArrow); off by default
 	"codesRingTown", -- #5605: the Codes Cat's circle counts as a Town Square ring, so it shows with townRings as the other Town rings do (Effects/StationCircles); off by default
 	"firstCatchCoins", -- #5596: a Tier 1 save's first net catch tops its coins up to the Tier 2 Rank Up cost (StartGoalService); off by default
 	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
@@ -442,6 +447,11 @@ LiveFlags.OFF_BY_DEFAULT = {
 	bowlAutoFree = true, -- Derek 2026-11-20 21:00 UTC: on as soon as it publishes
 	bowlPassOptions = true, -- #5606: on as soon as it publishes (Derek 2026-11-20)
 	firstCatArrow = true, -- #5594: on as soon as it publishes (Derek 2026-11-20)
+	arrowLine = true, -- #5647, #5660: on as soon as it publishes (Derek 2026-11-22, before baseline 2)
+	netHint = true, -- #5647: on as soon as it publishes
+	cannonGlowBig = true, -- #5648: on as soon as it publishes
+	parkCatArrow = true, -- #5649: on as soon as it publishes
+	rankWhite = true, -- #5650: on as soon as it publishes
 	codesRingTown = true, -- #5605: on as soon as it publishes (Derek 2026-11-20)
 	firstCatchCoins = true, -- #5596: on as soon as it publishes (Derek 2026-11-20)
 	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look

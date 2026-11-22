@@ -323,6 +323,7 @@ return function()
 							or key == "bowlPassOptions" -- #5606
 							or key == "nightLineNoArrow" -- #5459
 							or key == "spawnAlley" -- #5616
+							or key == "spawnRetry" -- Sync Nov 22
 							or key == "tier3Up" -- #5617
 							or key == "spotHeld" -- #5622
 							or key == "secondCatQuiet" -- #5620

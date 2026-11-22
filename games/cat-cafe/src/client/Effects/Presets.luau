@@ -4069,6 +4069,23 @@ Presets.snowglobeFlakes = {
 	popSeconds = 1.4,
 }
 
+-- Christmas Event (Effects/GiftStallFx, #5641): a Gift Stall buy. When your Snowflakes go down within `within` studs of
+-- the stall (tag SnowglobeStall), `count` gold and `count` icy sparkles burst `lift` studs above it, a `ring` stud ring
+-- opens and `text` rises over your head for `popSeconds`.
+Presets.giftStallFx = {
+	flag = "christmasEvent",
+	tag = "SnowglobeStall",
+	within = 30,
+	lift = 4,
+	sparkle = "catchSparkle",
+	count = 12,
+	ring = 8,
+	gold = Color3.fromRGB(255, 214, 102),
+	icy = Color3.fromRGB(143, 211, 255), -- the Gift Stall's
+	text = "Gift wrapped!",
+	popSeconds = 1.4,
+}
+
 Presets.snowglobeFx = {
 	centreTag = "SnowglobeCentre",
 	portalTag = "SnowglobePortal",

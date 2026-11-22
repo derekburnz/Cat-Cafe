@@ -257,6 +257,7 @@ LiveFlags.KEYS = {
 	"cutsQuick", -- #5550: no Cat Arcade or Cat Companion scene, the other station scenes about 2 s with no skip (Effects/StationUnlockCut, Controllers/CompanionSceneController); off by default
 	"pawsInFloor", -- #5471: the Town Square's paw prints are drawn on the floor they lie on, so they stream with it (World/PawFloor); off by default
 	"guideArrow", -- #5465: every tutorial trail is one arrow by the player in place of the paws (UI/Components/GuideTrail, Effects/GuideArrow); off by default
+	"cloudsHold", -- #5655: the flight and hop clouds stay over the screen a little longer, until the landing has streamed in (Effects/Clouds); off by default
 	"lockedRingsHidden", -- #5463: a station locked for this player keeps its walk-up ring and art hidden (StationLockController, Effects/StationCircles); off by default
 	"nightLineNoArrow", -- #5459: the night line keeps its words but no ring or arrow on Upgrades (Components/NightLine); off by default
 	"secretCompanionBig", -- #5431: a Secret companion gives +60% Money and +0.90 Luck, and every companion grows 10% per area (shared/Follower); off by default
@@ -446,6 +447,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	cutsQuick = true, -- #5550: on once this and GE's companion card are both published (Design 2026-11-20)
 	pawsInFloor = true, -- #5471: on as soon as it merges
 	guideArrow = true, -- #5465: on as soon as it merges
+	cloudsHold = true, -- #5655: on as soon as it publishes (Derek 2026-11-22: the teleports look laggy)
 	lockedRingsHidden = true, -- #5463: on as soon as it merges
 	nightLineNoArrow = true, -- #5459: on as soon as it merges
 	secretCompanionBig = true, -- #5431

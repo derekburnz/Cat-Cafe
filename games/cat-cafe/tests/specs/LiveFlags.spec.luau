@@ -305,6 +305,7 @@ return function()
 							or key == "pawsInFloor" -- #5471
 							or key == "firstCatArrow" -- #5594
 							or key == "guideArrow" -- #5465
+							or key == "cloudsHold" -- #5655
 							or key == "codesRingTown" -- #5605
 							or key == "lockedRingsHidden" -- #5463
 							or key == "parkCatchNormal" -- Derek 2026-11-20

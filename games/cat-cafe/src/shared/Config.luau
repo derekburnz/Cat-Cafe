@@ -461,9 +461,11 @@ local Config = {
 		-- rungs share the card key "money", so each rung is keyed "money" plus its multiplier (StoreLogic.saleKey).
 		-- #4989 (Derek 2026-11-16 23:35 UTC: "update the 2x/3x/4x to be 10/20/30 robux and vip price"): 10, 20, 30 and
 		-- VIP 15 (Derek OK 23:36 UTC), set on Roblox by Growth-Agent; `was` stays each card's price before the Nov 15 cut
-		money2 = { was = 25, now = 10 },
-		money3 = { was = 59, now = 20 },
-		money4 = { was = 99, now = 30 },
+		-- #5674 (Derek 2026-11-22 23:45 UTC: "lower the cost of 2x/3x/4x money to half"): 5, 10 and 15, set on Roblox
+		-- with the game-passes workflow; VIP stays 15
+		money2 = { was = 25, now = 5 },
+		money3 = { was = 59, now = 10 },
+		money4 = { was = 99, now = 15 },
 		vip = { was = 25, now = 15 },
 		longNap = { was = 199, now = 99 },
 		accessories = { was = 149, now = 75 },

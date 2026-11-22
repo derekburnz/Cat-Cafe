@@ -3,7 +3,7 @@
 		"name": "2x Money",
 		"id": 2064604577,
 		"config": "MoneyPassIds[2]",
-		"price": 10,
+		"price": 5,
 		"regionalPricing": false,
 		"description": "All your cafe income x2, for good."
 	},
@@ -11,7 +11,7 @@
 		"name": "3x Money",
 		"id": 2064670602,
 		"config": "MoneyPassIds[3]",
-		"price": 20,
+		"price": 10,
 		"regionalPricing": false,
 		"description": "All your cafe income x3, for good. Takes the place of 2x Money."
 	},
@@ -19,7 +19,7 @@
 		"name": "4x Money",
 		"id": 2064357148,
 		"config": "MoneyPassIds[4]",
-		"price": 30,
+		"price": 15,
 		"regionalPricing": false,
 		"description": "All your cafe income x4, for good. Takes the place of 3x Money."
 	},

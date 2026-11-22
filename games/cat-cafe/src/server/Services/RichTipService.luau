@@ -310,6 +310,44 @@ local function checkExpiries()
 	end
 end
 
+-- #5654 (Derek 2026-11-22: "the rich tips occasionally still float randomly outside of cafe and off tables remember
+-- table locations relative to cafe get bigger so make sure they always land on table"), behind `richOnTable`: a bag's
+-- spot was worked out once, at its drop, so a cafe that grew (cafeGrows moves every table) or a room that took Tables
+-- 7 and 8 down left waiting bags floating where the table used to be. Every second each waiting bag's spot is worked
+-- out again from its table's anchor as it stands now; a bag whose table is gone or off the floor moves to table 1.
+local ON_TABLE_FLAG = "richOnTable"
+local MOVE_STUDS = 0.05 -- a spot this close to the shown one is left alone
+
+local function keepOnTables()
+	if not LiveFlagService.on(ON_TABLE_FLAG) then
+		return
+	end
+	for _, entry in held do
+		local plot = entry.plot
+		local folder = plot.model:FindFirstChild(RichBags.FOLDER)
+		for _, bag in entry.bags do
+			local index = bag.tableIndex
+			if index ~= nil and index ~= 1 then
+				local anchor: BasePart? = plot.tableAnchors[index]
+				if anchor == nil or not onFloor(plot, positionOf(plot, bag)) then
+					bag.tableIndex = 1
+				end
+			end
+			local record = if folder ~= nil then folder:FindFirstChild(bag.id) else nil
+			if record ~= nil then
+				local at = positionOf(plot, bag)
+				local shown = record:GetAttribute("Position")
+				if
+					typeof(shown) ~= "Vector3"
+					or ((shown :: Vector3) - at).Magnitude > MOVE_STUDS
+				then
+					record:SetAttribute("Position", at)
+				end
+			end
+		end
+	end
+end
+
 -- The player's cafe tier, 1 before the save loads (for the Haggler perk).
 local function tierOf(player: Player): number
 	local profile = DataService.get(player)
@@ -508,6 +546,7 @@ function RichTipService.start()
 			last = nowClock
 			local ok, problem = pcall(function()
 				checkExpiries()
+				keepOnTables() -- #5654
 				return nil :: any
 			end)
 			local ok2, problem2 = pcall(function()

@@ -149,6 +149,7 @@ return function()
 							or key == "walkUpCarry" -- #5415
 							or key == "goldenDrops"
 							or key == "richInside" -- #5582
+							or key == "richOnTable" -- #5654
 							or key == "areaCannonRings" -- #5416
 							or key == "luckyCharm"
 							or key == "introSplit"

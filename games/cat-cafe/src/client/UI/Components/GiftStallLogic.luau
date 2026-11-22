@@ -13,7 +13,9 @@
 
 local GiftStallLogic = {}
 
-GiftStallLogic.FLAKE = "❄"
+-- #5677: the emoji form (with U+FE0F), drawn as the blue snowflake like the Store and loading news; the bare text
+-- glyph was a thin white line, nearly invisible on the header and the gold price buttons
+GiftStallLogic.FLAKE = "❄️"
 GiftStallLogic.TOTAL = 1800
 
 export type Tab = "outfit" | "decor"

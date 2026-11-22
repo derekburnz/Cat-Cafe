@@ -97,7 +97,7 @@ function GiftStall.new(callbacks: Callbacks): GiftStall
 		dark = true,
 		name = "GiftStall",
 		title = TITLE,
-		subtitle = "You have ❄ 0",
+		subtitle = "You have " .. GiftStallLogic.FLAKE .. " 0",
 		color = Color3.fromHex("8FD3FF"),
 		icon = GLYPH,
 		-- as tall as the screen allows, up to MAX_SIZE (as the Oasis Spa, #3500): on a small phone the fixed height

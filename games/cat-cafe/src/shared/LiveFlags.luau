@@ -265,6 +265,7 @@ LiveFlags.KEYS = {
 	"rankTapLook", -- #5592: the one tap RANK UP button in the clean green button look with a slow breath (UI/Screens/GoalCard); off by default
 	"askClean", -- #5597: the slide-in ask cards (What next?, the faces, the invite) drawn clean: gold button band, tucked X, matching buttons, inset timer bar (UI/Screens/AskCard), and #5625 the context tips (UI/Screens/TipCard); off by default
 	"rankOneTap", -- #5533: a ready goal card is a gold RANK UP button, one tap ranks up, no window (UI/Components/RankOneTap); off by default
+	"rankChain", -- #5656: with rankOneTap, the next RANK UP tap counts a moment after the sync shows the new tier, not 1.5 s later (UI/Components/RankOneTap); off by default
 	"chipPickedWord", -- #5406: with decorChipIcons, the picked Decor chip grows to keep its word on a phone (Screens/DecorShop); off by default
 	"bowlWalkQuiet", -- #5436: with No new cat pop-ups ticked, the bowl walk-up ring no longer opens the waiting cat's card (Controllers/UIController); off by default
 	"bowlNoPops", -- #5571: with No cat pop-ups ticked, a bowl tame shows no big rare card and the walk-up ring no waiting cat card (UI.securedRare, Controllers/UIController); off by default
@@ -454,6 +455,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankTapLook = true, -- #5592: on once Review-QA and a phone look pass
 	askClean = true, -- #5597: on once Review-QA passes
 	rankOneTap = true, -- #5533: on once Review-QA and a phone look pass (Derek 2026-11-20)
+	rankChain = true, -- #5656: on the hour it publishes
 	chipPickedWord = true, -- #5406: on as soon as it merges, then Sync checks 360 px
 	bowlWalkQuiet = true, -- #5436
 	bowlNoPops = true, -- #5571

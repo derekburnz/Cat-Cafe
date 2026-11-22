@@ -86,4 +86,20 @@ return function()
 			expect(FreeStart.quiet(1)).to.equal(false)
 		end)
 	end)
+	describe("FreeStart.spawnWord", function()
+		it(
+			"says why the Alleyway start cannot land yet, or nil when it can (Sync Nov 22)",
+			function()
+				expect(FreeStart.spawnWord(true, true, true, false, false)).to.equal(nil)
+				expect(FreeStart.spawnWord(true, true, false, false, false)).to.equal("gone")
+				expect(FreeStart.spawnWord(false, false, false, true, true)).to.equal("gone")
+				expect(FreeStart.spawnWord(false, true, true, false, false)).to.equal("no_landing")
+				expect(FreeStart.spawnWord(true, false, true, false, false)).to.equal("no_root")
+				expect(FreeStart.spawnWord(true, true, true, true, false)).to.equal("launching")
+				expect(FreeStart.spawnWord(true, true, true, false, true)).to.equal("carrying")
+				expect(FreeStart.RETRY_FLAG).to.equal("spawnRetry")
+				expect(FreeStart.SPAWN_TRIES >= 2).to.equal(true)
+			end
+		)
+	end)
 end

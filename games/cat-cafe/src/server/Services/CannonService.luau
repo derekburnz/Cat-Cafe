@@ -386,10 +386,21 @@ local function homeArrival(player: Player, character: Model)
 	-- #5533 (shared/FreeStart): a new save on the play first start begins at the Alleyway landing by day, facing its
 	-- waiting stray, as a flight would land it but with no flight; at night (areas shut) it starts as before
 	Telemetry.orderJoin(player, profile)
-	if
-		player:GetAttribute("FreeStart") == true
+	local freshFree = player:GetAttribute("FreeStart") == true
 		and (profile.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
-		and (
+	-- Sync's Studio run Nov 22: a fresh save started in the Town Square. Each fresh play first start says where it
+	-- began on free_start (a name that records): spawn_alley, or spawn_<why not> (FreeStart.spawnWord)
+	local function spawnNote(word: string)
+		Telemetry.custom(
+			player,
+			"free_start",
+			math.floor(os.clock() - started),
+			{ "spawn_" .. word, Telemetry.device(player) or "unknown" }
+		)
+	end
+	if
+		freshFree
+		and not (
 			ClockService.areasOpen()
 			-- #5616 spawnAlley: a first session's night pass keeps the Alleyway open for it, so it lands there too
 			or (
@@ -398,29 +409,46 @@ local function homeArrival(player: Player, character: Model)
 			)
 		)
 	then
+		spawnNote("night")
+	elseif freshFree then
 		local waited = 0
 		while CatService.firstLandingStray(player, "alley") == nil and waited < FREE_STRAY_WAIT do
 			task.wait(0.25) -- the stray tick puts the save's waiting stray on its near point within a second
 			waited += 0.25
 		end
-		local root = rootOf(character)
-		local landing = landingFor(player, "alley")
-		if
-			landing ~= nil
-			and root ~= nil
-			and player.Character == character
-			and character.Parent ~= nil
-			and character:GetAttribute("Launching") ~= true
-			and not CatService.isLoaded(player)
-		then
-			StreamAround.wait(player, (landing :: CFrame).Position)
-			if player.Character == character and character.Parent ~= nil then
-				character:PivotTo(landing :: CFrame)
-				Cannon.noteMove(player, landing :: CFrame) -- the camera goes behind the character there
-				Telemetry.cleanEvent(player, profile, Telemetry.arrivedEvent("alley"))
-				return
+		-- spawnRetry: a miss tries again each second for a few seconds before the save is left where it stands
+		local tries = if LiveFlagService.on(FreeStart.RETRY_FLAG) then FreeStart.SPAWN_TRIES else 1
+		local why: string? = "none"
+		for try = 1, tries do
+			if try > 1 then
+				task.wait(1)
+			end
+			local root = rootOf(character)
+			local landing = landingFor(player, "alley")
+			why = FreeStart.spawnWord(
+				landing ~= nil,
+				root ~= nil,
+				player.Character == character and character.Parent ~= nil,
+				character:GetAttribute("Launching") == true,
+				CatService.isLoaded(player)
+			)
+			if why == "gone" then
+				break -- a new character or a player who left: nothing to move
+			end
+			if why == nil then
+				StreamAround.wait(player, (landing :: CFrame).Position)
+				if player.Character == character and character.Parent ~= nil then
+					character:PivotTo(landing :: CFrame)
+					Cannon.noteMove(player, landing :: CFrame) -- the camera goes behind the character there
+					Telemetry.cleanEvent(player, profile, Telemetry.arrivedEvent("alley"))
+					spawnNote(if try > 1 then "alley_retry" else "alley")
+					return
+				end
+				why = "gone"
+				break
 			end
 		end
+		spawnNote(why or "none")
 	end
 	if
 		not Cannon.joinsAtHome(

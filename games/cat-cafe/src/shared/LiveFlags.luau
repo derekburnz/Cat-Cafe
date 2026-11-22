@@ -150,6 +150,7 @@ LiveFlags.KEYS = {
 	"plushSecret", -- #5414: the Booth Plush Cat earns like the Tier 9 Secret, on the Secret night tile (shared/CatStats, Screens/TicketBooth); off by default
 	"keepLook", -- #5433 #5434 #5435: Dragon Keep family pictures on Binder cards, Sets rows and Slots, slot bonuses (Screens/DragonKeep); off by default
 	"spawnAlley", -- #5616: a save that left before its first step still joins the new start, and a first session's night pass lands it in the Alleyway (shared/FreeStart.SPAWN_FLAG); off by default
+	"spawnRetry", -- Sync Nov 22: a play first start that could not land in the Alleyway tries again each second for 5 s (shared/FreeStart.RETRY_FLAG); off by default
 	"parkFirstCalm", -- #5496: on a phone, tablet or console a missed catch in the Park leaves the cat put until the first Park catch (shared/ParkFirstEasy.calm); off by default
 	"secondCatQuiet", -- #5620: the old "Catch a 2nd cat" goal never comes back on a save that joined the new start (CafeService); off by default
 	"catNamesLow", -- #5620: cat name tags sit on the cat's back, clear of the rarity gem and NEW pill (Effects/CatNames); off by default
@@ -373,6 +374,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	padHud = true, -- #5624: on as soon as it publishes (Derek 2026-11-20, PS4)
 	holdout = true, -- #5499: on with the first of its switches, after the next restart Derek calls (new save field)
 	spawnAlley = true, -- #5616: on as soon as it publishes (Derek 2026-11-20, priority)
+	spawnRetry = true, -- Sync Nov 22: on as soon as it publishes
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)
 	tier3Up = true, -- #5617: on as soon as it publishes (Derek 2026-11-20)
 	catchLostLog = true, -- #5500: on as soon as it publishes (Derek 2026-11-19)

@@ -24,6 +24,11 @@ FreeStart.ATTR = "FreeStart"
 -- #5616 (Derek 2026-11-20: "sometimes when first joining it doesn't spawn you in alleyway"): a save that joined once
 -- and left before its first step joins the start too, and a first session's night pass lands it in the Alleyway
 FreeStart.SPAWN_FLAG = "spawnAlley"
+-- Sync's Studio run Nov 22 (a fresh save began in the Town Square): with spawnRetry on, a start that could not land
+-- in the Alleyway tries again each second, SPAWN_TRIES times in all; every fresh start logs where it began
+-- (free_start field "spawn_alley", "spawn_alley_retry" or "spawn_<spawnWord>")
+FreeStart.RETRY_FLAG = "spawnRetry"
+FreeStart.SPAWN_TRIES = 5
 FreeStart.EVENT = "free_start" -- Telemetry.custom, once as a save joins
 FreeStart.UNTIL_TIER = 3 -- the start's rules hold below this tier
 FreeStart.STREET_SECONDS = 180 -- streetCats: the first three minutes of play
@@ -54,6 +59,29 @@ function FreeStart.joins(
 		and orderGroup == nil
 		and (sessions <= 1 or again == true)
 		and tutorialStep == 0
+end
+
+-- Why the Alleyway start cannot land the character now, or nil when it can: "no_landing" (no pad spot), "no_root"
+-- (no HumanoidRootPart yet), "gone" (a new character, or the player left), "launching", "carrying".
+function FreeStart.spawnWord(
+	landing: boolean,
+	root: boolean,
+	same: boolean,
+	launching: boolean,
+	carrying: boolean
+): string?
+	if not same then
+		return "gone"
+	elseif not landing then
+		return "no_landing"
+	elseif not root then
+		return "no_root"
+	elseif launching then
+		return "launching"
+	elseif carrying then
+		return "carrying"
+	end
+	return nil
 end
 
 -- Whether the start's rules hold for a joined save at `tier`.

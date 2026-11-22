@@ -11,9 +11,6 @@
 --   gate:offer(item, now, players) -> boolean     true: send `item` now; false: queued (or dropped when full)
 --   gate:due(now, players) -> { item }             the queued items whose turn has come, oldest first
 --   gate.dropped                                    how many were dropped since the last takeDropped()
---   gate:spend(now, players)                       an event sent now whatever the budget (a leave, whose player is
---                                                  gone by the time a queued event's turn comes); it still counts,
---                                                  so the budget may run below 0 and the queue waits it out
 
 local EventGate = {}
 
@@ -33,7 +30,6 @@ export type Gate = {
 	offer: (self: Gate, item: any, now: number, players: number) -> boolean,
 	due: (self: Gate, now: number, players: number) -> { any },
 	takeDropped: (self: Gate) -> number,
-	spend: (self: Gate, now: number, players: number) -> (),
 	size: (self: Gate) -> number,
 }
 
@@ -88,11 +84,6 @@ local function due(self: Gate, now: number, players: number): { any }
 	return out
 end
 
-local function spend(self: Gate, now: number, players: number)
-	refill(self, now, players)
-	self.tokens = math.max(-EventGate.rate(players) * EventGate.BURST_SECONDS, self.tokens - 1)
-end
-
 local function takeDropped(self: Gate): number
 	local n = self.dropped
 	self.dropped = 0
@@ -109,7 +100,6 @@ function EventGate.new(now: number): Gate
 		offer = offer,
 		due = due,
 		takeDropped = takeDropped,
-		spend = spend,
 		size = size,
 	}
 	-- a new server starts with a full burst

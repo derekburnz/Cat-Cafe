@@ -949,19 +949,8 @@ end
 -- by Roblox ("You have sent too many events").
 local gate = EventGate.new(os.clock())
 
--- Growth Nov 22 (switch leaveLogNow): tier3_left, rank_ready_left and the other session-end events logged zero
--- users. They waited in the gate's queue past the leave, and Roblox drops an event whose player has gone. While a
--- player is `releasing`, every event of theirs goes out at once (gate:spend still counts it).
-local LEAVE_NOW_FLAG = "leaveLogNow"
-local releasing: { [Player]: boolean } = {}
-
 local function send(player: Player, kind: string, fn: () -> ())
 	if excluded(player) then
-		return
-	end
-	if releasing[player] then
-		gate:spend(os.clock(), #Players:GetPlayers())
-		deliver(kind, fn)
 		return
 	end
 	local item = { kind = kind, fn = fn }
@@ -4268,29 +4257,7 @@ end
 
 function Telemetry.start()
 	DataService.onLoaded:Connect(onLoaded)
-	-- Growth Nov 22 (leaveLogNow): the session-end events at the very start of the leave (onReleasing fires first in
-	-- DataService's PlayerRemoving handler, before any save hook can yield), each sent at once; off, as a save hook
-	-- the way they always were. Whichever runs first does it, once.
-	local earlyDone: { [Player]: boolean } = {}
-	DataService.onReleasing:Connect(function(player: Player, profile: Profile)
-		if not LiveFlagService.on(LEAVE_NOW_FLAG) then
-			return
-		end
-		earlyDone[player] = true
-		releasing[player] = true
-		local ok, err: any = pcall(onRelease, player, profile)
-		releasing[player] = nil
-		if not ok then
-			warn("[Telemetry] leave logs failed: " .. tostring(err))
-		end
-	end)
-	DataService.beforeRelease(function(player: Player, profile: Profile)
-		if earlyDone[player] then
-			earlyDone[player] = nil
-			return
-		end
-		onRelease(player, profile)
-	end)
+	DataService.beforeRelease(onRelease)
 	-- #4097: note where a character stood as it goes (a leave removes it before the save's release)
 	local function watchCharacter(player: Player)
 		player.CharacterRemoving:Connect(function()

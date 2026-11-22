@@ -330,6 +330,7 @@ return function()
 							or key == "catNamesTop" -- #5633
 							or key == "rankLeftLog" -- Growth
 							or key == "leaveLogFold" -- Growth Nov 22
+							or key == "eventFold" -- Growth Nov 22
 							or key == "padSkip" -- #5624
 							or key == "padHud" -- #5624
 							or key == "rankDimTwo" -- #5609

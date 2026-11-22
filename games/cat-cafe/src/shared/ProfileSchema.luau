@@ -163,6 +163,8 @@ local ProfileSchema = {}
 -- #3618 (no new version): stats.cannonFlights, for the Liftoff badge; an older server dropping it only loses the count.
 -- #4453 (no new version): stats.tier2TopUp, the Tier 2 top up paid; it pays only as the first bait cat is tamed
 -- (stats.baitsTamed 1), so an older server dropping it cannot make it pay twice.
+-- #5652 (no new version): stats.hoodWelcome, 1 once the first Neighbourhood landing's stray came. An older server
+-- dropping it can only bring that one stray once more.
 -- #5038 (no new version): stats.tier3TopUp, the Tier 3 welcome gift paid. An older server dropping it could pay it
 -- once more while the save is still at Tier 2 with the kinds and Rares met, never past Tier 3's cost (Tier3Path).
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
@@ -282,6 +284,7 @@ local function newStats(): Types.Stats
 		cannonFlights = 0, -- #3618
 		tier2TopUp = 0, -- #4453
 		tier3TopUp = 0, -- #5038
+		hoodWelcome = 0, -- #5652: 1 once the first Neighbourhood landing's stray came (shared/HoodWelcome)
 	}
 end
 

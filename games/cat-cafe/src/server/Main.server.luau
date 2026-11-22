@@ -43,6 +43,7 @@ local FishMarketService = require(script.Parent.Services.FishMarketService)
 local FishStoreService = require(script.Parent.Services.FishStoreService)
 local FollowerService = require(script.Parent.Services.FollowerService)
 local FusionService = require(script.Parent.Services.FusionService)
+local GiftStallService = require(script.Parent.Services.GiftStallService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local HarvestService = require(script.Parent.Services.HarvestService)
@@ -171,6 +172,7 @@ MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 FishStoreService.start() -- #4055: Store passes for golden fish
 HarvestService.start() -- #4251: Harvest Hollow's Stall, Pumpkin Patch and arrival
 SnowglobeService.start() -- the Christmas Event's globe and village, once christmasEvent is on
+GiftStallService.start() -- #5643: the Gift Stall's BuyGift (Snowflakes), behind christmasEvent and the event's dates
 TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
 DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory

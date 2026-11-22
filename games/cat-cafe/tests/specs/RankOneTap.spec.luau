@@ -34,6 +34,25 @@ return function()
 			expect(RankOneTap.accepts(20 + RankOneTap.REST, 10, 20)).to.equal(true)
 		end)
 
+		it(
+			"rankChain: the next tap counts a moment after the sync shows the new tier (#5656)",
+			function()
+				-- tapped at 20, no answer yet: rests as before, so a double tap still buys one tier
+				expect(RankOneTap.acceptsChain(20.5, 10, 20, nil)).to.equal(false)
+				expect(RankOneTap.acceptsChain(20 + RankOneTap.REST, 10, 20, nil)).to.equal(true)
+				-- the sync showed the new tier at 20.3: a tap from 20.55 counts
+				expect(RankOneTap.acceptsChain(20.4, 10, 20, 20.3)).to.equal(false)
+				expect(RankOneTap.acceptsChain(20.3 + RankOneTap.CHAIN_GUARD, 10, 20, 20.3)).to.equal(
+					true
+				)
+				-- an answer from before this tap does not count for it
+				expect(RankOneTap.acceptsChain(20.6, 10, 20, 19)).to.equal(false)
+				-- the card's own guard still holds, and the first tap is free
+				expect(RankOneTap.acceptsChain(10.1, 10, nil, nil)).to.equal(false)
+				expect(RankOneTap.acceptsChain(10 + RankOneTap.GUARD, 10, nil, nil)).to.equal(true)
+			end
+		)
+
 		it("words the line under RANK UP! from the tier and its cost", function()
 			expect(RankOneTap.line("Cozy Cafe", "$1,000 coins")).to.equal(
 				"Cozy Cafe · $1,000 coins"

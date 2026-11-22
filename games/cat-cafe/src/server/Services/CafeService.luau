@@ -36,6 +36,7 @@ local EventService = require(script.Parent.EventService)
 local FishStore = require(ReplicatedStorage.Shared.FishStore)
 local Follower = require(ReplicatedStorage.Shared.Follower)
 local Fusion = require(ReplicatedStorage.Shared.Fusion)
+local GiftStallSave = require(ReplicatedStorage.Shared.GiftStallSave)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -324,10 +325,14 @@ end
 -- #4061: the Looks items a save has: the Cafe Pass's, plus the Ticket Booth wearables it bought (TicketBooth.lookItems
 -- adds them to a copy, so profile.pass.items never holds them and CafePass.sanitize keeps working as it is).
 -- #4251 part 7: and the Harvest Stall hats bought (HarvestSave.lookItems, also a copy).
+-- #5643: and the Gift Stall hats bought (GiftStallSave.lookItems, also a copy).
 local function lookItems(profile: Profile): { [string]: boolean }
 	return TicketBooth.lookItems(
 		profile.tickets,
-		HarvestSave.lookItems(profile.harvest, profile.pass.items)
+		GiftStallSave.lookItems(
+			profile.giftStall,
+			HarvestSave.lookItems(profile.harvest, profile.pass.items)
+		)
 	)
 end
 
@@ -462,6 +467,10 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			)
 			else nil,
 		snowflakes = profile.snowflakes or 0, -- #5502: the Gift Stall's count
+		-- #5643: the Gift Stall's items, prices and what is owned, nil while christmasEvent is off
+		giftStall = if LiveFlagService.on(GiftStallSave.FLAG)
+			then GiftStallSave.view(profile.giftStall, profile.snowflakes)
+			else nil,
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
 		-- #4195: the Admin Wheel that is up and whether this account has spun it
 		adminWheel = AdminWheel.view(profile.codesRedeemed, EventService.admin(), true), -- adminEvents retired, #4656

@@ -1052,6 +1052,8 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 				from = "From a Cafe Event"
 			elseif source == "harvest" then
 				from = "From Harvest Hollow" -- #4251
+			elseif source == "christmas" then
+				from = "From the Gift Stall" -- #5643
 			end
 			card.action:setText(from)
 			card.action:setStyle("ghost")

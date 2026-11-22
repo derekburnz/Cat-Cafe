@@ -3135,6 +3135,7 @@ Presets.rankUp = {
 	fountainEvery = 0.3,
 	fountain = 12, -- gateSparkle particles in each
 	awayRoof = 10, -- #4922: away from the door the beam drops from this far over your feet
+	liteFlag = "rankFxLite", -- #5651: on, none of it plays
 }
 
 -- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
@@ -4066,6 +4067,23 @@ Presets.snowglobeFlakes = {
 	regrowCount = 5,
 	regrowColour = Color3.fromRGB(255, 255, 255),
 	popColour = Color3.fromRGB(143, 211, 255),
+	popSeconds = 1.4,
+}
+
+-- Christmas Event (Effects/GiftStallFx, #5641): a Gift Stall buy. When your Snowflakes go down within `within` studs of
+-- the stall (tag SnowglobeStall), `count` gold and `count` icy sparkles burst `lift` studs above it, a `ring` stud ring
+-- opens and `text` rises over your head for `popSeconds`.
+Presets.giftStallFx = {
+	flag = "christmasEvent",
+	tag = "SnowglobeStall",
+	within = 30,
+	lift = 4,
+	sparkle = "catchSparkle",
+	count = 12,
+	ring = 8,
+	gold = Color3.fromRGB(255, 214, 102),
+	icy = Color3.fromRGB(143, 211, 255), -- the Gift Stall's
+	text = "Gift wrapped!",
 	popSeconds = 1.4,
 }
 
@@ -5801,6 +5819,13 @@ Presets.clouds = {
 		tintFrom = 0.6,
 		tintTo = 1.0,
 	},
+	-- #5655 (Derek 2026-11-22: "make the cloud scenes ... a little longer it seems like they get a little laggy when
+	-- teleporting"), switch cloudsHold: the clouds stay fully over the screen `hold` seconds past the plan's part, then
+	-- on until the spot you landed on has streamed in (Player:RequestStreamAroundAsync), never more than `holdMost`
+	-- seconds in all. A move of `moved` studs is the landing (as for a hop).
+	holdFlag = "cloudsHold",
+	hold = 0.4,
+	holdMost = 1.5,
 	hopPuff = 12, -- smokePuff particles where onlookers see a player hop away and arrive
 	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
 }
@@ -7128,6 +7153,14 @@ Presets.worldGlow = {
 	stallFlag = "stallGlow",
 	cannonFlag = "cannonGlow",
 	carryFlag = "freeStart",
+	-- #5648 (cannonGlowBig): the lit cannons flash from `flashLow` to full every `flashPeriod` seconds, show through
+	-- walls, and a `flashRingSize` stud gold ring opens at the nearest one every `flashRing` seconds
+	bigFlag = "cannonGlowBig",
+	flashLow = 0.15,
+	flashPeriod = 0.9,
+	flashRing = 1.8,
+	flashRingSize = 14,
+	flashRingSeconds = 0.9,
 	cannonAttribute = "CannonGlowArea",
 	firstCamp = "alley",
 	campReach = 200, -- studs: the camp cannon lights with the Town Square's while the player is this near it -- the camp the new start lands at, when the character is not there yet
@@ -7446,6 +7479,42 @@ Presets.guideArrow = {
 	transparency = 0.1,
 	reach = 0.8,
 	period = 1.2,
+	-- #5647 (arrowLine): the line of chevrons, `spacing` studs apart from `ahead` on, at most `count` (`lowCount` in Low
+	-- performance), stopping `short` before the target and gone inside `arrive`; each `lineLength` by `lineWidth`,
+	-- transparency `lineBase` at the wave's crest up to `lineBase + lineFade`, the crest running along every
+	-- `linePeriod` seconds. Each lies on the ground found by a ray from `rise` over it down to `drop` under it.
+	lineFlag = "arrowLine",
+	lineName = "CatCafeArrowLine",
+	spacing = 3,
+	count = 8,
+	lowCount = 4,
+	short = 3,
+	arrive = 7,
+	lineLength = 1.9,
+	lineWidth = 0.5,
+	lineBase = 0.3,
+	lineFade = 0.4,
+	linePeriod = 1.3,
+	lineColour = Presets.palette.golden,
+	rise = 5,
+	drop = 8,
+}
+
+-- #5647 (Effects/NetHint, switch netHint): how to swing, over a cat in net reach while the save has caught fewer than
+-- `untilCaught`: a `size` px mouse (or R2 key) `lift` studs over the cat, pressing in for the first `down` share of
+-- every `period` seconds (lit `gold`), seen up to `maxDistance` studs.
+Presets.netHint = {
+	flag = "netHint",
+	buttonAttribute = "NetHintButton", -- on the LocalPlayer: UI/Screens/NetButton rings itself while true
+	untilCaught = 3,
+	size = 54,
+	lift = 4.2,
+	maxDistance = 60,
+	period = 0.8,
+	down = 0.3,
+	white = Color3.fromRGB(255, 255, 255),
+	gold = Presets.palette.golden,
+	ink = Color3.fromRGB(60, 35, 10),
 }
 
 -- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each

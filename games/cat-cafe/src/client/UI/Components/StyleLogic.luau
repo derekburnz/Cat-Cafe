@@ -86,6 +86,10 @@ local NAMES: { [string]: string } = {
 	acc_acorn_hair_clip = "Acorn Hair Clip",
 	acc_round_reading_glasses = "Round Reading Glasses",
 	acc_tiny_lantern = "Tiny Lantern",
+	-- #5643: the Gift Stall hats (shared/Looks, shared/GiftStallSave)
+	acc_santa_hat = "Santa Hat",
+	acc_reindeer_antlers = "Reindeer Antlers",
+	acc_knit_beanie = "Knit Beanie",
 	-- #1168 row 2: shared/Jukebox.TRACKS (the spec keeps these in step)
 	jukebox_rainy_window = "Rainy Window",
 	jukebox_catnap_waltz = "Catnap Waltz",
@@ -114,6 +118,9 @@ local ICONS: { [string]: string } = {
 	acc_acorn_hair_clip = "🌰",
 	acc_round_reading_glasses = "👓",
 	acc_tiny_lantern = "🏮",
+	acc_santa_hat = "🎅",
+	acc_reindeer_antlers = "🦌",
+	acc_knit_beanie = "🧶",
 	pack_club_banner = "💃", -- #4026
 	pack_snowy_banner = "❄️",
 	pack_bakery_banner = "🥖",

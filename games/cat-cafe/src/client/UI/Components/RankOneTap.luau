@@ -14,6 +14,11 @@ RankOneTap.FLAG = "rankOneTap"
 RankOneTap.LOOK_FLAG = "rankTapLook" -- #5592: the button in the clean green button look (Screens/GoalCard)
 RankOneTap.GUARD = 0.4
 RankOneTap.REST = 1.5
+-- #5656 (Derek 2026-11-22: "The rankup button has delay between multiple rank ups even if they have the money"),
+-- behind the switch `rankChain`: once the server's answer shows the new tier, the next tap counts CHAIN_GUARD seconds
+-- later instead of waiting out REST, so a funded player ranks up again and again at their own pace
+RankOneTap.CHAIN_FLAG = "rankChain"
+RankOneTap.CHAIN_GUARD = 0.25
 RankOneTap.TITLE = "RANK UP!"
 RankOneTap.CHIP = "🏆 RANK UP!"
 
@@ -29,6 +34,26 @@ function RankOneTap.accepts(now: number, since: number?, fired: number?): boolea
 		return false
 	end
 	return fired == nil or now - fired >= RankOneTap.REST
+end
+
+-- #5656 (rankChain): as accepts, but a tap also counts CHAIN_GUARD seconds after `answered` (when the sync showed the
+-- tier that tap bought; nil until then), so one tap never buys two tiers and the next rank up waits for nothing else.
+function RankOneTap.acceptsChain(
+	now: number,
+	since: number?,
+	fired: number?,
+	answered: number?
+): boolean
+	if since == nil or now - since < RankOneTap.GUARD then
+		return false
+	end
+	if fired == nil then
+		return true
+	end
+	if answered ~= nil and answered >= fired and now - answered >= RankOneTap.CHAIN_GUARD then
+		return true
+	end
+	return now - fired >= RankOneTap.REST
 end
 
 -- The line under RANK UP!: the tier it buys and what it costs ("Cozy Cafe · 1,000 coins"; `cost` already worded).

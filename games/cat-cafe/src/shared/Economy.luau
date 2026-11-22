@@ -786,6 +786,11 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	if def.source == "event" then
 		return "A Cafe Event reward, not for sale" -- #2486
 	end
+	-- #5643: the Harvest Stall's, the Ticket Booth's and the Gift Stall's pieces cost 0 here (their own currency buys
+	-- them), so BuyDecor must never hand them out free
+	if def.source == "harvest" or def.source == "booth" or def.source == "christmas" then
+		return "Not for sale here"
+	end
 	if profile.decorOwned[decorId] then
 		return "Already owned"
 	end

@@ -145,6 +145,19 @@ TutorialArrowLogic.SPOT_STRONG_SECONDS = 4
 TutorialArrowLogic.SPOT_FADE_SECONDS = 0.6
 TutorialArrowLogic.SPOT_BLEED = 200 -- px the dim reaches past the screen's edges (the top bar, a notch)
 
+-- #5650 (Derek 2026-11-22: "change the pointing yellow arrow for the rankup to be a white one ... and dimming screen a
+-- little more might help"), switch rankWhite: a target marked RANK_ATTR gets a white arrow and a darker dim, each
+-- shade times RANK_DIM (0 is black). Pure.
+TutorialArrowLogic.RANK_ATTR = "RankArrow"
+TutorialArrowLogic.RANK_FLAG = "rankWhite"
+TutorialArrowLogic.RANK_DIM = 0.6
+function TutorialArrowLogic.rankShade(shade: number, rank: boolean): number
+	if not rank or shade >= 1 then
+		return shade
+	end
+	return shade * TutorialArrowLogic.RANK_DIM
+end
+
 -- The dim's transparency `elapsed` seconds after the target started: fading in to strong, holding, easing to soft.
 function TutorialArrowLogic.dim(elapsed: number): number
 	local fade = TutorialArrowLogic.SPOT_FADE_SECONDS

@@ -20,6 +20,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
+
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Moments = require(script.Parent.Parent.Moments)
@@ -271,7 +273,17 @@ local function ownRankUp(plot: Model, door: BasePart)
 	celebrate(foot, door.CFrame.RightVector, frame.Position.Y + size.Y / 2)
 end
 
+-- #5651 (Derek 2026-11-22: "the rankup vfx effects and some unnecessary confetti cause lag ... remove"): with
+-- rankFxLite on, no Rank Up plays any of these, yours or anyone's.
+local function rankFxLite(): boolean
+	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Presets.rankUp.liteFlag)
+		== true
+end
+
 local function rankUp(plot: Model, mine: boolean)
+	if rankFxLite() then
+		return
+	end
 	local front = frontOf(plot)
 	if Context.distance(front) > Presets.rankUp.within then
 		return
@@ -548,6 +560,9 @@ end
 -- door (in an area, far down the street, or with the cafe not streamed in) plays the same celebration around you.
 -- Near the door the plot's own Tier change plays it there (rankUp above), so it never plays twice.
 local function rankedUp(_tier: number)
+	if rankFxLite() then
+		return
+	end
 	local me = Players.LocalPlayer
 	for plot in plots do
 		if plot.Parent ~= nil and numberAttribute(plot, "OwnerUserId") == me.UserId then

@@ -62,6 +62,7 @@ local FirstMinuteFx = require(script.FirstMinuteFx)
 local Fish = require(script.Fish)
 local Follower = require(script.Follower)
 local FusionFx = require(script.FusionFx)
+local GiftStallFx = require(script.GiftStallFx)
 local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
 local GuideArrow = require(script.GuideArrow)
@@ -82,6 +83,7 @@ local MoneyBag = require(script.MoneyBag)
 local Motion = require(script.Motion)
 local MuseumPlaques = require(script.MuseumPlaques)
 local Mystery = require(script.Mystery)
+local NetHint = require(script.NetHint)
 local NetPin = require(script.NetPin)
 local NetTrail = require(script.NetTrail)
 local Orders = require(script.Orders)
@@ -254,10 +256,12 @@ function Effects.start()
 		HarvestFx.start, -- #4251: Harvest Hollow's falling leaves and the pumpkin patch's pops
 		SnowglobeFx.start, -- Christmas Event: Snowglobe Village's snow and the Town Square globe's swirl (idle until tagged)
 		SnowglobeFlakes.start, -- Christmas Event: the Snowflake patch's bob, pick sparkle and "+N Snowflakes" pop
+		GiftStallFx.start, -- #5641 Christmas Event: the Gift Stall's buy sparkle when Snowflakes are spent by it
 		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,
 		GuideArrow.start, -- #5465: one arrow by the player in place of the trail, with guideArrow on
+		NetHint.start, -- #5647: how to swing (a clicking mouse, R2, the Net button) while a cat is in reach early on
 		GoldenFind.start,
 		MoneyBag.start,
 		StationBuild.start,

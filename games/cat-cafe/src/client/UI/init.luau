@@ -4779,6 +4779,7 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 		"PointEvenQuiet",
 		if ReplicatedStorage:GetAttribute("LiveFlag_rankDimTwo") == true then true else nil
 	)
+	target:SetAttribute("RankArrow", true) -- #5650: a white arrow and darker dim under rankWhite (TutorialArrow)
 	UI.rankSpot.close = SpotlightGuide.show(
 		target,
 		if onStrip or plain then "" else words or "",
@@ -11278,6 +11279,8 @@ end
 -- and walking more than FAR_STUDS from the stall closes it. The window reads a view (Components/GiftStallLogic): the
 -- one the event row sets with UI.giftStall.setView, else PlayerState.snowflakes with nothing owned. A Buy calls the
 -- handler UI.giftStall.setBuy installs (the event row's remote); with none yet it only says the stall opens soon.
+-- #5643: each ProfileSync's PlayerState.giftStall (the server's GiftStallSave.view) is the view, and UIController
+-- installs the buy (BuyGift).
 do
 	local GiftStall = require(script.Screens.GiftStall)
 	local GiftStallLogic = require(script.Components.GiftStallLogic)
@@ -11438,16 +11441,13 @@ do
 	end
 
 	-- Repaints only while the window shows (Review-QA on #5348): defaultView is a new table each sync, and opening it
-	-- paints it fresh anyway.
-	function UI.giftStall.render(_playerState: Types.PlayerState)
+	-- paints it fresh anyway. #5643: the sync's giftStall view (nil while christmasEvent is off) replaces the event
+	-- row's view each time, so a buy's sync shows the piece owned and the Snowflakes spent.
+	function UI.giftStall.render(playerState: Types.PlayerState)
+		gift.view = playerState.giftStall :: any -- the same shape as GiftStallLogic.View
 		local window = gift.window
 		local modalView = modal
-		if
-			window
-			and gift.view == nil
-			and modalView ~= nil
-			and modalView:current() == "GiftStall"
-		then
+		if window and modalView ~= nil and modalView:current() == "GiftStall" then
 			window:render(currentView())
 		end
 	end

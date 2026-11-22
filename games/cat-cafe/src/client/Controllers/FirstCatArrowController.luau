@@ -5,6 +5,9 @@
 -- running, not in someone else's catch), within REACH studs. It moves to whichever stray is nearest, hides while the
 -- player holds a cat or a window is open, and goes for good once the server counts the first catch (the goal card's
 -- startGoals.caught, else stats.catsCaught). With Reduce Motion on it holds still. Client only: it sends nothing.
+-- #5649 (Derek 2026-11-22: "add the same arrow pointing to a cat after landing in park that way people don't forget
+-- what the goal of the game is"), switch parkCatArrow: the same arrow over the nearest Park stray while the player is
+-- in the Park (UI.cannon.area) and the save owns no Park cat yet (ParkFirstLogic.caught), gone once one is owned.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -13,12 +16,16 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
+local ParkFirstLogic = require(script.Parent.Parent.UI.Components.ParkFirstLogic)
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
 local FirstCatArrowController = {}
 
 FirstCatArrowController.FLAG = "firstCatArrow"
+FirstCatArrowController.PARK_FLAG = "parkCatArrow" -- #5649
+FirstCatArrowController.PARK_AREA = "park"
 local REACH = 150 -- studs, as the stall glow's (StartStallController)
 local POLL = 0.25
 local ABOVE = 2.6 -- studs over the top of the cat, clear of its name tag (Effects/CatNames)
@@ -40,6 +47,20 @@ function FirstCatArrowController.waiting(state: any): boolean
 	local stats = state.stats
 	local caught = if type(stats) == "table" then stats.catsCaught else nil
 	return type(caught) == "number" and caught <= 0
+end
+
+-- #5649: whether the Park arrow shows: its switch is on, the player is in the Park and the save owns no Park cat. Pure.
+function FirstCatArrowController.parkWaiting(
+	on: boolean,
+	area: string?,
+	ownsParkCat: boolean
+): boolean
+	return on and area == FirstCatArrowController.PARK_AREA and not ownsParkCat
+end
+
+local function areaOf(catId: string): string?
+	local def = Catalog.getCat(catId)
+	return if def ~= nil then def.area else nil
 end
 
 local function nearestStray(): Model?
@@ -112,7 +133,8 @@ function FirstCatArrowController.start()
 	local target: Model? = nil
 	local part: BasePart? = nil
 	local over = ABOVE
-	local done = false
+	local done = false -- the first catch is in
+	local parkDone = false -- #5649: a Park cat is owned
 	RunService.RenderStepped:Connect(function()
 		if not gui.Enabled or target == nil then
 			return
@@ -121,20 +143,30 @@ function FirstCatArrowController.start()
 		gui.StudsOffsetWorldSpace = Vector3.new(0, over + bob, 0)
 	end)
 	task.spawn(function()
-		while not done do
+		while not (done and parkDone) do
 			task.wait(POLL)
 			local on = ReplicatedStorage:GetAttribute("LiveFlag_" .. FirstCatArrowController.FLAG)
 				== true
+			local parkOn = ReplicatedStorage:GetAttribute(
+				"LiveFlag_" .. FirstCatArrowController.PARK_FLAG
+			) == true
 			local state: any = UIController.state
-			if on and state ~= nil and not FirstCatArrowController.waiting(state) then
-				done = true -- the first catch is in: the arrow goes for good
-				break
+			if not done and on and state ~= nil and not FirstCatArrowController.waiting(state) then
+				done = true -- the first catch is in: the first arrow goes for good
 			end
+			local ownsPark = state ~= nil and ParkFirstLogic.caught(state.collection, areaOf)
+			if ownsPark then
+				parkDone = true -- #5649: a Park cat is owned, so the Park arrow goes for good
+			end
+			local first = on and not done and state ~= nil
+			local park = not parkDone
+				and state ~= nil
+				and FirstCatArrowController.parkWaiting(parkOn, (UI :: any).cannon.area, ownsPark)
 			local character = Players.LocalPlayer.Character
 			local busy = character == nil
 				or character:GetAttribute("CarryingCatId") ~= nil
 				or (UI :: any).isOpen() ~= nil
-			local pick = if on and state ~= nil and not busy then nearestStray() else nil
+			local pick = if (first or park) and not busy then nearestStray() else nil
 			if pick ~= target then
 				target = pick
 				local found: Instance? = if pick ~= nil

@@ -82,6 +82,7 @@ local MoneyBag = require(script.MoneyBag)
 local Motion = require(script.Motion)
 local MuseumPlaques = require(script.MuseumPlaques)
 local Mystery = require(script.Mystery)
+local NetHint = require(script.NetHint)
 local NetPin = require(script.NetPin)
 local NetTrail = require(script.NetTrail)
 local Orders = require(script.Orders)
@@ -258,6 +259,7 @@ function Effects.start()
 		TrailSparkle.start,
 		PawTrail.start,
 		GuideArrow.start, -- #5465: one arrow by the player in place of the trail, with guideArrow on
+		NetHint.start, -- #5647: how to swing (a clicking mouse, R2, the Net button) while a cat is in reach early on
 		GoldenFind.start,
 		MoneyBag.start,
 		StationBuild.start,

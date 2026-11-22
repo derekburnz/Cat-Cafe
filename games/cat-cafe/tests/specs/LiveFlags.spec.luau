@@ -298,6 +298,11 @@ return function()
 							or key == "baitCutQuick" -- #5548
 							or key == "firstCatchCoins" -- #5596
 							or key == "stallGlow" -- #5533
+							or key == "arrowLine" -- #5647
+							or key == "netHint" -- #5647
+							or key == "cannonGlowBig" -- #5648
+							or key == "parkCatArrow" -- #5649
+							or key == "rankWhite" -- #5650
 							or key == "cannonGlow" -- #5533
 							or key == "rankPicker" -- #5599
 							or key == "cutsQuick" -- #5550

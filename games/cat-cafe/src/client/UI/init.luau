@@ -4779,6 +4779,7 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 		"PointEvenQuiet",
 		if ReplicatedStorage:GetAttribute("LiveFlag_rankDimTwo") == true then true else nil
 	)
+	target:SetAttribute("RankArrow", true) -- #5650: a white arrow and darker dim under rankWhite (TutorialArrow)
 	UI.rankSpot.close = SpotlightGuide.show(
 		target,
 		if onStrip or plain then "" else words or "",

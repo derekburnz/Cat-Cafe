@@ -13,6 +13,10 @@
 --   3. under `freeStart`: while this player carries their first cat (the character's CarryingCatId, ProfileSync's
 --      stats.catsCaught at most 1), the nearest camp cannon and its walk-up ring glow steadily (the new start lands in
 --      the Alleyway, so taking it home is the cloud hop from the camp ring; Design 2026-11-20).
+-- #5648 (Derek 2026-11-22: "make the highlight flashing of cannon a little more obvious after unlocking a new
+-- area"), switch cannonGlowBig: the lit cannons flash (`flashLow` to full every `flashPeriod` seconds) in place of the
+-- slow dip, their Highlight shows through walls, and a gold ring opens at the nearest lit cannon every `flashRing`
+-- seconds. WorldGlow.litCannon() names the lit cannon for Effects/GuideArrow's arrow line (#5660).
 -- A station's walk-up floor ring (WalkUpCircles' SurfaceGui) glows with it: brighter, its disc fuller, put back after.
 -- A model or a visible part gets a Highlight; the cafe door is an invisible zone part, so it gets a thin glowing
 -- panel in its doorway instead. Reduce Motion: no breathing, a still glow. Listening only: no remotes, no game state.
@@ -25,6 +29,7 @@ local RunService = game:GetService("RunService")
 
 local Context = require(script.Parent.Context)
 local Net = require(script.Parent.Parent.Net)
+local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
 
 local WorldGlow = {}
@@ -291,6 +296,33 @@ local function steadyStrength(): number
 	return 1 - p.steadyDip * (0.5 - 0.5 * math.cos(2 * math.pi * os.clock() / p.steadyPeriod))
 end
 
+-- Pure (#5648): the big cannon flash's strength `t` seconds in, from `low` up to full and back every `period`
+-- seconds; full with Reduce Motion.
+function WorldGlow.flashStrength(t: number, low: number, period: number, still: boolean): number
+	if still or period <= 0 then
+		return 1
+	end
+	return low + (1 - low) * (0.5 + 0.5 * math.cos(2 * math.pi * t / period))
+end
+
+local function bigOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. Presets.worldGlow.bigFlag) == true
+end
+
+-- a lit cannon's strength now: the big flash under cannonGlowBig, else the steady dip
+local function cannonStrength(): number
+	local p = Presets.worldGlow
+	if bigOn() then
+		return WorldGlow.flashStrength(
+			os.clock(),
+			p.flashLow,
+			p.flashPeriod,
+			Context.reducedMotion()
+		)
+	end
+	return steadyStrength()
+end
+
 local function makeSign(cannon: Model, area: string): BillboardGui
 	local p = Presets.worldGlow
 	local _, size = cannon:GetBoundingBox()
@@ -341,8 +373,44 @@ local function light(lit: Lit, cannon: Model?, area: string?)
 		end
 	end
 	if lit.glow ~= nil then
-		setStrength(lit.glow, steadyStrength())
+		local h = lit.glow.highlight
+		if h ~= nil then
+			h.DepthMode = if bigOn()
+				then Enum.HighlightDepthMode.AlwaysOnTop
+				else Enum.HighlightDepthMode.Occluded
+		end
+		setStrength(lit.glow, cannonStrength())
 	end
+end
+
+-- #5660: the foot of the lit cannon (the camp cannon near the player first, else the Town Square's), or nil when no
+-- cannon is lit. For Effects/GuideArrow.
+function WorldGlow.litCannon(): Vector3?
+	for _, lit in { campLit, townLit } do
+		local glow = lit.glow
+		if glow ~= nil and glow.target.Parent ~= nil and glow.target:IsA("Model") then
+			-- the foot of its box, so the ring and the arrow line lie on the ground by it
+			local frame, size = (glow.target :: Model):GetBoundingBox()
+			return frame.Position - Vector3.new(0, size.Y / 2 - 0.2, 0)
+		end
+	end
+	return nil
+end
+
+local ringAt = 0
+-- #5648: under cannonGlowBig, a gold ring opens at the lit cannon every `flashRing` seconds while it is near
+local function ringPulse()
+	local p = Presets.worldGlow
+	local now = os.clock()
+	if not bigOn() or now - ringAt < p.flashRing then
+		return
+	end
+	local at = WorldGlow.litCannon()
+	if at == nil or Context.distance(at) > p.signDistance then
+		return
+	end
+	ringAt = now
+	Particles.ring(at, p.gold, p.flashRingSize, p.flashRingSeconds)
 end
 
 -- Pure: whether a camp cannon `distance` studs away is near enough to light (`reach`).
@@ -440,9 +508,10 @@ function WorldGlow.start()
 		elseif lively then
 			for _, lit in { townLit, campLit } do
 				if lit.glow ~= nil then
-					setStrength(lit.glow, steadyStrength())
+					setStrength(lit.glow, cannonStrength())
 				end
 			end
+			ringPulse()
 			if doorGlow ~= nil then
 				setStrength(doorGlow, steadyStrength())
 			end

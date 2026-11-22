@@ -234,11 +234,27 @@ local HARVEST_EARNS_LIKE: { [string]: Types.Rarity } = {
 }
 Catalog.HARVEST_EARNS_LIKE = table.freeze(HARVEST_EARNS_LIKE)
 
+-- #5665: the limited event areas (not one of the ten): Harvest Hollow and the Christmas Event's Snowglobe Village. An
+-- event cat is kept for good, earns like `earnsLike` in the owner's newest area and counts toward no Index page,
+-- total, track, reward or rank up need.
+Catalog.EVENT_AREAS = table.freeze({ harvest = true, snowglobe = true }) :: { [string]: boolean }
+function Catalog.isEventArea(area: string?): boolean
+	return area ~= nil and Catalog.EVENT_AREAS[area] == true
+end
+
 local function harvest(def: Types.CatDef): Types.CatDef
 	local like: Types.Rarity = HARVEST_EARNS_LIKE[def.rarity] or "Common"
 	def.area = "harvest"
 	def.earnsLike = like
 	def.incomePerSecond = Catalog.rarities[like].incomePerSecond
+	return def
+end
+
+-- #5665 (snowglobe-village-spec section 4): a Christmas Event cat earns like a Harvest cat (HARVEST_EARNS_LIKE) and is
+-- kept for good the same way; `area = "snowglobe"` spawns it only in Snowglobe Village.
+local function christmas(def: Types.CatDef): Types.CatDef
+	harvest(def)
+	def.area = "snowglobe"
 	return def
 end
 
@@ -1711,6 +1727,104 @@ Catalog.cats = {
 			"Glows like the big orange moon over the patch."
 		)
 	),
+	-- #5665 the Christmas Event's 8 cats (snowglobe-village-spec section 4, Model-Agent's CatCafe_Cat_<Name> with _Sit
+	-- and _Work): 2 Common, 3 Rare, 1 Epic, 1 Legendary, 1 Mythical, as Harvest's. They spawn only in Snowglobe Village
+	christmas(
+		cat(
+			"gingerbread",
+			"Gingerbread",
+			"Common",
+			"alley",
+			"greeter",
+			"stripes",
+			{ 190, 120, 70 },
+			"Always has a little icing on its nose."
+		)
+	),
+	christmas(
+		cat(
+			"snowball",
+			"Snowball",
+			"Common",
+			"alley",
+			"waiter",
+			"solid",
+			{ 245, 245, 250 },
+			"Rolls in fresh snow and comes back twice as fluffy."
+		)
+	),
+	christmas(
+		cat(
+			"candy_cane",
+			"Candy Cane",
+			"Rare",
+			"alley",
+			"entertainer",
+			"stripes",
+			{ 225, 55, 60 },
+			"Red and white all over, with a sweet tooth to match."
+		)
+	),
+	christmas(
+		cat(
+			"tinsel",
+			"Tinsel",
+			"Rare",
+			"alley",
+			"barista",
+			"spots",
+			{ 200, 205, 220 },
+			"Shimmers silver whenever it moves."
+		)
+	),
+	christmas(
+		cat(
+			"jingle",
+			"Jingle",
+			"Rare",
+			"alley",
+			"greeter",
+			"patches",
+			{ 70, 125, 80 },
+			"The bell on its collar rings hello."
+		)
+	),
+	christmas(
+		cat(
+			"mistletoe",
+			"Mistletoe",
+			"Epic",
+			"alley",
+			"waiter",
+			"patches",
+			{ 85, 145, 85 },
+			"Waits under every doorway for a nose boop."
+		)
+	),
+	christmas(
+		cat(
+			"sugar_plum",
+			"Sugar Plum",
+			"Legendary",
+			"alley",
+			"entertainer",
+			"gradient",
+			{ 140, 70, 150 },
+			"Dances on its toes, light as sugar."
+		)
+	),
+	christmas(
+		cat(
+			"star_topper",
+			"Star Topper",
+			"Mythical",
+			"alley",
+			"greeter",
+			"gradient",
+			{ 250, 210, 90 },
+			"Sits on top of the tree and glows all night long."
+		)
+	),
 	-- #5502 the four advent calendar cats (doors 6, 12, 18 and 24; Model-Agent's CatCafe_Cat_PeppermintSwirl and the
 	-- rest, with _Sit and _Work, no gold or rainbow coats). Exclusive: never spawned, rolled or sold, and no trade,
 	-- fusion, Index page, count or Dragon Keep. Each earns like a Secret whose home is the owner's newest area.
@@ -1774,9 +1888,13 @@ end
 
 -- #4251: the harvest cats, in catalog order
 Catalog.harvestCats = {} :: { Types.CatDef }
+-- #5665: the Christmas Event's cats, in catalog order
+Catalog.christmasCats = {} :: { Types.CatDef }
 for _, def in Catalog.cats do
 	if def.area == "harvest" then
 		table.insert(Catalog.harvestCats, def)
+	elseif def.area == "snowglobe" then
+		table.insert(Catalog.christmasCats, def)
 	end
 end
 

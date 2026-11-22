@@ -94,7 +94,7 @@ function Leaderboards.indexEntries(profile: Types.PlayerProfile): number
 				def ~= nil
 				and def.exclusive ~= true
 				and def.area ~= "secret"
-				and def.area ~= "harvest"
+				and not Catalog.isEventArea(def.area) -- #5665
 			then
 				n += 1
 			end

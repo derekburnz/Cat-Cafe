@@ -46,6 +46,9 @@
 --   D:Invoke("rareCatchElsewhere", "Sam caught a Legendary Maine Coon!", "Legendary") -- #2203: a chat line as if
 --                                      -- another server sent it; returns the line, or nil when held back
 --   D:Invoke("tradeMinTier", 0)        -- trading from Tier 0 in this server (F102; nil goes back to the flag or Config)
+--   D:Invoke("adventOffset", 864000)   -- #5643: the Christmas clock (advent doors, Gift Stall dates) 10 days ahead in
+--                                      -- this Studio server (0 goes back); returns the moved os.time()
+--   D:Invoke("giveFlakes", nil, 500)   -- #5643: +500 Snowflakes (the Gift Stall's currency); returns the new count
 --   D:Invoke("trading", false)         -- the trading kill switch off in this server, as CatCafe_Flags would (F102)
 --   D:Invoke("flag", "codes", false)   -- a live switch (codes or rally) off in this server, as CatCafe_Flags would (#2119)
 --   D:Invoke("event", "full", 10)     -- a 10 minute test Cafe Event in this server (full, days, money, luck, showers;
@@ -77,6 +80,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AdminWheelService = require(script.Parent.AdminWheelService)
+local AdventService = require(script.Parent.AdventService)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local BinService = require(script.Parent.BinService)
 local BugReportService = require(script.Parent.BugReportService)
@@ -577,6 +581,26 @@ function Debug.tradeMinTier(tier: unknown): number
 	return TradeService.debugMinTier(
 		if type(tier) == "number" then math.max(0, math.floor(tier)) else nil
 	)
+end
+
+-- #5643: moves the Christmas clock (AdventService.now: the advent doors and the Gift Stall's dates) `seconds` ahead in
+-- this Studio server, for Sync's look before Dec 1; 0 or nil puts it back. Returns the moved time.
+function Debug.adventOffset(seconds: unknown): number
+	guard()
+	AdventService.setStudioOffset(
+		if type(seconds) == "number" and seconds == seconds then math.floor(seconds) else 0
+	)
+	return AdventService.now()
+end
+
+-- #5643: `count` Snowflakes added to the player's profile (the Gift Stall's currency), then a sync. Returns the count.
+function Debug.giveFlakes(player: (Player | number | string)?, count: number): number
+	guard()
+	local p = resolve(player)
+	local profile = profileOf(p)
+	profile.snowflakes = math.max(0, (profile.snowflakes or 0) + math.floor(count))
+	CafeService.sync(p)
+	return profile.snowflakes or 0
 end
 
 -- F102 (section 4): the kill switch in this server (true or nil on, false off); returns whether trading is on.

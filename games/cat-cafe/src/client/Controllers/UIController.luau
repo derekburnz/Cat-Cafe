@@ -1733,6 +1733,8 @@ local function applyState(s: Types.PlayerState)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
 		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
 		advent = (s :: any).advent, -- #5502: the advent calendar board's view
+		snowflakes = (s :: any).snowflakes, -- #5502: the Christmas event's Snowflakes (the pop and the Gift Stall)
+		giftStall = (s :: any).giftStall, -- #5643: the Gift Stall's view (nil while christmasEvent is off)
 		-- F87 (#705): the tips seen, the one feedback ask and the help cards shown, so a tip the client finds itself
 		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
 		tipsSeen = s.tipsSeen,

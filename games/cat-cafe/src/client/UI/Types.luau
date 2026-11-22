@@ -337,6 +337,7 @@ export type PlayerState = {
 	dailyTreat: DailyTreatView?, -- F70: the Daily Treat window's card and the HUD's Daily tile
 	-- #5502: the advent calendar (shared/Advent.view), nil while either switch is off
 	advent: { live: boolean, opened: number, due: number, ready: boolean, reason: string }?,
+	snowflakes: number?, -- #5502: the Christmas event's Snowflakes (the Gift Stall's count)
 	-- #5643: the Gift Stall's view (shared/GiftStallSave.view), nil while christmasEvent is off
 	giftStall: {
 		snowflakes: number,

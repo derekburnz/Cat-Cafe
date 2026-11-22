@@ -828,7 +828,8 @@ function CatCollection._buildSections(self: any)
 	Rainbow.fill(rainbowLine.fill)
 	local empty: any = { tier = 0, catsOwned = {}, collection = {}, goldCollection = {} }
 	local order = 0
-	for _, area in IndexBook.sections(catalog, empty, "normal") do
+	-- every page, the Snowglobe one too (shown only once a render lists it, _renderBook)
+	for _, area in IndexBook.sections(catalog, empty, "normal", nil, true) do
 		order += 1
 		self:_buildSection(area.id, area.name, order, true)
 	end

@@ -11332,7 +11332,12 @@ do
 	local function open()
 		local window = gift.window
 		local modalView = modal
-		if window == nil or modalView == nil or not switchOn() then
+		if window == nil or modalView == nil then
+			return
+		end
+		if not switchOn() then
+			-- Sync's Studio run (#5643): a press that did nothing read as a prompt that never fired
+			UI.toast("The Gift Stall opens soon!", "info")
 			return
 		end
 		window:render(currentView())
@@ -11447,7 +11452,9 @@ do
 	-- paints it fresh anyway. #5643: the sync's giftStall view (nil while christmasEvent is off) replaces the event
 	-- row's view each time, so a buy's sync shows the piece owned and the Snowflakes spent.
 	function UI.giftStall.render(playerState: Types.PlayerState)
-		gift.view = playerState.giftStall :: any -- the same shape as GiftStallLogic.View
+		-- false while christmasEvent is off (UIController: UI.update skips a nil, so a nil kept the last view)
+		local view: any = playerState.giftStall
+		gift.view = if type(view) == "table" then view else nil -- the same shape as GiftStallLogic.View
 		local window = gift.window
 		local modalView = modal
 		if window and modalView ~= nil and modalView:current() == "GiftStall" then

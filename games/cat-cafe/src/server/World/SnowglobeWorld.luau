@@ -31,6 +31,9 @@ SnowglobeWorld.ID = "snowglobe"
 SnowglobeWorld.SET = "CatCafe_Snowglobe_Set"
 SnowglobeWorld.PORTAL = "CatCafe_Snowglobe_Portal"
 SnowglobeWorld.STALL = "CatCafe_Snowglobe_Stall"
+-- the stall's prompt part, in the stall's space (its front is -Z: the counter's face is 1.6 studs out), and its reach
+local STALL_FRONT = { y = 3, z = -3 }
+local STALL_PROMPT_STUDS = 12
 SnowglobeWorld.FLAKE = "CatCafe_Snowglobe_Snowflake"
 SnowglobeWorld.FIREPLACE = "CatCafe_Decor_StoneFireplace"
 SnowglobeWorld.RUG = "CatCafe_Decor_FiresideRug"
@@ -227,9 +230,11 @@ local function invisible(name: string, size: Vector3, cframe: CFrame, parent: In
 	return part
 end
 
--- A ProximityPrompt (the "press E" / tap button Roblox shows near an object) on the model's PrimaryPart or first part.
-local function prompt(name: string, action: string, object: string, model: Model)
-	local parent: Instance = model.PrimaryPart
+-- A ProximityPrompt (the "press E" / tap button Roblox shows near an object) on `at`, else the model's PrimaryPart or
+-- first part.
+local function prompt(name: string, action: string, object: string, model: Model, at: BasePart?)
+	local parent: Instance = at
+		or model.PrimaryPart
 		or model:FindFirstChildWhichIsA("BasePart", true)
 		or model
 	local p = Instance.new("ProximityPrompt")
@@ -237,7 +242,8 @@ local function prompt(name: string, action: string, object: string, model: Model
 	p.ActionText = action
 	p.ObjectText = object
 	p.RequiresLineOfSight = false
-	p.MaxActivationDistance = 10
+	p.HoldDuration = 0
+	p.MaxActivationDistance = if at ~= nil then STALL_PROMPT_STUDS else 10
 	p.Parent = parent
 end
 
@@ -348,7 +354,16 @@ function SnowglobeWorld.buildArea(parent: Instance): (Folder, any)
 	CollectionService:AddTag(centre, SnowglobeWorld.CENTRE_TAG)
 	local stall = place(SnowglobeWorld.STALL, turned(POINTS.stall), folder)
 	if stall ~= nil then
-		prompt("SnowglobeStallPrompt", "Shop", "Gift Stall", stall)
+		-- Sync's Studio run (#5643): the prompt on the counter never showed at 7 to 9 studs, so it sits on its own
+		-- part at the counter's front, at a standing player's middle, with a little more reach
+		local front = invisible(
+			"SnowglobeStallFront",
+			Vector3.new(2, 2, 2),
+			stall:GetPivot() * CFrame.new(0, STALL_FRONT.y, STALL_FRONT.z),
+			stall
+		)
+		front.CanTouch = false
+		prompt("SnowglobeStallPrompt", "Shop", "Gift Stall", stall, front)
 		CollectionService:AddTag(stall, SnowglobeWorld.STALL_TAG)
 	end
 	place(SnowglobeWorld.FIREPLACE, turned(POINTS.fireplace), folder)

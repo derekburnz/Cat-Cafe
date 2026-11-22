@@ -86,6 +86,28 @@ return function()
 				)
 			end
 		)
+		it(
+			"keeps the Snowglobe page hidden until one is found, but lists it for building (Sync, #5665)",
+			function()
+				local WITH = table.clone(CATALOG)
+				WITH.cats = table.clone(CATALOG.cats)
+				table.insert(WITH.cats, { id = "jingle", area = "snowglobe", rarity = "Common" })
+				table.insert(
+					WITH.cats,
+					{ id = "star_cat", area = "snowglobe", rarity = "Mythical" }
+				)
+				expect(ids(IndexBook.sections(WITH, state({}), "normal"))).to.equal("alley,park")
+				-- CatCollection builds its pages from an empty save: without everyPage the page never existed
+				expect(ids(IndexBook.sections(WITH, state({}), "normal", nil, true))).to.equal(
+					"alley,park,snowglobe"
+				)
+				local found =
+					IndexBook.sections(WITH, state({ collection = { jingle = 1 } }), "normal")
+				expect(ids(found)).to.equal("alley,park,snowglobe")
+				expect(found[3].name).to.equal("Snowglobe Village")
+				expect(IndexBook.count(found[3])).to.equal("1 / 2")
+			end
+		)
 		it("lists the areas in tier order with their cats rarest last", function()
 			local sections = IndexBook.sections(CATALOG, state({}), "normal")
 			expect(ids(sections)).to.equal("alley,park")

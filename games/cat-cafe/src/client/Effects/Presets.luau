@@ -5819,6 +5819,13 @@ Presets.clouds = {
 		tintFrom = 0.6,
 		tintTo = 1.0,
 	},
+	-- #5655 (Derek 2026-11-22: "make the cloud scenes ... a little longer it seems like they get a little laggy when
+	-- teleporting"), switch cloudsHold: the clouds stay fully over the screen `hold` seconds past the plan's part, then
+	-- on until the spot you landed on has streamed in (Player:RequestStreamAroundAsync), never more than `holdMost`
+	-- seconds in all. A move of `moved` studs is the landing (as for a hop).
+	holdFlag = "cloudsHold",
+	hold = 0.4,
+	holdMost = 1.5,
 	hopPuff = 12, -- smokePuff particles where onlookers see a player hop away and arrive
 	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
 }

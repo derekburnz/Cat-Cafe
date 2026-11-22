@@ -33,26 +33,22 @@ export type Save = { bought: { [string]: boolean } }
 export type ViewItem = { id: string, name: string, cost: number, owned: boolean }
 export type View = { snowflakes: number, items: { ViewItem } }
 
+local function entry(id: string, kind: Kind, name: string, price: number): Item
+	local item: Item = { id = id, kind = kind, name = name, price = price }
+	table.freeze(item :: any)
+	return item
+end
+
 GiftStallSave.ITEMS = table.freeze({
-	table.freeze({ id = "santa_hat", kind = "outfit", name = "Santa Hat", price = 150 }),
-	table.freeze({
-		id = "reindeer_antlers",
-		kind = "outfit",
-		name = "Reindeer Antlers",
-		price = 200,
-	}),
-	table.freeze({ id = "knit_beanie", kind = "outfit", name = "Knit Beanie", price = 250 }),
-	table.freeze({ id = "present_pile", kind = "decor", name = "Present Pile", price = 150 }),
-	table.freeze({ id = "snowman", kind = "decor", name = "Snowman", price = 200 }),
-	table.freeze({
-		id = "gingerbread_house",
-		kind = "decor",
-		name = "Gingerbread House",
-		price = 250,
-	}),
-	table.freeze({ id = "stocking_wall", kind = "decor", name = "Stocking Wall", price = 250 }),
-	table.freeze({ id = "little_tree", kind = "decor", name = "Little Lit Tree", price = 350 }),
-} :: { Item })
+	entry("santa_hat", "outfit", "Santa Hat", 150),
+	entry("reindeer_antlers", "outfit", "Reindeer Antlers", 200),
+	entry("knit_beanie", "outfit", "Knit Beanie", 250),
+	entry("present_pile", "decor", "Present Pile", 150),
+	entry("snowman", "decor", "Snowman", 200),
+	entry("gingerbread_house", "decor", "Gingerbread House", 250),
+	entry("stocking_wall", "decor", "Stocking Wall", 250),
+	entry("little_tree", "decor", "Little Lit Tree", 350),
+}) :: { Item }
 
 local byId: { [string]: Item } = {}
 for _, item in GiftStallSave.ITEMS do

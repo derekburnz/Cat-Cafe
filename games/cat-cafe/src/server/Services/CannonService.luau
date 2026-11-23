@@ -528,6 +528,9 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 		end)
 	end
 	if character:WaitForChild("HumanoidRootPart", 10) == nil then
+		if not respawn and player.Character == character then
+			firstOpen[player] = nil -- #5685 review: a first spawn that never got its root still ends the first spawn
+		end
 		return
 	end
 	if not respawn then

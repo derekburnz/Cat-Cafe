@@ -3113,10 +3113,14 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		then
 			session.fpsLogged[mark] = true
 			local low = if profile.settings.lowPerformance then "low" else "std"
+			-- #5686 fpsBucket: field 3 also says the fps bucket, the one way Growth can split fps by device
+			local bucket = if LiveFlagService.on(PerfWatch.BUCKET_FLAG)
+				then ":" .. PerfWatch.fpsBucket(fps)
+				else ""
 			Telemetry.custom(player, "client_fps", fps, {
 				session.device or "unknown",
 				"m" .. tostring(minutes),
-				low .. ":q" .. tostring(quality),
+				low .. ":q" .. tostring(quality) .. bucket,
 			})
 		end
 	elseif name == "fx_lite" then

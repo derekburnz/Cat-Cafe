@@ -4,6 +4,7 @@
 -- MIN is the same 0.75 as that floor (device pass 2026-11-07): at 0.6 a small laptop window drew textTiny at 7 px and
 -- the Store's card words at about 8, so a small window now draws the UI at a phone's size.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local Signal = require(script.Parent.Components.Signal)
@@ -14,6 +15,12 @@ Scale.DESIGN = Vector2.new(1280, 720)
 Scale.MIN = 0.75
 Scale.MAX = 1.3
 Scale.TOUCH_FLOOR = 0.75
+-- #5686 (tablets: 27% still playing at 5 min against 38% on phones): a 4:3 iPad's width sets its scale at 0.8, so it
+-- draws the UI at a phone's size on a screen held further away. With the switch on, a touch screen that stays tall
+-- (not short) at this scale draws at least at it: 1024 points wide is then 1138 design pixels, still wider than a
+-- phone's 1125, so every layout that fits a phone fits. Phones (short) and PCs are unchanged.
+Scale.TABLET_FLAG = "tabletScale"
+Scale.TABLET_FLOOR = 0.9
 
 Scale.changed = Signal.new() -- fires (scale: number)
 
@@ -47,6 +54,13 @@ function Scale.compute(viewport: Vector2): number
 	s = math.clamp(s, Scale.MIN, Scale.MAX)
 	if Scale.isTouch() then
 		s = math.max(s, Scale.TOUCH_FLOOR)
+		if
+			s < Scale.TABLET_FLOOR
+			and viewport.Y / Scale.TABLET_FLOOR >= Scale.SHORT
+			and ReplicatedStorage:GetAttribute("LiveFlag_" .. Scale.TABLET_FLAG) == true
+		then
+			s = Scale.TABLET_FLOOR
+		end
 	end
 	return s
 end

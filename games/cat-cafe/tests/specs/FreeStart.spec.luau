@@ -99,6 +99,12 @@ return function()
 				expect(FreeStart.spawnWord(true, true, true, false, true)).to.equal("carrying")
 				expect(FreeStart.RETRY_FLAG).to.equal("spawnRetry")
 				expect(FreeStart.SPAWN_TRIES >= 2).to.equal(true)
+				-- #5685: the kinds of gone
+				expect(FreeStart.FOLLOW_FLAG).to.equal("spawnFollow")
+				expect(FreeStart.goneWord(true, false)).to.equal("left")
+				expect(FreeStart.goneWord(true, true)).to.equal("left")
+				expect(FreeStart.goneWord(false, true)).to.equal("new_char")
+				expect(FreeStart.goneWord(false, false)).to.equal("gone")
 			end
 		)
 	end)

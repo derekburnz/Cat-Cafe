@@ -118,6 +118,21 @@ local function stripSpot(gui: ScreenGui, p: typeof(Presets.firstCatchWow)): Vect
 	return Vector2.new(gui.AbsoluteSize.X / 2, p.bannerTop)
 end
 
+-- #5686, switch wowBannerFit: the banner's middle as low as it needs so a banner `height` pixels tall, grown by
+-- `overshoot` as it lands, keeps `margin` pixels from the top; the catch strip's spot when that already fits. Pure.
+function FirstCatchWow.fitY(
+	spotY: number,
+	height: number,
+	overshoot: number,
+	margin: number,
+	on: boolean
+): number
+	if not on then
+		return spotY
+	end
+	return math.max(spotY, height * overshoot / 2 + margin)
+end
+
 -- The "FIRST CATCH!" banner in `gui`, hidden (opacity 0); FirstCatchWow.show(banner, a) draws it. Its text size
 -- follows the screen's height between `textMin` and `textMax`.
 function FirstCatchWow.banner(gui: ScreenGui): Frame
@@ -137,7 +152,12 @@ function FirstCatchWow.banner(gui: ScreenGui): Frame
 	frame.BackgroundTransparency = 1
 	frame.BorderSizePixel = 0
 	local spot = stripSpot(gui, p)
-	frame.Position = UDim2.fromOffset(spot.X, spot.Y)
+	local fit = ReplicatedStorage:GetAttribute("LiveFlag_" .. p.fitFlag) == true
+	local height = textSize + 2 * math.floor(textSize * 0.18)
+	frame.Position = UDim2.fromOffset(
+		spot.X,
+		FirstCatchWow.fitY(spot.Y, height, p.fitOvershoot, p.fitMargin, fit)
+	)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(1, 0)
 	corner.Parent = frame

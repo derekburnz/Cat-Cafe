@@ -37,6 +37,32 @@ local UPDATE_NOV_17 = 1794945600 -- 2026-11-17 20:00 UTC: Better on Every Device
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
 
 WhatsNew.rows = table.freeze({
+	-- Nov 23 (Design-Agent, Derek 01:04 UTC: "fix and after its fixed update whats new board"): priceRetry #5681,
+	-- tabletRankBig #5669, rankFxLite #5651, hoodWelcome #5652
+	{
+		id = "store_prices_tablets",
+		date = "2026-11-23",
+		icon = "fix",
+		text = "Store prices on tablets",
+	},
+	{
+		id = "rank_up_bigger_tablets",
+		date = "2026-11-22",
+		icon = "look",
+		text = "Bigger Rank Up on tablets",
+	},
+	{
+		id = "rank_up_smoother",
+		date = "2026-11-22",
+		icon = "faster",
+		text = "Smoother Rank Up",
+	},
+	{
+		id = "neighbourhood_new_cat",
+		date = "2026-11-22",
+		icon = "cat",
+		text = "New cat at Neighbourhood",
+	},
 	-- Nov 19 (Gameplay-Engineer, Derek 19:56 UTC: "update the whats new board"): mutationBoost #5493, net levels kept
 	-- #5491, bowlOptionsButton #5488, tablesEight #5448, topTraitsMore #5445, secretCompanionBig, tier3Easy #5467,
 	-- tomorrowBoard #5449

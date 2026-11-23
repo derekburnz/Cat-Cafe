@@ -875,14 +875,14 @@ return function()
 				expect(StoreLogic.saleKey(rung)).to.equal("money3")
 				expect(StoreLogic.saleKey(card("vip"))).to.equal("vip")
 				expect(StoreLogic.saleKey(card("money"))).to.equal("money")
-				expect(StoreLogic.saleWas(rung, { robux = 20, forSale = true }, Config, before)).to.equal(
+				expect(StoreLogic.saleWas(rung, { robux = 10, forSale = true }, Config, before)).to.equal(
 					59
 				)
 				expect(StoreLogic.saleWas(rung, { robux = 59, forSale = true }, Config, before)).to.equal(
 					nil
 				)
 				rung.multiplier = 4
-				expect(StoreLogic.saleWas(rung, { robux = 30, forSale = true }, Config, before)).to.equal(
+				expect(StoreLogic.saleWas(rung, { robux = 15, forSale = true }, Config, before)).to.equal(
 					99
 				)
 			end)
@@ -891,7 +891,7 @@ return function()
 				"lists the Store cards of Derek's fifteen items, each at half within half a Robux",
 				function()
 					local MONEY_4989: { [string]: number } =
-						{ money2 = 10, money3 = 20, money4 = 30, vip = 15 }
+						{ money2 = 5, money3 = 10, money4 = 15, vip = 15 } -- #5674: the money ladder halved again
 					local count = 0
 					for key, entry in Config.StoreWasPrice do
 						count += 1
@@ -899,7 +899,7 @@ return function()
 							continue -- #4261: Derek's own prices, R$199 and R$299
 						end
 						if MONEY_4989[key] ~= nil then
-							-- #4989: Derek's own prices, 10, 20, 30 and VIP 15
+							-- #4989: Derek's own prices (#5674: 5, 10, 15) and VIP 15
 							expect(entry.now).to.equal(MONEY_4989[key])
 							continue
 						end

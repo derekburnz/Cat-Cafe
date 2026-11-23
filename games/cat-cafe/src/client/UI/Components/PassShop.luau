@@ -69,11 +69,48 @@ local function samePrice(a: StoreLogic.Price?, b: StoreLogic.Price): boolean
 	return a ~= nil and a.robux == b.robux and a.forSale == b.forSale
 end
 
--- One price from Roblox: a product's or a pass's, kept and `changed` fired only when it differs from what we have.
-local function lookPrice(service: MarketplaceService, id: number, infoType: Enum.InfoType)
+-- #5681 ("i cant see the prices for items on ipad"): with the switch on, a price Roblox did not answer is asked
+-- again after each of these waits (seconds), the older GetProductInfo is tried when GetProductInfoAsync errors (an
+-- app that has not updated yet), and the Store opening asks again for any price still missing without waiting out
+-- REFRESH_SECONDS. Off, a failed look stays "..." until the Store reopens a minute later, as before.
+PassShop.RETRY_FLAG = "priceRetry"
+PassShop.RETRY_WAITS = { 3, 8, 20 }
+local asking: { [number]: boolean } = {} -- #5681: ids with a look (and its retries) still out
+
+local function retryOn(): boolean
+	return ReplicatedStorage:GetAttribute("LiveFlag_" .. PassShop.RETRY_FLAG) == true
+end
+
+local function askRoblox(
+	service: MarketplaceService,
+	id: number,
+	infoType: Enum.InfoType
+): (boolean, any)
 	local okInfo, info = pcall(function()
 		return service:GetProductInfoAsync(id, infoType)
 	end)
+	if (not okInfo or type(info) ~= "table") and retryOn() then
+		okInfo, info = pcall(function()
+			return (service :: any):GetProductInfo(id, infoType)
+		end)
+	end
+	return okInfo, info
+end
+
+-- One price from Roblox: a product's or a pass's, kept and `changed` fired only when it differs from what we have.
+local function lookPrice(service: MarketplaceService, id: number, infoType: Enum.InfoType)
+	asking[id] = true
+	local okInfo, info = askRoblox(service, id, infoType)
+	if retryOn() then
+		for _, wait in PassShop.RETRY_WAITS do
+			if previewing or (okInfo and type(info) == "table") then
+				break
+			end
+			task.wait(wait)
+			okInfo, info = askRoblox(service, id, infoType)
+		end
+	end
+	asking[id] = nil
 	if okInfo and type(info) == "table" and not previewing then
 		local robux = info.PriceInRobux
 		local price: StoreLogic.Price = {
@@ -203,7 +240,23 @@ end
 -- price or on-sale flag fires `changed`, so the open window's cards update.
 function PassShop.refresh()
 	local service = market()
-	if not started or service == nil or os.clock() - lastLook < PassShop.REFRESH_SECONDS then
+	if not started or service == nil then
+		return
+	end
+	if os.clock() - lastLook < PassShop.REFRESH_SECONDS then
+		-- #5681: only the prices still missing, asked again now
+		if retryOn() and not previewing then
+			for _, id in productIdList do
+				if prices[id] == nil and not asking[id] then
+					task.spawn(lookPrice, service, id, Enum.InfoType.Product)
+				end
+			end
+			for _, id in passIds do
+				if prices[id] == nil and not asking[id] then
+					task.spawn(lookPrice, service, id, Enum.InfoType.GamePass)
+				end
+			end
+		end
 		return
 	end
 	lastLook = os.clock()

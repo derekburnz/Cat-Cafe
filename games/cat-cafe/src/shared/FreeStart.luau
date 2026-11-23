@@ -29,6 +29,9 @@ FreeStart.SPAWN_FLAG = "spawnAlley"
 -- (free_start field "spawn_alley", "spawn_alley_retry" or "spawn_<spawnWord>")
 FreeStart.RETRY_FLAG = "spawnRetry"
 FreeStart.SPAWN_TRIES = 5
+-- #5685 (Growth Nov 23: 17 of 181 fresh starts logged spawn_gone): with spawnFollow on, a first character replaced
+-- before it landed hands the start to the new character instead of the respawn path, and "gone" splits by goneWord
+FreeStart.FOLLOW_FLAG = "spawnFollow"
 FreeStart.EVENT = "free_start" -- Telemetry.custom, once as a save joins
 FreeStart.UNTIL_TIER = 3 -- the start's rules hold below this tier
 FreeStart.STREET_SECONDS = 180 -- streetCats: the first three minutes of play
@@ -44,6 +47,17 @@ local localPlayer: Player? = nil
 pcall(function()
 	localPlayer = Players.LocalPlayer
 end)
+
+-- #5685: which kind of "gone" a start met: "left" (the player left the game), "new_char" (a new character
+-- replaced it; that one lands and logs on its own), else "gone" (removed with no new character yet).
+function FreeStart.goneWord(left: boolean, replaced: boolean): string
+	if left then
+		return "left"
+	elseif replaced then
+		return "new_char"
+	end
+	return "gone"
+end
 
 -- Whether a loading save joins now: the switch on, never joined, no order arm yet, its first session, no step done.
 function FreeStart.joins(

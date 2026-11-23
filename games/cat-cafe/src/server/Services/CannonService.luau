@@ -65,6 +65,8 @@ local landedAt: { [Player]: number } = {} -- server time each player's last flig
 local passUsed: { [Player]: boolean } = {} -- #2692: night_pass_used logged this session
 local diedIn: { [Player]: string } = {} -- the wild area a character died in by day, for its respawn
 local spawned: { [Player]: boolean } = {} -- the player has had a character this session, so the next is a respawn
+-- #5685 spawnFollow: the session's first spawn has not finished its homeArrival yet, so a new character takes it over
+local firstOpen: { [Player]: boolean } = {}
 
 local function serverNow(): number
 	return Workspace:GetServerTimeNow()
@@ -448,6 +450,11 @@ local function homeArrival(player: Player, character: Model)
 				break
 			end
 		end
+		if why == "gone" and LiveFlagService.on(FreeStart.FOLLOW_FLAG) then
+			-- #5685: say which gone; a new character runs its own first spawn (firstOpen) and logs its own landing
+			local now = player.Character
+			why = FreeStart.goneWord(player.Parent ~= Players, now ~= nil and now ~= character)
+		end
 		spawnNote(why or "none")
 	end
 	if
@@ -525,6 +532,9 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 	end
 	if not respawn then
 		homeArrival(player, character) -- #3072
+		if player.Character == character then
+			firstOpen[player] = nil -- #5685: done for the character that stands now; later ones are respawns
+		end
 		palJoinedNote(player)
 		return
 	end
@@ -599,8 +609,11 @@ function CannonService.start(builtWorld: WorldBuilder.World)
 	Net.on("LaunchCannon", onLaunchCannon)
 	local function joined(player: Player)
 		spawned[player] = player.Character ~= nil -- a player already here at start has spawned once (review N227)
+		firstOpen[player] = true
 		player.CharacterAdded:Connect(function(character)
+			-- #5685 spawnFollow: a character that replaces a first one still mid homeArrival takes over the first spawn
 			local respawn = spawned[player] == true
+				and not (firstOpen[player] == true and LiveFlagService.on(FreeStart.FOLLOW_FLAG))
 			spawned[player] = true
 			watchCharacter(player, character, respawn)
 		end)
@@ -617,6 +630,7 @@ function CannonService.start(builtWorld: WorldBuilder.World)
 		passUsed[player] = nil
 		diedIn[player] = nil
 		spawned[player] = nil
+		firstOpen[player] = nil
 	end)
 	coverCannons(not ClockService.areasOpen())
 	ClockService.changed:Connect(function()

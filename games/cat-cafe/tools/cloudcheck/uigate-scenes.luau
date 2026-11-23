@@ -3649,6 +3649,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local ScreenFx = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.ScreenFx")
 		local Presets = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.Effects.Presets")
 		local gui = ScreenFx.gui(Wow.GUI, Presets.firstCatchWow.displayOrder)
+		-- #5686: wowBannerFit keeps it below the top edge where the strip sits high (4:3 tablets)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_wowBannerFit", true)
 		local banner = Wow.banner(gui)
 		Wow.show(banner, 1, true)
 		UIShim.advance(0.05)
@@ -3664,9 +3666,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		-- the catch strip's spot: its middle level with the strip's
 		local strip = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles"):FindFirstChild("Strip", true) :: Frame
 		local stripMid = ScreenFx.toGui(gui, strip.AbsolutePosition).Y + strip.AbsoluteSize.Y / 2
-		assert(math.abs(at.Y + size.Y / 2 - stripMid) <= 4, "uigate: the FIRST CATCH! banner is not in the catch strip's spot (#5285)")
+		-- or, where the strip sits too high for the whole banner (#5686), just below the top edge
+		local pushed = at.Y + size.Y / 2 > stripMid and at.Y <= Presets.firstCatchWow.fitMargin * 3
+		assert(math.abs(at.Y + size.Y / 2 - stripMid) <= 4 or pushed, "uigate: the FIRST CATCH! banner is not in the catch strip's spot (#5285)")
 		assert(size.Y >= 30, "uigate: the FIRST CATCH! banner is under 30 px tall (#5285)")
 		banner:Destroy()
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_wowBannerFit", nil)
 	end },
 	-- #2871 (console): on a gamepad the catch line under the cat's name names A or R2
 	{ "GamepadCatchWords", function()

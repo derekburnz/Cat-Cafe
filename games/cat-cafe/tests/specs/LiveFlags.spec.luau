@@ -308,6 +308,7 @@ return function()
 							or key == "parkCatArrow" -- #5649
 							or key == "rankWhite" -- #5650
 							or key == "syncSeed" -- #5677
+							or key == "wowBannerFit" -- #5686
 							or key == "cannonGlow" -- #5533
 							or key == "rankPicker" -- #5599
 							or key == "cutsQuick" -- #5550

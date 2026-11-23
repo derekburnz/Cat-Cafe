@@ -21,6 +21,9 @@ PerfWatch.READY = "load_ready"
 -- a frame that took longer than this (the app in the background, a phone call) is left out of the average, so a
 -- paused app does not read as a slow one
 PerfWatch.GAP_SECONDS = 1
+-- #5686 (tablets fall off between minutes 3 and 10; the gateway gives client_fps counts by field, not the value):
+-- with the fpsBucket switch on, client_fps field 3 also carries the fps bucket, "std:q0:30-45"
+PerfWatch.BUCKET_FLAG = "fpsBucket"
 
 local MARK_SCALE = 100000
 local QUALITY_SCALE = 1000
@@ -72,6 +75,20 @@ function PerfWatch.loadBucket(seconds: number): string
 		return "20-40"
 	end
 	return "40+"
+end
+
+-- #5686: the client_fps bucket an average falls in: "lt20", "20-30", "30-45", "45-60" or "60+".
+function PerfWatch.fpsBucket(fps: number): string
+	if fps ~= fps or fps < 20 then
+		return "lt20"
+	elseif fps < 30 then
+		return "20-30"
+	elseif fps < 45 then
+		return "30-45"
+	elseif fps < 60 then
+		return "45-60"
+	end
+	return "60+"
 end
 
 return PerfWatch

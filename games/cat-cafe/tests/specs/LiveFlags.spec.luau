@@ -326,6 +326,7 @@ return function()
 							or key == "spawnAlley" -- #5616
 							or key == "spawnRetry" -- Sync Nov 22
 							or key == "picnicNet" -- #5676
+							or key == "fpsBucket" -- #5686
 							or key == "tier3Up" -- #5617
 							or key == "spotHeld" -- #5622
 							or key == "secondCatQuiet" -- #5620

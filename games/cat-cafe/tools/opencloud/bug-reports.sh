@@ -83,19 +83,81 @@ get() {
 	fi
 }
 
+# peek url [curl args...] -> sets $status and $body like get, but never exits: the #5711 checks below want to see
+# a 4xx too.
+peek() {
+	local url=$1
+	shift
+	status=$(curl -sS -o "$reply" -w '%{http_code}' --get "$url" -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$@") || status=000
+	body=$(cat "$reply")
+}
+
+# #5711: reports listed one day were gone the next, the whole store with them. When a day reads 0, tell "deleted"
+# from "the listing misses them": (1) the v2 listing with showDeleted, which lists deleted entries too (it returns
+# only id and path); (2) each listed entry's revisions, newest 60 entries: when it was written and, if it was, when
+# it was deleted; (3) the v1 key listing, a second index. Only key days, states and times are printed: an id holds
+# a user id and this log is public (#3103).
+diagnose() {
+	local token pages ids=() id day line
+	echo "== #5711 check 1: v2 listing with deleted entries shown:"
+	token=
+	for pages in 1 2 3 4; do
+		args=(--data-urlencode showDeleted=true --data-urlencode maxPageSize=256)
+		[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
+		peek "$entries" "${args[@]}"
+		if [ "$status" != 200 ]; then
+			echo "   HTTP $status: $(jq -r '.message // .code // empty' <<<"$body" 2>/dev/null | head -c 200)"
+			break
+		fi
+		mapfile -t -O "${#ids[@]}" ids < <(jq -r '.dataStoreEntries[]?.id' <<<"$body")
+		token=$(jq -r '.nextPageToken // empty' <<<"$body")
+		[ -n "$token" ] || break
+	done
+	echo "   ${#ids[@]} entries listed (live and deleted)"
+	echo "== #5711 check 2: each entry's key day, when it was written and when it was deleted (UTC):"
+	local from=$((${#ids[@]} > 60 ? ${#ids[@]} - 60 : 0))
+	for id in "${ids[@]:from}"; do
+		day=$(cut -c1-10 <<<"${id#global/}")
+		peek "$entries/${id#global/}:listRevisions" --data-urlencode maxPageSize=20
+		if [ "$status" != 200 ]; then
+			echo "   $day: HTTP $status"
+			continue
+		fi
+		# revisions come newest first; the oldest ACTIVE one is the write, a DELETED one on top is the removal
+		line=$(jq -r '[.dataStoreEntries // [] | .[]] as $r
+			| ($r | map(select(.state == "ACTIVE")) | last | .revisionCreateTime // "-") as $w
+			| ($r | first | if .state == "DELETED" then .revisionCreateTime else "live" end) as $d
+			| "\($w[0:19]) deleted \($d[0:19])"' <<<"$body" 2>/dev/null) || line="(unreadable)"
+		echo "   $day written $line"
+	done | sort -k3
+	echo "== #5711 check 3: v1 key listing, prefix r_:"
+	local v1=https://apis.roblox.com/datastores/v1/universes/$UNIVERSE_ID/standard-datastores/datastore/entries
+	peek "$v1" --data-urlencode "datastoreName=$STORE" --data-urlencode prefix=r_ --data-urlencode limit=100 --data-urlencode allScopes=true
+	if [ "$status" = 200 ]; then
+		echo "   $(jq -r '.keys | length' <<<"$body") keys; key days:"
+		jq -r '.keys[]?.key | .[0:10]' <<<"$body" | sort | uniq -c | sed 's/^/   /'
+	else
+		echo "   HTTP $status: $(jq -r '.message // .error // empty' <<<"$body" 2>/dev/null | head -c 200)"
+	fi
+}
+
 # Keys end in <os.time()>_<userId> with a ten-digit time, so a day's keys list in time order; keep the newest COUNT.
 # #2082: Open Cloud lists an entry's id as "<scope>/<key>" ("global/r_2026..."), and SetAsync saves under the global
 # scope, so the filter starts with "global/"; a bare prefix matched nothing and every day read 0 reports.
 keys=()
 token=
 while :; do
-	args=(--data-urlencode "filter=id.startsWith(\"global/$prefix\")" --data-urlencode maxPageSize=256)
+	# #5711: showDeleted, since something outside the game deletes reports hours after they are saved (in batches, a
+	# minute or so apart); a deleted entry keeps its revisions for 30 days, and the loop below reads its last one
+	args=(--data-urlencode "filter=id.startsWith(\"global/$prefix\")" --data-urlencode showDeleted=true --data-urlencode maxPageSize=256)
 	[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
 	get "$entries" "${args[@]}"
 	mapfile -t -O "${#keys[@]}" keys < <(jq -r '.dataStoreEntries[]?.id' <<<"$body")
 	token=$(jq -r '.nextPageToken // empty' <<<"$body")
 	[ -n "$token" ] || break
 done
+# with showDeleted the listing is not in key order, and the newest COUNT are cut from the end: sort by key (time)
+[ "${#keys[@]}" = 0 ] || mapfile -t keys < <(printf '%s\n' "${keys[@]}" | sort)
 total=${#keys[@]}
 if [ "$total" = 0 ]; then
 	# 0 under this day's prefix: say what the store holds at all, so "nothing saved" (nobody's report arrived) can be
@@ -113,22 +175,42 @@ if [ "$total" = 0 ]; then
 	done
 	echo "== the store holds ${#shapes[@]} entries without a filter (first 4 pages); key starts:"
 	[ "${#shapes[@]}" = 0 ] || printf '%s\n' "${shapes[@]}" | sort | uniq -c
+	diagnose
 fi
 if [ "$total" -gt "$COUNT" ]; then
 	keys=("${keys[@]:total-COUNT}")
 fi
 
 records=()
+deleted=0
 for key in "${keys[@]}"; do
-	get "$entries/${key#global/}" # the listed id is "global/<key>"; the entry path takes the bare key (#2082)
+	bare=${key#global/} # the listed id is "global/<key>"; the entry path takes the bare key (#2082)
+	gone=
+	peek "$entries/$bare"
+	if [ "$status" != 200 ]; then
+		# #5711: deleted. Its newest ACTIVE revision still holds the report: read that one (entries/<key>@<revision>)
+		get "$entries/$bare:listRevisions" --data-urlencode maxPageSize=20
+		revision=$(jq -r '[.dataStoreEntries // [] | .[] | select(.state == "ACTIVE")] | first | .revisionId // empty' <<<"$body")
+		gone=$(jq -r '[.dataStoreEntries // [] | .[] | select(.state == "DELETED")] | first | .revisionCreateTime // "?" | .[0:16]' <<<"$body")
+		if [ -z "$revision" ]; then
+			echo "(a report of this day was deleted and no saved revision is left to read)"
+			continue
+		fi
+		get "$entries/$bare@$revision"
+		deleted=$((deleted + 1))
+	fi
 	# the raw text never leaves this script: filteredText stands in for it, or a placeholder
-	records+=("$(jq -c '.value | .text = (if (.filteredText | type) == "string" then .filteredText
+	records+=("$(jq -c --arg gone "$gone" '.value | .text = (if (.filteredText | type) == "string" then .filteredText
 		elif (.v // 1) < 2 then "(v1 report from before the filter: read it with Debug.bugReports in Studio)"
-		else "(the filter failed on this one: read it with Debug.bugReports in Studio)" end) | del(.filteredText)' \
+		else "(the filter failed on this one: read it with Debug.bugReports in Studio)" end) | del(.filteredText)
+		| if $gone != "" then .text += " [deleted from the store " + $gone + " UTC]" else . end' \
 		<<<"$body")")
 done
 
 echo "== $total reports under $prefix in $STORE; showing the newest ${#records[@]}"
+if [ "$deleted" -gt 0 ]; then
+	echo "== $deleted of them were deleted from the store after they were saved (no game code or workflow here deletes a report; #5711), so they are read from their last saved revision, kept 30 days"
+fi
 # The same fields and order as BugReportService's line(), times in UTC.
 who='\(.name) (\(.userId))'
 client='\(.clientErrors // [] | join(" / "))'
@@ -164,6 +246,7 @@ fi
 if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
 	{
 		echo "### $total bug reports under \`$prefix\`, newest ${#records[@]}"
+		[ "$deleted" = 0 ] || echo "$deleted were deleted from the store after they were saved (#5711) and are read from their last saved revision."
 		echo '```text'
 		for record in "${records[@]}"; do
 			jq -r "$line" <<<"$record" | tr '`' "'"

@@ -50,6 +50,7 @@ local StarterCatController = require(script.Parent.Controllers.StarterCatControl
 local StationCutController = require(script.Parent.Controllers.StationCutController)
 local StationLockController = require(script.Parent.Controllers.StationLockController)
 local StyleController = require(script.Parent.Controllers.StyleController)
+local TabletViewController = require(script.Parent.Controllers.TabletViewController)
 local TomorrowBoardController = require(script.Parent.Controllers.TomorrowBoardController)
 local TradeController = require(script.Parent.Controllers.TradeController)
 local UIController = require(script.Parent.Controllers.UIController)
@@ -122,6 +123,7 @@ WorldController.start()
 DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
 PerfWatchController.start(bootAt) -- #4783: load time and average FPS for every player, analytics only
+TabletViewController.start() -- #5696: a wider camera view on 4:3 and 16:10 touch screens, behind tabletView
 BackdropController.start() -- #4857: far areas' backdrop rings out of this client's Workspace, behind backdropsNear
 MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()

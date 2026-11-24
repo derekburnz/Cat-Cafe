@@ -3441,11 +3441,20 @@ end
 -- #4251: the area your steps are in. A box area (`area`, from Logic.areaAt) wins; outside every box it is "harvest"
 -- while you are within `within` studs of Harvest Hollow's Thankful Board (`board`, nil while it is not in the world),
 -- since that area has no box. Else nil.
-function Logic.walkArea(area: string?, board: number?, within: number): string?
+function Logic.walkArea(
+	area: string?,
+	board: number?,
+	within: number,
+	globe: number?,
+	globeWithin: number?
+): string?
 	if area ~= nil then
 		return area
+	elseif board ~= nil and board <= within then
+		return "harvest"
 	end
-	return if board ~= nil and board <= within then "harvest" else nil
+	-- Snowglobe Village: `globe` is your distance to its middle, nil while christmasEvent is off or it is not here
+	return if globe ~= nil and globeWithin ~= nil and globe <= globeWithin then "snowglobe" else nil
 end
 
 -- #2687's station build-in: where piece `rank` of `count` (ranked bottom to top, from 1) is at `t` seconds into the

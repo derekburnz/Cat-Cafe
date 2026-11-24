@@ -113,11 +113,14 @@ diagnose() {
 		token=$(jq -r '.nextPageToken // empty' <<<"$body")
 		[ -n "$token" ] || break
 	done
-	echo "   ${#rows[@]} entries listed"
+	echo "   ${#rows[@]} entries listed; fields on the last page's first entry:"
+	jq -r '.dataStoreEntries[0]? | keys? | "   " + join(", ")' <<<"$body" 2>/dev/null || true
+	# times and states only, never a value, id or user: the newest 8 entries of the last page
+	jq -r '.dataStoreEntries[-8:][]? | "   key day \(.id | sub("^global/"; "") | .[0:10]): created \(.createTime // "-") revised \(.revisionCreateTime // "-") state \(.state // "-") deleted \(.deleted // "-")"' <<<"$body" 2>/dev/null || true
 	[ "${#rows[@]}" = 0 ] || printf '%s\n' "${rows[@]}" | sort | uniq -c | sed 's/^/   /'
 	echo "== #5711 check 2: revisions of the newest deleted entries (written and removed times, UTC):"
 	local gone=() id n=0
-	mapfile -t gone < <(jq -r '.dataStoreEntries[]? | select((.state // "") == "DELETED") | .id' <<<"$body" 2>/dev/null | tail -n 5)
+	mapfile -t gone < <(jq -r '.dataStoreEntries[]? | select((.state // "") == "DELETED" or (.deleted // false) == true or ((.value // null) == null)) | .id' <<<"$body" 2>/dev/null | tail -n 5)
 	if [ "${#gone[@]}" = 0 ] && [ "${#rows[@]}" -gt 0 ]; then
 		echo "   none listed as DELETED on the last page"
 	fi

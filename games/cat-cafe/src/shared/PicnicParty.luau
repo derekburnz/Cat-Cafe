@@ -28,6 +28,19 @@ PicnicParty.SEEN_STUDS = 60 -- picnic_ready_seen: a ready basket this near count
 -- NET_STUDS of their own blanket's middle, camp or not (CatService)
 PicnicParty.NET_FLAG = "picnicNet"
 PicnicParty.NET_STUDS = 12
+-- #5707 (Growth Nov 23: picnic cat 1 caught by 38, cat 2 by 7, cat 3 by 1): with picnicFlow on, a picnic cat that is
+-- missed stays on its seat (parkCatchNormal took the old "cannot be lost" away, so a miss sent it bolting off the
+-- blanket, out of the net's reach), a carrier within NET_STUDS of their own blanket checks in as at its camp, so the
+-- next swing is never refused for the cat in their arms, and each catch says what comes next (NEXT_LINE, LAST_LINE)
+PicnicParty.FLOW_FLAG = "picnicFlow"
+PicnicParty.NEXT_LINE = "Another picnic cat is sitting down on the blanket!"
+PicnicParty.LAST_LINE = "Last picnic cat: a %s is sitting down on the blanket!"
+function PicnicParty.nextLine(nextRarity: string?, last: boolean): string?
+	if nextRarity == nil then
+		return nil
+	end
+	return if last then string.format(PicnicParty.LAST_LINE, nextRarity) else PicnicParty.NEXT_LINE
+end
 
 PicnicParty.READY = "PicnicReady"
 PicnicParty.NEXT_AT = "PicnicNextAt"

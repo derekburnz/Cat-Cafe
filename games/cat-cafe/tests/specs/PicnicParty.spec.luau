@@ -4,6 +4,7 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local CampExtras = require(Shared.CampExtras)
 	local PicnicParty = require(Shared.PicnicParty)
+	local LiveFlags = require(Shared.LiveFlags) :: any
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local CampExtrasLogic = require(
@@ -12,6 +13,18 @@ return function()
 
 	local DAY = 86400
 	local NOON = 20000 * DAY + 43200
+
+	describe("#5707 picnicFlow", function()
+		it("is off by default and says what sits down next", function()
+			expect(PicnicParty.FLOW_FLAG).to.equal("picnicFlow")
+			expect(LiveFlags.defaults().picnicFlow).to.equal(false)
+			expect(PicnicParty.nextLine("Common", false)).to.equal(PicnicParty.NEXT_LINE)
+			expect(PicnicParty.nextLine("Rare", true)).to.equal(
+				"Last picnic cat: a Rare is sitting down on the blanket!"
+			)
+			expect(PicnicParty.nextLine(nil, true)).to.equal(nil)
+		end)
+	end)
 
 	describe("PicnicParty.start", function()
 		it("empties a ready basket and starts its clock", function()

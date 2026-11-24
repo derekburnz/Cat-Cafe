@@ -26,7 +26,8 @@ local function onClaimDailyTreat(player: Player)
 		local paid =
 			Payout.pay(player, profile, DailyTreat.prize(day), "daily_treat", "TimedReward")
 		Net.toast(player, "Daily Treat day " .. day .. ": " .. table.concat(paid, ", "), "good")
-		Telemetry.custom(player, "daily_treat", day)
+		-- Growth Nov 24: the day in field 1 too, so day 2 claims can be read (the value alone did not show)
+		Telemetry.custom(player, "daily_treat", day, { tostring(day) })
 	end
 	CafeService.sync(player)
 end

@@ -294,7 +294,10 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 			rng:NextNumber(),
 			true,
 			{ areaDef.id }, -- #4221 (secretAreas retired, #4656)
-			Catching.secretShare(nil, LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)) -- #5418
+			Catching.wildSecretShare( -- #5694 secretWild: 1 in 6, else #5418's share
+				LiveFlagService.on(Catching.WILD_SECRET_FLAG),
+				LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)
+			)
 		)
 		else nil
 	if secret ~= nil then

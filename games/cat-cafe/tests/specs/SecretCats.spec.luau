@@ -527,4 +527,33 @@ return function()
 			expect(weights.Sleepy + weights.Curious + weights.Skittish).to.equal(100)
 		end)
 	end)
+
+	describe("#5694 secretWild: a wild Secret is 1/5 as likely as a Mythical", function()
+		it("turns 1 in 6 rolled Mythicals, off by default, and leaves bait shares alone", function()
+			expect(Catching.WILD_SECRET_FLAG).to.equal("secretWild")
+			expect(LiveFlags.defaults().secretWild).to.equal(false)
+			local share = Catching.wildSecretShare(true, false)
+			expect(math.abs(share / (1 - share) - 1 / 5) < 1e-9).to.equal(true)
+			expect(Catching.wildSecretShare(true, true)).to.equal(share)
+			expect(Catching.wildSecretShare(false, false)).to.equal(
+				Catching.secretShare(nil, false)
+			)
+			expect(Catching.wildSecretShare(false, true)).to.equal(Catching.secretShare(nil, true))
+			local area: string? = nil
+			for _, def in Catalog.secretCats do
+				if def.secretArea ~= nil then
+					area = def.secretArea
+					break
+				end
+			end
+			if area ~= nil then
+				expect(
+					Catching.secret("Mythical", share - 0.0001, 0, true, { area :: string }, share)
+				).never.to.equal(nil)
+				expect(
+					Catching.secret("Mythical", share + 0.0001, 0, true, { area :: string }, share)
+				).to.equal(nil)
+			end
+		end)
+	end)
 end

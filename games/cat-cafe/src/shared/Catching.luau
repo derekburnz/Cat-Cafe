@@ -275,6 +275,18 @@ function Catching.secretShare(share: number?, doubled: boolean): number
 	local base = share or Catalog.secretPerMythical
 	return math.min(1, if doubled then base * 2 else base)
 end
+-- #5694 (Derek 2026-11-24: "buff the rates of secret spawns in the wild to be 1/5 as likely as a mythic"): with
+-- secretWild on, a wild stray's or a rescue's rolled Mythical turns Secret WILD_SECRET_SHARE of the time (1 in 6), so of
+-- six Mythical rolls five stay Mythical and one is a Secret: a Secret is 1/5 as likely as a Mythical. Bait, foods and
+-- every odds card keep secretShare (no shown odds change: wild odds are on no card).
+Catching.WILD_SECRET_FLAG = "secretWild"
+Catching.WILD_SECRET_SHARE = 1 / 6
+function Catching.wildSecretShare(wild: boolean, doubled: boolean): number
+	if wild then
+		return Catching.WILD_SECRET_SHARE
+	end
+	return Catching.secretShare(nil, doubled)
+end
 Catching.SECRET_NAME = "???" -- a wild Secret stray's name on its tag and catch header until it is caught
 -- the ReplicatedStorage folder of live Secret strays' spots (the server's SecretBeacons; Effects reads it)
 Catching.SECRET_BEACONS = "SecretBeacons"

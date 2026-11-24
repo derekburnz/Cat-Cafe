@@ -34,12 +34,17 @@ PicnicParty.NET_STUDS = 12
 -- next swing is never refused for the cat in their arms, and each catch says what comes next (NEXT_LINE, LAST_LINE)
 PicnicParty.FLOW_FLAG = "picnicFlow"
 PicnicParty.NEXT_LINE = "Another picnic cat is sitting down on the blanket!"
-PicnicParty.LAST_LINE = "Last picnic cat: a %s is sitting down on the blanket!"
+PicnicParty.LAST_LINE = "Last picnic cat: %s %s is sitting down on the blanket!"
 function PicnicParty.nextLine(nextRarity: string?, last: boolean): string?
 	if nextRarity == nil then
 		return nil
 	end
-	return if last then string.format(PicnicParty.LAST_LINE, nextRarity) else PicnicParty.NEXT_LINE
+	if not last then
+		return PicnicParty.NEXT_LINE
+	end
+	-- "an Epic", "a Rare": the article follows the rarity's first letter
+	local article = if nextRarity:match("^[AEIOUaeiou]") then "an" else "a"
+	return string.format(PicnicParty.LAST_LINE, article, nextRarity)
 end
 
 PicnicParty.READY = "PicnicReady"

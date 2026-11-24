@@ -22,6 +22,9 @@ return function()
 			expect(PicnicParty.nextLine("Rare", true)).to.equal(
 				"Last picnic cat: a Rare is sitting down on the blanket!"
 			)
+			expect(PicnicParty.nextLine("Epic", true)).to.equal(
+				"Last picnic cat: an Epic is sitting down on the blanket!"
+			)
 			expect(PicnicParty.nextLine(nil, true)).to.equal(nil)
 		end)
 	end)

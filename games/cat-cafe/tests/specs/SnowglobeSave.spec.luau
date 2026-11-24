@@ -13,7 +13,7 @@ return function()
 
 	describe("Snowglobe Village rules", function()
 		it(
-			"opens Dec 1 20:00 UTC to the end of Jan 3, from Tier 2, only with christmasEvent on",
+			"opens Nov 28 17:00 UTC to the end of Jan 3, from Tier 2, only with christmasEvent on",
 			function()
 				expect(SnowglobeSave.FLAG).to.equal("christmasEvent")
 				expect(LiveFlags.defaults().christmasEvent).to.equal(false)
@@ -22,7 +22,7 @@ return function()
 					"Snowglobe Village is closed"
 				)
 				expect(SnowglobeSave.areaBlocker(Advent.FIRST_OPEN - 1, 5, true)).to.equal(
-					"Snowglobe Village opens on Dec 1"
+					"Snowglobe Village opens Sat Nov 28"
 				)
 				expect(SnowglobeSave.areaBlocker(Advent.FIRST_OPEN, 2, true)).to.equal(nil)
 				expect(SnowglobeSave.areaBlocker(Advent.CLOSES, 5, true)).to.equal(

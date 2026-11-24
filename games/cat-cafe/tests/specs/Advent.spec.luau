@@ -11,7 +11,7 @@ return function()
 	end
 
 	describe("Advent locks", function()
-		it("opens nothing before Dec 1 20:00 UTC, with both switches on", function()
+		it("opens nothing before Nov 28 17:00 UTC, with both switches on", function()
 			local times = {
 				0,
 				1763510400,
@@ -56,8 +56,8 @@ return function()
 				expect(Advent.check(state, at - 1, true, true)).to.equal(nil)
 				expect(Advent.check(state, at, true, true)).to.equal(n)
 			end
-			expect(Advent.doorAt(2)).to.equal(Advent.DEC_2)
-			expect(Advent.doorAt(24)).to.equal(Advent.DEC_2 + 22 * DAY)
+			expect(Advent.doorAt(2)).to.equal(Advent.DAY_2)
+			expect(Advent.doorAt(24)).to.equal(Advent.DAY_2 + 22 * DAY)
 		end)
 
 		it("opens nothing from Jan 4 2027 00:00 UTC", function()
@@ -83,7 +83,7 @@ return function()
 			local next, _, reason = Advent.check(state, now + 60, true, true)
 			expect(next).to.equal(nil)
 			expect(reason).to.equal("tomorrow")
-			expect(Advent.check(state, Advent.DEC_2, true, true)).to.equal(2)
+			expect(Advent.check(state, Advent.DAY_2, true, true)).to.equal(2)
 		end)
 
 		it("lets a Dec 20 start open all 24 by Jan 3, in order", function()

@@ -345,6 +345,7 @@ return function()
 							or key == "tabletRankBig" -- #5669
 							or key == "priceRetry" -- #5681
 							or key == "tabletScale" -- #5686
+							or key == "parkLite" -- #5686
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

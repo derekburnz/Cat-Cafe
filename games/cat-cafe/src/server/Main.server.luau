@@ -184,6 +184,7 @@ require(script.Parent.Services.LeaveCleanupService).start() -- server memory: ol
 require(script.Parent.Services.AreaOnlyService).start() -- #5026: fences, camp cannons and other cafes stream (areaOnly switch)
 require(script.Parent.Services.TownGroundService).start() -- #5357: Town paving and paw paths kept whole (townGround)
 require(script.Parent.Services.AreaWholeService).start() -- Derek 2026-11-18: the area you are in loads whole (areaWhole switch)
+require(script.Parent.Services.LiteCutService).start() -- #5686: the Park backdrop's lighter ring (parkLite switch)
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
 ShopCatService.start() -- #1447: the Royal and King cats on their passes

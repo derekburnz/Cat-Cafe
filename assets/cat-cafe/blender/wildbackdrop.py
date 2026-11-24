@@ -48,6 +48,13 @@ MARGIN = 80.0          # WorldBuilder's CAMP_GROUND_MARGIN: its plate reaches th
 REACH = 260.0          # this backdrop's ground carries on this far past the plate
 TOP = -0.1             # the plate's top (1 thick, centred at -0.6)
 KEEP = 3.0             # nothing stands nearer than this to the walls' outer faces or the camp set
+# #5686 (tablets fall behind in the Park): while a ring in LITE_OF builds, CUT is a second builder, and the pieces a
+# lighter ring can do without go into it instead: each tree's second leaf ball, each bush's second ball, the flower
+# tufts, and every other tree on the hills and in the parkland. It becomes the ring's child model <name>_LiteCut,
+# tagged LiteCut (rbx_export.TAGS), which the parkLite switch takes out of the world (Services/LiteCutService). With
+# the switch off the ring is the same as before, its parts only split between two models.
+CUT = None
+LITE_OF = ("ParkF85",)
 
 # area: (half its width across, half its length from the gate line to the far wall, theme), Config.World v4 (F84)
 AREAS = {
@@ -269,7 +276,7 @@ def tree(rb, f, x, z, s=1.0, leaf="leaf_green"):
     y = f.gy(x, z) - 0.3 * s
     rb.cyl((x, y + 2.2 * s, z), 0.5 * s, 4.4 * s, "fur_brown", segments=8)
     rb.ball((x, y + 6.0 * s, z), 3.1 * s, leaf)                         # #4857: two balls, not three (phones)
-    rb.ball((x + 1.5 * s, y + 4.8 * s, z - 0.6 * s), 2.3 * s, leaf, scale=(1.25, 0.9, 1.1))
+    (CUT or rb).ball((x + 1.5 * s, y + 4.8 * s, z - 0.6 * s), 2.3 * s, leaf, scale=(1.25, 0.9, 1.1))
 
 
 def fir(rb, f, x, z, s=1.0, leaf="leaf_dark"):
@@ -290,10 +297,11 @@ def far_tree(rb, f, x, z, s, leaf):
 def bush(rb, f, x, z, s=1.0, leaf="leaf_dark"):
     y = f.gy(x, z)
     rb.ball((x, y + 0.6 * s, z), 1.6 * s, leaf, scale=(1.3, 0.8, 1.0))
-    rb.ball((x + 1.6 * s, y + 0.4 * s, z + 0.5 * s), 1.0 * s, leaf, scale=(1.2, 0.8, 1.0))
+    (CUT or rb).ball((x + 1.6 * s, y + 0.4 * s, z + 0.5 * s), 1.0 * s, leaf, scale=(1.2, 0.8, 1.0))
 
 
 def tuft(rb, flowers, x, z, spread):
+    rb, flowers = (CUT, CUT) if CUT is not None else (rb, flowers)
     rb.cyl((x, TOP + 0.04, z), spread + 0.6, 0.08, "leaf_dark", segments=10)
     flower_clump(flowers, x, TOP + 0.08, z, n=3, spread=spread)
 
@@ -309,7 +317,8 @@ def on_hills(rb, f, hills, per, seed, scale, plant=tree, leaves=LEAVES, pad=8.0)
             z = h.z - u * math.sin(h.turn) + v * math.cos(h.turn)
             if f.out(x, z) < KEEP + pad:
                 continue
-            plant(rb, f, x, z, scale * (0.8 + 0.5 * _hash(i, k, seed)), leaves[int(_hash(k, seed, i) * 97) % len(leaves)])
+            to = CUT if CUT is not None and k % 2 == 1 else rb                  # #5686: every other one is cut
+            plant(to, f, x, z, scale * (0.8 + 0.5 * _hash(i, k, seed)), leaves[int(_hash(k, seed, i) * 97) % len(leaves)])
 
 
 def belt(rb, f, d, step, seed, plant=tree, scale=1.0, leaves=LEAVES, wobble=3.0):
@@ -401,10 +410,11 @@ def theme_park(f, P):
         r = _hash(i, 16)
         if r >= 0.8 and any(_on_bed(f, tx, tz, tr) for tx, tz, tr in ((x, z, 1.3), (x + 1.9, z + 0.8, 1.2))):
             continue                                                       # a tuft would lie on a flower bed
+        to = CUT if CUT is not None and i % 2 == 1 else rb                      # #5686: every other one is cut
         if r < 0.55:
-            tree(rb, f, x, z, 1.1 + 0.5 * r, LEAVES[i % 3] if _hash(i, 17) < 0.85 else "blush")
+            tree(to, f, x, z, 1.1 + 0.5 * r, LEAVES[i % 3] if _hash(i, 17) < 0.85 else "blush")
         elif r < 0.8:
-            bush(rb, f, x, z, 1.0 + r, LEAVES[(i + 1) % 3])
+            bush(to, f, x, z, 1.0 + r, LEAVES[(i + 1) % 3])
         else:
             tuft(rb, flowers, x, z, 0.7)
             tuft(rb, flowers, x + 1.9, z + 0.8, 0.6)
@@ -1288,14 +1298,19 @@ def builder(area, A, H, theme):
     _look(n + "_Road", ASPHALT_RGB if theme != "works" else (150, 150, 150), "Asphalt" if theme != "works" else "Concrete")
 
     def build(mat):
+        global CUT
         f = Frame(A, H)
-        P = {k: RB() for k in ("rb", "ground", "hills", "far", "flowers", "lit", "road", "snow")}
-        THEMES[theme](f, P)
+        P = {k: RB() for k in ("rb", "ground", "hills", "far", "flowers", "lit", "road", "snow", "cut")}
+        CUT = P["cut"] if area in LITE_OF else None
+        try:
+            THEMES[theme](f, P)
+        finally:
+            CUT = None
         swatch = {"desert": "fur_oat", "ruins": "paving_grout", "snowy": "milk"}.get(theme, "fur_charcoal" if city else "leaf_green")
         ground(f, P["ground"], swatch)                                         # after the rings: it ends under them
         objs = [P["rb"].finalize(n, mat), P["ground"].finalize(n + "_Ground", mat)]
         for key, suffix in (("hills", "_Hills"), ("far", "_HillsFar"), ("flowers", "_Flowers"), ("lit", "_Bulbs"),
-                            ("road", "_Road"), ("snow", "_Snow")):
+                            ("road", "_Road"), ("snow", "_Snow"), ("cut", "_LiteCut")):
             if P[key].b.prims:
                 objs.append(P[key].finalize(n + suffix, mat))
         return objs

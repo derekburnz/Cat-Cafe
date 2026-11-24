@@ -634,6 +634,25 @@ function GoalCard.setFolded(self: any, folded: boolean)
 	end
 end
 
+-- #5715 (tier3Pointer, Controllers/Tier3PointerController): the coins row's caption while the Tier 3 pointer points,
+-- shorter on touch where the row's label has half a narrow card; nil puts "Coins" back
+local POINTER_TOUCH = { picnic = "Picnic: 2x", cat = "Catch cats" }
+function GoalCard.setCoinsCaption(self: any, caption: string?, kind: string?)
+	local words = if caption ~= nil
+			and Scale.isTouch()
+			and kind ~= nil
+		then POINTER_TOUCH[kind] or caption
+		else caption
+	if words == self._coinsCaption then
+		return
+	end
+	self._coinsCaption = words
+	local last = self._last
+	if last then
+		self:render(last.progress, last.tierText, last.nudge, last.goal)
+	end
+end
+
 -- #3022: the last render again with `goal` (nil: the tier goal back), for the HUD's preview timer
 function GoalCard.setGoal(self: any, goal: Goal?)
 	local last = self._last
@@ -818,6 +837,14 @@ function GoalCard.render(
 			row.label.Text = if Scale.isTouch()
 				then item.touch or TOUCH_SHORT[item.short] or item.short
 				else item.short
+			-- #5715 (tier3Pointer): while the Tier 3 pointer points, the unmet coins row says where coins come from
+			local pointer: string? = if item.kind == "coins" and not item.met
+				then self._coinsCaption
+				else nil
+			if pointer ~= nil then
+				row.label.Text = pointer
+			end
+			row.label.TextColor3 = if pointer ~= nil then Theme.colors.gold else Theme.hud.text
 			row.status.Text = if item.met then "✓" else item.status
 			row.status.TextColor3 = if item.met then Theme.colors.gold else Theme.hud.text
 			row.fill.Size = UDim2.fromScale(math.clamp(item.fraction, 0, 1), 1)

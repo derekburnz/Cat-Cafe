@@ -2247,6 +2247,23 @@ function UI.init(config: Types.InitConfig)
 		)
 	end
 
+	-- #5715 (tier3Pointer): Controllers/Tier3PointerController sets UI.tier3Pointer once it starts; the goal card's
+	-- coins row follows its caption (the controller only points while the switch is on)
+	task.spawn(function()
+		for _ = 1, 120 do
+			local hook = (UI :: any).tier3Pointer
+			if hook ~= nil then
+				local function follow()
+					(hud :: any):setCoinsPointer(hook.caption, hook.kind)
+				end
+				follow()
+				hook.changed.Event:Connect(follow)
+				return
+			end
+			task.wait(1)
+		end
+	end)
+
 	render()
 	return UI
 end

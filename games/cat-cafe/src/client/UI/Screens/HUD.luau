@@ -2588,6 +2588,11 @@ function HUD._paintKeys(self: any)
 end
 
 -- What is in the bowl: nil when empty. catWaiting is true while the Tame or Let go card has a cat to show.
+-- #5715 (tier3Pointer): the goal card's coins caption from Controllers/Tier3PointerController (UI.init wires it)
+function HUD.setCoinsPointer(self: any, caption: string?, kind: string?)
+	self._goal:setCoinsCaption(caption, kind)
+end
+
 function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	self._bait = bait
 	self._catWaiting = catWaiting

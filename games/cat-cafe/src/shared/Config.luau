@@ -878,9 +878,10 @@ local Config = {
 		-- tmmr ... change the board and notify pop ups to just be the christmas event".
 		{
 			id = "3056428113926947439",
-			-- Derek 2026-11-18 16:49 UTC: the Christmas Event starts Tue Dec 1 20:00 UTC (to Jan 3); the Roblox Event moved
-			startsAt = 1796155200, -- "Christmas Event", Tuesday 2026-12-01 20:00 UTC
-			title = "🔔 Next update Tue Dec 1: the CHRISTMAS EVENT! Want a reminder when it lands?",
+			-- Derek 2026-11-24 15:23 UTC: the Christmas Event moves up to Sat Nov 28 17:00 UTC (12 PM ET), to Jan 3, as the
+			-- last update (was Tue Dec 1 20:00 UTC)
+			startsAt = 1795885200, -- "Christmas Event", Saturday 2026-11-28 17:00 UTC
+			title = "🔔 Next update Sat Nov 28: the CHRISTMAS EVENT! Want a reminder when it lands?",
 			name = "CHRISTMAS EVENT",
 			-- #5461 (Sync's look at the poster): the face's bottom name bar half hid the art's DEC 1 TO JAN 3 badge, so
 			-- the same art is fitted inside the 800x450 face, dates 40 px above the name bar (was 103012343912449, then 75146631114839 before)

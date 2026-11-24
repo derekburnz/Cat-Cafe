@@ -6,7 +6,7 @@
 --   fresh() / sanitize(raw)            profile.giftStall: { bought = { [id] = true } }. No VERSION bump (as #5502's
 --                                      Snowflakes): an older server drops the field, so christmasEvent goes on only
 --                                      once every server runs this code
---   openAt(now)                        the event's dates: from Advent.FIRST_OPEN (Dec 1 2026 20:00 UTC) until
+--   openAt(now)                        the event's dates: from Advent.FIRST_OPEN (Nov 28 2026 17:00 UTC) until
 --                                      Advent.CLOSES (the end of Jan 3 2027)
 --   buyBlocker(save, flakes, id, now, tier, flagOn)   why a buy is refused, or nil
 --   buy(save, flakes, id)              the Snowflakes left once the item is bought, or nil (after buyBlocker said nil)
@@ -112,7 +112,7 @@ function GiftStallSave.buyBlocker(
 		return "The Gift Stall is closed"
 	end
 	if now < GiftStallSave.OPENS_AT then
-		return "The Gift Stall opens on Dec 1"
+		return "The Gift Stall opens Sat Nov 28"
 	end
 	if now >= GiftStallSave.CLOSES_AT then
 		return "The Gift Stall is closed until next Christmas"

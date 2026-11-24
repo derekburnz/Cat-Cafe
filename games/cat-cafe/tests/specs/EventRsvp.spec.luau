@@ -106,11 +106,11 @@ return function()
 				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(
 					"3056428113926947439"
 				)
-				-- Derek 2026-11-18: Christmas starts Tue Dec 1 20:00 UTC, so after it Cherry Blossom Grove (Sat Mar 27 2027)
-				expect((EventRsvp.next(Config.UpdateEvents, 1796155200 - 600))).to.equal(
+				-- Derek 2026-11-24: Christmas starts Sat Nov 28 17:00 UTC, so after it Cherry Blossom Grove (Sat Mar 27 2027)
+				expect((EventRsvp.next(Config.UpdateEvents, 1795885200 - 600))).to.equal(
 					"3056428113926947439"
 				)
-				expect((EventRsvp.next(Config.UpdateEvents, 1796155200 + 600))).to.equal(
+				expect((EventRsvp.next(Config.UpdateEvents, 1795885200 + 600))).to.equal(
 					"6693355219203523122"
 				)
 				expect((EventRsvp.next(Config.UpdateEvents, 1806177600 + 600))).to.equal(nil)

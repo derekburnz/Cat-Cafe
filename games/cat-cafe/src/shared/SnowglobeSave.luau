@@ -3,7 +3,7 @@
 -- event areas (Catalog.isEventArea). Pure, so the cloud specs run it; SnowglobeService and TravelService apply it.
 -- Harvest Hollow's numbers throughout (HarvestSave), with Snowflakes (profile.snowflakes, #5502) for pumpkins.
 --   FLAG / AREA / TIER / OPENS_AT / CLOSES_AT  the switch (christmasEvent, off by default), the area id, the portal's
---                                       tier, and the dates: from Advent.FIRST_OPEN (Dec 1 2026 20:00 UTC) until
+--                                       tier, and the dates: from Advent.FIRST_OPEN (Nov 28 2026 17:00 UTC) until
 --                                       Advent.CLOSES (the end of Jan 3 2027)
 --   open(now)                           whether the dates have the village open
 --   areaBlocker(now, tier, flagOn)      why the village is shut for this player, or nil
@@ -46,7 +46,7 @@ function SnowglobeSave.areaBlocker(now: number, tier: number, flagOn: boolean): 
 		return SnowglobeSave.CLOSED
 	end
 	if now < SnowglobeSave.OPENS_AT then
-		return "Snowglobe Village opens on Dec 1"
+		return "Snowglobe Village opens Sat Nov 28"
 	end
 	if now >= SnowglobeSave.CLOSES_AT then
 		return "Snowglobe Village is closed until next Christmas"

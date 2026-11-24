@@ -119,7 +119,7 @@ end
 
 function AdventLogic.headline(view: View?): string
 	if view == nil or not view.live then
-		return "The calendar opens on Dec 1"
+		return "The calendar opens Sat Nov 28"
 	elseif view.ready then
 		return ("Door %d is ready!"):format(view.opened + 1)
 	elseif view.reason == "done" then

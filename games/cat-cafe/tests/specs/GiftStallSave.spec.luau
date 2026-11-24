@@ -79,7 +79,7 @@ return function()
 						2,
 						true
 					)
-				).to.equal("The Gift Stall opens on Dec 1")
+				).to.equal("The Gift Stall opens Sat Nov 28")
 				expect(
 					GiftStallSave.buyBlocker(
 						save,

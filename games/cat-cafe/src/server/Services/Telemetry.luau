@@ -78,6 +78,7 @@ local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local TabletView = require(ReplicatedStorage.Shared.TabletView)
+local Tier3Pointer = require(ReplicatedStorage.Shared.Tier3Pointer)
 local Tier3Trip = require(ReplicatedStorage.Shared.Tier3Trip)
 local TomorrowBoard = require(ReplicatedStorage.Shared.TomorrowBoard)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -644,6 +645,7 @@ local REPORTS = {
 	PerfWatch.READY, -- #4783: seconds from the client's first script line to the world ready (client_load), once
 	PerfWatch.FPS, -- #4783: the average fps up to a mark (PerfWatch.encode), once a mark a session (client_fps)
 	TabletView.REPORT, -- #5696: the camera's vertical view a tablet set (TabletView.BASE to MAX), once a session
+	Tier3Pointer.REPORT, -- #5715: the Tier 3 coins pointer picked a new target (Tier3Pointer.FIELDS), LOG_MAX a session
 	"fx_lite", -- #4945: the lighter effects budget tripped, seconds x 100 + fps (Effects Logic.liteReport), once
 	"next_goal", -- #5202: the "What next?" card shown (A or B) or tapped (cats, cafe or closed), shared/NextGoal
 }
@@ -818,6 +820,7 @@ type Session = {
 	loadPending: { seconds: number, bucket: string }?, -- #4783: client_load's, held until the device report comes
 	fpsLogged: { [number]: boolean }, -- #4783: client_fps marks logged this session
 	view: number?, -- #5696: the camera view the client set (TabletView), on client_fps field 3 as "v<fov>"
+	pointerLogs: number?, -- #5715: tier3_pointer reports logged this session
 	liteLogged: boolean, -- #4945: fx_lite logged this session
 }
 
@@ -3127,6 +3130,18 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 					then ":v" .. tostring(session.view)
 					else ""),
 			})
+		end
+	elseif name == Tier3Pointer.REPORT then
+		-- #5715: a known target word at Tier 2, LOG_MAX a session; logged under tier3_path, a name that records
+		local word = Guard.oneOf(rawValue, { Tier3Pointer.FIELDS.picnic, Tier3Pointer.FIELDS.cat })
+		local count = session.pointerLogs or 0
+		if
+			word ~= nil
+			and count < Tier3Pointer.LOG_MAX
+			and Economy.tier(profile) == Tier3Pointer.TIER
+		then
+			session.pointerLogs = count + 1
+			Telemetry.custom(player, "tier3_path", 1, { word, session.device or "unknown" })
 		end
 	elseif name == TabletView.REPORT then
 		-- #5696: a whole view from BASE to MAX, once a session

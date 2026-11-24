@@ -293,6 +293,7 @@ LiveFlags.KEYS = {
 	"tabletRankBig", -- #5669: on a tablet the one tap RANK UP button and its words draw 1.3 times as big (UI/Components/RankOneTap); off by default
 	"priceRetry", -- #5681: a Store price Roblox did not answer is asked again, so it no longer stays "..." (UI/Components/PassShop); off by default
 	"tabletScale", -- #5686: a tablet draws the whole UI at least 0.9 (a 4:3 iPad was 0.8, a phone's size) (UI/Scale); off by default
+	"parkLite", -- #5686: the Park's backdrop ring drops about half its trees, bushes and flower tufts on every device (shared/LiteCut, Services/LiteCutService); off by default
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -507,6 +508,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	tabletRankBig = true, -- #5669: on the hour it publishes
 	priceRetry = true, -- #5681: on the hour it publishes
 	tabletScale = true, -- #5686: on the hour it publishes
+	parkLite = true, -- #5686: built ahead; on only if Growth's tablet fps read points at a lite mode
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

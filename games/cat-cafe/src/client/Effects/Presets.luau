@@ -4154,6 +4154,24 @@ Presets.giftStallFx = {
 	popSeconds = 1.4,
 }
 
+-- #5715 tier3Pointer (Effects/Tier3PointerFx): the Tier 3 coins pointer's look. The arrow is parkCatArrow's
+-- (Effects/PointerArrow), `tabletScale` times as big on a tablet; the Picnic Basket's ground ring is `ringSize` studs
+-- across (the station circles' radius 8), gold Neon, breathing between `ringHigh` and `ringLow` transparency once
+-- every `period` seconds, held at `ringStill` in Low performance, the lite budget or Reduce Motion.
+Presets.tier3Pointer = {
+	flag = "tier3Pointer",
+	tabletScale = 1.3,
+	reach = 170, -- studs the arrow shows from (the controller's cats are within 80)
+	gold = Color3.fromRGB(255, 200, 40),
+	ringSize = 16,
+	ringThick = 0.12,
+	ringLift = 0.08,
+	period = 1.2,
+	ringLow = 0.35,
+	ringHigh = 0.8,
+	ringStill = 0.6,
+}
+
 Presets.snowglobeFx = {
 	flag = "christmasEvent", -- #5704: AreaFx's steps in the village wait on it
 	centreTag = "SnowglobeCentre",

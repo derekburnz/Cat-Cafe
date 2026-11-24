@@ -18,6 +18,7 @@ local Workspace = game:GetService("Workspace")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 local ParkFirstLogic = require(script.Parent.Parent.UI.Components.ParkFirstLogic)
+local PointerArrow = require(script.Parent.Parent.Effects.PointerArrow)
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
@@ -30,8 +31,6 @@ local REACH = 150 -- studs, as the stall glow's (StartStallController)
 local POLL = 0.25
 local ABOVE = 2.6 -- studs over the top of the cat, clear of its name tag (Effects/CatNames)
 local BOB = 0.45 -- studs up and down
-local GOLD = Color3.fromRGB(255, 200, 40)
-local OUTLINE = Color3.fromRGB(60, 35, 10)
 
 local started = false
 
@@ -92,29 +91,9 @@ local function nearestStray(): Model?
 	return best
 end
 
-local function build(): (BillboardGui, TextLabel)
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "FirstCatArrow"
-	gui.Size = UDim2.fromOffset(64, 64)
-	gui.AlwaysOnTop = true
-	gui.LightInfluence = 0
-	gui.ResetOnSpawn = false
-	gui.MaxDistance = REACH + 20
-	gui.Enabled = false
-	local arrow = Instance.new("TextLabel")
-	arrow.Name = "Arrow"
-	arrow.BackgroundTransparency = 1
-	arrow.Size = UDim2.fromScale(1, 1)
-	arrow.Font = Enum.Font.GothamBlack
-	arrow.Text = "▼"
-	arrow.TextScaled = true
-	arrow.TextColor3 = GOLD
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = OUTLINE
-	stroke.Thickness = 3
-	stroke.Parent = arrow
-	arrow.Parent = gui
-	return gui, arrow
+-- #5715: the arrow's look lives in Effects/PointerArrow, so the Tier 3 coins pointer draws the same one
+local function build(): BillboardGui
+	return PointerArrow.build("FirstCatArrow", 1, REACH + 20)
 end
 
 -- How far over `model`'s pivot the arrow sits: the top of its box plus ABOVE.

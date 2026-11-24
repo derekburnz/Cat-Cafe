@@ -268,6 +268,7 @@ LiveFlags.KEYS = {
 	"rankWhite", -- #5650: the Rank Up pointing arrow is white and its dim darker (UI/Components/TutorialArrow); off by default
 	"syncSeed", -- #5677: NetHint and FirstMinuteFx read the catch count the UI already holds, so the first approach gets the hint (Effects/SyncSeed); off by default
 	"wowBannerFit", -- #5686: the FIRST CATCH! banner stays whole below the top edge on 4:3 tablets (Effects/FirstCatchWow); off by default
+	"tabletLite", -- #5686: a tablet counts as struggling under 45 fps and then gets the tabletLite effects budget, fewer particles and lighter glows than lite (Effects/Context); off by default
 	"codesRingTown", -- #5605: the Codes Cat's circle counts as a Town Square ring, so it shows with townRings as the other Town rings do (Effects/StationCircles); off by default
 	"firstCatchCoins", -- #5596: a Tier 1 save's first net catch tops its coins up to the Tier 2 Rank Up cost (StartGoalService); off by default
 	"stallGlow", -- #5533 v2: the goal chip's goal unmoved for 11 s glows its world target for 6 s, once per goal (Effects/WorldGlow); off by default
@@ -481,6 +482,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankWhite = true, -- #5650: on as soon as it publishes
 	syncSeed = true, -- #5677: on as soon as it publishes
 	wowBannerFit = true, -- #5686: on as soon as it publishes
+	tabletLite = true, -- #5686: off until Growth's tablet fps read says to switch it on
 	codesRingTown = true, -- #5605: on as soon as it publishes (Derek 2026-11-20)
 	firstCatchCoins = true, -- #5596: on as soon as it publishes (Derek 2026-11-20)
 	stallGlow = true, -- #5533 v2: on with the new start, after Review-QA and Sync's phone look

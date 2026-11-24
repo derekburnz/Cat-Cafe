@@ -106,6 +106,15 @@ export type Budget = {
 -- at the earliest (cutscenes still hold the count, so the intro does not count). #4857 read (Nov 16, first 5 minutes
 -- priority): phones average about 49 fps, so "a little laggy" ones (35 to 39) never tripped at 30; now under 40, and
 -- from 10 s in, so the lighter budget can be on by 30 s.
+-- #5686 tabletLite: a tablet (a phone or tablet tier device whose short side is `minSide` pixels or more) counts
+-- as struggling on its own line, `slow` (tablets fall off between minutes 3 and 10 at 30 to 45 fps), and then gets
+-- budget.tabletLite.
+Presets.tabletLite = {
+	flag = "tabletLite",
+	minSide = 600,
+	slow = { fps = 45, window = 10, windows = 2, after = 10, pause = 1 },
+}
+
 Presets.slow = {
 	fps = 40, -- 30 before
 	window = 10,
@@ -269,6 +278,48 @@ Presets.budget = {
 		pullConfetti = 16,
 		rainbowCats = 4,
 		rainbowOutlines = 1,
+		rallyPops = 4,
+		pennants = 0,
+		decorMotion = 0,
+		rides = 1, -- #5065: the lite budget turns one ride (rides.mostLite before)
+		rideHz = 15,
+		netTrails = 2,
+		luckyShimmers = 1,
+		campDrips = 1,
+		campFish = 1,
+		rallyBoards = 1,
+		cafeOrders = 0,
+		crownGlints = 1,
+		shopCatEmitters = 1,
+		waterfalls = 1,
+	}, -- #5686 tabletLite: a struggling tablet (its own fps line, Presets.tabletLite) gets fewer particles and lighter
+	-- glows than lite: thinner and fewer steady emitters, smaller bursts and confetti, one potion glow and no rainbow
+	-- outlines (each Highlight is a render pass)
+	tabletLite = {
+		animatedCats = 4,
+		animRadius = 50,
+		animHz = 20,
+		steadyEmitters = 2,
+		rateScale = 0.55,
+		goldEmitters = 1,
+		butterflies = 2,
+		ambientRadius = 70,
+		chimneyRadius = 120,
+		burstScale = 0.3,
+		maxBurst = 8,
+		confetti = 8,
+		areaPuffs = 3,
+		napLabels = 3,
+		rushLines = 1,
+		signatureCats = 1,
+		decorEffects = 1,
+		lawnEffects = 2,
+		potionGlows = 1,
+		cloudPuffs = 8,
+		campfires = 1,
+		pullConfetti = 12,
+		rainbowCats = 3,
+		rainbowOutlines = 0,
 		rallyPops = 4,
 		pennants = 0,
 		decorMotion = 0,

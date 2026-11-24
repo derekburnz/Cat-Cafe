@@ -452,31 +452,6 @@ ROSTER["StarTopper"] = dict(rarity="Mythical", fur="rarity_legend", second="gala
                             socks="night_sky", tip="rarity_legend", nose="nose_dark", eye_k=1.08,
                             mark=("star", "milk"))
 
-# Cherry Blossom Grove, the spring event (Sat Mar 27 to Sat Apr 3 2027; cherry-blossom-grove-spec-v2 section 3): eight
-# Grove cats, kept forever. The spec's `lantern` is PaperLantern here: the Sewer already has a Lantern cat.
-ROSTER["Sakura"] = dict(rarity="Common", fur="apron_pink", second="milk", eyes="eye_green", pattern="spots",
-                        muzzle="milk", socks="milk", tip="milk")
-ROSTER["Koi"] = dict(rarity="Common", fur="pearl", second="fur_orange", third="fur_black", eyes="eye_blue",
-                     pattern="patches", muzzle="pearl", socks="pearl", tip="fur_orange")
-ROSTER["PaperLantern"] = dict(rarity="Rare", fur="fur_strawberry", second="eye_amber", third="rarity_legend",
-                              eyes="eye_amber", pattern="gradient", muzzle="fur_custard", tip="rarity_legend",
-                              nose="nose_dark", eye_k=1.05)
-ROSTER["Matcha"] = dict(rarity="Rare", fur="mint", second="fur_vanilla", eyes="eye_amber", pattern="solid",
-                        muzzle="fur_vanilla", socks="fur_vanilla", tip="fur_fern", eye_k=1.05)
-ROSTER["Origami"] = dict(rarity="Rare", fur="offwhite", second="fur_rose", eyes="eye_violet", pattern="solid",
-                         muzzle="offwhite", tip="fur_rose", inner_ear="fur_rose", ear_k=1.2, eye_k=1.05)
-ROSTER["Bonsai"] = dict(rarity="Epic", fur="fur_moss", second="leaf_dark", third="fur_bramble", eyes="eye_amber",
-                        pattern="patches", muzzle="fur_vanilla", socks="fur_bramble", tip="leaf_dark", nose="nose_dark",
-                        eye_k=1.08)
-ROSTER["BlossomFox"] = dict(rarity="Legendary", fur="milk", second="milk", third="fur_rose", eyes="eye_amber",
-                            pattern="gradient", muzzle="milk", ruff="milk", ear_tufts=True, ear_k=1.25,
-                            socks="apron_pink", tip="apron_pink", scale=1.2, body_scale=(1.1, 1.0, 1.05),
-                            tail_thick=0.3, mark=("heart", "fur_rose"), eye_k=1.08)
-ROSTER["PetalDragon"] = dict(rarity="Mythical", fur="fur_bubblegum", second="milk", third="apron_pink",
-                             eyes="eye_violet", pattern="gradient", muzzle=None, glow_eyes=True,
-                             sparkle=True, socks="milk", tip="milk", scale=1.3, body_scale=(1.08, 1.12, 1.04),
-                             tail_thick=0.3, nose="nose_pink", mark=("star", "milk"), eye_k=1.08)
-
 # The Christmas Advent Calendar (#5502, advent-calendar-spec section 4): four limited cats behind doors 6, 12, 18 and
 # 24, shown as Secret and built a step above the Snowglobe eight (two props, lit parts, glowing eyes). Only from the
 # calendar, so no gold or rainbow twins (exclusive).

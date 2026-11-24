@@ -883,17 +883,13 @@ local Config = {
 			startsAt = 1795885200, -- "Christmas Event", Saturday 2026-11-28 17:00 UTC
 			title = "🔔 Next update Sat Nov 28: the CHRISTMAS EVENT! Want a reminder when it lands?",
 			name = "CHRISTMAS EVENT",
-			-- #5461 (Sync's look at the poster): the face's bottom name bar half hid the art's DEC 1 TO JAN 3 badge, so
-			-- the same art is fitted inside the 800x450 face, dates 40 px above the name bar (was 103012343912449, then 75146631114839 before)
-			poster = "rbxassetid://123740140740442",
+			-- #5461 (Sync's look at the poster): the art fits inside the 800x450 face, dates 40 px above the name bar.
+			-- Derek 2026-11-24: the NOV 28 TO JAN 3 art (Model-Agent, ui/update-posters/UpdatePoster_Christmas_Nov28);
+			-- was 123740140740442 (DEC 1), 103012343912449 and 75146631114839 before
+			poster = "rbxassetid://116343044670576",
 		},
-		{
-			id = "6693355219203523122",
-			-- #5098: moved to after Christmas (Derek 2026-11-17); Growth re-dated the Roblox Event
-			startsAt = 1806177600, -- "Cherry Blossom Grove", Saturday 2027-03-27 20:00 UTC
-			title = "🔔 Next update Sat Mar 27: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
-			name = "CHERRY BLOSSOM GROVE",
-		},
+		-- Cherry Blossom Grove (Roblox Event 6693355219203523122, Mar 27 2027) removed: Derek 2026-11-24, Christmas is the
+		-- last update.
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)

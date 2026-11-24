@@ -95,7 +95,7 @@ return function()
 					"6810389993696133776"
 				)
 				-- #5174 (Derek 2026-11-17: all the hype on Christmas): it rolls straight on to the Christmas Event, past
-				-- Harvest Hollow (no entry), then Cherry Blossom Grove
+				-- Harvest Hollow (no entry)
 				-- Derek 2026-11-20 19:47 UTC: Device Improvements removed, the ask is Christmas only
 				expect((EventRsvp.next(Config.UpdateEvents, 1794945600 + 600))).to.equal(
 					"3056428113926947439"
@@ -106,14 +106,11 @@ return function()
 				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(
 					"3056428113926947439"
 				)
-				-- Derek 2026-11-24: Christmas starts Sat Nov 28 17:00 UTC, so after it Cherry Blossom Grove (Sat Mar 27 2027)
+				-- Derek 2026-11-24: Christmas starts Sat Nov 28 17:00 UTC and is the last update (Grove removed), so nothing after it
 				expect((EventRsvp.next(Config.UpdateEvents, 1795885200 - 600))).to.equal(
 					"3056428113926947439"
 				)
-				expect((EventRsvp.next(Config.UpdateEvents, 1795885200 + 600))).to.equal(
-					"6693355219203523122"
-				)
-				expect((EventRsvp.next(Config.UpdateEvents, 1806177600 + 600))).to.equal(nil)
+				expect((EventRsvp.next(Config.UpdateEvents, 1795885200 + 600))).to.equal(nil)
 			end
 		)
 

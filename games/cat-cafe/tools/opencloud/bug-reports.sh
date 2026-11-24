@@ -93,13 +93,13 @@ peek() {
 }
 
 # #5711: reports listed one day were gone the next, the whole store with them. When a day reads 0, tell "deleted"
-# from "the listing misses them": (1) the v2 listing with showDeleted, counting entries by state and key day;
-# (2) for each deleted entry of the last days, its revisions (when it was written and when it was removed);
-# (3) the v1 key listing, a second index. Only key days, states and times are printed, never a user id.
+# from "the listing misses them": (1) the v2 listing with showDeleted, which lists deleted entries too (it returns
+# only id and path); (2) each listed entry's revisions, newest 60 entries: when it was written and, if it was, when
+# it was deleted; (3) the v1 key listing, a second index. Only key days, states and times are printed: an id holds
+# a user id and this log is public (#3103).
 diagnose() {
-	local token pages rows
-	echo "== #5711 check 1: v2 listing with deleted entries shown (state and key day):"
-	rows=()
+	local token pages ids=() id day line
+	echo "== #5711 check 1: v2 listing with deleted entries shown:"
 	token=
 	for pages in 1 2 3 4; do
 		args=(--data-urlencode showDeleted=true --data-urlencode maxPageSize=256)
@@ -109,29 +109,26 @@ diagnose() {
 			echo "   HTTP $status: $(jq -r '.message // .code // empty' <<<"$body" 2>/dev/null | head -c 200)"
 			break
 		fi
-		mapfile -t -O "${#rows[@]}" rows < <(jq -r '.dataStoreEntries[]? | "\(.state // "?") \(.id | sub("^global/"; "") | .[0:10])"' <<<"$body")
+		mapfile -t -O "${#ids[@]}" ids < <(jq -r '.dataStoreEntries[]?.id' <<<"$body")
 		token=$(jq -r '.nextPageToken // empty' <<<"$body")
 		[ -n "$token" ] || break
 	done
-	echo "   ${#rows[@]} entries listed; fields on the last page's first entry:"
-	jq -r '.dataStoreEntries[0]? | keys? | "   " + join(", ")' <<<"$body" 2>/dev/null || true
-	# times and states only, never a value, id or user: the newest 8 entries of the last page
-	jq -r '.dataStoreEntries[-8:][]? | "   key day \(.id | sub("^global/"; "") | .[0:10]): created \(.createTime // "-") revised \(.revisionCreateTime // "-") state \(.state // "-") deleted \(.deleted // "-")"' <<<"$body" 2>/dev/null || true
-	[ "${#rows[@]}" = 0 ] || printf '%s\n' "${rows[@]}" | sort | uniq -c | sed 's/^/   /'
-	echo "== #5711 check 2: revisions of the newest deleted entries (written and removed times, UTC):"
-	local gone=() id n=0
-	mapfile -t gone < <(jq -r '.dataStoreEntries[]? | select((.state // "") == "DELETED" or (.deleted // false) == true or ((.value // null) == null)) | .id' <<<"$body" 2>/dev/null | tail -n 5)
-	if [ "${#gone[@]}" = 0 ] && [ "${#rows[@]}" -gt 0 ]; then
-		echo "   none listed as DELETED on the last page"
-	fi
-	for id in "${gone[@]}"; do
-		n=$((n + 1))
+	echo "   ${#ids[@]} entries listed (live and deleted)"
+	echo "== #5711 check 2: each entry's key day, when it was written and when it was deleted (UTC):"
+	for id in "${ids[@]: -60}"; do
+		day=$(cut -c1-10 <<<"${id#global/}")
 		peek "$entries/${id#global/}:listRevisions" --data-urlencode maxPageSize=20
-		echo "   entry $n (key day ${id#global/}): HTTP $status"
-		jq -r '.dataStoreEntries[]? | "     \(.revisionCreateTime // .createTime // "?") \(.state // "?")"' <<<"$body" 2>/dev/null | head -n 10
-		# the field names, in case Roblox names the times differently (no values: an entry's value is a report)
-		jq -r '.dataStoreEntries[0]? | keys? | "     fields: " + join(", ")' <<<"$body" 2>/dev/null || true
-	done
+		if [ "$status" != 200 ]; then
+			echo "   $day: HTTP $status"
+			continue
+		fi
+		# revisions come newest first; the oldest ACTIVE one is the write, a DELETED one on top is the removal
+		line=$(jq -r '[.dataStoreEntries // [] | .[]] as $r
+			| ($r | map(select(.state == "ACTIVE")) | last | .revisionCreateTime // "-") as $w
+			| ($r | first | if .state == "DELETED" then .revisionCreateTime else "live" end) as $d
+			| "\($w[0:19]) deleted \($d[0:19])"' <<<"$body" 2>/dev/null) || line="(unreadable)"
+		echo "   $day written $line"
+	done | sort -k3
 	echo "== #5711 check 3: v1 key listing, prefix r_:"
 	local v1=https://apis.roblox.com/datastores/v1/universes/$UNIVERSE_ID/standard-datastores/datastore/entries
 	peek "$v1" --data-urlencode "datastoreName=$STORE" --data-urlencode prefix=r_ --data-urlencode limit=100 --data-urlencode allScopes=true

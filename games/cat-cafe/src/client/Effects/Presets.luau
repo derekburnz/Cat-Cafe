@@ -8587,7 +8587,11 @@ Presets.picnicParty = {
 	words = {
 		ready = "PICNIC READY",
 		waiting = "Next picnic %s",
+		count = "Picnic cats %d/%d", -- #5707 picnicCount: the cat now sitting on the blanket, of three
+		last = "Last one: a Rare!", -- #5707: the third while it is the save's first Park Rare
 	},
+	countFlag = "picnicCount", -- #5707: the basket sign counts the picnic cats while Picnic Time runs
+	cats = 3,
 }
 
 return Presets

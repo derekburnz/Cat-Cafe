@@ -52,6 +52,30 @@ function PicnicLogic.sign(phase: Phase, nextAt: number?, now: number): string?
 	return nil
 end
 
+-- #5707: how many cats a party has, as CatService.picnicDefs picks them: `cats` (3) on the save's first picnic, whose
+-- last is the named Park Rare (`rareMissing`: it is not yet in the collection), else `cats - 1` from the Park's table.
+-- Pure.
+function PicnicLogic.partyCats(rareMissing: boolean): number
+	local cats = Presets.picnicParty.cats
+	return if rareMissing then cats else cats - 1
+end
+
+-- #5707 picnicCount: the sign's words while Picnic Time runs. `caught[i]` is the server's PicnicCat<i>; the sign
+-- names the first cat not yet caught, "Picnic cats 2/3", or "Last one: a Rare!" for the last while `rareLast`
+-- (it is the save's first Park Rare). Nil once all are caught. Pure.
+function PicnicLogic.countSign(caught: { boolean }, total: number, rareLast: boolean): string?
+	local w = Presets.picnicParty.words
+	for n = 1, total do
+		if caught[n] ~= true then
+			if n == total and rareLast then
+				return w.last
+			end
+			return string.format(w.count, n, total)
+		end
+	end
+	return nil
+end
+
 -- The wobble's tilt in degrees `t` seconds into the ready look: `wiggles` swings that ease out over `seconds`,
 -- once every `every` seconds, still between.
 function PicnicLogic.wobble(

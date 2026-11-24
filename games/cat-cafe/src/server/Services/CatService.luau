@@ -1426,6 +1426,14 @@ do
 			{ tostring(stray.def.rarity), stray.def.id }
 		)
 		local userId = player.UserId
+		local nextDef: Types.CatDef? = picnic.defs[picnic.n + 1]
+		local line = M.PicnicParty.nextLine(
+			if nextDef ~= nil then nextDef.rarity else nil,
+			picnic.n + 1 == #picnic.defs
+		)
+		if line ~= nil and M.LiveFlagService.on(M.PicnicParty.FLOW_FLAG) then
+			Net.toast(player, line, "good") -- #5707: what comes next, as the next cat sits down
+		end
 		task.delay(M.PicnicParty.CAT_NEXT_SECONDS, function()
 			if Street.picnics[userId] == picnic then
 				Street.picnicSeat(userId)
@@ -3176,7 +3184,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	-- #5500 (missKeepsCommon, plan A fix 2): a missed Common, in any area on any device, stays put with no bolt, slow
 	-- or wait; the Perfect bonus is lost with the catch. Rares and up keep the chase
 	local commonCalm = rarity == "Common" and M.LiveFlagService.on("missKeepsCommon")
-	if easy or parkCalm or commonCalm or NetSwing.calm(M.Economy.tier(profile)) then
+	-- #5707 picnicFlow: a missed picnic cat stays on its seat, its circles as hard as any Park cat's
+	local picnicCalm = stray.picnic == player.UserId
+		and M.LiveFlagService.on(M.PicnicParty.FLOW_FLAG)
+	if easy or parkCalm or commonCalm or picnicCalm or NetSwing.calm(M.Economy.tier(profile)) then
 		if not easy then
 			-- a Tier 1 miss that would have bolted before, so the bolt read can tell the two apart
 			Telemetry.custom(
@@ -4000,9 +4011,17 @@ local function checkInPassing()
 		if position == nil or plot == nil then
 			return -- no cafe to check a cat in to, at a camp or a door (review N280)
 		end
-		local campId = M.Layout.campAt(position.X, position.Z)
+		local campId: string? = M.Layout.campAt(position.X, position.Z)
+		-- #5707 picnicFlow: by their own blanket a carrier checks in at the blanket's camp, in the rect or not
+		local spot: Vector3? = picnicSpots[player.UserId]
+		if campId == nil and spot ~= nil and M.LiveFlagService.on(M.PicnicParty.FLOW_FLAG) then
+			local dx, dz = position.X - spot.X, position.Z - spot.Z
+			if math.sqrt(dx * dx + dz * dz) <= M.PicnicParty.NET_STUDS then
+				campId = M.Layout.campAt(spot.X, spot.Z)
+			end
+		end
 		if campId ~= nil then
-			campCheckIn(player, campId)
+			campCheckIn(player, campId :: string)
 			return
 		end
 		local from = lastCarrierAt[player] or position

@@ -118,10 +118,13 @@ function Logic.budgetFor(
 	device: Presets.Tier,
 	lowPerformance: boolean,
 	console: boolean?,
-	lite: boolean?
+	lite: boolean?,
+	tabletLite: boolean?
 ): (Presets.Tier, Presets.Budget)
 	if lowPerformance then
 		return "low", Presets.budget.lowPerformance
+	elseif lite == true and tabletLite == true then
+		return "low", Presets.budget.tabletLite
 	elseif lite == true then
 		return "low", Presets.budget.lite
 	elseif console == true and device == "high" then
@@ -136,6 +139,12 @@ end
 -- set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is Automatic, which says nothing about the device,
 -- and 4 to 10 are left as they are).
 Logic.LITE_QUALITY_MAX = 3
+
+-- #5686 tabletLite: a tablet is a phone or tablet tier device whose screen's short side is `minSide` pixels or
+-- more (an iPad's 768; phones are under 500). Pure.
+function Logic.isTablet(device: Presets.Tier, viewport: Vector2, minSide: number): boolean
+	return device == "low" and math.min(viewport.X, viewport.Y) >= minSide
+end
 
 function Logic.wantsLite(device: Presets.Tier, quality: number?, struggling: boolean?): boolean
 	return (device == "low" and struggling == true)

@@ -28,6 +28,7 @@ Context.screenShake = true -- the Screen shake setting
 Context.lowPerformance = false -- the Low performance setting
 Context.console = false -- an Xbox or PlayStation (a ten-foot screen): Presets.budget.console (#2871)
 Context.lite = false -- #3794: the lighter budget (Logic.wantsLite): a struggling phone or graphics quality 1 to 3
+Context.tablet = false -- #5686: a phone or tablet tier device with a tablet sized screen (Logic.isTablet)
 Context.struggling = false -- #4311: this phone or tablet's frame rate stayed low (Logic.slowStep); kept all session
 local RUMBLE_FLAG = "deviceFixes" -- #4224: rumble ships with the Tue 2026-11-17 device update's switch (off by default)
 
@@ -45,6 +46,12 @@ local function savedQuality(): number
 	return if ok and type(level) == "number" then level else 0
 end
 
+-- #5686: the tabletLite switch is on and this is a tablet
+local function tabletLite(): boolean
+	return Context.tablet
+		and ReplicatedStorage:GetAttribute("LiveFlag_" .. Presets.tabletLite.flag) == true
+end
+
 local function rebudget()
 	Context.lite =
 		Logic.wantsLite(Context.device :: Presets.Tier, savedQuality(), Context.struggling)
@@ -52,7 +59,8 @@ local function rebudget()
 		Context.device :: Presets.Tier,
 		Context.lowPerformance,
 		Context.console,
-		Context.lite
+		Context.lite,
+		tabletLite()
 	)
 	Context.tier = tier
 	Context.budget = budget
@@ -67,13 +75,43 @@ function Context.init()
 		)
 	end
 	retier()
+	-- #5686: whether the screen is tablet sized, again whenever the window or the camera changes
+	local function resize()
+		local camera = Workspace.CurrentCamera
+		if camera ~= nil then
+			Context.tablet = Logic.isTablet(
+				Context.device :: Presets.Tier,
+				camera.ViewportSize,
+				Presets.tabletLite.minSide
+			)
+		end
+		rebudget()
+	end
+	resize()
+	local sized: RBXScriptConnection? = nil
+	local function watchCamera()
+		if sized ~= nil then
+			sized:Disconnect()
+		end
+		local camera = Workspace.CurrentCamera
+		if camera ~= nil then
+			sized = camera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
+		end
+		resize()
+	end
+	watchCamera()
+	Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Presets.tabletLite.flag)
+		:Connect(function()
+			rebudget()
+		end)
 	Context.console = GuiService:IsTenFootInterface()
 	rebudget()
 	-- #3918: a keyboard case or a mouse can be attached mid session; the tier follows within a second
 	for _, name in { "KeyboardEnabled", "MouseEnabled", "TouchEnabled" } do
 		UserInputService:GetPropertyChangedSignal(name):Connect(function()
 			retier()
-			rebudget()
+			resize() -- rebudgets too
 		end)
 	end
 	-- #3794: the graphics quality can change mid session; effects pick the budget up within a second
@@ -86,7 +124,8 @@ function Context.init()
 	local slow = Logic.slowStart()
 	local watch: RBXScriptConnection? = nil
 	watch = RunService.RenderStepped:Connect(function(dt: number)
-		if Logic.slowStep(slow, dt, Presets.slow, Context.cutscene()) then
+		local spec = if tabletLite() then Presets.tabletLite.slow else Presets.slow -- #5686
+		if Logic.slowStep(slow, dt, spec, Context.cutscene()) then
 			Context.struggling = true
 			rebudget()
 			-- #4945: once a session, for the analytics: when it tripped and how slow (Logic.liteReport)

@@ -2661,24 +2661,19 @@ end
 -- The Welcome back card for pay earned while away. #3602: not after a rest's rejoin (AfkCafe.REJOIN_ATTRIBUTE),
 -- which is the same visit carried on; the few seconds of the hop are credited without a card when the player
 -- leaves (DataService's release), as any unclaimed offline pay is.
-local function offlineCard(player: Player)
-	if player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true then
-		return
-	end
-	local offline, seconds = DataService.peekPendingOffline(player)
-	if offline > 0 then
-		Net.fire(player, "OfflineEarnings", offline, seconds)
-	end
-end
+-- Growth Nov 24 (return levers): the Welcome back card showed on 40 returns but Collect was pressed on 13, so with
+-- the offlineAuto switch on the pay is banked as the card is sent and Collect only closes it. `how` is offline_claim's
+-- field 2: "tap" (Collect) or "auto" (banked at the card).
+local OFFLINE_AUTO_FLAG = "offlineAuto"
 
-local function onClaimOffline(player: Player)
+local function collectOffline(player: Player, how: string): (number, number)
 	local profile = profileFor(player)
 	if profile == nil then
-		return
+		return 0, 0
 	end
 	local amount, seconds = DataService.takePendingOffline(player)
 	if amount <= 0 then
-		return
+		return 0, 0
 	end
 	Economy.credit(profile, amount)
 	Telemetry.source(player, profile, amount, "TimedReward", "offline")
@@ -2691,10 +2686,33 @@ local function onClaimOffline(player: Player)
 		elseif seconds < 15 * 60 then "0-14"
 		elseif seconds < 60 * 60 then "15-59"
 		else "60+"
-	Telemetry.custom(player, "offline_claim", amount, { away })
+	Telemetry.custom(player, "offline_claim", amount, { away, how })
 	Telemetry.onboarding(player, profile, "first_offline_claim")
 	-- #2829 (Derek2): no "Welcome back! +$X" toast; the Welcome back card already shows the amount
 	CafeService.sync(player)
+	return amount, seconds
+end
+
+local function offlineCard(player: Player)
+	if player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true then
+		return
+	end
+	local offline, seconds = DataService.peekPendingOffline(player)
+	if offline <= 0 then
+		return
+	end
+	if LiveFlagService.on(OFFLINE_AUTO_FLAG) then
+		-- banked now; the card still shows what was earned, and its Collect finds nothing left to take
+		offline, seconds = collectOffline(player, "auto")
+		if offline <= 0 then
+			return
+		end
+	end
+	Net.fire(player, "OfflineEarnings", offline, seconds)
+end
+
+local function onClaimOffline(player: Player)
+	collectOffline(player, "tap")
 end
 
 local function onTutorialAdvance(player: Player, rawStep: unknown)

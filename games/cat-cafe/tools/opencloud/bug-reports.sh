@@ -115,7 +115,8 @@ diagnose() {
 	done
 	echo "   ${#ids[@]} entries listed (live and deleted)"
 	echo "== #5711 check 2: each entry's key day, when it was written and when it was deleted (UTC):"
-	for id in "${ids[@]: -60}"; do
+	local from=$((${#ids[@]} > 60 ? ${#ids[@]} - 60 : 0))
+	for id in "${ids[@]:from}"; do
 		day=$(cut -c1-10 <<<"${id#global/}")
 		peek "$entries/${id#global/}:listRevisions" --data-urlencode maxPageSize=20
 		if [ "$status" != 200 ]; then

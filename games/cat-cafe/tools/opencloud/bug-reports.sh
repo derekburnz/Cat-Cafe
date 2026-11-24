@@ -156,6 +156,8 @@ while :; do
 	token=$(jq -r '.nextPageToken // empty' <<<"$body")
 	[ -n "$token" ] || break
 done
+# with showDeleted the listing is not in key order, and the newest COUNT are cut from the end: sort by key (time)
+[ "${#keys[@]}" = 0 ] || mapfile -t keys < <(printf '%s\n' "${keys[@]}" | sort)
 total=${#keys[@]}
 if [ "$total" = 0 ]; then
 	# 0 under this day's prefix: say what the store holds at all, so "nothing saved" (nobody's report arrived) can be

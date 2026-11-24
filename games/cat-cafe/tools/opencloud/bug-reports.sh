@@ -83,6 +83,63 @@ get() {
 	fi
 }
 
+# peek url [curl args...] -> sets $status and $body like get, but never exits: the #5711 checks below want to see
+# a 4xx too.
+peek() {
+	local url=$1
+	shift
+	status=$(curl -sS -o "$reply" -w '%{http_code}' --get "$url" -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$@") || status=000
+	body=$(cat "$reply")
+}
+
+# #5711: reports listed one day were gone the next, the whole store with them. When a day reads 0, tell "deleted"
+# from "the listing misses them": (1) the v2 listing with showDeleted, counting entries by state and key day;
+# (2) for each deleted entry of the last days, its revisions (when it was written and when it was removed);
+# (3) the v1 key listing, a second index. Only key days, states and times are printed, never a user id.
+diagnose() {
+	local token pages rows
+	echo "== #5711 check 1: v2 listing with deleted entries shown (state and key day):"
+	rows=()
+	token=
+	for pages in 1 2 3 4; do
+		args=(--data-urlencode showDeleted=true --data-urlencode maxPageSize=256)
+		[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
+		peek "$entries" "${args[@]}"
+		if [ "$status" != 200 ]; then
+			echo "   HTTP $status: $(jq -r '.message // .code // empty' <<<"$body" 2>/dev/null | head -c 200)"
+			break
+		fi
+		mapfile -t -O "${#rows[@]}" rows < <(jq -r '.dataStoreEntries[]? | "\(.state // "?") \(.id | sub("^global/"; "") | .[0:10])"' <<<"$body")
+		token=$(jq -r '.nextPageToken // empty' <<<"$body")
+		[ -n "$token" ] || break
+	done
+	echo "   ${#rows[@]} entries listed"
+	[ "${#rows[@]}" = 0 ] || printf '%s\n' "${rows[@]}" | sort | uniq -c | sed 's/^/   /'
+	echo "== #5711 check 2: revisions of the newest deleted entries (written and removed times, UTC):"
+	local gone=() id n=0
+	mapfile -t gone < <(jq -r '.dataStoreEntries[]? | select((.state // "") == "DELETED") | .id' <<<"$body" 2>/dev/null | tail -n 5)
+	if [ "${#gone[@]}" = 0 ] && [ "${#rows[@]}" -gt 0 ]; then
+		echo "   none listed as DELETED on the last page"
+	fi
+	for id in "${gone[@]}"; do
+		n=$((n + 1))
+		peek "$entries/${id#global/}:listRevisions" --data-urlencode maxPageSize=20
+		echo "   entry $n (key day ${id#global/}): HTTP $status"
+		jq -r '.dataStoreEntries[]? | "     \(.revisionCreateTime // .createTime // "?") \(.state // "?")"' <<<"$body" 2>/dev/null | head -n 10
+		# the field names, in case Roblox names the times differently (no values: an entry's value is a report)
+		jq -r '.dataStoreEntries[0]? | keys? | "     fields: " + join(", ")' <<<"$body" 2>/dev/null || true
+	done
+	echo "== #5711 check 3: v1 key listing, prefix r_:"
+	local v1=https://apis.roblox.com/datastores/v1/universes/$UNIVERSE_ID/standard-datastores/datastore/entries
+	peek "$v1" --data-urlencode "datastoreName=$STORE" --data-urlencode prefix=r_ --data-urlencode limit=100 --data-urlencode allScopes=true
+	if [ "$status" = 200 ]; then
+		echo "   $(jq -r '.keys | length' <<<"$body") keys; key days:"
+		jq -r '.keys[]?.key | .[0:10]' <<<"$body" | sort | uniq -c | sed 's/^/   /'
+	else
+		echo "   HTTP $status: $(jq -r '.message // .error // empty' <<<"$body" 2>/dev/null | head -c 200)"
+	fi
+}
+
 # Keys end in <os.time()>_<userId> with a ten-digit time, so a day's keys list in time order; keep the newest COUNT.
 # #2082: Open Cloud lists an entry's id as "<scope>/<key>" ("global/r_2026..."), and SetAsync saves under the global
 # scope, so the filter starts with "global/"; a bare prefix matched nothing and every day read 0 reports.
@@ -113,6 +170,7 @@ if [ "$total" = 0 ]; then
 	done
 	echo "== the store holds ${#shapes[@]} entries without a filter (first 4 pages); key starts:"
 	[ "${#shapes[@]}" = 0 ] || printf '%s\n' "${shapes[@]}" | sort | uniq -c
+	diagnose
 fi
 if [ "$total" -gt "$COUNT" ]; then
 	keys=("${keys[@]:total-COUNT}")

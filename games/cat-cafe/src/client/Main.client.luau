@@ -51,6 +51,7 @@ local StationCutController = require(script.Parent.Controllers.StationCutControl
 local StationLockController = require(script.Parent.Controllers.StationLockController)
 local StyleController = require(script.Parent.Controllers.StyleController)
 local TabletViewController = require(script.Parent.Controllers.TabletViewController)
+local Tier3PointerController = require(script.Parent.Controllers.Tier3PointerController)
 local TomorrowBoardController = require(script.Parent.Controllers.TomorrowBoardController)
 local TradeController = require(script.Parent.Controllers.TradeController)
 local UIController = require(script.Parent.Controllers.UIController)
@@ -153,6 +154,7 @@ StationLockController.start() -- #4539: Mystery Market, Cat Arcade and Mystic Po
 StationCutController.start() -- #5112: a rank up's cut to the station it unlocks, behind stationCut
 StartStallController.start() -- #5562: the play first start's stall glow (Effects/WorldGlow.stall)
 FirstCatArrowController.start() -- #5594: the arrow over the nearest cat until the first catch, behind firstCatArrow
+Tier3PointerController.start() -- #5715: at Tier 2 in the Park, what gets Tier 3's coins next, behind tier3Pointer
 CompanionSceneController.start() -- #5284: the Cat Companion unlock scene after the Tier 2 rank up, behind companionScene
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat

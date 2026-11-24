@@ -332,6 +332,7 @@ return function()
 							or key == "picnicNet" -- #5676
 							or key == "picnicFlow" -- #5707
 							or key == "offlineAuto" -- Growth Nov 24
+							or key == "tier3Pointer" -- #5715
 							or key == "secretWild" -- #5694
 							or key == "tabletView" -- #5696
 							or key == "fpsBucket" -- #5686

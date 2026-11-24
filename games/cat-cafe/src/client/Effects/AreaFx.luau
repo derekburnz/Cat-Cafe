@@ -639,6 +639,24 @@ local function harvestBoard(feet: Vector3): number?
 	return nil
 end
 
+-- Snowglobe Village's middle (tag Presets.snowglobeFx.centreTag), kept from the tag's signals like the boards.
+local globes: { [Instance]: boolean } = {}
+
+-- How far your feet are from the village's middle, nil while christmasEvent is off or it is not in the world.
+local function globeDistance(feet: Vector3): number?
+	local g = Presets.snowglobeFx
+	if ReplicatedStorage:GetAttribute("LiveFlag_" .. g.flag) ~= true then
+		return nil
+	end
+	for centre in globes do
+		local at = Context.positionOf(centre)
+		if at ~= nil then
+			return (at - feet).Magnitude
+		end
+	end
+	return nil
+end
+
 local function step()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -656,7 +674,13 @@ local function step()
 	updateAurora(area, feet)
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
 	updateFeet(
-		Logic.walkArea(area, harvestBoard(feet), Presets.harvestFx.airWithin),
+		Logic.walkArea(
+			area,
+			harvestBoard(feet),
+			Presets.harvestFx.airWithin,
+			globeDistance(feet),
+			Presets.snowglobeFx.airWithin
+		),
 		feet,
 		humanoid :: Humanoid?
 	)
@@ -683,6 +707,16 @@ function AreaFx.start()
 	end)
 	CollectionService:GetInstanceRemovedSignal(boardTag):Connect(function(board: Instance)
 		harvestBoards[board] = nil
+	end)
+	local centreTag = Presets.snowglobeFx.centreTag
+	for _, centre in CollectionService:GetTagged(centreTag) do
+		globes[centre] = true
+	end
+	CollectionService:GetInstanceAddedSignal(centreTag):Connect(function(centre: Instance)
+		globes[centre] = true
+	end)
+	CollectionService:GetInstanceRemovedSignal(centreTag):Connect(function(centre: Instance)
+		globes[centre] = nil
 	end)
 	if RunService:IsStudio() then
 		Workspace:GetAttributeChangedSignal("AreaAuroraTest"):Connect(function()

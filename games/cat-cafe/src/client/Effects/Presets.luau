@@ -2003,6 +2003,22 @@ Presets.catchFlavour = {
 			gustEvery = 0.15,
 			cats = { harvest_moon = 2 }, -- the moon over the hollow: a taller column
 		},
+		-- Snowglobe Village (area id "snowglobe", the Christmas Event; its strays only come while christmasEvent opens
+		-- it): a puff of fresh snow, then icy flakes, a frost ring, and swirling snow gusts for the rarest
+		snowglobe = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(228, 242, 255),
+			puff = 5,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 8,
+			gustEvery = 0.16,
+			cats = { star_topper = 2 }, -- the star on the tree: a taller column
+		},
 	} :: { [string]: CatchFlavour },
 }
 
@@ -4139,6 +4155,7 @@ Presets.giftStallFx = {
 }
 
 Presets.snowglobeFx = {
+	flag = "christmasEvent", -- #5704: AreaFx's steps in the village wait on it
 	centreTag = "SnowglobeCentre",
 	portalTag = "SnowglobePortal",
 	every = 0.5,
@@ -6720,6 +6737,20 @@ Presets.areaFx = {
 			footPuff = 2,
 			footPreset = "dust",
 			footColour = Color3.fromRGB(214, 128, 52),
+			footStuds = 3,
+		},
+		-- Snowglobe Village (area id "snowglobe", the Christmas Event): an icy puff where its strays come and go, and
+		-- a little kick of snow at your feet as you walk. Its falling snow is Effects/SnowglobeFx's, so Config.World has
+		-- no Snowglobe box and `air` here never starts; your steps there go by the distance to the village's middle
+		-- (Logic.walkArea, tag Presets.snowglobeFx.centreTag) while christmasEvent is on.
+		snowglobe = {
+			air = "snowfall",
+			colour = Color3.fromRGB(232, 244, 255),
+			puffPreset = "smokePuff",
+			puff = 6,
+			footPuff = 3,
+			footPreset = "dust",
+			footColour = Color3.fromRGB(246, 250, 255),
 			footStuds = 3,
 		},
 	} :: { [string]: AreaFxSpec },

@@ -67,6 +67,9 @@ local diedIn: { [Player]: string } = {} -- the wild area a character died in by 
 local spawned: { [Player]: boolean } = {} -- the player has had a character this session, so the next is a respawn
 -- #5685 spawnFollow: the session's first spawn has not finished its homeArrival yet, so a new character takes it over
 local firstOpen: { [Player]: boolean } = {}
+-- #5685 follow-up (Growth Nov 24: 32 spawn_gone, 1 spawn_left): PlayerRemoving fires while the player is still under
+-- Players and its character goes first, so a leaver read as "gone"; players already leaving, for goneWord
+local leaving: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
 local function serverNow(): number
 	return Workspace:GetServerTimeNow()
@@ -453,7 +456,10 @@ local function homeArrival(player: Player, character: Model)
 		if why == "gone" and LiveFlagService.on(FreeStart.FOLLOW_FLAG) then
 			-- #5685: say which gone; a new character runs its own first spawn (firstOpen) and logs its own landing
 			local now = player.Character
-			why = FreeStart.goneWord(player.Parent ~= Players, now ~= nil and now ~= character)
+			why = FreeStart.goneWord(
+				player.Parent ~= Players or leaving[player] == true,
+				now ~= nil and now ~= character
+			)
 		end
 		spawnNote(why or "none")
 	end
@@ -634,6 +640,7 @@ function CannonService.start(builtWorld: WorldBuilder.World)
 		diedIn[player] = nil
 		spawned[player] = nil
 		firstOpen[player] = nil
+		leaving[player] = true -- weak key: goes with the Player
 	end)
 	coverCannons(not ClockService.areasOpen())
 	ClockService.changed:Connect(function()

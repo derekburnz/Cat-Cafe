@@ -38,6 +38,7 @@ local RANGE: number = Config.RichTipRangeStuds
 local STAY: number = Config.RichBagSeconds
 local PENDING_SECONDS = 3 -- Collect shows "Collecting..." this long unless the tip clears first
 local OFFSET = 3.2 -- studs above the bag
+local AXES_FLAG = "LiveFlag_richAxes" -- #5692: the bubble's offset in the anchor's own axes (_tick)
 local TOUCH = 4 -- studs: this close to a bag collects it without the button (rich-money-bags.md section 4)
 -- #3633 (Derek 2026-11-12: "make the rich tip pop up like 50-75% smaller it takes up too much screen"): the bubble
 -- and its button took 220 x 168 px. Now 136 x 90 with one bag (about two thirds less screen): the amount, one thin
@@ -319,7 +320,14 @@ function RichTip._tick(self: any)
 	if self._billboard.Adornee ~= anchor then
 		self._billboard.Adornee = anchor
 	end
-	self._billboard.StudsOffsetWorldSpace = bag.position - anchor.Position
+	-- #5692 (Derek 2026-11-24: floating tips "still unclaimable"): StudsOffsetWorldSpace is in the Adornee's own axes,
+	-- so on a plot that faces another way a bag off table 1 was drawn at the turned offset (a mirrored table, or past
+	-- the wall) while every range check uses its real spot; with richAxes on the offset is put in the anchor's axes
+	local offset = bag.position - anchor.Position
+	if ReplicatedStorage:GetAttribute(AXES_FLAG) == true then
+		offset = anchor.CFrame:VectorToObjectSpace(offset)
+	end
+	self._billboard.StudsOffsetWorldSpace = offset
 	if os.clock() >= self._pendingUntil then
 		local distance = bag.distance
 		local near = distance == nil or distance <= RANGE

@@ -2,7 +2,7 @@
 -- #5715 (part of #5686), switch tier3Pointer: the look of the Tier 3 coins pointer. Gameplay-Engineer's controller
 -- picks one target a second (shared/Tier3Pointer) and hands it here with Tier3PointerFx.point(kind, target):
 --   "picnic"  the player's Picnic Basket station while it is ready: the gold arrow over the basket, and a soft gold
---             ring on the ground at its trigger (the station's PromptAnchor, else its pivot) that breathes every
+--             ring on the ground at its trigger (the station's PromptAnchor attachment, else its pivot) that breathes every
 --             `period` seconds. Low performance, the lite budget and Reduce Motion hold the ring still and fainter.
 --   "cat"     a free Park cat: the same gold arrow as parkCatArrow (Effects/PointerArrow) over it.
 --   nil       nothing.
@@ -91,10 +91,12 @@ local function groundUnder(at: Vector3): Vector3
 	return if hit ~= nil then hit.Position else at
 end
 
--- Where the basket's trigger is: its PromptAnchor part, else the station's pivot.
+-- Where the basket's trigger is: its PromptAnchor (an Attachment, or a part), else the station's pivot.
 local function triggerOf(station: Instance): Vector3?
 	local anchor = station:FindFirstChild("PromptAnchor", true)
-	if anchor ~= nil and anchor:IsA("BasePart") then
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		return (anchor :: Attachment).WorldPosition -- the camp stations' anchor (CampExtraService.anchorOf)
+	elseif anchor ~= nil and anchor:IsA("BasePart") then
 		return (anchor :: BasePart).Position
 	end
 	return Context.positionOf(station)

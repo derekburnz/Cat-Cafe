@@ -234,6 +234,7 @@ LiveFlags.KEYS = {
 	"gemsShrink", -- Derek 2026-11-18: a stray's rarity gem gets smaller with distance so it stops covering far cats (Effects/Rarity, Logic.gemPixels); off by default
 	"picnicParty", -- #5572: the Picnic Basket is a Picnic Party: step in, 2x money for 3 minutes, ready again in 20 minutes and each new day (shared/PicnicParty, Services/CampExtraService); off by default
 	"picnicNet", -- #5676: the net is out and catches work within 12 studs of the player's own picnic blanket, camp or not (shared/PicnicParty.NET_FLAG); off by default
+	"tabletView", -- #5696: a touch screen held sideways and narrower than 16:9 gets a wider camera view, 80 on a 4:3 iPad (shared/TabletView); off by default
 	"fpsBucket", -- #5686: client_fps field 3 also carries the fps bucket, e.g. "std:q0:30-45" (shared/PerfWatch.BUCKET_FLAG); off by default
 	"richAxes", -- #5692: the rich tip bubble is drawn over its bag on a plot that faces another way (UI/Screens/RichTip, the offset in the anchor's axes); off by default
 	"picnicFromCannon", -- #5657: with picnicParty, the cannon menu's Start runs Picnic Time from anywhere (Services/CampExtraService, Screens/Cannon); off by default
@@ -386,6 +387,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	spawnRetry = true, -- Sync Nov 22: on as soon as it publishes
 	spawnFollow = true, -- #5685: on as soon as it publishes
 	picnicNet = true, -- #5676: on as soon as it publishes
+	tabletView = true, -- #5696: on as soon as it publishes
 	fpsBucket = true, -- #5686: on as soon as it publishes (log only)
 	richAxes = true, -- #5692: on as soon as it publishes
 	missKeepsCommon = true, -- #5500: plan A fix 2, on when Growth says (before Nov 22 end)

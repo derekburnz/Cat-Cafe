@@ -328,6 +328,7 @@ return function()
 							or key == "spawnRetry" -- Sync Nov 22
 							or key == "spawnFollow" -- #5685
 							or key == "picnicNet" -- #5676
+							or key == "tabletView" -- #5696
 							or key == "fpsBucket" -- #5686
 							or key == "richAxes" -- #5692
 							or key == "tier3Up" -- #5617

@@ -77,6 +77,7 @@ local StarterSuggest = require(ReplicatedStorage.Shared.StarterSuggest)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
+local TabletView = require(ReplicatedStorage.Shared.TabletView)
 local Tier3Trip = require(ReplicatedStorage.Shared.Tier3Trip)
 local TomorrowBoard = require(ReplicatedStorage.Shared.TomorrowBoard)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -642,6 +643,7 @@ local REPORTS = {
 	LoadingTest.SEEN_REPORT, -- #4314: the whole seconds the loading screen was up (0 to LoadingTest.SEEN_MAX), once
 	PerfWatch.READY, -- #4783: seconds from the client's first script line to the world ready (client_load), once
 	PerfWatch.FPS, -- #4783: the average fps up to a mark (PerfWatch.encode), once a mark a session (client_fps)
+	TabletView.REPORT, -- #5696: the camera's vertical view a tablet set (TabletView.BASE to MAX), once a session
 	"fx_lite", -- #4945: the lighter effects budget tripped, seconds x 100 + fps (Effects Logic.liteReport), once
 	"next_goal", -- #5202: the "What next?" card shown (A or B) or tapped (cats, cafe or closed), shared/NextGoal
 }
@@ -815,6 +817,7 @@ type Session = {
 	loadLogged: boolean, -- #4783: client_load logged this session
 	loadPending: { seconds: number, bucket: string }?, -- #4783: client_load's, held until the device report comes
 	fpsLogged: { [number]: boolean }, -- #4783: client_fps marks logged this session
+	view: number?, -- #5696: the camera view the client set (TabletView), on client_fps field 3 as "v<fov>"
 	liteLogged: boolean, -- #4945: fx_lite logged this session
 }
 
@@ -3120,8 +3123,21 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			Telemetry.custom(player, "client_fps", fps, {
 				session.device or "unknown",
 				"m" .. tostring(minutes),
-				low .. ":q" .. tostring(quality) .. bucket,
+				low .. ":q" .. tostring(quality) .. bucket .. (if session.view ~= nil
+					then ":v" .. tostring(session.view)
+					else ""),
 			})
+		end
+	elseif name == TabletView.REPORT then
+		-- #5696: a whole view from BASE to MAX, once a session
+		if
+			type(rawValue) == "number"
+			and rawValue == math.floor(rawValue)
+			and rawValue >= TabletView.BASE
+			and rawValue <= TabletView.MAX
+			and session.view == nil
+		then
+			session.view = rawValue :: number
 		end
 	elseif name == "fx_lite" then
 		-- #4945: once a session; seconds 0 to 3600 and fps 0 to 60, else dropped

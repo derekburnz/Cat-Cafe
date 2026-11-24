@@ -310,6 +310,7 @@ return function()
 							or key == "syncSeed" -- #5677
 							or key == "wowBannerFit" -- #5686
 							or key == "tabletLite" -- #5686
+							or key == "picnicCount" -- #5707
 							or key == "cannonGlow" -- #5533
 							or key == "rankPicker" -- #5599
 							or key == "cutsQuick" -- #5550

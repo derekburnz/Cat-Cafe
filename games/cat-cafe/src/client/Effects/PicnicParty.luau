@@ -27,12 +27,15 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Catching = require(Shared:WaitForChild("Catching"))
 local PicnicSeats = require(Shared:WaitForChild("PicnicSeats"))
+local Tier3Path = require(Shared:WaitForChild("Tier3Path"))
 
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
 local PicnicLogic = require(script.Parent.PicnicLogic)
 local Presets = require(script.Parent.Presets)
+local SyncSeed = require(script.Parent.SyncSeed)
 
 local PicnicParty = {}
 
@@ -182,15 +185,45 @@ local function makeSign(spot: Attachment): (BillboardGui, TextLabel)
 	return gui, words
 end
 
+-- #5707: whether the party's last cat is the save's first Park Rare (shared/Catching's named Park Rare, not yet in
+-- the collection the UI holds; CatService.picnicDefs picks it the same way). False when the state is not known.
+local function rareLast(): boolean
+	local state = SyncSeed.state()
+	if type(state) ~= "table" then
+		return false
+	end
+	local collection = (state :: { [string]: unknown }).collection
+	local named = Catching.candidates("Rare", Tier3Path.AREA)[1]
+	return named ~= nil
+		and type(collection) == "table"
+		and (collection :: { [string]: unknown })[named.id] == nil
+end
+
+-- #5707 picnicCount: the count's words while Picnic Time runs, or nil (switch off, or all caught)
+local function countText(): string?
+	local p = Presets.picnicParty
+	if ReplicatedStorage:GetAttribute("LiveFlag_" .. p.countFlag) ~= true then
+		return nil
+	end
+	local player = Players.LocalPlayer
+	local caught: { boolean } = {}
+	for n = 1, p.cats do
+		caught[n] = player:GetAttribute("PicnicCat" .. n) == true
+	end
+	return PicnicLogic.countSign(caught, p.cats, caught[p.cats - 1] and rareLast())
+end
+
 local function drawSign(at: Scene, phase: PicnicLogic.Phase, now: number)
 	local s = Presets.picnicParty.sign
-	local text = PicnicLogic.sign(phase, number("PicnicNextAt"), now)
+	local text = if phase == "party"
+		then countText()
+		else PicnicLogic.sign(phase, number("PicnicNextAt"), now)
 	at.sign.Enabled = text ~= nil
 	if text == nil then
 		return
 	end
 	at.words.Text = text :: string
-	local ready = phase == "ready"
+	local ready = phase == "ready" or phase == "party" -- the party's count reads in the ready sign's gold
 	at.sign.Size = if ready
 		then UDim2.fromOffset(s.width, s.height)
 		else UDim2.fromOffset(s.waitWidth, s.waitHeight)

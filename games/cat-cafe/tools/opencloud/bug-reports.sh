@@ -83,12 +83,21 @@ get() {
 	fi
 }
 
-# peek url [curl args...] -> sets $status and $body like get, but never exits: the #5711 checks below want to see
-# a 4xx too.
+# peek url [curl args...] -> sets $status and $body like get, with the same retries on 5xx and 429, but never
+# exits: the #5711 reads below want to see a 404 too.
 peek() {
-	local url=$1
+	local url=$1 wait
 	shift
-	status=$(curl -sS -o "$reply" -w '%{http_code}' --get "$url" -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$@") || status=000
+	for wait in 5 10 20 0; do
+		status=$(curl -sS -o "$reply" -w '%{http_code}' --get "$url" -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$@") || status=000
+		case "$status" in
+		5?? | 429 | 000) ;;
+		*) break ;;
+		esac
+		[ "$wait" = 0 ] && break
+		echo "Open Cloud answered HTTP $status; trying again in ${wait}s." >&2
+		sleep "$wait"
+	done
 	body=$(cat "$reply")
 }
 
@@ -187,9 +196,18 @@ for key in "${keys[@]}"; do
 	bare=${key#global/} # the listed id is "global/<key>"; the entry path takes the bare key (#2082)
 	gone=
 	peek "$entries/$bare"
-	if [ "$status" != 200 ]; then
+	if [ "$status" != 200 ] && [ "$status" != 404 ]; then
+		# not "deleted", only unreadable now (a 5xx or 429 that outlasted the retries): say so and go on
+		echo "(a report of this day could not be read: HTTP $status)"
+		continue
+	fi
+	if [ "$status" = 404 ]; then
 		# #5711: deleted. Its newest ACTIVE revision still holds the report: read that one (entries/<key>@<revision>)
-		get "$entries/$bare:listRevisions" --data-urlencode maxPageSize=20
+		peek "$entries/$bare:listRevisions" --data-urlencode maxPageSize=20
+		if [ "$status" != 200 ]; then
+			echo "(a deleted report of this day: its revisions could not be listed, HTTP $status)"
+			continue
+		fi
 		revision=$(jq -r '[.dataStoreEntries // [] | .[] | select(.state == "ACTIVE")] | first | .revisionId // empty' <<<"$body")
 		gone=$(jq -r '[.dataStoreEntries // [] | .[] | select(.state == "DELETED")] | first | .revisionCreateTime // "?" | .[0:16]' <<<"$body")
 		if [ -z "$revision" ]; then

@@ -1087,7 +1087,10 @@ local function spawnAt(
 			rng:NextNumber(),
 			true,
 			{ areaId }, -- #4221 (secretAreas retired, #4656)
-			Catching.secretShare(nil, M.LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)) -- #5418
+			Catching.wildSecretShare( -- #5694 secretWild: 1 in 6, else #5418's share
+				M.LiveFlagService.on(Catching.WILD_SECRET_FLAG),
+				M.LiveFlagService.on(Catching.SECRET_DOUBLE_FLAG)
+			)
 		)
 		else nil
 	local def = secret

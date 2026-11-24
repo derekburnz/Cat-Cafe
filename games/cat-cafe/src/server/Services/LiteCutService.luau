@@ -14,7 +14,7 @@ local LiveFlagService = require(script.Parent.LiveFlagService)
 
 local LiteCutService = {}
 
-local held: { [Instance]: Instance } = {} -- piece -> the parent it came from
+local held: { [Instance]: Instance? } = {} -- piece -> the parent it came from
 
 local function holdFolder(): Folder
 	local found = ServerStorage:FindFirstChild(LiteCut.HOLD)
@@ -41,7 +41,7 @@ local function apply(on: boolean)
 		end
 	else
 		for piece, from in held do
-			if LiteCut.action(false, true) == "restore" then
+			if from ~= nil and LiteCut.action(false, true) == "restore" then
 				if from.Parent ~= nil then
 					piece.Parent = from
 				else
@@ -60,7 +60,10 @@ function LiteCutService.start()
 			local on = LiveFlagService.on(LiteCut.FLAG)
 			if on ~= last then
 				last = on
-				local ok, err = pcall(apply, on)
+				local ok, err = pcall(function(): any
+					apply(on)
+					return nil :: any -- CI's luau-lsp wants two values from pcall
+				end)
 				if not ok then
 					warn("[LiteCut] " .. tostring(err))
 				end

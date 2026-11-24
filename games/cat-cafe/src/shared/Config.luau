@@ -887,13 +887,8 @@ local Config = {
 			-- the same art is fitted inside the 800x450 face, dates 40 px above the name bar (was 103012343912449, then 75146631114839 before)
 			poster = "rbxassetid://123740140740442",
 		},
-		{
-			id = "6693355219203523122",
-			-- #5098: moved to after Christmas (Derek 2026-11-17); Growth re-dated the Roblox Event
-			startsAt = 1806177600, -- "Cherry Blossom Grove", Saturday 2027-03-27 20:00 UTC
-			title = "🔔 Next update Sat Mar 27: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
-			name = "CHERRY BLOSSOM GROVE",
-		},
+		-- Cherry Blossom Grove (Roblox Event 6693355219203523122, Mar 27 2027) removed: Derek 2026-11-24, Christmas is the
+		-- last update.
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)

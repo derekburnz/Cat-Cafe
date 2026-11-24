@@ -5,33 +5,12 @@
 -- client downloads them and no script can place them. A held name comes back only when its switch is on and the code
 -- that places it calls AssetRegistry.release(switch).
 --
--- cherryGrove: Cherry Blossom Grove, the spring event (Mar 27 to Apr 3 2027, #4386; models from #5339). No code
--- places the Grove yet; the event build releases these when it lands.
+-- Nothing is held now: Cherry Blossom Grove (cherryGrove, #5339), the only held set, was removed with its models
+-- (Derek 2026-11-24: "remove the cherryblossom event and code from game").
 
 local HeldAssets = {}
 
-local GROVE_CATS =
-	{ "Sakura", "Koi", "Matcha", "Origami", "PaperLantern", "Bonsai", "BlossomFox", "PetalDragon" }
-
-local HELD: { [string]: { string } } = {
-	cherryGrove = {
-		"CatCafe_Cherry_Set",
-		"CatCafe_Cherry_Portal",
-		"CatCafe_Cherry_Stall",
-		"CatCafe_Cherry_Petals",
-		"CatCafe_Accessory_FlowerCrown",
-		"CatCafe_Accessory_LanternHat",
-		"CatCafe_Decor_LittleKoiPond",
-		"CatCafe_Decor_GroveBlossomTree",
-		"CatCafe_Decor_TeaSet",
-		"CatCafe_Decor_LanternString",
-	},
-}
-for _, cat in GROVE_CATS do
-	for _, pose in { "", "_Sit", "_Work" } do
-		table.insert(HELD.cherryGrove, "CatCafe_Cat_" .. cat .. pose)
-	end
-end
+local HELD: { [string]: { string } } = {}
 
 local owner: { [string]: string } = {}
 for switch, names in HELD do

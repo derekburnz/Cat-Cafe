@@ -12,9 +12,8 @@
 --     HarvestArrival, gives the first visit of the UTC day +40.
 --   HarvestService.caught(player, rarity): pumpkins for a harvest cat caught and marks the player as a Feast Pie
 --     helper (wired once the harvest cats are in the Catalog).
---   The world (World/HarvestWorld): the arch in the Town Square ARCH_EARLY_SECONDS before the area opens with the
---     switch on, the area AREA_EARLY_SECONDS before it opens
---     (at start, or on a timer), never once it has closed. A picked pumpkin hides until it regrows.
+--   The world (World/HarvestWorld): the area AREA_EARLY_SECONDS before it opens, once the store's switches are read
+--     and harvestHollow is on (at start, or on a timer), never once it has closed; no Town Square arch (#5722). A picked pumpkin hides until it regrows.
 --   HarvestService.tripBlocker(player): why a Travel "harvest" trip is refused, or nil (TravelService asks).
 --   The Feast Pie (HarvestPieService): each harvest cat caught adds one to the all-servers count.
 --   The harvest strays (part 5): once the area is built it is added to CatService (HarvestWorld.areaInfo), where
@@ -418,19 +417,10 @@ function HarvestService.tripBlocker(player: Player): string?
 	return nil
 end
 
--- Review-QA on #4397: the arch only from ARCH_EARLY_SECONDS before the area opens (the update countdown's 24 hours),
--- and only while the switch is on (checked once a minute until it is). It stays after the area closes, as decor.
-local function archWhenDue()
-	task.delay(
-		math.max(0, HarvestHollow.OPENS_AT - HarvestWorld.ARCH_EARLY_SECONDS - os.time()),
-		function()
-			while not LiveFlagService.on(HarvestSave.FLAG) do
-				task.wait(60)
-			end
-			HarvestWorld.buildArch(Workspace)
-		end
-	)
-end
+-- #5722 (Derek 2026-11-25: "fix the random gate here and remove it"): Harvest Hollow is vaulted, so the Town Square
+-- arch (HarvestWorld.buildArch) is never built. It was built a day before OPENS_AT once `on` said yes, and a new
+-- server answers `on` from the defaults (harvestHollow on) until its first store read, so every server started since
+-- Nov 24 20:00 UTC put it up with the switch off. Snowglobe Village's portal stands on that spot (SnowglobeWorld).
 
 -- The area once a server, AREA_EARLY_SECONDS before it opens; nothing once it has closed.
 local function buildWhenDue()
@@ -440,7 +430,11 @@ local function buildWhenDue()
 	end
 	local wait = math.max(0, HarvestHollow.OPENS_AT - HarvestWorld.AREA_EARLY_SECONDS - now)
 	task.delay(wait, function()
-		if not built then
+		-- #5722: only once the store's switches are read and harvestHollow is on (the defaults say on)
+		while not (LiveFlagService.ready() and LiveFlagService.on(HarvestSave.FLAG)) do
+			task.wait(60)
+		end
+		if not built and os.time() < HarvestHollow.CLOSES_AT then
 			built = true
 			local _, info = HarvestWorld.buildArea(Workspace)
 			CatService.addArea(info, function(profile: Types.PlayerProfile): boolean
@@ -471,7 +465,6 @@ function HarvestService.start()
 	HarvestPieService.start()
 	watchTag(HarvestService.PUMPKIN_TAG, pick)
 	watchTag(HarvestService.ARRIVAL_TAG, arrive)
-	archWhenDue()
 	buildWhenDue()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastTouch[player] = nil

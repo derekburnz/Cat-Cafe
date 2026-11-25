@@ -111,7 +111,7 @@ local function look(): (Tier3Pointer.Look, Model?)
 	local known = type(state) == "table"
 	local value: Tier3Pointer.Look = {
 		tier = if known and type(state.tier) == "number" then state.tier else 0,
-		coins = if known and type(state.coins) == "number" then state.coins else 0,
+		coins = if known and type(state.money) == "number" then state.money else 0, -- PlayerState.money
 		cost = tier3Cost(),
 		-- Tier3Path on and no goal line left: its kinds and Rares are met (its own stray leads until then)
 		pathMet = known and flag(Tier3Path.FLAG) and type(state.tier3Goal) ~= "table",

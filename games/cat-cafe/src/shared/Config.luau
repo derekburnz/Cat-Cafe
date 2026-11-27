@@ -878,15 +878,16 @@ local Config = {
 		-- tmmr ... change the board and notify pop ups to just be the christmas event".
 		{
 			id = "3056428113926947439",
-			-- Derek 2026-11-24 15:23 UTC: the Christmas Event moves up to Sat Nov 28 17:00 UTC (12 PM ET), to Jan 3, as the
+			-- Derek 2026-11-27 19:33 UTC: Sun Nov 29 17:00 UTC (12 PM ET; "usage comes back saturday night"). Before
+			-- that, Derek 2026-11-24 15:23 UTC: the Christmas Event moves up to Sat Nov 28 17:00 UTC, to Jan 3, as the
 			-- last update (was Tue Dec 1 20:00 UTC)
-			startsAt = 1795885200, -- "Christmas Event", Saturday 2026-11-28 17:00 UTC
-			title = "🔔 Next update Sat Nov 28: the CHRISTMAS EVENT! Want a reminder when it lands?",
+			startsAt = 1795971600, -- "Christmas Event", Sunday 2026-11-29 17:00 UTC
+			title = "🔔 Next update Sun Nov 29: the CHRISTMAS EVENT! Want a reminder when it lands?",
 			name = "CHRISTMAS EVENT",
 			-- #5461 (Sync's look at the poster): the art fits inside the 800x450 face, dates 40 px above the name bar.
-			-- Derek 2026-11-24: the NOV 28 TO JAN 3 art (Model-Agent, ui/update-posters/UpdatePoster_Christmas_Nov28);
-			-- was 123740140740442 (DEC 1), 103012343912449 and 75146631114839 before
-			poster = "rbxassetid://116343044670576",
+			-- Derek 2026-11-27: the NOV 29 TO JAN 3 art (Model-Agent, ui/update-posters/UpdatePoster_Christmas_Nov29);
+			-- was 116343044670576 (NOV 28), 123740140740442 (DEC 1), 103012343912449 and 75146631114839 before
+			poster = "rbxassetid://133282096630236",
 		},
 		-- Cherry Blossom Grove (Roblox Event 6693355219203523122, Mar 27 2027) removed: Derek 2026-11-24, Christmas is the
 		-- last update.

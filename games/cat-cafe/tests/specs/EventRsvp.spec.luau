@@ -106,11 +106,11 @@ return function()
 				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(
 					"3056428113926947439"
 				)
-				-- Derek 2026-11-24: Christmas starts Sat Nov 28 17:00 UTC and is the last update (Grove removed), so nothing after it
-				expect((EventRsvp.next(Config.UpdateEvents, 1795885200 - 600))).to.equal(
+				-- Derek 2026-11-24: Christmas starts Sun Nov 29 17:00 UTC (Derek 2026-11-27) and is the last update (Grove removed), so nothing after it
+				expect((EventRsvp.next(Config.UpdateEvents, 1795971600 - 600))).to.equal(
 					"3056428113926947439"
 				)
-				expect((EventRsvp.next(Config.UpdateEvents, 1795885200 + 600))).to.equal(nil)
+				expect((EventRsvp.next(Config.UpdateEvents, 1795971600 + 600))).to.equal(nil)
 			end
 		)
 

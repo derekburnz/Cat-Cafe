@@ -242,8 +242,8 @@ LiveFlags.KEYS = {
 	"fpsBucket", -- #5686: client_fps field 3 also carries the fps bucket, e.g. "std:q0:30-45" (shared/PerfWatch.BUCKET_FLAG); off by default
 	"richAxes", -- #5692: the rich tip bubble is drawn over its bag on a plot that faces another way (UI/Screens/RichTip, the offset in the anchor's axes); off by default
 	"picnicFromCannon", -- #5657: with picnicParty, the cannon menu's Start runs Picnic Time from anywhere (Services/CampExtraService, Screens/Cannon); off by default
-	"christmasEvent", -- Snowglobe Village, Nov 28 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
-	"adventCalendar", -- #5502: the advent calendar (shared/Advent); also needs christmasEvent, and its dates hold every door shut until Nov 28 17:00 UTC; off by default
+	"christmasEvent", -- Snowglobe Village, Nov 29 2026 to Jan 3 2027: the globe in the Town Square and the village are built (Services/SnowglobeService); off by default
+	"adventCalendar", -- #5502: the advent calendar (shared/Advent); also needs christmasEvent, and its dates hold every door shut until Nov 29 17:00 UTC; off by default
 	"catNames", -- #5586: a name tag in the rarity colour over the nearest wild cats (Effects/CatNames, Settings "Cat names"); off by default
 	"keepNoEvent", -- #5428: the Dragon Keep move in list leaves out event cats and the server refuses them (DragonKeep.eventCat); off by default
 	"bangRelayout", -- #5261: a "!" bubble showing with words but laid out blank lays its text out again (UI/Components/MarketBang); on by default

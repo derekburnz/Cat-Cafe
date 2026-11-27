@@ -5,8 +5,9 @@
 -- Nothing is random and nothing is for Robux.
 --
 -- Two locks, both checked by the server on every open (AdventService), never the client's clock:
---   1. the dates: door 1 opens at FIRST_OPEN (Sat Nov 28 2026 17:00 UTC, 12 PM ET; Derek 2026-11-24 moved it up from
---      Dec 1 20:00 UTC), door n (2 to 24) at 00:00 UTC n - 1 days after Nov 28 (Nov 29 to Dec 21), and
+--   1. the dates: door 1 opens at FIRST_OPEN (Sun Nov 29 2026 17:00 UTC, 12 PM ET; Derek 2026-11-24 moved it up from
+--      Dec 1 20:00 UTC to Sat Nov 28, then 2026-11-27 to Sunday), door n (2 to 24) at 00:00 UTC n - 1 days after
+--      Nov 29 (Nov 30 to Dec 22), and
 --      nothing opens from CLOSES (Mon Jan 4 2027 00:00 UTC, the end of Jan 3) on;
 --   2. the switches: FLAG `adventCalendar` (LiveFlags.OFF_BY_DEFAULT) and EVENT_FLAG `christmasEvent`, both on.
 -- Missed doors are not lost: today's door (the newest one open, on its own UTC day) always opens, and a player who is
@@ -34,8 +35,8 @@ Advent.EVENT_FLAG = "christmasEvent"
 Advent.YEAR = 2026
 Advent.DOORS = 24
 Advent.DAY_SECONDS = 86400
-Advent.FIRST_OPEN = 1795885200 -- 2026-11-28 17:00:00 UTC (was 2026-12-01 20:00 UTC)
-Advent.DAY_2 = 1795910400 -- 2026-11-29 00:00:00 UTC, door 2
+Advent.FIRST_OPEN = 1795971600 -- 2026-11-29 17:00:00 UTC (was Nov 28 17:00, and Dec 1 20:00 before)
+Advent.DAY_2 = 1795996800 -- 2026-11-30 00:00:00 UTC, door 2
 Advent.CLOSES = 1799020800 -- 2027-01-04 00:00:00 UTC (doors open until Jan 3 23:59:59)
 Advent.CATCH_UP_PER_DAY = 2
 Advent.EVENT = "advent_door" -- value the door; fields on_time or catch_up, device, account age bucket
@@ -188,7 +189,7 @@ function Advent.check(
 	if door > due then
 		return nil, nil, "tomorrow"
 	end
-	-- today's door is the newest one open, and only while the doors still open daily (Nov 28 to Dec 21)
+	-- today's door is the newest one open, and only while the doors still open daily (Nov 29 to Dec 22)
 	local today = now // Advent.DAY_SECONDS
 	if door == due and today == Advent.doorAt(due) // Advent.DAY_SECONDS then
 		return door, "on_time" :: Kind, "ok" :: Reason

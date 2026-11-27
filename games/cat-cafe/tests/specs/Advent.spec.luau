@@ -11,7 +11,7 @@ return function()
 	end
 
 	describe("Advent locks", function()
-		it("opens nothing before Nov 28 17:00 UTC, with both switches on", function()
+		it("opens nothing before Nov 29 17:00 UTC, with both switches on", function()
 			local times = {
 				0,
 				1763510400,
